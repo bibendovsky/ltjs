@@ -312,11 +312,24 @@ bool CScatterFX::UpdateSubVolumes( void )
 	if( cameraDistSq > m_fMaxDrawDistSq )
 	{
 		// camera is farther away than the max draw distance for this volume, so kill all the subvolumes
+
+// BBi Iterate through a copy of activeSubVolumes because of
+// it's possible modification in Deactivate.
+#if 0
 		std::set<CScatterFXSubVolume*>::iterator it = activeSubVolumes.begin();
 		for( ; it != activeSubVolumes.end(); it++ )
 		{
 			(*it)->Deactivate();
 		}
+#else
+        std::set<CScatterFXSubVolume*> active_sub_volumes(activeSubVolumes);
+
+        for (std::set<CScatterFXSubVolume*>::iterator i = active_sub_volumes.begin();
+            i != active_sub_volumes.end(); ++i)
+        {
+            (*i)->Deactivate();
+        }
+#endif // 0
 
 		// don't test any of the subvolumes directly
 		return true;
