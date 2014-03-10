@@ -72,8 +72,12 @@ struct SRBVertex
 	float m_fU1, m_fV1;
 	uint32 m_nColor;
 	LTVector m_vNormal;
+
+// BBi
+#ifdef LTJS_USE_TANGENT_AND_BINORMAL
 	LTVector m_vTangent;
 	LTVector m_vBinormal;
+#endif // LTJS_USE_TANGENT_AND_BINORMAL
 };
 
 // Geometry-only n-gon w/ a pre-stored plane and bounds

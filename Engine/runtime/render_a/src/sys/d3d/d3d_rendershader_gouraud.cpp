@@ -2954,8 +2954,13 @@ void CRenderShader_Gouraud_Effect::TranslateVertices(SVertex_Gouraud_Effect *pOu
 		pCurOut->m_vPos = pCurIn->m_vPos;
 		pCurOut->m_nColor = pCurIn->m_nColor;
 		pCurOut->m_vNormal = pCurIn->m_vNormal;
+
+// BBi
+#ifdef LTJS_USE_TANGENT_AND_BINORMAL
 		pCurOut->m_vTangent = pCurIn->m_vTangent;
 		pCurOut->m_vBinormal = pCurIn->m_vBinormal;
+#endif // LTJS_USE_TANGENT_AND_BINORMAL
+
 		pCurOut->m_fU = pCurIn->m_fU0;
 		pCurOut->m_fV = pCurIn->m_fV0;
 		pCurOut->m_fW = 1.0f;

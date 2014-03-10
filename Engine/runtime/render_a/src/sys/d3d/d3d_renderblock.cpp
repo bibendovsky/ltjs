@@ -57,8 +57,13 @@ ILTStream &operator>>(ILTStream &stream, SRBVertex &sVert)
 	stream >> sVert.m_fV1;
 	stream >> sVert.m_nColor;
 	stream >> sVert.m_vNormal;
+
+// BBi
+#ifdef LTJS_USE_TANGENT_AND_BINORMAL
 	stream >> sVert.m_vTangent;
 	stream >> sVert.m_vBinormal;
+#endif // LTJS_USE_TANGENT_AND_BINORMAL
+
 	return stream;
 }
 
@@ -543,7 +548,7 @@ bool CD3D_RenderBlock::Load(ILTStream *pStream)
 	}
 
 	// Get the vertex data
-	*pStream >> (uint32)m_nVertexCount;
+	*pStream >> m_nVertexCount;
 	if (m_nVertexCount)
 	{
 		LT_MEM_TRACK_ALLOC(m_aVertices = new SRBVertex[m_nVertexCount],LT_MEM_TYPE_RENDER_WORLD);
@@ -562,7 +567,7 @@ bool CD3D_RenderBlock::Load(ILTStream *pStream)
 	}
 
 	// Get the triangle count
-	*pStream >> (uint32)m_nTriCount;
+	*pStream >> m_nTriCount;
 	if (m_nTriCount)
 	{
 		LT_MEM_TRACK_ALLOC(m_aIndices = new uint16[m_nTriCount * 3],LT_MEM_TYPE_RENDER_WORLD);
