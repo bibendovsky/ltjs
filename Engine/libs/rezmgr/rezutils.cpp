@@ -11,6 +11,7 @@
 #include <unistd.h>
 #endif
 
+#include <cctype>
 #include <string.h>
 #include "assert.h"
 #define REZMGRDONTUNDEF

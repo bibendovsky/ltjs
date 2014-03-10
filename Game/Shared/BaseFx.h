@@ -131,7 +131,7 @@
 
 	struct FX_COLOURKEY
 	{
-		operator == (FX_COLOURKEY k)		{
+		bool operator == (FX_COLOURKEY k)		{
 												return (m_red == k.m_red) && 
 													   (m_green == k.m_green) && 
 													   (m_blue == k.m_blue) &&

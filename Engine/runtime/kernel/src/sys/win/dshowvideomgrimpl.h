@@ -40,6 +40,8 @@
 
 #include "streams.h"
 
+#include "../../../../Libs/MFCStub/mfcs_com_ptr.h"
+
 
 class DShowVideoInst;
 class CTextureRenderer;

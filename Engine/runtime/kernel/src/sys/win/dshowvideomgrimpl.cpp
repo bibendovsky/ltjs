@@ -18,6 +18,8 @@
 
 #include "dshowvideomgrimpl.h"
 
+#include "../../../../Libs/MFCStub/mfcs_macros.h"
+
 //----------------------------------------------------------------------------
 //
 //		Helper structure - Video vertex format: No TnL, No coloring, 1 texture

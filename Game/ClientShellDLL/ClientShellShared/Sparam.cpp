@@ -40,7 +40,7 @@ BOOL Sparam_Get(char* sDest, const char* sSource, const char* sId)
 	char sRealId[256];
 	wsprintf(sRealId, "[%s:", sId);
 
-	char* sStart = strstr(sSource, sRealId);
+	const char* sStart = strstr(sSource, sRealId);
 	if (!sStart) return(FALSE);
 
 
@@ -53,7 +53,7 @@ BOOL Sparam_Get(char* sDest, const char* sSource, const char* sId)
 
 	// Find the end of the param...
 
-	char* pEnd = strstr(sStart, "]");
+	const char* pEnd = strstr(sStart, "]");
 	if (!pEnd) return(FALSE);
 	if (pEnd <= sStart) return(FALSE);
 

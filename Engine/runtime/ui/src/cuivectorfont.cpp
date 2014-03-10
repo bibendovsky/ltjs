@@ -392,7 +392,7 @@ void CUIVectorFont::Term( )
 }
 
 // Spacing between each character in font map.
-const kCharSpacing = 2;
+const int kCharSpacing = 2;
 
 
 // ----------------------------------------------------------------------- //

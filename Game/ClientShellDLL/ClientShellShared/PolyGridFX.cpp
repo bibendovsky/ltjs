@@ -1157,25 +1157,25 @@ void CPolyGridFX::UpdateWaveProp(float fFrameTime)
 
 		for(nY = 0; nY < nPGWidth * knKernalSize; nY++)
 		{
-			OutputDampenedHeight(pOut, pCurr, pDampen);
+			OutputDampenedHeight(pOut, const_cast<const float*&>(pCurr), const_cast<const uint8*&>(pDampen));
 		}
 		for(nY = knKernalSize; nY < nPGHeight - knKernalSize; nY++)
 		{
 			for(nX = 0; nX < knKernalSize; nX++)
 			{
-				OutputDampenedHeight(pOut, pCurr, pDampen);
+				OutputDampenedHeight(pOut, const_cast<const float*&>(pCurr), const_cast<const uint8*&>(pDampen));
 			}
 			for(; nX < nPGWidth - knKernalSize; nX++)
 			{
 				CalcSample(pCurr, pPrev, fVelocCoeff, fAccelCoeff, fDampen, nPGWidth);
-				OutputDampenedHeight(pOut, pCurr, pDampen);
+				OutputDampenedHeight(pOut, const_cast<const float*&>(pCurr), const_cast<const uint8*&>(pDampen));
 
 				//update our pointers
 				pPrev++;
 			}
 			for(nX = 0; nX < knKernalSize; nX++)
 			{
-				OutputDampenedHeight(pOut, pCurr, pDampen);
+				OutputDampenedHeight(pOut, const_cast<const float*&>(pCurr), const_cast<const uint8*&>(pDampen));
 			}
 
 			//now update our current pointers to skip over the kernal buffers on either side
@@ -1183,7 +1183,7 @@ void CPolyGridFX::UpdateWaveProp(float fFrameTime)
 		}
 		for(nY = 0; nY < nPGWidth * knKernalSize; nY++)
 		{
-			OutputDampenedHeight(pOut, pCurr, pDampen);
+			OutputDampenedHeight(pOut, const_cast<const float*&>(pCurr), const_cast<const uint8*&>(pDampen));
 		}
 	}
 	else
@@ -1191,25 +1191,25 @@ void CPolyGridFX::UpdateWaveProp(float fFrameTime)
 		//update our buffer undampened
 		for(nY = 0; nY < nPGWidth * knKernalSize; nY++)
 		{
-			OutputHeight(pOut, pCurr);
+			OutputHeight(pOut, const_cast<const float*&>(pCurr));
 		}
 		for(nY = knKernalSize; nY < nPGHeight - knKernalSize; nY++)
 		{
 			for(nX = 0; nX < knKernalSize; nX++)
 			{
-				OutputHeight(pOut, pCurr);
+				OutputHeight(pOut, const_cast<const float*&>(pCurr));
 			}
 			for(; nX < nPGWidth - knKernalSize; nX++)
 			{
 				CalcSample(pCurr, pPrev, fVelocCoeff, fAccelCoeff, fDampen, nPGWidth);
-				OutputHeight(pOut, pCurr);
+				OutputHeight(pOut, const_cast<const float*&>(pCurr));
 
 				//update our pointers
 				pPrev++;
 			}
 			for(nX = 0; nX < knKernalSize; nX++)
 			{
-				OutputHeight(pOut, pCurr);
+				OutputHeight(pOut, const_cast<const float*&>(pCurr));
 			}
 
 			//now update our current pointers to skip over the kernal buffers on either side
@@ -1217,7 +1217,7 @@ void CPolyGridFX::UpdateWaveProp(float fFrameTime)
 		}
 		for(nY = 0; nY < nPGWidth * knKernalSize; nY++)
 		{
-			OutputHeight(pOut, pCurr);
+			OutputHeight(pOut, const_cast<const float*&>(pCurr));
 		}
 	}
 

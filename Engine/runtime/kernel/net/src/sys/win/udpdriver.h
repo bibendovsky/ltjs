@@ -163,9 +163,9 @@ public:
 	virtual bool GetIPAddress(uint8 pAddr[4], uint16 *pPort) 
 	{ 
 		pAddr[0] = (uint8)m_RemoteAddr.sin_addr.s_addr;
-		pAddr[1] = (uint8)m_RemoteAddr.sin_addr.s_addr >> 8;
-		pAddr[2] = (uint8)m_RemoteAddr.sin_addr.s_addr >> 16;
-		pAddr[3] = (uint8)m_RemoteAddr.sin_addr.s_addr >> 24;
+		pAddr[1] = (uint8)(m_RemoteAddr.sin_addr.s_addr >> 8);
+		pAddr[2] = (uint8)(m_RemoteAddr.sin_addr.s_addr >> 16);
+		pAddr[3] = (uint8)(m_RemoteAddr.sin_addr.s_addr >> 24);
 		
 		*pPort = (uint16)m_RemoteAddr.sin_port;
 		return true;

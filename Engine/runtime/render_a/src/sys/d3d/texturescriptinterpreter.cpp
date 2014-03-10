@@ -1,3 +1,4 @@
+#include "precompile.h"
 #include "texturescriptinterpreter.h"
 
 //Interface for the client file manager

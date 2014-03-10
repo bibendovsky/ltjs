@@ -1527,7 +1527,7 @@ bool udp_BuildSockaddrFromString(const char *pCmdData, sockaddr_in *pSockInfo)
 	u_short port;
 	char ip[256];
 	
-	char *pTest = strchr(pCmdData, ':');
+	const char *pTest = strchr(pCmdData, ':');
 	if(pTest)
 	{
 		memcpy(ip, pCmdData, pTest-pCmdData);

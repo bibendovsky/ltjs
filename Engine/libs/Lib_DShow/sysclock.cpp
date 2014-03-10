@@ -24,6 +24,9 @@ CFactoryTemplate g_Templates[1] = {
 };
 
 int g_cTemplates = sizeof(g_Templates) / sizeof(g_Templates[0]);
+#else
+CFactoryTemplate* g_Templates = NULL;
+int g_cTemplates = 0;
 #endif
 
 /* This goes in the factory template table to create new instances */

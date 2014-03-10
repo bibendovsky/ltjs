@@ -2749,7 +2749,7 @@ void CAI::HandleCommandParameters(const CParsedMsg &cMsg)
 		char szName[64];
 		char szValue[256];
 
-		char *pEqual = strchr(cMsg.GetArg(iToken), '=');
+		const char *pEqual = strchr(cMsg.GetArg(iToken), '=');
 
 		if ( !pEqual )
 		{
@@ -5112,7 +5112,7 @@ void CAI::GetRightAndLeftHolsterStrings(char* szBufferRight, char* szBufferLeft,
 
 	// Optional semi-colon separates a RightHand attachment from a LeftHand.
 
-	char* pColon = strchr(szHolsterString, ';');
+	const char* pColon = strchr(szHolsterString, ';');
 	if( !pColon )
 	{
 		strncpy( szBufferRight, szHolsterString + iStartHolster, nBufferSize );

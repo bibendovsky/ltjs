@@ -1523,7 +1523,7 @@ void CConsole::PrintString(CONCOLOR theColor, int filterLevel, const char *pMsg)
 	if ( m_TextLines.GetSize() > 0 )
 	{
 		int iLength;
-		char *pNewLine;
+		const char *pNewLine;
 
 		do
 		{

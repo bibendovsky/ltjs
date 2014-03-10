@@ -18,7 +18,9 @@
 #include <vector>
 #include <string>
 
-const int MAX_PROFILE_LEN = 16;
+// BBi Conflicts with Microsoft's macro
+//const int MAX_PROFILE_LEN = 16;
+const int MAX_PROFILE_LENGTH = 16;
 
 class CScreenProfile : public CBaseScreen
 {
@@ -41,8 +43,8 @@ private:
 	void	CreateProfileList();
 	void	UpdateProfileName();
 
-	char	m_szProfile[MAX_PROFILE_LEN];
-	char	m_szOldProfile[MAX_PROFILE_LEN];
+	char	m_szProfile[MAX_PROFILE_LENGTH];
+	char	m_szOldProfile[MAX_PROFILE_LENGTH];
 
 	CLTGUITextCtrl	*m_pCurrent;
 	CLTGUITextCtrl	*m_pLoad;

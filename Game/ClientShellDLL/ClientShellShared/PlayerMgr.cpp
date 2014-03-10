@@ -61,7 +61,7 @@ namespace
 {
 	bool		g_bCinChangedNumModelShadows = false;
 	int			g_nCinSaveNumModelShadows = 0;
-	const		g_kMaxNumberOfCinShadows = 10;
+	const int		g_kMaxNumberOfCinShadows = 10;
 	uint8		s_nLastCamType = CT_FULLSCREEN;
 	float       s_fDeadTimer    = 0.0f;
 	float       s_fDeathDelay   = 0.0f;

@@ -207,7 +207,7 @@ bool FTPGetOp::SendRequest()
 ///////////////////////////////////////////////////////////////////////////////
 bool FTPGetOp::ParsePasv(const char *theStatusLine)
 {
-	char *aBufP = strchr(theStatusLine,'(');
+	const char *aBufP = strchr(theStatusLine,'(');
 	if(aBufP==NULL)
 	{
 		Finish(WS_FTP_InvalidPasvResponse);

@@ -425,7 +425,7 @@ SEARCH_ITEM* CSearchItemMgr::GetItem(const char *pszName)
 
 	//ignore trailing whitespace
 	int nLen = strlen(pszName);
-	char* pszTmp = strpbrk(pszName," \t");
+	const char* pszTmp = strpbrk(pszName," \t");
 	if (pszTmp)
 		nLen = (pszTmp-pszName);
 	

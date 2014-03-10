@@ -14,6 +14,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <crtdbg.h>
 #endif
 
 #include <ltassert.h>
@@ -83,7 +84,8 @@ void COutputRedir::OutputToASSERT()
 	//(void)( (0) || (_assert(m_pPrintBuffer, __FILE__, __LINE__), 0) );
 
 #ifdef _WIN32
-	_assert(m_pPrintBuffer, __FILE__, __LINE__);
+	//_assert(m_pPrintBuffer, __FILE__, __LINE__);
+    _CrtDbgReport(_CRT_ASSERT, NULL, 0, "server.dll", "%s", m_pPrintBuffer);
 #else
 	ASSERT(!m_pPrintBuffer);
 #endif

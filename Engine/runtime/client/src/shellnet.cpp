@@ -238,7 +238,7 @@ static LTRESULT ReadAnimInfo(CClientShell *pShell,
 		bLooping = cPacket.Readbool();
 
 		uint32 nAnimSizeType = cPacket.ReadBits(2);
-		const aAnimLengths[4] = {
+		const uint32 aAnimLengths[4] = {
 			MODELINFO_ANIMTIME_SIZE0,
 			MODELINFO_ANIMTIME_SIZE1,
 			MODELINFO_ANIMTIME_SIZE2,

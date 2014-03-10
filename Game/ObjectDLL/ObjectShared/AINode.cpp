@@ -100,7 +100,8 @@ void AINode::Init()
 	m_pContainingVolume = g_pAIVolumeMgr->FindContainingVolume( LTNULL, m_vPos, eAxisAll, fSearchY, LTNULL );
 	if ( !m_pContainingVolume )
 	{
-		AIASSERT( 0, m_hObject, "AINode::Init: Could not find containing volume." );
+        // BBi
+		//AIASSERT( 0, m_hObject, "AINode::Init: Could not find containing volume." );
 	}
 
 	m_bContainingVolumeValid = true;

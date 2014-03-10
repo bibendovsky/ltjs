@@ -7,7 +7,9 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+//#include "afxres.h"
+#include <windows.h>
+#include <winres.h>
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -159,7 +161,7 @@ LANGUAGE 9, 1
 #pragma code_page(1252)
 #endif
 #include "res\Client.rc2"  // non-Microsoft Visual C++ edited resources
-#include "afxres.rc"         // Standard components
+//#include "afxres.rc"         // Standard components
 #endif
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

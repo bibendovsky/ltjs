@@ -319,7 +319,7 @@ int CString::Find(char ch, uint32 start) const
 	if (start >= GetLength())
 		return -1;
 
-	char *pResult = strchr(&(GetBuffer()[start]), ch);
+	const char *pResult = strchr(&(GetBuffer()[start]), ch);
 
 	return (pResult) ? pResult - GetBuffer() : -1;
 }
@@ -329,7 +329,7 @@ int CString::Find(LPCTSTR pSub, uint32 start) const
 	if (start >= GetLength())
 		return -1;
 
-	char *pResult = strstr(&(GetBuffer()[start]), pSub);
+	const char *pResult = strstr(&(GetBuffer()[start]), pSub);
 
 	return (pResult) ? pResult - GetBuffer() : -1;
 }

@@ -530,7 +530,7 @@ inline bool CButeMgr::Parse( istream& iCrypt, int nLen, const char* cryptKey)
 	m_cryptMgr.Decrypt(iCrypt, *pOss);
 
 #if _MSC_VER >= 1300
-	std::istrstream* pIStream = new std::istrstream(buf2, pOss->pcount());
+	std::istrstream* pIStream = new std::istrstream(const_cast<const char*>(buf2), pOss->pcount());
 #else
 	istrstream* pIStream = new istrstream(buf2, pOss->pcount());
 #endif // VC7

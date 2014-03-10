@@ -148,7 +148,7 @@ struct STIMULUS_DIST_STRUCT
 	float fDistSqr;
 	CAIStimulusRecord* pRecord;
 
-	operator< (const STIMULUS_DIST_STRUCT& stimDistStruct) { return bool(fDistSqr < stimDistStruct.fDistSqr); }
+	bool operator< (const STIMULUS_DIST_STRUCT& stimDistStruct) { return bool(fDistSqr < stimDistStruct.fDistSqr); }
 };
 
 //
