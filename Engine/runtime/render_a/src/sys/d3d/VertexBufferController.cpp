@@ -47,7 +47,15 @@ bool VertexBufferController::CreateStream(uint32 iStreamNum, int32 nVertexCount,
 	if (!PD3DDEVICE)
 		return false;
 
+// BBi
+#if 0
 	assert(m_pVB_VertStream[iStreamNum]==NULL); assert(iStreamNum < VERTEXBUFFER_STREAMCOUNT);
+#else
+    if (m_pVB_VertStream[iStreamNum] != NULL) {
+        m_pVB_VertStream[iStreamNum]->Release();
+        m_pVB_VertStream[iStreamNum] = NULL;
+    }
+#endif // 0
 
 	uint32 iUsage					= (bDynamic ? D3DUSAGE_DYNAMIC : NULL) | (bWriteOnly ? D3DUSAGE_WRITEONLY : NULL) | (bUsagePoints ? D3DUSAGE_POINTS : NULL);
 	uint32 iVertFlags				= 0;
@@ -76,7 +84,15 @@ bool VertexBufferController::CreateIndexBuffer(int32 iIndexCount, bool bDynamic,
 	if (!PD3DDEVICE)
 		return false;
 
+// BBi
+#if 0
 	assert(m_pVB_Index==NULL); 
+#else
+    if (m_pVB_Index != NULL) {
+        m_pVB_Index->Release();
+        m_pVB_Index = NULL;
+    }
+#endif // 0
 
 	// Create m_pVB_Index...
 	uint32 iUsage					= (bDynamic ? D3DUSAGE_DYNAMIC : NULL) | (bWriteOnly ? D3DUSAGE_WRITEONLY : NULL); 
