@@ -1,0 +1,1259 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="WONAuth">
+      <UniqueIdentifier>{92d7c8db-34c4-4fe2-97df-b76ba4322c13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONAuth\WONAuth Source">
+      <UniqueIdentifier>{ab63cbff-d7b2-4019-8e50-edc2cc5fa3ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONAuth\WONAuth Include">
+      <UniqueIdentifier>{482d132d-219d-453a-93df-83cbb3a0dd34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONCommon">
+      <UniqueIdentifier>{a54b7040-3ebe-42c1-add4-982e20d80fe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONCommon\WONCommon Source">
+      <UniqueIdentifier>{d7f15830-cdff-4ed2-9c69-9a6d57e57583}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONCommon\WONCommon Include">
+      <UniqueIdentifier>{e011a5bc-88ec-4a3c-a338-9287bbf605a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONCrypt">
+      <UniqueIdentifier>{cb837eb2-62eb-4e8f-9105-1473c5351650}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONCrypt\WONCrypt Source">
+      <UniqueIdentifier>{79e3052f-de22-47b6-abef-3b788ab2a0f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONCrypt\WONCrypt Include">
+      <UniqueIdentifier>{b737f619-b0f4-47af-807c-baee8580b5ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONDB">
+      <UniqueIdentifier>{debe2e36-0be3-4d65-958c-eae629fd7706}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONDB\WONDB Source">
+      <UniqueIdentifier>{348fda59-b2f8-42c0-8cc4-7f0091fe71d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONDB\WONDB Include">
+      <UniqueIdentifier>{4b6ceefe-1768-4c09-b1c0-d1da11bbe318}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONDir">
+      <UniqueIdentifier>{6ec13e38-013d-4058-82c8-ba5d16e92525}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONDir\WONDir Source">
+      <UniqueIdentifier>{4717dae1-191e-473d-8b81-e96ceacf6772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONDir\WONDir Include">
+      <UniqueIdentifier>{ff68bca3-b446-4c27-acef-bd2d8fb11062}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONMisc">
+      <UniqueIdentifier>{7a76e3cf-6d05-4b95-8fd8-67a6f8d2a6ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONMisc\WONMisc Source">
+      <UniqueIdentifier>{1638b06e-6095-45c6-aaf2-e1c7b594a5d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONMisc\WONMisc Include">
+      <UniqueIdentifier>{bab1a8e9-fcdd-4e60-90e0-696287a69495}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting">
+      <UniqueIdentifier>{034d7f94-6724-48da-8a80-4749e49c78b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS Administrative">
+      <UniqueIdentifier>{de36cac4-811d-41a4-aa69-d25bd4417709}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS Administrative\RS Administrative Source">
+      <UniqueIdentifier>{c71434cd-4d4e-43c1-a3ee-f0edc812793f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS Administrative\RS Administrative Include">
+      <UniqueIdentifier>{245aad26-a43e-4281-93e5-9de8883b351c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS Client">
+      <UniqueIdentifier>{09b7cbc7-eeb8-484e-b2d0-a6a6d8c6b310}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS Client\RS Client Source">
+      <UniqueIdentifier>{968ad17b-a12e-4fa8-8cfc-aecc327c811d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS Client\RS Client Include">
+      <UniqueIdentifier>{a285a0dc-c0dd-4f20-bd51-2d81bd98baa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS DataObject">
+      <UniqueIdentifier>{ac1c78bc-81d8-430a-9818-2b1cc363ce8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS DataObject\RS DataObject Source">
+      <UniqueIdentifier>{10d6a41b-b080-4ac1-894f-be7cb2a0347a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS DataObject\RS DataObject Include">
+      <UniqueIdentifier>{abc7bcdd-e313-44d7-a82b-b7dd734bc954}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS Group">
+      <UniqueIdentifier>{e78600d1-c3ba-46e8-a8a6-91057a2ae6e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS Group\RS Group Source">
+      <UniqueIdentifier>{8895de6f-f1fe-4982-97c4-75cdc37ff030}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONRouting\RS Group\RS Group Include">
+      <UniqueIdentifier>{5195d27f-09c0-4ef2-88ab-0121b1e26f20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONServer">
+      <UniqueIdentifier>{706e8d89-b7cc-40a1-a5fa-3f5931ba2775}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONServer\WONServer Source">
+      <UniqueIdentifier>{2fe7cbd8-69b7-4ae6-83c7-c52f91544e8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONServer\WONServer Include">
+      <UniqueIdentifier>{1b517c98-24d4-41ca-871f-649cdadab899}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONSocket">
+      <UniqueIdentifier>{75c71e8f-6632-498c-99a4-4612b661e34e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONSocket\WONSocket Source">
+      <UniqueIdentifier>{d580cf91-35b3-4939-9e0a-4a6a12af12c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WONSocket\WONSocket Include">
+      <UniqueIdentifier>{9d88158b-0c52-4e65-b598-280435a0b386}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WONAuth\Auth.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\Auth2Certificate.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\AuthBase.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\AuthCertificate.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\AuthContext.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\AuthPeerData.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\AuthPubKeyBlock.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\AuthSession.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\CDKey.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\GetCertOp.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\PeerAuthClient.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\PeerAuthOp.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\PeerAuthServer.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAuth\PeerAuthServerOp.cpp">
+      <Filter>WONAuth\WONAuth Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\AsyncOp.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\AsyncOpContainer.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\AsyncOpTracker.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\ByteBuffer.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Common.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\CommonSmall.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\CRC.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Event.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Event_Linux.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Event_Mac.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Event_Windows.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\FileReader.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\FileWriter.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Md5.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\MiscUtil.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Platform.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Platform_Linux.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Platform_Mac.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Platform_Windows.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\ReadBuffer.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\RegKey.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\RegKey_Windows.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\StringUtil.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\Thread.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\TimerThread.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\WONConsole.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\WONFile.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCommon\WriteBuffer.cpp">
+      <Filter>WONCommon\WONCommon Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCrypt\BigInteger.cpp">
+      <Filter>WONCrypt\WONCrypt Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCrypt\Blowfish.cpp">
+      <Filter>WONCrypt\WONCrypt Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCrypt\Crypt.cpp">
+      <Filter>WONCrypt\WONCrypt Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCrypt\ElGamal.cpp">
+      <Filter>WONCrypt\WONCrypt Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCrypt\MD5Digest.cpp">
+      <Filter>WONCrypt\WONCrypt Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONCrypt\Random.cpp">
+      <Filter>WONCrypt\WONCrypt Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\ContestCallOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\CreateAccountOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\DB.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\DBProxyOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\EventReportOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\GetAccountOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\GetProfileOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\GetUserIdFromNameOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\ProfileData.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\RequestAccountInfoEmailOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\RequestPasswordEmailOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\SetProfileOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDB\UpdateAccountOp.cpp">
+      <Filter>WONDB\WONDB Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\AddEntityOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\Dir.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\DirEntity.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\DirEntityReplyParser.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\EntityClearDataObjectsOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\EntityModifyDataObjectsOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\EntitySetDataObjectsOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\FindEntityOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\GetDirOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\GetEntityRequest.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\GetMultiDirOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\GetServiceOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\ModifyEntityOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\RemoveEntityOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\RenameEntityOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONDir\RenewEntityOp.cpp">
+      <Filter>WONDir\WONDir Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\CheckValidVersionOp.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\DetectFirewallOp.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\DNSTestOp.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\FindPatchOp.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\FTPGetOp.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\GameSpySupport.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\GetMOTDOp.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\GetPatchListOp.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\GetVersionOp.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\gqueryreporting.c">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\HTTPGetOp.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\MediaMetrix.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\Misc.cpp">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONMisc\nonport.c">
+      <Filter>WONMisc\WONMisc Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\Routing.cpp">
+      <Filter>WONRouting</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingConnection.cpp">
+      <Filter>WONRouting</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingDerivedServerOp.cpp">
+      <Filter>WONRouting</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingOp.cpp">
+      <Filter>WONRouting</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\SmartRoutingConnection.cpp">
+      <Filter>WONRouting</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingAbortServShutdownOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingBanClientOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingBecomeModeratorOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGetBadUserListOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingMuteClientOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingSendServerAlertOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingServerAlertOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingServShutdownAbortOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingServShutdownStartOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingStartServShutdownOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingYouWereBannedOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingYouWereMutedOp.cpp">
+      <Filter>WONRouting\RS Administrative\RS Administrative Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingClientFlagsChangedOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingClientJoinedServerOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingClientLeftServerOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingDetectFirewallOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingDisconnectClientOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGetClientListOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingPeerChatOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingPeerDataOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingRegisterClientOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingSendChatOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingSendComplaintOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingSendDataOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingSetClientFlagsOp.cpp">
+      <Filter>WONRouting\RS Client\RS Client Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingCreateDataObjectOp.cpp">
+      <Filter>WONRouting\RS DataObject\RS DataObject Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingDataObjectCreatedOp.cpp">
+      <Filter>WONRouting\RS DataObject\RS DataObject Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingDataObjectDeletedOp.cpp">
+      <Filter>WONRouting\RS DataObject\RS DataObject Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingDataObjectModifiedOp.cpp">
+      <Filter>WONRouting\RS DataObject\RS DataObject Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingDeleteDataObjectOp.cpp">
+      <Filter>WONRouting\RS DataObject\RS DataObject Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingModifyDataObjectOp.cpp">
+      <Filter>WONRouting\RS DataObject\RS DataObject Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingReadDataObjectOp.cpp">
+      <Filter>WONRouting\RS DataObject\RS DataObject Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingUnsubDataObjectOp.cpp">
+      <Filter>WONRouting\RS DataObject\RS DataObject Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingAcceptClientOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingCancelJoinGroupOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingClientJoinedGroupOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingClientLeftGroupOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingCreateGroupOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGetGroupListOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGetGroupListReqOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGetMembersOfGroupOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGroupCaptChangedOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGroupCreatedOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGroupDeletedOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGroupFlagsChangedOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGroupInvitationOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGroupJoinAttemptOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGroupMPlyrsChangedOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGroupNameChangedOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingGroupObserverCountOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingInviteClientOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingJoinGroupOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingLeaveGroupOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingMemberFlagsChangedOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingRelinquishCaptainOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingSetGroupFlagsOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingSetGroupMaxPlayersOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingSetGroupNameOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONRouting\RoutingSetGroupPasswordOp.cpp">
+      <Filter>WONRouting\RS Group\RS Group Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONServer\MultiPingOp.cpp">
+      <Filter>WONServer\WONServer Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONServer\PingOp.cpp">
+      <Filter>WONServer\WONServer Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONServer\Server.cpp">
+      <Filter>WONServer\WONServer Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONServer\ServerConnection.cpp">
+      <Filter>WONServer\WONServer Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONServer\ServerContext.cpp">
+      <Filter>WONServer\WONServer Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONServer\ServerOp.cpp">
+      <Filter>WONServer\WONServer Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONServer\ServerRequestOp.cpp">
+      <Filter>WONServer\WONServer Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\AcceptOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\AsyncSocket.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\BlockingSocket.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\CloseOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\ConnectOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\IPAddr.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\NetStats.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\QueueSocket.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\RecvBytesFromOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\RecvBytesOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\RecvCRMsgOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\RecvMsgOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\SendBytesOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\SendBytesToOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\SendMsgOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\Socket.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\SocketOp.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\SocketThread.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\SocketThreadEx.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\SocketThreadEx_Linux.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\SocketThreadEx_Windows.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\SocketThreadSimple.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONSocket\SocketThreadWinsock2.cpp">
+      <Filter>WONSocket\WONSocket Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WONAPI.cpp" />
+    <ClCompile Include="WONStatus.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WONAuth\Auth2Certificate.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\AuthBase.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\AuthCertificate.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\AuthCertificateBase.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\AuthContext.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\AuthPeerData.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\AuthPubKeyBlock.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\AuthSession.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\CDKey.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\CryptTransform.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\GetCertOp.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\PeerAuthClient.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\PeerAuthOp.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\PeerAuthServer.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAuth\PeerAuthServerOp.h">
+      <Filter>WONAuth\WONAuth Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\AsyncOp.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\AsyncOpContainer.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\AsyncOpTracker.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\BiMap.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\ByteBuffer.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Completion.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\CRC.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\CriticalSection.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\CriticalSection_Linux.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\CriticalSection_Mac.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\CriticalSection_Windows.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Event.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Event_Linux.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Event_Mac.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Event_Windows.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\FileReader.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\FileWriter.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\LittleEndian.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Md5.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\MiscUtil.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Platform.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Platform_Linux.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Platform_Mac.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Platform_Windows.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\ReadBuffer.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\RegKey.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\RegKey_Windows.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\SmartPtr.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\StringUtil.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Thread.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Thread_Linux.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Thread_Mac.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\Thread_Windows.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\TimerThread.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\WONConsole.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\WONFile.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\WONTypes.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCommon\WriteBuffer.h">
+      <Filter>WONCommon\WONCommon Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCrypt\BigInteger.h">
+      <Filter>WONCrypt\WONCrypt Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCrypt\Blowfish.h">
+      <Filter>WONCrypt\WONCrypt Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCrypt\ElGamal.h">
+      <Filter>WONCrypt\WONCrypt Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCrypt\MD5Digest.h">
+      <Filter>WONCrypt\WONCrypt Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONCrypt\Random.h">
+      <Filter>WONCrypt\WONCrypt Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\ContestCallOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\CreateAccountOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\DBProxyOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\EventReportOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\GetAccountOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\GetProfileOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\GetUserIdFromNameOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\ProfileData.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\RequestAccountInfoEmailOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\RequestPasswordEmailOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\SetProfileOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDB\UpdateAccountOp.h">
+      <Filter>WONDB\WONDB Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\AddEntityOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\DirEntity.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\DirEntityReplyParser.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\DirTypes.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\EntityClearDataObjectsOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\EntityModifyDataObjectsOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\EntitySetDataObjectsOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\FindEntityOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\GetDirOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\GetEntityRequest.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\GetMultiDirOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\GetServiceOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\ModifyEntityOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\RemoveEntityOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\RenameEntityOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONDir\RenewEntityOp.h">
+      <Filter>WONDir\WONDir Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\CheckValidVersionOp.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\DetectFirewallOp.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\DNSTestOp.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\FindPatchOp.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\FTPGetOp.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\GameSpySupport.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\GetMOTDOp.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\GetPatchListOp.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\GetVersionOp.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\gqueryreporting.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\HTTPGetOp.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\MediaMetrix.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\nonport.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONMisc\PatchTypes.h">
+      <Filter>WONMisc\WONMisc Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\AllRoutingOps.h">
+      <Filter>WONRouting</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingConnection.h">
+      <Filter>WONRouting</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingDerivedServerOp.h">
+      <Filter>WONRouting</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingOp.h">
+      <Filter>WONRouting</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingTypes.h">
+      <Filter>WONRouting</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\SmartRoutingConnection.h">
+      <Filter>WONRouting</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingAbortServShutdownOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingBanClientOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingBecomeModeratorOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGetBadUserListOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingMuteClientOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingSendServerAlertOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingServerAlertOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingServShutdownAbortOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingServShutdownStartOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingStartServShutdownOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingYouWereBannedOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingYouWereMutedOp.h">
+      <Filter>WONRouting\RS Administrative\RS Administrative Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingClientFlagsChangedOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingClientJoinedServerOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingClientLeftServerOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingDetectFirewallOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingDisconnectClientOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGetClientListOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingPeerChatOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingPeerDataOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingRegisterClientOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingSendChatOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingSendComplaintOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingSendDataOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingSetClientFlagsOp.h">
+      <Filter>WONRouting\RS Client\RS Client Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingCreateDataObjectOp.h">
+      <Filter>WONRouting\RS DataObject\RS DataObject Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingDataObjectCreatedOp.h">
+      <Filter>WONRouting\RS DataObject\RS DataObject Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingDataObjectDeletedOp.h">
+      <Filter>WONRouting\RS DataObject\RS DataObject Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingDataObjectModifiedOp.h">
+      <Filter>WONRouting\RS DataObject\RS DataObject Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingDeleteDataObjectOp.h">
+      <Filter>WONRouting\RS DataObject\RS DataObject Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingModifyDataObjectOp.h">
+      <Filter>WONRouting\RS DataObject\RS DataObject Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingReadDataObjectOp.h">
+      <Filter>WONRouting\RS DataObject\RS DataObject Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingUnsubDataObjectOp.h">
+      <Filter>WONRouting\RS DataObject\RS DataObject Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingAcceptClientOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingCancelJoinGroupOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingClientJoinedGroupOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingClientLeftGroupOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingCreateGroupOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGetGroupListOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGetGroupListReqOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGetMembersOfGroupOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGroupCaptChangedOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGroupCreatedOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGroupDeletedOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGroupFlagsChangedOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGroupInvitationOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGroupJoinAttemptOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGroupMPlyrsChangedOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGroupNameChangedOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingGroupObserverCountOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingInviteClientOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingJoinGroupOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingLeaveGroupOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingMemberFlagsChangedOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingRelinquishCaptainOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingSetGroupFlagsOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingSetGroupMaxPlayersOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingSetGroupNameOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONRouting\RoutingSetGroupPasswordOp.h">
+      <Filter>WONRouting\RS Group\RS Group Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONServer\MultiPingOp.h">
+      <Filter>WONServer\WONServer Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONServer\PingOp.h">
+      <Filter>WONServer\WONServer Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONServer\ServerConnection.h">
+      <Filter>WONServer\WONServer Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONServer\ServerContext.h">
+      <Filter>WONServer\WONServer Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONServer\ServerOp.h">
+      <Filter>WONServer\WONServer Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONServer\ServerRequestOp.h">
+      <Filter>WONServer\WONServer Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\AcceptOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\AsyncSocket.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\BlockingSocket.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\CloseOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\ConnectOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\IPAddr.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\NetStats.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\QueueSocket.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\RecvBytesFromOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\RecvBytesOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\RecvCRMsgOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\RecvMsgOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\SendBytesOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\SendBytesToOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\SendMsgOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\SocketOp.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\SocketThread.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\SocketThreadEx.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\SocketThreadEx_Linux.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\SocketThreadEx_Windows.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\SocketThreadSimple.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONSocket\SocketThreadWinsock2.h">
+      <Filter>WONSocket\WONSocket Include</Filter>
+    </ClInclude>
+    <ClInclude Include="WONAPI.h" />
+    <ClInclude Include="WONShared.h" />
+    <ClInclude Include="WONStatus.h" />
+  </ItemGroup>
+</Project>

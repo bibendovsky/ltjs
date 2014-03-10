@@ -1,0 +1,244 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4307323e-b9f0-4a95-9386-c390cf166900}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{1842d0ab-c9f3-440c-9263-b83067d8aa70}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Libs Debug">
+      <UniqueIdentifier>{78dbc86e-03fa-4eac-a9ea-494343313eeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs Final">
+      <UniqueIdentifier>{328afd4d-7c3d-4000-882d-53ab3aed501f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs Release">
+      <UniqueIdentifier>{b338c369-97a9-411b-9048-2c2db82c58f1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BaseFx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bouncychunkfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camjitterfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camwobblefx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="clientfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateFX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cycletimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\DebugNew.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dynalightfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fallingstufffx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FlareSpriteFX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lightningfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LTBbouncychunkfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ltbmodelfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\sdk\inc\ltmodule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Engine\sdk\inc\ltquatbase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nullfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystemFX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="playrandomsoundfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="playsoundfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="polyfanfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="polytubefx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spritefx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spritesystemfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Shared\BankedList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\BankedList_impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\BaseFx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bouncychunkfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camjitterfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camwobblefx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clientfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateFX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cycletimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\DebugNew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\DebugNew_impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dynalightfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fallingstufffx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FlareSpriteFX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lightningfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LTBbouncychunkfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ltbmodelfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="memarray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nullfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystemFX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="playrandomsoundfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="playsoundfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="polyfanfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="polytubefx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="spritefx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="spritesystemfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="swaplist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\build\lib\debug\butemgr.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\debug\cryptmgr.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\debug\lib_lith.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\debug\lib_stdlith.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\debug\ltmem.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\debug\mfcstub.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\final\butemgr.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\final\cryptmgr.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\final\lib_lith.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\final\lib_stdlith.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\final\ltmem.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\final\mfcstub.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\release\butemgr.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\release\cryptmgr.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\release\lib_lith.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\release\lib_stdlith.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\release\ltmem.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\build\lib\release\mfcstub.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

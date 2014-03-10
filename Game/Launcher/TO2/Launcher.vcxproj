@@ -1,0 +1,688 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Final|Win32">
+      <Configuration>Final</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2526DDDA-935D-493C-9EA6-06F3909610D6}</ProjectGuid>
+    <SccProjectName />
+    <SccLocalPath />
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\..\..\Built\Debug\Launcher\</OutDir>
+    <IntDir>.\..\..\Built\Debug\Launcher\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+    <OutDir>.\..\..\Built\Final\Launcher\</OutDir>
+    <IntDir>.\..\..\Built\Final\Launcher\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\..\..\Built\Release\Launcher\</OutDir>
+    <IntDir>.\..\..\Built\Release\Launcher\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\;..\;..\..\..\Engine\sdk\inc;..\..\..\libs\regmgr32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;WINVER=0x500;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(OutDir)Launcher.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(OutDir)</AssemblerListingLocation>
+      <ObjectFileName>$(OutDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(OutDir)</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <CustomBuildStep>
+      <Command>Rem IncrediBuild_OutputFile "$(TargetPath)"
+echo copy "$(TargetPath)" "$(GAME_MAIN_DIR)"
+copy "$(TargetPath)" "$(GAME_MAIN_DIR)"
+</Command>
+      <Outputs>$(GAME_MAIN_DIR)\NOLF2.exe;%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)NOLF2.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <IgnoreSpecificDefaultLibraries>nafxcw.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)NOLF2.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(OutDir)Launcher.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_AFXDLL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>res\lang\en\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+    <ClCompile>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>.\;..\;..\..\..\Engine\sdk\inc;..\..\..\libs\regmgr32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_FINAL;WINVER=0x500;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(OutDir)Launcher.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(OutDir)</AssemblerListingLocation>
+      <ObjectFileName>$(OutDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(OutDir)</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <CustomBuildStep>
+      <Command>Rem IncrediBuild_OutputFile "$(TargetPath)"
+echo copy "$(TargetPath)" "$(GAME_MAIN_DIR)"
+copy "$(TargetPath)" "$(GAME_MAIN_DIR)"
+</Command>
+      <Outputs>$(GAME_MAIN_DIR)\NOLF2.exe;%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)NOLF2.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ProgramDatabaseFile>$(OutDir)NOLF2.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(OutDir)Launcher.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_AFXDLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>res\lang\en\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>.\;..\;..\..\..\Engine\sdk\inc;..\..\..\libs\regmgr32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;WINVER=0x500;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(OutDir)Launcher.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(OutDir)</AssemblerListingLocation>
+      <ObjectFileName>$(OutDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(OutDir)</ProgramDataBaseFileName>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <CustomBuildStep>
+      <Command>Rem IncrediBuild_OutputFile "$(TargetPath)"
+echo copy "$(TargetPath)" "$(GAME_MAIN_DIR)"
+copy "$(TargetPath)" "$(GAME_MAIN_DIR)"
+</Command>
+      <Outputs>$(GAME_MAIN_DIR)\NOLF2.exe;%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)NOLF2.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ProgramDatabaseFile>$(OutDir)NOLF2.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(OutDir)Launcher.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_AFXDLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>res\lang\en\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\BitmapCheckButton.cpp" />
+    <ClCompile Include="..\ButtonEx.cpp" />
+    <ClCompile Include="..\CustomizeDlg.cpp" />
+    <ClCompile Include="..\DetailSettingsDlg.cpp" />
+    <ClCompile Include="..\DisplayDlg.cpp" />
+    <ClCompile Include="..\DisplayMgr.cpp" />
+    <ClCompile Include="..\DlgEx.cpp" />
+    <ClCompile Include="..\EditEx.cpp" />
+    <ClCompile Include="..\Launcher.cpp" />
+    <ClCompile Include="..\LauncherDlg.cpp" />
+    <ClCompile Include="..\MessageBoxDlg.cpp" />
+    <ClCompile Include="..\MoveDlg.cpp" />
+    <ClCompile Include="..\OptionsDlg.cpp" />
+    <ClCompile Include="..\RezFind.cpp" />
+    <ClCompile Include="..\StaticEx.cpp" />
+    <ClCompile Include="..\StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\TextCheckBox.cpp" />
+    <ClCompile Include="..\Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\BitmapCheckButton.h" />
+    <ClInclude Include="..\ButtonEx.h" />
+    <ClInclude Include="..\CustomizeDlg.h" />
+    <ClInclude Include="..\DetailSettingsDlg.h" />
+    <ClInclude Include="..\DisplayDlg.h" />
+    <ClInclude Include="..\DisplayMgr.h" />
+    <ClInclude Include="..\DlgEx.h" />
+    <ClInclude Include="..\EditEx.h" />
+    <ClInclude Include="..\Launcher.h" />
+    <ClInclude Include="..\LauncherDlg.h" />
+    <ClInclude Include="..\MessageBoxDlg.h" />
+    <ClInclude Include="..\MoveDlg.h" />
+    <ClInclude Include="..\OptionsDlg.h" />
+    <ClInclude Include="..\PlaySound.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\RezFind.h" />
+    <ClInclude Include="..\StaticEx.h" />
+    <ClInclude Include="..\StdAfx.h" />
+    <ClInclude Include="..\TextCheckBox.h" />
+    <ClInclude Include="..\Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="RES\Lang\EN\bmp\CustomBackground.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CustomD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CustomF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CustomizeBackground.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CustomizeD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CustomizeF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CustomizeU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CustomizeX.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CustomU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CustomX.bmp" />
+    <Image Include="RES\Launcher.ico" />
+    <Image Include="RES\Lang\EN\bmp\NextF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\NextlD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\NextU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\PreviousD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\PreviousF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\PreviousU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\PreviousX.bmp" />
+    <Image Include="RES\bmp\BoxBackground.bmp" />
+    <Image Include="RES\bmp\CheckBoxC.bmp" />
+    <Image Include="RES\bmp\CheckBoxF.bmp" />
+    <Image Include="RES\bmp\CheckBoxN.bmp" />
+    <Image Include="RES\bmp\closed.bmp" />
+    <Image Include="RES\bmp\closeu.bmp" />
+    <Image Include="RES\bmp\Error.bmp" />
+    <Image Include="RES\bmp\Information.bmp" />
+    <Image Include="RES\bmp\MinimizeD.bmp" />
+    <Image Include="RES\bmp\MinimizeU.bmp" />
+    <Image Include="RES\bmp\MultiplayerBackground.bmp" />
+    <Image Include="RES\bmp\Warning.bmp" />
+    <Image Include="RES\Lang\EN\bmp\BackD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\BackF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\BackU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CancelD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CancelF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\CancelU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Company1WebD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Company1WebF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Company1WebU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Company2WebD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Company2WebF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Company2WebU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\DemoMainAppBackground.bmp" />
+    <Image Include="RES\Lang\EN\bmp\DetailSettingsBackground.bmp" />
+    <Image Include="RES\Lang\EN\bmp\DisplayBackground.bmp" />
+    <Image Include="RES\Lang\EN\bmp\DisplayD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\DisplayF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\DisplayU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\DisplayX.bmp" />
+    <Image Include="RES\Lang\EN\bmp\HelpD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\HelpF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\HelpU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\HighDetailD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\HighDetailF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\HighDetailU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\InstallD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\InstallF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\InstallU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\LowDetailD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\LowDetailF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\LowDetailU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\MainAppBackground.bmp" />
+    <Image Include="RES\Lang\EN\bmp\MediumDetailD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\MediumDetailF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\MediumDetailU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\OKD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\OkF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\OKU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\OptionsBackground.bmp" />
+    <Image Include="RES\Lang\EN\bmp\optionsd.bmp" />
+    <Image Include="RES\Lang\EN\bmp\OptionsF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\optionsu.bmp" />
+    <Image Include="RES\Lang\EN\bmp\OptionsX.bmp" />
+    <Image Include="RES\Lang\EN\bmp\PlayD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\PlayF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\PlayU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Publisher1WebD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Publisher1WebF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Publisher1WebU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Publisher2WebD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Publisher2WebF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\Publisher2WebU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\QuitD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\QuitF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\QuitU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\ServerD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\ServerF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\ServerU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\ServerX.bmp" />
+    <Image Include="RES\Lang\EN\bmp\UninstallD.bmp" />
+    <Image Include="RES\Lang\EN\bmp\UninstallF.bmp" />
+    <Image Include="RES\Lang\EN\bmp\UninstallU.bmp" />
+    <Image Include="RES\Lang\EN\bmp\UninstallX.bmp" />
+    <Image Include="RES\Lang\ES\bmp\BackD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\BackF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\BackU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\CancelD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\CancelF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\CancelU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Company1WebD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Company1WebF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Company1WebU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Company2WebD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Company2WebF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Company2WebU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\DemoMainAppBackground.bmp" />
+    <Image Include="RES\Lang\ES\bmp\DetailSettingsBackground.bmp" />
+    <Image Include="RES\Lang\ES\bmp\DisplayBackground.bmp" />
+    <Image Include="RES\Lang\ES\bmp\DisplayD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\DisplayF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\DisplayU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\DisplayX.bmp" />
+    <Image Include="RES\Lang\ES\bmp\HelpD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\HelpF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\HelpU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\HighDetailD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\HighDetailF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\HighDetailU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\InstallD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\InstallF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\InstallU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\LowDetailD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\LowDetailF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\LowDetailU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\MainAppBackground.bmp" />
+    <Image Include="RES\Lang\ES\bmp\MediumDetailD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\MediumDetailF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\MediumDetailU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\OKD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\OkF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\OKU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\OptionsBackground.bmp" />
+    <Image Include="RES\Lang\ES\bmp\optionsd.bmp" />
+    <Image Include="RES\Lang\ES\bmp\OptionsF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\optionsu.bmp" />
+    <Image Include="RES\Lang\ES\bmp\OptionsX.bmp" />
+    <Image Include="RES\Lang\ES\bmp\PlayD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\PlayF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\PlayU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Publisher1WebD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Publisher1WebF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Publisher1WebU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Publisher2WebD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Publisher2WebF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\Publisher2WebU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\QuitD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\QuitF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\QuitU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\ServerD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\ServerF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\ServerU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\ServerX.bmp" />
+    <Image Include="RES\Lang\ES\bmp\UninstallD.bmp" />
+    <Image Include="RES\Lang\ES\bmp\UninstallF.bmp" />
+    <Image Include="RES\Lang\ES\bmp\UninstallU.bmp" />
+    <Image Include="RES\Lang\ES\bmp\UninstallX.bmp" />
+    <Image Include="RES\Lang\DE\bmp\BackD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\BackF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\BackU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\CancelD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\CancelF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\CancelU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Company1WebD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Company1WebF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Company1WebU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Company2WebD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Company2WebF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Company2WebU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\DemoMainAppBackground.bmp" />
+    <Image Include="RES\Lang\DE\bmp\DetailSettingsBackground.bmp" />
+    <Image Include="RES\Lang\DE\bmp\DisplayBackground.bmp" />
+    <Image Include="RES\Lang\DE\bmp\DisplayD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\DisplayF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\DisplayU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\DisplayX.bmp" />
+    <Image Include="RES\Lang\DE\bmp\HelpD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\HelpF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\HelpU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\HighDetailD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\HighDetailF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\HighDetailU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\InstallD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\InstallF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\InstallU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\LowDetailD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\LowDetailF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\LowDetailU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\MainAppBackground.bmp" />
+    <Image Include="RES\Lang\DE\bmp\MediumDetailD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\MediumDetailF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\MediumDetailU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\OKD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\OkF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\OKU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\OptionsBackground.bmp" />
+    <Image Include="RES\Lang\DE\bmp\optionsd.bmp" />
+    <Image Include="RES\Lang\DE\bmp\OptionsF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\optionsu.bmp" />
+    <Image Include="RES\Lang\DE\bmp\OptionsX.bmp" />
+    <Image Include="RES\Lang\DE\bmp\PlayD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\PlayF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\PlayU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Publisher1WebD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Publisher1WebF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Publisher1WebU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Publisher2WebD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Publisher2WebF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\Publisher2WebU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\QuitD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\QuitF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\QuitU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\ServerD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\ServerF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\ServerU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\ServerX.bmp" />
+    <Image Include="RES\Lang\DE\bmp\UninstallD.bmp" />
+    <Image Include="RES\Lang\DE\bmp\UninstallF.bmp" />
+    <Image Include="RES\Lang\DE\bmp\UninstallU.bmp" />
+    <Image Include="RES\Lang\DE\bmp\UninstallX.bmp" />
+    <Image Include="RES\Lang\IT\bmp\BackD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\BackF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\BackU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\CancelD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\CancelF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\CancelU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Company1WebD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Company1WebF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Company1WebU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Company2WebD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Company2WebF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Company2WebU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\DemoMainAppBackground.bmp" />
+    <Image Include="RES\Lang\IT\bmp\DetailSettingsBackground.bmp" />
+    <Image Include="RES\Lang\IT\bmp\DisplayBackground.bmp" />
+    <Image Include="RES\Lang\IT\bmp\DisplayD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\DisplayF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\DisplayU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\DisplayX.bmp" />
+    <Image Include="RES\Lang\IT\bmp\HelpD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\HelpF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\HelpU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\HighDetailD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\HighDetailF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\HighDetailU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\InstallD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\InstallF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\InstallU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\LowDetailD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\LowDetailF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\LowDetailU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\MainAppBackground.bmp" />
+    <Image Include="RES\Lang\IT\bmp\MediumDetailD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\MediumDetailF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\MediumDetailU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\OKD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\OkF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\OKU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\OptionsBackground.bmp" />
+    <Image Include="RES\Lang\IT\bmp\optionsd.bmp" />
+    <Image Include="RES\Lang\IT\bmp\OptionsF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\optionsu.bmp" />
+    <Image Include="RES\Lang\IT\bmp\OptionsX.bmp" />
+    <Image Include="RES\Lang\IT\bmp\PlayD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\PlayF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\PlayU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Publisher1WebD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Publisher1WebF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Publisher1WebU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Publisher2WebD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Publisher2WebF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\Publisher2WebU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\QuitD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\QuitF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\QuitU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\ServerD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\ServerF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\ServerU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\ServerX.bmp" />
+    <Image Include="RES\Lang\IT\bmp\UninstallD.bmp" />
+    <Image Include="RES\Lang\IT\bmp\UninstallF.bmp" />
+    <Image Include="RES\Lang\IT\bmp\UninstallU.bmp" />
+    <Image Include="RES\Lang\IT\bmp\UninstallX.bmp" />
+    <Image Include="RES\Lang\FR\bmp\BackD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\BackF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\BackU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\CancelD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\CancelF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\CancelU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Company1WebD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Company1WebF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Company1WebU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Company2WebD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Company2WebF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Company2WebU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\DemoMainAppBackground.bmp" />
+    <Image Include="RES\Lang\FR\bmp\DetailSettingsBackground.bmp" />
+    <Image Include="RES\Lang\FR\bmp\DisplayBackground.bmp" />
+    <Image Include="RES\Lang\FR\bmp\DisplayD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\DisplayF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\DisplayU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\DisplayX.bmp" />
+    <Image Include="RES\Lang\FR\bmp\HelpD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\HelpF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\HelpU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\HighDetailD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\HighDetailF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\HighDetailU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\InstallD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\InstallF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\InstallU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\LowDetailD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\LowDetailF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\LowDetailU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\MainAppBackground.bmp" />
+    <Image Include="RES\Lang\FR\bmp\MediumDetailD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\MediumDetailF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\MediumDetailU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\OKD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\OkF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\OKU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\OptionsBackground.bmp" />
+    <Image Include="RES\Lang\FR\bmp\optionsd.bmp" />
+    <Image Include="RES\Lang\FR\bmp\OptionsF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\optionsu.bmp" />
+    <Image Include="RES\Lang\FR\bmp\OptionsX.bmp" />
+    <Image Include="RES\Lang\FR\bmp\PlayD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\PlayF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\PlayU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Publisher1WebD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Publisher1WebF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Publisher1WebU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Publisher2WebD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Publisher2WebF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\Publisher2WebU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\QuitD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\QuitF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\QuitU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\ServerD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\ServerF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\ServerU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\ServerX.bmp" />
+    <Image Include="RES\Lang\FR\bmp\UninstallD.bmp" />
+    <Image Include="RES\Lang\FR\bmp\UninstallF.bmp" />
+    <Image Include="RES\Lang\FR\bmp\UninstallU.bmp" />
+    <Image Include="RES\Lang\FR\bmp\UninstallX.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="RES\Launcher.rc2" />
+    <None Include="RES\WebHand.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="RES\snd\AnimDlg.wav" />
+    <Media Include="RES\snd\buttondown.wav" />
+    <Media Include="RES\snd\Click.wav" />
+    <Media Include="RES\snd\Intro.wav" />
+    <Media Include="RES\snd\Select.wav" />
+    <Media Include="RES\snd\type1.WAV" />
+    <Media Include="RES\snd\type2.WAV" />
+    <Media Include="RES\snd\type3.WAV" />
+    <Media Include="RES\snd\TypeBack.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RES\Lang\EN\Launcher.rc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">res\lang\en\;RES\Lang\EN</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">res\lang\en\;RES\Lang\EN</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">res\lang\en\;RES\Lang\EN</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ResourceCompile Include="RES\Lang\ES\Launcher.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">res\lang\en\;RES\Lang\ES</AdditionalIncludeDirectories>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">res\lang\en\;RES\Lang\ES</AdditionalIncludeDirectories>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">res\lang\en\;RES\Lang\ES</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ResourceCompile Include="RES\Lang\DE\Launcher.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">res\lang\en\;RES\Lang\DE</AdditionalIncludeDirectories>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">res\lang\en\;RES\Lang\DE</AdditionalIncludeDirectories>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">res\lang\en\;RES\Lang\DE</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ResourceCompile Include="RES\Lang\IT\Launcher.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">res\lang\en\;RES\Lang\IT</AdditionalIncludeDirectories>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">res\lang\en\;RES\Lang\IT</AdditionalIncludeDirectories>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">res\lang\en\;RES\Lang\IT</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <ResourceCompile Include="RES\Lang\FR\Launcher.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">res\lang\en\;RES\Lang\FR</AdditionalIncludeDirectories>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">res\lang\en\;RES\Lang\FR</AdditionalIncludeDirectories>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">res\lang\en\;RES\Lang\FR</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\..\Libs\built\Debug\RegMgr32\regmgr32.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\Libs\built\Final\RegMgr32\regmgr32.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\Libs\built\Release\RegMgr32\regmgr32.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Libs\RegMgr32\regmgr32.vcxproj">
+      <Project>{03cb6bf6-a11e-4eb4-a657-a6f49dff77e8}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="Res\Lang\En\Launcher.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

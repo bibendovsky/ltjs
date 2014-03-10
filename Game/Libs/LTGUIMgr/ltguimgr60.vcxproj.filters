@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{fcdc0076-4a07-4f24-b069-c944833a424b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{d4550a37-ab17-4df8-86f2-c89154285897}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ltguibutton.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguicolumnctrl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguicommandhandler.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguictrl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguicyclectrl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguieditctrl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguiframe.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguilistctrl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguislider.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguitextitemctrl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguitoggle.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguiwindow.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ltguilargetext.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ltguibutton.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltguicolumnctrl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="LTGUICommandHandler.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="LTGUICtrl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltguicyclectrl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltguieditctrl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltguiframe.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltguilistctrl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltguimgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltguislider.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="LTGUITextItemCtrl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltguitoggle.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltguiwindow.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltquaduvutils.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="vkdefs.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ltguilargetext.h" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,233 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Final|Win32">
+      <Configuration>Final</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <SccProjectName />
+    <SccLocalPath />
+    <ProjectGuid>{4D4ABBE9-5A75-4780-BEE6-AFD03DA6D5D0}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\..\..\..\build\lib\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>lib_ui</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\..\..\..\build\lib\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>lib_ui</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+    <OutDir>..\..\..\..\build\lib\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>lib_ui</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\..\..\libs\stdlith;..\..\..\..\libs\lith;..\..\..\libs\rezmgr;..\..\controlfilemgr;..\..\crtcompat;..\..\lithtemplate;.;..\..\client\src;..\..\kernel\mem\src;..\..\kernel\io\src;..\..\kernel\src;..\..\kernel\src\sys\win;..\..\model\src;..\..\sound\src;..\..\server\src;..\..\shared\src\sys\win;..\..\shared\src;..\..\world\src;..\..\..\sdk\inc;..\..\..\sdk\inc\compat;..\..\kernel\net\src;..\..\render_b\src;..\..\mpm\src;..\..\comm\src;..\..\ui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;__D3D;__D3DREND;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+    </ClCompile>
+    <Lib />
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\..\..\libs\stdlith;..\..\..\..\libs\lith;..\..\..\libs\rezmgr;..\..\controlfilemgr;..\..\crtcompat;..\..\lithtemplate;.;..\..\client\src;..\..\kernel\mem\src;..\..\kernel\io\src;..\..\kernel\src;..\..\kernel\src\sys\win;..\..\model\src;..\..\sound\src;..\..\server\src;..\..\shared\src\sys\win;..\..\shared\src;..\..\world\src;..\..\..\sdk\inc;..\..\..\sdk\inc\compat;..\..\kernel\net\src;..\..\render_b\src;..\..\mpm\src;..\..\comm\src;..\..\ui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;__D3D;__D3DREND;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <Lib />
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\..\..\libs\stdlith;..\..\..\..\libs\lith;..\..\..\libs\rezmgr;..\..\controlfilemgr;..\..\crtcompat;..\..\lithtemplate;.;..\..\client\src;..\..\kernel\mem\src;..\..\kernel\io\src;..\..\kernel\src;..\..\kernel\src\sys\win;..\..\model\src;..\..\sound\src;..\..\server\src;..\..\shared\src\sys\win;..\..\shared\src;..\..\world\src;..\..\..\sdk\inc;..\..\..\sdk\inc\compat;..\..\kernel\net\src;..\..\render_b\src;..\..\mpm\src;..\..\comm\src;..\..\ui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;__D3D;__D3DREND;_FINAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+    </ClCompile>
+    <Lib />
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="cuibase.cpp" />
+    <ClCompile Include="cuibase_impl.cpp" />
+    <ClCompile Include="cuibitmapfont.cpp" />
+    <ClCompile Include="cuibutton.cpp" />
+    <ClCompile Include="cuibutton_impl.cpp" />
+    <ClCompile Include="cuicheck.cpp" />
+    <ClCompile Include="cuicheck_impl.cpp" />
+    <ClCompile Include="sys\d3d\cuidebug.cpp" />
+    <ClCompile Include="cuidropdownlist.cpp" />
+    <ClCompile Include="cuidropdownlist_impl.cpp" />
+    <ClCompile Include="cuifont_impl.cpp" />
+    <ClCompile Include="cuifontmanager.cpp" />
+    <ClCompile Include="cuiformattedpolystring.cpp" />
+    <ClCompile Include="cuiformattedpolystring_impl.cpp" />
+    <ClCompile Include="cuiinterval.cpp" />
+    <ClCompile Include="cuiinterval_impl.cpp" />
+    <ClCompile Include="cuilinklist.cpp" />
+    <ClCompile Include="cuilist.cpp" />
+    <ClCompile Include="cuilist_impl.cpp" />
+    <ClCompile Include="cuimessagequeue.cpp" />
+    <ClCompile Include="cuioption.cpp" />
+    <ClCompile Include="cuioption_impl.cpp" />
+    <ClCompile Include="cuipolystring.cpp" />
+    <ClCompile Include="cuipolystring_impl.cpp" />
+    <ClCompile Include="cuipolytex.cpp" />
+    <ClCompile Include="cuiprogress.cpp" />
+    <ClCompile Include="cuiprogress_impl.cpp" />
+    <ClCompile Include="cuiredblack.cpp" />
+    <ClCompile Include="cuirenderstate.cpp" />
+    <ClCompile Include="cuislider.cpp" />
+    <ClCompile Include="cuislider_impl.cpp" />
+    <ClCompile Include="cuistaticimage.cpp" />
+    <ClCompile Include="cuistaticimage_impl.cpp" />
+    <ClCompile Include="cuistatictext.cpp" />
+    <ClCompile Include="cuistatictext_impl.cpp" />
+    <ClCompile Include="cuivectorfont.cpp" />
+    <ClCompile Include="cuiwidget.cpp" />
+    <ClCompile Include="cuiwidget_impl.cpp" />
+    <ClCompile Include="cuiwidgetmanager.cpp" />
+    <ClCompile Include="cuiwindow.cpp" />
+    <ClCompile Include="cuiwindow_impl.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\sdk\inc\cui.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuibase.h" />
+    <ClInclude Include="cuibase_impl.h" />
+    <ClInclude Include="cuibitmapfont.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuibutton.h" />
+    <ClInclude Include="cuibutton_impl.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuicheck.h" />
+    <ClInclude Include="cuicheck_impl.h" />
+    <ClInclude Include="cuidebug.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuidropdownlist.h" />
+    <ClInclude Include="cuidropdownlist_impl.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuifont.h" />
+    <ClInclude Include="cuifont_impl.h" />
+    <ClInclude Include="cuifontmanager.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuiformattedpolystring.h" />
+    <ClInclude Include="cuiformattedpolystring_impl.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuiinterval.h" />
+    <ClInclude Include="cuiinterval_impl.h" />
+    <ClInclude Include="cuilinklist.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuilist.h" />
+    <ClInclude Include="cuilist_impl.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuimessage.h" />
+    <ClInclude Include="cuimessagequeue.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuioption.h" />
+    <ClInclude Include="cuioption_impl.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuipolystring.h" />
+    <ClInclude Include="cuipolystring_impl.h" />
+    <ClInclude Include="cuipolytex.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuiprogress.h" />
+    <ClInclude Include="cuiprogress_impl.h" />
+    <ClInclude Include="cuiredblack.h" />
+    <ClInclude Include="cuirenderstate.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuislider.h" />
+    <ClInclude Include="cuislider_impl.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuistaticimage.h" />
+    <ClInclude Include="cuistaticimage_impl.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuistatictext.h" />
+    <ClInclude Include="cuistatictext_impl.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuitypes.h" />
+    <ClInclude Include="cuivectorfont.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuiwidget.h" />
+    <ClInclude Include="cuiwidget_impl.h" />
+    <ClInclude Include="cuiwidgetmanager.h" />
+    <ClInclude Include="..\..\..\sdk\inc\cuiwindow.h" />
+    <ClInclude Include="cuiwindow_impl.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltfontmanager.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltwidgetmanager.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

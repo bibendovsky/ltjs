@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Libs Debug">
+      <UniqueIdentifier>{88d41c39-00c8-4f3f-84e4-f72c2374805c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs Final">
+      <UniqueIdentifier>{55b0a3d1-b26a-488d-8616-221a30e24192}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs Release">
+      <UniqueIdentifier>{52b53439-501d-4366-a39b-76f45d1035d8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AutoRun.cpp" />
+    <ClCompile Include="Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="AutoRun.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AutoRun.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Stdafx.h" />
+    <ClInclude Include="Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\Libs\built\Debug\RegMgr32\regmgr32.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\Libs\built\Final\RegMgr32\regmgr32.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\Libs\built\Release\RegMgr32\regmgr32.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

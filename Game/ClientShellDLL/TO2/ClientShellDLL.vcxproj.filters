@@ -1,0 +1,481 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{5b7c56d7-e247-480e-99ce-ada3c44648bf}</UniqueIdentifier>
+      <Extensions>*.cpp</Extensions>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{17f6d6b5-9d57-45de-89b6-23b827acd634}</UniqueIdentifier>
+      <Extensions>*.h</Extensions>
+    </Filter>
+    <Filter Include="Libs Debug">
+      <UniqueIdentifier>{9ccac8f7-bbd7-48fe-8bb7-95c5f3105a00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs Final">
+      <UniqueIdentifier>{8e08e157-17a6-4421-addd-6279143b2bfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs Release">
+      <UniqueIdentifier>{f660ade2-e13d-460d-a12f-74e43a52a712}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GlobalsInit.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDAir.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDAmmo.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDCarrying.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDChooser.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDCompass.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDCrosshair.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDDamageDir.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDDoomsday.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDHiding.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDHidingBar.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDObjectives.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDProgressBar.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDRadio.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDRespawn.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\sdk\inc\iltbaseclass.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\sdk\inc\ltmodule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\engine\sdk\inc\ltobjref.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\sdk\inc\ltquatbase.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenAudio.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenConfigure.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenControls.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenCrosshair.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenDisplay.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenEndCoopMission.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenEndDMMission.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenEndMission.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenFailure.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenGame.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenHost.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenHostDDOptions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenHostDMOptions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenHostLevels.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenHostMission.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenHostOptions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenHostTDMOptions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenHostWeapons.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenJoin.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenJoinLAN.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenJoystick.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenKeyboard.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenLoad.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenMain.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenMouse.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenMulti.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenOptions.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenPerformance.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenPlayer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenPlayerSkills.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenPlayerTeam.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenProfile.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenSave.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenSingle.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenTeam.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TO2ClientWeaponAllocator.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TO2GameClientShell.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TO2HUDMgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TO2InterfaceMgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TO2LayoutMgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\TO2\TO2MissionButeMgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TO2PlayerMgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TO2PlayerStats.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TO2ScreenMgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shared\TO2\TO2VersionMgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TO2ClientWeaponAllocator.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDAir.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDAmmo.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDCarrying.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDChooser.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDCompass.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDCrosshair.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDDamageDir.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDDoomsday.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDHiding.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDHidingBar.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDObjectives.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDProgressBar.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDRadio.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDRespawn.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\sdk\inc\iltbaseclass.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Libs\ServerDir\IServerDir.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\sdk\inc\ltmodule.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\engine\sdk\inc\ltobjref.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\LTPoly.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenAudio.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenConfigure.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenControls.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenCrosshair.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenDisplay.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenEndCoopMission.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenEndDMMission.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenEndMission.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenFailure.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenGame.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenHost.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenHostDDOptions.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenHostDMOptions.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenHostLevels.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenHostMission.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenHostOptions.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenHostTDMOptions.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenHostWeapons.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenJoin.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenJoinLAN.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenJoystick.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenKeyboard.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenLoad.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenMain.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenMouse.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenMulti.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenOptions.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenPerformance.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenPlayer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenPlayerSkills.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenPlayerTeam.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenProfile.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenSave.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenSingle.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenTeam.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Stdafx.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TO2GameClientShell.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TO2HUDMgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TO2InterfaceMgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TO2LayoutMgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\TO2\TO2MissionButeMgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TO2PlayerMgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TO2PlayerStats.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TO2ScreenMgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shared\TO2\TO2VersionMgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\..\build\lib\debug\butemgr.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\debug\cryptmgr.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\debug\lib_lith.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\debug\lib_stdlith.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\debug\ltmem.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\debug\mfcstub.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\debug\regmgr.lib">
+      <Filter>Libs Debug</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\final\butemgr.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\final\cryptmgr.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\final\lib_lith.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\final\lib_stdlith.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\final\ltmem.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\final\mfcstub.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\final\regmgr.lib">
+      <Filter>Libs Final</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\release\butemgr.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\release\cryptmgr.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\release\lib_lith.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\release\lib_stdlith.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\release\ltmem.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\release\mfcstub.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\build\lib\release\regmgr.lib">
+      <Filter>Libs Release</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

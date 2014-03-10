@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Localized Files">
+      <UniqueIdentifier>{641f6caf-938d-4eec-9728-9d41670f9aa7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Localized Files\DE">
+      <UniqueIdentifier>{25376be0-89fc-43a4-bc8a-be01165aca54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Localized Files\EN">
+      <UniqueIdentifier>{5ccef1d6-3c1f-4b07-ae61-cba19adedb4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Localized Files\ES">
+      <UniqueIdentifier>{43c6f747-42ee-40b2-b254-6c593f823b64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Localized Files\IT">
+      <UniqueIdentifier>{fa977aa3-cdaa-4aad-a971-edc1f299b988}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Localized Files\FR">
+      <UniqueIdentifier>{b8a43cc4-d20a-4ef1-9ee8-7fec9e45ea04}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Lang\DE\ltmsg.rc">
+      <Filter>Localized Files\DE</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Lang\EN\ltmsg.rc">
+      <Filter>Localized Files\EN</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Lang\ES\ltmsg.rc">
+      <Filter>Localized Files\ES</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Lang\IT\ltmsg.rc">
+      <Filter>Localized Files\IT</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Lang\FR\ltmsg.rc">
+      <Filter>Localized Files\FR</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Init.cpp" />
+  </ItemGroup>
+</Project>
