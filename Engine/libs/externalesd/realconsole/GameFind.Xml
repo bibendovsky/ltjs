@@ -1,0 +1,48 @@
+
+<COMMAND name = "Open" target = "GameFindData" filter = "" />
+
+<COMMAND name = "add">
+<RJMETADATA>
+    <PROP name = "GameID" type = "text" value = "f0702908-8d63-452c-af24-d4fa4d7d48e5" />
+    <PROP name = "Version" type = "text" value = "1.0 Full RGI" />
+    <PROP name = "GameName" type = "text" value = "RealArcade Developer SDK" />
+    <PROP name = "GameType" type = "text" value = "Full" />
+    <PROP name = "MultiID" type = "text" value = "blank" />
+    <PROP name = "Data" type = "group">
+        <PROP name = "AUComponent" type = "text" value = "rngcsdk" />
+        <PROP name = "Caption" type = "text" value = "The RealNetworks Developer SDK for RealAracde. Include Sample Applications with source code, API documentation, and the new X-Zip Game Packager." />
+        <PROP name = "PublisherID" type = "number" value = "9" />
+        <PROP name = "DeveloperID" type = "number" value = "9" />
+        <PROP name = "MezzanineURL" type = "url" value = "http://www.realarcade.com/sdk/rngcsdk.rgi" />
+        <PROP name = "RealAPISupport" type = "flag" value = "1" />
+        <PROP name = "StartOptions" type = "text" value = "" />
+        <PROP name = "FindInRegistry" type = "number" value = "1" />
+        <PROP name = "FindKeys" type = "group">
+            <PROP name = "KeyCount" type = "number" value = "2" />
+            <PROP name = "Key1" type = "text" value = "Registry;HKEY_CLASSES_ROOT\SOFTWARE\RealNetworks\Games\RealArcade Developer SDK.rngcsdk\1.0;InstallPath" />
+            <PROP name = "Key2" type = "text" value = "Registry;HKEY_CLASSES_ROOT\SOFTWARE\RealNetworks\Games\RealArcade Developer SDK.rngcsdk\1.0;Executable" />
+            <PROP name = "LaunchCommand" type = "text" value = "${Key1}${Key2}" />
+            <PROP name = "LaunchPath" type = "text" value = "${Key1}" />
+            <PROP name = "UninstallCommand" type = "text" value = "<?XZIP?>${Key1}</?XZIP?>" />
+            <PROP name = "RegMustExist" type = "text" value = "HKEY_CLASSES_ROOT\SOFTWARE\RealNetworks\Games\RealArcade Developer SDK.rngcsdk\1.0;LicenseKey" />
+        </PROP>
+        <PROP name = "DiskSearchInfo" type = "group">
+            <PROP name = "FileName" type = "text" value = "bin\realarcadegp.exe" />
+            <PROP name = "FileVersion" type = "text" value = "0" />
+            <PROP name = "FileSize" type = "text" value = "1814528" />
+        </PROP>
+        <PROP name = "SystemRequirements" type = "group">
+            <PROP name = "OperatingSystem" type = "text" value = "Windows 95" />
+            <PROP name = "MinProcessorType" type = "text" value = "P-300" />
+            <PROP name = "MinDiskSpaceRun" type = "text" value = "30720" />
+            <PROP name = "MinDiskSpaceInstall" type = "text" value = "12288" />
+            <PROP name = "MinMemory" type = "text" value = "16777216" />
+            <PROP name = "Requires3DHardware" type = "flag" value = "0" />
+            <PROP name = "MinDirectXVersion" type = "text" value = "0" />
+            <PROP name = "SupportsEAXAudio" type = "flag" value = "0" />
+            <PROP name = "SupportsDolbyAudio" type = "flag" value = "0" />
+        </PROP>
+    </PROP>
+</RJMETADATA>
+</COMMAND>
+<COMMAND name = "close">

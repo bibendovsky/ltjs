@@ -1,0 +1,48 @@
+
+<COMMAND name = "Open" target = "GameFindData" filter = "" />
+
+<COMMAND name = "add">
+<RJMETADATA>
+    <PROP name = "GameID" type = "text" value = "69457320-0433-11d5-92FC-0002B306C586" />
+    <PROP name = "Version" type = "text" value = "Demo RGI 1.0" />
+    <PROP name = "GameName" type = "text" value = "SimpleSample" />
+    <PROP name = "GameType" type = "text" value = "Demo" />
+    <PROP name = "MultiID" type = "text" value = "blank" />
+    <PROP name = "Data" type = "group">
+        <PROP name = "AUComponent" type = "text" value = "ffa5680e" />
+        <PROP name = "Caption" type = "text" value = "SimpleSample demonstrates the basic set of required RealArcade API functions." />
+        <PROP name = "PublisherID" type = "number" value = "48" />
+        <PROP name = "DeveloperID" type = "number" value = "48" />
+        <PROP name = "MezzanineURL" type = "url" value = "http://207.188.30.80/gameconsole/games/demo/mezzanines/AutoTestClient.mez" />
+        <PROP name = "RealAPISupport" type = "flag" value = "1" />
+        <PROP name = "StartOptions" type = "text" value = "" />
+        <PROP name = "FindInRegistry" type = "number" value = "1" />
+        <PROP name = "FindKeys" type = "group">
+            <PROP name = "KeyCount" type = "number" value = "2" />
+            <PROP name = "Key1" type = "text" value = "Registry;HKEY_CLASSES_ROOT\SOFTWARE\RealNetworks\Games\SimpleSample.ffa5680e\1.0.0.1000;InstallPath" />
+            <PROP name = "Key2" type = "text" value = "Registry;HKEY_CLASSES_ROOT\SOFTWARE\RealNetworks\Games\SimpleSample.ffa5680e\1.0.0.1000;Executable" />
+            <PROP name = "LaunchCommand" type = "text" value = "${Key1}${Key2}" />
+            <PROP name = "LaunchPath" type = "text" value = "${Key1}" />
+            <PROP name = "UninstallCommand" type = "text" value = "<?XZIP?>${Key1}</?XZIP?>" />
+            <PROP name = "RegMustNotExist" type = "text" value = "HKEY_CLASSES_ROOT\SOFTWARE\RealNetworks\Games\SimpleSample.ffa5680e\1.0.0.1000;LicenseKey" />
+        </PROP>
+        <PROP name = "DiskSearchInfo" type = "group">
+            <PROP name = "FileName" type = "text" value = "SimpleSample.exe" />
+            <PROP name = "FileVersion" type = "text" value = "0" />
+            <PROP name = "FileSize" type = "text" value = "69632" />
+        </PROP>
+        <PROP name = "SystemRequirements" type = "group">
+            <PROP name = "OperatingSystem" type = "text" value = "Windows 95, Windows 2000" />
+            <PROP name = "MinProcessorType" type = "text" value = "P-300" />
+            <PROP name = "MinMemory" type = "text" value = "33554432" />
+            <PROP name = "MinDiskSpaceRun" type = "text" value = "5120" />
+            <PROP name = "MinDiskSpaceInstall" type = "text" value = "5120" />
+            <PROP name = "Requires3DHardware" type = "flag" value = "0" />
+            <PROP name = "MinDirectXVersion" type = "text" value = "0" />
+            <PROP name = "SupportsEAXAudio" type = "flag" value = "0" />
+            <PROP name = "SupportsDolbyAudio" type = "flag" value = "0" />
+        </PROP>
+    </PROP>
+</RJMETADATA>
+</COMMAND>
+<COMMAND name = "close">

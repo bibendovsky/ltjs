@@ -1,0 +1,1421 @@
+//  IRNGameConsole.IDL
+//  Game Console Main interface IDL file
+// 
+//  NOTE: If you change this file, make sure to update IRNGameConsole.h to match
+
+import "unknwn.idl";
+import "irngcmessage.idl";
+
+typedef enum ConsoleType
+{
+    RNGC_DEMO_CONSOLE = 0,
+    RNGC_PLUS_CONSOLE,
+    RNGC_SUBSCRIPTION_CONSOLE,
+    RNGC_OEM_CONSOLE
+} RNGC_CONSOLE_TYPE;
+
+typedef enum ConsoleErrorTypes
+{
+    RNGC_ERROR_SYSTEM = 0,
+    RNGC_ERROR_INTERNAL,
+    RNGC_ERROR_CONSOLE,
+	RNGC_ERROR_GAME,
+	RNGC_ERROR_ENGINE
+} RNGC_CONSOLE_ERROR_TYPE;
+
+typedef enum ConsoleErrorSeverity
+{
+    RNGC_SEVERITY_CRITICAL = 0,
+    RNGC_SEVERITY_HIGH,
+    RNGC_SEVERITY_MEDUIM,
+	RNGC_SEVERITY_LOW,
+	RNGC_SEVERITY_WARNING,
+	RNGC_SEVERITY_INFO,
+	RNGC_SEVERITY_LOGGED
+
+} RNGC_CONSOLE_ERROR_SEVERITY;
+
+typedef enum GameStartupMode
+{
+    RNGC_START_GAME_SINGLE_PLAYER,
+    RNGC_START_GAME_MULTI_PLAYER,
+    RNGC_START_GAME_SINGLE_TOURNAMENT,
+    RNGC_START_GAME_MULTI_TOURNAMENT
+
+} RNGC_GAME_START_MODE;
+
+typedef enum StatsRequestTypes
+{
+    RNGC_STATS_REQUEST_METASTAT,
+    RNGC_STATS_REQUEST_GAME,
+    RNGC_STATS_REQUEST_TOURNAMENT,
+    RNGC_STATS_REQUEST_ALL_PLAYERS,
+    RNGC_STATS_REQUEST_TOP_X_STATS
+
+} RNGC_STATS_REQUEST_TYPES;
+
+typedef enum StatsStatusTypes
+{
+    RNGC_STATS_STATUS1,
+    RNGC_STATS_STATUS2,
+    RNGC_STATS_STATUS3
+
+} RNGC_STATS_STATUS_TYPES;
+
+typedef enum UpdateTypes
+{	
+	RNGC_UPDATED_TO_SERVER,
+	RNGC_UPDATED_TYPE2,
+	RNGC_UPDATED_TYPE3
+
+}RNGC_UPDATE_TYPE;
+
+typedef enum MessageTypes
+{
+	RNGC_MESSAGE_TYPE_BEGIN = 0,
+
+	/*************************************************************************/		
+	/* Notify Messages :
+	/*
+	/* RNGC_NOTIFY_BEGIN,
+	/* RNGC_NOTIFY_GAME_EXITING,
+	/* RNGC_NOTIFY_CONSOLE_EXITING,
+	/* RNGC_NOTIFY_PAUSED,
+	/* RNGC_NOTIFY_RESUMED,
+	/* RNGC_NOTIFY_RESTARTED,
+	/* RNGC_NOTIFY_ACTIVATED,
+	/* RNGC_NOTIFY_DEACTIVATED,
+	/* RNGC_NOTIFY_END
+	/*
+	/*************************************************************************/	
+		
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_NOTIFY_BEGIN
+	//
+	// *Sent :			Not sent, place holder
+	//
+	// *Description :	This is not a true message, but notes the 
+	//					beginning of the range of NOTIFY messages.  
+	//					Use in the GetMessageInRange call.
+	//					NOTIFY messages do not carry data with them
+	//					and do not require a response
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_NOTIFY_BEGIN = 1,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_NOTIFY_GAME_EXITING
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Game is shutting down, this is the last message sent
+	//					from the game to the console
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_NOTIFY_GAME_EXITING,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_NOTIFY_CONSOLE_EXITING
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	The console is shutting down, this is the last message
+	//					sent from the console to the game
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_NOTIFY_CONSOLE_EXITING,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_NOTIFY_PAUSED
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	The game has entered a paused state
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_NOTIFY_PAUSED,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_NOTIFY_RESUMED
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	The game has resumed from the paused state
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_NOTIFY_RESUMED,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_NOTIFY_RESTARTED
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	The game has restarted game play
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_NOTIFY_RESTARTED,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_NOTIFY_ACTIVATED
+	//
+	// *Sent :			From the console to the game and 
+	//					from the game to the console
+	//
+	// *Description :	The sending application has become the active 
+	//					application
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_NOTIFY_ACTIVATED,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_NOTIFY_DEACTIVATED
+	//
+	// *Sent :			From the console to the game and 
+	//					from the game to the console
+	//
+	// *Description :	The sending application is no long the active
+	//					application
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_NOTIFY_DEACTIVATED,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_NOTIFY_END
+	//
+	// *Sent :			Not sent, place holder
+	//
+	// *Description :	This is not a true message, but notes the 
+	//					end of the range of NOTIFY messages.  
+	//					Use in the GetMessageInRange call.
+	//					NOTIFY messages do not carry data with them
+	//					and do not require a response
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_NOTIFY_END = 2047,
+
+	/*************************************************************************/		
+	/* Do Messages :
+	/*
+	/* RNGC_DO_BEGIN,
+	/* RNGC_DO_ACTIVATE,
+	/* RNGC_DO_PAUSE,
+	/* RNGC_DO_RESUME,
+	/* RNGC_DO_RESTART,
+	/* RNGC_DO_GAME_EXIT,
+	/* RNGC_DO_REPORT_STATS,
+	/* RNGC_DO_END,
+	/*
+	/*************************************************************************/	
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_DO_BEGIN
+	//
+	// *Sent :			Not sent, place holder
+	//
+	// *Description :	This is not a true message, but notes the 
+	//					beginning of the range of DO messages.  
+	//					Use in the GetMessageInRange call.
+	//					DO messages do not carry data with them,
+	//					but require an action to take place
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_DO_BEGIN=2048,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_DO_ACTIVATE
+	//
+	// *Sent :			From the console to the game and
+	//					from the game to the console
+	//
+	// *Description :	Force activation of the receiveing application
+	//
+	// *Parameters :	NONE
+	//
+	RNGC_DO_ACTIVATE,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_DO_PAUSE
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Force game to enter pause state
+	//
+	// *Parameters :	NONE
+	//
+	RNGC_DO_PAUSE,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_DO_RESUME
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Force game to leave pause state
+	//
+	// *Parameters :	NONE
+	//
+	RNGC_DO_RESUME,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_DO_RESTART
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Force game to restart game play
+	//
+	// *Parameters :	NONE
+	//
+	RNGC_DO_RESTART,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_DO_GAME_EXIT
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Force game to shut down
+	//
+	// *Parameters :	NONE
+	//
+	RNGC_DO_GAME_EXIT,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_DO_REPORT_STATS
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Have the game report the current stats
+	//
+	// *Parameters :	NONE
+	//
+	RNGC_DO_REPORT_STATS,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_DO_END
+	//
+	// *Sent :			Not sent, place holder
+	//
+	// *Description :	This is not a true message, but notes the 
+	//					end of the range of DO messages.  
+	//					Use in the GetMessageInRange call.
+	//					DO messages do not carry data with them,
+	//					but require an action to take place
+	//
+	// *Parameters :	NONE
+	//
+	RNGC_DO_END = 4095,
+
+	/*************************************************************************/		
+	/* Info Messages :
+	/*
+	/* RNGC_INFO_BEGIN,
+	/* RNGC_INFO_PLAYER_ENTERED,
+	/* RNGC_INFO_PLAYER_EXITED,
+	/* RNGC_INFO_MULTIPLAYER_STATE_CHANGED
+	/* RNGC_INFO_ERROR,
+	/* RNGC_INFO_INSTANT_MESSAGE,
+	/* RNGC_INFO_DISPLAY_MSG,
+	/* RNGC_INFO_MUSIC_LIST_CHANGED,
+	/* RNGC_INFO_STATS_UPDATE,
+	/* RNGC_INFO_END,
+	/*
+	/*************************************************************************/	
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_INFO_BEGIN
+	//
+	// *Sent :			Not sent, place holder
+	//
+	// *Description :	This is not a true message, but notes the 
+	//					beginning of the range of INFO messages.  
+	//					Use in the GetMessageInRange call.
+	//					INFO messages carry data with them, but do
+	//					not require a response
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_INFO_BEGIN = 4096,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_INFO_PLAYER_ENTERED
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	A new player has joined the game
+	//
+	// *Parameters :	PlayerName	- VT_BSTR - name of the player that entered
+	//					CodePage	- VT_UI2 - The CodePage of the PlayerName
+	//					IP_Address	- VT_BSTR - IP address + Port of new player
+	//
+    RNGC_INFO_PLAYER_ENTERED,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_INFO_PLAYER_EXITED
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	A player has left the game
+	//
+	// *Parameters :	PlayerName	- VT_BSTR - name of the player that left
+	//					CodePage	- VT_UI2 - The CodePage of the player name
+	//					IP_Address	- VT_BSTR - IP address + Port of new player
+	//
+    RNGC_INFO_PLAYER_EXITED,    
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_INFO_MULTIPLAYER_STATE_CHANGED
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	The multiplayer state has changed
+	//
+	// *Parameters :	Host - VT_BOOL - TRUE if hosting the game
+	//					MaxPlayers - VT_UI4 - max players allowed
+	//					AllowNew - VT_BOOL - can new people join
+	//					PasswordProtected - VT_BOOL - does a new user
+	//						need a password to join
+	//					Title - VT_BSTR - Name of this game
+	//					CodePage - VT_UI2 - The CodePage for the Game Title
+	//					HostInfo - NODE - game specific info
+	//
+	RNGC_INFO_MULTIPLAYER_STATE_CHANGED,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_INFO_ERROR
+	//
+	// *Sent :			From the console to the game and
+	//					from the game to the console
+	//
+	// *Description :	An error has occurred
+	//
+	// *Parameters :	ID - VT_UI4 - ID of error
+	//					Type - VT_UI2 - TODO : enum
+	//					Severity - VT_UI2 - TODO : enum
+	//					Description - VT_BSTR - short description
+	//					CodePage - VT_UI2 - The CodePage for the Error description
+	//					URL - VT_BSTR - link to long desc and help
+	//					DebugInfo - NODE - to be serialized to log file (error specific logging information)
+	//
+    RNGC_INFO_ERROR,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_INFO_INSTANT_MESSAGE
+	//
+	// *Sent :			From the console to the game and
+	//					from the game to the console
+	//
+	// *Description :	A message from a buddy has arrived
+	//
+	// *Parameters :	PlayerID - VT_BSTR - ID of player, key to profile info 
+	//					PlayerDisplayName - VT_BSTR - name of player to display
+	//					PlayerCodePage - VT_UI2 - The CodePage of the Player Name
+	//					Message - VT_BSTR - the message to display
+	//					MessageCodePage - VT_UI2 - The CodePage of the message 
+	//					
+    RNGC_INFO_INSTANT_MESSAGE,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_INFO_DISPLAY_MSG
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	A displayable message from the console has arrived
+	//
+	// *Parameters :	MessageText - VT_BSTR - message to display
+	//					CodePage - VT_UI2 - CodePage for the text
+	//
+    RNGC_INFO_DISPLAY_MSG,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_INFO_MUSIC_LIST_CHANGED
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	The console managed music play list has changed
+	//
+	// *Parameters :	ListName - VT_BSTR - Name of the list that changed
+	//					CodePage - VT_UI2 - The CodePage of ListName
+	//
+	RNGC_INFO_MUSIC_LIST_CHANGED,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_INFO_STATS_UPDATE					/// BETA 2 ///
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Notifies the game when the status of the stats changes
+	//					I.E. When they are reported to a server, etc.
+	//
+	// *Parameters :	Status		- ENUM		- TODO : Define the status types for stats. 
+	//					TrackingId	- VT_UI2	- Id of set that was processed
+	//
+    RNGC_INFO_STATS_UPDATE,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_INFO_END
+	//
+	// *Sent :			Not sent, place holder
+	//
+	// *Description :	This is not a true message, but notes the 
+	//					end of the range of INFO messages.  
+	//					Use in the GetMessageInRange call.
+	//					INFO messages carry data with them, but do
+	//					not require a response
+	//
+	// *Parameters :	NONE
+    RNGC_INFO_END = 6143,
+
+	/*************************************************************************/		
+	/* Request Messages : @@@@@ALL REQUEST MESSAGES REQUIRE A RESPONSE@@@@@@@@
+	/*
+	/* RNGC_REQUEST_BEGIN,
+	/* RNGC_REQUEST_PING,
+	/* RNGC_REQUEST_CONSOLE_SETTINGS,
+	/* RNGC_REQUEST_START_GAME,
+	/* RNGC_REQUEST_VALIDATE,
+	/* RNGC_REQUEST_NAV_TO_URL,
+	/* RNGC_REQUEST_STATS,
+	/* RNGC_REQUEST_PROCESS_STATS,
+	/* RNGC_REQUEST_REPORT_SPONSOR_DATA
+	/* RNGC_REQUEST_SYS_INFO,
+	/* RNGC_REQUEST_PERF_INFO,
+	/* RNGC_REQUEST_PAUSE_CONFIG,
+	/* RNGC_REQUEST_PLAYER_PROFILE,
+	/* RNGC_REQUEST_SPONSOR_INFO,
+	/* RNGC_REQUEST_STATS_FREQ,
+	/* RNGC_REQUEST_URLS,
+	/* RNGC_REQUEST_SAVED_GAME_LIST,
+	/* RNGC_REQUEST_SAVED_GAME_INFO,
+	/* RNGC_REQUEST_ADD_SAVED_GAME,
+	/* RNGC_REQUEST_DELETE_SAVED_GAME,
+	/* RNGC_REQUEST_MUSIC_LIST_NAMES,
+	/* RNGC_REQUEST_MUSIC_LIST,
+	/* RNGC_REQUEST_BUDDY_LIST
+	/* RNGC_REQUEST_USER_ACTIVITY,
+	/* RNGC_REQUEST_PAUSE_ACTIVITY,
+	/* RNGC_REQUEST_JOIN_GAME,
+	/* RNGC_REQUEST_STOP_GAMEPLAY,
+	/* RNGC_REQUEST_NETWORK_STATUS,
+	/* RNGC_REQUEST_END,
+	/*
+	/*************************************************************************/	
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_BEGIN
+	//
+	// *Sent :			Not sent, place holder
+	//
+	// *Description :	This is not a true message, but notes the 
+	//					beginning of the range of REQUEST messages.  
+	//					Use in the GetMessageInRange call.
+	//					REQUEST messages require matching RESPONSE
+	//					messages be sent back
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_REQUEST_BEGIN = 6144,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_PING
+	//
+	// *Sent :			From the console to the game and 
+	//					From the game to the console
+	//
+	// *Description :	Keep alive message - if you do not respond within
+	//					XXX the game will be forced to exit. Please respond
+	//					as soon as you receive
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_REQUEST_PING,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_CONSOLE_SETTINGS
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get the list of system settings for the game console
+	//
+	// *Parameters :	NONE
+	//					
+    RNGC_REQUEST_CONSOLE_SETTINGS, 
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_START_GAME
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Start the game - sent at first launch and after
+	//					a RNGC_DO_RESTART message
+	//
+	// *Parameters :	GameStartupMode - VT_UI2 - RNGC_GAME_START_MODE
+	//					PlaySavedGameFlag - VT_BOOL - Whether to resume from a 
+	//						previously saved game // Release 2
+	//					SavedGame - VT_BSTR - saved game to start with // Release 2 
+	//					GameDirectory	- VT_BSTR	- Pathname of the directory 
+	//						in which the game should store any permanent files 
+	//						created and modified during run-time
+	//					ConsoleType		- VT_UI2	- RNGC_CONSOLE_TYPE
+	//					ConsoleVersion	- NODE		- version info
+	//							MajorVersion	- VT_UI2	- Major Version
+	//							MinorVersion	- VT_UI2	- Minor Version
+    //                          ProductVersion  - VT_UI2    - Product Version
+	//							BuildVersion	- VT_UI2	- Build Version
+	//							VersionString	- VT_BSTR	- Version String "1.0.0.xxx"
+	//							DistCode		- VT_BSTR	- "PN03" Distribution Code for this version
+	//					MultiPlayerInfo		- NODE		- Info for the startup mode // Release 2
+	//							/* This data is for multiplayer mode only */
+	//							JoinGame		- VT_BOOL	- FALSE == Host a game, TRUE == Join a game
+	//							HostIP			- VT_BSTR	- Host IP Address in dot notation "123.123.123.123"
+	//							HostPort		- VT_UI2	- Host Port
+	//							PlayerNick		- VT_BSTR	- Players username
+    RNGC_REQUEST_START_GAME,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_VALIDATE
+	//
+	// *Sent :			From the console to the game and 
+	//					From the game to the console
+	//
+	// *Description :	Validate the game - sent at first install, after a patch
+	//					and whenever an add on pack was installed
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_REQUEST_VALIDATE,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_NAV_TO_URL
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Have the console open up a browser to the specific URL
+	//
+	// *Parameters :	URL - VT_BSTR - the URL to open
+	//
+    RNGC_REQUEST_NAV_TO_URL,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_STATS
+	//
+	// *Sent :			From the game to the console 
+	//
+	// *Description :	Retrieve some statistics from the application
+	//
+	// *Parameters :	StatSetToRetrieve - VT_BSTR - name of stat set to retrieve
+	//					CodePage - VT_UI2 - The CodePage of the StatSet Name
+	//					StatType - VT_UI2 - RNGC_STATS_REQUEST_TYPES - type of stats to retrieve
+	//					PlayerID - VT_BSTR - ID of player to retrieve stats // "All" for all players
+	//																
+	//
+    RNGC_REQUEST_STATS,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_PROCESS_STATS
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Send some new statistics to be processed by the console
+	//
+	// *Parameters :	NumberOfGamesPlayed - VT_UI2 - Number of games played 
+	//						since the last update. [Use the next highest 
+	//						integer value for reporting the results of 
+	//						partial games]
+	//					TrackingId - VT_UI2 - Id to Use for Tracking the Reported Stats
+	//					StatSetCount - VT_UI2 - Number of set's of stats that are being reported
+	//					GameBoundary - VT_UI2 - 0 = in progress, 1 = complete
+	//					StatSet[0-N] - NODE - Stats information that you want to report  ( The last one should always be the partial )
+	//							PlayerCount - VT_UI2 - Number of players that you are reporting stats for
+	//							PlayerStats[0-N] - Node - Data for PlayerN 
+	//									PlayerID - VT_BSTR - ID of the Player
+	//									<StatName> - <VIAMETADATA> - Data for the named stat defined 
+	//																 in the metadata. <StatName> refers
+	//																 to a name defined in the game metadata
+	//
+    RNGC_REQUEST_PROCESS_STATS,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_REPORT_SPONSOR_DATA
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Send statistical data about how sponsor was represented
+	//
+	// *Parameters :	NumberOfGamesPlayed - VT_UI2 - Number of game played 
+	//						since the last update. [Use the next highest 
+	//						integer value for reporting the results of 
+	//						partial games]
+	//					TrackingId - VT_UI2 - Id to Use for Tracking the Reported Stats
+	//					GameBoundary - VT_UI2 - 0 = in progress, 1 = complete
+	//					StatSet - NODE - TODO ////**** Release 2 ****////
+	//
+	RNGC_REQUEST_REPORT_SPONSOR_DATA,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_SYS_INFO
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get static information about the system
+	//
+	// *Parameters :	SysInfoName - VT_BSTR - "All" for all information
+	//					
+	//
+    RNGC_REQUEST_SYS_INFO,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_PERF_INFO
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get the results of a number of benchmarks
+	//
+	// *Parameters :	BenchmarkName - VT_BSTR - "All" for all benchmarks
+	//
+    RNGC_REQUEST_PERF_INFO,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_PAUSE_CONFIG
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get all the actions that can be used when paused
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_REQUEST_PAUSE_CONFIG,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_PLAYER_PROFILE
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get all the information about the player
+	//
+	// *Parameters :	PlayerID - VT_BSTR - the ID of specific player
+	//
+    RNGC_REQUEST_PLAYER_PROFILE,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_SPONSOR_INFO
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get information about the advertising sponsors
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_REQUEST_SPONSOR_INFO,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_STATS_FREQ
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get information on how often to report statistics
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_REQUEST_STATS_FREQ,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_URLS
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get a list of URLs
+	//
+	// *Parameters :	URLName - VT_BSTR - a specific URL, "All" for all URLs
+	//
+    RNGC_REQUEST_URLS,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_SAVED_GAME_LIST
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get the list of all saved games for this game
+	//
+	// *Parameters :	NONE
+	//
+	RNGC_REQUEST_SAVED_GAME_LIST,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_SAVED_GAME_INFO
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get all the data for a specific saved game
+	//
+	// *Parameters :	SaveGameName - VT_BSTR - name of the game to retrieve
+	//					CodePage - VT_UI2 - The CodePage of the GameName
+	//
+	RNGC_REQUEST_SAVED_GAME_INFO,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_ADD_SAVED_GAME
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Add a new saved game to the list of saved games
+	//
+	// *Parameters :	SavedGameName - VT_BSTR - name of saved game
+	//					CodePage - VT_UI2 - The CodePage of the GameName
+	//					Overwrite - VT_BOOL - overwrite an existing game
+	//					SavedGameInfo - NODE - all the saved game data 
+	//											(Game defines the format for this node,
+	//											the console serializes this node for the game).
+	//
+    RNGC_REQUEST_ADD_SAVED_GAME,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_DELETE_SAVED_GAME
+	//
+	// *Sent :			From the game to the console and
+	//					from the console to the game
+	//
+	// *Description :	Remove a saved game from the list of saved games
+	//
+	// *Parameters :	SavedGameName - VT_BSTR - name of game to remove
+	//					CodePage - VT_UI2 - The CodePage of the GameName
+	//
+	RNGC_REQUEST_DELETE_SAVED_GAME,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_MUSIC_LIST_NAMES
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get the list of names for all the music lists
+	//
+	// *Parameters :	NONE
+	//
+	RNGC_REQUEST_MUSIC_LIST_NAMES,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_MUSIC_LIST
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get the list of music tracks to play during the game
+	//
+	// *Parameters :	ListName - VT_BSTR - name of the list to retrieve
+	//					CodePage - VT_UI2 - The CodePage of the ListName
+	//
+	RNGC_REQUEST_MUSIC_LIST,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_BUDDY_LIST
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Get the list of buddies registered in the console
+	//
+	// *Parameters :	NONE
+	//
+	RNGC_REQUEST_BUDDY_LIST,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_USER_ACTIVITY
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Request an interaction with the user.  Display the
+	//					question, with each response as a choice.  Return
+	//					the selected response ID in the RESPONSE message
+	//
+	// *Parameters :	Question - VT_BSTR - What to ask the user
+	//					CodePage - VT_UI2 - Unicode Codepage for the Language
+	//					NumResponses - VT_UI2 - number of responses in the list
+	//					Response[0-X] - NODE - A Response Item
+	//						ResponseID - VT_UI2 - id to return when selected
+	//						ResponseText - VT_BSTR - text to display as choice
+	//					
+	RNGC_REQUEST_USER_ACTIVITY,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_PAUSE_ACTIVITY
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Ask the console to execute a paused action
+	//
+	// *Parameters :	ActionID - VT_UI2 - the paused action to execute
+	//
+	RNGC_REQUEST_PAUSE_ACTIVITY,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_JOIN_GAME
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	A player is asking to join the game
+	//
+	// *Parameters :	PlayerID - VT_BSTR - ID of player requesting to join
+	//
+	//
+	RNGC_REQUEST_JOIN_GAME,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_STOP_GAMEPLAY
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	A pre-shutdown message, the game should respond
+	//					with whether it can stop or not
+	//
+	// *Parameters :	NONE
+	//
+	//
+	RNGC_REQUEST_STOP_GAMEPLAY,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_NETWORK_STATUS
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Request information about the current network connection
+	//
+	// *Parameters :	NONE
+	//
+	//
+	RNGC_REQUEST_NETWORK_STATUS,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_REQUEST_END
+	//
+	// *Sent :			Not sent, place holder
+	//
+	// *Description :	This is not a true message, but notes the 
+	//					end of the range of REQUEST messages.  
+	//					Use in the GetMessageInRange call.
+	//					REQUEST messages require matching RESPONSE
+	//					messages be sent back
+	//
+	// *Parameters :	NONE
+    RNGC_REQUEST_END = 8191,
+    
+	/*************************************************************************/		
+	/* Request Messages :
+	/*
+	/* RNGC_RESPONSE_BEGIN,
+	/* RNGC_RESPONSE_PONG,
+	/* RNGC_RESPONSE_CONSOLE_SETTINGS,
+	/* RNGC_RESPONSE_START_GAME,
+	/* RNGC_RESPONSE_VALIDATE,
+	/* RNGC_RESPONSE_NAV_TO_URL,
+	/* RNGC_RESPONSE_STATS,
+	/* RNGC_RESPONSE_PROCESS_STATS,
+	/* RNGC_RESPONSE_REPORT_SPONSOR_DATA,
+	/* RNGC_RESPONSE_SYS_INFO,
+	/* RNGC_RESPONSE_PERF_INFO,
+	/* RNGC_RESPONSE_PAUSE_CONFIG,
+	/* RNGC_RESPONSE_PLAYER_PROFILE,
+	/* RNGC_RESPONSE_SPONSOR_INFO,
+	/* RNGC_RESPONSE_STATS_FREQ,
+	/* RNGC_RESPONSE_URLS,
+	/* RNGC_RESPONSE_SAVED_GAME_LIST,
+	/* RNGC_RESPONSE_SAVED_GAME_INFO,
+	/* RNGC_RESPONSE_ADD_SAVED_GAME,
+	/* RNGC_RESPONSE_DELETE_SAVED_GAME,
+	/* RNGC_RESPONSE_MUSIC_LIST_NAMES,
+	/* RNGC_RESPONSE_MUSIC_LIST,
+	/* RNGC_RESPONSE_BUDDY_LIST
+	/* RNGC_RESPONSE_USER_ACTIVITY,
+	/* RNGC_RESPONSE_PAUSE_ACTIVITY,
+	/* RNGC_RESPONSE_JOIN_GAME,
+	/* RNGC_RESPONSE_STOP_GAMEPLAY,
+	/* RNGC_RESPONSE_NETWORK_STATUS,
+	/* RNGC_RESPONSE_END,
+	/*
+	/*************************************************************************/	
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_BEGIN
+	//
+	// *Sent :			Not sent, place holder
+	//
+	// *Description :	This is not a true message, but notes the 
+	//					beginning of the range of RESPONSE messages.  
+	//					Use in the GetMessageInRange call.
+	//					RESPONSE messages are returned in response to 
+	//					REQUEST messages being sent
+	//
+	// *Parameters :	NONE
+    RNGC_RESPONSE_BEGIN = 8192,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_PONG
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Send this message immediately after receiving an
+	//					RNGC_REQUEST_PING.
+	//
+	// *Parameters :	NONE
+	//
+    RNGC_RESPONSE_PONG,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_CONSOLE_SETTINGS
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	The requested console settings
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					ConsoleType - VT_UI2 - one of RNGC_CONSOLE_TYPE enum
+	//					ConsoleVersion - NODE - version info
+	//							MajorVersion	- VT_UI2	- Major Version
+	//							MinorVersion	- VT_UI2	- Minor Version
+    //                          ProductVersion  - VT_UI2    - Product Version
+	//							BuildVersion	- VT_UI2	- Build Version
+	//							VersionString	- VT_BSTR	- Version String "1.0.0.xxx"
+	//							DistCode		- VT_BSTR	- "PN03" Distribution Code for this version
+	//					ConsoleLanguage - VT_UI2 - UNICODE CodePage ID
+	//					TempDirectory - VT_BSTR - URI path
+	//					UseHTTPProxy - VT_BOOL
+	//					HTTPProxyName - VT_BSTR
+	//					HTTPProxyPort - VT_UI4
+	//					DefaultSaveLocation - VT_BSTR - URI path
+	//					DefaultVolume - VT_I2 - scale (0 - 100)	: -1 Game Defined		//// *** Release 2 *** ////
+	//					DefaultControllerType - VT_UI2 - TODO enum : -1 Game Defined	//// *** Release 2 *** ////
+	//					DefaultControllerSettings - NODE - No Data in this node			//// *** Release 2 *** ////
+	//					DefaultAllowedRAMSize - VT_UI2 - in kilobytes : 0 No Limit		//// *** Release 2 *** ////
+	//					DefaultUsableDiskSpace - VT_UI4 - in kilobytes : 0 No Limit		//// *** Release 2 *** ////
+	//					Default3DGraphicAPI - VT_UI2 - TODO enum : -1 Game Defined		//// *** Release 2 *** ////
+	//
+    RNGC_RESPONSE_CONSOLE_SETTINGS,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_START_GAME
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Return the result of the start game request
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					GameID - VT_BSTR - String version of a GUID for the game
+	//					PlayerCount - VT_UI2 - Number of Players planning to join the game
+	//					PlayerID[0-X] - VT_BSTR - ID's for the Players planning on joining ( 0 == Local Player )
+	//					GameVersion - NODE - see version info node above
+	//							MajorVersion	- VT_UI2	- Major Version
+	//							MinorVersion	- VT_UI2	- Minor Version
+	//							BuildVersion	- VT_UI2	- Build Version
+    //                          ProductVersion  - VT_UI2    - Product Version
+	//							VersionString	- VT_BSTR	- Version String "1.0.0.xxx"
+	//
+    RNGC_RESPONSE_START_GAME,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_VALIDATE
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Return the result of the validation check
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					Response - VT_BOOL - return TRUE if valid, FALSE if 
+	//						installation is compromised 
+	//
+    RNGC_RESPONSE_VALIDATE,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_NAV_TO_URL
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns whether or not the navigation was successful
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//
+    RNGC_RESPONSE_NAV_TO_URL,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_STATS
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Returns the requested stats data
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					StatSetRequested - VT_BSTR - name of stat set
+	//					CodePage - VT_UI2 - The CodePage of the StatSet Name
+	//					StatSetType - VT_UI2 - RNGC_STATS_REQUEST_TYPES
+	//					StatSet - NODE - This node will contain the data and match the information supplied in the metadata
+	//							PlayerCount - VT_UI2 - Number of players that you get stats fo
+	//							PlayerStats[0-X] - NODE - Data for a player
+	//								PlayerID - VT_BSTR - Id for the Player
+	//								NumberOfMetaStats- VT_UI2 - Number of metastats for this player
+	//								MetaStat[0-X] - Node - Data for MetaStat
+	//										Label - VT_BSTR - The Label for this MetaStat
+	//										CodePage - VT_UI2 - The CodePage of the Label
+	//										<StatName> - <VIAMETADATA> - Data for the named stat defined 
+	//																	 in the metadata. <StatName> refers
+	//																	 to a name defined in the game metadata
+	//
+    RNGC_RESPONSE_STATS,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_PROCESS_STATS
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the result of processing the stats
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					TrackingId - VT_UI2 - Id of set that was processed
+	//
+    RNGC_RESPONSE_PROCESS_STATS,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_REPORT_SPONSOR_DATA
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the results of sending sponsor info 
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					TrackingId - VT_UI2 - Id to Use for Tracking the Reported Stats
+	//
+	RNGC_RESPONSE_REPORT_SPONSOR_DATA,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_SYS_INFO
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the system information requested
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					SysInfo - NODE - the benchmark results TODO //// *** Release 2 *** ////
+	//
+    RNGC_RESPONSE_SYS_INFO,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_PERF_INFO
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the requested benchmark results
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					PerfInfo - NODE - the benchmark results TODO //// *** Release 2 *** ////
+	//
+    RNGC_RESPONSE_PERF_INFO,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_PAUSE_CONFIG
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the list of pause actions
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					NumActions - VT_UI2 - the number of pause actions
+	//					Action[0-N] - NODE -
+	//						ActionID - VT_UI2 - ID to request
+	//						ActionTitle - VT_BSTR - to display
+	//						CodePage - VT_UI2 - CodePage for the Text Data
+	//
+    RNGC_RESPONSE_PAUSE_CONFIG,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_PLAYER_PROFILE
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the requested profile
+	//
+	// *Parameters :	Result		-	VT_ERROR	- hresult error code
+	//					PlayerID	-	VT_BSTR		- GUID as string
+	//					NickName	-	VT_BSTR		- display name
+	//					NickCodePage-	VT_UI2		- CodePage for NickName
+	//					Quote		-	VT_BSTR		- short desc
+	//					QuoteCodePage-	VT_UI2		- CodePage for Quote
+	//					Language	-	VT_UI2		- UNICODE Codepage ID for Users default Language
+	//					IPAddress	-	VT_BSTR
+	//
+    RNGC_RESPONSE_PLAYER_PROFILE,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_SPONSOR_INFO
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the sponsor information
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					NumSponsors - VT_UI2
+	//					SponsorInfo[1-N] - NODE  //// *** Release 2 *** ////
+	//						WhenToShow - VT_UI2 - TODO enum 
+	//						MediaHeight - VT_UI4 - height in pixels
+	//						MediaWidth - VT_UI4 - width in pixels
+	//						Duration - VT_UI4 - default duration in milliseconds
+	//						MediaURI - VT_BSTR - URI path to image/video
+	//
+    RNGC_RESPONSE_SPONSOR_INFO,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_STATS_FREQ
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the rate which the game should update stats
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					AfterEachGame - VT_BOOL
+	//					AfterGameExit - VT_BOOL
+	//					EveryTimerInterval - VT_BOOL
+	//					TimerInterval - VT_UI4 - time in milliseconds
+	//
+    RNGC_RESPONSE_STATS_FREQ,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_URLS
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the list of URLS
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					NumURLs - VT_UI2
+	//					URL[1-N] - NODE
+	//						Title		- VT_BSTR - display string for this URL
+	//						CodePage	- VT_UI2  - CodePage for Title
+	//						URL			- VT_BSTR - A URL Moniker the console uses to route to actual url
+	//
+    RNGC_RESPONSE_URLS,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_SAVED_GAME_LIST
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the list of saved game names
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					NumGames - VT_UI2
+	//					SavedGameName[1-N] - VT_BSTR - game ID/Name
+	//
+	RNGC_RESPONSE_SAVED_GAME_LIST,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_SAVED_GAME_INFO
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the info about a specific saved game
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					SavedGameName - VT_BSTR - game ID/Name
+	//					CodePage	-	VT_UI2		- CodePage for GameName
+	//					GameDateAndTime - VT_BSTR - YYYY/MM/DD HH:MM:SS
+	//					SavedGameInfo - NODE - all the saved game data
+	//
+	RNGC_RESPONSE_SAVED_GAME_INFO,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_ADD_SAVED_GAME
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the result of adding a game to the list
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//
+    RNGC_RESPONSE_ADD_SAVED_GAME,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_DELETE_SAVED_GAME
+	//
+	// *Sent :			From the game to the console and
+	//					from the console to the game
+	//
+	// *Description :	Returns the result of deleting a saved game
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//
+	RNGC_RESPONSE_DELETE_SAVED_GAME,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_MUSIC_LIST_NAMES
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the list of names of all music lists
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					NumLists - VT_UI2
+	//					ListName[1-N]	- VT_BSTR 
+	//					CodePage[1-N]	-	VT_UI2	- CodePage for List Name [N]
+	//
+	RNGC_RESPONSE_MUSIC_LIST_NAMES,
+	
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_MUSIC_LIST
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the list of music to play with the game
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					ListTitle - VT_BSTR - display title of this list
+	//					CodePage	-	VT_UI2	- CodePage for List Title
+	//					NumTracks - VT_UI2
+	//					Track[1-N] - NODE 
+	//						Title - VT_BSTR - display title for this track
+	//						CodePage	-	VT_UI2		- CodePage for Title 
+	//						URI - VT_BSTR - URI to media
+	//
+	RNGC_RESPONSE_MUSIC_LIST,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_BUDDY_LIST
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the list of buddies set up in the console
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					NumBuddies - VT_UI2
+	//					BuddyInfo[1-N] - NODE - TODO
+	//						PlayerID	-	VT_BSTR		- GUID as string
+	//						NickName	-	VT_BSTR		- display name
+	//						NickCodePage	-	VT_UI2		- CodePage for NickName
+	//						Quote		-	VT_BSTR		- short desc
+	//						QuoteCodePage	-	VT_UI2		- CodePage for Quote
+	//						Language	-	VT_UI2		- UNICODE Codepage ID
+	//						Status		-	VT_BSTR		- User State
+	//
+	RNGC_RESPONSE_BUDDY_LIST,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_USER_ACTIVITY
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Return the result of the requested user interaction
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					ResponseID - VT_UI2 - the selected response
+	//
+	RNGC_RESPONSE_USER_ACTIVITY,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_PAUSE_ACTIVITY
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the result of the paused activity
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//
+	RNGC_RESPONSE_PAUSE_ACTIVITY,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_JOIN_GAME
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Can the user join the game
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					
+	RNGC_RESPONSE_JOIN_GAME,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_STOP_GAMEPLAY
+	//
+	// *Sent :			From the game to the console
+	//
+	// *Description :	Returns whether the game has stopped, or will not
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					Stopped - VT_BOOL - TRUE if stopped, FALSE if not
+	//					
+	RNGC_RESPONSE_STOP_GAMEPLAY,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_NETWORK_STATUS
+	//
+	// *Sent :			From the console to the game
+	//
+	// *Description :	Returns the current network status
+	//
+	// *Parameters :	Result - VT_ERROR - hresult error code
+	//					Online - VT_BOOL - TRUE if online, FALSE if not
+	//					
+	RNGC_RESPONSE_NETWORK_STATUS,
+
+	///////////////////////////////////////////////////////////////////////////
+	// RNGC_RESPONSE_END
+	//
+	// *Sent :			Not sent, place holder
+	//
+	// *Description :	This is not a true message, but notes the 
+	//					end of the range of RESPONSE messages.  
+	//					Use in the GetMessageInRange call.
+	//					RESPONSE messages are returned in response to 
+	//					REQUEST messages being sent
+	//
+	// *Parameters :	NONE
+    RNGC_RESPONSE_END = 10239,
+
+	RNGC_MESSAGE_TYPE_END = 0xFFFFFFFF
+
+} RNGC_MESSAGE_TYPE;
+
+// IRNGameConsole
+[
+object,
+uuid(BEE9C325-3E00-11d4-823D-00D0B74C5265),
+pointer_default(unique),
+helpstring("The main interface to the game console")
+]
+interface IRNGameConsole : IUnknown 
+{
+    [helpstring("method PostMessage - Posts a message and returns immediately.  The pMessage parameter may be NULL")]
+    HRESULT PostMessage([in] RNGC_MESSAGE_TYPE nType,
+						[in, unique] IRNGCMessage * pMessage
+                        );
+
+    [helpstring("method SendMessage - Posts a message and blocks nTimeout milliseconds for a response if a response is expected. The pMessageToSend parameter may be NULL")]
+    HRESULT SendMessage([in] RNGC_MESSAGE_TYPE nType,
+                        [in, unique] IRNGCMessage * pMessageToSend,
+						[out, ref] IRNGCMessage ** ppMessageResponse,
+						[in] long nTimeout
+                        );
+
+    [helpstring("method GetNumMessages - The value returned is not guaranteed to be accurate due to threading issues.")]
+    HRESULT GetNumMessages([out, retval, ref] long * pNumMessages);
+
+    [helpstring("method GetNextMessage - returns the next message in the queue, or RNGC_TIMED_OUT if the queue is empty and nTimeout milliseconds has passed")]
+    HRESULT GetNextMessage( [out, ref] RNGC_MESSAGE_TYPE * pType,
+                            [out, ref] IRNGCMessage ** ppMessage,
+							[in] long nTimeout
+                            );
+
+    [helpstring("method GetSpecificMessage - returns the next message, or RNGC_TIMED_OUT if the message has not appeared in the queue and nTimeout milliseconds has passed")]
+    HRESULT GetSpecificMessage( [in] RNGC_MESSAGE_TYPE nRequestedType,
+                                [out, ref] IRNGCMessage ** ppMessage,
+								[in] long nTimeout
+                                );
+
+    [helpstring("method GetMessageInRange - returns a message in the specified range, or RNGC_TIMED_OUT if an appropriate message has not appeared in the queue and nTimeout milliseconds has passed")]
+    HRESULT GetMessageInRange(  [in] RNGC_MESSAGE_TYPE nFilterMin,
+                                [in] RNGC_MESSAGE_TYPE nFilterMax,
+                                [out, ref] RNGC_MESSAGE_TYPE * pType,
+                                [out, ref] IRNGCMessage ** ppMessage,
+								[in] long nTimeout
+                                );
+
+}

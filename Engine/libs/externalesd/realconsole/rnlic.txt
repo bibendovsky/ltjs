@@ -1,0 +1,474 @@
+REALNETWORKS, INC.
+END USER LICENSE AGREEMENT
+REALARCADE GOLD RELEASE 
+
+REDISTRIBUTION NOT PERMITTED
+
+Software License for 
+RealNetworks RealArcade Gold 
+Release
+
+IMPORTANT -- READ CAREFULLY 
+BEFORE USING THIS SOFTWARE: 
+This License Agreement for the 
+RealArcade Gold Release 
+("License Agreement") is a 
+legal agreement between you 
+(either an individual or an 
+entity) and RealNetworks, Inc. 
+and its suppliers and 
+licensors (collectively "RN") 
+for RealArcade Gold Release 
+software ("Software"). You may 
+install only ONE copy of the 
+Software.  By clicking on the 
+"Accept" button, installing, 
+copying or otherwise using the 
+Software, you agree to be 
+bound by the terms of this 
+License Agreement.  If you do 
+not agree to the terms of this 
+License Agreement, click on 
+the "Cancel" button 
+and/or do not install the 
+Software.  YOU AGREE THAT YOUR 
+USE OF THE SOFTWARE 
+ACKNOWLEDGES THAT YOU HAVE 
+READ THIS LICENSE, UNDERSTAND 
+IT, AND AGREE TO BE BOUND BY 
+ITS TERMS AND CONDITIONS.
+
+ANY THIRD PARTY SOFTWARE, 
+INCLUDING ANY NON-RN PLUG-IN, 
+THAT MAY BE INITIALLY PROVIDED
+WITH THE SOFTWARE IS INCLUDED 
+FOR USE AT YOUR OPTION.  IF 
+YOU CHOOSE TO USE SUCH THIRD 
+PARTY SOFTWARE, THEN SUCH USE 
+SHALL BE GOVERNED BY SUCH THIRD 
+PARTY'S LICENSE AGREEMENT, AN 
+ELECTRONIC COPY OF WHICH WILL 
+BE INSTALLED IN THE 
+"REALARCADE" FOLDER ON YOUR 
+COMPUTER UPON INSTALLATION OF 
+THE SOFTWARE.   
+
+THE SOFTWARE YOU ARE RECEIVING 
+MAY CONTAIN MORE OR LESS 
+FEATURES THAN THE COMMERCIAL 
+RELEASE OF THE RN PRODUCT THAT 
+RN INTENDS TO DISTRIBUTE.  
+WHILE RN INTENDS TO DISTRIBUTE 
+A COMMERCIAL RELEASE OF THE 
+SOFTWARE, RN RESERVES THE 
+RIGHT AT ANY TIME NOT TO 
+RELEASE A COMMERCIAL RELEASE 
+OF THE SOFTWARE OR, IF 
+RELEASED, TO ALTER FEATURES, 
+SPECIFICATIONS, CAPABILITIES, 
+FUNCTIONS, LICENSING TERMS, 
+RELEASE DATES, GENERAL 
+AVAILABILITY OR OTHER 
+CHARACTERISTICS OF THE 
+COMMERCIAL RELEASE.
+
+1. GRANT OF LICENSE: RN and 
+its suppliers and licensors 
+hereby grant you a non-
+exclusive license to use the 
+Software and any related 
+documentation 
+("Documentation") subject to 
+the following terms: 
+
+a) 	You may: (i) use the 
+Software on any single 
+computer; (ii) use the 
+Software on a second computer 
+so long as the first and 
+second computers are not used 
+simultaneously; and (iii) copy 
+the Software for back-up and 
+archival purposes provided any 
+copy must contain all of the 
+original Software's 
+proprietary notices. 
+
+b)	The Software includes 
+certain plug-in 
+components ("Plug-Ins"), 
+such as 
+the Active X Control, Java 
+plug-in, RA XTRA 
+plug-in, xing encoder dll 
+and cdrom 
+services dll.  You may only 
+call to or 
+otherwise use such Plug-Ins 
+through the 
+use of the realjbox.exe, 
+realplay.exe, 
+nppl3260.dll, rmoc3260.dll, 
+embd3260.dll,
+and/or rpcl3260.zip 
+applications.
+Any direct use of Plug-Ins 
+through 
+a non-RN proprietary 
+application, including 
+a custom or user-written 
+application 
+is prohibited by this 
+Agreement.
+
+
+2. LICENSE RESTRICTIONS: 
+
+a)	You may not: (i) permit 
+other individuals to use the 
+Software except under the 
+terms listed above; (ii) 
+modify, translate, reverse 
+engineer, decompile, 
+disassemble (except to the 
+extent that this restriction 
+is expressly prohibited by 
+law) or create derivative 
+works based upon the Software 
+or Documentation; (iii) copy 
+the Software or Documentation 
+(except for back-up or 
+archival purposes); (iv) 
+resell, rent, lease, transfer, 
+or otherwise transfer rights 
+to the Software or 
+Documentation; or (v) remove 
+any proprietary notices or 
+labels on or in the Software 
+or Documentation. The 
+recording and playback 
+features of this Software are 
+intended only for use with 
+public domain or properly 
+licensed content and content 
+creation tools.  You may 
+require a patent, copyright, 
+or other license from a third 
+party to create, copy, record 
+or save content files for 
+playback by this software or 
+to serve or distribute such 
+files to be played back by 
+this Software.
+
+b) You agree that you shall 
+only use the Software and 
+Documentation in a manner that 
+complies with all applicable 
+laws in the jurisdiction in 
+which you use the Software and 
+Documentation, including, but 
+not limited to, applicable 
+restrictions concerning 
+copyright and other 
+intellectual property rights.  
+
+c) The Software is for 
+private use only.  Copies of 
+content files, including, but 
+not limited to songs and other 
+audio recordings, which are 
+downloaded or copied using the 
+Software, and which are 
+protected by the copyright 
+laws or related laws of any 
+jurisdiction, may not be 
+distributed to third parties 
+or performed outside your 
+normal circle of family and 
+social acquaintances.  You may 
+not use the Software to alter 
+or adapt content files.
+
+d) You may not use the 
+Software in conjunction with 
+any device or service designed 
+to circumvent technological 
+measures employed to control 
+access to, or the rights in, a 
+content file or other work 
+protected by the copyright 
+laws of any jurisdiction.
+
+e) The Software embodies a 
+serial copying management 
+system required by the laws of 
+the United States.  You may 
+not circumvent or attempt to 
+circumvent this system by any 
+means.
+
+f) Any Portable Music Player
+plug-ins downloaded into the 
+software are licensed to you 
+under the terms of this license
+agreement and are for use only
+with Portable Music Players 
+provided by the specified 
+manufacturer and may not be 
+used with other Portable Music
+Players from other manufacturers.
+
+3.  COPIES OF SOFTWARE AND 
+ENHANCEMENTS: If you receive 
+the first copy of the Software 
+electronically and a second 
+copy on media, the second copy 
+may be used for archival 
+purposes only and may not be 
+transferred to or used by any 
+other person.  This license 
+does not grant you any right 
+to any enhancements or updates 
+to the Software, nor any 
+support services. 
+
+4. AUTOUPDATE.  The autoupdate
+function in the Software 
+automatically checks RN's servers
+on the Internet for updates for
+the Software, such as bug fixes,
+patches and enhanced functions.
+You agree that RN may, through 
+the autoupdate function, 
+download updates and install 
+them as part of your Software.
+
+5. TITLE: Title, ownership, 
+rights, and intellectual 
+property rights in and to the 
+Software and Documentation 
+shall remain in RN.  The 
+Software is protected by the 
+copyright laws of the United 
+States and international 
+copyright treaties.  Title, 
+ownership rights and 
+intellectual property rights 
+in and to the content accessed 
+through the Software including 
+the content contained in the 
+Software media demonstration 
+files shall be retained by the 
+applicable content owner and 
+may be protected by applicable 
+copyright or other law.  This 
+License Agreement gives you no 
+rights to such content.
+
+6. DISCLAIMER OF WARRANTY: THE 
+SOFTWARE AND DOCUMENTATION ARE 
+PROVIDED AS IS WITHOUT 
+WARRANTY OF ANY KIND.  TO THE 
+MAXIMUM EXTENT PERMITTED BY 
+APPLICABLE LAW, RN FURTHER 
+DISCLAIMS ALL WARRANTIES, 
+INCLUDING WITHOUT LIMITATION 
+ANY IMPLIED WARRANTIES OF 
+MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE, AND 
+NONINFRINGEMENT. THE ENTIRE 
+RISK ARISING OUT OF THE USE OR 
+PERFORMANCE OF THE SOFTWARE 
+AND DOCUMENTATION REMAINS WITH 
+YOU. TO THE MAXIMUM EXTENT 
+PERMITTED BY APPLICABLE LAW, 
+IN NO EVENT SHALL RN BE LIABLE 
+FOR ANY CONSEQUENTIAL, 
+INCIDENTAL, DIRECT, INDIRECT, 
+SPECIAL, PUNITIVE, OR OTHER 
+DAMAGES WHATSOEVER (INCLUDING, 
+WITHOUT LIMITATION, DAMAGES 
+FOR LOSS OF BUSINESS PROFITS, 
+BUSINESS INTERRUPTION, LOSS OF 
+BUSINESS INFORMATION, OR OTHER 
+PECUNIARY LOSS) ARISING OUT OF 
+THIS AGREEMENT OR THE USE OF 
+OR INABILITY TO USE THE 
+PRODUCT, EVEN IF RN HAS BEEN 
+ADVISED OF THE POSSIBILITY OF 
+SUCH DAMAGES. BECAUSE SOME 
+STATES/JURISDICTIONS DO NOT 
+ALLOW THE EXCLUSION OR 
+LIMITATION OF LIABILITY FOR 
+CONSEQUENTIAL OR INCIDENTAL 
+DAMAGES, THE ABOVE LIMITATION 
+MAY NOT APPLY TO YOU.
+
+7. TERMINATION: This License 
+Agreement shall terminate 
+automatically if you fail to 
+comply with the limitations 
+described in this license.  No 
+notice shall be required from 
+RN to effectuate such 
+termination.  Upon 
+termination, you must destroy 
+all copies of the Software and 
+Documentation. 
+
+8. INDEMNIFICATION: You agree 
+to extract, download, record, 
+play back, and distribute only 
+those materials for which you 
+have the necessary patent, 
+copyright and other 
+permissions, licenses, and/or 
+clearances.  You agree to hold 
+harmless, indemnify and defend 
+RN, its officers, directors 
+and employees, from and 
+against any losses, damages, 
+fines and expenses (including 
+attorneys' fees and costs) 
+arising out of or relating to 
+any claims that you have 
+copied any materials (other 
+than materials provided by RN) 
+in connection with the 
+Software in violation of 
+another party's rights or in 
+violation of any law.  If you 
+are importing the Software 
+from the United States, you 
+shall indemnify and hold RN 
+harmless from and against any 
+import and export duties or 
+other claims arising from such 
+importation.
+
+9. U.S. GOVERNMENT RESTRICTED 
+RIGHTS AND EXPORT 
+RESTRICTIONS: This Software 
+and Documentation are
+provided with RESTRICTED 
+RIGHTS.  Use, duplication or 
+disclosure by the Government 
+is subject to restrictions set 
+forth in subparagraphs (a) 
+through (d) of the Commercial 
+Computer Software--Restricted 
+Rights at FAR 52.227-19 when 
+applicable, or in subparagraph 
+(c)(1)(ii) of the Rights in 
+Technical Data and Computer 
+Software clause at DFARS 
+252.227-7013, and in similar
+clauses in the NASA FAR 
+supplement, as applicable.  
+Manufacturer is RealNetworks, 
+Inc./2601 Elliott Avenue / 
+Seattle, Washington, 
+98121.  You are responsible 
+for complying with all trade 
+regulations and laws both 
+foreign and domestic.  You 
+acknowledge that none of the 
+Software or underlying 
+information or technology may 
+be downloaded or otherwise 
+exported or re-exported (i) 
+into (or to a national or 
+resident of) Cuba, Iraq, 
+Libya, Sudan, North Korea, 
+Iran, Syria or any other 
+country subject to a U.S. 
+embargo; or (ii) to anyone on 
+the U.S. Treasury Department's 
+list of Specially Designated 
+Nationals or the U.S. Commerce 
+Department's Denied Parties 
+List or Entity List.  By using 
+the Software you are agreeing 
+to the foregoing and are 
+representing and warranting 
+that (i) no U.S. federal 
+agency has suspended, revoked, 
+or denied you export 
+privileges, (ii) you are not 
+located in or under the 
+control of a national or 
+resident of any such country 
+or on any such list, and (iii) 
+you will not export or re-
+export the Software to any 
+prohibited county, or to any 
+prohibited person, entity, or 
+end-user as specified by U.S. 
+export controls.
+
+10.  MISCELLANEOUS: This 
+License Agreement shall 
+constitute the complete and 
+exclusive agreement between 
+us.  The terms and conditions 
+contained in this License 
+Agreement may not be modified 
+unless both you and an 
+authorized representative of 
+RN execute a separate written 
+instrument.  If any provision 
+of this License Agreement is 
+held to be unenforceable for 
+any reason, such provision 
+shall be reformed only to the 
+extent necessary to make it 
+enforceable, and such decision 
+shall not affect the 
+enforceability of such 
+provision under other 
+circumstances, or of the 
+remaining provisions hereof 
+under all circumstances.  This 
+License Agreement shall be 
+governed by the laws of the 
+State of Washington, without 
+regard to conflicts of law 
+provisions, and you hereby 
+consent to the exclusive 
+jurisdiction of the state and 
+federal courts sitting in the 
+State of Washington.  Any and 
+all unresolved disputes 
+arising under this License 
+Agreement shall be submitted 
+to arbitration in the State of 
+Washington.  The arbitration 
+shall be conducted under the 
+rules then prevailing of the 
+American Arbitration 
+Association.  The arbitrator's 
+award shall be binding and may 
+be entered as a judgment in 
+any court of competent 
+jurisdiction.  This License 
+Agreement will not be governed 
+by the United Nations 
+Convention of Contracts for 
+the International Sale of 
+Goods, the application of 
+which is hereby expressly 
+excluded. 
+
+Copyright (c) 1995-1999 
+RealNetworks, Inc. and/or its 
+Suppliers, 2601 Elliott Avenue, 
+Seattle, Washington 98121 U.S.A.  
+All rights reserved.  
+RealNetworks and RealArcade are
+the trademarks of RealNetworks, 
+Inc.
+
+RealArcade Gold License, 
+September 20, 1999
+

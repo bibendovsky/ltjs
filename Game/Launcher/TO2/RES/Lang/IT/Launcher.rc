@@ -1,0 +1,546 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "..\..\..\resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+MINIMIZEU               BITMAP  DISCARDABLE     "..\\..\\bmp\\MinimizeU.bmp"
+MINIMIZED               BITMAP  DISCARDABLE     "..\\..\\bmp\\MinimizeD.bmp"
+CLOSEU                  BITMAP  DISCARDABLE     "..\\..\\bmp\\closeu.bmp"
+CLOSED                  BITMAP  DISCARDABLE     "..\\..\\bmp\\closed.bmp"
+IDB_BACKGROUND          BITMAP  DISCARDABLE     "bmp\\MainAppBackground.bmp"
+UNINSTALLU              BITMAP  DISCARDABLE     "bmp\\UninstallU.bmp"
+OPTIONSD                BITMAP  DISCARDABLE     "bmp\\optionsd.bmp"
+OPTIONSU                BITMAP  DISCARDABLE     "bmp\\optionsu.bmp"
+PLAYD                   BITMAP  DISCARDABLE     "bmp\\PlayD.bmp"
+PLAYU                   BITMAP  DISCARDABLE     "bmp\\PlayU.bmp"
+QUITD                   BITMAP  DISCARDABLE     "bmp\\QuitD.bmp"
+QUITU                   BITMAP  DISCARDABLE     "bmp\\QuitU.bmp"
+UNINSTALLD              BITMAP  DISCARDABLE     "bmp\\UninstallD.bmp"
+INSTALLU                BITMAP  DISCARDABLE     "bmp\\InstallU.bmp"
+INSTALLD                BITMAP  DISCARDABLE     "bmp\\InstallD.bmp"
+BACKU                   BITMAP  DISCARDABLE     "bmp\\BackU.bmp"
+BACKD                   BITMAP  DISCARDABLE     "bmp\\BackD.bmp"
+DISPLAYD                BITMAP  DISCARDABLE     "bmp\\DisplayD.bmp"
+DISPLAYU                BITMAP  DISCARDABLE     "bmp\\DisplayU.bmp"
+UNINSTALLX              BITMAP  DISCARDABLE     "bmp\\UninstallX.bmp"
+DISPLAYX                BITMAP  DISCARDABLE     "bmp\\DisplayX.bmp"
+OPTIONSX                BITMAP  DISCARDABLE     "bmp\\OptionsX.bmp"
+OKU                     BITMAP  DISCARDABLE     "bmp\\OKU.bmp"
+CANCELU                 BITMAP  DISCARDABLE     "bmp\\CancelU.bmp"
+HELPD                   BITMAP  DISCARDABLE     "bmp\\HelpD.bmp"
+HELPU                   BITMAP  DISCARDABLE     "bmp\\HelpU.bmp"
+OKD                     BITMAP  DISCARDABLE     "bmp\\OKD.bmp"
+CANCELD                 BITMAP  DISCARDABLE     "bmp\\CancelD.bmp"
+IDB_OD_BACKGROUND       BITMAP  DISCARDABLE     "bmp\\OptionsBackground.bmp"
+SERVERD                 BITMAP  DISCARDABLE     "bmp\\ServerD.bmp"
+SERVERU                 BITMAP  DISCARDABLE     "bmp\\ServerU.bmp"
+IDB_DD_BACKGROUND       BITMAP  DISCARDABLE     "bmp\\DisplayBackground.bmp"
+QUITF                   BITMAP  DISCARDABLE     "bmp\\QuitF.bmp"
+BACKF                   BITMAP  DISCARDABLE     "bmp\\BackF.bmp"
+CANCELF                 BITMAP  DISCARDABLE     "bmp\\CancelF.bmp"
+OPTIONSF                BITMAP  DISCARDABLE     "bmp\\OptionsF.bmp"
+DISPLAYF                BITMAP  DISCARDABLE     "bmp\\DisplayF.bmp"
+HELPF                   BITMAP  DISCARDABLE     "bmp\\HelpF.bmp"
+INSTALLF                BITMAP  DISCARDABLE     "bmp\\InstallF.bmp"
+OKF                     BITMAP  DISCARDABLE     "bmp\\OkF.bmp"
+UNINSTALLF              BITMAP  DISCARDABLE     "bmp\\UninstallF.bmp"
+SERVERF                 BITMAP  DISCARDABLE     "bmp\\ServerF.bmp"
+PLAYF                   BITMAP  DISCARDABLE     "bmp\\PlayF.bmp"
+IDB_MB_BACKGROUND       BITMAP  DISCARDABLE     "..\\..\\bmp\\BoxBackground.bmp"
+IDB_DSD_BACKGROUND      BITMAP  DISCARDABLE     "bmp\\DetailSettingsBackground.bmp"
+MEDIUMDETAILU           BITMAP  DISCARDABLE     "bmp\\MediumDetailU.bmp"
+HIGHDETAILF             BITMAP  DISCARDABLE     "bmp\\HighDetailF.bmp"
+HIGHDETAILU             BITMAP  DISCARDABLE     "bmp\\HighDetailU.bmp"
+LOWDETAILD              BITMAP  DISCARDABLE     "bmp\\LowDetailD.bmp"
+LOWDETAILF              BITMAP  DISCARDABLE     "bmp\\LowDetailF.bmp"
+LOWDETAILU              BITMAP  DISCARDABLE     "bmp\\LowDetailU.bmp"
+MEDIUMDETAILD           BITMAP  DISCARDABLE     "bmp\\MediumDetailD.bmp"
+MEDIUMDETAILF           BITMAP  DISCARDABLE     "bmp\\MediumDetailF.bmp"
+HIGHDETAILD             BITMAP  DISCARDABLE     "bmp\\HighDetailD.bmp"
+IDB_INFORMATION         BITMAP  DISCARDABLE     "..\\..\\bmp\\Information.bmp"
+IDB_ERROR               BITMAP  DISCARDABLE     "..\\..\\bmp\\Error.bmp"
+IDB_WARNING             BITMAP  DISCARDABLE     "..\\..\\bmp\\Warning.bmp"
+COMPANYWEBU             BITMAP  DISCARDABLE     "bmp\\Company1WebU.bmp"
+COMPANYWEBF             BITMAP  DISCARDABLE     "bmp\\Company1WebF.bmp"
+COMPANYWEBD             BITMAP  DISCARDABLE     "bmp\\Company1WebD.bmp"
+LITHTECHWEBU            BITMAP  DISCARDABLE     "bmp\\Company2WebU.bmp"
+LITHTECHWEBF            BITMAP  DISCARDABLE     "bmp\\Company2WebF.bmp"
+LITHTECHWEBD            BITMAP  DISCARDABLE     "bmp\\Company2WebD.bmp"
+SERVERX                 BITMAP  DISCARDABLE     "bmp\\ServerX.bmp"
+CHECKBOXN               BITMAP  DISCARDABLE     "..\\..\\bmp\\CheckBoxN.bmp"
+CHECKBOXC               BITMAP  DISCARDABLE     "..\\..\\bmp\\CheckBoxC.bmp"
+CHECKBOXF               BITMAP  DISCARDABLE     "..\\..\\bmp\\CheckBoxF.bmp"
+PUBLISHERWEBU           BITMAP  DISCARDABLE     "bmp\\Publisher1WebU.bmp"
+PUBLISHERWEBD           BITMAP  DISCARDABLE     "bmp\\Publisher1WebD.bmp"
+PUBLISHERWEBF           BITMAP  DISCARDABLE     "bmp\\Publisher1WebF.bmp"
+SIERRAWEBU              BITMAP  DISCARDABLE     "bmp\\Publisher2WebU.bmp"
+SIERRAWEBD              BITMAP  DISCARDABLE     "bmp\\Publisher2WebD.bmp"
+SIERRAWEBF              BITMAP  DISCARDABLE     "bmp\\Publisher2WebF.bmp"
+IDB_DEMOBACKGROUND      BITMAP  DISCARDABLE     "bmp\\DemoMainAppBackground.bmp"
+IDB_CD_BACKGROUND       BITMAP  DISCARDABLE     "bmp\\CustomBackground.bmp"
+NEXTU                   BITMAP  DISCARDABLE     "bmp\\NextU.bmp"
+NEXTF                   BITMAP  DISCARDABLE     "bmp\\NextF.bmp"
+NEXTD                   BITMAP  DISCARDABLE     "bmp\\NextD.bmp"
+PREVIOUSX               BITMAP  DISCARDABLE     "bmp\\PreviousX.bmp"
+PREVIOUSD               BITMAP  DISCARDABLE     "bmp\\PreviousD.bmp"
+PREVIOUSF               BITMAP  DISCARDABLE     "bmp\\PreviousF.bmp"
+PREVIOUSU               BITMAP  DISCARDABLE     "bmp\\PreviousU.bmp"
+CUSTOMX                 BITMAP  DISCARDABLE     "bmp\\CustomX.bmp"
+CUSTOMD                 BITMAP  DISCARDABLE     "bmp\\CustomD.bmp"
+CUSTOMF                 BITMAP  DISCARDABLE     "bmp\\CustomF.bmp"
+CUSTOMU                 BITMAP  DISCARDABLE     "bmp\\CustomU.bmp"
+NEXTX                   BITMAP  DISCARDABLE     "bmp\\NextX.bmp"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""..\\..\\Launcher.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "..\\..\\Launcher.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_LAUNCHER_DIALOG DIALOGEX 0, 0, 600, 250
+STYLE DS_3DLOOK | WS_POPUP | WS_VISIBLE
+EXSTYLE WS_EX_APPWINDOW
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Minimize",IDC_MINIMIZE,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,292,6,10,10
+    CONTROL         "Close",IDC_CLOSE,"Button",BS_OWNERDRAW | WS_TABSTOP,302,
+                    6,10,10
+    CONTROL         "Display",IDC_DISPLAY,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    243,98,50,14
+    CONTROL         "Quit",IDC_QUIT,"Button",BS_OWNERDRAW | WS_TABSTOP,243,
+                    154,50,14
+    CONTROL         "Options",IDC_OPTIONS,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    243,116,50,14
+    CONTROL         "Uninstall",IDC_UNINSTALL,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,243,134,50,14
+    CONTROL         "Install",IDC_PLAY,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    413,25,50,14
+    CONTROL         "PublisherWeb",IDC_PUBLISHERWEB,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,39,193,36,40
+    CONTROL         "CompanyWeb",IDC_COMPANYWEB,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,84,193,62,18
+    CONTROL         "LithtechWeb",IDC_LITHTECHWEB,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,84,216,62,18
+    CONTROL         "SierraWeb",IDC_SIERRAWEB,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,158,211,85,23
+    CONTROL         "Personalizzazione",IDC_CUSTOM,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    413,44,50,14
+END
+
+IDD_OPTIONS_DIALOG DIALOG DISCARDABLE  0, 0, 205, 181
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Close",IDC_OD_CLOSE,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    181,3,10,10
+    CONTROL         "DisableSound",IDC_OD_DISABLESOUND,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,19,15,50,16
+    CONTROL         "DisableMusic",IDC_OD_DISABLEMUSIC,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,19,32,50,13
+    CONTROL         "DisableMovies",IDC_OD_DISABLEMOVIES,"Button",
+                    BS_OWNERDRAW | WS_TABSTOP,19,46,50,13
+    CONTROL         "DisableTripleBuffering",IDC_OD_DISABLETRIPLEBUFFERING,
+                    "Button",BS_OWNERDRAW | WS_TABSTOP,111,17,50,15
+    CONTROL         "DisableJoysticks",IDC_OD_DISABLEJOYSTICKS,"Button",
+                    BS_OWNERDRAW | WS_TABSTOP,112,33,50,12
+    CONTROL         "DisableHardwareCursor",IDC_OD_DISABLEHARDWARECURSOR,
+                    "Button",BS_OWNERDRAW | WS_TABSTOP,112,46,50,12
+    CONTROL         "DisableAnimatedLoadScreen",
+                    IDC_OD_DISABLEANIMATEDLOADSCREEN,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,17,77,50,14
+    CONTROL         "RestoreDefaultSettings",IDC_OD_RESTOREDEFAULTSETTINGS,
+                    "Button",BS_OWNERDRAW | WS_TABSTOP,19,61,50,15
+    CONTROL         "AlwaysSpecify",IDC_OD_ALWAYSSPECIFY,"Button",
+                    BS_OWNERDRAW | WS_TABSTOP,28,122,50,10
+    CONTROL         "OK",IDC_OD_OK,"Button",BS_OWNERDRAW | WS_TABSTOP,12,161,
+                    50,14
+    CONTROL         "Cancel",IDC_OD_CANCEL,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,69,161,50,14
+    EDITTEXT        IDC_COMMANDLINE,15,97,166,14,ES_AUTOHSCROLL | NOT 
+                    WS_BORDER
+    LTEXT           "Cosa diavolo è questo?",IDC_HELPTEXT,20,
+                    140,162,8
+    CONTROL         "DisableSoundHardware",IDC_OD_DISABLEHARDWARESOUND,
+                    "Button",BS_OWNERDRAW | WS_TABSTOP,112,60,50,13
+    CONTROL         "DisableSoundFilters",IDC_OD_DISABLESOUNDFILTERS,"Button",
+                    BS_OWNERDRAW | WS_TABSTOP,112,77,50,15
+END
+
+IDD_DISPLAY_DIALOG DIALOG DISCARDABLE  0, 0, 205, 153
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Close",IDC_DD_CLOSE,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    181,0,11,13
+    CONTROL         "OK",IDC_DD_OK,"Button",BS_OWNERDRAW | WS_TABSTOP,49,135,
+                    50,14
+    CONTROL         "Cancel",IDC_DD_CANCEL,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,106,135,50,14
+    LISTBOX         IDC_RENDERER_LIST,15,23,48,40,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_VSCROLL | 
+                    WS_TABSTOP
+    LISTBOX         IDC_DISPLAY_LIST,113,24,48,40,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_VSCROLL | 
+                    WS_TABSTOP
+    LISTBOX         IDC_RESOLUTION_LIST,64,75,48,40,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_VSCROLL | 
+                    WS_TABSTOP
+END
+
+IDD_MESSAGEBOX DIALOGEX 0, 0, 276, 102
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Close",IDC_MB_CLOSE,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    261,4,10,10
+    CONTROL         "OK",IDC_MB_OK,"Button",BS_OWNERDRAW | WS_TABSTOP,83,79,
+                    50,14
+    CONTROL         "Cancel",IDC_MB_CANCEL,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,141,79,50,14
+    CTEXT           "Sottotitoli",IDC_CAPTION,0,10,275,8
+    LTEXT           "Testo",IDC_TEXT,0,35,275,31
+    CONTROL         296,IDC_MB_ICON,"Static",SS_BITMAP,6,6,20,20,
+                    WS_EX_TRANSPARENT
+END
+
+IDD_DETAILSETTINGS_DIALOG DIALOG DISCARDABLE  0, 0, 133, 147
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "HighDetail",IDC_DSD_HIGH,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,37,90,50,14
+    CONTROL         "Cancel",IDC_DSD_CANCEL,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,37,122,50,14
+    CONTROL         "MediumDetail",IDC_DSD_MEDIUM,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,37,63,50,14
+    CONTROL         "LowDetail",IDC_DSD_LOW,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,37,33,50,14
+    CONTROL         "Close",IDC_DSD_CLOSE,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    119,3,10,10
+    LTEXT           "Static",IDC_HEADERTEXT,9,14,114,8
+    LTEXT           "Static",IDC_LOWTEXT,7,51,114,8
+    LTEXT           "Static",IDC_MEDIUMTEXT,5,77,114,8
+    LTEXT           "Static",IDC_HIGHTEXT,4,108,114,8
+END
+
+IDD_CUSTOMIZE_DIALOG DIALOG DISCARDABLE  0, 0, 210, 162
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "OK",IDC_CD_OK,"Button",BS_OWNERDRAW | WS_TABSTOP,46,145,
+                    50,14
+    CONTROL         "Cancel",IDC_CD_CANCEL,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,99,145,50,14
+    CONTROL         "Close",IDC_CD_CLOSE,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    195,5,10,10
+    CONTROL         "Mod01",IDC_CD_MOD_01,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    25,7,48,14
+    CONTROL         "Mod02",IDC_CD_MOD_02,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    25,26,48,14
+    CONTROL         "Mod03",IDC_CD_MOD_03,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    25,44,48,14
+    CONTROL         "Mod04",IDC_CD_MOD_04,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    25,63,48,14
+    CONTROL         "Mod05",IDC_CD_MOD_05,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    25,83,48,14
+    CONTROL         "Mod06",IDC_CD_MOD_06,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    25,102,48,14
+    CONTROL         "Mod07",IDC_CD_MOD_07,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    114,6,48,14
+    CONTROL         "Mod08",IDC_CD_MOD_08,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    114,25,48,14
+    CONTROL         "Mod09",IDC_CD_MOD_09,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    113,42,48,14
+    CONTROL         "Mod10",IDC_CD_MOD_10,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    112,62,48,14
+    CONTROL         "Precedente",IDC_CD_PREVIOUS,"Button",BS_OWNERDRAW | 
+                    WS_TABSTOP,5,125,48,14
+    CONTROL         "Avanti",IDC_CD_NEXT,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    155,125,48,14
+    CONTROL         "Mod11",IDC_CD_MOD_11,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    111,82,48,14
+    CONTROL         "Mod12",IDC_CD_MOD_12,"Button",BS_OWNERDRAW | WS_TABSTOP,
+                    113,102,48,14
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "Monolith Productions, Inc.\0"
+            VALUE "FileDescription", "No One Lives Forever 2 Launcher\0"
+            VALUE "FileVersion", "1, 0, 0, 0\0"
+            VALUE "InternalName", "Launcher\0"
+            VALUE "LegalCopyright", "Copyright (C) 2002 Produzioni Monolith, Inc.\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "NOLF2.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "No One Lives Forever 2 Launcher application\0"
+            VALUE "ProductVersion", "1, 0, 0, 0\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_LAUNCHER_DIALOG, DIALOG
+    BEGIN
+        VERTGUIDE, 253
+    END
+
+    IDD_OPTIONS_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 204
+    END
+
+    IDD_DISPLAY_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 204
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// WAVE
+//
+
+IDR_SELECT              WAVE    DISCARDABLE     "..\\..\\snd\\Select.wav"
+IDR_CLICK               WAVE    DISCARDABLE     "..\\..\\snd\\Click.wav"
+IDR_BUTTONDOWN          WAVE    DISCARDABLE     "..\\..\\snd\\buttondown.wav"
+IDR_TYPEBACK            WAVE    DISCARDABLE     "..\\..\\snd\\TypeBack.wav"
+IDR_INTRO               WAVE    DISCARDABLE     "..\\..\\snd\\Intro.wav"
+IDR_TYPE                WAVE    DISCARDABLE     "..\\..\\snd\\type1.WAV"
+IDR_TYPE2               WAVE    DISCARDABLE     "..\\..\\snd\\type2.WAV"
+IDR_TYPE3               WAVE    DISCARDABLE     "..\\..\\snd\\type3.WAV"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_WEBHAND             CURSOR  DISCARDABLE     "..\\..\\WebHand.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_APPNAME             "No One Lives Forever 2"
+    IDS_APPEXE              "NOLF2.exe"
+    IDS_DISPLAY_WARNING     "Ora verranno mostrate le opzioni di visualizzazione disponibili sul tuo sistema. Quest'operazione potrebbe richiedere un po' di tempo, a seconda dell'hardware installato.\n\nSe non dovesse apparire nulla nello spazio apposito, assicurati che DirectX sia installato correttamente."
+    IDS_OPTIONS_WARNING     "ATTENZIONE! La modifica delle opzioni avanzate può far sì che il gioco funzioni peggio (o per niente) a seconda della configurazione del tuo sistema."
+    IDS_APPCD1CHECK         "\\NOLF2.EXE"
+    IDS_APPCD2CHECK         "\\DATA\\GAME2.REZ"
+    IDS_REZBASE             "GAME"
+    IDS_SETUPEXE            "SETUP.EXE"
+    IDS_SERVEREXE           "NOLF2Svr.EXE"
+    IDS_LANGUAGE            "English"
+    IDS_INSERTCD2           "Please remove the No One Lives Forever Disc 2 from your drive and replace it with the No One Lives Forever Disc 1."
+    IDS_INSERTCD            "Inserisci il CD 1 di No One Lives Forever 2 nel lettore."
+    IDS_CANTLAUNCHSETUP     "ERRORE: impossibile avviare il programma di configurazione. Assicurati che il CD di No One Lives Forever 2 sia nel lettore e riprova."
+    IDS_NORENS              "Non sono stati trovati renderizzatori. Questo problema solitamente è dovuto a una installazione non corretta di DirectX. incorretta Controlla che l'installazione di DirectX sia corretta e riprova."
+    IDS_HELP_DISABLESOUND   "Disabilita tutti gli effetti sonori."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_HELP_DISABLEMUSIC   "Disabilita l'uso del DirectMusic. Alcune schede sonore potrebbero essere incompatibili. Da usare solamente per la risoluzione di eventuali problemi."
+    IDS_HELP_DISABLEMOVIES  "Disabilita la riproduzione del logo e dei filmati introduttivi."
+    IDS_HELP_DISABLEFOG     "Viene disabilitata la nebbia atmosferica (non il clipping plane). Non ci dovrebbero essere cambiamenti nelle prestazioni. Potrebbe però essere utile con schede che supportano a malapena la nebbia."
+    IDS_HELP_DISABLEJOYSTICKS 
+                            "Disabilita tutti i joystick e i joypad. Da usare se il tuo joystick causa problemi all'avvio del gioco."
+    IDS_HELP_DISABLETRIPLEBUFFERING 
+                            "Disabilita una funzione di alcune schede video che migliora le prestazioni, ma causa l'utilizzo di una maggiore quantità di memoria video. La maggior parte delle schede AGP traggono benefici da questa funzione, che può però causare problemi su qualche schede PCI."
+    IDS_HELP_DISABLEHARDWARECURSOR 
+                            "Disabilita l'uso di un cursore hardware. Alcune schede tra le più vecchie non supportano infatti il cursore hardware."
+    IDS_HELP_DISABLEANIMATEDLOADSCREEN 
+                            "Viene disabilitato l'uso di una schermata animata durante i caricamenti. Usa questa opzione per la risoluzione dei problemi."
+    IDS_HELP_RESTOREDEFAULTS 
+                            "Riporta le impostazioni di configurazione ai valori originali. Include anche l'impostazione dei tasti, del livello di dettaglio e delle opzioni audio. È utile se hai cambiato impostazioni e vuoi tornare a quelle originali."
+    IDS_HELP_ALWAYSSPECIFY  "Solo per utenti avanzati."
+    IDS_CANTFINDREZFILE     "ERRORE: impossibile trovare il file Game.rez. Assicurati che NOLF2 sia installato correttamente e che il CD 1 di No One Lives Forever 2 sia nel lettore."
+    IDS_CANTLAUNCHCLIENTEXE "ERRORE: impossibile avviare LITHTECH.EXE. Assicurati che No One Lives Forever 2 sia installato correttamente."
+    IDS_DETAIL_HEADER       "Per ottenere la massima funzionalità di gioco da No One Lives Forever 2, seleziona le impostazioni iniziali delle prestazioni che desideri usare. Le puoi cambiare in un secondo momento usando i menu di gioco di No One Lives Forever 2."
+    IDS_DETAIL_LOW          "La bassa risoluzione fornisce le migliori prestazioni di gioco, a discapito però della qualità visiva. I requisiti di sistema raccomandati sono: PIII 500 MHz, 128 MB di Ram, scheda video GeForce 1 con 32 MB o equivalente."
+    IDS_DETAIL_MEDIUM       "La risoluzione media fornisce un accettabile compromesso tra grafica e prestazioni di gioco. I requisiti di sistema raccomandati sono: PIII 1 GHz, 256 MB di Ram, scheda video GeForce 3 con 6 4MB o equivalente."
+    IDS_DETAIL_HIGH         "L'alta risoluzione fornisce la migliore qualità visiva, ma le prestazioni di gioco potrebbero risentirne sui sistemi più lenti. I requisiti di sistema raccomandati sono: P4 2 GHz, 256 MB di RAM, scheda video GeForce 4 Ti con 128 MB o equivalente."
+    IDS_CANTLAUNCHSERVER    "ERRORE: impossibile avviare il server indipendente. Assicurati che NOLF2 sia correttamente installato sul tuo computer e riprova."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DEBUG_INSTALLSUCCESS 
+                            "No One Lives Forever 2 è stato installato correttamente!"
+    IDS_DEBUG_UNINSTALLSUCCESS 
+                            "No One Livers Forever 2 è stato rimosso correttamente!"
+    IDS_LAUNCHBROWSERERROR  "ERRORE: impossibile avviare un bowser di rete."
+    IDS_HELP_DEFAULT        "Sposta il cursore su un'opzione per ottenere degli aiuti contestuali."
+    IDS_HELP_DISABLEHARDWARESOUND 
+                            "Disabilita l'uso del supporto audio hardware del DirectSound 3D."
+    IDS_HELP_DISABLESOUNDFILTERS 
+                            "Disabilita l'uso di filtri sonori durante il gioco."
+    IDS_OD_DISABLEHARDWARESOUND "Disabilita DirectSound 3D"
+    IDS_OD_DISABLESOUNDFILTERS "Disabilita filtri audio"
+    IDS_CANTOPENCOMMANDFILE "ERRORE - impossibile aprire il file launchcmds.txt per la scrittura. Assicurarsi che il file sia scrivibile e riprovare."
+    IDS_LITHTECHWEBPAGE     "http://www.lithtech.com"
+    IDS_SIERRAWEBPAGE       "http://www.sierra.com"
+    IDS_NOCUSTOMDIR         "ERRORE - Impossibile trovare directory personalizzate."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_APPVERSION          "1.0"
+    IDS_CANTUNINSTALL       "ERRORE: impossibile rimuovere il gioco. Se No One Lives Forever 2 risulta ancora installato, prova a usare la funzione Installazione applicazioni. Per installare nuovamente il gioco, avvia il programma Setup.exe dal CD 1 di One Lives Forever 2."
+    IDS_COMPANYWEBPAGE      "http://www.lith.com"
+    IDS_CANTOPENAVI         "ERRORE: impossibile aprire un file .avi."
+    IDS_PUBLISHERWEBPAGE    "http://www.foxinteractive.com"
+    IDS_OD_DISABLESOUND     "Disabilita audio"
+    IDS_OD_DISABLEMUSIC     "Disabilita musica"
+    IDS_OD_DISABLEMOVIES    "Disabilita filmati"
+    IDS_APPNAME_DEMO        "No One Lives Forever 2 (Demo ufficiale)"
+    IDS_OD_DISABLEJOYSTICKS "Disabilita joystick"
+    IDS_OD_DISABLETRIPLEBUFFERING "Disabilita triplo buffering"
+    IDS_OD_DISABLEHARDWARECURSOR "Disabilita cursore "
+    IDS_OD_DISABLEANIMATEDLOADSCREENS "Disabilita Schermi Caricamento Animati"
+    IDS_OD_RESTOREDEFAULTS  "Ripristina valori iniziali"
+    IDS_OD_ALWAYSSPECIFY    "Passa sempre gli argomenti della linea di comando al gioco"
+    IDS_DEBUG_REGCREATEERROR 
+                            "ERRORE: impossibile creare la chiave di registro di No One Lives Forever 2!"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "..\..\Launcher.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,65 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ButeMgr", "ButeMgr\ButeMgr.vcproj", "{CDF189C8-F63C-4B4B-9050-634535DA1A7D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CryptMgr", "CryptMgr\cryptmgr.vcproj", "{4D71855A-6759-4D91-A3E5-C7B71A816477}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DibMgr", "dibmgr\dibmgr60.vcproj", "{784F6D25-4289-4460-B82D-83A59E81D53C}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Debug MFC DLL = Debug MFC DLL
+		Final = Final
+		Final MFC DLL = Final MFC DLL
+		Release = Release
+		Release MFC DLL = Release MFC DLL
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Debug.ActiveCfg = Debug|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Debug.Build.0 = Debug|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Debug MFC DLL.ActiveCfg = Debug MFC DLL|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Debug MFC DLL.Build.0 = Debug MFC DLL|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Final.ActiveCfg = Final|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Final.Build.0 = Final|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Final MFC DLL.ActiveCfg = Final MFC DLL|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Final MFC DLL.Build.0 = Final MFC DLL|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Release.ActiveCfg = Release|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Release.Build.0 = Release|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Release MFC DLL.ActiveCfg = Release MFC DLL|Win32
+		{CDF189C8-F63C-4B4B-9050-634535DA1A7D}.Release MFC DLL.Build.0 = Release MFC DLL|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Debug.ActiveCfg = Debug|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Debug.Build.0 = Debug|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Debug MFC DLL.ActiveCfg = Debug MFC DLL|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Debug MFC DLL.Build.0 = Debug MFC DLL|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Final.ActiveCfg = Final|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Final.Build.0 = Final|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Final MFC DLL.ActiveCfg = Final MFC DLL|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Final MFC DLL.Build.0 = Final MFC DLL|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Release.ActiveCfg = Release|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Release.Build.0 = Release|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Release MFC DLL.ActiveCfg = Release MFC DLL|Win32
+		{4D71855A-6759-4D91-A3E5-C7B71A816477}.Release MFC DLL.Build.0 = Release MFC DLL|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Debug.ActiveCfg = Debug|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Debug.Build.0 = Debug|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Debug MFC DLL.ActiveCfg = Debug MFC DLL|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Debug MFC DLL.Build.0 = Debug MFC DLL|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Final.ActiveCfg = Debug|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Final.Build.0 = Debug|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Final MFC DLL.ActiveCfg = Debug|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Final MFC DLL.Build.0 = Debug|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Release.ActiveCfg = Release|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Release.Build.0 = Release|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Release MFC DLL.ActiveCfg = Release MFC DLL|Win32
+		{784F6D25-4289-4460-B82D-83A59E81D53C}.Release MFC DLL.Build.0 = Release MFC DLL|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,62 @@
+//  IRNGCMessage.IDL
+//  Game Console IPC message definition
+// 
+//  NOTE: If you change this file, make sure to update IRNGCMessage.h to match
+
+import "oaidl.idl";
+
+interface IRNGCEnumValues;
+interface IRNGCEnumNodes;
+
+// IRNGCMessage
+[
+object,
+uuid(BEE9C329-3E00-11d4-823D-00D0B74C5265),
+pointer_default(unique),
+helpstring("The interface to access a message")
+]
+
+interface IRNGCMessage : IUnknown 
+{
+    [helpstring("method put_NodeName - Give this node a name, a nodes default name is TOP")]
+    [propput] HRESULT NodeName([in, ref] BSTR bstrName);
+
+    [helpstring("method get_NodeName - Get this nodes name")]
+    [propget] HRESULT NodeName([out, retval, ref] BSTR *pbstrName);
+
+	[helpstring("method get_ValueCount - returns the number of values contained within this node")]
+	[propget] HRESULT ValueCount([out, retval, ref] long *nNumValues);
+
+	[helpstring("method get_NodeCount - returns the number of child nodes")]
+	[propget] HRESULT NodeCount([out, retval, ref] long *nNumNodes);
+
+	[helpstring("method get_Value - get a value, useful for iteration")]
+	[propget] HRESULT Value([in] long nValueNum, 
+							[out, ref] BSTR * pbstrValueName,
+							[out, ref] VARIANTARG * pValue);
+
+	[helpstring("method get_Node - get a node, useful for iteration")]
+	[propget] HRESULT Node([in] long nNodeNum, [out, retval, ref] IRNGCMessage ** ppNode);
+
+	[helpstring("method AddValue - add a new value to the node. Pass a ':' separated path to add a value to a specific child node, eg ':ChildName:ChildChildName:ValueName'.")]
+	HRESULT AddValue([in, ref] BSTR bstrName, [in] VARIANTARG varValue);
+
+	[helpstring("method AddNode - add a new child node. Pass a ':' separated path to add a node to a specific child node, eg ':ChildName:ChildChildName:NodeName'.")]
+	HRESULT AddNode([in, ref] BSTR bstrName, [in] IRNGCMessage * pNode);
+
+	[helpstring("method RemoveValue - remove a specific value from the node")]
+	HRESULT RemoveValue([in, ref] BSTR bstrName);
+
+	[helpstring("method RemoveNode - remove a child node")]
+	HRESULT RemoveNode([in, ref] BSTR bstrName);
+
+	[helpstring("method FindValue - find the first value with this name, recursively searching down the child tree.  Pass a ':' separated path to target a specific child value, eg ':ChildName:ChildChildName:ValueName'.")]
+	HRESULT FindValue([in, ref] BSTR bstrName, [out, retval, ref] VARIANTARG * pvarValue);
+
+	[helpstring("method FindNode - find the first node with this name, recursively searching down the child tree.  Pass a ':' separated path to target a specific child node, eg ':ChildName:ChildChildName:NodeName'.")]
+	HRESULT FindNode([in, ref] BSTR bstrName, [out, retval, ref] IRNGCMessage ** ppChild);
+
+	[helpstring("method ClearAll - clears out all children and values.")]
+	HRESULT ClearAll();
+}
+

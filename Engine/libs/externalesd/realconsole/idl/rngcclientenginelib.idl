@@ -1,0 +1,33 @@
+//  RNGCClientEngineLib.IDL
+//  Game Console Client Engine IDL Library definition
+// 
+//  NOTE: If you change this file, make sure to update IRNGCClientEngine.h to match
+
+import "unknwn.idl";
+import "irngcclientengine.idl";
+import "irngcmessage.idl";
+import "irngameconsole.idl";
+
+// library RNGCClientEngineLib
+[
+uuid(BEE9C320-3E00-11d4-823D-00D0B74C5265),
+helpstring("RealArcade client engine library")
+]
+library RNGCClientEngineLib
+{
+    importlib("stdole32.tlb");
+
+    [uuid(BEE9C321-3E00-11d4-823D-00D0B74C5265)]
+    coclass RNGCClientEngine
+    {
+        [default] interface IRNGCClientEngine;
+        interface IRNGameConsole;
+    }
+
+    [uuid(BEE9C322-3E00-11d4-823D-00D0B74C5265)]
+    coclass RNGCClientMessage
+    {
+        [default] interface IRNGCMessage;
+    }
+
+}

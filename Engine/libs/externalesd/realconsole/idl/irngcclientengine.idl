@@ -1,0 +1,40 @@
+//  IRNGCClientEngine.IDL
+//  Game Console Client Engine IDL file
+// 
+//  NOTE: If you change this file, make sure to update IRNGCClientEngine.h to match
+//          for the type definitions, keep rngctypes.h up to date
+
+import "unknwn.idl";
+import "irngameconsole.idl";
+
+
+// IRNGCClientEngine
+[
+object,
+uuid(BEE9C326-3E00-11d4-823D-00D0B74C5265),
+pointer_default(unique),
+helpstring("The interface to initialize the game console from the client")
+]
+interface IRNGCClientEngine : IUnknown 
+{
+    [helpstring("method InitEngine")]
+    HRESULT InitEngine([in] BSTR bstrGameID);
+
+    [helpstring("method CleanupEngine")]
+    HRESULT CleanupEngine();
+
+	[helpstring("method CheckConsoleStatus")]
+	HRESULT CheckConsoleStatus([out, ref, retval] ULONG * bRunning);
+
+	[helpstring("method GetErrorMessage")]
+	HRESULT GetErrorMessage([in] HRESULT hrError, 
+							[out, ref, retval] BSTR * pbstrMessage
+							);
+
+	[helpstring("method GetMessageDescription")]
+	HRESULT GetMessageDescription(	[in] RNGC_MESSAGE_TYPE nType,
+									[in] IRNGCMessage * pMessage, 
+									[out, ref, retval] BSTR * pbstrMessage
+									);
+}
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="MfcDlls"
+	ProjectGUID="{A0BA00E5-D661-49B6-B1F0-C595185CF954}"
+	RootNamespace="MfcDlls"
+	Keyword="MakeFileProj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory=".\built\Debug\MfcDlls"
+			IntermediateDirectory=".\built\Debug\MfcDlls"
+			ConfigurationType="0">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="devenv MfcDlls.sln /build &quot;Debug MFC DLL&quot;"
+				ReBuildCommandLine="devenv MfcDlls.sln /rebuild &quot;Debug MFC DLL&quot;"
+				CleanCommandLine="devenv MfcDlls.sln /clean &quot;Debug MFC DLL&quot;"/>
+		</Configuration>
+		<Configuration
+			Name="Final|Win32"
+			OutputDirectory=".\built\Final\MfcDlls"
+			IntermediateDirectory=".\built\Final\MfcDlls"
+			ConfigurationType="0">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="devenv MfcDlls.sln /build &quot;Final MFC DLL&quot;"
+				ReBuildCommandLine="devenv MfcDlls.sln /rebuild &quot;Final MFC DLL&quot;"
+				CleanCommandLine="devenv MfcDlls.sln /clean &quot;Final MFC DLL&quot;"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory=".\built\Release\MfcDlls"
+			IntermediateDirectory=".\built\Release\MfcDlls"
+			ConfigurationType="0">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="devenv MfcDlls.sln /build &quot;Release MFC DLL&quot;"
+				ReBuildCommandLine="devenv MfcDlls.sln /rebuild &quot;Release MFC DLL&quot;"
+				CleanCommandLine="devenv MfcDlls.sln /clean &quot;Release MFC DLL&quot;"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
