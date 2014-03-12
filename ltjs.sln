@@ -100,8 +100,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib_reg_mgr", "Libs\RegMgr\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib_std_lith", "Libs\stdlith\lib_std_lith.vcxproj", "{1B1401D4-CC33-4113-B220-73146A036DB7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib_zlib", "Libs\zlib\lib_zlib.vcxproj", "{9E355C8A-E922-42DE-9FBF-076DB71B7630}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -271,12 +269,6 @@ Global
 		{1B1401D4-CC33-4113-B220-73146A036DB7}.Final|Win32.Build.0 = Final|Win32
 		{1B1401D4-CC33-4113-B220-73146A036DB7}.Release|Win32.ActiveCfg = Release|Win32
 		{1B1401D4-CC33-4113-B220-73146A036DB7}.Release|Win32.Build.0 = Release|Win32
-		{9E355C8A-E922-42DE-9FBF-076DB71B7630}.Debug|Win32.ActiveCfg = Debug|Win32
-		{9E355C8A-E922-42DE-9FBF-076DB71B7630}.Debug|Win32.Build.0 = Debug|Win32
-		{9E355C8A-E922-42DE-9FBF-076DB71B7630}.Final|Win32.ActiveCfg = Final|Win32
-		{9E355C8A-E922-42DE-9FBF-076DB71B7630}.Final|Win32.Build.0 = Final|Win32
-		{9E355C8A-E922-42DE-9FBF-076DB71B7630}.Release|Win32.ActiveCfg = Release|Win32
-		{9E355C8A-E922-42DE-9FBF-076DB71B7630}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
