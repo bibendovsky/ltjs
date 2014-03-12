@@ -18,6 +18,7 @@
     <ProjectGuid>{0BC75469-6DD7-4B39-81A3-9B51CC685A22}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath />
+    <ProjectName>lib_dshow</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

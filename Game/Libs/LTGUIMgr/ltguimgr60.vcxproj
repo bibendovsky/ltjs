@@ -15,7 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>LTGUIMgr</ProjectName>
+    <ProjectName>lib_lt_gui_mgr</ProjectName>
     <ProjectGuid>{5B3B6D90-EC56-41A8-B84F-9765DD16016B}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath />
@@ -55,17 +55,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>ltguimgr</TargetName>
+    <TargetName>lib_lt_gui_mgr</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>ltguimgr</TargetName>
+    <TargetName>lib_lt_gui_mgr</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>ltguimgr</TargetName>
+    <TargetName>lib_lt_gui_mgr</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

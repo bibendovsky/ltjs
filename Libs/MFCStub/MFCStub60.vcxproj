@@ -15,7 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>MFCStub</ProjectName>
+    <ProjectName>lib_mfc_stub</ProjectName>
     <ProjectGuid>{718F7FCE-F855-4BE4-8E85-D4DAF492A15D}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath>.</SccLocalPath>
@@ -55,17 +55,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>mfcstub</TargetName>
+    <TargetName>lib_mfc_stub</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>mfcstub</TargetName>
+    <TargetName>lib_mfc_stub</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>mfcstub</TargetName>
+    <TargetName>lib_mfc_stub</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

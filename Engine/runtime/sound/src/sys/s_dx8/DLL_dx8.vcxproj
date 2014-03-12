@@ -18,6 +18,7 @@
     <SccProjectName />
     <SccLocalPath>.</SccLocalPath>
     <ProjectGuid>{D0908226-F71A-4A94-9AE0-98A874CE1A07}</ProjectGuid>
+    <ProjectName>snd_drv</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">

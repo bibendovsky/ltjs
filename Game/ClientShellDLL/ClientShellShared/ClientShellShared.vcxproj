@@ -18,6 +18,7 @@
     <ProjectGuid>{13D64118-FF65-4313-9A87-E8E723B5ECC9}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath />
+    <ProjectName>lib_client_shell</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -54,17 +55,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>clientshellshared</TargetName>
+    <TargetName>lib_client_shell</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>clientshellshared</TargetName>
+    <TargetName>lib_client_shell</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>clientshellshared</TargetName>
+    <TargetName>lib_client_shell</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

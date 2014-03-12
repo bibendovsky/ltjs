@@ -15,7 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>CryptMgr</ProjectName>
+    <ProjectName>lib_crypt_mgr</ProjectName>
     <ProjectGuid>{4D71855A-6759-4D91-A3E5-C7B71A816477}</ProjectGuid>
     <SccProjectName />
     <SccAuxPath />
@@ -58,17 +58,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>cryptmgr</TargetName>
+    <TargetName>lib_crypt_mgr</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>cryptmgr</TargetName>
+    <TargetName>lib_crypt_mgr</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>cryptmgr</TargetName>
+    <TargetName>lib_crypt_mgr</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

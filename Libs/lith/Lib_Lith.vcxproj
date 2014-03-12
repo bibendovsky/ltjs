@@ -18,6 +18,7 @@
     <ProjectGuid>{6A124F5D-D9D0-49E2-B771-6CB6B8B1D1A3}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath>.</SccLocalPath>
+    <ProjectName>lib_lith</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

@@ -18,6 +18,7 @@
     <ProjectGuid>{1B1401D4-CC33-4113-B220-73146A036DB7}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath>.</SccLocalPath>
+    <ProjectName>lib_std_lith</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
@@ -54,17 +55,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_stdlith</TargetName>
+    <TargetName>lib_std_lith</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_stdlith</TargetName>
+    <TargetName>lib_std_lith</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_stdlith</TargetName>
+    <TargetName>lib_std_lith</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

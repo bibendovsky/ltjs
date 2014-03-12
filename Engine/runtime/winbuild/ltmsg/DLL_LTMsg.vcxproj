@@ -18,6 +18,7 @@
     <SccProjectName />
     <SccLocalPath>.</SccLocalPath>
     <ProjectGuid>{CC21B494-C18C-487E-96A4-EBEFF735DCA2}</ProjectGuid>
+    <ProjectName>lt_msg</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">

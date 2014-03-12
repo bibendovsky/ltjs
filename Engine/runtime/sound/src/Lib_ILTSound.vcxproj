@@ -18,6 +18,7 @@
     <SccProjectName />
     <SccLocalPath>.</SccLocalPath>
     <ProjectGuid>{D9D932CD-2F0B-4D9A-B2CF-28A02DF87F4E}</ProjectGuid>
+    <ProjectName>lib_ilt_sound</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
@@ -54,17 +55,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_iltsound</TargetName>
+    <TargetName>lib_ilt_sound</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_iltsound</TargetName>
+    <TargetName>lib_ilt_sound</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <OutDir>..\..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_iltsound</TargetName>
+    <TargetName>lib_ilt_sound</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

@@ -18,6 +18,7 @@
     <SccProjectName />
     <SccLocalPath />
     <ProjectGuid>{0CCFC03E-E1BA-474D-A1C3-EA7A4EB2948C}</ProjectGuid>
+    <ProjectName>lib_d3d_renderer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
@@ -54,17 +55,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\..\..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_d3drender</TargetName>
+    <TargetName>lib_d3d_render</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\..\..\..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_d3drender</TargetName>
+    <TargetName>lib_d3d_render</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <OutDir>..\..\..\..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_d3drender</TargetName>
+    <TargetName>lib_d3d_render</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

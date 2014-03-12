@@ -18,6 +18,7 @@
     <ProjectGuid>{7C961F0A-5C6F-42E5-93F8-91FEEACC8AD6}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath />
+    <ProjectName>lib_rez_mgr</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
@@ -54,17 +55,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_rezmgr</TargetName>
+    <TargetName>lib_rez_mgr</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_rezmgr</TargetName>
+    <TargetName>lib_rez_mgr</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_rezmgr</TargetName>
+    <TargetName>lib_rez_mgr</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

@@ -18,6 +18,7 @@
     <ProjectGuid>{CABCFD60-235C-4A01-8132-284F7D7E2714}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath />
+    <ProjectName>server_res</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

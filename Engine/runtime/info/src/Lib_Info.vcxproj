@@ -18,6 +18,7 @@
     <SccProjectName />
     <SccLocalPath>.</SccLocalPath>
     <ProjectGuid>{17B70553-7243-49A9-9A94-A7CC15328B05}</ProjectGuid>
+    <ProjectName>lib_info</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -54,17 +55,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>libltinfo</TargetName>
+    <TargetName>lib_lt_info</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <OutDir>..\..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>libltinfo</TargetName>
+    <TargetName>lib_lt_info</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>libltinfo</TargetName>
+    <TargetName>lib_lt_info</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

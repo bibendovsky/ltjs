@@ -9,15 +9,6 @@
       <UniqueIdentifier>{8efa7ddb-6c7e-4229-9273-cb450078543a}</UniqueIdentifier>
       <Extensions>h;hpp</Extensions>
     </Filter>
-    <Filter Include="Libs Debug">
-      <UniqueIdentifier>{b308b7a4-a806-47fa-9894-fe27e192c473}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libs Final">
-      <UniqueIdentifier>{558fc7a6-6f4a-470b-8dc7-41ff7f0ae574}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Libs Release">
-      <UniqueIdentifier>{3fe74a2b-391a-4134-87c5-58aad528a5fc}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GlobalsInit.cpp">
@@ -49,70 +40,5 @@
     <ClInclude Include="..\..\Shared\TO2\TO2VersionMgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\..\..\build\lib\debug\butemgr.lib">
-      <Filter>Libs Debug</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\debug\cryptmgr.lib">
-      <Filter>Libs Debug</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\debug\lib_lith.lib">
-      <Filter>Libs Debug</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\debug\lib_stdlith.lib">
-      <Filter>Libs Debug</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\debug\ltmem.lib">
-      <Filter>Libs Debug</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\debug\mfcstub.lib">
-      <Filter>Libs Debug</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\debug\regmgr.lib">
-      <Filter>Libs Debug</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\final\lib_stdlith.lib">
-      <Filter>Libs Final</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\final\lib_lith.lib">
-      <Filter>Libs Final</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\final\cryptmgr.lib">
-      <Filter>Libs Final</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\final\butemgr.lib">
-      <Filter>Libs Final</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\final\ltmem.lib">
-      <Filter>Libs Final</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\final\mfcstub.lib">
-      <Filter>Libs Final</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\final\regmgr.lib">
-      <Filter>Libs Final</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\release\butemgr.lib">
-      <Filter>Libs Release</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\release\cryptmgr.lib">
-      <Filter>Libs Release</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\release\lib_lith.lib">
-      <Filter>Libs Release</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\release\lib_stdLith.lib">
-      <Filter>Libs Release</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\release\ltmem.lib">
-      <Filter>Libs Release</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\release\mfcstub.lib">
-      <Filter>Libs Release</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\..\..\build\lib\release\regmgr.lib">
-      <Filter>Libs Release</Filter>
-    </CustomBuild>
   </ItemGroup>
 </Project>

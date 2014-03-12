@@ -15,7 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>Exe_LithTech</ProjectName>
+    <ProjectName>lith_tech</ProjectName>
     <ProjectGuid>{24CA0D6C-5D79-4346-A73B-92E350414832}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath />
