@@ -15,10 +15,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{6A124F5D-D9D0-49E2-B771-6CB6B8B1D1A3}</ProjectGuid>
+    <ProjectName>lib_lt_gui_mgr</ProjectName>
+    <ProjectGuid>{5B3B6D90-EC56-41A8-B84F-9765DD16016B}</ProjectGuid>
     <SccProjectName />
-    <SccLocalPath>.</SccLocalPath>
-    <ProjectName>lib_lith</ProjectName>
+    <SccLocalPath />
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -53,49 +53,55 @@
     <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
-    <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_lith</TargetName>
+    <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>lib_lt_gui_mgr</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
-    <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
-    <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_lith</TargetName>
+    <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>lib_lt_gui_mgr</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
-    <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_lith</TargetName>
+    <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>lib_lt_gui_mgr</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <AdditionalIncludeDirectories>..\..\..\Engine\sdk\inc;..\..\..\Engine\sdk\inc\compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;_LITHTECH2;LT15_COMPAT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BrowseInformation>false</BrowseInformation>
+      <ForceConformanceInForLoopScope>false</ForceConformanceInForLoopScope>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <WarningLevel>Level3</WarningLevel>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Lib />
     <ResourceCompile>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_FINAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\Engine\sdk\inc;..\..\..\Engine\sdk\inc\compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_LITHTECH2;LT15_COMPAT;_FINAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ForceConformanceInForLoopScope>false</ForceConformanceInForLoopScope>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -105,20 +111,23 @@
     </ClCompile>
     <Lib />
     <ResourceCompile>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\Engine\sdk\inc;..\..\..\Engine\sdk\inc\compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_LITHTECH2;LT15_COMPAT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ForceConformanceInForLoopScope>false</ForceConformanceInForLoopScope>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -128,39 +137,45 @@
     </ClCompile>
     <Lib />
     <ResourceCompile>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="basehash.cpp" />
-    <ClCompile Include="baselist.cpp" />
-    <ClCompile Include="baselistcounter.cpp" />
-    <ClCompile Include="dprintf.cpp" />
-    <ClCompile Include="lith.cpp" />
-    <ClCompile Include="lithbaselist.cpp" />
-    <ClCompile Include="lithchunkallocator.cpp" />
-    <ClCompile Include="lithsimpary.cpp" />
-    <ClCompile Include="lithsimparystat.cpp" />
-    <ClCompile Include="virtlist.cpp" />
+    <ClCompile Include="ltguibutton.cpp" />
+    <ClCompile Include="ltguicolumnctrl.cpp" />
+    <ClCompile Include="ltguicommandhandler.cpp" />
+    <ClCompile Include="ltguictrl.cpp" />
+    <ClCompile Include="ltguicyclectrl.cpp" />
+    <ClCompile Include="ltguieditctrl.cpp" />
+    <ClCompile Include="ltguiframe.cpp" />
+    <ClCompile Include="ltguilistctrl.cpp" />
+    <ClCompile Include="ltguislider.cpp" />
+    <ClCompile Include="ltguitextitemctrl.cpp" />
+    <ClCompile Include="ltguitoggle.cpp" />
+    <ClCompile Include="ltguiwindow.cpp" />
+    <ClCompile Include="ltguilargetext.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="basehash.h" />
-    <ClInclude Include="baselist.h" />
-    <ClInclude Include="baselistcounter.h" />
-    <ClInclude Include="dprintf.h" />
-    <ClInclude Include="lith.h" />
-    <ClInclude Include="lithbaselist.h" />
-    <ClInclude Include="lithchunkallocator.h" />
-    <ClInclude Include="lithsimpary.h" />
-    <ClInclude Include="lithsimparystat.h" />
-    <ClInclude Include="lithtmpl.h" />
-    <ClInclude Include="lithtypes.h" />
-    <ClInclude Include="virtlist.h" />
+    <ClInclude Include="ltguibutton.h" />
+    <ClInclude Include="ltguicolumnctrl.h" />
+    <ClInclude Include="LTGUICommandHandler.h" />
+    <ClInclude Include="LTGUICtrl.h" />
+    <ClInclude Include="ltguicyclectrl.h" />
+    <ClInclude Include="ltguieditctrl.h" />
+    <ClInclude Include="ltguiframe.h" />
+    <ClInclude Include="ltguilistctrl.h" />
+    <ClInclude Include="ltguimgr.h" />
+    <ClInclude Include="ltguislider.h" />
+    <ClInclude Include="LTGUITextItemCtrl.h" />
+    <ClInclude Include="ltguitoggle.h" />
+    <ClInclude Include="ltguiwindow.h" />
+    <ClInclude Include="ltquaduvutils.h" />
+    <ClInclude Include="vkdefs.h" />
+    <ClInclude Include="ltguilargetext.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -15,10 +15,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{6A124F5D-D9D0-49E2-B771-6CB6B8B1D1A3}</ProjectGuid>
+    <ProjectGuid>{746AA05C-85DF-4D10-9BED-7E028ACBB50D}</ProjectGuid>
     <SccProjectName />
     <SccLocalPath>.</SccLocalPath>
-    <ProjectName>lib_lith</ProjectName>
+    <ProjectName>lib_lt_mem</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -53,24 +53,25 @@
     <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
-    <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_lith</TargetName>
+    <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>lib_lt_mem</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
-    <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
-    <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_lith</TargetName>
+    <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>lib_lt_mem</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
-    <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_lith</TargetName>
+    <OutDir>..\..\..\build\lib\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>lib_lt_mem</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\Libs\stdlith;..\..\sdk\inc;..\..\runtime\shared\src;..\..\runtime\kernel\src;..\..\runtime\kernel\mem\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -79,6 +80,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Lib />
     <ResourceCompile>
@@ -87,12 +89,13 @@
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_FINAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\Libs\stdlith;..\..\sdk\inc;..\..\runtime\shared\src;..\..\runtime\kernel\src;..\..\runtime\kernel\mem\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_FINAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -102,6 +105,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Lib />
     <ResourceCompile>
@@ -110,12 +114,13 @@
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\Libs\stdlith;..\..\sdk\inc;..\..\runtime\shared\src;..\..\runtime\kernel\src;..\..\runtime\kernel\mem\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -125,6 +130,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Lib />
     <ResourceCompile>
@@ -133,34 +139,31 @@
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="basehash.cpp" />
-    <ClCompile Include="baselist.cpp" />
-    <ClCompile Include="baselistcounter.cpp" />
-    <ClCompile Include="dprintf.cpp" />
-    <ClCompile Include="lith.cpp" />
-    <ClCompile Include="lithbaselist.cpp" />
-    <ClCompile Include="lithchunkallocator.cpp" />
-    <ClCompile Include="lithsimpary.cpp" />
-    <ClCompile Include="lithsimparystat.cpp" />
-    <ClCompile Include="virtlist.cpp" />
+    <ClCompile Include="ltmem.cpp" />
+    <ClCompile Include="ltmemdebug.cpp" />
+    <ClCompile Include="ltmemheap.cpp" />
+    <ClCompile Include="ltmemstats.cpp" />
+    <ClCompile Include="ltmemtrack.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="basehash.h" />
-    <ClInclude Include="baselist.h" />
-    <ClInclude Include="baselistcounter.h" />
-    <ClInclude Include="dprintf.h" />
-    <ClInclude Include="lith.h" />
-    <ClInclude Include="lithbaselist.h" />
-    <ClInclude Include="lithchunkallocator.h" />
-    <ClInclude Include="lithsimpary.h" />
-    <ClInclude Include="lithsimparystat.h" />
-    <ClInclude Include="lithtmpl.h" />
-    <ClInclude Include="lithtypes.h" />
-    <ClInclude Include="virtlist.h" />
+    <ClInclude Include="generalheap.h" />
+    <ClInclude Include="generalheapgroup.h" />
+    <ClInclude Include="lilfixedheap.h" />
+    <ClInclude Include="lilfixedheapgroup.h" />
+    <ClInclude Include="..\..\sdk\inc\ltmem.h" />
+    <ClInclude Include="ltmemdebug.h" />
+    <ClInclude Include="ltmemheap.h" />
+    <ClInclude Include="ltmemtrack.h" />
+    <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

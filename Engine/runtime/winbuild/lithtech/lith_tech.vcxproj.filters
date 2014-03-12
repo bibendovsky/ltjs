@@ -1,0 +1,1440 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="LithSharedNoLonger">
+      <UniqueIdentifier>{0a1a6b85-1618-478a-9d77-df4912867209}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LithSharedNoLonger\ControlFileMgr">
+      <UniqueIdentifier>{5b2bfa7a-aa98-4003-9268-bbf9ff6ea0b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LithSharedNoLonger\LithTemplate">
+      <UniqueIdentifier>{17ef6cdf-8d0a-4829-acf9-022b36465095}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{e1aabbc2-0ee8-417a-a822-cce3502152e0}</UniqueIdentifier>
+      <Extensions>cpp</Extensions>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{def71569-416f-4dfd-b5e0-b96666ca1a79}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+    <Filter Include="Headers\SDK">
+      <UniqueIdentifier>{cec50a1a-bc95-4df7-9a89-1d9153fbd6e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{830d2f12-be1c-4fe2-b1b3-7e8df361bfd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\World">
+      <UniqueIdentifier>{56caf3c1-fd00-4959-9a26-2e7840b1137b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Command Line">
+      <UniqueIdentifier>{32b08ad3-785c-4368-aa77-006b6358c443}</UniqueIdentifier>
+      <Extensions>r</Extensions>
+    </Filter>
+    <Filter Include="Modules\ClientFileMgr">
+      <UniqueIdentifier>{797b28a2-581c-4997-9d7c-48ea5f5af391}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Game Interfaces">
+      <UniqueIdentifier>{b00b0663-19f9-44ae-90a1-8598d1f66402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Game Interfaces\ILTModel">
+      <UniqueIdentifier>{cf37ddc9-5171-4468-90dd-b39ce328f64e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Game Interfaces\ILTCommon">
+      <UniqueIdentifier>{1d8bccfd-00e5-427b-b20c-6801515b499d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Game Interfaces\ILTCursor">
+      <UniqueIdentifier>{4aeccb33-a8e9-4d12-9dd0-705c7fda65d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Game Interfaces\ILTPhysics">
+      <UniqueIdentifier>{bbffcbc3-5957-4fa1-ae0d-d5cf256a2188}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Game Interfaces\ILTTransform">
+      <UniqueIdentifier>{ddb5d395-bbf9-4610-8028-d3b88504d1af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Game Interfaces\ILTSoundMgr">
+      <UniqueIdentifier>{c8b71ec8-409b-499b-9a9b-0e6d01b936a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Game Interfaces\ILTVideoMgr">
+      <UniqueIdentifier>{fcc2d053-5f11-444a-8998-81458c222e17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Resource">
+      <UniqueIdentifier>{e30f2c26-0049-4993-9e2d-f0e8bc5bfa1a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\controlfilemgr\controlfilemgr.cpp">
+      <Filter>LithSharedNoLonger\ControlFileMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\model\src\animtracker.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\bdefs.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\bindmgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\binkvideomgrimpl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\classbind.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\classmgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\client.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\client_formatmgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\client_graphmgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\client_ticks.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\clientde_impl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\clientmgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\clientshell.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\cmoveabstract.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\cnet.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\cobject.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\collision.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\compress.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\concommand.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\conparse.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\console.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\consolecommands.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\counter.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\sys\win\customfontfilemgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\cutil.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\model\src\sys\d3d\d3d_model_load.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\render_b\src\sys\d3d\d3ddrawprim.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\render_b\src\sys\d3d\d3dtexinterface.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\io\src\sys\win\de_file.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\de_mainworld.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\mem\src\sys\win\de_memory.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\de_nodes.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\de_objects.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\debuggeometry.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\debugging.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\debuggraphmgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\dhashtable.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\dshowvideomgrimpl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\sys\win\dstreamopenqueuemgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\dsys_interface.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\dtxmgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\dutil.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\engine_vars.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\errorlog.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\findobj.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\ftclient.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\ftserv.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\fullintersectline.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\game_serialize.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\gamemath.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\genericprop_setup.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\genltstream.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\geometry.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\geomroutines.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\impl_common.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\input.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\InputSim.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\interface_helpers.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\interlink.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\intersect_line.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\intersectsweptsphere.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\leech.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\light_table.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\lightmap_compress.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\lightmap_planes.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\linesystem.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\load_pcx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\net\src\localdriver.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\ltbenchmark_impl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\ltdirectmusic_impl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\ltdirectmusiccontrolfile.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\ltdirectmusicloader.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sdk\inc\lterror.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\lthread.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\ltinfo_impl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\ltlibraryloader.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\mem\src\ltmemory.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\ltmessage.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\ltmessage_client.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\ltmessage_server.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sdk\inc\ltmodule.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sdk\inc\ltobjref.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sdk\inc\ltquatbase.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\ltrendermgr_impl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\lttexturestring.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\ltthread.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\lttimer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\memorywatch.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\model\src\model.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\model\src\model_load.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\model\src\modelallocations.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\motion.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\moveobject.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\moveplayer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\musicdriver.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\net\src\netmgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\nexus.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\model\src\sys\null\nullmodel_load.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\objectmgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\net\src\packet.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\parse_world_info.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\particlesystem.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\pixelformat.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\polygrid.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\predict.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\ratetracker.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\render.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\s_client.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\s_concommand.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\S_Intersect.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\s_net.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\s_object.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\server_consolestate.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\server_extradata.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\server_filemgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\serverde_impl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\serverevent.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\servermgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\setupobject.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\shellnet.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\shelltransfer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\shellutil.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\smoveabstract.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\src\soundbuffer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\src\sounddata.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\src\soundinstance.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\soundtrack.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\sprite.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\spritecontrolimpl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\stacktrace.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\stdlterror.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\streamsim.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\stringmgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\strtools.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\systeminfo.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\text_mgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\texturestring.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\sys\win\texturestringimage.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\timemgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\model\src\transformmaker.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\net\src\sys\win\udpdriver.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\version_info.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\version_resource.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\videomgr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\volumeeffect.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\watermark.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\src\wave.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\sys\win\winclientde_impl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\sys\win\winconsole_impl.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\world_tree.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\interface_linkage.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\world_blind_object_data.cpp">
+      <Filter>Modules\World</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\world_blocker_data.cpp">
+      <Filter>Modules\World</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\world_blocker_math.cpp">
+      <Filter>Modules\World</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\world_client_bsp.cpp">
+      <Filter>Modules\World</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\world_particle_blocker_data.cpp">
+      <Filter>Modules\World</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\world_server_bsp.cpp">
+      <Filter>Modules\World</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\world_shared_bsp.cpp">
+      <Filter>Modules\World</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\icommandlineargs.cpp">
+      <Filter>Modules\Command Line</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\client_filemgr.cpp">
+      <Filter>Modules\ClientFileMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\client_iltmodel.cpp">
+      <Filter>Modules\Game Interfaces\ILTModel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\modellt_impl.cpp">
+      <Filter>Modules\Game Interfaces\ILTModel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\server_iltmodel.cpp">
+      <Filter>Modules\Game Interfaces\ILTModel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\client_iltcommon.cpp">
+      <Filter>Modules\Game Interfaces\ILTCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\server_iltcommon.cpp">
+      <Filter>Modules\Game Interfaces\ILTCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\shared_iltcommon.cpp">
+      <Filter>Modules\Game Interfaces\ILTCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\lt_cursor_impl.cpp">
+      <Filter>Modules\Game Interfaces\ILTCursor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\client_iltphysics.cpp">
+      <Filter>Modules\Game Interfaces\ILTPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\server_iltphysics.cpp">
+      <Filter>Modules\Game Interfaces\ILTPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\shared_iltphysics.cpp">
+      <Filter>Modules\Game Interfaces\ILTPhysics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\transformlt_impl.cpp">
+      <Filter>Modules\Game Interfaces\ILTTransform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\server_iltsoundmgr.cpp">
+      <Filter>Modules\Game Interfaces\ILTSoundMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\src\soundmgr.cpp">
+      <Filter>Modules\Game Interfaces\ILTSoundMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\client\src\client_iltvideomgr.cpp">
+      <Filter>Modules\Game Interfaces\ILTVideoMgr</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\controlfilemgr\controlfilemgr.h">
+      <Filter>LithSharedNoLonger\ControlFileMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libs\lithtemplate\ltt_buffer.h">
+      <Filter>LithSharedNoLonger\LithTemplate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libs\lithtemplate\ltt_list_circular.h">
+      <Filter>LithSharedNoLonger\LithTemplate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\aabb.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\aabb_tree.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\model\src\animtracker.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\appresource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\bdefs.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\bindmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\bink.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\binkvideomgrimpl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\build_options.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\classbind.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\classmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\client_formatmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\client_graphmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\client_ticks.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\clientde_impl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\clientexception.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\clienthack.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\clientmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\clientshell.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_a\src\sys\d3d\clipline.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\cmoveabstract.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\collision.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\collision_data.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\collision_mgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\collision_object.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\colorops.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_a\src\sys\d3d\common_draw.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\compress.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\concommand.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\conparse.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\console.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\consolecommands.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\coordinate_frame.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\counter.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\customfontfilemgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_a\src\sys\d3d\d3d_convar.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_a\src\sys\d3d\d3d_device.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_a\src\sys\d3d\d3d_draw.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_a\src\sys\d3d\d3d_renderstatemgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_a\src\sys\d3d\d3d_renderstyle.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_a\src\sys\d3d\d3d_utils.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\sys\win\d3dddstructs.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_b\src\sys\d3d\d3ddrawprim.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_b\src\sys\d3d\d3dtexinterface.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\io\src\sys\win\de_file.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\de_mainworld.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\mem\src\de_memory.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\de_objects.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\de_sprite.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\de_world.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\DebugGeometry.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\debuggraphmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\dhashtable.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\dshowvideomgrimpl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\sys\win\dstreamopenqueuemgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\dsys.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\dsys_interface.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\dtxmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\dutil.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\errorlog.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\findobj.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\ftbase.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\ftclient.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\ftserv.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\fullintersectline.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\game_serialize.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\gamemath.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_b\src\gendrawprim.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\genericprop_setup.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\genltstream.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\geometry.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\geomroutines.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\impl_common.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\input.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\interface_helpers.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\interlink.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\intersect_line.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\light_table.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\lightmap_compress.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\lightmap_planes.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\lightmapdefs.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\linesystem.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\load_pcx.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\loadstatus.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\net\src\localdriver.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\physics\src\lt_collision_mgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\model\src\ltb.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\ltbbox.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\ltbenchmark_impl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\ltdirectmusic_impl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\ltdirectmusiccontrolfile.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\ltdirectmusicloader.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\lthread.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\ltinfo_impl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\ltmessage.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\ltmessage_client.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\ltmessage_server.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\ltmutex.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\ltrendermgr_impl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\lttexturestring.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\ltthread.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\lttimer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\math_phys.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\matrix.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\memorywatch.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\misctools.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\model\src\model.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\model\src\model_ops.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\model\src\modelallocations.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\motion.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\moveobject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\moveplayer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\musicdriver.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\musicmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\net\src\netmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\nexus.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\objectmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\net\src\packet.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\packetdefs.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\parse_world_info.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\particlesystem.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\pixelformat.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\polygrid.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\predict.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\quaternion.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\rad.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\ratetracker.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\refobj.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\render.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\renderinfostruct.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\RenderObject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\sys\win\renderstruct.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libs\rezmgr\rezfile.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libs\rezmgr\rezhash.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libs\rezmgr\rezmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libs\rezmgr\reztypes.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\rigid_body.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\s_client.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\s_concommand.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\s_net.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\s_object.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\server_consolestate.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\server_extradata.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\server_filemgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\serverde_impl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\serverevent.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\serverexception.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\servermgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\serverobj.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\setupobject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\smack.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\smoveabstract.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\net\src\sys\win\socket.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\src\soundbuffer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\src\sounddata.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\src\soundinstance.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\server\src\soundtrack.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\sprite.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\stacktrace.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\staticfifo.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\stdlterror.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\streamsim.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\stringmgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\strtools.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\sysclient.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\sysclientde_impl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\sysconsole_impl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\syscounter.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\sysddstructs.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sysdebugging.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\render_b\src\sysdrawprim.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\io\src\sysfile.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sysinput.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\syslibraryloader.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sysstreamsim.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\systeminfo.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\systhread.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\systimer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sysvideo.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\text_mgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\texturestring.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\texturestringimage.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\timemgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\model\src\transformmaker.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\triangle.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\varsetter.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\physics\vector.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\version_info.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\version_resource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\videomgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\volumeeffect.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\watermark.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\src\wave.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\sys\win\winbind.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\sys\win\winclientde_impl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\sys\win\winconsole_impl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\sys\win\winstdlterror.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\sys\win\winsync.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_tree.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\worldtreehelper.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\cui.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\cuifont.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\cuiformattedpolystring.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\cuimessage.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\cuipolystring.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ui\src\cuipolystring_impl.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\cuitypes.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iaggregate.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iclientshell.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltbaseclass.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltbenchmark.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltclient.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltcsbase.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltdirectmusic.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltdrawprim.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltfontmanager.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltinfo.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltmemory.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltmessage.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltrefcount.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltrenderstyles.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltserver.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\src\iltsound.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltspritecontrol.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltstream.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ilttexinterface.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ilttexturestring.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltwidgetmanager.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iservershell.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\ithread.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\lithtech.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltanimtracker.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltassert.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltbasedefs.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltbasetypes.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltcodes.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltengineobjects.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\lterror.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltinteger.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltlink.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltmatrix.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltmodule.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltobjectcreate.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltplane.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltproperty.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltpvalue.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltquatbase.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltrect.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltrenderstyle.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltrotation.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltserverobj.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ltvector.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\server_interface.h">
+      <Filter>Headers\SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_blind_object_data.h">
+      <Filter>Modules\World</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_blocker_data.h">
+      <Filter>Modules\World</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_blocker_math.h">
+      <Filter>Modules\World</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_client.h">
+      <Filter>Modules\World</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_client_bsp.h">
+      <Filter>Modules\World</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_interface.h">
+      <Filter>Modules\World</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_particle_blocker_data.h">
+      <Filter>Modules\World</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_server.h">
+      <Filter>Modules\World</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_server_bsp.h">
+      <Filter>Modules\World</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\world\src\world_shared_bsp.h">
+      <Filter>Modules\World</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kernel\src\icommandlineargs.h">
+      <Filter>Modules\Command Line</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\client\src\client_filemgr.h">
+      <Filter>Modules\ClientFileMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltmodel.h">
+      <Filter>Modules\Game Interfaces\ILTModel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltcommon.h">
+      <Filter>Modules\Game Interfaces\ILTCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\src\shared_iltcommon.h">
+      <Filter>Modules\Game Interfaces\ILTCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltcursor.h">
+      <Filter>Modules\Game Interfaces\ILTCursor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltphysics.h">
+      <Filter>Modules\Game Interfaces\ILTPhysics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\ilttransform.h">
+      <Filter>Modules\Game Interfaces\ILTTransform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltsoundmgr.h">
+      <Filter>Modules\Game Interfaces\ILTSoundMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\src\soundmgr.h">
+      <Filter>Modules\Game Interfaces\ILTSoundMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sdk\inc\iltvideomgr.h">
+      <Filter>Modules\Game Interfaces\ILTVideoMgr</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\client.rc2">
+      <Filter>Modules\Resource</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="idr_main.ico">
+      <Filter>Modules\Resource</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="lithtech.rc">
+      <Filter>Modules\Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

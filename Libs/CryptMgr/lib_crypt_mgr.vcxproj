@@ -15,10 +15,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{6A124F5D-D9D0-49E2-B771-6CB6B8B1D1A3}</ProjectGuid>
+    <ProjectName>lib_crypt_mgr</ProjectName>
+    <ProjectGuid>{4D71855A-6759-4D91-A3E5-C7B71A816477}</ProjectGuid>
     <SccProjectName />
+    <SccAuxPath />
     <SccLocalPath>.</SccLocalPath>
-    <ProjectName>lib_lith</ProjectName>
+    <SccProvider />
+    <Keyword>MFCProj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -55,24 +58,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_lith</TargetName>
+    <TargetName>lib_crypt_mgr</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_lith</TargetName>
+    <TargetName>lib_crypt_mgr</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\build\lib\$(Configuration)\</OutDir>
     <IntDir>..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <TargetName>lib_lith</TargetName>
+    <TargetName>lib_crypt_mgr</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BrowseInformation>false</BrowseInformation>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <WarningLevel>Level3</WarningLevel>
       <StringPooling>true</StringPooling>
@@ -82,7 +86,6 @@
     </ClCompile>
     <Lib />
     <ResourceCompile>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Lib>
@@ -92,7 +95,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_FINAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_FINAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -105,7 +108,6 @@
     </ClCompile>
     <Lib />
     <ResourceCompile>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Lib>
@@ -115,7 +117,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -128,7 +130,6 @@
     </ClCompile>
     <Lib />
     <ResourceCompile>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Lib>
@@ -137,30 +138,12 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="basehash.cpp" />
-    <ClCompile Include="baselist.cpp" />
-    <ClCompile Include="baselistcounter.cpp" />
-    <ClCompile Include="dprintf.cpp" />
-    <ClCompile Include="lith.cpp" />
-    <ClCompile Include="lithbaselist.cpp" />
-    <ClCompile Include="lithchunkallocator.cpp" />
-    <ClCompile Include="lithsimpary.cpp" />
-    <ClCompile Include="lithsimparystat.cpp" />
-    <ClCompile Include="virtlist.cpp" />
+    <ClCompile Include="blowfish.cpp" />
+    <ClCompile Include="CryptMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="basehash.h" />
-    <ClInclude Include="baselist.h" />
-    <ClInclude Include="baselistcounter.h" />
-    <ClInclude Include="dprintf.h" />
-    <ClInclude Include="lith.h" />
-    <ClInclude Include="lithbaselist.h" />
-    <ClInclude Include="lithchunkallocator.h" />
-    <ClInclude Include="lithsimpary.h" />
-    <ClInclude Include="lithsimparystat.h" />
-    <ClInclude Include="lithtmpl.h" />
-    <ClInclude Include="lithtypes.h" />
-    <ClInclude Include="virtlist.h" />
+    <ClInclude Include="BlowFish.h" />
+    <ClInclude Include="CryptMgr.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

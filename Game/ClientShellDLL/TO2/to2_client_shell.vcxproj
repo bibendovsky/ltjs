@@ -1,0 +1,352 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Final|Win32">
+      <Configuration>Final</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{56D787FC-3297-4251-B2AD-4FBC461D54B9}</ProjectGuid>
+    <SccProjectName />
+    <SccLocalPath />
+    <ProjectName>to2_client_shell</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\..\..\build\bin\$(Configuration)\to2\</OutDir>
+    <IntDir>..\..\..\build\obj\$(Configuration)\to2\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>cshell</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\..\..\build\bin\$(Configuration)\to2\</OutDir>
+    <IntDir>..\..\..\build\obj\$(Configuration)\to2\$(ProjectName)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>cshell</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+    <OutDir>..\..\..\build\bin\$(Configuration)\to2\</OutDir>
+    <IntDir>..\..\..\build\obj\$(Configuration)\to2\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>cshell</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\Shared\TO2;.\;..\ClientShellShared;..\..\clientres\shared;..\..\clientres\TO2;..\..\shared;..\..\..\Engine\sdk\inc;..\..\..\libs\stdlith;..\..\..\libs\butemgr;..\..\..\libs\cryptmgr;..\..\..\libs\lith;..\..\..\libs\mfcstub;..\..\libs\ltguimgr;..\..\..\libs\regmgr;..\..\libs\wonapi;..\..\libs\serverdir;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_CLIENTBUILD;WIN32;_WINDOWS;_NOLFBUILD;NO_PRAGMA_LIBS;NOPS2;MEMTRACK_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ForceConformanceInForLoopScope>false</ForceConformanceInForLoopScope>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+    </ClCompile>
+    <CustomBuildStep />
+    <Link>
+      <AdditionalDependencies>winmm.lib;lib_client_shell.lib;lib_bute_mgr.lib;lib_crypt_mgr.lib;lib_reg_mgr.lib;lib_lt_gui_mgr.lib;lib_mfc_stub.lib;lib_std_lith.lib;serverdir.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalLibraryDirectories>..\..\..\build\lib\$(Configuration)\;..\..\..\build\bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(OutDir)ClientShellDLL.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\Shared\TO2;.\;..\ClientShellShared;..\..\clientres\shared;..\..\clientres\TO2;..\..\shared;..\..\..\Engine\sdk\inc;..\..\..\libs\stdlith;..\..\..\libs\butemgr;..\..\..\libs\cryptmgr;..\..\..\libs\lith;..\..\..\libs\mfcstub;..\..\libs\ltguimgr;..\..\..\libs\regmgr;..\..\libs\wonapi;..\..\libs\serverdir;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_CLIENTBUILD;WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;NOPS2;MEMTRACK_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BrowseInformation>false</BrowseInformation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ForceConformanceInForLoopScope>false</ForceConformanceInForLoopScope>
+      <WarningLevel>Level3</WarningLevel>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <CustomBuildStep />
+    <Link>
+      <AdditionalDependencies>winmm.lib;lib_client_shell.lib;lib_bute_mgr.lib;lib_crypt_mgr.lib;lib_reg_mgr.lib;lib_lt_gui_mgr.lib;lib_mfc_stub.lib;lib_std_lith.lib;serverdir.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>..\..\..\build\lib\$(Configuration)\;..\..\..\build\bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(OutDir)ClientShellDLL.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\Shared\TO2;.\;..\ClientShellShared;..\..\clientres\shared;..\..\clientres\TO2;..\..\shared;..\..\..\Engine\sdk\inc;..\..\..\libs\stdlith;..\..\..\libs\butemgr;..\..\..\libs\cryptmgr;..\..\..\libs\lith;..\..\..\libs\mfcstub;..\..\libs\ltguimgr;..\..\..\libs\regmgr;..\..\libs\wonapi;..\..\libs\serverdir;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_CLIENTBUILD;WIN32;_WINDOWS;_NOLFBUILD;NO_PRAGMA_LIBS;NOPS2;_FINAL;MEMTRACK_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ForceConformanceInForLoopScope>false</ForceConformanceInForLoopScope>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+    </ClCompile>
+    <CustomBuildStep />
+    <Link>
+      <AdditionalDependencies>winmm.lib;lib_client_shell.lib;lib_bute_mgr.lib;lib_crypt_mgr.lib;lib_reg_mgr.lib;lib_lt_gui_mgr.lib;lib_mfc_stub.lib;lib_std_lith.lib;serverdir.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalLibraryDirectories>..\..\..\build\lib\$(Configuration)\;..\..\..\build\bin\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(OutDir)ClientShellDLL.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="GlobalsInit.cpp" />
+    <ClCompile Include="HUDAir.cpp" />
+    <ClCompile Include="HUDAmmo.cpp" />
+    <ClCompile Include="HUDCarrying.cpp" />
+    <ClCompile Include="HUDChooser.cpp" />
+    <ClCompile Include="HUDCompass.cpp" />
+    <ClCompile Include="HUDCrosshair.cpp" />
+    <ClCompile Include="HUDDamageDir.cpp" />
+    <ClCompile Include="HUDDoomsday.cpp" />
+    <ClCompile Include="HUDHiding.cpp" />
+    <ClCompile Include="HUDHidingBar.cpp" />
+    <ClCompile Include="HUDObjectives.cpp" />
+    <ClCompile Include="HUDProgressBar.cpp" />
+    <ClCompile Include="HUDRadio.cpp" />
+    <ClCompile Include="HUDRespawn.cpp" />
+    <ClCompile Include="..\..\..\Engine\sdk\inc\iltbaseclass.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\sdk\inc\ltmodule.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\engine\sdk\inc\ltobjref.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\sdk\inc\ltquatbase.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ScreenAudio.cpp" />
+    <ClCompile Include="ScreenConfigure.cpp" />
+    <ClCompile Include="ScreenControls.cpp" />
+    <ClCompile Include="ScreenCrosshair.cpp" />
+    <ClCompile Include="ScreenDisplay.cpp" />
+    <ClCompile Include="ScreenEndCoopMission.cpp" />
+    <ClCompile Include="ScreenEndDMMission.cpp" />
+    <ClCompile Include="ScreenEndMission.cpp" />
+    <ClCompile Include="ScreenFailure.cpp" />
+    <ClCompile Include="ScreenGame.cpp" />
+    <ClCompile Include="ScreenHost.cpp" />
+    <ClCompile Include="ScreenHostDDOptions.cpp" />
+    <ClCompile Include="ScreenHostDMOptions.cpp" />
+    <ClCompile Include="ScreenHostLevels.cpp" />
+    <ClCompile Include="ScreenHostMission.cpp" />
+    <ClCompile Include="ScreenHostOptions.cpp" />
+    <ClCompile Include="ScreenHostTDMOptions.cpp" />
+    <ClCompile Include="ScreenHostWeapons.cpp" />
+    <ClCompile Include="ScreenJoin.cpp" />
+    <ClCompile Include="ScreenJoinLAN.cpp" />
+    <ClCompile Include="ScreenJoystick.cpp" />
+    <ClCompile Include="ScreenKeyboard.cpp" />
+    <ClCompile Include="ScreenLoad.cpp" />
+    <ClCompile Include="ScreenMain.cpp" />
+    <ClCompile Include="ScreenMouse.cpp" />
+    <ClCompile Include="ScreenMulti.cpp" />
+    <ClCompile Include="ScreenOptions.cpp" />
+    <ClCompile Include="ScreenPerformance.cpp" />
+    <ClCompile Include="ScreenPlayer.cpp" />
+    <ClCompile Include="ScreenPlayerSkills.cpp" />
+    <ClCompile Include="ScreenPlayerTeam.cpp" />
+    <ClCompile Include="ScreenProfile.cpp" />
+    <ClCompile Include="ScreenSave.cpp" />
+    <ClCompile Include="ScreenSingle.cpp" />
+    <ClCompile Include="ScreenTeam.cpp" />
+    <ClCompile Include="Stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TO2ClientWeaponAllocator.cpp" />
+    <ClCompile Include="TO2GameClientShell.cpp" />
+    <ClCompile Include="TO2HUDMgr.cpp" />
+    <ClCompile Include="TO2InterfaceMgr.cpp" />
+    <ClCompile Include="TO2LayoutMgr.cpp" />
+    <ClCompile Include="..\..\Shared\TO2\TO2MissionButeMgr.cpp" />
+    <ClCompile Include="TO2PlayerMgr.cpp" />
+    <ClCompile Include="TO2PlayerStats.cpp" />
+    <ClCompile Include="TO2ScreenMgr.cpp" />
+    <ClCompile Include="..\..\Shared\TO2\TO2VersionMgr.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TO2ClientWeaponAllocator.h" />
+    <ClInclude Include="HUDAir.h" />
+    <ClInclude Include="HUDAmmo.h" />
+    <ClInclude Include="HUDCarrying.h" />
+    <ClInclude Include="HUDChooser.h" />
+    <ClInclude Include="HUDCompass.h" />
+    <ClInclude Include="HUDCrosshair.h" />
+    <ClInclude Include="HUDDamageDir.h" />
+    <ClInclude Include="HUDDoomsday.h" />
+    <ClInclude Include="HUDHiding.h" />
+    <ClInclude Include="HUDHidingBar.h" />
+    <ClInclude Include="HUDObjectives.h" />
+    <ClInclude Include="HUDProgressBar.h" />
+    <ClInclude Include="HUDRadio.h" />
+    <ClInclude Include="HUDRespawn.h" />
+    <ClInclude Include="..\..\..\Engine\sdk\inc\iltbaseclass.h" />
+    <ClInclude Include="..\..\Libs\ServerDir\IServerDir.h" />
+    <ClInclude Include="..\..\..\Engine\sdk\inc\ltmodule.h" />
+    <ClInclude Include="..\..\..\engine\sdk\inc\ltobjref.h" />
+    <ClInclude Include="..\..\Shared\LTPoly.h" />
+    <ClInclude Include="ScreenAudio.h" />
+    <ClInclude Include="ScreenConfigure.h" />
+    <ClInclude Include="ScreenControls.h" />
+    <ClInclude Include="ScreenCrosshair.h" />
+    <ClInclude Include="ScreenDisplay.h" />
+    <ClInclude Include="ScreenEndCoopMission.h" />
+    <ClInclude Include="ScreenEndDMMission.h" />
+    <ClInclude Include="ScreenEndMission.h" />
+    <ClInclude Include="ScreenFailure.h" />
+    <ClInclude Include="ScreenGame.h" />
+    <ClInclude Include="ScreenHost.h" />
+    <ClInclude Include="ScreenHostDDOptions.h" />
+    <ClInclude Include="ScreenHostDMOptions.h" />
+    <ClInclude Include="ScreenHostLevels.h" />
+    <ClInclude Include="ScreenHostMission.h" />
+    <ClInclude Include="ScreenHostOptions.h" />
+    <ClInclude Include="ScreenHostTDMOptions.h" />
+    <ClInclude Include="ScreenHostWeapons.h" />
+    <ClInclude Include="ScreenJoin.h" />
+    <ClInclude Include="ScreenJoinLAN.h" />
+    <ClInclude Include="ScreenJoystick.h" />
+    <ClInclude Include="ScreenKeyboard.h" />
+    <ClInclude Include="ScreenLoad.h" />
+    <ClInclude Include="ScreenMain.h" />
+    <ClInclude Include="ScreenMouse.h" />
+    <ClInclude Include="ScreenMulti.h" />
+    <ClInclude Include="ScreenOptions.h" />
+    <ClInclude Include="ScreenPerformance.h" />
+    <ClInclude Include="ScreenPlayer.h" />
+    <ClInclude Include="ScreenPlayerSkills.h" />
+    <ClInclude Include="ScreenPlayerTeam.h" />
+    <ClInclude Include="ScreenProfile.h" />
+    <ClInclude Include="ScreenSave.h" />
+    <ClInclude Include="ScreenSingle.h" />
+    <ClInclude Include="ScreenTeam.h" />
+    <ClInclude Include="Stdafx.h" />
+    <ClInclude Include="TO2GameClientShell.h" />
+    <ClInclude Include="TO2HUDMgr.h" />
+    <ClInclude Include="TO2InterfaceMgr.h" />
+    <ClInclude Include="TO2LayoutMgr.h" />
+    <ClInclude Include="..\..\Shared\TO2\TO2MissionButeMgr.h" />
+    <ClInclude Include="TO2PlayerMgr.h" />
+    <ClInclude Include="TO2PlayerStats.h" />
+    <ClInclude Include="TO2ScreenMgr.h" />
+    <ClInclude Include="..\..\Shared\TO2\TO2VersionMgr.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

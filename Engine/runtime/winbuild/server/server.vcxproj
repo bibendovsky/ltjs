@@ -1,0 +1,739 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Final|Win32">
+      <Configuration>Final</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <SccProjectName />
+    <SccLocalPath />
+    <Keyword>AtlProj</Keyword>
+    <ProjectGuid>{19172399-C229-4D83-B9AF-835B93A76B93}</ProjectGuid>
+    <ProjectName>server</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <UseOfAtl>Static</UseOfAtl>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <UseOfAtl>Static</UseOfAtl>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\..\..\..\build\bin\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>server</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+    <OutDir>..\..\..\..\build\bin\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>server</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\..\..\..\build\bin\$(Configuration)\</OutDir>
+    <IntDir>..\..\..\..\build\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>server</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\..\..\DirectX\Include;..\..\server\src;..\..\physics\src;..\..\client\src;..\..\sound\src;..\..\kernel\src;..\..\shared\src\sys\win;..\..\kernel\mem\src;..\..\kernel\io\src;..\..\kernel\src\sys\win;..\..\kernel\net\src;..\..\..\sdk\inc;..\..\..\sdk\inc\compat;..\..\shared\src;..\..\model\src;.;..\..\kernel\net;..\..\world\src;..\..\..\..\Libs\stdlith;..\..\..\libs\rezmgr;..\..\..\..\Libs\lith;..\..\lithtemplate;..\..\..\sdk\inc\physics;..\..\..\sdk\inc\state_mgr;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;DE_SERVER_COMPILE;DIRECTENGINE_COMPILE;STDLITH_ALLOC_OVERRIDE;LT15_COMPAT;NO_PRAGMA_LIBS;__D3D;__D3DREND;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>bdefs.h</PrecompiledHeaderFile>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <CustomBuildStep />
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>winmm.lib;dxguid.lib;dplayx.lib;lib_lith.lib;lib_std_lith.lib;lib_lt_mem.lib;lib_rez_mgr.lib;lib_info.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>.\server.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>..\..\..\..\DirectX\Lib\x86;..\..\..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(OutDir)DLL_Server.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\..\..\DirectX\Include;..\..\server\src;..\..\physics\src;..\..\client\src;..\..\sound\src;..\..\kernel\src;..\..\shared\src\sys\win;..\..\kernel\mem\src;..\..\kernel\io\src;..\..\kernel\src\sys\win;..\..\kernel\net\src;..\..\..\sdk\inc;..\..\..\sdk\inc\compat;..\..\shared\src;..\..\model\src;.;..\..\kernel\net;..\..\world\src;..\..\..\..\Libs\stdlith;..\..\..\libs\rezmgr;..\..\..\..\Libs\lith;..\..\lithtemplate;..\..\..\sdk\inc\physics;..\..\..\sdk\inc\state_mgr;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_USRDLL;DE_SERVER_COMPILE;DIRECTENGINE_COMPILE;STDLITH_ALLOC_OVERRIDE;LT15_COMPAT;NO_PRAGMA_LIBS;__D3D;__D3DREND;_FINAL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>bdefs.h</PrecompiledHeaderFile>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+    </ClCompile>
+    <CustomBuildStep />
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>winmm.lib;dxguid.lib;dplayx.lib;lib_lith.lib;lib_std_lith.lib;lib_lt_mem.lib;lib_rez_mgr.lib;lib_info.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>.\server.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>..\..\..\..\DirectX\Lib\x86;..\..\..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(OutDir)DLL_Server.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\..\..\DirectX\Include;..\..\server\src;..\..\physics\src;..\..\client\src;..\..\sound\src;..\..\kernel\src;..\..\shared\src\sys\win;..\..\kernel\mem\src;..\..\kernel\io\src;..\..\kernel\src\sys\win;..\..\kernel\net\src;..\..\..\sdk\inc;..\..\..\sdk\inc\compat;..\..\shared\src;..\..\model\src;.;..\..\kernel\net;..\..\world\src;..\..\..\..\Libs\stdlith;..\..\..\libs\rezmgr;..\..\..\..\Libs\lith;..\..\lithtemplate;..\..\..\sdk\inc\physics;..\..\..\sdk\inc\state_mgr;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;_USRDLL;DE_SERVER_COMPILE;DIRECTENGINE_COMPILE;STDLITH_ALLOC_OVERRIDE;LT15_COMPAT;NO_PRAGMA_LIBS;__D3D;__D3DREND;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>bdefs.h</PrecompiledHeaderFile>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+    </ClCompile>
+    <CustomBuildStep />
+    <Link>
+      <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>winmm.lib;dxguid.lib;dplayx.lib;lib_lith.lib;lib_std_lith.lib;lib_lt_mem.lib;lib_rez_mgr.lib;lib_info.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>.\server.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>..\..\..\..\DirectX\Lib\x86;..\..\..\..\build\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>$(OutDir)DLL_Server.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\model\src\animtracker.cpp" />
+    <ClCompile Include="..\..\shared\src\bdefs.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">bdefs.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bdefs.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bdefs.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\bindmgr.cpp" />
+    <ClCompile Include="..\..\shared\src\classbind.cpp" />
+    <ClCompile Include="..\..\server\src\classmgr.cpp" />
+    <ClCompile Include="..\..\shared\src\collision.cpp" />
+    <ClCompile Include="..\..\shared\src\compress.cpp" />
+    <ClCompile Include="..\..\shared\src\concommand.cpp" />
+    <ClCompile Include="..\..\shared\src\conparse.cpp" />
+    <ClCompile Include="..\..\model\src\sys\d3d\d3d_model_load.cpp" />
+    <ClCompile Include="..\..\world\src\de_mainworld.cpp" />
+    <ClCompile Include="..\..\world\src\de_nodes.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\de_objects.cpp" />
+    <ClCompile Include="..\..\kernel\src\debugging.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\dhashtable.cpp" />
+    <ClCompile Include="..\..\kernel\src\sys\win\dutil.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\engine_vars.cpp" />
+    <ClCompile Include="..\..\shared\src\findobj.cpp" />
+    <ClCompile Include="..\..\shared\src\ftserv.cpp" />
+    <ClCompile Include="..\..\world\src\fullintersectline.cpp" />
+    <ClCompile Include="..\..\server\src\game_serialize.cpp" />
+    <ClCompile Include="..\..\shared\src\gamemath.cpp" />
+    <ClCompile Include="..\..\shared\src\genericprop_setup.cpp" />
+    <ClCompile Include="..\..\shared\src\genltstream.cpp" />
+    <ClCompile Include="..\..\shared\src\geometry.cpp" />
+    <ClCompile Include="..\..\shared\src\geomroutines.cpp" />
+    <ClCompile Include="..\..\shared\src\impl_common.cpp" />
+    <ClCompile Include="..\..\server\src\interlink.cpp" />
+    <ClCompile Include="..\..\world\src\intersect_line.cpp" />
+    <ClCompile Include="..\..\world\src\intersectsweptsphere.cpp" />
+    <ClCompile Include="..\..\shared\src\leech.cpp" />
+    <ClCompile Include="..\..\world\src\light_table.cpp" />
+    <ClCompile Include="..\..\shared\src\lightmap_planes.cpp" />
+    <ClCompile Include="..\..\kernel\net\src\localdriver.cpp" />
+    <ClCompile Include="..\..\shared\src\ltmessage.cpp" />
+    <ClCompile Include="..\..\server\src\ltmessage_server.cpp" />
+    <ClCompile Include="..\..\..\sdk\inc\ltmodule.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sdk\inc\ltobjref.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sdk\inc\ltquatbase.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\lttimer.cpp" />
+    <ClCompile Include="..\..\model\src\model.cpp" />
+    <ClCompile Include="..\..\model\src\model_load.cpp" />
+    <ClCompile Include="..\..\model\src\modelallocations.cpp" />
+    <ClCompile Include="..\..\shared\src\motion.cpp" />
+    <ClCompile Include="..\..\shared\src\moveobject.cpp" />
+    <ClCompile Include="..\..\shared\src\moveplayer.cpp" />
+    <ClCompile Include="..\..\kernel\net\src\netmgr.cpp" />
+    <ClCompile Include="..\..\shared\src\nexus.cpp" />
+    <ClCompile Include="..\..\shared\src\objectmgr.cpp" />
+    <ClCompile Include="..\..\kernel\net\src\packet.cpp" />
+    <ClCompile Include="..\..\shared\src\parse_world_info.cpp" />
+    <ClCompile Include="..\..\shared\src\ratetracker.cpp" />
+    <ClCompile Include="..\..\server\src\s_client.cpp" />
+    <ClCompile Include="..\..\server\src\s_concommand.cpp" />
+    <ClCompile Include="..\..\server\src\s_intersect.cpp" />
+    <ClCompile Include="..\..\server\src\s_net.cpp" />
+    <ClCompile Include="..\..\server\src\s_object.cpp" />
+    <ClCompile Include="..\..\server\src\server_consolestate.cpp" />
+    <ClCompile Include="..\..\server\src\server_extradata.cpp" />
+    <ClCompile Include="..\..\server\src\server_filemgr.cpp" />
+    <ClCompile Include="..\..\kernel\src\server_interface.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\server_loaderthread.cpp" />
+    <ClCompile Include="..\..\server\src\serverde_impl.cpp" />
+    <ClCompile Include="..\..\server\src\serverevent.cpp" />
+    <ClCompile Include="..\..\server\src\servermgr.cpp" />
+    <ClCompile Include="..\..\server\src\sloaderthread.cpp" />
+    <ClCompile Include="..\..\server\src\smoveabstract.cpp" />
+    <ClCompile Include="..\..\sound\src\sounddata.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\soundtrack.cpp" />
+    <ClCompile Include="..\..\shared\src\spritecontrolimpl.cpp" />
+    <ClCompile Include="..\..\shared\src\stacktrace.cpp" />
+    <ClCompile Include="..\..\shared\src\stdlterror.cpp" />
+    <ClCompile Include="..\..\kernel\src\sys\win\stringmgr.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\strtools.cpp" />
+    <ClCompile Include="..\..\model\src\transformmaker.cpp" />
+    <ClCompile Include="..\..\kernel\net\src\sys\win\udpdriver.cpp" />
+    <ClCompile Include="..\..\sound\src\wave.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\world\src\world_blind_object_data.cpp" />
+    <ClCompile Include="..\..\world\src\world_blocker_data.cpp" />
+    <ClCompile Include="..\..\world\src\world_blocker_math.cpp" />
+    <ClCompile Include="..\..\world\src\world_particle_blocker_data.cpp" />
+    <ClCompile Include="..\..\world\src\world_tree.cpp" />
+    <ClCompile Include="..\..\kernel\src\sys\win\counter.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\io\src\sys\win\de_file.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\mem\src\sys\win\de_memory.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\dsys_interface.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\lthread.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\ltlibraryloader.cpp" />
+    <ClCompile Include="..\..\kernel\src\sys\win\ltthread.cpp" />
+    <ClCompile Include="..\..\kernel\src\sys\win\streamsim.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\win\systeminfo.cpp" />
+    <ClCompile Include="..\..\kernel\src\sys\win\timemgr.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\linux\counter.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\mem\src\sys\linux\de_memory.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\net\src\sys\linux\linux_ltthread.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\linux\linuxdsys.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\io\src\sys\linux\linuxfile.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\linux\lthread.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\linux\ltlibraryloader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\linux\ltthread.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\linux\streamsim.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\kernel\src\sys\linux\timemgr.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\src\interface_linkage.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\server\src\world_server_bsp.cpp" />
+    <ClCompile Include="..\..\world\src\world_shared_bsp.cpp" />
+    <ClCompile Include="..\..\shared\src\modellt_impl.cpp" />
+    <ClCompile Include="..\..\server\src\server_iltmodel.cpp" />
+    <ClCompile Include="..\..\server\src\server_iltcommon.cpp" />
+    <ClCompile Include="..\..\shared\src\shared_iltcommon.cpp" />
+    <ClCompile Include="..\..\server\src\server_iltsoundmgr.cpp" />
+    <ClCompile Include="..\..\shared\src\transformlt_impl.cpp" />
+    <ClCompile Include="..\..\server\src\server_iltphysics.cpp" />
+    <ClCompile Include="..\..\shared\src\shared_iltphysics.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="server.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="server.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\sdk\inc\physics\aabb.h" />
+    <ClInclude Include="..\..\..\sdk\inc\physics\aabb_tree.h" />
+    <ClInclude Include="..\..\model\src\animtracker.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\appresource.h" />
+    <ClInclude Include="..\..\shared\src\bdefs.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\bindmgr.h" />
+    <ClInclude Include="..\..\shared\src\build_options.h" />
+    <ClInclude Include="..\..\shared\src\classbind.h" />
+    <ClInclude Include="..\..\server\src\classmgr.h" />
+    <ClInclude Include="..\..\client\src\client_filemgr.h" />
+    <ClInclude Include="..\..\shared\src\clienthack.h" />
+    <ClInclude Include="..\..\client\src\clientmgr.h" />
+    <ClInclude Include="..\..\client\src\clientshell.h" />
+    <ClInclude Include="..\..\shared\src\collision.h" />
+    <ClInclude Include="..\..\..\sdk\inc\physics\collision_data.h" />
+    <ClInclude Include="..\..\..\sdk\inc\physics\collision_mgr.h" />
+    <ClInclude Include="..\..\..\sdk\inc\physics\collision_object.h" />
+    <ClInclude Include="..\..\shared\src\concommand.h" />
+    <ClInclude Include="..\..\shared\src\conparse.h" />
+    <ClInclude Include="..\..\client\src\console.h" />
+    <ClInclude Include="..\..\..\sdk\inc\physics\coordinate_frame.h" />
+    <ClInclude Include="..\..\shared\src\sys\win\d3dddstructs.h" />
+    <ClInclude Include="..\..\world\src\de_mainworld.h" />
+    <ClInclude Include="..\..\kernel\mem\src\de_memory.h" />
+    <ClInclude Include="..\..\world\src\de_objects.h" />
+    <ClInclude Include="..\..\world\src\de_sprite.h" />
+    <ClInclude Include="..\..\world\src\de_world.h" />
+    <ClInclude Include="..\..\shared\src\DebugGeometry.h" />
+    <ClInclude Include="..\..\shared\src\dhashtable.h" />
+    <ClInclude Include="..\..\kernel\src\dsys.h" />
+    <ClInclude Include="..\..\shared\src\dtxmgr.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\dutil.h" />
+    <ClInclude Include="..\..\shared\src\ftbase.h" />
+    <ClInclude Include="..\..\shared\src\ftserv.h" />
+    <ClInclude Include="..\..\world\src\fullintersectline.h" />
+    <ClInclude Include="..\..\server\src\game_serialize.h" />
+    <ClInclude Include="..\..\shared\src\gamemath.h" />
+    <ClInclude Include="..\..\shared\src\genericprop_setup.h" />
+    <ClInclude Include="..\..\shared\src\genltstream.h" />
+    <ClInclude Include="..\..\shared\src\geometry.h" />
+    <ClInclude Include="..\..\shared\src\geomroutines.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iaggregate.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iclientshell.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltbenchmark.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltclient.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltcsbase.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltdirectmusic.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltdrawprim.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltinfo.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltmessage.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltrefcount.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltserver.h" />
+    <ClInclude Include="..\..\sound\src\iltsound.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltspritecontrol.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltstream.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ilttexinterface.h" />
+    <ClInclude Include="..\..\shared\src\impl_common.h" />
+    <ClInclude Include="..\..\server\src\interlink.h" />
+    <ClInclude Include="..\..\world\src\intersect_line.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iservershell.h" />
+    <ClInclude Include="..\..\kernel\src\ithread.h" />
+    <ClInclude Include="..\..\world\src\light_table.h" />
+    <ClInclude Include="..\..\shared\src\lightmap_planes.h" />
+    <ClInclude Include="..\..\shared\src\listqueue.h" />
+    <ClInclude Include="..\..\..\sdk\inc\lithtech.h" />
+    <ClInclude Include="..\..\world\src\loadstatus.h" />
+    <ClInclude Include="..\..\kernel\net\src\localdriver.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltanimtracker.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltassert.h" />
+    <ClInclude Include="..\..\model\src\ltb.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltbasedefs.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltbasetypes.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltcodes.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltengineobjects.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltinteger.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltlink.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltmatrix.h" />
+    <ClInclude Include="..\..\shared\src\ltmessage.h" />
+    <ClInclude Include="..\..\server\src\ltmessage_server.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltmodule.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltplane.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltpvalue.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltquatbase.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltrect.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltrenderstyle.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltserverobj.h" />
+    <ClInclude Include="..\..\shared\src\lttimer.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ltvector.h" />
+    <ClInclude Include="..\..\..\sdk\inc\physics\math_phys.h" />
+    <ClInclude Include="..\..\..\sdk\inc\physics\matrix.h" />
+    <ClInclude Include="..\..\model\src\model.h" />
+    <ClInclude Include="..\..\model\src\model_ops.h" />
+    <ClInclude Include="..\..\model\src\modelallocations.h" />
+    <ClInclude Include="..\..\shared\src\motion.h" />
+    <ClInclude Include="..\..\shared\src\moveobject.h" />
+    <ClInclude Include="..\..\shared\src\moveplayer.h" />
+    <ClInclude Include="..\..\shared\src\musicmgr.h" />
+    <ClInclude Include="..\..\kernel\net\src\netmgr.h" />
+    <ClInclude Include="..\..\shared\src\nexus.h" />
+    <ClInclude Include="..\..\shared\src\objectmgr.h" />
+    <ClInclude Include="..\..\shared\src\packetdefs.h" />
+    <ClInclude Include="..\..\shared\src\parse_world_info.h" />
+    <ClInclude Include="..\..\shared\src\pixelformat.h" />
+    <ClInclude Include="..\..\client\src\predict.h" />
+    <ClInclude Include="..\..\..\sdk\inc\physics\quaternion.h" />
+    <ClInclude Include="..\..\shared\src\ratetracker.h" />
+    <ClInclude Include="..\..\shared\src\refobj.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\render.h" />
+    <ClInclude Include="..\..\shared\src\renderinfostruct.h" />
+    <ClInclude Include="..\..\shared\src\RenderObject.h" />
+    <ClInclude Include="..\..\shared\src\sys\win\renderstruct.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="..\..\..\libs\rezmgr\rezfile.h" />
+    <ClInclude Include="..\..\..\libs\rezmgr\rezhash.h" />
+    <ClInclude Include="..\..\..\libs\rezmgr\rezmgr.h" />
+    <ClInclude Include="..\..\..\libs\rezmgr\reztypes.h" />
+    <ClInclude Include="..\..\server\src\s_client.h" />
+    <ClInclude Include="..\..\server\src\s_concommand.h" />
+    <ClInclude Include="..\..\server\src\s_net.h" />
+    <ClInclude Include="..\..\server\src\s_object.h" />
+    <ClInclude Include="..\..\server\src\server_consolestate.h" />
+    <ClInclude Include="..\..\server\src\server_extradata.h" />
+    <ClInclude Include="..\..\server\src\server_filemgr.h" />
+    <ClInclude Include="..\..\..\sdk\inc\server_interface.h" />
+    <ClInclude Include="..\..\server\src\server_loaderthread.h" />
+    <ClInclude Include="..\..\server\src\serverde_impl.h" />
+    <ClInclude Include="..\..\server\src\serverevent.h" />
+    <ClInclude Include="..\..\server\src\serverexception.h" />
+    <ClInclude Include="..\..\server\src\servermgr.h" />
+    <ClInclude Include="..\..\server\src\serverobj.h" />
+    <ClInclude Include="..\..\client\src\setupobject.h" />
+    <ClInclude Include="..\..\shared\src\sys\win\shellbind.h" />
+    <ClInclude Include="..\..\server\src\sloaderthread.h" />
+    <ClInclude Include="..\..\server\src\smoveabstract.h" />
+    <ClInclude Include="..\..\sound\src\soundbuffer.h" />
+    <ClInclude Include="..\..\sound\src\sounddata.h" />
+    <ClInclude Include="..\..\sound\src\soundinstance.h" />
+    <ClInclude Include="..\..\server\src\soundtrack.h" />
+    <ClInclude Include="..\..\shared\src\stacktrace.h" />
+    <ClInclude Include="..\..\shared\src\staticfifo.h" />
+    <ClInclude Include="..\..\shared\src\stdlterror.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\stringmgr.h" />
+    <ClInclude Include="..\..\kernel\src\syscounter.h" />
+    <ClInclude Include="..\..\shared\src\sysddstructs.h" />
+    <ClInclude Include="..\..\kernel\io\src\sysfile.h" />
+    <ClInclude Include="..\..\kernel\src\syslibraryloader.h" />
+    <ClInclude Include="..\..\kernel\src\syslthread.h" />
+    <ClInclude Include="..\..\kernel\net\src\syssocket.h" />
+    <ClInclude Include="..\..\kernel\src\sysstreamsim.h" />
+    <ClInclude Include="..\..\kernel\src\systhread.h" />
+    <ClInclude Include="..\..\kernel\src\systimer.h" />
+    <ClInclude Include="..\..\kernel\net\src\sysudpdriver.h" />
+    <ClInclude Include="..\..\kernel\net\src\sysudpthread.h" />
+    <ClInclude Include="..\..\model\src\transformmaker.h" />
+    <ClInclude Include="..\..\..\sdk\inc\physics\triangle.h" />
+    <ClInclude Include="..\..\kernel\net\src\sys\win\udpdriver.h" />
+    <ClInclude Include="..\..\..\sdk\inc\physics\vector.h" />
+    <ClInclude Include="..\..\shared\src\version_info.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\version_resource.h" />
+    <ClInclude Include="..\..\world\src\visit_pvs.h" />
+    <ClInclude Include="..\..\sound\src\wave.h" />
+    <ClInclude Include="..\..\world\src\world_blind_object_data.h" />
+    <ClInclude Include="..\..\world\src\world_blocker_data.h" />
+    <ClInclude Include="..\..\world\src\world_client.h" />
+    <ClInclude Include="..\..\world\src\world_client_bsp.h" />
+    <ClInclude Include="..\..\world\src\world_particle_blocker_data.h" />
+    <ClInclude Include="..\..\world\src\world_tree.h" />
+    <ClInclude Include="..\..\world\src\worldtreehelper.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\counter.h" />
+    <ClInclude Include="..\..\kernel\io\src\sys\win\de_file.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\dsys_interface.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\lthread.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\ltthread.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\streamsim.h" />
+    <ClInclude Include="..\..\kernel\src\syssysteminfo.h" />
+    <ClInclude Include="..\..\kernel\src\sys\win\timemgr.h" />
+    <ClInclude Include="..\..\kernel\net\src\sys\win\win32_ltthread.h" />
+    <ClInclude Include="..\..\kernel\net\src\sys\win\win32_ltthreadevent.h" />
+    <CustomBuild Include="..\..\kernel\src\sys\linux\counter.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <ClInclude Include="..\..\kernel\net\src\sys\linux\linux_ltthread.h" />
+    <ClInclude Include="..\..\kernel\net\src\sys\linux\linux_ltthreadevent.h" />
+    <CustomBuild Include="..\..\kernel\src\sys\linux\linuxdsys.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\..\kernel\io\src\sys\linux\linuxfile.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\..\kernel\src\sys\linux\lthread.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\..\kernel\src\sys\linux\ltthread.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\..\kernel\src\sys\linux\streamsim.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <CustomBuild Include="..\..\kernel\src\sys\linux\timemgr.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <ClInclude Include="..\..\world\src\world_interface.h" />
+    <ClInclude Include="..\..\world\src\world_server.h" />
+    <ClInclude Include="..\..\world\src\world_server_bsp.h" />
+    <ClInclude Include="..\..\world\src\world_shared_bsp.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltmodel.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltcommon.h" />
+    <ClInclude Include="..\..\shared\src\shared_iltcommon.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltsoundmgr.h" />
+    <ClInclude Include="..\..\..\sdk\inc\ilttransform.h" />
+    <ClInclude Include="..\..\..\sdk\inc\iltphysics.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
