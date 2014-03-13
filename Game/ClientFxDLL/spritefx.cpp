@@ -76,7 +76,7 @@ bool CSpriteProps::ParseProperties(FX_PROP* pProps, uint32 nNumProps)
 		}
 		else if( !_stricmp( fxProp.m_sName, "Facing" ))
 		{
-			m_nFacing = fxProp.GetComboVal();
+			m_nFacing = static_cast<uint8>(fxProp.GetComboVal());
 		}
 		else if( !_stricmp( fxProp.m_sName, "Normal"))
 		{
@@ -373,8 +373,8 @@ bool CSpriteFX::Update(float tmFrameTime)
 		m_rRot.Rotate( vF, MATH_DEGREES_TO_RADIANS(GetProps()->m_vRotAdd.z * tmFrame) );
 		
 		rRotation = rRotation * m_rRot;
-		
-		m_pLTClient->SetObjectRotation( m_hObject, &(rRotation * m_rNormalRot) );
+		LTRotation rotation = rRotation * m_rNormalRot;
+		m_pLTClient->SetObjectRotation( m_hObject, &rotation );
 	}
 
 	// Success !!

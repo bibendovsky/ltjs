@@ -305,10 +305,10 @@ void CPlaySoundFX::PlaySound()
 		psi.m_dwFlags |= PLAYSOUND_LOOP;
 	}
 
-	psi.m_nVolume = GetProps()->m_nVolume;
+	psi.m_nVolume = static_cast<uint8>(GetProps()->m_nVolume);
 	strcpy(psi.m_szSoundName, GetProps()->m_sSoundName);
 	
-	psi.m_nPriority		= GetProps()->m_nPriority;
+	psi.m_nPriority		= static_cast<unsigned char>(GetProps()->m_nPriority);
 	psi.m_vPosition		= m_vPos;
 	psi.m_hObject       = m_hParent ;
 	psi.m_fInnerRadius	= GetProps()->m_fInnerRadius;

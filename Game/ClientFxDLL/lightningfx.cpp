@@ -290,8 +290,8 @@ bool CLightningFX::Init(ILTClient *pClientDE, FX_BASEDATA *pBaseData, const CBas
 	{
 		ILTModel		*pModelLT = m_pLTClient->GetModelLT();
 		ILTCommon		*pCommonLT = m_pLTClient->Common();
-		HMODELNODE		hNode = -1;
-		HMODELSOCKET	hSocket = -1;
+		HMODELNODE		hNode = INVALID_MODEL_NODE;
+		HMODELSOCKET	hSocket = INVALID_MODEL_SOCKET;
 		HATTRACTOR		hAttractor = INVALID_ATTRACTOR;
 		CAttractor		cAttractor;
 
@@ -426,7 +426,7 @@ void CLightningFX::EmitBolts( float tmFrameTime )
 			
 			if( bCanUseAttractors && (!bCanUseRadius || GetRandom(0,1)) )
 			{
-				uint8	nIndex = GetRandom( 0, m_lstAttractors.size() - 1 );
+				uint8	nIndex = static_cast<uint8>(GetRandom( 0, m_lstAttractors.size() - 1 ));
 				CAttractor cAttractor = m_lstAttractors[nIndex];
 
 				if( cAttractor.GetTransform( lTrans, true ) == LT_OK )
@@ -634,10 +634,10 @@ void CLightningFX::PreRender( float tmFrameTime )
 			
 			// Set the color for this section...
 
-			pNode->m_Data.m_red = ir;
-			pNode->m_Data.m_green = ig;
-			pNode->m_Data.m_blue = ib;
-			pNode->m_Data.m_alpha = ia;
+			pNode->m_Data.m_red = static_cast<uint8>(ir);
+			pNode->m_Data.m_green = static_cast<uint8>(ig);
+			pNode->m_Data.m_blue = static_cast<uint8>(ib);
+			pNode->m_Data.m_alpha = static_cast<uint8>(ia);
 		
 			pNode = pNode->m_pNext;
 		}

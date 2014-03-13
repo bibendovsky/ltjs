@@ -286,7 +286,7 @@ void CPlayRandomSoundFX::PlaySound()
 		psi.m_dwFlags |= PLAYSOUND_LOOP;
 	}
 
-	psi.m_nVolume = GetProps()->m_nVolume;
+	psi.m_nVolume = static_cast<uint8>(GetProps()->m_nVolume);
 
 	char sTmp[256];
 	
@@ -300,7 +300,7 @@ void CPlayRandomSoundFX::PlaySound()
 	}
 	
 	strcpy(psi.m_szSoundName, sTmp);
-	psi.m_nPriority		= GetProps()->m_nPriority;
+	psi.m_nPriority		= static_cast<unsigned char>(GetProps()->m_nPriority);
 	psi.m_vPosition		= m_vPos;
 	psi.m_fInnerRadius	= GetProps()->m_fInnerRadius;
 	psi.m_fOuterRadius	= GetProps()->m_fOuterRadius;

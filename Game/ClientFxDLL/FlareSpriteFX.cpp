@@ -291,7 +291,8 @@ bool CFlareSpriteFX::Update( float tmCur )
 
 		LTFLOAT	fScale = GetProps()->m_fMinScale + ( fMultiplier * GetProps()->m_fScaleRange );
 
-		m_pLTClient->SetObjectScale( m_hObject,	&LTVector( fScale, fScale, fScale ));
+        LTVector scale(fScale, fScale, fScale);
+		m_pLTClient->SetObjectScale( m_hObject,	&scale);
 
 		// No since in updating anymore if the sprite is completly see through 
 
@@ -322,7 +323,9 @@ bool CFlareSpriteFX::Update( float tmCur )
 
 					LTFLOAT	fBlindScaleRange = GetProps()->m_fBlindMaxScale - fScale;
 					fScale = fScale + ( fMultiplier * fBlindScaleRange );
-					m_pLTClient->SetObjectScale( m_hObject,	&LTVector( fScale, fScale, fScale ));
+
+                    LTVector scale(fScale, fScale, fScale);
+					m_pLTClient->SetObjectScale( m_hObject,	&scale);
 					
 					m_pLTClient->Common()->SetObjectFlags( m_hObject, OFT_Flags, FLAG_SPRITE_NOZ, FLAG_SPRITEBIAS | FLAG_SPRITE_NOZ);
 				}

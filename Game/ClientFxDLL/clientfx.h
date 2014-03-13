@@ -84,8 +84,11 @@
 		vPos.z = -vPos.z;
 
 		LTMatrix mTran, mRot, mFull;
+        LTVector right = orient.Right();
+        LTVector up = orient.Up();
+        LTVector forward = orient.Forward();
 		
-		Mat_SetBasisVectors(&mRot, &orient.Right(), &orient.Up(), &orient.Forward());
+		Mat_SetBasisVectors(&mRot, &right, &up, &forward);
 		MatTranspose3x3(&mRot);
 
 		Mat_Identity(&mTran);

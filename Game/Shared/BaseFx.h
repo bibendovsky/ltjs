@@ -349,7 +349,7 @@
 			HOBJECT							GetParent()		const			{ return m_hParent; }
 			FXType							GetFXType()		const			{ return m_nFXType; }
 			uint32							GetID()			const			{ return m_dwID; }
-			uint8							GetMenuLayer()	const			{ return (m_pProps) ? m_pProps->m_nMenuLayer : 0; }
+			uint8							GetMenuLayer()	const			{ return (m_pProps != NULL) ? static_cast<uint8>(m_pProps->m_nMenuLayer) : 0; }
 
 
 			void							SetElapsed(float fElapsed)		{ m_tmElapsed = fElapsed; }

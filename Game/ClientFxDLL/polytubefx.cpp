@@ -429,10 +429,10 @@ bool CPolyTubeFX::Update(float tmFrameTime)
 		int ib = (int)(b * 255.0f);
 		int ia = (int)(a * 255.0f);
 
-		pNode->m_Data.m_red = Clamp( ir, 0, 255 );
-		pNode->m_Data.m_green = Clamp( ig, 0, 255 );
-		pNode->m_Data.m_blue = Clamp( ib, 0, 255 );
-		pNode->m_Data.m_alpha = Clamp( ia, 0, 255 );
+		pNode->m_Data.m_red = static_cast<uint8>(Clamp( ir, 0, 255 ));
+		pNode->m_Data.m_green = static_cast<uint8>(Clamp( ig, 0, 255 ));
+		pNode->m_Data.m_blue = static_cast<uint8>(Clamp( ib, 0, 255 ));
+		pNode->m_Data.m_alpha = static_cast<uint8>(Clamp( ia, 0, 255 ));
 	
 		pNode = pNode->m_pNext;
 	}

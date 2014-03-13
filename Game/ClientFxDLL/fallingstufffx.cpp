@@ -213,7 +213,10 @@ bool CFallingStuffFX::Init(ILTClient *pClientDE, FX_BASEDATA *pBaseData, const C
 		m_pLTClient->GetObjectRotation(m_hParent, &orient);
 		
 		LTMatrix mRot;
-		Mat_SetBasisVectors(&mRot, &orient.Right(), &orient.Up(), &orient.Forward());
+        LTVector right = orient.Right();
+        LTVector up = orient.Up();
+        LTVector forward = orient.Forward();
+		Mat_SetBasisVectors(&mRot, &right, &up, &forward);
 		
 		LTVector vTmp = m_vPlaneDir;
 
