@@ -298,7 +298,8 @@ bool CD3DSkelMesh::Load_MP(ILTStream& File)
 void CD3DSkelMesh::ReCreateObject()
 {
 	// Create our VB...
-	for (uint32 i=0;i<4;++i)
+    uint32 i=0;
+	for (i=0;i<4;++i)
 	{
 		if (!m_VertStreamFlags[i])
 			continue;
@@ -345,7 +346,8 @@ void CD3DSkelMesh::FreeDeviceObjects()
 
 inline int32 CD3DSkelMesh::SetTransformsToBoneSet(BoneSetListItem* pBoneSet,D3DMATRIX* pTransforms, int32 nNumMatrices)
 {
-	for (int32 iCurrBone=0; iCurrBone < 4; ++iCurrBone) 
+    int32 iCurrBone=0;
+	for (iCurrBone=0; iCurrBone < 4; ++iCurrBone) 
 	{
 		if (pBoneSet->BoneSetArray[iCurrBone] == 0xFF)
 		{

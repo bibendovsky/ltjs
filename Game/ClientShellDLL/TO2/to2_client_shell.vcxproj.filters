@@ -208,9 +208,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TO2ClientWeaponAllocator.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="HUDAir.h">
       <Filter>Headers</Filter>
     </ClInclude>
@@ -401,6 +398,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Shared\TO2\TO2VersionMgr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TO2ClientWeaponAllocator.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

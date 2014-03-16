@@ -414,7 +414,8 @@ void TransferDir(CRezDir* pDir, const char* sParamPath, const char * sExts ) {
         REZID nID;
         {
           int nNameLen = strlen(sName);
-          for (int i = 0; i < nNameLen; i++) {
+          int i = 0;
+          for (i = 0; i < nNameLen; i++) {
             if ((sName[i] < '0') || (sName[i] > '9')) break;
           }
           if (i < nNameLen) {

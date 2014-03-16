@@ -239,7 +239,8 @@ void CLTGUIColumnCtrl::CalculateSize()
 	m_nHeight = 0;
 
 	// find the size
-	for (int i=0; i < GetNumColumns(); i++)
+    int i=0;
+	for (i=0; i < GetNumColumns(); i++)
 	{
 		m_nBaseWidth += (m_columnArray[i]->GetFixedWidth() + (m_nBaseFontSize/2));
 		if (m_columnArray[i]->GetHeight() > m_nHeight)

@@ -442,7 +442,8 @@ CSnowFXAirspace::CSnowFXAirspace() :
 		float angleStep = (2*PI)/(float)SNOWFX_TABLESIZE;
 		float curAngle = 0.0f;
 
-		for( uint32 i = 0; i < SNOWFX_TABLESIZE; i++ )
+        uint32 i = 0;
+		for( i = 0; i < SNOWFX_TABLESIZE; i++ )
 		{
 			rndTable[i] = (uint32)(((float)rand() / (float)RAND_MAX) * (SNOWFX_TABLESIZE - 1));
 			sinTable[i] = (float)sin( curAngle );

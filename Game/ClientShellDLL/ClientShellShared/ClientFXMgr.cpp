@@ -583,8 +583,9 @@ void CClientFXMgr::ApplyEffectStartingOffset(CBaseFX* pFX, const FX_KEY* pKey)
 		fTimeInc = fOffsetAmount;
 
 	//now actually update
-	
-	for(float fCurrTime = 0.0f; fCurrTime + fTimeInc <= fOffsetAmount; fCurrTime += fTimeInc)
+
+    float fCurrTime = 0.0f;
+	for(fCurrTime = 0.0f; fCurrTime + fTimeInc <= fOffsetAmount; fCurrTime += fTimeInc)
 	{
 		pFX->Update(fTimeInc);
 

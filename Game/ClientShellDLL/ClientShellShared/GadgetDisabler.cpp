@@ -174,8 +174,9 @@ void CGadgetDisabler::Update( )
 				pBody = szString;
 			}
 
-			
-			for( uint32 i = 0; i < strlen( pBody ); ++i )
+
+            uint32 i = 0;
+			for( i = 0; i < strlen( pBody ); ++i )
 			{
 				if( pBody[i] != ' ' && pBody[i] != '\n' && pBody[i] != '@' )
 				{

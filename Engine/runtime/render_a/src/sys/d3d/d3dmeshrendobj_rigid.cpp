@@ -128,7 +128,8 @@ void CD3DRigidMesh::ReCreateObject()
 {
 
 	// Create our VB...
-	for (uint32 i=0;i<4;++i)
+    uint32 i=0;
+	for (i=0;i<4;++i)
 	{
 		if (!m_VertStreamFlags[i])
 			continue;

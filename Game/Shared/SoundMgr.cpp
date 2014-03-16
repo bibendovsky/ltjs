@@ -161,7 +161,8 @@ void CGameSoundMgr::GetRandomSoundFilename(const char* pTag, const char* pAttrib
 
 			// Check and to see if all the sounds are now marked...
 
-			for (int j=0; j < nNumSounds; j++)
+            int j=0;
+			for (j=0; j < nNumSounds; j++)
 			{
 				sprintf(s_aAttName, "%s%d", pAttributeBase, j);
 				m_buteMgr.GetString(pTag, s_aAttName, szTempSnd, sizeof(szTempSnd));

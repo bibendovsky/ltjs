@@ -158,7 +158,8 @@ static LTBOOL ValidateMsgRemoveGoal( ILTPreInterface *pInterface, ConParse &cpMs
 		return LTTRUE;
 
 	// Find goal by name.
-	for(uint32 iGoalType=0; iGoalType < kGoal_Count; ++iGoalType)
+    uint32 iGoalType=0;
+	for(iGoalType=0; iGoalType < kGoal_Count; ++iGoalType)
 	{
 		if( stricmp(s_aszGoalTypes[iGoalType], cpMsgParams.m_Args[1]) == 0)
 		{
@@ -200,7 +201,8 @@ static LTBOOL ValidateMsgAddGoal( ILTPreInterface *pInterface, ConParse &cpMsgPa
 	}
 
 	// Find goal by name.
-	for(uint32 iGoalType=0; iGoalType < kGoal_Count; ++iGoalType)
+    uint32 iGoalType=0;
+	for(iGoalType=0; iGoalType < kGoal_Count; ++iGoalType)
 	{
 		if( stricmp(s_aszGoalTypes[iGoalType], cpMsgParams.m_Args[1]) == 0)
 		{
@@ -277,7 +279,8 @@ static LTBOOL ValidateMsgGoalPrefix( ILTPreInterface *pInterface, ConParse &cpMs
 		}
 
 		// Find goal by name.
-		for(uint32 iGoalType=0; iGoalType < kGoal_Count; ++iGoalType)
+        uint32 iGoalType=0;
+		for(iGoalType=0; iGoalType < kGoal_Count; ++iGoalType)
 		{
 			if( stricmp(s_aszGoalTypes[iGoalType], pGoal) == 0)
 			{

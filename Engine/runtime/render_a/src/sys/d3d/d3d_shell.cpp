@@ -107,7 +107,8 @@ bool CD3D_Shell::BuildDeviceList()
 				continue;
 
             // Check if the mode already exists (to filter out refresh rates)
-            for (uint32 m=0L; m<modes.size(); ++m) 
+            uint32 m=0L;
+            for (m=0L; m<modes.size(); ++m) 
 			{
                 if ((modes[m].Width == DisplayMode.Width) && (modes[m].Height == DisplayMode.Height) && (modes[m].Format == DisplayMode.Format)) 
 					break; 
@@ -117,7 +118,8 @@ bool CD3D_Shell::BuildDeviceList()
             if (m == modes.size()) 
 			{
                 // Check if the mode's format already exists (and add it if isn't new)...
-                for (uint32 f=0; f<formats.size(); ++f) 
+                uint32 f=0;
+                for (f=0; f<formats.size(); ++f) 
 				{
                     if (DisplayMode.Format == formats[f]) 
 						break; 
@@ -204,7 +206,8 @@ bool CD3D_Shell::BuildDeviceList()
 			}
 
             // Add all enumerated display modes with confirmed formats to the device's list of valid modes
-            for (uint32 m=0; m<modes.size(); ++m) 
+            uint32 m=0;
+            for (m=0; m<modes.size(); ++m) 
 			{
                 for (uint32 f=0; f<formats.size(); ++f) 
 				{

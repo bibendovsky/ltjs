@@ -196,7 +196,8 @@ LTBOOL CSkillsButeMgr::Init(const char* szAttributeFile)
 		sprintf(s_aAttName, "%s%d", SMGR_RANK_DATA, m_nNumRanks);
 	}
 
-	for (int skl = 0; skl < kNumSkills; skl++)
+    int skl = 0;
+	for (skl = 0; skl < kNumSkills; skl++)
 	{
 		char szStr[512] ="";
 		m_buteMgr.GetString(SMGR_COST_TAG, szInternalSkillNames[skl],szStr,sizeof(szStr));

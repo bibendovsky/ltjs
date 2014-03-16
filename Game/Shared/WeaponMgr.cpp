@@ -1584,7 +1584,8 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 	GetStringIfExist( buteMgr, aTagName, WMGR_WEAPON_RESPAWNWAITFX, &szRespawnWaitFX, WMGR_MAX_NAME_LENGTH );
 	
 
-	for( int i = 0; i < WMGR_MAX_RELOAD_SNDS; ++i )
+    int i = 0;
+	for( i = 0; i < WMGR_MAX_RELOAD_SNDS; ++i )
 	{
 		sprintf(s_aAttName, "%s%d", WMGR_WEAPON_RELOADSND, i + 1);
 		GetStringIfExist( buteMgr, aTagName, s_aAttName, &szReloadSounds[i], WMGR_MAX_FILE_PATH );
@@ -2004,7 +2005,8 @@ WEAPONANIS::WEAPONANIS()
 	szDeselectAni	= LTNULL;
 	szReloadAni		= LTNULL;
 
-	for( int i = 0; i < WMGR_MAX_WEAPONANI_IDLE; i++ )
+    int i = 0;
+	for( i = 0; i < WMGR_MAX_WEAPONANI_IDLE; i++ )
 	{
 		szIdleAnis[i] = LTNULL;
 	}
@@ -2037,7 +2039,8 @@ WEAPONANIS::~WEAPONANIS()
 	debug_deletea( szDeselectAni );
 	debug_deletea( szReloadAni );
 
-	for( int i = 0; i < WMGR_MAX_WEAPONANI_IDLE; i++ )
+    int i = 0;
+	for( i = 0; i < WMGR_MAX_WEAPONANI_IDLE; i++ )
 	{
 		debug_deletea( szIdleAnis[i] );
 	}
@@ -2067,7 +2070,8 @@ void WEAPONANIS::InitMembers( CButeMgr &buteMgr, char *aTagName )
 	GetStringIfExist( buteMgr, aTagName, WMGR_WEAPONANI_RELOAD, &szReloadAni, WMGR_MAX_NAME_LENGTH );
 
 	nNumIdleAnis = 0;
-	for( int i = 0; i < WMGR_MAX_WEAPONANI_IDLE; ++i )
+    int i = 0;
+	for( i = 0; i < WMGR_MAX_WEAPONANI_IDLE; ++i )
 	{
 		sprintf(s_aAttName, "%s%d", WMGR_WEAPONANI_IDLE, i + 1);
 		GetStringIfExist( buteMgr, aTagName, s_aAttName, &szIdleAnis[i], WMGR_MAX_NAME_LENGTH );

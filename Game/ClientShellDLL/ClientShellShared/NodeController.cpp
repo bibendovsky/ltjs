@@ -583,7 +583,8 @@ void CNodeController::HandleNodeControlLipSync( char const* pszSoundFile, LTFLOA
 
 	int32 aiNodeControls[kMaxNodeControls];
 
-	for ( uint32 iBone = 0 ; iBone < cBones ; iBone++ )
+    uint32 iBone = 0 ;
+	for ( iBone = 0 ; iBone < cBones ; iBone++ )
 	{
 		char szBone[256];
 

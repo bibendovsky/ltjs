@@ -102,7 +102,8 @@ void CHUDDecision::Show(ILTMessage_Read *pMsg)
 		LTBOOL bForce = (LTBOOL)pMsg->Readuint8();
 		g_pLTClient->CPrint("CHUDDecision::Show() : show");
 		//read in the message
-		for (int i=0; i < MAX_DECISION_CHOICES; i++)
+        int i=0;
+		for (i=0; i < MAX_DECISION_CHOICES; i++)
 		{
 			nID[i] = pMsg->Readuint32();
 		}

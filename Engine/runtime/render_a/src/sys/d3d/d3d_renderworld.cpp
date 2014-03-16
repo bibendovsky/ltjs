@@ -445,7 +445,8 @@ void CD3D_RenderWorld::BindAll()
 	CModelShadowShader::GetSingleton()->Bind();
 
 	// Pre-bind the renderblocks
-	for (uint32 nRBBindLoop = 0; nRBBindLoop < m_nRenderBlockCount; ++nRBBindLoop)
+    uint32 nRBBindLoop = 0;
+	for (nRBBindLoop = 0; nRBBindLoop < m_nRenderBlockCount; ++nRBBindLoop)
 	{
 		m_pRenderBlocks[nRBBindLoop].PreBind();
 	}

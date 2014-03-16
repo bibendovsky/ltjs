@@ -1373,7 +1373,8 @@ const CAnimation& CAnimationMgr::FindAnimation(const CAnimationProps& Props,
 	// (A linear search is what we used to do anyway).
 	if(cAnims == 0)
 	{
-		for(uint32 iAnimation=0; iAnimation < m_cAnimations; ++iAnimation)
+        uint32 iAnimation=0;
+		for(iAnimation=0; iAnimation < m_cAnimations; ++iAnimation)
 		{
 			if( m_aAnimations[iAnimation].GetProps() == props )
 			{

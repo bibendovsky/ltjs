@@ -557,8 +557,9 @@ bool CClientFXDB::ReadFXKey( bool bText, ILTStream* pFxFile, float fTotalTime, F
 	{
 		pFxFile->Read(&dwNumProps, sizeof(uint32));
 	}
-	
-	for (uint32 k = 0; k < dwNumProps; k ++)
+
+    uint32 k = 0;
+	for (k = 0; k < dwNumProps; k ++)
 	{
 		if(k >= nBuffLen)
 		{

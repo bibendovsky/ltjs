@@ -695,7 +695,8 @@ void CRenderShadowList::QueueShadows(ModelInstance* pInstance, const CRelevantLi
 	//the index of the last light used for shadow generation in the list
 	uint32 nLastUsedLight = 0;
 
-	for (uint32 nCurrLight = 0; nCurrLight < LightList.GetNumLights(); ++nCurrLight)
+    uint32 nCurrLight = 0;
+	for (nCurrLight = 0; nCurrLight < LightList.GetNumLights(); ++nCurrLight)
 	{
 		const CRenderLight& Light = LightList.GetLight(nCurrLight);
 		assert(Light.GetType() != CRenderLight::eLight_Invalid);

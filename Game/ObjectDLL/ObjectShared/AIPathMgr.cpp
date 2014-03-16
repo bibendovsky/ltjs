@@ -368,7 +368,8 @@ LTBOOL CAIPathMgr::FindRandomPosition(CAI* pAI, AIVolume* pVolume, const LTVecto
 	uint8 iRand;
 	uint8 nNeighbors = pVolume->GetNumNeighbors();
 	AIVolumeNeighbor* apNeighbors[CAISpatialRepresentationMgr::kMaxNeighbors];
-	for( uint8 iNeighbor=0; iNeighbor < pVolume->GetNumNeighbors(); ++iNeighbor )
+    uint8 iNeighbor=0;
+	for( iNeighbor=0; iNeighbor < pVolume->GetNumNeighbors(); ++iNeighbor )
 	{
 		apNeighbors[iNeighbor] = LTNULL;
 	}

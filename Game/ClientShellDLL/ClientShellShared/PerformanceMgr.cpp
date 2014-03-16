@@ -290,9 +290,11 @@ LTBOOL	CPerformanceMgr::IsCurrentConfig(int nCfg,bool bIgnoreResolution)
 
 int CPerformanceMgr::GetDetailLevel(const int* pOffsetArray)
 {
-	for (int level = 0; level < kNumDetailLevels; level++)
+    int level = 0;
+	for (level = 0; level < kNumDetailLevels; level++)
 	{
-		for (int grp = 0; grp < kNumTextureGroups; grp++)
+        int grp = 0;
+		for (grp = 0; grp < kNumTextureGroups; grp++)
 		{
 			if (pOffsetArray[grp] != sTextureGroups[grp].nSetting[level])
 				break;

@@ -138,7 +138,8 @@ void CHUDDoomsday::Update()
 	if (g_pGameClientShell->GetGameType() != eGameTypeDoomsDay) return;
 
 	//clear status
-	for (int i = 0; i < kNumDDIcons; i++)
+    int i = 0;
+	for (i = 0; i < kNumDDIcons; i++)
 	{
 		m_bBlink[i] = false;
 		m_nTeam[i] = INVALID_TEAM;

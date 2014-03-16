@@ -91,7 +91,8 @@ CRBSection::CRBSection() :
 CRBSection::~CRBSection()
 {
  	// Dereference our textures...
- 	for (uint32 nCurrTex = 0; nCurrTex < kNumTextures; nCurrTex++)
+    uint32 nCurrTex = 0;
+ 	for (nCurrTex = 0; nCurrTex < kNumTextures; nCurrTex++)
    	{
  		if (m_pTexture[nCurrTex])
  		{
@@ -1475,7 +1476,8 @@ uint32 CD3D_RenderBlock::IntersectRay(const SRay &sRay, TIntersectionList &sResu
 		return 0;
 
 	uint32 nIndexCount = m_nTriCount * 3;
-	for (uint32 nIndexLoop = 0; nIndexLoop < nIndexCount; nIndexLoop += 3)
+    uint32 nIndexLoop = 0;
+	for (nIndexLoop = 0; nIndexLoop < nIndexCount; nIndexLoop += 3)
 	{
 		LTVector vPt0 = m_aVertices[m_aIndices[nIndexLoop]].m_vPos;
 		LTVector vPt1 = m_aVertices[m_aIndices[nIndexLoop + 1]].m_vPos;

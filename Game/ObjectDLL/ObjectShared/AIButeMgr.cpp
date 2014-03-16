@@ -661,7 +661,8 @@ void CAIButeMgr::SetStimulus(int iStimulus)
 	// Convert stimulusType enum from string.
 	char szTemp[64] = "";
 	CButeTools::GetValidatedString(m_buteMgr, s_aTagName, "Name",szTemp,sizeof(szTemp));
-	for(uint32 iStimulusType = 0; iStimulusType < kStim_Count; ++iStimulusType)
+    uint32 iStimulusType = 0;
+	for(iStimulusType = 0; iStimulusType < kStim_Count; ++iStimulusType)
 	{
 		if( stricmp(szTemp, s_aszStimulusTypes[iStimulusType]) == 0 )
 		{
@@ -674,7 +675,8 @@ void CAIButeMgr::SetStimulus(int iStimulus)
 
 	// Convert senseType enum from string.
 	CButeTools::GetValidatedString(m_buteMgr, s_aTagName, "Sense",szTemp,sizeof(szTemp));
-	for(uint32 iSenseType = 0; iSenseType < kSense_Count; ++iSenseType)
+    uint32 iSenseType = 0;
+	for(iSenseType = 0; iSenseType < kSense_Count; ++iSenseType)
 	{
 		if( stricmp(szTemp, s_aszSenseTypes[iSenseType]) == 0 )
 		{

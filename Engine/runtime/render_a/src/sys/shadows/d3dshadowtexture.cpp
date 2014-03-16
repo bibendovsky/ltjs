@@ -30,13 +30,15 @@ bool D3DShadowTexture::Init(uint uiSizeX, uint uiSizeY)
 	if (!bSizeXPowerOf2) 
 	{
 		// make sure the dimensions are power of 2
-		for (uint uiNewSizeX = MAX_SHADOW_TEXTURE_SIZE; ( uiNewSizeX & uiSizeX ) == 0; uiNewSizeX >>= 1);
+        uint uiNewSizeX = 0;
+		for (uiNewSizeX = MAX_SHADOW_TEXTURE_SIZE; ( uiNewSizeX & uiSizeX ) == 0; uiNewSizeX >>= 1);
 		uiSizeX = uiNewSizeX; 
 	}
 
 	if (!bSizeYPowerOf2) 
 	{
-		for (uint uiNewSizeY = MAX_SHADOW_TEXTURE_SIZE; ( uiNewSizeY & uiSizeY ) == 0; uiNewSizeY >>= 1);
+        uint uiNewSizeY = 0;
+		for (uiNewSizeY = MAX_SHADOW_TEXTURE_SIZE; ( uiNewSizeY & uiSizeY ) == 0; uiNewSizeY >>= 1);
 		uiSizeY = uiNewSizeY; 
 	}
 

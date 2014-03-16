@@ -805,7 +805,8 @@ void CGameServerShell::SendObjectivesDataToClient( HCLIENT hClient )
     cMsg.Writeuint8((uint8)nNumObj);
 
 	//send list of general objectives
-	for (uint8 i = 0; i < m_Objectives.m_IDArray.size(); i++)
+    uint8 i = 0;
+	for (i = 0; i < m_Objectives.m_IDArray.size(); i++)
 	{
         cMsg.Writeuint32((uint32)m_Objectives.m_IDArray[i]);
 	}

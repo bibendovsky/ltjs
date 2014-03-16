@@ -2218,7 +2218,8 @@ static bool input_StartDeviceTrack( InputMgr *pMgr, uint32 nDevices, uint32 nBuf
 
 	// this will track the first device found of the requested type
 
-	for( int i = 0; i < 5; i++ )
+    int i = 0;
+	for( i = 0; i < 5; i++ )
 	{
 		DeviceDef*			pDevice = LTNULL;
 		HRESULT				hResult = DI_OK;

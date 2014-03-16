@@ -122,7 +122,8 @@ bool BanIPMgr::ConvertClientIPFromString( char const* pszBanIP, ClientIP& banned
 	// Break the string up into the four parts.
 	char* pszToken = strtok( szBanIP, "." );
 	bool bWildCard = false;
-	for( int i = 0; i < 4 && pszToken; i++ )
+    int i = 0;
+	for( i = 0; i < 4 && pszToken; i++ )
 	{
 		// Check if there's a wildcard character in there.
 		// If so, we can stop converting since the rest
@@ -404,7 +405,8 @@ bool BanIPMgr_Impl::IsClientBanned( HCLIENT hClient )
 		ClientIP const& bannedIP = *iter;
 		bool bBanned = false;
 
-		for( int i = 0; i < 4; i++ )
+        int i = 0;
+		for( i = 0; i < 4; i++ )
 		{
 			// Check if no IP's allowed with this part.
 			if( bannedIP.m_nPart[i] == ( uint8 )-1 )

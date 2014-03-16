@@ -369,7 +369,8 @@ bool RayIntersectBox(const LTVector& vBoxMin,
 
 	// Find candidate planes.
 
-	for( uint32 iDim=0; iDim < kNumDimensions; ++iDim )
+    uint32 iDim=0;
+	for( iDim=0; iDim < kNumDimensions; ++iDim )
 	{
 		if( vOrigin[iDim] < vBoxMin[iDim] )
 		{

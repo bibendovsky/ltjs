@@ -171,7 +171,8 @@ void CMenuIntel::GetIntelName(uint32 nTextId, char *pBuf, int nBufSize)
 		int i = 24;
 		int len = strlen(pBuf);
 		if (len <= i) i = len;
-		for (int j = 0; j < 3; j++)
+        int j = 0;
+		for (j = 0; j < 3; j++)
 			pBuf[i+j] = '.';
 		pBuf[i+j] = 0;
 		

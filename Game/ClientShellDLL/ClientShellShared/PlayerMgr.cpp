@@ -5031,7 +5031,8 @@ void CPlayerMgr::UpdateDynamicOccluders(HLOCALOBJ* pContainerArray, uint32 nNumC
 
 	// Find the occluder volumes fx that we wish to enable...
 
-	for (uint32 i=0; i < nNumContainers; i++)
+    uint32 i=0;
+	for (i=0; i < nNumContainers; i++)
 	{
 		// We only care about "visible" containers...
 
@@ -5061,7 +5062,8 @@ void CPlayerMgr::UpdateDynamicOccluders(HLOCALOBJ* pContainerArray, uint32 nNumC
 	{
 		uint32 nNum = pDynOccluderList->GetSize();
 
-		for (uint32 i=0; i < nNum; i++)
+        uint32 i=0;
+		for (i=0; i < nNum; i++)
 		{
 			CDynamicOccluderVolumeFX* pFX = (CDynamicOccluderVolumeFX*)(*pDynOccluderList)[i];
 			if (!pFX) continue;

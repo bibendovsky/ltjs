@@ -1266,7 +1266,8 @@ void AINodeUseObject::ReadProp(ObjectCreateStruct* pocs)
 	{
 		if ( g_gp.m_String[0] )
 		{
-			for(uint32 iSound=0; iSound < kAIS_Count; ++iSound)
+            uint32 iSound=0;
+			for(iSound=0; iSound < kAIS_Count; ++iSound)
 			{
 				if( stricmp(s_aszAISoundTypes[iSound], g_gp.m_String) == 0 )
 				{
@@ -1283,7 +1284,8 @@ void AINodeUseObject::ReadProp(ObjectCreateStruct* pocs)
 	{
 		if ( g_gp.m_String[0] )
 		{
-			for(uint32 iSound=0; iSound < kAIS_Count; ++iSound)
+            uint32 iSound=0;
+			for(iSound=0; iSound < kAIS_Count; ++iSound)
 			{
 				if( stricmp(s_aszAISoundTypes[iSound], g_gp.m_String) == 0 )
 				{

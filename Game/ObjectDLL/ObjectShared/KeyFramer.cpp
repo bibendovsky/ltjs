@@ -2453,7 +2453,8 @@ void KeyFramer::Load(ILTMessage_Read *pMsg, uint32 dwLoadFlags)
 	LOAD_INT(nDestKeyIndex);
 
 	KEYNODE* pCurKey = m_pKeys;
-	for (int i=0; i < m_nNumKeys && pCurKey; i++)
+    int i=0;
+	for (i=0; i < m_nNumKeys && pCurKey; i++)
 	{
 		if (nCurKeyIndex == i)
 		{

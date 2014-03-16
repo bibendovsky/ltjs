@@ -93,7 +93,8 @@ void CHUDAmmo::Render()
 		g_pDrawPrim->SetTexture(m_hFull);
 		SetupQuadUVs(m_Poly[0], m_hFull, 0.0f, 0.0f, 1.0f, 1.0f);
 
-		for (uint8 i = 0; i < m_nFull; i++)
+        uint8 i = 0;
+		for (i = 0; i < m_nFull; i++)
 		{
 			x -= w;
 			g_pDrawPrim->SetXYWH(&m_Poly[0],x,y,w,h);

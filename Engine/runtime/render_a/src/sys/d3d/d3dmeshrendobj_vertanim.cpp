@@ -137,7 +137,8 @@ bool CD3DVAMesh::Load(ILTStream& File, LTB_Header& LTBHeader)
 void CD3DVAMesh::ReCreateObject()
 {
 	// Create our VB...
-	for (uint32 i=0;i<4;++i)
+    uint32 i=0;
+	for (i=0;i<4;++i)
 	{
 		if (!m_VertStreamFlags[i])
 			continue;
@@ -209,7 +210,8 @@ void CD3DVAMesh::UpdateVA(Model* pModel, AnimTimeRef* pAnimTimeRef)
 	uint8* pVertData		= (uint8*)m_VBController.getVertexData(0);
 	uint32 Vertex_Size		= m_VBController.getVertexSize(0);
 	//uint32 NormalOffset		= m_VBController.getXYZSize();
-	for (int i = 0; i < (int)m_iUnDupVertCount ; ++i)
+    int i = 0;
+	for (i = 0; i < (int)m_iUnDupVertCount ; ++i)
 	{
 		const float *prv_val = pDefVerts[0]->getValue(i);
 		const float *cur_val = pDefVerts[1]->getValue(i);

@@ -280,7 +280,8 @@ void CScreenPlayerTeam::UpdateTeam()
 
 	CLTGUITextCtrl* pItem;
 
-	for (uint8 nTeam = 0; nTeam < 2; nTeam++)
+    uint8 nTeam = 0;
+	for (nTeam = 0; nTeam < 2; nTeam++)
 	{
 		m_pPlayers[nTeam]->RemoveAll();
 	}

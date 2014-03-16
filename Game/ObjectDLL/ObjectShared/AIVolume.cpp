@@ -2256,7 +2256,8 @@ LTBOOL AIVolumeJunction::GetAction(CAI* pAI, uint8* pmskActionVolumes, AIVolume*
 	// Look for volumes with valid actions.
 
 	LTBOOL bSplitUp = LTFALSE;
-	for ( int iVolume = 0 ; iVolume < kMaxVolumes ; ++iVolume )
+    int iVolume = 0 ;
+	for ( iVolume = 0 ; iVolume < kMaxVolumes ; ++iVolume )
 	{
 		// Ignore volumes that have been explored recently by others.
 
@@ -2416,7 +2417,8 @@ LTBOOL AIVolumeJunction::GetAction(CAI* pAI, uint8* pmskActionVolumes, AIVolume*
 	LTFLOAT fChance = GetRandom(0.f, lstVolumeActions[iVolume].fTotalChance);
 
 	fTotalChance = 0.f;
-	for ( int iAction = 0 ; iAction < kMaxActionsPerVolume ; ++iAction )
+    int iAction = 0 ;
+	for ( iAction = 0 ; iAction < kMaxActionsPerVolume ; ++iAction )
 	{
 		if( fChance < fTotalChance)
 		{

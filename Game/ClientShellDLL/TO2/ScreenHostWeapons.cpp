@@ -298,7 +298,8 @@ LTBOOL CScreenHostWeapons::FillAvailList()
 		}
 	}
 
-	for (uint8 nId = 0; nId <= g_pWeaponMgr->GetNumAmmoIds(); nId++)
+    uint8 nId = 0;
+	for (nId = 0; nId <= g_pWeaponMgr->GetNumAmmoIds(); nId++)
 	{
 		AMMO const *pAmmo = g_pWeaponMgr->GetAmmo( nId );
 		if (pAmmo && pAmmo->bCanServerRestrict)

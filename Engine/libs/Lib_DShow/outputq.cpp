@@ -632,7 +632,8 @@ HRESULT COutputQueue::ReceiveMultiple (
         //  Loop processing the samples in batches
 
         LONG iLost = 0;
-        for (long iDone = 0;
+        long iDone = 0;
+        for (iDone = 0;
              iDone < nSamples || (m_nBatched != 0 && m_bSendAnyway);
             ) {
 

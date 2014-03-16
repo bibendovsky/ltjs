@@ -176,7 +176,8 @@ void CMenuMission::OnFocus(LTBOOL bFocus)
 			}
 		}
 
-		for (int i = pObj->m_IDArray.size()-1; i >= 0 ; i--)
+        int i = 0;
+		for (i = pObj->m_IDArray.size()-1; i >= 0 ; i--)
 		{
 			CObjectiveCtrl* pCtrl = LTNULL;
 			uint32 objID = pObj->m_IDArray[i];

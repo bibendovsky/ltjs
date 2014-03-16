@@ -69,7 +69,8 @@ LTBOOL CHUDWpnChooser::Init()
 	UpdateLayout();
 
 
-	for( uint8 i = 0; i < kMaxClasses; ++i )
+    uint8 i = 0;
+	for( i = 0; i < kMaxClasses; ++i )
 	{
 		g_pDrawPrim->SetRGBA( &m_ClassPoly[i], argbWhite );
 		
@@ -104,7 +105,8 @@ void CHUDWpnChooser::Render()
 
 	SetRenderState();
 
-	for (uint8 n = 0; n < kMaxClasses; n++)
+    uint8 n = 0;
+	for (n = 0; n < kMaxClasses; n++)
 	{
 //		if (n != m_nClass)
 //		{
@@ -185,7 +187,8 @@ void CHUDWpnChooser::Update()
 	g_pDrawPrim->SetXYWH( &m_ClassPoly[m_nClass], fBaseX, 0.0f, fBaseWidth, fHeight );
 
 	float x = fBaseX;
-	for (uint8 n = m_nClass; n > 0; n--)
+    uint8 n = 0;
+	for (n = m_nClass; n > 0; n--)
 	{
 		x -= fHeight;
 		g_pDrawPrim->SetXYWH( &m_ClassPoly[n-1], x, 0.0f, fHeight, fHeight );

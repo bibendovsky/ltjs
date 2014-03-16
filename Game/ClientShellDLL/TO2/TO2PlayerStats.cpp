@@ -1108,7 +1108,8 @@ void CTO2PlayerStats::OnObjectivesDataMessage(ILTMessage_Read *pMsg)
     uint8 nNumObj = pMsg->Readuint8();
 
 	//read list of objectives
-    for (uint8 i = 0; i < nNumObj; i++)
+    uint8 i = 0;
+    for (i = 0; i < nNumObj; i++)
 	{
         uint32 dwId = pMsg->Readuint32();
 		m_Objectives.Add(dwId);

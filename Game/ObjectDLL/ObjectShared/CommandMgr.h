@@ -375,7 +375,8 @@ inline void	CCommandMgr::Clear()
 {
 	// Clear all our commands...
 
-	for (int i=0; i < CMDMGR_MAX_PENDING_COMMANDS; i++)
+    int i=0;
+	for (i=0; i < CMDMGR_MAX_PENDING_COMMANDS; i++)
 	{
 		m_PendingCmds[i].Clear();
 	}

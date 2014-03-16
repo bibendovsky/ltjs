@@ -159,7 +159,8 @@ void CAIGoalMgr::Load(ILTMessage_Read *pMsg)
 	CAIGoalAbstract* pGoal;
 	EnumAIGoalType eGoalType;
 	uint32 dwDamagePriority;
-	for(uint32 iGoal=0; iGoal < cGoals; ++iGoal)
+    uint32 iGoal=0;
+	for(iGoal=0; iGoal < cGoals; ++iGoal)
 	{
 		LOAD_DWORD_CAST(eGoalType, EnumAIGoalType);
 		pGoal = AI_FACTORY_NEW_Goal( eGoalType );
@@ -1638,7 +1639,8 @@ CAIGoalAbstract* CAIGoalMgr::FindGoalByType(EnumAIGoalType eGoalType)
 EnumAIGoalType CAIGoalMgr::GetGoalTypeEnumFromName(const char* szGoalType)
 {
 	// Find goal by name.
-	for(uint32 iGoalType=0; iGoalType < kGoal_Count; ++iGoalType)
+    uint32 iGoalType=0;
+	for(iGoalType=0; iGoalType < kGoal_Count; ++iGoalType)
 	{
 		if( stricmp(s_aszGoalTypes[iGoalType], szGoalType) == 0)
 		{

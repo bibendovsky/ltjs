@@ -448,7 +448,8 @@ void CUserProfile::LoadControls()
 
 	m_bUseJoystick = (LTBOOL)m_buteMgr.GetInt(s_aTagName,"UseJoystick",0);
 
-	for (int a = 0; a < g_pProfileMgr->GetNumAxis(); a++)
+    int a = 0;
+	for (a = 0; a < g_pProfileMgr->GetNumAxis(); a++)
 	{
 		CDeviceAxisData *pAxisData = g_pProfileMgr->GetAxisData(a);
 		uint8 nDef = 0;
@@ -1214,7 +1215,8 @@ void CUserProfile::ApplyJoystick()
 	LTRESULT result = g_pLTClient->GetDeviceName(devType, strJoystick, 127);
 	if (result != LT_OK) return;
 
-	for (int a = 0; a < g_pProfileMgr->GetNumAxis(); a++)
+    int a = 0;
+	for (a = 0; a < g_pProfileMgr->GetNumAxis(); a++)
 	{
 		CDeviceAxisData *pAxisData = g_pProfileMgr->GetAxisData(a);
 		if (!pAxisData || m_nAxis[a] == eJoystick_None) continue;

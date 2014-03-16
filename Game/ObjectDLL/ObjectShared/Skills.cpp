@@ -105,7 +105,8 @@ void CSkills::MultiplayerInit(ILTMessage_Read *pMsg)
 {
 	uint32 nLevels[kNumSkills];
 
-	for (uint8 nSkill = 0; nSkill < kNumSkills; nSkill++)
+    uint8 nSkill = 0;
+	for (nSkill = 0; nSkill < kNumSkills; nSkill++)
 	{
 		nLevels[nSkill] = pMsg->Readuint8();
 	}

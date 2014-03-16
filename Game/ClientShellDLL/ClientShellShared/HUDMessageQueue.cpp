@@ -59,7 +59,8 @@ LTBOOL CHUDMessageQueue::Init()
 	fmt.sString = "";
 	fmt.fDuration = 0.0f;
 
-	for (int i = 0; i < m_nMaxActiveMsgs; i++)
+    int i = 0;
+	for (i = 0; i < m_nMaxActiveMsgs; i++)
 	{
 		CHUDMessage *pMsg = debug_new(CHUDMessage);
 		if (pMsg->Create(fmt))
