@@ -1,0 +1,138 @@
+set(LTJS_TARGET ltjs_lib_ui)
+
+include(ltjs_common)
+
+ltjs_add_default_options()
+
+add_definitions(-D__D3D)
+add_definitions(-D__D3DREND)
+
+include_directories(
+    ../../../../libs/stdlith
+    ../../../../libs/lith
+    ../../../libs/rezmgr
+    ../../controlfilemgr
+    ../../crtcompat
+    ../../lithtemplate
+    .
+    ../../client/src
+    ../../kernel/mem/src
+    ../../kernel/io/src
+    ../../kernel/src
+    ../../kernel/src/sys/win
+    ../../model/src
+    ../../sound/src
+    ../../server/src
+    ../../shared/src/sys/win
+    ../../shared/src
+    ../../world/src
+    ../../../sdk/inc
+    ../../../sdk/inc/compat
+    ../../kernel/net/src
+    ../../render_b/src
+    ../../mpm/src
+    ../../comm/src
+    ../../ui/src
+)
+
+set(
+    HDRS
+    ../../../sdk/inc/cui.h
+    ../../../sdk/inc/cuibase.h
+    cuibase_impl.h
+    cuibitmapfont.h
+    ../../../sdk/inc/cuibutton.h
+    cuibutton_impl.h
+    ../../../sdk/inc/cuicheck.h
+    cuicheck_impl.h
+    cuidebug.h
+    ../../../sdk/inc/cuidropdownlist.h
+    cuidropdownlist_impl.h
+    ../../../sdk/inc/cuifont.h
+    cuifont_impl.h
+    cuifontmanager.h
+    ../../../sdk/inc/cuiformattedpolystring.h
+    cuiformattedpolystring_impl.h
+    ../../../sdk/inc/cuiinterval.h
+    cuiinterval_impl.h
+    cuilinklist.h
+    ../../../sdk/inc/cuilist.h
+    cuilist_impl.h
+    ../../../sdk/inc/cuimessage.h
+    cuimessagequeue.h
+    ../../../sdk/inc/cuioption.h
+    cuioption_impl.h
+    ../../../sdk/inc/cuipolystring.h
+    cuipolystring_impl.h
+    cuipolytex.h
+    ../../../sdk/inc/cuiprogress.h
+    cuiprogress_impl.h
+    cuiredblack.h
+    cuirenderstate.h
+    ../../../sdk/inc/cuislider.h
+    cuislider_impl.h
+    ../../../sdk/inc/cuistaticimage.h
+    cuistaticimage_impl.h
+    ../../../sdk/inc/cuistatictext.h
+    cuistatictext_impl.h
+    ../../../sdk/inc/cuitypes.h
+    cuivectorfont.h
+    ../../../sdk/inc/cuiwidget.h
+    cuiwidget_impl.h
+    cuiwidgetmanager.h
+    ../../../sdk/inc/cuiwindow.h
+    cuiwindow_impl.h
+    ../../../sdk/inc/iltfontmanager.h
+    ../../../sdk/inc/iltwidgetmanager.h
+)
+
+set(
+    SRCS
+    cuibase.cpp
+    cuibase_impl.cpp
+    cuibitmapfont.cpp
+    cuibutton.cpp
+    cuibutton_impl.cpp
+    cuicheck.cpp
+    cuicheck_impl.cpp
+    sys/d3d/cuidebug.cpp
+    cuidropdownlist.cpp
+    cuidropdownlist_impl.cpp
+    cuifont_impl.cpp
+    cuifontmanager.cpp
+    cuiformattedpolystring.cpp
+    cuiformattedpolystring_impl.cpp
+    cuiinterval.cpp
+    cuiinterval_impl.cpp
+    cuilinklist.cpp
+    cuilist.cpp
+    cuilist_impl.cpp
+    cuimessagequeue.cpp
+    cuioption.cpp
+    cuioption_impl.cpp
+    cuipolystring.cpp
+    cuipolystring_impl.cpp
+    cuipolytex.cpp
+    cuiprogress.cpp
+    cuiprogress_impl.cpp
+    cuiredblack.cpp
+    cuirenderstate.cpp
+    cuislider.cpp
+    cuislider_impl.cpp
+    cuistaticimage.cpp
+    cuistaticimage_impl.cpp
+    cuistatictext.cpp
+    cuistatictext_impl.cpp
+    cuivectorfont.cpp
+    cuiwidget.cpp
+    cuiwidget_impl.cpp
+    cuiwidgetmanager.cpp
+    cuiwindow.cpp
+    cuiwindow_impl.cpp
+)
+
+add_library(
+    ${LTJS_TARGET} STATIC
+    ${HDRS}
+    ${SRCS}
+)
