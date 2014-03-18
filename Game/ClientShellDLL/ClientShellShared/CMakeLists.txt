@@ -7,10 +7,6 @@ ltjs_add_default_options(stdafx.h)
 add_definitions(-D_CLIENTBUILD)
 add_definitions(-DMEMTRACK_CLIENT)
 
-if (MSVC)
-    add_compile_options(-GR)
-endif ()
-
 include_directories(
     .
     ../../clientres/shared
@@ -94,7 +90,6 @@ set(
     huddecision.h
     huddisplaymeter.h
     huddistance.h
-    ../to2/hudhealth.h
     huditem.h
     hudmessage.h
     hudmessagequeue.h
@@ -313,7 +308,6 @@ set(
     huddecision.cpp
     huddisplaymeter.cpp
     huddistance.cpp
-    ../to2/hudhealth.cpp
     hudmessage.cpp
     hudmessagequeue.cpp
     hudmeter.cpp

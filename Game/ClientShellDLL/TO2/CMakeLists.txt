@@ -39,6 +39,7 @@ set(
     hudcrosshair.h
     huddamagedir.h
     huddoomsday.h
+    hudhealth.h
     hudhiding.h
     hudhidingbar.h
     hudobjectives.h
@@ -108,6 +109,7 @@ set(
     hudcrosshair.cpp
     huddamagedir.cpp
     huddoomsday.cpp
+    hudhealth.cpp
     hudhiding.cpp
     hudhidingbar.cpp
     hudobjectives.cpp
