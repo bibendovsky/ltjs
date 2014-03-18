@@ -9,6 +9,10 @@ add_definitions(-DMEMTRACK_CLIENT)
 add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-D_NOLFBUILD>)
 add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-DNO_PRAGMA_LIBS>)
 
+if (MSVC)
+    add_compile_options(-GR)
+endif ()
+
 include_directories(
     ../../shared/to2
     .

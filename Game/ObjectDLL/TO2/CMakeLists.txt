@@ -9,6 +9,10 @@ add_definitions(-DMEMTRACK_SERVER)
 add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-D_NOLFBUILD>)
 add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-DUSE_INTEL_COMPILER>)
 
+if (MSVC)
+    add_compile_options(-GR)
+endif ()
+
 include_directories(
     .
     ../objectshared

@@ -7,6 +7,10 @@ ltjs_add_default_options(stdafx.h)
 add_definitions(-D_CLIENTBUILD)
 add_definitions(-DMEMTRACK_CLIENT)
 
+if (MSVC)
+    add_compile_options(-GR)
+endif ()
+
 include_directories(
     .
     ../../clientres/shared
