@@ -56,6 +56,10 @@ function(ltjs_add_default_options)
             add_compile_options(-Y-)
         endif ()
 
+        # No Enhanced Instructions
+        # (Prevents overflow of the x87 FPU stack)
+        add_compile_options(-arch:IA32)
+
         # Suppress "unreferenced formal parameter" warning
         add_compile_options(-wd4100)
 
