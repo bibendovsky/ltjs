@@ -679,6 +679,8 @@ void WONConsoleHook(int argc, char **argv)
 	}
 }
 
+// BBi
+#ifndef _FINAL
 void TitanTest_Init()
 {
 	if (g_pLTClient)
@@ -703,3 +705,5 @@ void TitanTest_Term()
 		g_pWONCore = 0;
 	}
 }
+#endif // _FINAL
+// BBi
