@@ -356,6 +356,8 @@ bool CClientFXMgr::Init(ILTClient *pClientDE, LTBOOL bGlobal)
 
 void CClientFXMgr::Term()
 {
+// BBi CClientFXDB singleton's destructor already cared about instances
+#if 0
 	// Delete all the FX group instances
 
 	CLinkListNode<CLIENTFX_INSTANCE *> *pInstNode = m_collActiveGroupFX.GetHead();
@@ -368,6 +370,8 @@ void CClientFXMgr::Term()
 				
 		pInstNode = pInstNode->m_pNext;
 	}
+#endif
+// BBi
 
 	m_collActiveGroupFX.RemoveAll();
 
