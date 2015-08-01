@@ -11,16 +11,16 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "WeaponMgr.h"
-#include "ClientWeaponSFX.h"
-#include "SFXMsgIds.h"
-#include "SurfaceFunctions.h"
-#include "WeaponFXTypes.h"
-#include "ServerMark.h"
-#include "CommonUtilities.h"
-#include "ServerUtilities.h"
-#include "WorldModel.h"
-#include "FXButeMgr.h"
+#include "weaponmgr.h"
+#include "clientweaponsfx.h"
+#include "sfxmsgids.h"
+#include "surfacefunctions.h"
+#include "weaponfxtypes.h"
+#include "servermark.h"
+#include "commonutilities.h"
+#include "serverutilities.h"
+#include "worldmodel.h"
+#include "fxbutemgr.h"
 
 static void CreateServerMark(CLIENTWEAPONFX & theStruct);
 static void CreateServerExitMark(const CLIENTWEAPONFX & theStruct);

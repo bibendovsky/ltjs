@@ -13,8 +13,8 @@
 #ifndef __MINE_H__
 #define __MINE_H__
 
-#include "Explosion.h"
-#include "SharedFXStructs.h"
+#include "explosion.h"
+#include "sharedfxstructs.h"
 
 LINKTO_MODULE( Mine );
 

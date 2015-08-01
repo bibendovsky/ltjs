@@ -1,14 +1,14 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIButeMgr.h"
-#include "ButeTools.h"
-#include "CommonUtilities.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIStimulusMgr.h"
-#include "WeaponMgr.h"
-#include "AIVolume.h"
-#include "AIUtils.h"
+#include "aibutemgr.h"
+#include "butetools.h"
+#include "commonutilities.h"
+#include "aisenserecorderabstract.h"
+#include "aistimulusmgr.h"
+#include "weaponmgr.h"
+#include "aivolume.h"
+#include "aiutils.h"
 #include <time.h>
 
 extern CWeaponMgr* g_pWeaponMgr;

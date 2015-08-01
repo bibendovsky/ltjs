@@ -1,7 +1,7 @@
 #ifndef __WON_RECVMSGOP_H__
 #define __WON_RECVMSGOP_H__
-#include "WONShared.h"
-#include "RecvBytesOp.h"
+#include "wonshared.h"
+#include "recvbytesop.h"
 
 namespace WONAPI
 {

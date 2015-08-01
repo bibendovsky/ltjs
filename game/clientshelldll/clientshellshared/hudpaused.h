@@ -11,8 +11,8 @@
 #ifndef __HUD_PAUSED_H
 #define __HUD_PAUSED_H
 
-#include "HUDItem.h"
-#include "HUDMessage.h"
+#include "huditem.h"
+#include "hudmessage.h"
 
 //******************************************************************************************
 //** HUD Message Queue

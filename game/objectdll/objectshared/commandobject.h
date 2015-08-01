@@ -18,9 +18,9 @@
 // Includes...
 //
 	
-	#include "GameBaseLite.h"
-	#include "Timer.h"
-	#include "CommandMgr.h"
+	#include "gamebaselite.h"
+	#include "timer.h"
+	#include "commandmgr.h"
 
 //
 // Defines...

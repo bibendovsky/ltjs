@@ -11,13 +11,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PolyLineFX.h"
+#include "polylinefx.h"
 #include "iltclient.h"
-#include "SFXMgr.h"
-#include "GameClientShell.h"
-#include "DynamicLightFX.h"
-#include "GameButes.h"
-#include "VarTrack.h"
+#include "sfxmgr.h"
+#include "gameclientshell.h"
+#include "dynamiclightfx.h"
+#include "gamebutes.h"
+#include "vartrack.h"
 
 #ifdef __PSX2
 class LTVertex

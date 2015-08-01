@@ -17,7 +17,7 @@
 //
 // Includes
 //
-#include "Projectile.h"
+#include "projectile.h"
 
 
 // forward define to reduce header dependancies

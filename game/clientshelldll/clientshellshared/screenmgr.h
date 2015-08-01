@@ -12,7 +12,7 @@
 #if !defined(_SCREEN_MGR_H_)
 #define _SCREEN_MGR_H_
 
-#include "InterfaceResMgr.h"
+#include "interfaceresmgr.h"
 
 #define MAX_SCREEN_HISTORY 20
 
@@ -23,7 +23,7 @@ class CTransitionFXMgr;
 enum eScreenID
 {
 #define INCLUDE_AS_ENUM
-#include "ScreenEnum.h"
+#include "screenenum.h"
 #undef INCLUDE_AS_ENUM
 };
 

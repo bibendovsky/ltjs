@@ -1,6 +1,6 @@
-#include "GetServiceOp.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONCommon/ReadBuffer.h"
+#include "getserviceop.h"
+#include "woncommon/writebuffer.h"
+#include "woncommon/readbuffer.h"
 
 using namespace std;
 using namespace WONAPI;

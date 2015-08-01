@@ -18,7 +18,7 @@
 //
 	
 	#include "basefx.h"
-	#include "ClientFX.h"
+	#include "clientfx.h"
 
 	class CCreateProps : public CBaseFXProps
 	{

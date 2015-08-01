@@ -15,11 +15,11 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include "ltbasetypes.h"
-#include "ScreenMgr.h"
-#include "MenuMgr.h"
-#include "Overlays.h"
+#include "screenmgr.h"
+#include "menumgr.h"
+#include "overlays.h"
 
 
 #define LO_DEFAULT_FILE "Attributes\\Layout.txt"

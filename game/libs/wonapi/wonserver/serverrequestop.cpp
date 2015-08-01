@@ -1,9 +1,9 @@
-#include "WONCommon/ReadBuffer.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONSocket/SocketOp.h"
-#include "WONAuth/CryptTransform.h"
-#include "WONAuth/PeerAuthOp.h"
-#include "ServerRequestOp.h"
+#include "woncommon/readbuffer.h"
+#include "woncommon/writebuffer.h"
+#include "wonsocket/socketop.h"
+#include "wonauth/crypttransform.h"
+#include "wonauth/peerauthop.h"
+#include "serverrequestop.h"
 
 #include <algorithm>
 using namespace std;

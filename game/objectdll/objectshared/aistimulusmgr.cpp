@@ -10,13 +10,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIStimulusMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AI.h"
-#include "PlayerObj.h"
-#include "AIVolume.h"
-#include "CharacterMgr.h"
-#include "AIUtils.h"
+#include "aistimulusmgr.h"
+#include "aisenserecorderabstract.h"
+#include "ai.h"
+#include "playerobj.h"
+#include "aivolume.h"
+#include "charactermgr.h"
+#include "aiutils.h"
 
 #include <algorithm>
 

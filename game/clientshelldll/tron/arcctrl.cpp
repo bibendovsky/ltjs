@@ -11,9 +11,9 @@
 //-------------------------------------------------------------------------
 
 #include "stdafx.h"
-#include "ArcCtrl.h"
-#include "InterfaceResMgr.h"
-#include "InterfaceMgr.h"
+#include "arcctrl.h"
+#include "interfaceresmgr.h"
+#include "interfacemgr.h"
 
 #define DEBUG_DELETEA(x) if (x)	{debug_deletea(x);x = LTNULL;}
 

@@ -23,8 +23,8 @@
 #endif // _MSC_VER >= 1000
 
 // Includes
-#include "AIClassFactory.h"
-#include "AIHumanStrategy.h"
+#include "aiclassfactory.h"
+#include "aihumanstrategy.h"
 
 // Forward declarations
 

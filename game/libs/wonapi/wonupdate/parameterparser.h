@@ -4,7 +4,7 @@
 #ifndef __ParameterParser_H__
 #define __ParameterParser_H__
 
-#include "WONGUI/GUIString.h"
+#include "wongui/guistring.h"
 
 namespace WONAPI
 {

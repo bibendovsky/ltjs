@@ -15,7 +15,7 @@
 //
 
 	#include "stdafx.h"
-	#include "RadarObjectFX.h"
+	#include "radarobjectfx.h"
 
 
 // ----------------------------------------------------------------------- //

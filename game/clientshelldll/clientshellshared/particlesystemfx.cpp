@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ParticleSystemFX.h"
+#include "particlesystemfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ClientServerShared.h"
-#include "GameClientShell.h"
-#include "VarTrack.h"
+#include "clientutilities.h"
+#include "clientservershared.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
 
 #define MAX_PARTICLES_PER_SECOND 5000
 #define MAX_PS_VIEW_DIST_SQR	(10000*10000)	// Max global distance to add particles

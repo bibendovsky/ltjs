@@ -18,9 +18,9 @@
 // Includes
 #include "stdafx.h"
 
-#include "AIMovementModifier.h"		
-#include "AIAssert.h"
-#include "AIUtils.h"
+#include "aimovementmodifier.h"		
+#include "aiassert.h"
+#include "aiutils.h"
 
 // Forward declarations
 

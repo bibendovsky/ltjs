@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_DRAW_WEAPON_H__
 #define __AIGOAL_DRAW_WEAPON_H__
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 
 class CAIGoalDrawWeapon : public CAIGoalAbstractStimulated

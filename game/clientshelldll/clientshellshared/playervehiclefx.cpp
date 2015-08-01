@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PlayerVehicleFX.h"
+#include "playervehiclefx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "SFXMsgIds.h"
-#include "GameClientShell.h"
+#include "clientutilities.h"
+#include "sfxmsgids.h"
+#include "gameclientshell.h"
 
 #define RADAR_SNOWMOBILE_TYPE	"Snowmobile"
 

@@ -15,16 +15,16 @@
 //
 
 	#include "stdafx.h"
-	#include "DamageFXMgr.h"
-	#include "VarTrack.h"
-	#include "SoundMgr.h"
-	#include "HUDMgr.h"
-	#include "GameClientShell.h"
-	#include "MsgIDs.h"
-	#include "CMoveMgr.h"
-	#include "FXButeMgr.h"
-	#include "VehicleMgr.h"
-	#include "ClientWeaponMgr.h"
+	#include "damagefxmgr.h"
+	#include "vartrack.h"
+	#include "soundmgr.h"
+	#include "hudmgr.h"
+	#include "gameclientshell.h"
+	#include "msgids.h"
+	#include "cmovemgr.h"
+	#include "fxbutemgr.h"
+	#include "vehiclemgr.h"
+	#include "clientweaponmgr.h"
 
 //
 // Defines...

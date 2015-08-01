@@ -15,9 +15,9 @@
 //
 
 	#include "stdafx.h"
-	#include "StartupCommand.h"
-	#include "VersionMgr.h"
-	#include "ServerMissionMgr.h"
+	#include "startupcommand.h"
+	#include "versionmgr.h"
+	#include "servermissionmgr.h"
 
 LINKFROM_MODULE( StartupCommand );
 

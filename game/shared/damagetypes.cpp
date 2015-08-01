@@ -11,12 +11,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DamageTypes.h"
+#include "damagetypes.h"
 
 DTINFO DTInfoArray[kNumDamageTypes] =
 {
 #define INCLUDE_AS_STRUCT
-#include "DamageTypesEnum.h"
+#include "damagetypesenum.h"
 #undef INCLUDE_AS_STRUCT
 };
 

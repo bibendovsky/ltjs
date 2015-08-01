@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "InterfaceMgr.h"
-#include "ScreenSpriteMgr.h"
+#include "interfacemgr.h"
+#include "screenspritemgr.h"
 
 CScreenSpriteMgr *g_pScreenSpriteMgr = LTNULL;
 

@@ -11,8 +11,8 @@
 ****************************************************************************/
 
 #include "stdafx.h"
-#include "LightCycleMgr.h"
-#include "MsgIDs.h"
+#include "lightcyclemgr.h"
+#include "msgids.h"
 
 CLightCycleMgr* g_pLightCycleMgr = NULL;
 

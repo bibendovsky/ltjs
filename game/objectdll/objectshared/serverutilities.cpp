@@ -12,20 +12,20 @@
 
 #include "stdafx.h"
 #include <stdlib.h>
-#include "ServerUtilities.h"
+#include "serverutilities.h"
 #include "iltserver.h"
-#include "MsgIds.h"
-#include "SoundTypes.h"
-#include "CVarTrack.h"
-#include "ObjectMsgs.h"
-#include "CommandMgr.h"
+#include "msgids.h"
+#include "soundtypes.h"
+#include "cvartrack.h"
+#include "objectmsgs.h"
+#include "commandmgr.h"
 #include "ltserverobj.h"
-#include "UberAssert.h"
-#include "GameServerShell.h"
-#include "PlayerObj.h"
-#include "FXDefs.h"
-#include "GameBaseLite.h"
-#include "ParsedMsg.h"
+#include "uberassert.h"
+#include "gameservershell.h"
+#include "playerobj.h"
+#include "fxdefs.h"
+#include "gamebaselite.h"
+#include "parsedmsg.h"
 
 extern	CGameServerShell*   g_pGameServerShell;
 

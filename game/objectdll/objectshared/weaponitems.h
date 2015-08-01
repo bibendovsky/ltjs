@@ -16,8 +16,8 @@
 #ifndef __WEAPON_ITEMS_H__
 #define __WEAPON_ITEMS_H__
 
-#include "PickupItem.h"
-#include "WeaponMgr.h"
+#include "pickupitem.h"
+#include "weaponmgr.h"
 
 LINKTO_MODULE( WeaponItems );
 

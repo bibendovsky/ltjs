@@ -11,7 +11,7 @@
 #ifndef __HUD_OBJECTIVES_H
 #define __HUD_OBJECTIVES_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 
 

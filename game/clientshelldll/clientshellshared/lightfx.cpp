@@ -12,11 +12,11 @@
 #include "stdafx.h"
 #include <stdio.h>
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "LightFX.h"
-#include "ClientServerShared.h"
-#include "SoundMgr.h"
-#include "ClientSoundMgr.h"
+#include "clientutilities.h"
+#include "lightfx.h"
+#include "clientservershared.h"
+#include "soundmgr.h"
+#include "clientsoundmgr.h"
 
 // Defines....
 

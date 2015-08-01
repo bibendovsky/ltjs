@@ -11,15 +11,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "BodyFX.h"
-#include "GameClientShell.h"
-#include "SFXMsgIds.h"
-#include "ClientUtilities.h"
-#include "SoundMgr.h"
-#include "BaseScaleFX.h"
-#include "SurfaceFunctions.h"
-#include "RagDoll.h"
-#include "RagDollConstraint.h"
+#include "bodyfx.h"
+#include "gameclientshell.h"
+#include "sfxmsgids.h"
+#include "clientutilities.h"
+#include "soundmgr.h"
+#include "basescalefx.h"
+#include "surfacefunctions.h"
+#include "ragdoll.h"
+#include "ragdollconstraint.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

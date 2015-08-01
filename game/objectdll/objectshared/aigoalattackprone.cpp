@@ -10,17 +10,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAttackProne.h"
-#include "AIGoalMgr.h"
-#include "AIGoalButeMgr.h"
-#include "AIHuman.h"
-#include "AITarget.h"
-#include "AIUtils.h"
-#include "AIHumanStateAttackProne.h"
-#include "AIVolumeMgr.h"
-#include "AIVolume.h"
-#include "AICentralKnowledgeMgr.h"
-#include "CharacterMgr.h"
+#include "aigoalattackprone.h"
+#include "aigoalmgr.h"
+#include "aigoalbutemgr.h"
+#include "aihuman.h"
+#include "aitarget.h"
+#include "aiutils.h"
+#include "aihumanstateattackprone.h"
+#include "aivolumemgr.h"
+#include "aivolume.h"
+#include "aicentralknowledgemgr.h"
+#include "charactermgr.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalAttackProne, kGoal_AttackProne);
 

@@ -13,8 +13,8 @@
 //
 
 #include "stdafx.h"
-#include "ClientFX.h"
-#include "SpriteFX.h"
+#include "clientfx.h"
+#include "spritefx.h"
 #include "iltspritecontrol.h"
 
 //Function to handle filtering of the intersect segment calls needed by the flare sprite

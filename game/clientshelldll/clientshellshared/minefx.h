@@ -13,9 +13,9 @@
 #ifndef __MINE_FX_H__
 #define __MINE_FX_H__
 
-#include "SpecialFX.h"
-#include "SharedFXStructs.h"
-#include "BaseScaleFX.h"
+#include "specialfx.h"
+#include "sharedfxstructs.h"
+#include "basescalefx.h"
 
 class CMineFX : public CSpecialFX
 {

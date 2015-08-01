@@ -13,18 +13,18 @@
 #ifndef __FX_BUTE_MGR_H__
 #define __FX_BUTE_MGR_H__
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include "ltbasetypes.h"
-#include "FXStructs.h"
-#include "SurfaceDefs.h"
-#include "ContainerCodes.h"
-#include "DebrisMgr.h"
+#include "fxstructs.h"
+#include "surfacedefs.h"
+#include "containercodes.h"
+#include "debrismgr.h"
 
 #ifdef  _CLIENTBUILD
-#include "SpecialFX.h"
-#include "BaseScaleFX.h"
-#include "DynamicLightFX.h"
-#include "SoundFX.h"
+#include "specialfx.h"
+#include "basescalefx.h"
+#include "dynamiclightfx.h"
+#include "soundfx.h"
 #endif
 
 struct PROJECTILEFX;

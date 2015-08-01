@@ -14,9 +14,9 @@
 #define __PLAYER_LURE_H__
 
 #include "ltengineobjects.h"
-#include "GameBase.h"
-#include "SharedMovement.h"
-#include "SFXMsgIds.h"
+#include "gamebase.h"
+#include "sharedmovement.h"
+#include "sfxmsgids.h"
 
 LINKTO_MODULE( PlayerLure );
 

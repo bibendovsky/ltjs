@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenMulti.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "GameClientShell.h"
-#include "ClientSaveLoadMgr.h"
+#include "screenmulti.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "gameclientshell.h"
+#include "clientsaveloadmgr.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

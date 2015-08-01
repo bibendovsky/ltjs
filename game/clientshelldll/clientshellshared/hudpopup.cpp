@@ -13,10 +13,10 @@
 //
 
 	#include "stdafx.h"
-	#include "HUDMgr.h"
-	#include "InterfaceResMgr.h"
-	#include "PopupMgr.h"
-	#include "HUDPopup.h"
+	#include "hudmgr.h"
+	#include "interfaceresmgr.h"
+	#include "popupmgr.h"
+	#include "hudpopup.h"
 
 
 

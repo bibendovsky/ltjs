@@ -1,6 +1,6 @@
-#include "Blowfish.h"
-#include "Random.h"
-#include "WONCommon/LittleEndian.h"
+#include "blowfish.h"
+#include "random.h"
+#include "woncommon/littleendian.h"
 
 using namespace WONAPI;
 

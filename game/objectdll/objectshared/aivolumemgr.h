@@ -3,7 +3,7 @@
 #ifndef __AI_VOLUME_MGR_H__
 #define __AI_VOLUME_MGR_H__
 
-#include "AISpatialRepresentationMgr.h"
+#include "aispatialrepresentationmgr.h"
 
 extern class CAIVolumeMgr* g_pAIVolumeMgr;
 

@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_LUNGE_H__
 #define __AIGOAL_LUNGE_H__
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 
 class CAIGoalRetreat : public CAIGoalAbstractStimulated

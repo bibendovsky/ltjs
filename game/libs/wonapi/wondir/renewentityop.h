@@ -1,9 +1,9 @@
 #ifndef __WON_RENEWENTITYOP_H__
 #define __WON_RENEWENTITYOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONServer/ServerRequestOp.h"
-#include "DirTypes.h"
+#include "wonserver/serverrequestop.h"
+#include "dirtypes.h"
 
 namespace WONAPI
 {

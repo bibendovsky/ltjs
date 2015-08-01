@@ -11,8 +11,8 @@
 #ifndef __SKILLS_H__
 #define __SKILLS_H__
 
-#include "SkillsButeMgr.h"
-#include "LTObjRef.h"
+#include "skillsbutemgr.h"
+#include "ltobjref.h"
 
 class CParsedMsg;
 

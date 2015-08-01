@@ -1,9 +1,9 @@
 #ifndef __WON_FINDENTITYOP_H__
 #define __WON_FINDENTITYOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONServer/ServerRequestOp.h"
-#include "DirTypes.h"
+#include "wonserver/serverrequestop.h"
+#include "dirtypes.h"
 
 namespace WONAPI
 {

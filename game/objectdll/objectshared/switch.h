@@ -16,7 +16,7 @@
 // Includes...
 //
 
-	#include "ActiveWorldModel.h"
+	#include "activeworldmodel.h"
 
 LINKTO_MODULE( Switch );
 

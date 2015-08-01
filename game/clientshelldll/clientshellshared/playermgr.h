@@ -11,9 +11,9 @@
 #ifndef __PLAYER_MGR_H__
 #define __PLAYER_MGR_H__
 
-#include "DamageFxMgr.h"
-#include "ContainerCodes.h"
-#include "WeaponMgr.h"
+#include "damagefxmgr.h"
+#include "containercodes.h"
+#include "weaponmgr.h"
 #include "ilttexinterface.h"
 
 

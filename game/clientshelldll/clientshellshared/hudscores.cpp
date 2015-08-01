@@ -8,11 +8,11 @@
 //
 // ----------------------------------------------------------------------- //
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "HUDScores.h"
-#include "InterfaceMgr.h"
-#include "ClientMultiplayerMgr.h"
-#include "ResShared.h"
+#include "hudmgr.h"
+#include "hudscores.h"
+#include "interfacemgr.h"
+#include "clientmultiplayermgr.h"
+#include "resshared.h"
 
 CHUDScores::CHUDScores()
 {

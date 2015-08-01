@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ATTACK_FROM_ROOF_VANTAGE_H__
 #define __AIGOAL_ATTACK_FROM_ROOF_VANTAGE_H__
 
-#include "AIGoalAttackFromVantage.h"
+#include "aigoalattackfromvantage.h"
 
 
 class CAIGoalAttackFromRoofVantage : public CAIGoalAttackFromVantage

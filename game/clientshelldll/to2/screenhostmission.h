@@ -6,8 +6,8 @@
 #define SCREEN_HOST_MISSION_H
 
 
-#include "BaseScreen.h"
-#include "ProfileMgr.h"
+#include "basescreen.h"
+#include "profilemgr.h"
 
 
 #pragma warning (disable : 4503)

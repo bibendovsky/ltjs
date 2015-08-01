@@ -13,12 +13,12 @@
 #ifndef __BODY_FX_H__
 #define __BODY_FX_H__
 
-#include "SpecialFX.h"
-#include "ModelButeMgr.h"
-#include "SharedFXStructs.h"
-#include "Animator.h"
-#include "ClientFXMgr.h"
-#include "HitBox.h"
+#include "specialfx.h"
+#include "modelbutemgr.h"
+#include "sharedfxstructs.h"
+#include "animator.h"
+#include "clientfxmgr.h"
+#include "hitbox.h"
 
 class CRagDoll;
 

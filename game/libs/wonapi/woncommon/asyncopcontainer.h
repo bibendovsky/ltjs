@@ -1,8 +1,8 @@
 #ifndef __WON_ASYNCOPCONTAINER_H__
 #define __WON_ASYNCOPCONTAINER_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "AsyncOp.h"
+#include "asyncop.h"
 #include <set>
 
 namespace WONAPI

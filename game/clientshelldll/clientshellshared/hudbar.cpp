@@ -9,9 +9,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "InterfaceMgr.h"
-#include "HUDBar.h"
+#include "hudmgr.h"
+#include "interfacemgr.h"
+#include "hudbar.h"
 
 
 CHUDBar::CHUDBar()

@@ -59,7 +59,7 @@ class CLTRealVideoMgr;
 #endif
 
 #ifdef COMPILE_JUPITER_EVAL
-#include "WaterMark.h"
+#include "watermark.h"
 #endif
 
 #include <vector>

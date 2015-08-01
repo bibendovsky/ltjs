@@ -15,8 +15,8 @@
 //
 
 	#include "stdafx.h"
-	#include "WeaponMgr.h"
-	#include "RadarTypeMgr.h"
+	#include "weaponmgr.h"
+	#include "radartypemgr.h"
 
 //
 // Defines...

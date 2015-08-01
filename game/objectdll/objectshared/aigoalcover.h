@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_COVER_H__
 #define __AIGOAL_COVER_H__
 
-#include "AIGoalAbstractSearch.h"
+#include "aigoalabstractsearch.h"
 
 // Forward declarations.
 class AINode;

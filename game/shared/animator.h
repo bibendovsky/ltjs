@@ -3,9 +3,9 @@
 #ifndef __ANIMATOR_H__
 #define __ANIMATOR_H__
 
-#include "CommonUtilities.h"
+#include "commonutilities.h"
 #include "iltmodel.h"
-#include "LTObjRef.h"
+#include "ltobjref.h"
 
 // Enums
 

@@ -17,7 +17,7 @@
 // Includes...
 //
 
-	#include "PropType.h"
+	#include "proptype.h"
 	
 LINKTO_MODULE( DoomsDayPiece );
 

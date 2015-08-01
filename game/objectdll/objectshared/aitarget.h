@@ -3,9 +3,9 @@
 #ifndef __AI_TARGET_H__
 #define __AI_TARGET_H__
 
-#include "AIClassFactory.h"
-#include "LTObjRef.h"
-#include "RelationChangeObserver.h"
+#include "aiclassfactory.h"
+#include "ltobjref.h"
+#include "relationchangeobserver.h"
 
 
 class CAITarget : public CAIClassAbstract, public IRelationChangeObserver //: DEFINE_FACTORY_CLASS(CAITarget)

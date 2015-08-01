@@ -16,7 +16,7 @@
 
 	#include "stdafx.h"
 	#include "fxflags.h"
-	#include "CreateFX.h"
+	#include "createfx.h"
 
 // ----------------------------------------------------------------------- //
 //

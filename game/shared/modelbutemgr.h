@@ -13,11 +13,11 @@
 
 // Includes
 
-#include "GameButeMgr.h"
-#include "ClientServerShared.h"
-#include "SurfaceDefs.h"
-#include "..\shared\ButeListReader.h"
-#include "DebugNew.h"
+#include "gamebutemgr.h"
+#include "clientservershared.h"
+#include "surfacedefs.h"
+#include "..\shared\butelistreader.h"
+#include "debugnew.h"
 
 // Defines
 

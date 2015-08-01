@@ -11,9 +11,9 @@
 ********************************************************************************/
 
 #include "stdafx.h"
-#include "Launcher.h"
-#include "EditEx.h"
-#include "PlaySound.h"
+#include "launcher.h"
+#include "editex.h"
+#include "playsound.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

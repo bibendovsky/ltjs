@@ -10,11 +10,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalGoto.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AINodeMgr.h"
-#include "AI.h"
+#include "aigoalgoto.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "ainodemgr.h"
+#include "ai.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalGoto, kGoal_Goto);
 

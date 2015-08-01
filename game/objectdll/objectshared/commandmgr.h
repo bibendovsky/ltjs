@@ -13,8 +13,8 @@
 #ifndef __COMMAND_MGR_H__
 #define __COMMAND_MGR_H__
 
-#include "ServerUtilities.h"
-#include "LTObjRef.h"
+#include "serverutilities.h"
+#include "ltobjref.h"
 
 class ConParse;
 class CCommandMgr;
@@ -397,7 +397,7 @@ inline void	CCommandMgr::Clear()
 //
 
 #include "iobjectplugin.h"
-#include "CommandButeMgr.h"
+#include "commandbutemgr.h"
 
 enum
 {

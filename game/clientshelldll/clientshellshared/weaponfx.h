@@ -13,14 +13,14 @@
 #ifndef __WEAPON_FX_H__
 #define __WEAPON_FX_H__
 
-#include "SpecialFX.h"
-#include "SurfaceMgr.h"
-#include "WeaponMgr.h"
-#include "TracerFX.h"
-#include "SmokeFX.h"
-#include "ContainerCodes.h"
-#include "GameSettings.h"
-#include "ImpactType.h"
+#include "specialfx.h"
+#include "surfacemgr.h"
+#include "weaponmgr.h"
+#include "tracerfx.h"
+#include "smokefx.h"
+#include "containercodes.h"
+#include "gamesettings.h"
+#include "impacttype.h"
 
 struct CScaleFX;
 

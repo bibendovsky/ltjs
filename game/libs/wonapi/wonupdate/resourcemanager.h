@@ -4,8 +4,8 @@
 #ifndef __ResourceManager_H__
 #define __ResourceManager_H__
 
-#include "WONGUI/GUIString.h"
-#include "WONGUI/ResourceCollection.h"
+#include "wongui/guistring.h"
+#include "wongui/resourcecollection.h"
 
 namespace WONAPI
 {

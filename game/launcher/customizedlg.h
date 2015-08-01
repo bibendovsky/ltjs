@@ -7,10 +7,10 @@
 // CustomizeDlg.h : header file
 //
 
-#include "MoveDlg.h"
-#include "EditEx.h"
-#include "StaticEx.h"
-#include "Utils.h"
+#include "movedlg.h"
+#include "editex.h"
+#include "staticex.h"
+#include "utils.h"
 #include <set>
 #include <string>
 

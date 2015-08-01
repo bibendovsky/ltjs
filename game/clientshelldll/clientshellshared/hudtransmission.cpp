@@ -8,9 +8,9 @@
 //
 // ----------------------------------------------------------------------- //
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "HUDTransmission.h"
-#include "InterfaceMgr.h"
+#include "hudmgr.h"
+#include "hudtransmission.h"
+#include "interfacemgr.h"
 
 CHUDTransmission::CHUDTransmission()
 {

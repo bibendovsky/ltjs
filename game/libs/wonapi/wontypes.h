@@ -1,6 +1,6 @@
 #ifndef __WONTYPES_H__
 #define __WONTYPES_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <list>
 

@@ -11,11 +11,11 @@
 ****************************************************************************/
 
 #include "stdafx.h"
-#include "CoreDump.h"
-#include "TronPlayerObj.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "InventoryButeMgr.h"
+#include "coredump.h"
+#include "tronplayerobj.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "inventorybutemgr.h"
 
 BEGIN_CLASS(CoreDump)
 END_CLASS_DEFAULT(CoreDump, GameBase, NULL, NULL)

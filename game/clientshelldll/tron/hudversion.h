@@ -11,7 +11,7 @@
 #ifndef __HUD_VERSION_H
 #define __HUD_VERSION_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 //******************************************************************************************
 //** HUD program version display

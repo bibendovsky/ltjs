@@ -11,14 +11,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "FlashLight.h"
-#include "GameClientShell.h"
-#include "ClientUtilities.h"
-#include "VarTrack.h"
-#include "BaseScaleFX.h"
-#include "MsgIDs.h"
-#include "VehicleMgr.h"
-#include "CMoveMgr.h"
+#include "flashlight.h"
+#include "gameclientshell.h"
+#include "clientutilities.h"
+#include "vartrack.h"
+#include "basescalefx.h"
+#include "msgids.h"
+#include "vehiclemgr.h"
+#include "cmovemgr.h"
 
 VarTrack	g_cvarFLMinLightRadius;
 VarTrack	g_cvarFLMaxLightRadius;

@@ -1,5 +1,5 @@
 #define __WON_MASTER_CPP__
-#include "ConfigObject.cpp"
-#include "ConfigParser.cpp"
-#include "ConfigValue.cpp"
-#include "StringParser.cpp"
+#include "configobject.cpp"
+#include "configparser.cpp"
+#include "configvalue.cpp"
+#include "stringparser.cpp"

@@ -15,7 +15,7 @@
 //
 
 	#include "stdafx.h"
-	#include "ActivateObjectFX.h"
+	#include "activateobjectfx.h"
 
 
 CActivateObjectHandler::ActivateObjList CActivateObjectHandler::m_lstActivateObjs;

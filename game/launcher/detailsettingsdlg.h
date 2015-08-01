@@ -19,8 +19,8 @@
 // DetailSettingsDlg.h : header file
 //
 
-#include "MoveDlg.h"
-#include "StaticEx.h"
+#include "movedlg.h"
+#include "staticex.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CDetailSettingsDlg dialog

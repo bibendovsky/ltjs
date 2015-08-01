@@ -15,8 +15,8 @@
 // Includes...
 
 #include "stdafx.h"
-#include "GameClientShell.h"
-#include "Credits.h"
+#include "gameclientshell.h"
+#include "credits.h"
 #include <stdio.h>
 #include <mbstring.h>
 

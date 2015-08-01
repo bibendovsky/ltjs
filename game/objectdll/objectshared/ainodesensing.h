@@ -12,9 +12,9 @@
 #ifndef _AI_NODE_SENSING_H_
 #define _AI_NODE_SENSING_H_
 
-#include "AINode.h"
-#include "AISensing.h"
-#include "WeaponMgr.h"
+#include "ainode.h"
+#include "aisensing.h"
+#include "weaponmgr.h"
 
 LINKTO_MODULE( AINodeSensing );
 

@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 #include "stdafx.h"
-#include "NetDefs.h"
+#include "netdefs.h"
 
 // Guids...
 

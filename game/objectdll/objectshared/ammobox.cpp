@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AmmoBox.h"
-#include "MsgIds.h"
+#include "ammobox.h"
+#include "msgids.h"
 #include "iltserver.h"
-#include "PlayerObj.h"
-#include "ObjectMsgs.h"
+#include "playerobj.h"
+#include "objectmsgs.h"
 
 #define UPDATE_DELTA			0.1f
 #define UNUSED_STRING			"<none>"

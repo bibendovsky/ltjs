@@ -23,7 +23,7 @@ enum EnumAIStimulusID;
 // Includes...
 //
 
-	#include "WorldModel.h"
+	#include "worldmodel.h"
 	
 
 LINKTO_MODULE( ActiveWorldModel );

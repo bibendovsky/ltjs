@@ -11,11 +11,11 @@
 ****************************************************************************/
 
 #include "stdafx.h"
-#include "Launcher.h"
-#include "LauncherDlg.h"
-#include "MessageBoxDlg.h"
-#include "RezFind.h"
-#include "Utils.h"
+#include "launcher.h"
+#include "launcherdlg.h"
+#include "messageboxdlg.h"
+#include "rezfind.h"
+#include "utils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

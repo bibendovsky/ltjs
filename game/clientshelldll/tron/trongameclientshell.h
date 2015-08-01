@@ -13,12 +13,12 @@
 #ifndef __TRONGAME_CLIENT_SHELL_H__
 #define __TRONGAME_CLIENT_SHELL_H__
 
-#include "GameClientShell.h"
-#include "TronInterfaceMgr.h"
-#include "TronVersionMgr.h"
-#include "TronPlayerMgr.h"
-#include "TronClientWeaponAllocator.h"
-#include "TronMissionButeMgr.h"
+#include "gameclientshell.h"
+#include "troninterfacemgr.h"
+#include "tronversionmgr.h"
+#include "tronplayermgr.h"
+#include "tronclientweaponallocator.h"
+#include "tronmissionbutemgr.h"
 
 class CTronGameClientShell : public CGameClientShell
 {

@@ -12,7 +12,7 @@
 #ifndef __PARTICLE_SHOWER_FX_H__
 #define __PARTICLE_SHOWER_FX_H__
 
-#include "BaseParticleSystemFX.h"
+#include "baseparticlesystemfx.h"
 
 
 struct PARTICLESHOWERCREATESTRUCT : public BPSCREATESTRUCT

@@ -1,6 +1,6 @@
-#include "WONAPI.h"
-#include "SmartRoutingConnection.h"
-#include "AllRoutingOps.h"
+#include "wonapi.h"
+#include "smartroutingconnection.h"
+#include "allroutingops.h"
 
 using namespace WONAPI;
 using namespace std;

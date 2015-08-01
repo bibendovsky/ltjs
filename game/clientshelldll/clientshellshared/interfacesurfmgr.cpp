@@ -2,10 +2,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "ltbasedefs.h"
 #include "iclientshell.h"
-#include "InterfaceSurfMgr.h"
+#include "interfacesurfmgr.h"
 #ifndef __PSX2
 #include <mbstring.h>
 #endif

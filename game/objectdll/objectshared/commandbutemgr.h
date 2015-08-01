@@ -17,7 +17,7 @@
 // Includes...
 //
 
-	#include "GameButeMgr.h"
+	#include "gamebutemgr.h"
 
 //
 // Forwards...

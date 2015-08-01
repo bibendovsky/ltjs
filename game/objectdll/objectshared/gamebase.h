@@ -15,7 +15,7 @@
 
 #include "ltengineobjects.h"
 #include "iobjectplugin.h"
-#include "LtObjRef.h"
+#include "ltobjref.h"
 
 class CTransitionAggregate;
 class CParsedMsg;

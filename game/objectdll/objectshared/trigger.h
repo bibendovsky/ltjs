@@ -13,11 +13,11 @@
 #ifndef __TRIGGER_H__
 #define __TRIGGER_H__
 
-#include "GameBase.h"
-#include "CommandMgr.h"
-#include "KeyMgr.h"
-#include "SharedFXStructs.h"
-#include "TriggerTypeMgr.h"
+#include "gamebase.h"
+#include "commandmgr.h"
+#include "keymgr.h"
+#include "sharedfxstructs.h"
+#include "triggertypemgr.h"
 
 #define MAX_NUM_COMMANDS 10
 

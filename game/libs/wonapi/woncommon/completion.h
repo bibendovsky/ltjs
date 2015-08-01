@@ -1,8 +1,8 @@
 #ifndef __WON_COMPLETION_H__
 #define __WON_COMPLETION_H__
-#include "WONShared.h"
-#include "SmartPtr.h"
-#include "Event.h"
+#include "wonshared.h"
+#include "smartptr.h"
+#include "event.h"
 
 namespace WONAPI
 {

@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ModelButeMgr.h"
-#include "CommonUtilities.h"
-#include "UberAssert.h"
-#include "SurfaceMgr.h"
+#include "modelbutemgr.h"
+#include "commonutilities.h"
+#include "uberassert.h"
+#include "surfacemgr.h"
 
 // Globals/statics
 

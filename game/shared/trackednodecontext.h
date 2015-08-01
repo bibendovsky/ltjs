@@ -1,7 +1,7 @@
 #ifndef __TRACKEDNODECONTEXT_H__
 #define __TRACKEDNODECONTEXT_H__
 
-#include "TrackedNodeMgr.h"
+#include "trackednodemgr.h"
 
 // Groups of tracking nodes exist for different purposes.
 

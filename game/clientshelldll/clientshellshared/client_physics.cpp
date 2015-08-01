@@ -13,9 +13,9 @@
 #include "stdafx.h"
 #include "clientheaders.h"
 #include "client_physics.h"
-#include "ClientServerShared.h"
-#include "ContainerCodes.h"
-#include "GameClientShell.h"
+#include "clientservershared.h"
+#include "containercodes.h"
+#include "gameclientshell.h"
 
 extern PhysicsState	  g_normalPhysicsState;
 extern PhysicsState	  g_waterPhysicsState;

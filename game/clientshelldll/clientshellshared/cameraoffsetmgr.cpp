@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "CameraOffsetMgr.h"
-#include "VarTrack.h"
-#include "GameClientShell.h"
+#include "cameraoffsetmgr.h"
+#include "vartrack.h"
+#include "gameclientshell.h"
 
 VarTrack	g_vtCamMaxPitchOffset;
 VarTrack	g_vtCamMaxYawOffset;

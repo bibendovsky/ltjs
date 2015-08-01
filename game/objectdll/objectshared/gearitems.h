@@ -13,8 +13,8 @@
 #ifndef __GEAR_ITEMS_H__
 #define __GEAR_ITEMS_H__
 
-#include "PickupItem.h"
-#include "WeaponMgr.h"
+#include "pickupitem.h"
+#include "weaponmgr.h"
 
 LINKTO_MODULE( GearItems );
 

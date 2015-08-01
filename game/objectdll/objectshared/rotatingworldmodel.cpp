@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "RotatingWorldModel.h"
+#include "rotatingworldmodel.h"
 
 LINKFROM_MODULE( RotatingWorldModel );
 

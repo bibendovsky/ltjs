@@ -11,13 +11,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MsgIDs.h"
-#include "TronInterfaceMgr.h"
-#include "TronPlayerMgr.h"
-#include "TronTargetMgr.h"
-#include "GameClientShell.h"
-#include "TronMissionButeMgr.h"
-#include "MissionMgr.h"
+#include "msgids.h"
+#include "troninterfacemgr.h"
+#include "tronplayermgr.h"
+#include "trontargetmgr.h"
+#include "gameclientshell.h"
+#include "tronmissionbutemgr.h"
+#include "missionmgr.h"
 
 // ----------------------------------------------------------------------- //
 //

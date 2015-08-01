@@ -12,7 +12,7 @@
 #define __HUD_BAR_H
 
 #include "ltbasedefs.h"
-#include "LTPoly.h"
+#include "ltpoly.h"
 
 class CHUDBar
 {

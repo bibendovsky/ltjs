@@ -3,7 +3,7 @@
 #ifndef __ANIMATIONMGR_H__
 #define __ANIMATIONMGR_H__
 
-#include "AnimationParser.h"
+#include "animationparser.h"
 #pragma warning (disable : 4786)
 #include <map>
 #include <vector>

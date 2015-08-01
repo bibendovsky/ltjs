@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "GameBaseLite.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "VersionMgr.h"
+#include "gamebaselite.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "versionmgr.h"
 
 LINKFROM_MODULE( GameBaseLite );
 

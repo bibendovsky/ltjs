@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "VolumeBrushTypes.h"
-#include "Character.h"
-#include "SFXMsgIds.h"
-#include "SurfaceFunctions.h"
+#include "volumebrushtypes.h"
+#include "character.h"
+#include "sfxmsgids.h"
+#include "surfacefunctions.h"
 
 LINKFROM_MODULE( VolumeBrushTypes );
 

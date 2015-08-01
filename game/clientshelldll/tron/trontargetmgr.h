@@ -12,7 +12,7 @@
 #ifndef __TRON_TARGET_MGR_H__
 #define __TRON_TARGET_MGR_H__
 
-#include "TargetMgr.h"
+#include "targetmgr.h"
 
 class CTronTargetMgr : public CTargetMgr
 {

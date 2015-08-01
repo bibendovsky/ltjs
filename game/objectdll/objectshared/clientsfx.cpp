@@ -9,8 +9,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ClientSFX.h"
-#include "CommandMgr.h"
+#include "clientsfx.h"
+#include "commandmgr.h"
 
 LINKFROM_MODULE( ClientSFX );
 

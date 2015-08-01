@@ -10,11 +10,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAttackFromRoofVantage.h"
-#include "AI.h"
-#include "AIHumanState.h"
-#include "AITarget.h"
-#include "AICentralKnowledgeMgr.h"
+#include "aigoalattackfromroofvantage.h"
+#include "ai.h"
+#include "aihumanstate.h"
+#include "aitarget.h"
+#include "aicentralknowledgemgr.h"
 
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalAttackFromRoofVantage, kGoal_AttackFromRoofVantage);

@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SharedMission.h"
+#include "sharedmission.h"
 
 
 

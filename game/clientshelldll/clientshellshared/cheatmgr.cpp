@@ -13,12 +13,12 @@
 //-------------------------------------------------------------------------
 
 #include "stdafx.h"
-#include "GameClientShell.h"
-#include "CheatMgr.h"
-#include "HUDMgr.h"
-#include "MsgIDs.h"
-#include "SoundTypes.h"
-#include "ClientResShared.h"
+#include "gameclientshell.h"
+#include "cheatmgr.h"
+#include "hudmgr.h"
+#include "msgids.h"
+#include "soundtypes.h"
+#include "clientresshared.h"
 
 
 CCheatMgr*      g_pCheatMgr     = LTNULL;

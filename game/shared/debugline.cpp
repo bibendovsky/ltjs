@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DebugLine.h"
+#include "debugline.h"
 #include "iltmessage.h"
 
 LTRGB DebugLine::null_rgba = {255,255,255,255};

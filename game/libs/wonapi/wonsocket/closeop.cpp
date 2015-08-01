@@ -1,2 +1,2 @@
-#include "CloseOp.h"
+#include "closeop.h"
 using namespace WONAPI;

@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ATTACK_FROM_COVER_H__
 #define __AIGOAL_ATTACK_FROM_COVER_H__
 
-#include "AIGoalAttack.h"
+#include "aigoalattack.h"
 
 
 class CAIGoalAttackFromCover : public CAIGoalAttack

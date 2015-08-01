@@ -12,9 +12,9 @@
 
 
 #include "stdafx.h"
-#include "Obstacle.h"
-#include "PSets.h"
-#include "PlayerObj.h"
+#include "obstacle.h"
+#include "psets.h"
+#include "playerobj.h"
 
 BEGIN_CLASS(Obstacle)
 	ADD_STRINGPROP_FLAG(Filename, "", PF_DIMS | PF_FILENAME | PF_LOCALDIMS | PF_MODEL)

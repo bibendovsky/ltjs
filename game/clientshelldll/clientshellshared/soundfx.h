@@ -13,8 +13,8 @@
 #ifndef __SOUND_FX_H__
 #define __SOUND_FX_H__
 
-#include "SpecialFX.h"
-#include "SoundMgr.h"
+#include "specialfx.h"
+#include "soundmgr.h"
 
 struct SNDCREATESTRUCT : public SFXCREATESTRUCT
 {

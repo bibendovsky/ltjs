@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_CHASE_H__
 #define __AIGOAL_CHASE_H__
 
-#include "AIGoalAbstractSearch.h"
+#include "aigoalabstractsearch.h"
 
 enum  EnumAIStateStatus;
 class AIVolumeJunction;

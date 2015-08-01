@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_INVESTIGATE_H__
 #define __AIGOAL_INVESTIGATE_H__
 
-#include "AIGoalAbstractSearch.h"
+#include "aigoalabstractsearch.h"
 
 
 // Forward declarations.

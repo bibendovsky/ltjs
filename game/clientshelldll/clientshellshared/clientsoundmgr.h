@@ -13,7 +13,7 @@
 #ifndef __CLIENT_SOUND_MGR_H__
 #define __CLIENT_SOUND_MGR_H__
 
-#include "SoundMgr.h"
+#include "soundmgr.h"
 
 class CClientSoundMgr;
 extern CClientSoundMgr* g_pClientSoundMgr;

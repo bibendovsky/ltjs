@@ -17,7 +17,7 @@
 #ifndef __IHITBOXUSER_H__
 #define __IHITBOXUSER_H__
 
-#include "GameBase.h"
+#include "gamebase.h"
 
 class CAttachments;
 class CAnimator;

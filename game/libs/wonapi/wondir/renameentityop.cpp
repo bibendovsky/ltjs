@@ -1,5 +1,5 @@
-#include "RenameEntityOp.h"
-#include "WONCommon/WriteBuffer.h"
+#include "renameentityop.h"
+#include "woncommon/writebuffer.h"
 
 using namespace WONAPI;
 

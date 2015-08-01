@@ -10,18 +10,18 @@
 
 
 #include "stdafx.h"
-#include "MissionMgr.h"
-#include "GameClientShell.h"
-#include "VarTrack.h"
-#include "MsgIds.h"
-#include "WinUtil.h"
-#include "MissionButeMgr.h"
-#include "PlayerMgr.h"
-#include "ClientSaveLoadMgr.h"
+#include "missionmgr.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
+#include "msgids.h"
+#include "winutil.h"
+#include "missionbutemgr.h"
+#include "playermgr.h"
+#include "clientsaveloadmgr.h"
 #include "clientresshared.h"
-#include "ClientMultiplayerMgr.h"
-#include "ProfileMgr.h"
-#include "ScreenPreload.h"
+#include "clientmultiplayermgr.h"
+#include "profilemgr.h"
+#include "screenpreload.h"
 
 extern VarTrack g_vtScreenFadeInTime;
 

@@ -1,7 +1,7 @@
 #ifndef __WON_LITTLEENDIAN_H__
 #define __WON_LITTLEENDIAN_H__
 
-#include "WONShared.h"
+#include "wonshared.h"
 
 
 namespace WONAPI

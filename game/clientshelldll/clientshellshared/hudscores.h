@@ -11,7 +11,7 @@
 #ifndef __HUD_SCORES_H
 #define __HUD_SCORES_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 //******************************************************************************************
 //** HUD Message Queue

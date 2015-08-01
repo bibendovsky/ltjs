@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TO2HUDMgr.h"
-#include "TO2PlayerStats.h"
-#include "TO2InterfaceMgr.h"
-#include "HUDDamageDir.h"
-#include "PlayerMgr.h"
+#include "to2hudmgr.h"
+#include "to2playerstats.h"
+#include "to2interfacemgr.h"
+#include "huddamagedir.h"
+#include "playermgr.h"
 
 
 VarTrack			g_vtDamageMinAlpha;

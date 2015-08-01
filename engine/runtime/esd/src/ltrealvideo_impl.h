@@ -34,13 +34,13 @@
 #include "rmawin.h"
 #include "rmavsurf.h"
 
-#include "LTRClientContext.h"
-#include "LTRAudioDevice.h"
-#include "LTRAudioHook.h"
-#include "LTRAudioInfoResponse.h"
-#include "LTRVDef.h"
-#include "LTRVideoOverlay.h"
-#include "LTReal_impl.h"
+#include "ltrclientcontext.h"
+#include "ltraudiodevice.h"
+#include "ltraudiohook.h"
+#include "ltraudioinforesponse.h"
+#include "ltrvdef.h"
+#include "ltrvideooverlay.h"
+#include "ltreal_impl.h"
 
 #include "de_world.h"
 

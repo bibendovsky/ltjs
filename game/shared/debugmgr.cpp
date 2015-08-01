@@ -1,5 +1,5 @@
 
-#include "DebugMgr.h"
+#include "debugmgr.h"
 
 // NOTES: this code is in general mostly broken when it comes to unicode
 

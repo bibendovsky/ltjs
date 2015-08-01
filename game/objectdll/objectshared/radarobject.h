@@ -18,9 +18,9 @@
 // Include...
 //
 	
-	#include "GameBase.h"
-	#include "RadarTypeMgr.h"
-	#include "SharedFXStructs.h"
+	#include "gamebase.h"
+	#include "radartypemgr.h"
+	#include "sharedfxstructs.h"
 
 LINKTO_MODULE( RadarObject );
 

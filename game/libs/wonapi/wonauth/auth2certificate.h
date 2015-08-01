@@ -1,8 +1,8 @@
 #ifndef __WON_AUTH2CERTIFICATE_H__
 #define __WON_AUTH2CERTIFICATE_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "AuthCertificateBase.h"
+#include "authcertificatebase.h"
 #include <map>
 
 

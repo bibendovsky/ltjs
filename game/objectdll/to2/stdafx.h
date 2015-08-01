@@ -22,7 +22,7 @@
 
 #include "mfcstub.h"
 
-#include "DebugNew.h"
+#include "debugnew.h"
 
 #include "iltclient.h"
 #include "iltserver.h"
@@ -38,11 +38,11 @@
 
 #include "ltobjref.h"
 
-#include "Factory.h"
+#include "factory.h"
 
-#include "ServerUtilities.h"
-#include "GameServerShell.h"
-#include "CommonUtilities.h"
-#include "AutoMessage.h"
+#include "serverutilities.h"
+#include "gameservershell.h"
+#include "commonutilities.h"
+#include "automessage.h"
 
 #endif // __STDAFX_H__

@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "StaticEx.h"
+#include "staticex.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

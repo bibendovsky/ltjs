@@ -16,14 +16,14 @@
 //
 
 #include "stdafx.h"
-#include "ServerSpecialFX.h"
-#include "FxFlags.h"
-#include "FxDefs.h"
+#include "serverspecialfx.h"
+#include "fxflags.h"
+#include "fxdefs.h"
 #include "iltmessage.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include <IO.h>
-#include "CommandMgr.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include <io.h>
+#include "commandmgr.h"
 
 //
 // Defines...

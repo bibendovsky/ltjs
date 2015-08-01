@@ -1,13 +1,13 @@
 
-#include "StdAfx.h"
-#include "AnimationMgr.h"
+#include "stdafx.h"
+#include "animationmgr.h"
 
-#include "AnimationPropStrings.h"
-#include "AnimationMovement.h"
-#include "UberAssert.h"
-#include "AIUtils.h"
-#include "BankedList.h"
-#include "AIAssert.h"
+#include "animationpropstrings.h"
+#include "animationmovement.h"
+#include "uberassert.h"
+#include "aiutils.h"
+#include "bankedlist.h"
+#include "aiassert.h"
 
 
 //----------------------------------------------------------------------------

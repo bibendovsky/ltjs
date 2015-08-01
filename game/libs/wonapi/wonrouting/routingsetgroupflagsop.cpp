@@ -1,4 +1,4 @@
-#include "RoutingSetGroupFlagsOp.h"
+#include "routingsetgroupflagsop.h"
 using namespace WONAPI;
 
 ///////////////////////////////////////////////////////////////////////////////

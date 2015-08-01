@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // Banked List implementation
 
-#include "BankedList.h"
+#include "bankedlist.h"
 
 #include <stdio.h>
 

@@ -11,15 +11,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DebrisFX.h"
+#include "debrisfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ContainerCodes.h"
-#include "ClientServerShared.h"
-#include "WeaponFXTypes.h"
-#include "GameClientShell.h"
-#include "SurfaceFunctions.h"
-#include "VarTrack.h"
+#include "clientutilities.h"
+#include "containercodes.h"
+#include "clientservershared.h"
+#include "weaponfxtypes.h"
+#include "gameclientshell.h"
+#include "surfacefunctions.h"
+#include "vartrack.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

@@ -1,10 +1,10 @@
 #ifndef __WON_SERVERCONNECTION_H__
 #define __WON_SERVERCONNECTION_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONAuth/PeerAuthOp.h"
-#include "WONCommon/SmartPtr.h"
-#include "WONSocket/BlockingSocket.h"
+#include "wonauth/peerauthop.h"
+#include "woncommon/smartptr.h"
+#include "wonsocket/blockingsocket.h"
 
 
 namespace WONAPI

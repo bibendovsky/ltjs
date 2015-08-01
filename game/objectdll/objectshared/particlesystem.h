@@ -11,7 +11,7 @@
 #ifndef __PARTICLE_SYSTEM_H__
 #define __PARTICLE_SYSTEM_H__
 
-#include "ClientSFX.h"
+#include "clientsfx.h"
 
 LINKTO_MODULE( ParticleSystem );
 

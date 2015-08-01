@@ -3,9 +3,9 @@
 #ifndef __AI_UTILS_H__
 #define __AI_UTILS_H__
 
-#include "CVarTrack.h"
-#include "UberAssert.h"
-#include "ServerUtilities.h"
+#include "cvartrack.h"
+#include "uberassert.h"
+#include "serverutilities.h"
 // Globals
 
 class CAI;

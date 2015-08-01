@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TronGameServerShell.h"
-#include "GameStartPoint.h"
-#include "TronPlayerObj.h"
-#include "CoreDump.h"
-#include "Body.h"
+#include "trongameservershell.h"
+#include "gamestartpoint.h"
+#include "tronplayerobj.h"
+#include "coredump.h"
+#include "body.h"
 
 // ----------------------------------------------------------------------- //
 //

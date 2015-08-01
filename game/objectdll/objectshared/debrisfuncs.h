@@ -16,8 +16,8 @@
 // Includes...
 
 #include "ltbasetypes.h"
-#include "DebrisMgr.h"
-#include "SurfaceFunctions.h"
+#include "debrismgr.h"
+#include "surfacefunctions.h"
 #include "iobjectplugin.h"
 
 #ifndef __PSX2

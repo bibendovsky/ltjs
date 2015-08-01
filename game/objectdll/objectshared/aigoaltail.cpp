@@ -10,12 +10,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalTail.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AI.h"
-#include "PlayerObj.h"
-#include "CharacterMgr.h"
+#include "aigoaltail.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "ai.h"
+#include "playerobj.h"
+#include "charactermgr.h"
 
 extern CCharacterMgr* g_pCharacterMgr;
 

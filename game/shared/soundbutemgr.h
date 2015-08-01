@@ -17,8 +17,8 @@
 // Includes...
 //
 
-	#include "HierarchicalButeMgr.h"
-	#include "SoundTypes.h"
+	#include "hierarchicalbutemgr.h"
+	#include "soundtypes.h"
 
 	#pragma warning (disable : 4786)
 	#include <deque>

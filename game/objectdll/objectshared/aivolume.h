@@ -13,12 +13,12 @@
 #define __AIVOLUME_H__
 
 #include "ltengineobjects.h"
-#include "AITypes.h"
-#include "AINode.h"
-#include "ServerUtilities.h"
-#include "UberAssert.h"
-#include "DebugLineSystem.h"
-#include "GameBaseLite.h"
+#include "aitypes.h"
+#include "ainode.h"
+#include "serverutilities.h"
+#include "uberassert.h"
+#include "debuglinesystem.h"
+#include "gamebaselite.h"
 
 #pragma warning( disable : 4786 )
 #include <vector>
@@ -306,7 +306,7 @@ class AIVolume : public AISpatialRepresentation
 			kVolumeType_Invalid			= 0,
 			kVolumeType_None			= 0,
 			#define VOLUME_TYPE_AS_ENUM 1
-			#include "AIVolumeTypeEnums.h"
+			#include "aivolumetypeenums.h"
 			#undef VOLUME_TYPE_AS_ENUM
 			kVolumeType_All				= 0xFFFFFFFF,
 		};

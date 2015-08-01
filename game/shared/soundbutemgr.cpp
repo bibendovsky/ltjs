@@ -15,7 +15,7 @@
 //
 	
 	#include "stdafx.h"
-	#include "SoundButeMgr.h"
+	#include "soundbutemgr.h"
 
 
 //

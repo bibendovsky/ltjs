@@ -12,8 +12,8 @@
 #if !defined(_MENU_INTEL_H_)
 #define _MENU_INTEL_H_
 
-#include "BaseMenu.h"
-#include "PopupText.h"
+#include "basemenu.h"
+#include "popuptext.h"
 
 class CMenuIntel : public CBaseMenu
 {

@@ -12,8 +12,8 @@
 #define __SPAWNER_H__
 
 #include "ltengineobjects.h"
-#include "GameBase.h"
-#include "CommandMgr.h"
+#include "gamebase.h"
+#include "commandmgr.h"
 
 LINKTO_MODULE( Spawner );
 

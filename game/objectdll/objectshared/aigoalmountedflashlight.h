@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_MOUNTED_FLASHLIGHT_H__
 #define __AIGOAL_MOUNTED_FLASHLIGHT_H__
 
-#include "AIGoalAbstract.h"
+#include "aigoalabstract.h"
 
 
 class CAIGoalMountedFlashlight : public CAIGoalAbstract

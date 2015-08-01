@@ -14,9 +14,9 @@
 #ifndef ILTESD_H
 #define ILTESD_H
 
-#include ".\\esd\\ILTRealAudio.h"
-#include ".\\esd\\ILTRealConsole.h"
-#include ".\\esd\\ILTRealVideo.h"
+#include ".\\esd\\iltrealaudio.h"
+#include ".\\esd\\iltrealconsole.h"
+#include ".\\esd\\iltrealvideo.h"
 
 #endif //! ILTESD_H
 #endif // LITHTECH_ESD

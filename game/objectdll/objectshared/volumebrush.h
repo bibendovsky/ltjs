@@ -15,11 +15,11 @@
 
 LINKTO_MODULE( VolumeBrush );
 
-#include "GameBase.h"
-#include "ContainerCodes.h"
-#include "DamageTypes.h"
-#include "..\shared\SoundFilterMgr.h"
-#include "SharedMovement.h"
+#include "gamebase.h"
+#include "containercodes.h"
+#include "damagetypes.h"
+#include "..\shared\soundfiltermgr.h"
+#include "sharedmovement.h"
 
 
 class CSoundFilterMgrPlugin;

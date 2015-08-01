@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ATTACK_FROM_RANDOM_VANTAGE_H__
 #define __AIGOAL_ATTACK_FROM_RANDOM_VANTAGE_H__
 
-#include "AIGoalAttackFromVantage.h"
+#include "aigoalattackfromvantage.h"
 
 
 class CAIGoalAttackFromRandomVantage : public CAIGoalAttackFromVantage

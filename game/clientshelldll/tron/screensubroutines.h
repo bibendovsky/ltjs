@@ -15,11 +15,11 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BaseScreen.h"
-#include "BaseScaleFX.h"
-#include "ArcCtrl.h"
-#include "ProceduralCtrl.h"
-#include "SubroutineMgr.h"
+#include "basescreen.h"
+#include "basescalefx.h"
+#include "arcctrl.h"
+#include "proceduralctrl.h"
+#include "subroutinemgr.h"
 
 const int NUM_SECTORS = 24;
 const int PRIMS_PER_SECTOR = 3;

@@ -11,9 +11,9 @@
 #ifndef __OBJECTIVESPRITE_H__
 #define __OBJECTIVESPRITE_H__
 
-#include "GameBase.h"
-#include "SFXFuncs.h"
-#include "SharedFXStructs.h"
+#include "gamebase.h"
+#include "sfxfuncs.h"
+#include "sharedfxstructs.h"
 
 LINKTO_MODULE( ObjectiveSprite );
 

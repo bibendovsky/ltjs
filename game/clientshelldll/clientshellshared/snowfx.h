@@ -13,7 +13,7 @@
 #ifndef __SNOW_FX_H__
 #define __SNOW_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 
 #define SNOWFX_AIRSPACEDIMS			512.0f		// maximum length of side of a snow airspace

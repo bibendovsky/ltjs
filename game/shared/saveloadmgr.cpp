@@ -15,11 +15,11 @@
 //
 
 #include "stdafx.h"
-#include "MsgIds.h"
-#include "WinUtil.h"
+#include "msgids.h"
+#include "winutil.h"
 #include <time.h>
-#include "SaveLoadMgr.h"
-#include "VersionMgr.h"
+#include "saveloadmgr.h"
+#include "versionmgr.h"
 
 
 // ----------------------------------------------------------------------- //

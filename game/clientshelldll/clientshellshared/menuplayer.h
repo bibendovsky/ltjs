@@ -12,9 +12,9 @@
 #if !defined(_MENU_PLAYER_H_)
 #define _MENU_PLAYER_H_
 
-#include "BaseMenu.h"
-#include "SkillsButeMgr.h"
-#include "SkillControl.h"
+#include "basemenu.h"
+#include "skillsbutemgr.h"
+#include "skillcontrol.h"
 
 class CSkillPopup : public CSubMenu
 {

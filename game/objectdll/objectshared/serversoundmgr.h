@@ -13,7 +13,7 @@
 #ifndef __SERVER_SOUND_MGR_H__
 #define __SERVER_SOUND_MGR_H__
 
-#include "SoundMgr.h"
+#include "soundmgr.h"
 
 class CServerSoundMgr;
 extern CServerSoundMgr* g_pServerSoundMgr;

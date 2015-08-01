@@ -13,10 +13,10 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
 
-#include "GameBase.h"
+#include "gamebase.h"
 #include "ltengineobjects.h"
-#include "Point.h"
-#include "CommandMgr.h"
+#include "point.h"
+#include "commandmgr.h"
 
 LINKTO_MODULE( Camera );
 

@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_FLEE_H__
 #define __AIGOAL_FLEE_H__
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 
 // Forward Declarations.

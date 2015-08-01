@@ -15,9 +15,9 @@
 #include "iltmessage.h"
 #include "commonutilities.h"
 #include "serverutilities.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "CommandMgr.h" 
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "commandmgr.h" 
 
 LINKFROM_MODULE( Controller );
 

@@ -13,11 +13,11 @@
 #ifndef __LIGHTNING_FX_H__
 #define __LIGHTNING_FX_H__
 
-#include "SpecialFX.h"
-#include "SoundMgr.h"
-#include "SFXMsgIds.h"
-#include "TemplateList.h"
-#include "PolyLineFX.h"
+#include "specialfx.h"
+#include "soundmgr.h"
+#include "sfxmsgids.h"
+#include "templatelist.h"
+#include "polylinefx.h"
 
 struct LFXCREATESTRUCT : public SFXCREATESTRUCT
 {

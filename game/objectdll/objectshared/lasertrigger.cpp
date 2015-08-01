@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "LaserTrigger.h"
+#include "lasertrigger.h"
 #include "iltserver.h"
-#include "ClientServerShared.h"
+#include "clientservershared.h"
 #include "stdio.h"
-#include "ParsedMsg.h"
+#include "parsedmsg.h"
 
 LINKFROM_MODULE( LaserTrigger );
 

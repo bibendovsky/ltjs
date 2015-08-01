@@ -2,7 +2,7 @@
 #define __LTADEFAULTALLOC_H__
 
 #ifndef __ILTAALLOCATOR_H__
-#	include "ILTAAllocator.h"
+#	include "iltaallocator.h"
 #endif
 
 class CLTADefaultAlloc :

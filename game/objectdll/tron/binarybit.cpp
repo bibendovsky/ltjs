@@ -12,13 +12,13 @@
 
 
 #include "stdafx.h"
-#include "BinaryBit.h"
-#include "CommonUtilities.h"
-#include "ObjectMsgs.h"
-#include "PSets.h"
-#include "MsgIDs.h"
-#include "PlayerObj.h"
-#include "ServerSoundMgr.h"
+#include "binarybit.h"
+#include "commonutilities.h"
+#include "objectmsgs.h"
+#include "psets.h"
+#include "msgids.h"
+#include "playerobj.h"
+#include "serversoundmgr.h"
 
 #define ENERGY_UNITS_XFER_PER_SECOND 100.0f
 #define BB_MODEL		"Props/Models/BinaryBit.ltb"

@@ -10,9 +10,9 @@
 
 
 #include "stdafx.h"
-#include "GameClientShell.h"
-#include "HUDMessage.h"
-#include "LayoutMgr.h"
+#include "gameclientshell.h"
+#include "hudmessage.h"
+#include "layoutmgr.h"
 
 namespace
 {

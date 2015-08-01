@@ -18,9 +18,9 @@
 // Includes
 #include "stdafx.h"
 
-#include "CharacterAlignment.h"		
-#include "AIUtils.h"
-#include "AIAssert.h"
+#include "characteralignment.h"		
+#include "aiutils.h"
+#include "aiassert.h"
 
 // Forward declarations
 
@@ -31,7 +31,7 @@
 const char* RelationTraits::s_aszAITraitTypes[] =
 {
 	#define TRAIT_TYPE_AS_STRING 1
-	#include "RelationTraitTypeEnums.h"
+	#include "relationtraittypeenums.h"
 	#undef TRAIT_TYPE_AS_STRING
 };
 

@@ -1,8 +1,8 @@
 #define __WON_MASTER_CPP__
 
-#include "MultiPingOp.cpp"
-#include "PingOp.cpp"
-#include "ServerConnection.cpp"
-#include "ServerContext.cpp"
-#include "ServerOp.cpp"
-#include "ServerRequestOp.cpp"
+#include "multipingop.cpp"
+#include "pingop.cpp"
+#include "serverconnection.cpp"
+#include "servercontext.cpp"
+#include "serverop.cpp"
+#include "serverrequestop.cpp"

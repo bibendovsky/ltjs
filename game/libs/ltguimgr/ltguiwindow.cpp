@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "ltguimgr.h"
-#include "LTGUIWindow.h"
+#include "ltguiwindow.h"
 #include "vkdefs.h"
 
 const uint16 CLTGUIWindow::kMaxNumControls = 0xFFFE;

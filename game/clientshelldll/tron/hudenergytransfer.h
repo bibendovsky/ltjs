@@ -11,7 +11,7 @@
 #ifndef __HUD_ENERGYTRANSFER_H
 #define __HUD_ENERGYTRANSFER_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 //******************************************************************************************
 //** HUD Ratings display

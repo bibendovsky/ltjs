@@ -1,12 +1,12 @@
 #ifndef __WON_SOCKETTHREADEX_WINDOWS_H__
 #define __WON_SOCKETTHREADEX_WINDOWS_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <set>
 #include <list>
 #include <map>
 
-#include "SocketThread.h"
+#include "socketthread.h"
 
 namespace WONAPI
 {

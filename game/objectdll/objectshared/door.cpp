@@ -15,14 +15,14 @@
 //
 
 	#include "stdafx.h"
-	#include "Door.h"
-	#include "ParsedMsg.h"
-	#include "KeyMgr.h"
-	#include "AIUtils.h"
-	#include "AIPathMgr.h"
-	#include "DoorKnob.h"
-	#include "GadgetTarget.h"
-	#include "CharacterMgr.h"
+	#include "door.h"
+	#include "parsedmsg.h"
+	#include "keymgr.h"
+	#include "aiutils.h"
+	#include "aipathmgr.h"
+	#include "doorknob.h"
+	#include "gadgettarget.h"
+	#include "charactermgr.h"
 
 //
 // Defines....

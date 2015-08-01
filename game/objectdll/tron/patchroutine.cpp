@@ -11,10 +11,10 @@
 ****************************************************************************/
 
 #include "stdafx.h"
-#include "PatchRoutine.h"
-#include "TronPlayerObj.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
+#include "patchroutine.h"
+#include "tronplayerobj.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
 
 BEGIN_CLASS(PatchRoutine)
 	ADD_STRINGPROP_FLAG(Filename, "", PF_DIMS | PF_FILENAME | PF_LOCALDIMS | PF_MODEL)

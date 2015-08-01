@@ -11,15 +11,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "GlobalClientMgr.h"
-#include "ClientButeMgr.h"
-#include "ClientSoundMgr.h"
-#include "KeyMgr.h"
-#include "SearchItemMgr.h"
-#include "PopupMgr.h"
-#include "RadarTypeMgr.h"
-#include "ActivateTypeMgr.h"
-#include "TriggerTypeMgr.h"
+#include "globalclientmgr.h"
+#include "clientbutemgr.h"
+#include "clientsoundmgr.h"
+#include "keymgr.h"
+#include "searchitemmgr.h"
+#include "popupmgr.h"
+#include "radartypemgr.h"
+#include "activatetypemgr.h"
+#include "triggertypemgr.h"
 
 // ----------------------------------------------------------------------- //
 //

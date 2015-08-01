@@ -1,6 +1,6 @@
 #ifndef __WON_CONSOLE_H__
 #define __WON_CONSOLE_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #if defined(WIN32)
 #include <conio.h>

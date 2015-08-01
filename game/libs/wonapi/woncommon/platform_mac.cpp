@@ -1,5 +1,5 @@
-#include "Platform_Mac.h"
-#include "CriticalSection_Mac.h"
+#include "platform_mac.h"
+#include "criticalsection_mac.h"
 
 
 static WONAPI::CriticalSection gInterlockedCrit;

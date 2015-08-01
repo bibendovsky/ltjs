@@ -1,15 +1,15 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIMovement.h"
-#include "AIHuman.h"
-#include "AIVolumeMgr.h"
-#include "AnimationMovement.h"
-#include "AIVolume.h"
-#include "AnimationMgr.h"
-#include "AIUtils.h"
-#include "AIBrain.h"
-#include "CharacterMgr.h"
+#include "aimovement.h"
+#include "aihuman.h"
+#include "aivolumemgr.h"
+#include "animationmovement.h"
+#include "aivolume.h"
+#include "animationmgr.h"
+#include "aiutils.h"
+#include "aibrain.h"
+#include "charactermgr.h"
 
 
 // ----------------------------------------------------------------------- //

@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TeleportPoint.h"
-#include "ServerUtilities.h"
+#include "teleportpoint.h"
+#include "serverutilities.h"
 
 LINKFROM_MODULE( TeleportPoint );
 

@@ -12,8 +12,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PlayerTracker.h"
-#include "PlayerObj.h"
+#include "playertracker.h"
+#include "playerobj.h"
 
 // ----------------------------------------------------------------------- //
 //

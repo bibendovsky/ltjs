@@ -10,28 +10,28 @@
 
 #include "stdafx.h"
 
-#include "profileMgr.h"
+#include "profilemgr.h"
 #include "clientutilities.h"
 #include "commandids.h"
 #include "interfacemgr.h"
 #include "winutil.h"
-#include "ClientResShared.h"
-#include "GameClientShell.h"
-#include "GameSettings.h"
-#include "MenuMgr.h"
-#include "ClientSaveLoadMgr.h"
-#include "ClientMultiplayerMgr.h"
-#include "VarTrack.h"
-#include "CMoveMgr.h"
-#include "MsgIds.h"
-#include "VersionMgr.h"
+#include "clientresshared.h"
+#include "gameclientshell.h"
+#include "gamesettings.h"
+#include "menumgr.h"
+#include "clientsaveloadmgr.h"
+#include "clientmultiplayermgr.h"
+#include "vartrack.h"
+#include "cmovemgr.h"
+#include "msgids.h"
+#include "versionmgr.h"
 
 extern CGameClientShell* g_pGameClientShell;
 
-#include <Direct.h>			// For _rmdir
+#include <direct.h>			// For _rmdir
 #include "dinput.h"
 #include <set>
-#include <IO.H>
+#include <io.h>
 
 VarTrack	g_vtMouseMinSensitivity;
 VarTrack	g_vtMouseMaxSensitivity;

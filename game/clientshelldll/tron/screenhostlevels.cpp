@@ -9,17 +9,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenHostLevels.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ClientRes.h"
-#include "VarTrack.h"
-#include "NetDefs.h"
-#include "profileMgr.h"
+#include "screenhostlevels.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "clientres.h"
+#include "vartrack.h"
+#include "netdefs.h"
+#include "profilemgr.h"
 #include "clientmultiplayermgr.h"
-#include "WinUtil.h"
+#include "winutil.h"
 
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 extern CGameClientShell* g_pGameClientShell;
 
 

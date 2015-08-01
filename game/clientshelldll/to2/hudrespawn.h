@@ -11,7 +11,7 @@
 #ifndef __HUD_RESPAWN_H
 #define __HUD_RESPAWN_H
 
-#include "HUDMeter.h"
+#include "hudmeter.h"
 
 class CHUDRespawnBar : public CHUDMeter
 {

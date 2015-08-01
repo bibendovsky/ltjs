@@ -7,7 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "D3DX10.h"
+#include "d3dx10.h"
 
 // D3DX10 and D3DX9 math look the same. You can include either one into your project.
 // We are intentionally using the header define from D3DX9 math to prevent double-inclusion.
@@ -1776,7 +1776,7 @@ HRESULT WINAPI
 #endif
 
 
-#include "D3DX10math.inl"
+#include "d3dx10math.inl"
 
 #if _MSC_VER >= 1200
 #pragma warning(pop)

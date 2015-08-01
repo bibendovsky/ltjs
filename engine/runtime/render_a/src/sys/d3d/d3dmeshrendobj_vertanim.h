@@ -7,7 +7,7 @@
 
 #include "model.h"
 #include "common_stuff.h"
-#include "VertexBufferController.h"
+#include "vertexbuffercontroller.h"
 #include "d3d_renderstyle.h"
 
 

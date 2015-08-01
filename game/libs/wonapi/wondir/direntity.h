@@ -1,13 +1,13 @@
 #ifndef __WON_DIRENTITY_H__
 #define __WON_DIRENTITY_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <string>
 #include <list>
 #include <map>
-#include "WONCommon/ByteBuffer.h"
-#include "WONSocket/IPAddr.h"
-#include "DirTypes.h"
+#include "woncommon/bytebuffer.h"
+#include "wonsocket/ipaddr.h"
+#include "dirtypes.h"
 
 
 namespace WONAPI

@@ -1,4 +1,4 @@
-#include "AuthCertificate.h"
+#include "authcertificate.h"
 
 using namespace WONAPI;
 

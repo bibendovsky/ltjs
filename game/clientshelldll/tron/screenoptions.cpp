@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenOptions.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
+#include "screenoptions.h"
+#include "screenmgr.h"
+#include "screencommands.h"
 
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 extern CGameClientShell* g_pGameClientShell;
 
 

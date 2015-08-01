@@ -10,12 +10,12 @@
 
 #include "stdafx.h"
 
-#include "PerformanceMgr.h"
+#include "performancemgr.h"
 #include "interfacemgr.h"
 
 #include <iostream>			// For input and output
 #include <fstream>			// For the files
-#include <IO.h>				// Find first, find next, etc.
+#include <io.h>				// Find first, find next, etc.
 
 
 namespace
@@ -52,7 +52,7 @@ namespace
 	sDetailSetting sSettings[kNumDetailSettings] =
 	{
 #define INCLUDE_AS_SETTING
-#include "PerformanceEnum.h"
+#include "performanceenum.h"
 #undef INCLUDE_AS_SETTING
 	};
 
@@ -64,7 +64,7 @@ namespace
 		1024,
 		1600,
 #define INCLUDE_AS_LOW
-#include "PerformanceEnum.h"
+#include "performanceenum.h"
 #undef INCLUDE_AS_LOW
 	};
 
@@ -75,7 +75,7 @@ namespace
 		800,
 		800,
 #define INCLUDE_AS_MED
-#include "PerformanceEnum.h"
+#include "performanceenum.h"
 #undef INCLUDE_AS_MED
 	};
 
@@ -86,7 +86,7 @@ namespace
 		640,
 		640,
 #define INCLUDE_AS_HIGH
-#include "PerformanceEnum.h"
+#include "performanceenum.h"
 #undef INCLUDE_AS_HIGH
 	};
 

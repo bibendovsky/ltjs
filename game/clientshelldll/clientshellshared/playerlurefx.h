@@ -11,8 +11,8 @@
 #ifndef __PLAYERLUREFX_H__
 #define __PLAYERLUREFX_H__
 
-#include "SpecialFX.h"
-#include "ClientServerShared.h"
+#include "specialfx.h"
+#include "clientservershared.h"
 
 
 class PlayerLureFX : public CSpecialFX

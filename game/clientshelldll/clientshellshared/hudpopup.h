@@ -15,8 +15,8 @@
 // Includes...
 //
 	
-	#include "HUDItem.h"
-	#include "LTGuiMgr.h"
+	#include "huditem.h"
+	#include "ltguimgr.h"
 
 
 class CHUDPopup : public CHUDItem

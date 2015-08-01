@@ -12,7 +12,7 @@
 #define __SERVER_MARK_H__
 
 #include "ltengineobjects.h"
-#include "ClientWeaponSFX.h"
+#include "clientweaponsfx.h"
 
 LINKTO_MODULE( ServerMark );
 

@@ -29,7 +29,7 @@
 #include "wonmisc/gamespysupport.h"
 
 
-#include "ClientResShared.h"
+#include "clientresshared.h"
 
 using namespace WONAPI;
 

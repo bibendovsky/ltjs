@@ -16,8 +16,8 @@
 
 LINKTO_MODULE( ServerSpecialFX );
 
-#include "GameBase.h"
-#include "ClientServerShared.h"
+#include "gamebase.h"
+#include "clientservershared.h"
 
 
 //---------------------
@@ -28,7 +28,7 @@ LINKTO_MODULE( ServerSpecialFX );
 #include "ltengineobjects.h"
 #include "linklist.h"
 #include "iobjectplugin.h"
-#include "FXProp.h"
+#include "fxprop.h"
 
 //---------------------
 // Class definitions....

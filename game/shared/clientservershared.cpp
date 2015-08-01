@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ClientServerShared.h"
-#include "CommonUtilities.h"
+#include "clientservershared.h"
+#include "commonutilities.h"
 
 #ifdef _CLIENTBUILD
-	#include "ClientUtilities.h"
+	#include "clientutilities.h"
 #endif //_CLIENTBUILD
 
 

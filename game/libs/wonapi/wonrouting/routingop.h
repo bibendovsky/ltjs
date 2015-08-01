@@ -1,10 +1,10 @@
 #ifndef __WON_ROUTINGOP_H__
 #define __WON_ROUTINGOP_H__
-#include "WONShared.h"
-#include "WONCommon/AsyncOp.h"
-#include "WONCommon/ReadBuffer.h"
-#include "WONCommon/WriteBuffer.h"
-#include "RoutingConnection.h"
+#include "wonshared.h"
+#include "woncommon/asyncop.h"
+#include "woncommon/readbuffer.h"
+#include "woncommon/writebuffer.h"
+#include "routingconnection.h"
 
 namespace WONAPI
 {

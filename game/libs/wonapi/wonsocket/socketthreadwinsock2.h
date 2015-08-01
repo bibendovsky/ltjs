@@ -2,13 +2,13 @@
 #define __WON_SocketThreadWinsock2_H__
 
 
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <set>
 #include <list>
 #include <vector>
-#include "SocketThread.h"
-#include "WONCommon/BiMap.h"
+#include "socketthread.h"
+#include "woncommon/bimap.h"
 
 namespace WONAPI
 {

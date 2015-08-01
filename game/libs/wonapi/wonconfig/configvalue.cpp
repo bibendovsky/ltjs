@@ -1,4 +1,4 @@
-#include "ConfigValue.h"
+#include "configvalue.h"
 
 /*
 int anInt;

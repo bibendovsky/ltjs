@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_PROXIMITY_COMMAND_H__
 #define __AIGOAL_PROXIMITY_COMMAND_H__
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 
 class CAIGoalProximityCommand : public CAIGoalAbstractStimulated

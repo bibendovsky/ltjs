@@ -4,7 +4,7 @@
 #ifndef __AboutDlg_H__
 #define __AboutDlg_H__
 
-#include "WONGUI/MSControls.h"
+#include "wongui/mscontrols.h"
 
 namespace WONAPI
 {

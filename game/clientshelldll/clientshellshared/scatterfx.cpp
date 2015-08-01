@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScatterFX.h"
+#include "scatterfx.h"
 #include "iltclient.h"
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 
 
 extern CGameClientShell* g_pGameClientShell;

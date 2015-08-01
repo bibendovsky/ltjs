@@ -14,7 +14,7 @@
 #define __LASER_BEAM_H__
 
 #include "ltbasedefs.h"
-#include "PolyLineFX.h"
+#include "polylinefx.h"
 
 class CLaserBeam
 {

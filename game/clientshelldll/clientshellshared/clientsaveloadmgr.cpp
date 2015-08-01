@@ -15,13 +15,13 @@
 //
 
 #include "stdafx.h"
-#include "ClientSaveLoadMgr.h"
-#include "GameClientShell.h"
-#include "MissionMgr.h"
-#include "MsgIds.h"
-#include "ClientMultiplayerMgr.h"
-#include "CMoveMgr.h"
-#include "ClientResShared.h"
+#include "clientsaveloadmgr.h"
+#include "gameclientshell.h"
+#include "missionmgr.h"
+#include "msgids.h"
+#include "clientmultiplayermgr.h"
+#include "cmovemgr.h"
+#include "clientresshared.h"
 
 // 
 // Globals...

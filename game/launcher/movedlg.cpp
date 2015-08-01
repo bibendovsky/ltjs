@@ -11,7 +11,7 @@
 ********************************************************************************/
 
 #include "stdafx.h"
-#include "MoveDlg.h"
+#include "movedlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

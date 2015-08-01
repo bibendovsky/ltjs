@@ -13,10 +13,10 @@
 #ifndef __DEBRIS_MGR_H__
 #define __DEBRIS_MGR_H__
 
-#include "GameButeMgr.h"
-#include "TemplateList.h"
-#include "SurfaceDefs.h"
-#include "ButeListReader.h"
+#include "gamebutemgr.h"
+#include "templatelist.h"
+#include "surfacedefs.h"
+#include "butelistreader.h"
 
 class CDebrisMgr;
 extern CDebrisMgr* g_pDebrisMgr;

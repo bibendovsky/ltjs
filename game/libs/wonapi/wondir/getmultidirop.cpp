@@ -1,8 +1,8 @@
 
 
-#include "GetMultiDirOp.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONCommon/ReadBuffer.h"
+#include "getmultidirop.h"
+#include "woncommon/writebuffer.h"
+#include "woncommon/readbuffer.h"
 //#include "DirEntityReplyParser.h"
 
 using namespace std;

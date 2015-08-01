@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SearchProp.h"
-#include "ObjectMsgs.h"
+#include "searchprop.h"
+#include "objectmsgs.h"
 
 LINKFROM_MODULE( SearchProp );
 

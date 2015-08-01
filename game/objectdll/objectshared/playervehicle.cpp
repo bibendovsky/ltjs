@@ -11,15 +11,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PlayerVehicle.h"
-#include "PlayerButes.h"
-#include "ServerButeMgr.h"
-#include "CommonUtilities.h"
-#include "ServerUtilities.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "PlayerObj.h"
-#include "KeyMgr.h"
+#include "playervehicle.h"
+#include "playerbutes.h"
+#include "serverbutemgr.h"
+#include "commonutilities.h"
+#include "serverutilities.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "playerobj.h"
+#include "keymgr.h"
 
 #include <queue>
 

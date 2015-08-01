@@ -1,9 +1,9 @@
-#include "WONAuth/AuthContext.h"
-#include "WONAuth/GetCertOp.h"
-#include "WONSocket/AsyncSocket.h"
-#include "WONCommon/StringUtil.h"
-#include "WONAuth/CDKey.h"
-#include "WONCommon/WONConsole.h"
+#include "wonauth/authcontext.h"
+#include "wonauth/getcertop.h"
+#include "wonsocket/asyncsocket.h"
+#include "woncommon/stringutil.h"
+#include "wonauth/cdkey.h"
+#include "woncommon/wonconsole.h"
 
 using namespace std;
 using namespace WONAPI;

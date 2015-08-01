@@ -1,11 +1,11 @@
 #ifndef __WON_SOCKETOP_H__
 #define __WON_SOCKETOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/AsyncOp.h"
-#include "WONCommon/ReadBuffer.h"
-#include "WONCommon/WriteBuffer.h"
-#include "AsyncSocket.h"
+#include "woncommon/asyncop.h"
+#include "woncommon/readbuffer.h"
+#include "woncommon/writebuffer.h"
+#include "asyncsocket.h"
 
 namespace WONAPI
 {

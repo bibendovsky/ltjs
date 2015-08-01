@@ -1,8 +1,8 @@
 #include <time.h>
 
-#include "AuthSession.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONCommon/LittleEndian.h"
+#include "authsession.h"
+#include "woncommon/writebuffer.h"
+#include "woncommon/littleendian.h"
 
 using namespace WONAPI;
 ///////////////////////////////////////////////////////////////////////////////

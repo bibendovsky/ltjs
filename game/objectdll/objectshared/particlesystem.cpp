@@ -9,13 +9,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ParticleSystem.h"
+#include "particlesystem.h"
 #include "iltserver.h"
-#include "SFXMsgIds.h"
-#include "ClientServerShared.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "CommandMgr.h"
+#include "sfxmsgids.h"
+#include "clientservershared.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "commandmgr.h"
 
 LINKFROM_MODULE( ParticleSystem );
 

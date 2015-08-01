@@ -12,7 +12,7 @@
 #define __KEY_H__
 
 #include "ltengineobjects.h"
-#include "CommandMgr.h"
+#include "commandmgr.h"
 
 LINKTO_MODULE( Key );
 

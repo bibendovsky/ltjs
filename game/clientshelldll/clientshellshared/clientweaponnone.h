@@ -2,7 +2,7 @@
 #ifndef  _ClientWeaponNone_h_INCLUDED_
 #define  _ClientWeaponNone_h_INCLUDED_
 
-#include "ClientWeaponNone.h"
+#include "clientweaponnone.h"
 
 //
 // This class is a class that represents having

@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SoundFX.h"
+#include "soundfx.h"
 #include "iltclient.h"
-#include "ClientSoundMgr.h"
+#include "clientsoundmgr.h"
 
 // ----------------------------------------------------------------------- //
 //

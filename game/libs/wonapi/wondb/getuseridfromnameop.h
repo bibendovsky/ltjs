@@ -1,8 +1,8 @@
 #ifndef __WON_GETUSERIDFROMNAMEOP_H__
 #define __WON_GETUSERIDFROMNAMEOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONDB/DBProxyOp.h"
+#include "wondb/dbproxyop.h"
 
 namespace WONAPI
 {

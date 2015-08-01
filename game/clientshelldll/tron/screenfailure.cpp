@@ -9,14 +9,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenFailure.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "TRONInterfaceMgr.h"
-#include "SaveLoadMgr.h"
-#include "GameClientShell.h"
-#include "ClientSaveLoadMgr.h"
-#include "MissionMgr.h"
+#include "screenfailure.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "troninterfacemgr.h"
+#include "saveloadmgr.h"
+#include "gameclientshell.h"
+#include "clientsaveloadmgr.h"
+#include "missionmgr.h"
 
 
 namespace

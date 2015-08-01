@@ -15,8 +15,8 @@
 //
 
 	#include "stdafx.h"
-	#include "ClientFX.h"
-	#include "FlareSpriteFX.h"
+	#include "clientfx.h"
+	#include "flarespritefx.h"
 //	#include "ClientServerShared.h"
 
 void fxGetSpriteProps(CFastList<FX_PROP> *pList);

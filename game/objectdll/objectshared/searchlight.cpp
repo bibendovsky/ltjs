@@ -11,12 +11,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SearchLight.h"
+#include "searchlight.h"
 #include "iltserver.h"
-#include "ServerUtilities.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "SFXMsgIds.h"
+#include "serverutilities.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "sfxmsgids.h"
 ////#include "AIHelicopter.h"
 
 LINKFROM_MODULE( SearchLight );

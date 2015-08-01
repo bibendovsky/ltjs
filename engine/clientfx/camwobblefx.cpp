@@ -12,7 +12,7 @@
 
 #include "stdafx.h"
 #include "clientfx.h"
-#include "CamWobbleFX.h"
+#include "camwobblefx.h"
 
 // ----------------------------------------------------------------------- //
 //

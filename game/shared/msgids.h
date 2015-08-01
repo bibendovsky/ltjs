@@ -13,7 +13,7 @@
 #ifndef __MSG_IDS_H__
 #define __MSG_IDS_H__
 
-#include "SFXMsgIds.h"              // Special fx message ids
+#include "sfxmsgids.h"              // Special fx message ids
 
 // General Client <-> Server messages
 

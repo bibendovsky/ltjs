@@ -4,7 +4,7 @@
 #include "renderstruct.h"
 #include "common_draw.h"
 #include "common_stuff.h"
-#include "FixedPoint.h"
+#include "fixedpoint.h"
 #include "de_mainworld.h"
 #include "rendererframestats.h"
 #include "rendertargetmgr.h"

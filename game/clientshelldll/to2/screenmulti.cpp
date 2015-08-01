@@ -9,17 +9,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenMulti.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "GameClientShell.h"
-#include "ClientSaveLoadMgr.h"
-#include "ClientMultiplayerMgr.h"
+#include "screenmulti.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "gameclientshell.h"
+#include "clientsaveloadmgr.h"
+#include "clientmultiplayermgr.h"
 #include "iserverdir.h"
 #include "msgids.h"
-#include "WinUtil.h"
+#include "winutil.h"
 #include "direct.h"
-#include "ClientButeMgr.h"
+#include "clientbutemgr.h"
 
 namespace
 {

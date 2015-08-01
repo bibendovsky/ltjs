@@ -1,13 +1,13 @@
 // (c) 1997-2002 Monolith Productions, Inc.  All Rights Reserved
 
-#include "StdAfx.h"
-#include "AIRegion.h"
-#include "AIVolume.h"
-#include "AIVolumeMgr.h"
-#include "AINodeMgr.h"
-#include "AIUtils.h"
-#include "PSets.h"
-#include "AIAssert.h"
+#include "stdafx.h"
+#include "airegion.h"
+#include "aivolume.h"
+#include "aivolumemgr.h"
+#include "ainodemgr.h"
+#include "aiutils.h"
+#include "psets.h"
+#include "aiassert.h"
 
 LINKFROM_MODULE( AIRegion );
 

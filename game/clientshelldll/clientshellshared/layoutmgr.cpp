@@ -9,8 +9,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "LayoutMgr.h"
-#include "InterfaceMgr.h"
+#include "layoutmgr.h"
+#include "interfacemgr.h"
 
 
 #define LO_BASIC_TAG					"BasicLayout"

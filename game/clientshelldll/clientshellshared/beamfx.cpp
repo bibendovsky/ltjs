@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "BeamFX.h"
+#include "beamfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "SFXMsgIds.h"
-#include "GameClientShell.h"
+#include "clientutilities.h"
+#include "sfxmsgids.h"
+#include "gameclientshell.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

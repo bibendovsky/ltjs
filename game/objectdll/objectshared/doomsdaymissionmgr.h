@@ -11,7 +11,7 @@
 #ifndef __DOOMSDAYMISSIONMGR_H__
 #define __DOOMSDAYMISSIONMGR_H__
 
-#include "ServerMissionMgr.h"
+#include "servermissionmgr.h"
 
 class CDoomsDayMissionMgr : public CServerMissionMgr
 {

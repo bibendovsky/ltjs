@@ -13,22 +13,22 @@
 #ifndef __TO2_HUDMGR_H
 #define __TO2_HUDMGR_H
 
-#include "HUDMgr.h"
-#include "HUDAmmo.h"
-#include "HUDAir.h"
-#include "HUDCrosshair.h"
-#include "HUDCompass.h"
-#include "HUDHiding.h"
-#include "HUDCarrying.h"
-#include "HUDHealth.h"
-#include "HUDDamageDir.h"
-#include "HUDChooser.h"
-#include "HUDDistance.h"
-#include "HUDObjectives.h"
-#include "HUDRadio.h"
-#include "HUDProgressBar.h"
-#include "HUDRespawn.h"
-#include "HUDDoomsday.h"
+#include "hudmgr.h"
+#include "hudammo.h"
+#include "hudair.h"
+#include "hudcrosshair.h"
+#include "hudcompass.h"
+#include "hudhiding.h"
+#include "hudcarrying.h"
+#include "hudhealth.h"
+#include "huddamagedir.h"
+#include "hudchooser.h"
+#include "huddistance.h"
+#include "hudobjectives.h"
+#include "hudradio.h"
+#include "hudprogressbar.h"
+#include "hudrespawn.h"
+#include "huddoomsday.h"
 
 
 //******************************************************************************************

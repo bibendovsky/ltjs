@@ -10,16 +10,16 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalDisappearReappearEvasive.h"
-#include "AIHumanStateDisappearReappear.h"
-#include "AIGoalMgr.h"
-#include "AIGoalButeMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIHuman.h"
-#include "AICentralKnowledgeMgr.h"
-#include "AIBrain.h"
-#include "AIState.h"
-#include "AIMovement.h"
+#include "aigoaldisappearreappearevasive.h"
+#include "aihumanstatedisappearreappear.h"
+#include "aigoalmgr.h"
+#include "aigoalbutemgr.h"
+#include "aisenserecorderabstract.h"
+#include "aihuman.h"
+#include "aicentralknowledgemgr.h"
+#include "aibrain.h"
+#include "aistate.h"
+#include "aimovement.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalDisappearReappearEvasive, kGoal_DisappearReappearEvasive);
 

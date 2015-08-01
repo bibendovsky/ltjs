@@ -3,7 +3,7 @@
 #ifndef __AI_PATH_MGR_H__
 #define __AI_PATH_MGR_H__
 
-#include "AIPath.h"
+#include "aipath.h"
 
 class CAI;
 class CAIPath;

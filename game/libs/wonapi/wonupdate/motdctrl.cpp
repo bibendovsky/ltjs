@@ -2,14 +2,14 @@
 // MotdCtrl.cpp
 //----------------------------------------------------------------------------------
 #include <assert.h>
-#include "MotdCtrl.h"
-#include "WONUpdateCtrl.h"
-#include "CustomInfo.h"
-#include "WONAPI/WONCommon/StringUtil.h"
-#include "WONGUI/MSControls.h"
-#include "WONGUI/ChildLayouts.h"
-#include "WONGUI/TabCtrl.h"
-#include "WONGUI/SimpleComponent.h"
+#include "motdctrl.h"
+#include "wonupdatectrl.h"
+#include "custominfo.h"
+#include "wonapi/woncommon/stringutil.h"
+#include "wongui/mscontrols.h"
+#include "wongui/childlayouts.h"
+#include "wongui/tabctrl.h"
+#include "wongui/simplecomponent.h"
 
 using namespace WONAPI;
 

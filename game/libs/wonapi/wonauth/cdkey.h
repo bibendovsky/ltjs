@@ -1,10 +1,10 @@
 #ifndef __WON_CDKEY_H__
 #define __WON_CDKEY_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/ByteBuffer.h"
-#include "WONCommon/RegKey.h"
-#include "WONCrypt/Blowfish.h"
+#include "woncommon/bytebuffer.h"
+#include "woncommon/regkey.h"
+#include "woncrypt/blowfish.h"
 #include <string>
 
 namespace WONAPI

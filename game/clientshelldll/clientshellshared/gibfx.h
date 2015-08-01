@@ -11,11 +11,11 @@
 #ifndef __GIB_FX_H__
 #define __GIB_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 #include "client_physics.h"
-#include "ModelButeMgr.h"
-#include "GibTypes.h"
-#include "ContainerCodes.h"
+#include "modelbutemgr.h"
+#include "gibtypes.h"
+#include "containercodes.h"
 
 #define MAX_GIB 20
 

@@ -1,8 +1,8 @@
 #ifndef __WON_AUTHPUBKEYBLOCK_H__
 #define __WON_AUTHPUBKEYBLOCK_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "AuthBase.h"
+#include "authbase.h"
 #include <list>
 
 

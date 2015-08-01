@@ -12,13 +12,13 @@
 
 
 #include "stdafx.h"
-#include "ClientWeaponDisc.h"
-#include "MsgIDs.h"
-#include "PlayerMgr.h"
-#include "CMoveMgr.h"
-#include "PlayerStats.h"
-#include "RatingMgr.h"
-#include "FXButeMgr.h"
+#include "clientweapondisc.h"
+#include "msgids.h"
+#include "playermgr.h"
+#include "cmovemgr.h"
+#include "playerstats.h"
+#include "ratingmgr.h"
+#include "fxbutemgr.h"
 
 
 //

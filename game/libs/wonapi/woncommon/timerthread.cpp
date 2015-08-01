@@ -1,4 +1,4 @@
-#include "TimerThread.h"
+#include "timerthread.h"
 using namespace WONAPI;
 
 /*

@@ -13,12 +13,12 @@
 #include "stdafx.h"
 #include <stdio.h>
 #include "iltserver.h"
-#include "ClientLightFX.h"
-#include "SfxMsgIds.h"
-#include "ClientServerShared.h"
-#include "ServerUtilities.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
+#include "clientlightfx.h"
+#include "sfxmsgids.h"
+#include "clientservershared.h"
+#include "serverutilities.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
 
 #define UPDATE_DELTA			0.1f
 

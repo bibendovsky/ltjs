@@ -11,15 +11,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PolyGrid.h"
+#include "polygrid.h"
 #include "iltserver.h"
-#include "ClientServerShared.h"
-#include "SFXMsgIds.h"
-#include "CommonUtilities.h"
-#include "PolyGridModifier.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "MsgIDs.h"
+#include "clientservershared.h"
+#include "sfxmsgids.h"
+#include "commonutilities.h"
+#include "polygridmodifier.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "msgids.h"
 
 LINKFROM_MODULE( PolyGrid );
 

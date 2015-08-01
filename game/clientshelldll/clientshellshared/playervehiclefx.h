@@ -13,8 +13,8 @@
 #ifndef __PLAYER_VEHICLE_FX_H__
 #define __PLAYER_VEHICLE_FX_H__
 
-#include "SpecialFX.h"
-#include "SharedFXStructs.h"
+#include "specialfx.h"
+#include "sharedfxstructs.h"
 
 class CPlayerVehicleFX : public CSpecialFX
 {

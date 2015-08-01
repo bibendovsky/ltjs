@@ -11,8 +11,8 @@
 // Includes....
 
 #include "stdafx.h"
-#include "LTBBouncyChunkFX.h"
-#include "ClientFX.h"
+#include "ltbbouncychunkfx.h"
+#include "clientfx.h"
 
 // ----------------------------------------------------------------------- //
 //

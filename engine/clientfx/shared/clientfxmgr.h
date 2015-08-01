@@ -13,11 +13,11 @@
 
 // Includes....
 
-#include "DebugNew.h"
+#include "debugnew.h"
 #include "iltclient.h"
 #include "basefx.h"
-#include "FxFlags.h"
-#include "FxDefs.h"
+#include "fxflags.h"
+#include "fxdefs.h"
 
 // Forwards....
 struct CLIENTFX_INSTANCE;

@@ -1,10 +1,10 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
-#include "StdAfx.h"
-#include "MusicMgr.h"
-#include "GameButeMgr.h"
-#include "MsgIds.h"
-#include "GameServerShell.h"
+#include "stdafx.h"
+#include "musicmgr.h"
+#include "gamebutemgr.h"
+#include "msgids.h"
+#include "gameservershell.h"
 
 extern CGameServerShell* g_pGameServerShell;
 

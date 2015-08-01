@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MenuMission.h"
-#include "InterfaceMgr.h"
-#include "MissionButeMgr.h"
-#include "ClientResShared.h"
-#include "ObjectiveControl.h"
-#include "MissionMgr.h"
+#include "menumission.h"
+#include "interfacemgr.h"
+#include "missionbutemgr.h"
+#include "clientresshared.h"
+#include "objectivecontrol.h"
+#include "missionmgr.h"
 
 namespace
 {

@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ServerAssetMgr.h"
+#include "serverassetmgr.h"
 
 // define this to print out all of the files that assetmgr loads
 //#define DEBUGASSETLOADING

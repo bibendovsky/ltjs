@@ -12,7 +12,7 @@
 #ifndef _SKILLS_BUTE_MGR_
 #define _SKILLS_BUTE_MGR_
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include "ltbasetypes.h"
 
 #define SMGR_DEFAULT_FILE		"Attributes\\Skills.txt"

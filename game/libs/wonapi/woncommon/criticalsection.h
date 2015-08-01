@@ -1,15 +1,15 @@
 #ifndef __WON_CRITICALSECTION_H__
 #define __WON_CRITICALSECTION_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #ifndef __WON_SINGLETHREADED__
 
 #if defined(WIN32)
-#include "CriticalSection_Windows.h"
+#include "criticalsection_windows.h"
 #elif defined(_LINUX)
-#include "CriticalSection_Linux.h"
+#include "criticalsection_linux.h"
 #elif defined(macintosh) && (macintosh == 1)
-#include "CriticalSection_Mac.h"
+#include "criticalsection_mac.h"
 #endif
 
 #else  // __WON_SINGLETHREADED__

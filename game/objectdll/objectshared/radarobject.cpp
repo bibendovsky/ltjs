@@ -15,10 +15,10 @@
 //
 
 	#include "stdafx.h"
-	#include "MsgIds.h"
-	#include "ParsedMsg.h"
-	#include "RadarObject.h"
-	#include "VersionMgr.h"
+	#include "msgids.h"
+	#include "parsedmsg.h"
+	#include "radarobject.h"
+	#include "versionmgr.h"
 
 
 LINKFROM_MODULE( RadarObject );

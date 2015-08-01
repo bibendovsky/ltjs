@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ServerTrackedNodeMgr.h"
+#include "servertrackednodemgr.h"
 
 // Global pointer to server tracked node mgr...
 

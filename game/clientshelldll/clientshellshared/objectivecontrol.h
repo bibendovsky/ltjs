@@ -12,7 +12,7 @@
 #if !defined(_OBJ_CTRL_H_)
 #define _OBJ_CTRL_H_
 
-#include "LTGuiMgr.h"
+#include "ltguimgr.h"
 
 class CObjectiveCtrl : public CLTGUITextCtrl
 {

@@ -11,9 +11,9 @@
 #ifndef __MISSION_BUTE_MGR_H__
 #define __MISSION_BUTE_MGR_H__
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include "ltbasetypes.h"
-#include "TemplateList.h"
+#include "templatelist.h"
 
 #define MISSION_DEFAULT_FILE		"Attributes\\Missions.txt"
 #define MISSION_COOP_FILE			"Attributes\\CoopMissions.txt"

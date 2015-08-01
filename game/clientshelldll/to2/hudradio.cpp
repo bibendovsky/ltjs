@@ -8,12 +8,12 @@
 //
 // ----------------------------------------------------------------------- //
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "HUDRadio.h"
-#include "InterfaceMgr.h"
-#include "ClientRes.h"
-#include "ClientMultiplayerMgr.h"
-#include "GameClientShell.h"
+#include "hudmgr.h"
+#include "hudradio.h"
+#include "interfacemgr.h"
+#include "clientres.h"
+#include "clientmultiplayermgr.h"
+#include "gameclientshell.h"
 
 static int g_CoopRadioArray[] =
 {

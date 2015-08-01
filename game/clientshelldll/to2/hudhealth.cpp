@@ -9,10 +9,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "PlayerStats.h"
-#include "InterfaceMgr.h"
-#include "HUDHealth.h"
+#include "hudmgr.h"
+#include "playerstats.h"
+#include "interfacemgr.h"
+#include "hudhealth.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

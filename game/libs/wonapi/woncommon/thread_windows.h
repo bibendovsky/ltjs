@@ -1,9 +1,9 @@
 #ifndef __WON_THREAD_WINDOWS_H__
 #define __WON_THREAD_WINDOWS_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <process.h>
-#include "Event.h"
+#include "event.h"
 
 namespace WONAPI
 {

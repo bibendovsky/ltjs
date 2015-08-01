@@ -19,9 +19,9 @@
 // OptionsDlg.h : header file
 //
 
-#include "MoveDlg.h"
-#include "EditEx.h"
-#include "StaticEx.h"
+#include "movedlg.h"
+#include "editex.h"
+#include "staticex.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // COptionsDlg dialog

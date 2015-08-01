@@ -9,8 +9,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SearchItemMgr.h"
-#include "WeaponMgr.h"
+#include "searchitemmgr.h"
+#include "weaponmgr.h"
 
 
 #define ITEM_TAG				"SearchItem"

@@ -13,9 +13,9 @@
 #ifndef __STEAM_FX_H__
 #define __STEAM_FX_H__
 
-#include "SpecialFX.h"
-#include "SmokeFX.h"
-#include "SharedFXStructs.h"
+#include "specialfx.h"
+#include "smokefx.h"
+#include "sharedfxstructs.h"
 
 class CSteamFX : public CSpecialFX
 {

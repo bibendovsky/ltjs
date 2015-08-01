@@ -11,16 +11,16 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Lock.h"
-#include "SoundMgr.h"
-#include "ServerUtilities.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "WeaponMgr.h"
-#include "CommandMgr.h"
-#include "ClientWeaponSFX.h"
-#include "PlayerObj.h"
-#include "ServerSoundMgr.h"
+#include "lock.h"
+#include "soundmgr.h"
+#include "serverutilities.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "weaponmgr.h"
+#include "commandmgr.h"
+#include "clientweaponsfx.h"
+#include "playerobj.h"
+#include "serversoundmgr.h"
 
 LINKFROM_MODULE( Lock );
 

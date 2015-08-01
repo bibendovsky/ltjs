@@ -4,7 +4,7 @@
 #include "d3dmeshrendobj_skel.h"
 #include "d3dmeshrendobj_rigid.h"
 #include "lteffectshadermgr.h"
-#include "LTEffectImpl.h"
+#include "lteffectimpl.h"
 
 #include "setupmodel.h"
 #include "d3d_utils.h"

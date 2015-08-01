@@ -1,5 +1,5 @@
-#include "DirEntityReplyParser.h"
-#include "WONCommon/ReadBuffer.h"
+#include "direntityreplyparser.h"
+#include "woncommon/readbuffer.h"
 
 using namespace std;
 using namespace WONAPI;

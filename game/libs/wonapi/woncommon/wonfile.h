@@ -1,6 +1,6 @@
 #ifndef __WON_WONFILE_H__
 #define __WON_WONFILE_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <string>
 #include <time.h>

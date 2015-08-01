@@ -15,11 +15,11 @@
 
 #include "iaggregate.h"
 #include "ltengineobjects.h"
-#include "ClientServerShared.h"
-#include "DamageTypes.h"
-#include "CommandMgr.h"
-#include "LTObjRef.h"
-#include "GameBase.h"
+#include "clientservershared.h"
+#include "damagetypes.h"
+#include "commandmgr.h"
+#include "ltobjref.h"
+#include "gamebase.h"
 
 struct DamageStruct;
 

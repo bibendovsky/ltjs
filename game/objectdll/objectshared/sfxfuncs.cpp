@@ -13,8 +13,8 @@
 // Includes...
 
 #include "stdafx.h"
-#include "SFXFuncs.h"
-#include "SFXMsgIds.h"
+#include "sfxfuncs.h"
+#include "sfxmsgids.h"
 
 // ----------------------------------------------------------------------- //
 //

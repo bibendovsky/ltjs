@@ -11,7 +11,7 @@
 #ifndef __BULLET_TRAIL_FX_H__
 #define __BULLET_TRAIL_FX_H__
 
-#include "BaseParticleSystemFX.h"
+#include "baseparticlesystemfx.h"
 
 
 struct BTCREATESTRUCT : public BPSCREATESTRUCT

@@ -13,9 +13,9 @@
 
 // Includes...
 
-#include "StdAfx.h"
-#include "Io.h"
-#include "RezFind.h"
+#include "stdafx.h"
+#include "io.h"
+#include "rezfind.h"
 
 
 // Globals...

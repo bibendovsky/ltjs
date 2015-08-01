@@ -4,14 +4,14 @@
 #ifndef __WONUpdateCtrl_H__
 #define __WONUpdateCtrl_H__
 
-#include "WelcomeCtrl.h"
-#include "ConfigProxyCtrl.h"
-#include "MotdCtrl.h"
-#include "OptionalPatchCtrl.h"
-#include "PatchDetailsCtrl.h"
-#include "SelectHostCtrl.h"
-#include "DownloadCtrl.h"
-#include "WebLaunchCtrl.h"
+#include "welcomectrl.h"
+#include "configproxyctrl.h"
+#include "motdctrl.h"
+#include "optionalpatchctrl.h"
+#include "patchdetailsctrl.h"
+#include "selecthostctrl.h"
+#include "downloadctrl.h"
+#include "weblaunchctrl.h"
 
 namespace WONAPI
 {

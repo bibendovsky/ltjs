@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#include "ObjectTemplateMgr.h"
+#include "objecttemplatemgr.h"
 
 CObjectTemplateMgr::CObjectTemplateMgr()
 {

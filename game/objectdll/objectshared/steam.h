@@ -14,9 +14,9 @@
 #define __STEAM_H__
 
 #include "ltengineobjects.h"
-#include "SharedFXStructs.h"
-#include "Timer.h"
-#include "GameBase.h"
+#include "sharedfxstructs.h"
+#include "timer.h"
+#include "gamebase.h"
 
 LINKTO_MODULE( Steam );
 

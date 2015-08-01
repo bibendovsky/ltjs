@@ -13,10 +13,10 @@
 #ifndef __PROP_H__
 #define __PROP_H__
 
-#include "GameBase.h"
-#include "DestructibleModel.h"
-#include "AIState.h"
-#include "ActivateTypeMgr.h"
+#include "gamebase.h"
+#include "destructiblemodel.h"
+#include "aistate.h"
+#include "activatetypemgr.h"
 
 // Forward declarations.
 struct PROP_DISTURB;

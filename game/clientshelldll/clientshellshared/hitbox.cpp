@@ -15,7 +15,7 @@
 //
 
 	#include "stdafx.h"
-	#include "HitBox.h"
+	#include "hitbox.h"
 
 //
 // Defines...

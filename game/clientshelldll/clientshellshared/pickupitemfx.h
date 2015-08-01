@@ -11,7 +11,7 @@
 #ifndef __PICKUPITEM_FX_H__
 #define __PICKUPITEM_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 struct PICKUPITEMCREATESTRUCT : public SFXCREATESTRUCT
 {

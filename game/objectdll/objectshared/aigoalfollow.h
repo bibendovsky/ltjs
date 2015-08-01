@@ -12,8 +12,8 @@
 #ifndef __AIGOAL_FOLLOW_H__
 #define __AIGOAL_FOLLOW_H__
 
-#include "AIGoalAbstractTargeted.h"
-#include "AnimationProp.h"
+#include "aigoalabstracttargeted.h"
+#include "animationprop.h"
 
 class CAIGoalFollow : public CAIGoalAbstractTargeted
 {

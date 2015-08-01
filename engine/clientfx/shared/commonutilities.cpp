@@ -8,9 +8,9 @@
 //
 // ----------------------------------------------------------------------- //
 
-#include "CommonUtilities.h"
+#include "commonutilities.h"
 #include "ltbasedefs.h"
-#include "ParsedMsg.h"
+#include "parsedmsg.h"
 
 
 int GetRandom()

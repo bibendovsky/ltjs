@@ -23,7 +23,7 @@
 
 // Includes
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 // Forward declarations
 

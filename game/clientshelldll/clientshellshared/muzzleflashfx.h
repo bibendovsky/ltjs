@@ -13,11 +13,11 @@
 #ifndef __MUZZLE_FLASH_FX_H__
 #define __MUZZLE_FLASH_FX_H__
 
-#include "SpecialFX.h"
-#include "WeaponMgr.h"
-#include "MuzzleFlashParticleFX.h"
-#include "DynamicLightFX.h"
-#include "BaseScaleFX.h"
+#include "specialfx.h"
+#include "weaponmgr.h"
+#include "muzzleflashparticlefx.h"
+#include "dynamiclightfx.h"
+#include "basescalefx.h"
 
 struct MUZZLEFLASHCREATESTRUCT : public SFXCREATESTRUCT
 {

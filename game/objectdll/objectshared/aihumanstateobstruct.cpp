@@ -23,11 +23,11 @@
 #include "stdafx.h"
 
 #ifndef __AIHUMANSTATEOBSTRUCT_H__
-#include "AIHumanStateObstruct.h"		
+#include "aihumanstateobstruct.h"		
 #endif
 
 #ifndef __AI_HUMAN_H__
-#include "AIHuman.h"
+#include "aihuman.h"
 #endif 
 
 

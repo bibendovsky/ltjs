@@ -15,19 +15,19 @@
 
 
 #include "iservershell.h"
-#include "ClientServerShared.h"
-#include "CheatDefs.h"
-#include "NetDefs.h"
-#include "CVarTrack.h"
-#include "AttachButeMgr.h"
-#include "ServerButeMgr.h"
-#include "ModelButeMgr.h"
-#include "SoundMgr.h"
-#include "CommandMgr.h"
-#include "IDList.h"
-#include "MusicMgr.h"
-#include "MsgIds.h"
-#include "ProfileUtils.h"
+#include "clientservershared.h"
+#include "cheatdefs.h"
+#include "netdefs.h"
+#include "cvartrack.h"
+#include "attachbutemgr.h"
+#include "serverbutemgr.h"
+#include "modelbutemgr.h"
+#include "soundmgr.h"
+#include "commandmgr.h"
+#include "idlist.h"
+#include "musicmgr.h"
+#include "msgids.h"
+#include "profileutils.h"
 
 #define MAX_CLIENTS		MAX_MULTI_PLAYERS
 #define MAX_TIME_RAMPS	12

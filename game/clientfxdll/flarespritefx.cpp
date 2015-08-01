@@ -15,9 +15,9 @@
 //
 
 	#include "stdafx.h"
-	#include "ClientFX.h"
-	#include "FlareSpriteFX.h"
-	#include "ClientServerShared.h"
+	#include "clientfx.h"
+	#include "flarespritefx.h"
+	#include "clientservershared.h"
 
 void fxGetSpriteProps(CFastList<FX_PROP> *pList);
 extern HOBJECT	g_hPlayer;

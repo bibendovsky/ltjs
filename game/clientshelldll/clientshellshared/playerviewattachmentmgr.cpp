@@ -13,9 +13,9 @@
 //
 
 	#include "stdafx.h"
-	#include "CMoveMgr.h"
-	#include "CharacterFX.h"
-	#include "PlayerViewAttachmentMgr.h"
+	#include "cmovemgr.h"
+	#include "characterfx.h"
+	#include "playerviewattachmentmgr.h"
 
 //
 // Globals...

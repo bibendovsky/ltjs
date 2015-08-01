@@ -13,7 +13,7 @@
 #ifndef __PLAYER_SOUND_FX_H__
 #define __PLAYER_SOUND_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 struct PLAYERSOUNDCREATESTRUCT : public SFXCREATESTRUCT
 {

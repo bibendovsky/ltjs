@@ -15,8 +15,8 @@
 //
 
 	#include "stdafx.h"
-	#include "WeaponMgr.h"
-	#include "TriggerTypeMgr.h"
+	#include "weaponmgr.h"
+	#include "triggertypemgr.h"
 
 
 //

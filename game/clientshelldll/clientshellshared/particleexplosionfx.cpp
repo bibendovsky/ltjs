@@ -9,15 +9,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ParticleExplosionFX.h"
+#include "particleexplosionfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ContainerCodes.h"
-#include "ClientServerShared.h"
-#include "WeaponFXTypes.h"
-#include "DebrisMgr.h"
-#include "SoundMgr.h"
-#include "GameClientShell.h"
+#include "clientutilities.h"
+#include "containercodes.h"
+#include "clientservershared.h"
+#include "weaponfxtypes.h"
+#include "debrismgr.h"
+#include "soundmgr.h"
+#include "gameclientshell.h"
 
 extern LTVector g_vWorldWindVel;
 

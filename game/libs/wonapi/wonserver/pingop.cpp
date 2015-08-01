@@ -1,6 +1,6 @@
-#include "PingOp.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONCommon/ReadBuffer.h"
+#include "pingop.h"
+#include "woncommon/writebuffer.h"
+#include "woncommon/readbuffer.h"
 using namespace WONAPI;
 
 ///////////////////////////////////////////////////////////////////////////////

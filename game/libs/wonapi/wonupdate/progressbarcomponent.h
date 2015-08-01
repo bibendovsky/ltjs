@@ -4,7 +4,7 @@
 #ifndef __ProgressBarComponent_H__
 #define __ProgressBarComponent_H__
 
-#include "WONGUI/Component.h"
+#include "wongui/component.h"
 
 namespace WONAPI
 {

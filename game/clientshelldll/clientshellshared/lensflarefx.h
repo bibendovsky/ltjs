@@ -13,7 +13,7 @@
 #ifndef __LENS_FLARE_FX_H__
 #define __LENS_FLARE_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 struct LENSFLARECREATESTRUCT : public SFXCREATESTRUCT
 {

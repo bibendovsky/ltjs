@@ -14,10 +14,10 @@
 #define __SFX_MGR_H__
 
 #include "iltclient.h"
-#include "SpecialFXList.h"
-#include "SFXMsgIds.h"
-#include "LightGroupFX.h"
-#include "TextureFXMgr.h"
+#include "specialfxlist.h"
+#include "sfxmsgids.h"
+#include "lightgroupfx.h"
+#include "texturefxmgr.h"
 
 
 #define DYN_ARRAY_SIZE		(SFX_TOTAL_NUMBER + 1)

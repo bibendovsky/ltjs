@@ -15,11 +15,11 @@
 //
 
 	#include "stdafx.h"
-	#include "ObjectMsgs.h"
-	#include "ParsedMsg.h"
-	#include "SoundButeFX.h"
-	#include "ServerSoundMgr.h"
-	#include "CommandMgr.h"
+	#include "objectmsgs.h"
+	#include "parsedmsg.h"
+	#include "soundbutefx.h"
+	#include "serversoundmgr.h"
+	#include "commandmgr.h"
 
 LINKFROM_MODULE( SoundButeFX );
 	

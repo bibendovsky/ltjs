@@ -12,8 +12,8 @@
 #ifndef __AIPATH_KNOWLEDGE_MGR_H__
 #define __AIPATH_KNOWLEDGE_MGR_H__
 
-#include "AIClassFactory.h"
-#include "AIPathMgr.h"
+#include "aiclassfactory.h"
+#include "aipathmgr.h"
 
 
 //

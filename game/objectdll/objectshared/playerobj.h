@@ -13,20 +13,20 @@
 #ifndef __CPLAYER_OBJ_H__
 #define __CPLAYER_OBJ_H__
 
-#include "Character.h"
-#include "MsgIds.h"
-#include "CheatDefs.h"
-#include "TemplateList.h"
-#include "CVarTrack.h"
-#include "ClientServerShared.h"
-#include "Skills.h"
-#include "AnimatorPlayer.h"
-#include "PlayerShared.h"
-#include "ActivationData.h"
-#include "SharedMission.h"
-#include "SharedScoring.h"
-#include "IDList.h"
-#include "NetDefs.h"
+#include "character.h"
+#include "msgids.h"
+#include "cheatdefs.h"
+#include "templatelist.h"
+#include "cvartrack.h"
+#include "clientservershared.h"
+#include "skills.h"
+#include "animatorplayer.h"
+#include "playershared.h"
+#include "activationdata.h"
+#include "sharedmission.h"
+#include "sharedscoring.h"
+#include "idlist.h"
+#include "netdefs.h"
 
 LINKTO_MODULE( PlayerObj );
 

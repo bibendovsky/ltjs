@@ -1,7 +1,7 @@
 #ifndef __WON_THREAD_H__
 #define __WON_THREAD_H__
-#include "WONShared.h"
-#include "Event.h"
+#include "wonshared.h"
+#include "event.h"
 
 namespace WONAPI
 {
@@ -41,11 +41,11 @@ public:
 #ifndef __WON_SINGLETHREADED__
 
 #if defined(WIN32)
-#include "Thread_Windows.h"
+#include "thread_windows.h"
 #elif defined(_LINUX)
-#include "Thread_Linux.h"
+#include "thread_linux.h"
 #elif defined(macintosh) && (macintosh == 1)
-#include "Thread_Mac.h"
+#include "thread_mac.h"
 #else
 #error No Thread class defined. (Need WIN32, _LINUX or macintosh defined)
 #endif

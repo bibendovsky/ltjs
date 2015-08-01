@@ -13,8 +13,8 @@
 #ifndef __PROP_TYPE_H__
 #define __PROP_TYPE_H__
 
-#include "Prop.h"
-#include "PropTypeMgr.h"
+#include "prop.h"
+#include "proptypemgr.h"
 
 LINKTO_MODULE( PropType );
 

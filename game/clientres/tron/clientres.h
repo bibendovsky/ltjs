@@ -2,7 +2,7 @@
 // Microsoft Developer Studio generated include file.
 // Used by ClientRes.rc
 //
-#include "ClientResShared.h"
+#include "clientresshared.h"
 
 // ID'S MUST BE BETWEEN 2001 AND 65535
 

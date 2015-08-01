@@ -9,9 +9,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TronHUDMgr.h"
-#include "TRONPlayerStats.h"
-#include "TronInterfaceMgr.h"
+#include "tronhudmgr.h"
+#include "tronplayerstats.h"
+#include "troninterfacemgr.h"
 
 namespace
 {

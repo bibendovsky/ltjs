@@ -11,27 +11,27 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "FXButeMgr.h"
-#include "WeaponFXTypes.h"
-#include "CommonUtilities.h"
-#include "SurfaceFunctions.h"
-#include "WeaponMgr.h"
-#include "FXFlags.h"
+#include "fxbutemgr.h"
+#include "weaponfxtypes.h"
+#include "commonutilities.h"
+#include "surfacefunctions.h"
+#include "weaponmgr.h"
+#include "fxflags.h"
 
 #ifdef _CLIENTBUILD
-#include "ParticleShowerFX.h"
-#include "PolyDebrisFX.h"
-#include "ParticleExplosionFX.h"
-#include "GameClientShell.h"
-#include "InterfaceMgr.h"
-#include "BeamFX.h"
-#include "CMoveMgr.h"
+#include "particleshowerfx.h"
+#include "polydebrisfx.h"
+#include "particleexplosionfx.h"
+#include "gameclientshell.h"
+#include "interfacemgr.h"
+#include "beamfx.h"
+#include "cmovemgr.h"
 
 extern CGameClientShell* g_pGameClientShell;
 
 #else
 
-#include "AIStimulusMgr.h"
+#include "aistimulusmgr.h"
 
 #endif
 

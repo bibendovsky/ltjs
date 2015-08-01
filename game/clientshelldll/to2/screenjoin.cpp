@@ -9,17 +9,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenJoin.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ClientRes.h"
-#include "ClientMultiplayerMgr.h"
+#include "screenjoin.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "clientres.h"
+#include "clientmultiplayermgr.h"
 #include "msgids.h"
-#include "MissionMgr.h"
-#include "ResShared.h"
+#include "missionmgr.h"
+#include "resshared.h"
 #include "iserverdir.h"
 
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 
 #include <algorithm>
 

@@ -12,7 +12,7 @@
 #if !defined(_TRONLAYOUTMGR_H_)
 #define _TRONLAYOUTMGR_H_
 
-#include "LayoutMgr.h"
+#include "layoutmgr.h"
 
 #if _MSC_VER > 1000
 #pragma once

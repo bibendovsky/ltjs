@@ -11,8 +11,8 @@
 // Includes....
 
 #include "stdafx.h"
-#include "PolyTubeFX.h"
-#include "ClientFX.h"
+#include "polytubefx.h"
+#include "clientfx.h"
 
 // ----------------------------------------------------------------------- //
 //

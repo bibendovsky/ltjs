@@ -10,11 +10,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalHolsterWeapon.h"
-#include "AIGoalMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIHuman.h"
-#include "AIHumanState.h"
+#include "aigoalholsterweapon.h"
+#include "aigoalmgr.h"
+#include "aisenserecorderabstract.h"
+#include "aihuman.h"
+#include "aihumanstate.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalHolsterWeapon, kGoal_HolsterWeapon);
 

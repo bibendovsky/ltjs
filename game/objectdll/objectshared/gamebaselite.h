@@ -15,8 +15,8 @@
 
 #include "ltengineobjects.h"
 #include "iobjectplugin.h"
-#include "LtObjRef.h"
-#include "LiteObjectMgr.h" // This is included here so objects can save/load/etc. GameBaseLite objects
+#include "ltobjref.h"
+#include "liteobjectmgr.h" // This is included here so objects can save/load/etc. GameBaseLite objects
 
 #include <string>
 

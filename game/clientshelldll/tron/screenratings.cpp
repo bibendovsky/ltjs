@@ -10,16 +10,16 @@
 
 
 #include "stdafx.h"
-#include "ScreenRatings.h"
-#include "ScreenSubroutines.h"
-#include "ScreenMgr.h"
-#include "LayoutMgr.h"
-#include "ScreenCommands.h"
+#include "screenratings.h"
+#include "screensubroutines.h"
+#include "screenmgr.h"
+#include "layoutmgr.h"
+#include "screencommands.h"
 //#include "WinUtil.h"
-#include "GameClientShell.h"
-#include "ModelButeMgr.h"
-#include "RatingMgr.h"
-#include "TRONPlayerStats.h"
+#include "gameclientshell.h"
+#include "modelbutemgr.h"
+#include "ratingmgr.h"
+#include "tronplayerstats.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

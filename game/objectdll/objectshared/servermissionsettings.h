@@ -11,7 +11,7 @@
 #ifndef __SERVERMISSIONSETTINGS_H__
 #define __SERVERMISSIONSETTINGS_H__
 
-#include "ClientServerShared.h"
+#include "clientservershared.h"
 
 
 class ServerMissionSettings

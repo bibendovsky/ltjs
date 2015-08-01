@@ -19,15 +19,15 @@
 // Includes
 #include "stdafx.h"
 
-#include "RelationButeMgr.h"
-#include "ButeTools.h"
-#include "AIUtils.h"
-#include "RelationMgr.h"
-#include "AI.h"
-#include "CharacterAlignment.h"
-#include "ObjectRelationMgr.h"
-#include "CollectiveRelationMgr.h"
-#include "AIAssert.h"
+#include "relationbutemgr.h"
+#include "butetools.h"
+#include "aiutils.h"
+#include "relationmgr.h"
+#include "ai.h"
+#include "characteralignment.h"
+#include "objectrelationmgr.h"
+#include "collectiverelationmgr.h"
+#include "aiassert.h"
 
 #include <algorithm>
 

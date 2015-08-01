@@ -1,5 +1,5 @@
 #define __WON_MASTER_CPP__
-#include "Thread.h"
+#include "thread.h"
 
 using namespace WONAPI;
 

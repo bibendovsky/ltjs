@@ -12,8 +12,8 @@
 #ifndef __TRON_PLAYER_MGR_H__
 #define __TRON_PLAYER_MGR_H__
 
-#include "PlayerMgr.h"
-#include "TronTargetMgr.h"
+#include "playermgr.h"
+#include "trontargetmgr.h"
 
 class CTronPlayerMgr;
 extern CTronPlayerMgr* g_pTronPlayerMgr;

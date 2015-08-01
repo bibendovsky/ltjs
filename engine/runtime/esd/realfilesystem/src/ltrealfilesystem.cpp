@@ -100,8 +100,8 @@
 #include "rmacomm.h"   /* IRMACommonClassFactory */
 #include "rmapckts.h"  /* IRMAValues */
 
-#include "LTRealFileSystem.h"		/* LTRealFileSystem */
-#include "LTRealFileObject.h"		/* LTRealFileObject */
+#include "ltrealfilesystem.h"		/* LTRealFileSystem */
+#include "ltrealfileobject.h"		/* LTRealFileObject */
 
 /****************************************************************************
  *  RMACreateInstance                                        ref:  rmaplugn.h

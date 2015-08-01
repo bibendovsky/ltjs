@@ -15,17 +15,17 @@
 //
 	
 	#include "stdafx.h"
-	#include "ObjectMsgs.h"
-	#include "AI.h"
-	#include "Dialogue.h"
-	#include "AIGoalMgr.h"
-	#include "AIGoalTalk.h"
-	#include "AIGoalSpecialDamage.h"
-	#include "AIGoalFlee.h"
-	#include "ParsedMsg.h"
-	#include "AIUtils.h"
-	#include "CharacterMgr.h"
-	#include "PlayerObj.h"
+	#include "objectmsgs.h"
+	#include "ai.h"
+	#include "dialogue.h"
+	#include "aigoalmgr.h"
+	#include "aigoaltalk.h"
+	#include "aigoalspecialdamage.h"
+	#include "aigoalflee.h"
+	#include "parsedmsg.h"
+	#include "aiutils.h"
+	#include "charactermgr.h"
+	#include "playerobj.h"
 
 LINKFROM_MODULE( Dialogue );
 

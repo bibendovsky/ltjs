@@ -11,9 +11,9 @@
 #ifndef __TO2_GAME_SERVER_SHELL_H__
 #define __TO2_GAME_SERVER_SHELL_H__
 
-#include "GameServerShell.h"
-#include "TO2VersionMgr.h"
-#include "TO2MissionButeMgr.h"
+#include "gameservershell.h"
+#include "to2versionmgr.h"
+#include "to2missionbutemgr.h"
 
 class CTO2GameServerShell : public CGameServerShell
 {

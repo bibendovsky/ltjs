@@ -10,14 +10,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AINodeSensing.h"
-#include "AIButeMgr.h"
-#include "AISenseRecorderGame.h"
-#include "AIStimulusMgr.h"
-#include "AI.h"
-#include "ObjectRelationMgr.h"
-#include "ParsedMsg.h"
-#include "CharacterMgr.h"
+#include "ainodesensing.h"
+#include "aibutemgr.h"
+#include "aisenserecordergame.h"
+#include "aistimulusmgr.h"
+#include "ai.h"
+#include "objectrelationmgr.h"
+#include "parsedmsg.h"
+#include "charactermgr.h"
 
 LINKFROM_MODULE( AINodeSensing );
 

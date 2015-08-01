@@ -1,5 +1,5 @@
 
-#include "RequestAccountInfoEmailOp.h"
+#include "requestaccountinfoemailop.h"
 
 using namespace WONAPI;
 

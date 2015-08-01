@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SoundFilterMgr.h"
-#include "CommonUtilities.h"
+#include "soundfiltermgr.h"
+#include "commonutilities.h"
 
 #define SFM_TAG					"SoundFilter"
 

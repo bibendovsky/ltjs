@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TronHUDMgr.h"
-#include "HUDHealthEnergy.h"
-#include "PlayerStats.h"
-#include "InterfaceMgr.h"
-#include "TronLayoutMgr.h"
-#include "TronPlayerMgr.h"
+#include "tronhudmgr.h"
+#include "hudhealthenergy.h"
+#include "playerstats.h"
+#include "interfacemgr.h"
+#include "tronlayoutmgr.h"
+#include "tronplayermgr.h"
 
 //******************************************************************************************
 //**

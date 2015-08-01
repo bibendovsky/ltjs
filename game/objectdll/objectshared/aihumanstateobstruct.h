@@ -22,8 +22,8 @@
 #endif // _MSC_VER >= 1000
 
 // Includes
-#include "AIHumanState.h"
-#include "AINode.h"
+#include "aihumanstate.h"
+#include "ainode.h"
 
 // Forward declarations
 class AINodeObstruct;

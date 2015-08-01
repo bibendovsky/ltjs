@@ -15,8 +15,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BaseScreen.h"
-#include "ProfileMgr.h"
+#include "basescreen.h"
+#include "profilemgr.h"
 
 #define TRACK_BUFFER_SIZE			8
 #define SCREEN_CONTROLS_NUM_DEVICES	3

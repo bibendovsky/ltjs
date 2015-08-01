@@ -13,11 +13,11 @@
 #include "stdafx.h"
 #include "iltdirectmusic.h"
 #include "iltclient.h"
-#include "ClientServerShared.h"
-#include "MsgIDs.h"
-#include "CommonUtilities.h"
-#include "Music.h"
-#include "GameClientShell.h"
+#include "clientservershared.h"
+#include "msgids.h"
+#include "commonutilities.h"
+#include "music.h"
+#include "gameclientshell.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

@@ -15,7 +15,7 @@
 //
 
 	#include "stdafx.h"
-	#include "SlidingWorldModel.h"
+	#include "slidingworldmodel.h"
 
 LINKFROM_MODULE( SlidingWorldModel );
 

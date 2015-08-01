@@ -10,17 +10,17 @@
 
 
 #include "stdafx.h"
-#include "ClientRes.h"
-#include "TronHUDMgr.h"
-#include "HUDCrosshair.h"
-#include "TronPlayerStats.h"
-#include "SurfaceFunctions.h"
-#include "CharacterFX.h"
-#include "BodyFX.h"
-#include "TronGameClientShell.h"
-#include "ClientWeaponBase.h"
-#include "ClientWeaponMgr.h"
-#include "TargetMgr.h"
+#include "clientres.h"
+#include "tronhudmgr.h"
+#include "hudcrosshair.h"
+#include "tronplayerstats.h"
+#include "surfacefunctions.h"
+#include "characterfx.h"
+#include "bodyfx.h"
+#include "trongameclientshell.h"
+#include "clientweaponbase.h"
+#include "clientweaponmgr.h"
+#include "targetmgr.h"
 
 #define CH_LEFT			(1 << 0)
 #define CH_RIGHT		(1 << 1)

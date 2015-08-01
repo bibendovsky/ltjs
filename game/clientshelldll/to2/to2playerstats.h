@@ -16,11 +16,11 @@
 #include "ltbasedefs.h"
 #include "weaponmgr.h"
 #include "overlays.h"
-#include "IDList.h"
-#include "IntelItemList.h"
-#include "SkillsButeMgr.h"
-#include "PlayerStats.h"
-#include "SharedMission.h"
+#include "idlist.h"
+#include "intelitemlist.h"
+#include "skillsbutemgr.h"
+#include "playerstats.h"
+#include "sharedmission.h"
 
 
 class CTO2PlayerStats : public CPlayerStats

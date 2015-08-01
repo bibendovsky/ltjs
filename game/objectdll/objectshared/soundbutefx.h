@@ -18,8 +18,8 @@
 // Includes...
 //
 
-	#include "GameBase.h"
-	#include "SoundButeMgr.h"
+	#include "gamebase.h"
+	#include "soundbutemgr.h"
 
 LINKTO_MODULE( SoundButeFX );
 

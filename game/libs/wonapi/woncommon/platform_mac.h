@@ -1,6 +1,6 @@
 #ifndef __WON_PLATFORM_MAC_H__
 #define __WON_PLATFORM_MAC_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #define __cdecl
 
@@ -68,7 +68,7 @@ typedef char* LPSTR;
 #include <utime.h>
 //#include <termios.h> 
 #include <signal.h>
-#include <Events.h>
+#include <events.h>
 
 #define _ASSERT assert
 #define HOSTENT hostent

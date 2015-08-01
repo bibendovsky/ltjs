@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Steam.h"
-#include "SFXMsgIds.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "Destructible.h"
+#include "steam.h"
+#include "sfxmsgids.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "destructible.h"
 
 LINKFROM_MODULE( Steam );
 

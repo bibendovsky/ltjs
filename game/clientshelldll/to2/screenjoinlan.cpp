@@ -9,14 +9,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenJoinLAN.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ClientRes.h"
-#include "ClientMultiplayerMgr.h"
-#include "MissionMgr.h"
+#include "screenjoinlan.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "clientres.h"
+#include "clientmultiplayermgr.h"
+#include "missionmgr.h"
 
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 
 void JoinLANCallBack(LTBOOL bReturn, void *pData);
 

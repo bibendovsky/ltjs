@@ -13,8 +13,8 @@
 #ifndef __AMMO_BOX_H__
 #define __AMMO_BOX_H__
 
-#include "PickupItem.h"
-#include "WeaponMgr.h"
+#include "pickupitem.h"
+#include "weaponmgr.h"
 
 #define AB_MAX_TYPES	10
 

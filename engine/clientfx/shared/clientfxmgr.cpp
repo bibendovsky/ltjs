@@ -16,7 +16,7 @@
 #include "ltbasedefs.h"
 #include "ltobjectcreate.h"
 #include "commonutilities.h"
-#include "UserFlags.h"
+#include "userflags.h"
 
 // dlj replaced when moved to clientfx/shared
 //#ifdef _CLIENTBUILD
@@ -28,16 +28,16 @@ class ILTCommon;
 extern ILTCommon *g_pLTCCommon;
 
 
-#include "FxFlags.h"
-#include "FxDefs.h"
+#include "fxflags.h"
+#include "fxdefs.h"
 #include "iltmessage.h"
 #include "iltdrawprim.h"
-#include "ClientFXMgr.h"
+#include "clientfxmgr.h"
 //#include "PlayerMgr.h"
 //#include "CMoveMgr.h"
-#include "WinUtil.h"
-#include "ClientFXDB.h"
-#include "BankedList.h"
+#include "winutil.h"
+#include "clientfxdb.h"
+#include "bankedlist.h"
 
 // Defines....
 

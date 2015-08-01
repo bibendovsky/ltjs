@@ -15,14 +15,14 @@
 //
 
 #include "stdafx.h"
-#include "MsgIDs.h"
-#include "Searcher.h"
-#include "PlayerMgr.h"
-#include "TargetMgr.h"
-#include "PlayerStats.h"
-#include "GameClientShell.h"
-#include "BodyFX.h"
-#include "SearchItemMgr.h"
+#include "msgids.h"
+#include "searcher.h"
+#include "playermgr.h"
+#include "targetmgr.h"
+#include "playerstats.h"
+#include "gameclientshell.h"
+#include "bodyfx.h"
+#include "searchitemmgr.h"
 
 extern VarTrack g_vtProgressBarScaleToSkills;
 

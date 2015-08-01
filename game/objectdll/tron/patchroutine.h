@@ -14,7 +14,7 @@
 #ifndef _PATCHROUTINE_H_
 #define _PATCHROUTINE_H_
 
-#include "GameBase.h"
+#include "gamebase.h"
 
 class CTronPlayerObj;
 

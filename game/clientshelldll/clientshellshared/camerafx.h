@@ -11,7 +11,7 @@
 #ifndef __CAMERA_FX_H__
 #define __CAMERA_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 struct CAMCREATESTRUCT : public SFXCREATESTRUCT
 {

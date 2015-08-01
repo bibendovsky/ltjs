@@ -1,10 +1,10 @@
 #ifndef __WON_BYTEBUFFER_H__
 #define __WON_BYTEBUFFER_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <string>
 #include <assert.h>
-#include "SmartPtr.h"
+#include "smartptr.h"
 
 namespace WONAPI
 {

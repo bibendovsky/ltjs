@@ -12,9 +12,9 @@
 #ifndef __AIGOAL_ATTACK_H__
 #define __AIGOAL_ATTACK_H__
 
-#include "AIGoalAbstractStimulated.h"
-#include "AnimationProp.h"
-#include "AINode.h"
+#include "aigoalabstractstimulated.h"
+#include "animationprop.h"
+#include "ainode.h"
 
 // Forward Declarations.
 

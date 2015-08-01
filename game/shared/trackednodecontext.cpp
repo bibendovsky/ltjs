@@ -13,9 +13,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TrackedNodeContext.h"
-#include "ModelButeMgr.h"
-#include "UberAssert.h"
+#include "trackednodecontext.h"
+#include "modelbutemgr.h"
+#include "uberassert.h"
 
 
 // ----------------------------------------------------------------------- //

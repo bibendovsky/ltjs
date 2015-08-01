@@ -3,9 +3,9 @@
 #ifndef __AI_H__
 #define __AI_H__
 
-#include "AISounds.h"
-#include "AITypes.h"
-#include "AISensing.h"
+#include "aisounds.h"
+#include "aitypes.h"
+#include "aisensing.h"
 #include <vector>
 
 // Forward declarations.

@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PerformanceTest.h"
-#include "VarTrack.h"
+#include "performancetest.h"
+#include "vartrack.h"
 
 VarTrack	g_vtPerformanceSmoothFPSTime;
 VarTrack	g_vtPerformanceMinSampleFPS;

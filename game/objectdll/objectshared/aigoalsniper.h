@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_SNIPER_H__
 #define __AIGOAL_SNIPER_H__
 
-#include "AIGoalAbstractUseObject.h"
+#include "aigoalabstractuseobject.h"
 
 
 class CAIGoalSniper : public CAIGoalAbstractUseObject

@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DeathFX.h"
+#include "deathfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "GameClientShell.h"
-#include "GibFX.h"
-#include "SFXMsgIds.h"
+#include "clientutilities.h"
+#include "gameclientshell.h"
+#include "gibfx.h"
+#include "sfxmsgids.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

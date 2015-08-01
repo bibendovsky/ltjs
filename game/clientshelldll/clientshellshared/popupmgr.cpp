@@ -9,8 +9,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PopupMgr.h"
-#include "InterfaceMgr.h"
+#include "popupmgr.h"
+#include "interfacemgr.h"
 
 
 #define POPUP_TAG				"PopupItem"

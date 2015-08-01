@@ -12,8 +12,8 @@
 #ifndef __AIGOAL_ABSTRACT_H__
 #define __AIGOAL_ABSTRACT_H__
 
-#include "AIClassFactory.h"
-#include "UberAssert.h"
+#include "aiclassfactory.h"
+#include "uberassert.h"
 
 // Forward Declarations.
 class CAI;
@@ -35,7 +35,7 @@ enum EnumAIGoalType
 {
 	kGoal_InvalidType= -1,
 	#define GOAL_TYPE_AS_ENUM 1
-	#include "AIGoalTypeEnums.h"
+	#include "aigoaltypeenums.h"
 	#undef GOAL_TYPE_AS_ENUM
 
 	kGoal_Count,
@@ -47,7 +47,7 @@ enum EnumAIGoalType
 static const char* s_aszGoalTypes[] =
 {
 	#define GOAL_TYPE_AS_STRING 1
-	#include "AIGOALTypeEnums.h"
+	#include "aigoaltypeenums.h"
 	#undef GOAL_TYPE_AS_STRING
 };
 

@@ -13,9 +13,9 @@
 //
 
 	#include "stdafx.h"
-	#include "TeamDeathMatchMissionMgr.h"
-	#include "TeamMgr.h"
-	#include "MissionButeMgr.h"
+	#include "teamdeathmatchmissionmgr.h"
+	#include "teammgr.h"
+	#include "missionbutemgr.h"
 
 
 // ----------------------------------------------------------------------- //

@@ -2,7 +2,7 @@
 #include "bdefs.h"
 #include "ilttexinterface.h"
 #include "d3dtexinterface.h"
-#include "Render.h"
+#include "render.h"
 #include "dtxmgr.h"
 #include "colorops.h"
 #include "clientmgr.h"

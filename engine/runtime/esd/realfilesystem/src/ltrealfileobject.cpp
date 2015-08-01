@@ -57,8 +57,8 @@
 #include "rmacomm.h"   /* IRMACommonClassFactory */
 #include "rmapckts.h"  /* IRMAValues, IRMABuffers */
 
-#include "LTRealFileSystem.h"  /* LITH_FILE_SYS_PROTOCOL */
-#include "LTRealFileObject.h"  /* LTRealFileObject */
+#include "ltrealfilesystem.h"  /* LITH_FILE_SYS_PROTOCOL */
+#include "ltrealfileobject.h"  /* LTRealFileObject */
 
 #if defined (_MACINTOSH)
 #include <stat.h>      /* struct stat */

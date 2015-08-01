@@ -13,9 +13,9 @@
 #ifndef __GADGET_TARGET_H__
 #define __GADGET_TARGET_H__
 
-#include "GadgetTargetMgr.h"
-#include "Prop.h"
-#include "GadgetTargetTypes.h"
+#include "gadgettargetmgr.h"
+#include "prop.h"
+#include "gadgettargettypes.h"
 
 // 
 // Forwards...

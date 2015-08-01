@@ -11,9 +11,9 @@
 ********************************************************************************/
 
 #include "stdafx.h"
-#include "Launcher.h"
-#include "DisplayDlg.h"
-#include "DisplayMgr.h"
+#include "launcher.h"
+#include "displaydlg.h"
+#include "displaymgr.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

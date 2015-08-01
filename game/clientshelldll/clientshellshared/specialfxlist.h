@@ -12,7 +12,7 @@
 #define __SPECIAL_FX_LIST_H__
 
 #include "ltlink.h"
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 #define  DEFAULT_MAX_NUM	50
 #define	 MAX_NUM_LINKS	  	500

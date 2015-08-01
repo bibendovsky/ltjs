@@ -17,7 +17,7 @@
 // Includes...
 //
 
-	#include "SpriteFX.h"
+	#include "spritefx.h"
 
 	class CFlareSpriteProps : public CSpriteProps
 	{

@@ -3,9 +3,9 @@
 
 #include "stdafx.h"
 #include "launcher.h"
-#include "CustomizeDlg.h"
+#include "customizedlg.h"
 #include "textcheckbox.h"
-#include "IO.h"
+#include "io.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

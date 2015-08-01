@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PlayerStats.h"
+#include "playerstats.h"
 
 
 CPlayerStats* g_pPlayerStats = LTNULL;

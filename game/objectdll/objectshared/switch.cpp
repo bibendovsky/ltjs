@@ -13,7 +13,7 @@
 //
 
 	#include "stdafx.h"
-	#include "Switch.h"
+	#include "switch.h"
 
 LINKFROM_MODULE( Switch );
 

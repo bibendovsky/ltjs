@@ -11,13 +11,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ExitTrigger.h"
+#include "exittrigger.h"
 #include "iltserver.h"
-#include "GameServerShell.h"
-#include "ServerUtilities.h"
-#include "PlayerObj.h"
-#include "MsgIDs.h"
-#include "ServerMissionMgr.h"
+#include "gameservershell.h"
+#include "serverutilities.h"
+#include "playerobj.h"
+#include "msgids.h"
+#include "servermissionmgr.h"
 
 extern CGameServerShell* g_pGameServerShell;
 

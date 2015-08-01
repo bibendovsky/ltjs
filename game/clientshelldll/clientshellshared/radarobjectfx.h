@@ -17,7 +17,7 @@
 // Includes...
 //
 
-	#include "SpecialFX.h"
+	#include "specialfx.h"
 
 
 class CRadarObjectFX : public CSpecialFX

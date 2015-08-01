@@ -12,7 +12,7 @@
 #if !defined(_SCREEN_POSTLOAD_H_)
 #define _SCREEN_POSTLOAD_H_
 
-#include "BaseScreen.h"
+#include "basescreen.h"
 
 class CScreenPostload : public CBaseScreen
 {

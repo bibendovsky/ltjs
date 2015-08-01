@@ -14,12 +14,12 @@
 #pragma warning( disable : 4786 )
 #include <string>			// For strings
 
-#include "ClientUtilities.h"
-#include "PerformanceMgr.h"
-#include "ButeMgr.h"
-#include "SkillsButeMgr.h"
-#include "NetDefs.h"
-#include "ProfileUtils.h"
+#include "clientutilities.h"
+#include "performancemgr.h"
+#include "butemgr.h"
+#include "skillsbutemgr.h"
+#include "netdefs.h"
+#include "profileutils.h"
 
 class CProfileMgr;
 extern CProfileMgr* g_pProfileMgr;

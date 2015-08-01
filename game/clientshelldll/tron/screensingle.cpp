@@ -10,15 +10,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenSingle.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "WinUtil.h"
-#include "GameClientShell.h"
-#include "MissionMgr.h"
-#include "ClientSaveLoadMgr.h"
-#include "ClientButeMgr.h"
-#include "ClientMultiplayerMgr.h"
+#include "screensingle.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "winutil.h"
+#include "gameclientshell.h"
+#include "missionmgr.h"
+#include "clientsaveloadmgr.h"
+#include "clientbutemgr.h"
+#include "clientmultiplayermgr.h"
 
 
 //////////////////////////////////////////////////////////////////////

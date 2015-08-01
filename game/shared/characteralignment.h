@@ -130,7 +130,7 @@ public:
 		kTrait_Invalid = -1,
 
 		#define TRAIT_TYPE_AS_ENUM 1
-		#include "RelationTraitTypeEnums.h"
+		#include "relationtraittypeenums.h"
 		#undef TRAIT_TYPE_AS_ENUM
 	};
 

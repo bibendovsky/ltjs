@@ -11,8 +11,8 @@
 #ifndef __TARGET_MGR_H__
 #define __TARGET_MGR_H__
 
-#include "ActivationData.h"
-#include "DamageTypes.h"
+#include "activationdata.h"
+#include "damagetypes.h"
 
 
 const uint8	kMaxTargetStringLen = 64;

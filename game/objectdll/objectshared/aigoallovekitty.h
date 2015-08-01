@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_LOVE_KITTY_H__
 #define __AIGOAL_LOVE_KITTY_H__
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 
 class CAIGoalLoveKitty : public CAIGoalAbstractStimulated

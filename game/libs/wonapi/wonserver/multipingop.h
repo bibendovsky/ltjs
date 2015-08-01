@@ -1,11 +1,11 @@
 #ifndef __WON_MULTIPINGOP_H__
 #define __WON_MULTIPINGOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/AsyncOpTracker.h"
-#include "WONSocket/BlockingSocket.h"
-#include "WONDir/DirEntity.h"
-#include "ServerContext.h"
+#include "woncommon/asyncoptracker.h"
+#include "wonsocket/blockingsocket.h"
+#include "wondir/direntity.h"
+#include "servercontext.h"
 
 namespace WONAPI
 {

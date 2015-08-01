@@ -1,10 +1,10 @@
 // (c) 2002 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIHumanStateApprehend.h"
-#include "AIHuman.h"
-#include "AITarget.h"
-#include "TrackedNodeContext.h"
+#include "aihumanstateapprehend.h"
+#include "aihuman.h"
+#include "aitarget.h"
+#include "trackednodecontext.h"
 
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(State, CAIHumanStateApprehend, kState_HumanApprehend);

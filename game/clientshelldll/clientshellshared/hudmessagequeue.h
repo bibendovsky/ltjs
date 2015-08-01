@@ -11,8 +11,8 @@
 #ifndef __HUD_MSG_Q_H
 #define __HUD_MSG_Q_H
 
-#include "HUDItem.h"
-#include "HUDMessage.h"
+#include "huditem.h"
+#include "hudmessage.h"
 
 //******************************************************************************************
 //** HUD Message Queue

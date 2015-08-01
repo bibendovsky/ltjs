@@ -13,7 +13,7 @@
 #ifndef __LOCK_H__
 #define __LOCK_H__
 
-#include "Prop.h"
+#include "prop.h"
 
 LINKTO_MODULE( Lock );
 

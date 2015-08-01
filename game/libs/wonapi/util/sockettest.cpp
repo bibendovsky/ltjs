@@ -1,13 +1,13 @@
-#include "WONAPI.h"
-#include "WONStatus.h"
-#include "WONSocket/QueueSocket.h"
-#include "WONSocket/AcceptOp.h"
-#include "WONSocket/RecvBytesOp.h"
-#include "WONDB/GetProfileOp.h"
-#include "WONDB/SetProfileOp.h"
-#include "WONDB/CreateAccountOp.h"
-#include "WONMisc/DetectFirewallOp.h"
-#include "WONSocket/SocketThread.h"
+#include "wonapi.h"
+#include "wonstatus.h"
+#include "wonsocket/queuesocket.h"
+#include "wonsocket/acceptop.h"
+#include "wonsocket/recvbytesop.h"
+#include "wondb/getprofileop.h"
+#include "wondb/setprofileop.h"
+#include "wondb/createaccountop.h"
+#include "wonmisc/detectfirewallop.h"
+#include "wonsocket/socketthread.h"
 
 
 using namespace std;

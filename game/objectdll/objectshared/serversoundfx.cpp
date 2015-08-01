@@ -11,13 +11,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ServerSoundFX.h"
+#include "serversoundfx.h"
 #include "iltserver.h"
-#include "ServerUtilities.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "ServerSoundMgr.h"
-#include "SoundbuteMgr.h"
+#include "serverutilities.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "serversoundmgr.h"
+#include "soundbutemgr.h"
 
 LINKFROM_MODULE( ServerSoundFx );
 

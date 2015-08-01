@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_DISTRESS_H__
 #define __AIGOAL_DISTESS_H__
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 
 class CAIGoalDistress : public CAIGoalAbstractStimulated

@@ -3,7 +3,7 @@
 #ifndef __AI_HUMAN_STRATEGY_TOGGLE_LIGHTS_H__
 #define __AI_HUMAN_STRATEGY_TOGGLE_LIGHTS_H__
 
-#include "AIHumanStrategy.h"
+#include "aihumanstrategy.h"
 
 
 class CAIHumanStrategyToggleLights : public CAIHumanStrategy

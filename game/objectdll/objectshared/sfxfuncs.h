@@ -13,7 +13,7 @@
 #ifndef __SFX_FUNCS_H__
 #define __SFX_FUNCS_H__
 
-#include "ServerUtilities.h"
+#include "serverutilities.h"
 
 // Use ADD_LENSFLARE_PROPERTIES() in your class definition to enable
 // the following properties in the editor.  For example:

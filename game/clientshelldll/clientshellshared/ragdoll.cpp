@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "RagDoll.h"
-#include "RagDollNode.h"
-#include "RagDollConstraint.h"
+#include "ragdoll.h"
+#include "ragdollnode.h"
+#include "ragdollconstraint.h"
 
 
 //-----------------------------------------------------------------------------------

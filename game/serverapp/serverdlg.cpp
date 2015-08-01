@@ -3,24 +3,24 @@
 
 
 #include "stdafx.h"
-#include "Server_Interface.h"
-#include "ServerApp.h"
-#include "ServerDlg.h"
+#include "server_interface.h"
+#include "serverapp.h"
+#include "serverdlg.h"
 #include <stdio.h>
 #include <afxtempl.h>
 #include <process.h>
 #include "mmsystem.h"
 #include "splash.h"
-#include "SelectConfigDlg.h"
-#include "NetDefs.h"
+#include "selectconfigdlg.h"
+#include "netdefs.h"
 #include "versionmgr.h"
-#include "ButeMgr.h"
-#include "AutoMessage.h"
-#include "CommonUtilities.h"
-#include "ScmdConsole.h"
-#include "ScmdConsoleDriver_ServerApp.h"
-#include "ResShared.h"
-#include "RegMgr32.h"
+#include "butemgr.h"
+#include "automessage.h"
+#include "commonutilities.h"
+#include "scmdconsole.h"
+#include "scmdconsoledriver_serverapp.h"
+#include "resshared.h"
+#include "regmgr32.h"
 
 #define MIN_SERVER_UPDATE 33 // At least 33 ms between server updates = cap at 30fps
 

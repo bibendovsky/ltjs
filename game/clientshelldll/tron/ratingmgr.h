@@ -7,8 +7,8 @@
 #ifndef __RATINGMGR_H
 #define __RATINGMGR_H
 
-#include "Ratings.h"
-#include "ScreenSpriteMgr.h"
+#include "ratings.h"
+#include "screenspritemgr.h"
 
 #define ADDITIVE_DEFAULT_FILE	"Attributes\\Additives.txt"
 #define ADDITIVE_MAX_NAME		32

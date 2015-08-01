@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MenuInventory.h"
-#include "InterfaceMgr.h"
-#include "ClientResShared.h"
-#include "PlayerMgr.h"
-#include "ClientWeaponMgr.h"
+#include "menuinventory.h"
+#include "interfacemgr.h"
+#include "clientresshared.h"
+#include "playermgr.h"
+#include "clientweaponmgr.h"
 
 namespace
 {

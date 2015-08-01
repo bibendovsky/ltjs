@@ -9,8 +9,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "WorldModelDebris.h"
-#include "ServerUtilities.h"
+#include "worldmodeldebris.h"
+#include "serverutilities.h"
 #include <stdio.h>
 
 LINKFROM_MODULE( WorldModelDebris );

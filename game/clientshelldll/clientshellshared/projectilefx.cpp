@@ -11,19 +11,19 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ProjectileFX.h"
-#include "GameClientShell.h"
-#include "ParticleTrailFX.h"
-#include "SFXMsgIds.h"
-#include "ClientUtilities.h"
+#include "projectilefx.h"
+#include "gameclientshell.h"
+#include "particletrailfx.h"
+#include "sfxmsgids.h"
+#include "clientutilities.h"
 #include "iltphysics.h"
-#include "ClientWeaponUtils.h"
-#include "ParticleTrailFX.h"
-#include "WeaponFXTypes.h"
-#include "SurfaceFunctions.h"
-#include "CMoveMgr.h"
-#include "ClientMultiplayerMgr.h"
-#include "FXButeMgr.h"
+#include "clientweaponutils.h"
+#include "particletrailfx.h"
+#include "weaponfxtypes.h"
+#include "surfacefunctions.h"
+#include "cmovemgr.h"
+#include "clientmultiplayermgr.h"
+#include "fxbutemgr.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

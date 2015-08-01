@@ -13,24 +13,24 @@
 #ifndef __TRONHUDMGR_H
 #define __TRONHUDMGR_H
 
-#include "HUDMgr.h"		// base class
+#include "hudmgr.h"		// base class
 
-#include "TRONPlayerStats.h"
+#include "tronplayerstats.h"
 
 // TO2 dependencies
-#include "HUDCrosshair.h"
-#include "HUDDamage.h"
-#include "HUDWeapons.h"
+#include "hudcrosshair.h"
+#include "huddamage.h"
+#include "hudweapons.h"
 
 // Tron dependencies
-#include "HUDPermissions.h"
-#include "HUDVersion.h"
-#include "HUDHealthEnergy.h"
-#include "HUDArmor.h"
-#include "HUDEnergyTransfer.h"
-#include "HUDProgress.h"
-#include "HUDChooser.h"
-#include "HUDWeapon.h"
+#include "hudpermissions.h"
+#include "hudversion.h"
+#include "hudhealthenergy.h"
+#include "hudarmor.h"
+#include "hudenergytransfer.h"
+#include "hudprogress.h"
+#include "hudchooser.h"
+#include "hudweapon.h"
 
 //******************************************************************************************
 //** Tron HUD Manager

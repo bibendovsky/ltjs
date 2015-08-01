@@ -9,17 +9,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "KeyFramer.h"
+#include "keyframer.h"
 #include "iltserver.h"
-#include "ServerUtilities.h"
+#include "serverutilities.h"
 #include "stdio.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "SoundMgr.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "soundmgr.h"
 #include "ltbeziercurve.h"
-#include "CVarTrack.h"
-#include "CommandMgr.h"
-#include "ServerSoundMgr.h"
+#include "cvartrack.h"
+#include "commandmgr.h"
+#include "serversoundmgr.h"
 
 CVarTrack	g_vtDisableKeyframers;
 

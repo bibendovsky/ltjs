@@ -1,14 +1,14 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
-#include "StdAfx.h"
-#include "AIUtils.h"
-#include "AI.h"
-#include "ServerUtilities.h"
-#include "GameServerShell.h"
-#include "ProjectileTypes.h"
-#include "PlayerObj.h"
-#include "AIAssert.h"
-#include "GameBaseLite.h"
+#include "stdafx.h"
+#include "aiutils.h"
+#include "ai.h"
+#include "serverutilities.h"
+#include "gameservershell.h"
+#include "projectiletypes.h"
+#include "playerobj.h"
+#include "aiassert.h"
+#include "gamebaselite.h"
 
 // Globals
 

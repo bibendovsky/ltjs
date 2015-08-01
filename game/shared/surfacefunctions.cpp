@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ContainerCodes.h"
-#include "SurfaceFunctions.h"
-#include "ClientServerShared.h"
-#include "CommonUtilities.h"
-#include "WeaponMgr.h"
-#include "FXButeMgr.h"
+#include "containercodes.h"
+#include "surfacefunctions.h"
+#include "clientservershared.h"
+#include "commonutilities.h"
+#include "weaponmgr.h"
+#include "fxbutemgr.h"
 
 extern char s_FileBuffer[MAX_CS_FILENAME_LEN];
 

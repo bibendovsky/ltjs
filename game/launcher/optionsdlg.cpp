@@ -11,9 +11,9 @@
 ********************************************************************************/
 
 #include "stdafx.h"
-#include "Launcher.h"
-#include "OptionsDlg.h"
-#include "BitmapCheckButton.h"
+#include "launcher.h"
+#include "optionsdlg.h"
+#include "bitmapcheckbutton.h"
 #include "textcheckbox.h"
 
 #ifdef _DEBUG

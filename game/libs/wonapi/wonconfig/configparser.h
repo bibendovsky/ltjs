@@ -1,7 +1,7 @@
 #ifndef __WON_CONFIGPARSER_H__
 #define __WON_CONFIGPARSER_H__
 
-#include "WONCommon/StringUtil.h"
+#include "woncommon/stringutil.h"
 #include <map>
 
 namespace WONAPI

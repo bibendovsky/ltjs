@@ -13,9 +13,9 @@
 #ifndef __BASE_POLY_DRAW_FX_H__
 #define __BASE_POLY_DRAW_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 #include "ltbasedefs.h"
-#include "TemplateList.h"
+#include "templatelist.h"
 
 class CBasePolyDrawFX;
 

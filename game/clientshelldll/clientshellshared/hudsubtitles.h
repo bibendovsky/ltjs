@@ -11,7 +11,7 @@
 #ifndef __HUD_SUBTITLES_H
 #define __HUD_SUBTITLES_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 //******************************************************************************************
 //** HUD Message Queue

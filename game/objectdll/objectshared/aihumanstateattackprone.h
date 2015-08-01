@@ -3,7 +3,7 @@
 #ifndef __AI_HUMAN_STATE_ATTACK_PRONE_H__
 #define __AI_HUMAN_STATE_ATTACK_PRONE_H__
 
-#include "AIHumanState.h"
+#include "aihumanstate.h"
 
 
 class CAIHumanStateAttackProne : public CAIHumanState

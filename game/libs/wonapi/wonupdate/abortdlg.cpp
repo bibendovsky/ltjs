@@ -2,12 +2,12 @@
 // AbortDlg.cpp
 //----------------------------------------------------------------------------------
 #include <assert.h>
-#include "WONGUI/MSControls.h"
-#include "WONGUI/ChildLayouts.h"
-#include "WONGUI/SimpleComponent.h"
-#include "AbortDlg.h"
-#include "WizardCtrl.h"
-#include "CustomInfo.h"
+#include "wongui/mscontrols.h"
+#include "wongui/childlayouts.h"
+#include "wongui/simplecomponent.h"
+#include "abortdlg.h"
+#include "wizardctrl.h"
+#include "custominfo.h"
 
 using namespace WONAPI;
 

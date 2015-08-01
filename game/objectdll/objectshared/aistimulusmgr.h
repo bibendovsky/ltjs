@@ -12,9 +12,9 @@
 #ifndef __AISENSE_MGR_H__
 #define __AISENSE_MGR_H__
 
-#include "AIButeMgr.h"
-#include "AIClassFactory.h"
-#include "LTObjRef.h"
+#include "aibutemgr.h"
+#include "aiclassfactory.h"
+#include "ltobjref.h"
 
 
 #pragma warning (disable : 4786)
@@ -40,7 +40,7 @@ enum EnumAIStimulusType
 	kStim_InvalidType = 0,
 
 	#define STIMULUS_TYPE_AS_ENUM 1
-	#include "AIStimulusTypeEnums.h"
+	#include "aistimulustypeenums.h"
 	#undef STIMULUS_TYPE_AS_ENUM
 };
 
@@ -61,7 +61,7 @@ enum EnumAITargetMatchID
 static const char* s_aszStimulusTypes[] =
 {
 	#define STIMULUS_TYPE_AS_STRING 1
-	#include "AIStimulusTypeEnums.h"
+	#include "aistimulustypeenums.h"
 	#undef STIMULUS_TYPE_AS_STRING
 };
 

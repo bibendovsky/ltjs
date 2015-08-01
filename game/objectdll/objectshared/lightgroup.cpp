@@ -14,8 +14,8 @@
 
 #include "lightgroup.h"
 
-#include "MsgIDs.h"
-#include "ObjectMsgs.h"
+#include "msgids.h"
+#include "objectmsgs.h"
 
 LINKFROM_MODULE( LightGroup );
 

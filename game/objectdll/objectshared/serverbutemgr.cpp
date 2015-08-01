@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ServerButeMgr.h"
+#include "serverbutemgr.h"
 
 #define SBMGR_PLAYER_TAG				"Player"
 #define SBMGR_SECURITYCAMERA_TAG		"SecurityCamera"

@@ -12,8 +12,8 @@
 #define __HUD_MESSAGE_H__
 
 
-#include "LTGUIMgr.h"
-#include "LTPoly.h"
+#include "ltguimgr.h"
+#include "ltpoly.h"
 
 enum MsgJustification
 {

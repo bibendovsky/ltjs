@@ -13,12 +13,12 @@
 #ifndef __TO2GAME_CLIENT_SHELL_H__
 #define __TO2GAME_CLIENT_SHELL_H__
 
-#include "GameClientShell.h"
-#include "TO2InterfaceMgr.h"
-#include "TO2PlayerMgr.h"
-#include "TO2VersionMgr.h"
-#include "TO2ClientWeaponAllocator.h"
-#include "TO2MissionButeMgr.h"
+#include "gameclientshell.h"
+#include "to2interfacemgr.h"
+#include "to2playermgr.h"
+#include "to2versionmgr.h"
+#include "to2clientweaponallocator.h"
+#include "to2missionbutemgr.h"
 
 class CTO2GameClientShell : public CGameClientShell
 {

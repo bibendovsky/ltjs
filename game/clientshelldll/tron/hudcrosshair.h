@@ -11,7 +11,7 @@
 #ifndef __HUD_CROSSHAIR_H
 #define __HUD_CROSSHAIR_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 typedef enum
 {

@@ -11,13 +11,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AISounds.h"
-#include "AI.h"
-#include "ServerUtilities.h"
+#include "aisounds.h"
+#include "ai.h"
+#include "serverutilities.h"
 #include "iltserver.h"
-#include "SoundMgr.h"
-#include "..\shared\VersionMgr.h"
-#include "ServerSoundMgr.h"
+#include "soundmgr.h"
+#include "..\shared\versionmgr.h"
+#include "serversoundmgr.h"
 
 // Return buffer
 

@@ -11,7 +11,7 @@
 #ifndef __EXIT_TRIGGER_H__
 #define __EXIT_TRIGGER_H__
 
-#include "Trigger.h"
+#include "trigger.h"
 
 LINKTO_MODULE( ExitTrigger );
 

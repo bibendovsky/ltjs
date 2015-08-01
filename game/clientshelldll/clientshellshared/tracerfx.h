@@ -11,9 +11,9 @@
 #ifndef __TRACER_FX_H__
 #define __TRACER_FX_H__
 
-#include "SpecialFX.h"
-#include "PolyLineFX.h"
-#include "FXButeMgr.h"
+#include "specialfx.h"
+#include "polylinefx.h"
+#include "fxbutemgr.h"
 
 struct TRCREATESTRUCT : public SFXCREATESTRUCT
 {

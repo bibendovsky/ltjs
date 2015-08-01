@@ -10,62 +10,62 @@
 
 
 #include "stdafx.h"
-#include "TronScreenMgr.h"
+#include "tronscreenmgr.h"
 
 //screens
-#include "BaseScreen.h"
-#include "ScreenMain.h"
+#include "basescreen.h"
+#include "screenmain.h"
 
 //under main
-#include "ScreenSingle.h"
-#include "ScreenMulti.h"
-#include "ScreenOptions.h"
-#include "ScreenProfile.h"
+#include "screensingle.h"
+#include "screenmulti.h"
+#include "screenoptions.h"
+#include "screenprofile.h"
 
 //under single
-#include "ScreenLoad.h"
-#include "ScreenSave.h"
+#include "screenload.h"
+#include "screensave.h"
 
 //under multi
-#include "ScreenHost.h"
-#include "ScreenJoin.h"
-#include "ScreenJoinLAN.h"
+#include "screenhost.h"
+#include "screenjoin.h"
+#include "screenjoinlan.h"
 
 //under options
-#include "ScreenDisplay.h"
-#include "ScreenAudio.h"
-#include "ScreenControls.h"
-#include "ScreenGame.h"
-#include "ScreenPerformance.h"
+#include "screendisplay.h"
+#include "screenaudio.h"
+#include "screencontrols.h"
+#include "screengame.h"
+#include "screenperformance.h"
 
 //under multi/host
-#include "ScreenHostLevels.h"
+#include "screenhostlevels.h"
 
 //under options/game
-#include "ScreenCrosshair.h"
+#include "screencrosshair.h"
 
 //under options/controls
-#include "ScreenMouse.h"
-#include "ScreenKeyboard.h"
-#include "ScreenConfigure.h"
+#include "screenmouse.h"
+#include "screenkeyboard.h"
+#include "screenconfigure.h"
 
 //Player management screens
-#include "ScreenSubroutines.h"
-#include "ScreenRatings.h"
+#include "screensubroutines.h"
+#include "screenratings.h"
 
-#include "ScreenFailure.h"
-#include "ScreenEndMission.h"
-#include "ScreenPreload.h"
-#include "ScreenPostload.h"
+#include "screenfailure.h"
+#include "screenendmission.h"
+#include "screenpreload.h"
+#include "screenpostload.h"
 
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 extern CGameClientShell* g_pGameClientShell;
 
 
 static char s_aScreenName[SCREEN_ID_UNASSIGNED+1][32] =
 {
 #define INCLUDE_AS_STRING
-#include "ScreenEnum.h"
+#include "screenenum.h"
 #undef INCLUDE_AS_STRING
 
 };

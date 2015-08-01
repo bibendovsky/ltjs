@@ -1,10 +1,10 @@
 #ifndef __WON_REGKEY_H__
 #define __WON_REGKEY_H__
-#include "WONShared.h"
-#include "ByteBuffer.h"
+#include "wonshared.h"
+#include "bytebuffer.h"
 
 #ifdef WIN32_NOT_XBOX
-#include "RegKey_Windows.h"
+#include "regkey_windows.h"
 #else
 
 namespace WONAPI

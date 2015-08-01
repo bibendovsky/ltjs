@@ -1,7 +1,7 @@
-#include "GetCertOp.h"
+#include "getcertop.h"
 
-#include "WONCommon/WriteBuffer.h"
-#include "WONCrypt/MD5Digest.h"
+#include "woncommon/writebuffer.h"
+#include "woncrypt/md5digest.h"
 
 using namespace std;
 using namespace WONAPI;

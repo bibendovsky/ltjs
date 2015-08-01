@@ -40,7 +40,7 @@
 
 #include "streams.h"
 
-#include "../../../../Libs/MFCStub/mfcs_com_ptr.h"
+#include "../../../../libs/mfcstub/mfcs_com_ptr.h"
 
 
 class DShowVideoInst;

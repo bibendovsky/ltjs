@@ -1,5 +1,5 @@
-#include "Platform_Linux.h"
-#include "CriticalSection_Linux.h"
+#include "platform_linux.h"
+#include "criticalsection_linux.h"
 #include "sys/poll.h"
 
 

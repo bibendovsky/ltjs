@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "InterfaceMgr.h"
-#include "GameClientShell.h"
-#include "MsgIds.h"
-#include "ClientSoundMgr.h"
-#include "ScmdConsole.h"
+#include "hudmgr.h"
+#include "interfacemgr.h"
+#include "gameclientshell.h"
+#include "msgids.h"
+#include "clientsoundmgr.h"
+#include "scmdconsole.h"
 
 //******************************************************************************************
 //**

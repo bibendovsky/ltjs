@@ -11,8 +11,8 @@
 #ifndef __HUD_HIDING_H
 #define __HUD_HIDING_H
 
-#include "HUDItem.h"
-#include "HUDHidingBar.h"
+#include "huditem.h"
+#include "hudhidingbar.h"
 
 //******************************************************************************************
 //** HUD Hiding display

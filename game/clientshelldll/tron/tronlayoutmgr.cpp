@@ -10,7 +10,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TronLayoutMgr.h"
+#include "tronlayoutmgr.h"
 
 #define LO_SUB_TAG					"Subroutine"
 

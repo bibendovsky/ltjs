@@ -14,7 +14,7 @@
 #define __SHARED_MISSION_H__
 
 #include "ltbasetypes.h"
-#include "ClientServerShared.h"
+#include "clientservershared.h"
 
 
 struct MissionStats

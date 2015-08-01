@@ -15,7 +15,7 @@
 #include "de_objects.h"
 #include "ltshaderdevicestateimp.h"
 #include "rendererconsolevars.h"
-#include "LTEffectImpl.h"
+#include "lteffectimpl.h"
 #include "lteffectshadermgr.h"
 
 

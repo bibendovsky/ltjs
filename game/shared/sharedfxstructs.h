@@ -13,14 +13,14 @@
 #ifndef __SHARED_FX_STRUCTS_H__
 #define __SHARED_FX_STRUCTS_H__
 
-#include "Globals.h"
-#include "SharedBaseFXStructs.h"
-#include "ModelButeMgr.h"
-#include "SFXMsgIDs.h"
-#include "SharedMovement.h"
-#include "CharacterAlignment.h"
-#include "DamageTypes.h"
-#include "TeamMgr.h"
+#include "globals.h"
+#include "sharedbasefxstructs.h"
+#include "modelbutemgr.h"
+#include "sfxmsgids.h"
+#include "sharedmovement.h"
+#include "characteralignment.h"
+#include "damagetypes.h"
+#include "teammgr.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //

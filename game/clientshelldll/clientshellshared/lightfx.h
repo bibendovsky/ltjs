@@ -11,8 +11,8 @@
 #ifndef __LIGHT_FX_H__
 #define __LIGHT_FX_H__
 
-#include "SpecialFX.h"
-#include "ClientServerShared.h"
+#include "specialfx.h"
+#include "clientservershared.h"
 
 
 struct LIGHTCREATESTRUCT : public SFXCREATESTRUCT

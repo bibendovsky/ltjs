@@ -14,9 +14,9 @@
 #define __EVENT_COUNTER_H__
 
 #include "ltengineobjects.h"
-#include "ServerUtilities.h"
-#include "CommandMgr.h"
-#include "GameBase.h"
+#include "serverutilities.h"
+#include "commandmgr.h"
+#include "gamebase.h"
 
 #define EC_MAX_NUMBER_OF_EVENTS		10
 

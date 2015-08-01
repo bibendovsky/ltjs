@@ -18,15 +18,15 @@ class CAttachments;
 class CBodyState;
 class CSearchable;
 
-#include "Character.h"
-#include "Prop.h"
-#include "ModelButeMgr.h"
-#include "SFXMsgIDs.h"
-#include "Animator.h"
-#include "DeathScene.h"
-#include "GeneralInventory.h"
-#include "IHitBoxUser.h"
-#include "SharedFXStructs.h"
+#include "character.h"
+#include "prop.h"
+#include "modelbutemgr.h"
+#include "sfxmsgids.h"
+#include "animator.h"
+#include "deathscene.h"
+#include "generalinventory.h"
+#include "ihitboxuser.h"
+#include "sharedfxstructs.h"
 
 LINKTO_MODULE( Body );
 

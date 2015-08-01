@@ -20,12 +20,12 @@
 // Includes
 #include "stdafx.h"
 
-#include "RelationMgr.h"
-#include "RelationButeMgr.h"
-#include "CollectiveRelationMgr.h"
-#include "AITypes.h"
-#include "AIAssert.h"
-#include "ObjectRelationMgr.h"
+#include "relationmgr.h"
+#include "relationbutemgr.h"
+#include "collectiverelationmgr.h"
+#include "aitypes.h"
+#include "aiassert.h"
+#include "objectrelationmgr.h"
 
 #include <algorithm>
 

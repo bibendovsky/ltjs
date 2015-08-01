@@ -14,9 +14,9 @@
 #define __SECURITYCAMERA_H__
 
 #include "ltengineobjects.h"
-#include "CharacterAlignment.h"
-#include "Scanner.h"
-#include "Timer.h"
+#include "characteralignment.h"
+#include "scanner.h"
+#include "timer.h"
 
 
 LINKTO_MODULE( SecurityCamera );

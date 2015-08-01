@@ -10,14 +10,14 @@
 
 
 #include "stdafx.h"
-#include "ScreenMgr.h"
-#include "ClientButeMgr.h"
-#include "SoundMgr.h"
-#include "TransitionFXMgr.h"
+#include "screenmgr.h"
+#include "clientbutemgr.h"
+#include "soundmgr.h"
+#include "transitionfxmgr.h"
 
 //screens
-#include "BaseScreen.h"
-#include "GameClientShell.h"
+#include "basescreen.h"
+#include "gameclientshell.h"
 extern CGameClientShell* g_pGameClientShell;
 
 

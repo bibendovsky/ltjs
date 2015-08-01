@@ -24,10 +24,10 @@
 // Includes
 #include "stdafx.h"
 
-#include "ProjectileClusterAutoBurstDisc.h"		
-#include "FXButeMgr.h"
-#include "WeaponFireInfo.h"
-#include "AIUtils.h"
+#include "projectileclusterautoburstdisc.h"		
+#include "fxbutemgr.h"
+#include "weaponfireinfo.h"
+#include "aiutils.h"
 
 // Forward declarations
 

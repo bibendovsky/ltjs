@@ -3,7 +3,7 @@
 #ifndef __ANIMATORPLAYER_H__
 #define __ANIMATORPLAYER_H__
 
-#include "Animator.h"
+#include "animator.h"
 
 struct AniPlayerLower
 {

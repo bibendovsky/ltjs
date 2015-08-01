@@ -33,9 +33,9 @@
 #include "rmaausvc.h"
 #include "rmawin.h"
 
-#include "LTRClientAdviceSink.h"
-#include "LTRErrorSink.h"
-#include "LTRSiteSupplier.h"
+#include "ltrclientadvicesink.h"
+#include "ltrerrorsink.h"
+#include "ltrsitesupplier.h"
 
 //-----------------------------------------------------------------------------
 // Client context class

@@ -15,12 +15,12 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BaseScreen.h"
-#include "BaseScaleFX.h"
-#include "ArcCtrl.h"
-#include "RatingMgr.h"
-#include "ScreenSubroutines.h"
-#include "SubroutineMgr.h"
+#include "basescreen.h"
+#include "basescalefx.h"
+#include "arcctrl.h"
+#include "ratingmgr.h"
+#include "screensubroutines.h"
+#include "subroutinemgr.h"
 
 class CScreenRatings : public CBaseScreen
 {

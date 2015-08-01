@@ -11,13 +11,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Camera.h"
+#include "camera.h"
 #include "iltserver.h"
-#include "ClientServerShared.h"
-#include "SFXMsgIds.h"
-#include "PlayerObj.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
+#include "clientservershared.h"
+#include "sfxmsgids.h"
+#include "playerobj.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
 
 int Camera::sm_nActiveCamera = 0;
 

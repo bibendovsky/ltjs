@@ -11,13 +11,13 @@
 #include "stdafx.h"
 
 
-#include "DebugLineSystem.h"
-#include "SFXMsgIds.h"
-#include "DebugLine.h"
-#include "MsgIds.h"
-#include "LTObjRef.h"
+#include "debuglinesystem.h"
+#include "sfxmsgids.h"
+#include "debugline.h"
+#include "msgids.h"
+#include "ltobjref.h"
 #if _MSC_VER >= 1300
-#	include "ObjectTemplateMgr.h"
+#	include "objecttemplatemgr.h"
 #endif // VC7
 
 #pragma warning( disable : 4786 )

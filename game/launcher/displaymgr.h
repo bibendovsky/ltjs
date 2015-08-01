@@ -17,7 +17,7 @@
 
 // Includes...
 
-#include "LTBaseDefs.h"
+#include "ltbasedefs.h"
 
 // Typedefs...
 

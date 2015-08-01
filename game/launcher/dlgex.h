@@ -20,7 +20,7 @@
 // DlgEx.h : header file
 //
 
-#include "AfxTempl.h"
+#include "afxtempl.h"
 
 typedef CArray<CButton*, CButton*> CButtonArray;
 

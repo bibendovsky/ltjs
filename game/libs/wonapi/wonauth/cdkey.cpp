@@ -1,5 +1,5 @@
-#include "CDKey.h"
-#include "WONCommon/CRC.h"
+#include "cdkey.h"
+#include "woncommon/crc.h"
 
 using namespace WONAPI;
 using namespace std;

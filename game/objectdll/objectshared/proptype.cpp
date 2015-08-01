@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PropType.h"
-#include "VersionMgr.h"
+#include "proptype.h"
+#include "versionmgr.h"
 
 LINKFROM_MODULE( PropType );
 

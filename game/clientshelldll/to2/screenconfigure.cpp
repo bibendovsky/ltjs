@@ -9,13 +9,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenConfigure.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ClientRes.h"
+#include "screenconfigure.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "clientres.h"
 #include "dinput.h"
-#include "InterfaceMgr.h"
-#include "GameClientShell.h"
+#include "interfacemgr.h"
+#include "gameclientshell.h"
 
 // The different columns
 #define SCREEN_COLUMN_ACTION		0

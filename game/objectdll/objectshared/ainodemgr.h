@@ -3,8 +3,8 @@
 #ifndef __AI_NODE_MGR_H__
 #define __AI_NODE_MGR_H__
 
-#include "AINode.h"
-#include "TemplateList.h"
+#include "ainode.h"
+#include "templatelist.h"
 
 #pragma warning (disable : 4786)
 #include <map>

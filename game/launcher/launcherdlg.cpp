@@ -11,19 +11,19 @@
 ********************************************************************************/
 
 #include "stdafx.h"
-#include "Launcher.h"
-#include "LauncherDlg.h"
+#include "launcher.h"
+#include "launcherdlg.h"
 //#include "MultiplayerDlg.h"
-#include "OptionsDlg.h"
-#include "DisplayDlg.h"
-#include "DisplayMgr.h"
-#include "RezFind.h"
-#include "DetailSettingsDlg.h"
-#include "ButtonEx.h"
-#include "PlaySound.h"
+#include "optionsdlg.h"
+#include "displaydlg.h"
+#include "displaymgr.h"
+#include "rezfind.h"
+#include "detailsettingsdlg.h"
+#include "buttonex.h"
+#include "playsound.h"
 #include <direct.h>
-#include "Utils.h"
-#include "CustomizeDlg.h"
+#include "utils.h"
+#include "customizedlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

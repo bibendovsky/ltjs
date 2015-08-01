@@ -15,8 +15,8 @@
 #define __CLIENTFXDB_H__
 
 #include	<windows.h>
-#include	"BaseFX.h"
-#include	"DebugNew.h"
+#include	"basefx.h"
+#include	"debugnew.h"
 
 //-------------------------------------------------------------------
 //	FX_KEY

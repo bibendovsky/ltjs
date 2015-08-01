@@ -16,12 +16,12 @@
 #include "ltbasedefs.h"
 #include "weaponmgr.h"
 #include "overlays.h"
-#include "IDList.h"
-#include "IntelItemList.h"
-#include "SkillsButeMgr.h"
-#include "PlayerStats.h"
-#include "RatingMgr.h"
-#include "SharedMission.h"
+#include "idlist.h"
+#include "intelitemlist.h"
+#include "skillsbutemgr.h"
+#include "playerstats.h"
+#include "ratingmgr.h"
+#include "sharedmission.h"
 
 class CTronPlayerStats : public CPlayerStats
 {

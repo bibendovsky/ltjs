@@ -11,7 +11,7 @@
 #ifndef __PARTICLE_EXPLOSION_FX_H__
 #define __PARTICLE_EXPLOSION_FX_H__
 
-#include "BaseParticleSystemFX.h"
+#include "baseparticlesystemfx.h"
 #include "client_physics.h"
 
 #define MAX_EMITTERS 10

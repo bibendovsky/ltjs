@@ -20,26 +20,26 @@
 #include "stdafx.h"
 
 #ifndef __AIGOALCATCH_H__
-#include "AIGoalCatch.h"		
+#include "aigoalcatch.h"		
 #endif
 
 #ifndef __AIHUMANSTATECATCH_H__
-#include "AIHumanStateCatch.h"
+#include "aihumanstatecatch.h"
 #endif
 
 #ifndef __AISENSE_RECORDER_ABSTRACT_H__
-#include "AISenseRecorderAbstract.h"
+#include "aisenserecorderabstract.h"
 #endif 
 
 #ifndef __AIGOAL_MGR_H__
-#include "AIGoalMgr.h"
+#include "aigoalmgr.h"
 #endif
 
 #ifndef __AI_H__
-#include "AI.h"
+#include "ai.h"
 #endif
 
-#include "AIUtils.h"
+#include "aiutils.h"
 
 // Forward declarations
 

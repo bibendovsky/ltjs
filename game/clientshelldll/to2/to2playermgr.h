@@ -11,7 +11,7 @@
 #ifndef __TO2_PLAYER_MGR_H__
 #define __TO2_PLAYER_MGR_H__
 
-#include "PlayerMgr.h"
+#include "playermgr.h"
 
 
 

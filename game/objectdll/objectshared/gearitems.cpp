@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "GearItems.h"
-#include "MsgIds.h"
+#include "gearitems.h"
+#include "msgids.h"
 #include "iltserver.h"
-#include "PlayerObj.h"
-#include "ObjectMsgs.h"
+#include "playerobj.h"
+#include "objectmsgs.h"
 
 LINKFROM_MODULE( GearItems );
 

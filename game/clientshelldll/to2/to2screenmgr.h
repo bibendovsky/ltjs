@@ -12,7 +12,7 @@
 #if !defined(_TO2_SCREEN_MGR_H_)
 #define _TO2_SCREEN_MGR_H_
 
-#include "ScreenMgr.h"
+#include "screenmgr.h"
 
 class CTO2ScreenMgr : public CScreenMgr
 {

@@ -1,6 +1,6 @@
-#include "FindPatchOp.h"
-#include "WONCommon/StringUtil.h"
-#include "WONCommon/LittleEndian.h"
+#include "findpatchop.h"
+#include "woncommon/stringutil.h"
+#include "woncommon/littleendian.h"
 
 using namespace WONAPI;
 using namespace std;

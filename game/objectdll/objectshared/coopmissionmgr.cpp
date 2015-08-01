@@ -10,12 +10,12 @@
 
 
 #include "stdafx.h"
-#include "CoopMissionMgr.h"
-#include "MusicMgr.h"
-#include "PlayerObj.h"
-#include "MsgIds.h"
-#include "ServerSaveLoadMgr.h"
-#include "MissionButeMgr.h"
+#include "coopmissionmgr.h"
+#include "musicmgr.h"
+#include "playerobj.h"
+#include "msgids.h"
+#include "serversaveloadmgr.h"
+#include "missionbutemgr.h"
 
 extern CVarTrack g_vtNetFriendlyFire;
 extern CVarTrack g_vtDifficultyFactorPlayerIncrease;

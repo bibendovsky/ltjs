@@ -11,9 +11,9 @@
 #ifndef __SCALE_SPRITE_H__
 #define __SCALE_SPRITE_H__
 
-#include "GameBase.h"
-#include "Destructible.h"
-#include "SFXFuncs.h"
+#include "gamebase.h"
+#include "destructible.h"
+#include "sfxfuncs.h"
 
 LINKTO_MODULE( ScaleSprite );
 

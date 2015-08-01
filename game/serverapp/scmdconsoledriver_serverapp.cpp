@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScmdConsoleDriver_ServerApp.h"
-#include "ServerDlg.h"
-#include "CommonUtilities.h"
+#include "scmdconsoledriver_serverapp.h"
+#include "serverdlg.h"
+#include "commonutilities.h"
 
 // ----------------------------------------------------------------------- //
 //

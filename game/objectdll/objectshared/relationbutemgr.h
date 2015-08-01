@@ -35,10 +35,10 @@
 #include <list>
 #include <ostream>
 
-#include "GameButeMgr.h"
-#include "CharacterAlignment.h"
-#include "AIUtils.h"
-#include "RelationChangeObserver.h"
+#include "gamebutemgr.h"
+#include "characteralignment.h"
+#include "aiutils.h"
+#include "relationchangeobserver.h"
 
 // Forward declarations
 class CRelationButeMgr;

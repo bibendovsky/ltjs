@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SnowFX.h"
+#include "snowfx.h"
 #include "iltclient.h"
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 
 
 //#define SNOWFX_PROFILE_ACTIVATION			// if defined, airspace activation times will be displayed in the console

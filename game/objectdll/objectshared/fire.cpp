@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Fire.h"
-#include "ClientServerShared.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "CommandMgr.h"
+#include "fire.h"
+#include "clientservershared.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "commandmgr.h"
 
 LINKFROM_MODULE( Fire );
 

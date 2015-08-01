@@ -1,8 +1,8 @@
 #ifndef __WON_NETSTATS_H__
 #define __WON_NETSTATS_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/CriticalSection.h"
+#include "woncommon/criticalsection.h"
 
 namespace WONAPI
 {

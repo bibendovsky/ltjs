@@ -20,11 +20,11 @@
 #include "stdafx.h"
 
 #ifndef __DEATHSCENE_H__
-#include "DeathScene.h"		
+#include "deathscene.h"		
 #endif
 
-#include "Body.h"
-#include "ObjectRelationMgr.h"
+#include "body.h"
+#include "objectrelationmgr.h"
 
 // Forward declarations
 

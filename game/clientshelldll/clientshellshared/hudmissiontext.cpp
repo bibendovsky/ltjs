@@ -8,11 +8,11 @@
 //
 // ----------------------------------------------------------------------- //
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "HUDMissionText.h"
-#include "InterfaceResMgr.h"
-#include "LayoutMgr.h"
-#include "ClientUtilities.h"
+#include "hudmgr.h"
+#include "hudmissiontext.h"
+#include "interfaceresmgr.h"
+#include "layoutmgr.h"
+#include "clientutilities.h"
 
 CHUDMissionText::CHUDMissionText()
 {

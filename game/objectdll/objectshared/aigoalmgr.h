@@ -12,8 +12,8 @@
 #ifndef __AIGOAL_MGR_H__
 #define __AIGOAL_MGR_H__
 
-#include "AIClassFactory.h"
-#include "AIGoalAbstract.h"
+#include "aiclassfactory.h"
+#include "aigoalabstract.h"
 
 #define GOAL_CMD_PREFIX		"GOAL_"
 

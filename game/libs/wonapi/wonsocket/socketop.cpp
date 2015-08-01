@@ -1,6 +1,6 @@
-#include "SocketOp.h"
-#include "SocketThread.h"
-#include "WONAPI.h"
+#include "socketop.h"
+#include "socketthread.h"
+#include "wonapi.h"
 
 using namespace WONAPI;
 

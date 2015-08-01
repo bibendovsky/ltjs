@@ -10,17 +10,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAbstract.h"
-#include "AIGoalMgr.h"
-#include "AIGoalButeMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AINodeMgr.h"
-#include "AI.h"
-#include "AIPathMgr.h"
-#include "ParsedMsg.h"
-#include "AnimationMgr.h"
-#include "AIUtils.h"
-#include "AIMovement.h"
+#include "aigoalabstract.h"
+#include "aigoalmgr.h"
+#include "aigoalbutemgr.h"
+#include "aisenserecorderabstract.h"
+#include "ainodemgr.h"
+#include "ai.h"
+#include "aipathmgr.h"
+#include "parsedmsg.h"
+#include "animationmgr.h"
+#include "aiutils.h"
+#include "aimovement.h"
 
 #include <algorithm>
 

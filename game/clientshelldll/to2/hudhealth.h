@@ -11,8 +11,8 @@
 #ifndef __HUD_HEALTH_H
 #define __HUD_HEALTH_H
 
-#include "HUDItem.h"
-#include "HUDBar.h"
+#include "huditem.h"
+#include "hudbar.h"
 
 
 //******************************************************************************************

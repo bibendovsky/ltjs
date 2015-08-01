@@ -14,8 +14,8 @@
 #ifndef _COREDUMP_H_
 #define _COREDUMP_H_
 
-#include "GameBase.h"
-#include "GeneralInventory.h"
+#include "gamebase.h"
+#include "generalinventory.h"
 
 #define MAX_CORE_DUMP_FX 4
 

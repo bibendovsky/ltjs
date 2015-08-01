@@ -15,13 +15,13 @@
 //
 
 #include "stdafx.h"
-#include "ParsedMsg.h"
-#include "DoomsDayDevice.h"
-#include "TeamMgr.h"
-#include "PlayerObj.h"
-#include "DoomsDayMissionMgr.h"
-#include "DoomsDayPiece.h"
-#include "Spawner.h"
+#include "parsedmsg.h"
+#include "doomsdaydevice.h"
+#include "teammgr.h"
+#include "playerobj.h"
+#include "doomsdaymissionmgr.h"
+#include "doomsdaypiece.h"
+#include "spawner.h"
 
 LINKFROM_MODULE( DoomsDayDevice );
 

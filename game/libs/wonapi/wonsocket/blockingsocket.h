@@ -1,18 +1,18 @@
 #ifndef __WON_BLOCKINGSOCKET_H__
 #define __WON_BLOCKINGSOCKET_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "QueueSocket.h"
-#include "SocketOp.h"
-#include "ConnectOp.h"
-#include "AcceptOp.h"
-#include "SendBytesOp.h"
-#include "RecvBytesOp.h"
-#include "SendBytesToOp.h"
-#include "RecvBytesFromOp.h"
-#include "SendMsgOp.h"
-#include "RecvMsgOp.h"
-#include "RecvCRMsgOp.h"
+#include "queuesocket.h"
+#include "socketop.h"
+#include "connectop.h"
+#include "acceptop.h"
+#include "sendbytesop.h"
+#include "recvbytesop.h"
+#include "sendbytestoop.h"
+#include "recvbytesfromop.h"
+#include "sendmsgop.h"
+#include "recvmsgop.h"
+#include "recvcrmsgop.h"
 
 namespace WONAPI
 {

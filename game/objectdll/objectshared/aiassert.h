@@ -23,11 +23,11 @@
 
 // Includes
 #ifndef __UBER_ASSERT_H__
-#include "UberAssert.h"
+#include "uberassert.h"
 #endif
 
 #ifndef __CVARTRACK_H__
-#include "CVarTrack.h"
+#include "cvartrack.h"
 #endif
 
 // Forward declarations

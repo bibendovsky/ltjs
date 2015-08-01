@@ -13,7 +13,7 @@
 #ifndef  _ClientWeaponClusterDisc_h_INCLUDED_
 #define  _ClientWeaponClusterDisc_h_INCLUDED_
 
-#include "ClientWeaponDisc.h"
+#include "clientweapondisc.h"
 
 class CClientWeaponClusterDisc : public CClientWeaponDisc
 {

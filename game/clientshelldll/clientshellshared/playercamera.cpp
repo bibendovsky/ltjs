@@ -9,13 +9,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PlayerCamera.h"
+#include "playercamera.h"
 #include "iltclient.h"
 #include <stdio.h>
-#include "GameClientShell.h"
-#include "VarTrack.h"
-#include "VehicleMgr.h"
-#include "CMoveMgr.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
+#include "vehiclemgr.h"
+#include "cmovemgr.h"
 
 VarTrack		g_vtCameraMoveUpTime;
 VarTrack		g_vtCameraMoveUpMinVel;

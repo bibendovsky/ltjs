@@ -14,10 +14,10 @@
 #define __WEAPON_H__
 
 #include "ltbasedefs.h"
-#include "WeaponMgr.h"
+#include "weaponmgr.h"
 #include "ltserverobj.h"
-#include "DamageTypes.h"
-#include "ServerUtilities.h"
+#include "damagetypes.h"
+#include "serverutilities.h"
 
 struct WeaponFireInfo;
 class ILTServer;

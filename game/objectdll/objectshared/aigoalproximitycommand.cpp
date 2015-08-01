@@ -10,9 +10,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalProximityCommand.h"
-#include "AIHuman.h"
-#include "AIBrain.h"
+#include "aigoalproximitycommand.h"
+#include "aihuman.h"
+#include "aibrain.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalProximityCommand, kGoal_ProximityCommand);
 

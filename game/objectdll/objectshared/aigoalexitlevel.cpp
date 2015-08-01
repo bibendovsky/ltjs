@@ -10,11 +10,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalExitLevel.h"
-#include "AINodeGuard.h"
-#include "AINodeMgr.h"
-#include "AIState.h"
-#include "AI.h"
+#include "aigoalexitlevel.h"
+#include "ainodeguard.h"
+#include "ainodemgr.h"
+#include "aistate.h"
+#include "ai.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalExitLevel, kGoal_ExitLevel);
 

@@ -10,12 +10,12 @@
 #include <windows.h>
 #include <string>
 #include <list>
-#include "WONAPI/WONServer/ServerContext.h"
-#include "WONGUI/GUIString.h"
-#include "WONGUI/ResourceCollection.h"
-#include "Resources/SierraUpWRS.h"
-#include "PatchData.h"
-#include "ResourceManager.h"
+#include "wonapi/wonserver/servercontext.h"
+#include "wongui/guistring.h"
+#include "wongui/resourcecollection.h"
+#include "resources/sierraupwrs.h"
+#include "patchdata.h"
+#include "resourcemanager.h"
 
 
 namespace WONAPI

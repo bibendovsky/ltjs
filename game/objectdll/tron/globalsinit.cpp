@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TRONGameServerShell.h"
+#include "trongameservershell.h"
 
 const char* g_sPlayerClass = "CTronPlayerObj";
 

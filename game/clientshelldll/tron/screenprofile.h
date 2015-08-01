@@ -9,9 +9,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BaseScreen.h"
+#include "basescreen.h"
 
-#include "profileMgr.h"
+#include "profilemgr.h"
 
 #pragma warning (disable : 4503)
 #pragma warning( disable : 4786 )

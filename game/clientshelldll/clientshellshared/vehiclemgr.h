@@ -14,11 +14,11 @@
 #define __VEHICLE_MGR_H__
 
 #include "iltclient.h"
-#include "SharedMovement.h"
-#include "CameraOffsetMgr.h"
-#include "Timer.h"
-#include "SurfaceDefs.h"
-#include "LTObjRef.h"
+#include "sharedmovement.h"
+#include "cameraoffsetmgr.h"
+#include "timer.h"
+#include "surfacedefs.h"
+#include "ltobjref.h"
 
 struct VEHICLENODE
 {

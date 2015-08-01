@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenTeam.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ClientMultiplayerMgr.h"
+#include "screenteam.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "clientmultiplayermgr.h"
 
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 extern CGameClientShell* g_pGameClientShell;
 
 extern uint8 g_nCurTeam;

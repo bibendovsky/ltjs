@@ -15,9 +15,9 @@
 
 #include "iaggregate.h"
 #include "ltengineobjects.h"
-#include "ClientServerShared.h"
-#include "CommandMgr.h"
-#include "SearchItemMgr.h"
+#include "clientservershared.h"
+#include "commandmgr.h"
+#include "searchitemmgr.h"
 
 // Use ADD_SEARCHABLE_AGGREGATE() in your class definition to enable
 // the following properties in the editor.  For example:

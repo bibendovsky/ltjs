@@ -12,7 +12,7 @@
 #ifndef __AIGOALBUTE_MGR_H__
 #define __AIGOALBUTE_MGR_H__
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 
 #include <list>
 

@@ -1,11 +1,11 @@
 #ifndef __WON_GETVERSIONOP_H__
 #define __WON_GETVERSIONOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/AsyncOpTracker.h"
-#include "WONCommon/ByteBuffer.h"
-#include "WONServer/ServerContext.h"
-#include "WONDir/GetDirOp.h"
+#include "woncommon/asyncoptracker.h"
+#include "woncommon/bytebuffer.h"
+#include "wonserver/servercontext.h"
+#include "wondir/getdirop.h"
 
 namespace WONAPI
 {

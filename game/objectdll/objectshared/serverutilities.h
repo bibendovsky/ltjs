@@ -14,10 +14,10 @@
 #define __SERVER_UTILITIES_H__
 
 #include "ltengineobjects.h"
-#include "SoundTypes.h"
-#include "CommonUtilities.h"
-#include "FXFlags.h"
-#include "LiteObjectMgr.h"
+#include "soundtypes.h"
+#include "commonutilities.h"
+#include "fxflags.h"
+#include "liteobjectmgr.h"
 
 class CPlayerObj;
 
@@ -327,7 +327,7 @@ void Warn(const char* szFormat, ...);
 
 #define BUILD_NOPAIN_WAV	"null.wav"
 
-#include "IObjectPlugin.h"
+#include "iobjectplugin.h"
 #pragma warning( disable : 4786 )
 #include <vector>
 class CEditStringPlugin : public IObjectPlugin

@@ -1,8 +1,8 @@
 #ifndef __WON_PINGOP_H__
 #define __WON_PINGOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "ServerRequestOp.h"
+#include "serverrequestop.h"
 
 
 namespace WONAPI

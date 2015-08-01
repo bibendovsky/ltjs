@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenCrosshair.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "GameSettings.h"
-#include "TronInterfaceMgr.h"
-#include "VarTrack.h"
+#include "screencrosshair.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "gamesettings.h"
+#include "troninterfacemgr.h"
+#include "vartrack.h"
 
 namespace
 {

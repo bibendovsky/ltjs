@@ -1,9 +1,9 @@
 #ifndef __WON_ROUTINGCONNECTION_H__
 #define __WON_ROUTINGCONNECTION_H__
-#include "WONShared.h"
-#include "WONCommon/SmartPtr.h"
-#include "WONServer/ServerConnection.h"
-#include "RoutingTypes.h"
+#include "wonshared.h"
+#include "woncommon/smartptr.h"
+#include "wonserver/serverconnection.h"
+#include "routingtypes.h"
 #include <list>
  
 

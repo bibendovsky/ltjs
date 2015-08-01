@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TronGameClientShell.h"
+#include "trongameclientshell.h"
 
 #include "msgids.h"
 

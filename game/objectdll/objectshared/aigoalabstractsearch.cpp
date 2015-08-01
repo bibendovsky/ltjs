@@ -10,14 +10,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAbstractSearch.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AIHuman.h"
-#include "AI.h"
-#include "AIUtils.h"
-#include "AIRegion.h"
-#include "Attachments.h"
+#include "aigoalabstractsearch.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "aihuman.h"
+#include "ai.h"
+#include "aiutils.h"
+#include "airegion.h"
+#include "attachments.h"
 
 
 // ----------------------------------------------------------------------- //

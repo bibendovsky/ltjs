@@ -1,8 +1,8 @@
 #ifndef __WON_CONFIGVALUE_H__
 #define __WON_CONFIGVALUE_H__
 
-#include "WONCommon/SmartPtr.h"
-#include "StringParser.h"
+#include "woncommon/smartptr.h"
+#include "stringparser.h"
 
 namespace WONAPI
 {

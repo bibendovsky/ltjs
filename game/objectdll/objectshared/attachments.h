@@ -5,9 +5,9 @@
 
 #include "iaggregate.h"
 #include "ltengineobjects.h"
-#include "Weapons.h"
+#include "weapons.h"
 #include "iobjectplugin.h"
-#include "AttachButeMgr.h"
+#include "attachbutemgr.h"
 
 
 #define NO_ATTACHMENT	"<none>"

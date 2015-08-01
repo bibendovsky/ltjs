@@ -12,7 +12,7 @@
 #if !defined(_TRON_SCREEN_MGR_H_)
 #define _TRON_SCREEN_MGR_H_
 
-#include "ScreenMgr.h"
+#include "screenmgr.h"
 
 class CTronScreenMgr : public CScreenMgr
 {

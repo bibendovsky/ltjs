@@ -1,10 +1,10 @@
 #ifndef __WON_ASYNCOPTRACKER_H__
 #define __WON_ASYNCOPTRACKER_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "BiMap.h"
-#include "AsyncOp.h"
-#include "CriticalSection.h"
+#include "bimap.h"
+#include "asyncop.h"
+#include "criticalsection.h"
 
 namespace WONAPI
 {

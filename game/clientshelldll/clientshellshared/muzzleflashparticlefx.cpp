@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MuzzleFlashParticleFX.h"
+#include "muzzleflashparticlefx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
+#include "clientutilities.h"
 #include "iltmodel.h"
 #include "ilttransform.h"
 

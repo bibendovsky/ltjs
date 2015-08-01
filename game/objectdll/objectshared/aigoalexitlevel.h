@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_EXIT_LEVEL_H__
 #define __AIGOAL_EXIT_LEVEL_H__
 
-#include "AIGoalGuard.h"
+#include "aigoalguard.h"
 
 
 class CAIGoalExitLevel : public CAIGoalGuard

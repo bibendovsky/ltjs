@@ -12,7 +12,7 @@
 #if !defined(_TO2LAYOUTMGR_H_)
 #define _TO2LAYOUTMGR_H_
 
-#include "LayoutMgr.h"
+#include "layoutmgr.h"
 
 #if _MSC_VER > 1000
 #pragma once

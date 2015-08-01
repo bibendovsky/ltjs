@@ -1,7 +1,7 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
-#include "StdAfx.h"
-#include "AITypes.h"
+#include "stdafx.h"
+#include "aitypes.h"
 
 // --------------------------------------------------------------------------------
 

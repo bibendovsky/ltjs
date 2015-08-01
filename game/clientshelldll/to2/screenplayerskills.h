@@ -11,9 +11,9 @@
 #ifndef _SCREEN_PLAYER_SKILLS_H_
 #define _SCREEN_PLAYER_SKILLS_H_
 
-#include "BaseScreen.h"
-#include "LayoutMgr.h"
-#include "SkillsButeMgr.h"
+#include "basescreen.h"
+#include "layoutmgr.h"
+#include "skillsbutemgr.h"
 
 class CScreenPlayerSkills : public CBaseScreen
 {

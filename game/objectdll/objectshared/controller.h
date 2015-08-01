@@ -34,9 +34,9 @@
 #define __CONTROLLER_H__
 
 
-#include "GameBaseLite.h"
+#include "gamebaselite.h"
 #include "commonutilities.h"
-#include "WaveFn.h"
+#include "wavefn.h"
 
 LINKTO_MODULE( Controller );
 

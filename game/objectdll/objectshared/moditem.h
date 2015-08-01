@@ -13,8 +13,8 @@
 #ifndef __MOD_ITEM_H__
 #define __MOD_ITEM_H__
 
-#include "PickupItem.h"
-#include "WeaponMgr.h"
+#include "pickupitem.h"
+#include "weaponmgr.h"
 
 LINKTO_MODULE( ModItem );
 

@@ -1,6 +1,6 @@
 
 #include "stdafx.h"
-#include "DiscDeflector.h"
+#include "discdeflector.h"
 
 
 BEGIN_CLASS( CDiscDeflector )

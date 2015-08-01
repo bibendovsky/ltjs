@@ -9,10 +9,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MenuKeys.h"
-#include "InterfaceMgr.h"
-#include "ClientResShared.h"
-#include "KeyMgr.h"
+#include "menukeys.h"
+#include "interfacemgr.h"
+#include "clientresshared.h"
+#include "keymgr.h"
 
 namespace
 {

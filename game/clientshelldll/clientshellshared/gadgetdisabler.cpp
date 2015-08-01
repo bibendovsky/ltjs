@@ -15,15 +15,15 @@
 //
 
 	#include "stdafx.h"
-	#include "MsgIDs.h"
-	#include "GadgetTargetTypes.h"
-	#include "GadgetDisabler.h"
-	#include "ClientWeaponBase.h"
-	#include "PlayerMgr.h"
-	#include "PlayerStats.h"
-	#include "InterfaceMgr.h"
-	#include "PopupMgr.h"
-	#include "TargetMgr.h"
+	#include "msgids.h"
+	#include "gadgettargettypes.h"
+	#include "gadgetdisabler.h"
+	#include "clientweaponbase.h"
+	#include "playermgr.h"
+	#include "playerstats.h"
+	#include "interfacemgr.h"
+	#include "popupmgr.h"
+	#include "targetmgr.h"
 	
 extern VarTrack g_vtProgressBarScaleToSkills;
 

@@ -13,9 +13,9 @@
 #ifndef __DESTRUCTABLE_MODEL_H__
 #define __DESTRUCTABLE_MODEL_H__
 
-#include "Destructible.h"
-#include "DebrisFuncs.h"
-#include "SurfaceMgr.h"
+#include "destructible.h"
+#include "debrisfuncs.h"
+#include "surfacemgr.h"
 
 #define DEFAULT_DWMA_MASS			2000.0f
 

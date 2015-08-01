@@ -1,13 +1,13 @@
 // (c) 2002 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIHumanStateSniper.h"
-#include "AIHuman.h"
-#include "AINode.h"
-#include "AITarget.h"
-#include "TrackedNodeContext.h"
-#include "AICentralKnowledgeMgr.h"
-#include "PlayerObj.h"
+#include "aihumanstatesniper.h"
+#include "aihuman.h"
+#include "ainode.h"
+#include "aitarget.h"
+#include "trackednodecontext.h"
+#include "aicentralknowledgemgr.h"
+#include "playerobj.h"
 
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(State, CAIHumanStateSniper, kState_HumanSniper);

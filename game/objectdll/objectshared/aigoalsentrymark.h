@@ -23,7 +23,7 @@
 
 // Includes
 #ifndef __AIGOAL_ABSTRACT_STIMULATED_H__
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 #endif
 
 // Forward declarations

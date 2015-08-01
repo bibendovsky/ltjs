@@ -11,8 +11,8 @@
 #ifndef __MISSION_MGR_H__
 #define __MISSION_MGR_H__
 
-#include "ClientServerShared.h"
-#include "MsgIds.h"
+#include "clientservershared.h"
+#include "msgids.h"
 
 class CMissionMgr 
 {

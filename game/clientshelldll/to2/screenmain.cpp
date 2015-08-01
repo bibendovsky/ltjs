@@ -10,19 +10,19 @@
 
 
 #include "stdafx.h"
-#include "ScreenMain.h"
-#include "ScreenMgr.h"
-#include "LayoutMgr.h"
-#include "ScreenCommands.h"
-#include "WinUtil.h"
+#include "screenmain.h"
+#include "screenmgr.h"
+#include "layoutmgr.h"
+#include "screencommands.h"
+#include "winutil.h"
 #include "direct.h"
-#include "GameClientShell.h"
-#include "ModelButeMgr.h"
-#include "ClientSaveLoadMgr.h"
-#include "MissionMgr.h"
-#include "ClientMultiplayerMgr.h"
-#include "ResShared.h"
-#include "ScreenMulti.h"
+#include "gameclientshell.h"
+#include "modelbutemgr.h"
+#include "clientsaveloadmgr.h"
+#include "missionmgr.h"
+#include "clientmultiplayermgr.h"
+#include "resshared.h"
+#include "screenmulti.h"
 
 namespace
 {

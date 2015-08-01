@@ -16,7 +16,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BaseScreen.h"
+#include "basescreen.h"
 
 struct CServerEntry
 {

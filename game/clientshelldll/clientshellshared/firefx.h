@@ -13,9 +13,9 @@
 #ifndef __FIRE_FX_H__
 #define __FIRE_FX_H__
 
-#include "SpecialFX.h"
-#include "SmokeFX.h"
-#include "LightFX.h"
+#include "specialfx.h"
+#include "smokefx.h"
+#include "lightfx.h"
 
 struct FIRECREATESTRUCT : public SFXCREATESTRUCT
 {

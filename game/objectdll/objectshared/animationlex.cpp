@@ -1,2 +1,2 @@
 
-#include "AnimationLex.o"
+#include "animationlex.o"

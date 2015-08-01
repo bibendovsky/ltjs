@@ -25,12 +25,12 @@
 // Includes
 #include "stdafx.h"
 
-#include "AIHumanStrategyShootStream.h"		
-#include "AIHuman.h"
-#include "WeaponFireInfo.h"
-#include "Weapon.h"
-#include "AIUtils.h"
-#include "AIMovement.h"
+#include "aihumanstrategyshootstream.h"		
+#include "aihuman.h"
+#include "weaponfireinfo.h"
+#include "weapon.h"
+#include "aiutils.h"
+#include "aimovement.h"
 
 // Forward declarations
 

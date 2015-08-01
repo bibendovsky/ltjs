@@ -11,11 +11,11 @@
 #ifndef __WEATHER_FX_H__
 #define __WEATHER_FX_H__
 
-#include "VolumeBrushFX.h"
-#include "LineSystemFX.h"
-#include "ParticleSystemFX.h"
-#include "SurfaceMgr.h"
-#include "BaseScaleFX.h"
+#include "volumebrushfx.h"
+#include "linesystemfx.h"
+#include "particlesystemfx.h"
+#include "surfacemgr.h"
+#include "basescalefx.h"
 
 #define NUM_SPLASH_SPRITES		20
 

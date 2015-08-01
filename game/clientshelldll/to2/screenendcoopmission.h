@@ -11,7 +11,7 @@
 #if !defined(_SCREEN_END_COOP_MISSION_H_)
 #define _SCREEN_END_COOP_MISSION_H_
 
-#include "BaseScreen.h"
+#include "basescreen.h"
 
 class CScreenEndCoopMission : public CBaseScreen
 {

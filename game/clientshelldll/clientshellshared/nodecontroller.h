@@ -13,7 +13,7 @@
 #ifndef __NODE_CONTROLLER_H__
 #define __NODE_CONTROLLER_H__
 
-#include "ModelButeMgr.h"
+#include "modelbutemgr.h"
 
 class CCharacterFX;
 

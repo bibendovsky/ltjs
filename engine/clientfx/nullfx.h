@@ -14,7 +14,7 @@
 	// Includes....
 
 	#include "basefx.h"
-	#include "ClientFX.h"
+	#include "clientfx.h"
 
 	class CNullProps : public CBaseFXProps
 	{

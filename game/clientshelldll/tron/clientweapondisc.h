@@ -13,7 +13,7 @@
 #ifndef  _ClientWeaponDisc_h_INCLUDED_
 #define  _ClientWeaponDisc_h_INCLUDED_
 
-#include "ClientWeapon.h"
+#include "clientweapon.h"
 
 
 // forward declarations to reduce header dependancies

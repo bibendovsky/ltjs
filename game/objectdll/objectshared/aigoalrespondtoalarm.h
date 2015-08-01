@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_RESPONDTOALARM_H__
 #define __AIGOAL_RESPONDTOALARM_H__
 
-#include "AIGoalAbstractSearch.h"
+#include "aigoalabstractsearch.h"
 
 enum EnumAIStimulusID;
 

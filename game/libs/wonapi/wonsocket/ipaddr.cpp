@@ -1,4 +1,4 @@
-#include "IPAddr.h"
+#include "ipaddr.h"
 
 using namespace std;
 using namespace WONAPI;

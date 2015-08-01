@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "VersionMgr.h"
+#include "versionmgr.h"
 #include "regmgr.h"
-#include "ClientServerShared.h"
+#include "clientservershared.h"
 
 
 // ----------------------------------------------------------------------- //

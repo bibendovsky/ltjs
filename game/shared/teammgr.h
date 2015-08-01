@@ -14,7 +14,7 @@
 #define __TEAM_MGR_H__
 
 #include "ltbasetypes.h"
-#include "ClientServerShared.h"
+#include "clientservershared.h"
 
 #define MAX_TEAMS 2
 #define INVALID_TEAM (uint8)-1

@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "LensFlareFX.h"
-#include "GameClientShell.h"
-#include "VarTrack.h"
-#include "CMoveMgr.h"
+#include "lensflarefx.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
+#include "cmovemgr.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

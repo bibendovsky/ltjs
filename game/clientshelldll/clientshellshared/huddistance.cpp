@@ -15,7 +15,7 @@
 //
 	
 	#include "stdafx.h"
-	#include "HUDDistance.h"
+	#include "huddistance.h"
 
 
 // ----------------------------------------------------------------------- //

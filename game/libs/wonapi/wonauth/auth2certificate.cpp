@@ -1,4 +1,4 @@
-#include "Auth2Certificate.h"
+#include "auth2certificate.h"
 
 using namespace std;
 using namespace WONAPI;

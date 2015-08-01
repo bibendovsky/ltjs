@@ -1,7 +1,7 @@
 #ifndef __WON_CRITICALSECTION_LINUX_H__
 #define __WON_CRITICALSECTION_LINUX_H__
-#include "WONShared.h"
-#include "Platform_Linux.h"
+#include "wonshared.h"
+#include "platform_linux.h"
 
 
 namespace WONAPI

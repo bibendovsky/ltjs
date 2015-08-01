@@ -4,10 +4,10 @@
 #define _AI_NODE_H_
 
 #include "ltengineobjects.h"
-#include "IObjectPlugin.h"
-#include "AnimationProp.h"
-#include "GameBase.h"
-#include "DebugLineSystem.h"
+#include "iobjectplugin.h"
+#include "animationprop.h"
+#include "gamebase.h"
+#include "debuglinesystem.h"
 
 // Forward declarations.
 enum EnumAISoundType;
@@ -27,7 +27,7 @@ enum EnumAINodeType
 	kNode_InvalidType = -1,
 
 	#define AINODE_TYPE_AS_ENUM 1
-	#include "AINodeTypeEnums.h"
+	#include "ainodetypeenums.h"
 	#undef AINODE_TYPE_AS_ENUM
 
 	kNode_Count,
@@ -39,7 +39,7 @@ enum EnumAINodeType
 static const char* s_aszAINodeTypes[] =
 {
 	#define AINODE_TYPE_AS_STRING 1
-	#include "AINodeTypeEnums.h"
+	#include "ainodetypeenums.h"
 	#undef AINODE_TYPE_AS_STRING
 };
 

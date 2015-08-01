@@ -13,7 +13,7 @@
 
 #include "iaggregate.h"
 #include "ltengineobjects.h"
-#include "TemplateList.h"
+#include "templatelist.h"
 
 class CPropDef
 {

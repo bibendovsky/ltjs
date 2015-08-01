@@ -19,15 +19,15 @@
 #include "stdafx.h"
 
 #ifndef __AIGOALOBSTRUCT_H__
-#include "AIGoalObstruct.h"		
+#include "aigoalobstruct.h"		
 #endif
 
-#include "AI.h"
-#include "AIGoalButeMgr.h"
-#include "AIGoalMgr.h"
-#include "AIState.h"
-#include "AINodeMgr.h"
-#include "AIHumanStateObstruct.h"
+#include "ai.h"
+#include "aigoalbutemgr.h"
+#include "aigoalmgr.h"
+#include "aistate.h"
+#include "ainodemgr.h"
+#include "aihumanstateobstruct.h"
 
 // Forward declarations
 

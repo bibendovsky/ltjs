@@ -12,8 +12,8 @@
 #ifndef _INVENTORYBUTE_MGR_H_
 #define _INVENTORYBUTE_MGR_H_
 
-#include "GameButeMgr.h"
-#include "GeneralInventory.h"
+#include "gamebutemgr.h"
+#include "generalinventory.h"
 
 // Defines
 #define INVENTORY_FILE			"Attributes\\Inventory.txt"

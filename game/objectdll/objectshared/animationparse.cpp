@@ -1,1 +1,1 @@
-#include "AnimationParse.o"
+#include "animationparse.o"

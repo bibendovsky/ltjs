@@ -9,9 +9,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "HUDPaused.h"
-#include "InterfaceMgr.h"
+#include "hudmgr.h"
+#include "hudpaused.h"
+#include "interfacemgr.h"
 
 CHUDPaused::CHUDPaused()
 {

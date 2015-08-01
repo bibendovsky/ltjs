@@ -1,16 +1,16 @@
 #ifndef __WON_ASYNCOP_H__
 #define __WON_ASYNCOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <list>
 #include <map>
 
-#include "CriticalSection.h"
-#include "SmartPtr.h"
-#include "Event.h"
-#include "Completion.h"
-#include "WONStatus.h"
+#include "criticalsection.h"
+#include "smartptr.h"
+#include "event.h"
+#include "completion.h"
+#include "wonstatus.h"
 
 namespace WONAPI
 {

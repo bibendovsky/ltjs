@@ -1,5 +1,5 @@
-#include "GetVersionOp.h"
-#include "WONCommon/StringUtil.h"
+#include "getversionop.h"
+#include "woncommon/stringutil.h"
 
 using namespace WONAPI;
 using namespace std;

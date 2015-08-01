@@ -9,10 +9,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ChainedFX.h"
-#include "TransitionFXMgr.h"
-#include "GameClientShell.h"
-#include "LayoutMgr.h"
+#include "chainedfx.h"
+#include "transitionfxmgr.h"
+#include "gameclientshell.h"
+#include "layoutmgr.h"
 
 /*
   NOTES on the TransitionFXMgr

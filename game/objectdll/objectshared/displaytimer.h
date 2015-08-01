@@ -14,9 +14,9 @@
 #define __DISPLAY_TIMER_H__
 
 #include "ltengineobjects.h"
-#include "Timer.h"
-#include "CommandMgr.h"
-#include "GameBase.h"
+#include "timer.h"
+#include "commandmgr.h"
+#include "gamebase.h"
 
 LINKTO_MODULE( DisplayTimer );
 

@@ -9,13 +9,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ClientWeaponUtils.h"
-#include "ClientUtilities.h"
-#include "GameClientShell.h"
-#include "ClientServerShared.h"
-#include "WeaponFX.h"
-#include "WeaponFXTypes.h"
-#include "SurfaceFunctions.h"
+#include "clientweaponutils.h"
+#include "clientutilities.h"
+#include "gameclientshell.h"
+#include "clientservershared.h"
+#include "weaponfx.h"
+#include "weaponfxtypes.h"
+#include "surfacefunctions.h"
 
 extern CGameClientShell* g_pGameClientShell;
 extern ILTClient* g_pLTClient;

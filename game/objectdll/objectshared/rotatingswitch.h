@@ -17,7 +17,7 @@
 // Includes...
 //
 
-	#include "Switch.h"
+	#include "switch.h"
 
 LINKTO_MODULE( RotatingSwitch );
 

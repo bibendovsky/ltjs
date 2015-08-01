@@ -13,15 +13,15 @@
 //
 	
 #include "stdafx.h"
-#include "FxFlags.h"
-#include "FxDefs.h"
+#include "fxflags.h"
+#include "fxdefs.h"
 #include "iltmessage.h"
 #include "iltdrawprim.h"
-#include "ClientFXMgr.h"
-#include "PlayerMgr.h"
-#include "CMoveMgr.h"
-#include "WinUtil.h"
-#include "ClientFXDB.h"
+#include "clientfxmgr.h"
+#include "playermgr.h"
+#include "cmovemgr.h"
+#include "winutil.h"
+#include "clientfxdb.h"
 
 // Defines....
 

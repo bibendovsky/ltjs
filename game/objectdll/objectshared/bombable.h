@@ -17,8 +17,8 @@
 // Includes...
 //
 
-	#include "GadgetTarget.h"
-	#include "Timer.h"
+	#include "gadgettarget.h"
+	#include "timer.h"
 
 LINKTO_MODULE( Bombable );
 

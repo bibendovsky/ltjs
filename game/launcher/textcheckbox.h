@@ -7,7 +7,7 @@
 // TextCheckBox.h : header file
 //
 
-#include "StaticEx.h"
+#include "staticex.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CTextCheckBox window

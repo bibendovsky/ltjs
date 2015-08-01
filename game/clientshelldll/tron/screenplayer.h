@@ -11,7 +11,7 @@
 #ifndef _SCREEN_PLAYER_H_
 #define _SCREEN_PLAYER_H_
 
-#include "BaseScreen.h"
+#include "basescreen.h"
 
 class CScreenPlayer : public CBaseScreen
 {

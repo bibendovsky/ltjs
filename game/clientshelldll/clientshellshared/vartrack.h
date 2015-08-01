@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include "iltclient.h"
-#include "ILTStream.h"
+#include "iltstream.h"
 
 class VarTrack
 {

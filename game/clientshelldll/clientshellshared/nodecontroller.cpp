@@ -10,17 +10,17 @@
 //
 // ----------------------------------------------------------------------- //
 
-#include "StdAfx.h"
-#include "SFXMsgIds.h"
-#include "NodeController.h"
+#include "stdafx.h"
+#include "sfxmsgids.h"
+#include "nodecontroller.h"
 #include "iltmodel.h"
 #include "ilttransform.h"
-#include "CharacterFx.h"
-#include "SoundMgr.h"
-#include "VarTrack.h"
-#include "HudMgr.h"
-#include "GameClientShell.h"
-#include "MsgIds.h"
+#include "characterfx.h"
+#include "soundmgr.h"
+#include "vartrack.h"
+#include "hudmgr.h"
+#include "gameclientshell.h"
+#include "msgids.h"
 
 //Lip sync file version information
 #define LIPSYNC_FILE_ID				(('L' << 24) | ('I' << 16) | ('P' << 8) | 'S')

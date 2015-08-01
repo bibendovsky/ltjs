@@ -10,15 +10,15 @@
 
 
 #include "stdafx.h"
-#include "ServerMissionMgr.h"
-#include "MsgIds.h"
-#include "WinUtil.h"
-#include "MissionButeMgr.h"
-#include "ServerSaveLoadMgr.h"
-#include "PlayerObj.h"
-#include "DisplayTimer.h"
-#include "Spawner.h"
-#include "WorldProperties.h"
+#include "servermissionmgr.h"
+#include "msgids.h"
+#include "winutil.h"
+#include "missionbutemgr.h"
+#include "serversaveloadmgr.h"
+#include "playerobj.h"
+#include "displaytimer.h"
+#include "spawner.h"
+#include "worldproperties.h"
 
 CServerMissionMgr* g_pServerMissionMgr = LTNULL;
 CVarTrack g_vtRunSpeed;

@@ -1,6 +1,6 @@
-#include "RoutingGetGroupListReqOp.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONCommon/ReadBuffer.h"
+#include "routinggetgrouplistreqop.h"
+#include "woncommon/writebuffer.h"
+#include "woncommon/readbuffer.h"
 
 
 using namespace WONAPI;

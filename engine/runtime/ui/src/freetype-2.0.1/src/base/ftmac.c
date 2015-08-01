@@ -66,9 +66,9 @@
 #include <truetype/ttobjs.h>
 #include <type1/t1objs.h>
 
-#include <Resources.h>
-#include <Fonts.h>
-#include <Errors.h>
+#include <resources.h>
+#include <fonts.h>
+#include <errors.h>
 
 #include <ctype.h>  /* for isupper() and isalnum() */
 

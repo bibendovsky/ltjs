@@ -11,20 +11,20 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Scanner.h"
+#include "scanner.h"
 #include "iltserver.h"
-#include "ServerUtilities.h"
+#include "serverutilities.h"
 #include "gameservershell.h"
-#include "SoundMgr.h"
-#include "PlayerObj.h"
-#include "CharacterMgr.h"
-#include "SurfaceFunctions.h"
-#include "VolumeBrushTypes.h"
-#include "ObjectMsgs.h"
-#include "ObjectRelationMgr.h"
-#include "RelationMgr.h"
-#include "AIStimulusMgr.h"
-#include "AISenseRecorderAbstract.h"
+#include "soundmgr.h"
+#include "playerobj.h"
+#include "charactermgr.h"
+#include "surfacefunctions.h"
+#include "volumebrushtypes.h"
+#include "objectmsgs.h"
+#include "objectrelationmgr.h"
+#include "relationmgr.h"
+#include "aistimulusmgr.h"
+#include "aisenserecorderabstract.h"
 
 extern LTFLOAT s_fSenseUpdateBasis;
 

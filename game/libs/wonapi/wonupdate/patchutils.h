@@ -8,7 +8,7 @@
 #include <string>
 #endif
 
-#include "WONGUI/GUIString.h"
+#include "wongui/guistring.h"
 
 
 //----------------------------------------------------------------------------------

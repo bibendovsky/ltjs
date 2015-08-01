@@ -11,14 +11,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Spawner.h"
+#include "spawner.h"
 #include "iltserver.h"
-#include "MsgIds.h"
-#include "SoundMgr.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "ServerSoundMgr.h"
-#include "ObjectTemplateMgr.h"
+#include "msgids.h"
+#include "soundmgr.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "serversoundmgr.h"
+#include "objecttemplatemgr.h"
 
 LINKFROM_MODULE( Spawner );
 

@@ -10,13 +10,13 @@
 
 
 #include "stdafx.h"
-#include "ScreenPreload.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "InterfaceMgr.h"
-#include "GameClientShell.h"
-#include "ClientMultiplayerMgr.h"
-#include "MissionMgr.h"
+#include "screenpreload.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "interfacemgr.h"
+#include "gameclientshell.h"
+#include "clientmultiplayermgr.h"
+#include "missionmgr.h"
 #include "iserverdir.h"
 
 extern bool g_bLAN;

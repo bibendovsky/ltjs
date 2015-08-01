@@ -12,17 +12,17 @@
 
 
 #include "stdafx.h"
-#include "WorldProperties.h"
+#include "worldproperties.h"
 #include "ltengineobjects.h"
 #include "gameservershell.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "MsgIds.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "msgids.h"
 #include <stdio.h>
-#include "AIVolumeMgr.h"
-#include "VersionMgr.h"
-#include "AIStimulusMgr.h"
-#include "ServerMissionMgr.h"
+#include "aivolumemgr.h"
+#include "versionmgr.h"
+#include "aistimulusmgr.h"
+#include "servermissionmgr.h"
 
 LINKFROM_MODULE( WorldProperties );
 

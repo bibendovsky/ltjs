@@ -9,14 +9,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "WeaponChooser.h"
-#include "InterfaceMgr.h"
-#include "GameClientShell.h"
-#include "WinUtil.h"
-#include "SoundMgr.h"
-#include "LayoutMgr.h"
-#include "ClientWeaponBase.h"
-#include "ClientWeaponMgr.h"
+#include "weaponchooser.h"
+#include "interfacemgr.h"
+#include "gameclientshell.h"
+#include "winutil.h"
+#include "soundmgr.h"
+#include "layoutmgr.h"
+#include "clientweaponbase.h"
+#include "clientweaponmgr.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

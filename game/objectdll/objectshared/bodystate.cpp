@@ -10,17 +10,17 @@
 //
 // ----------------------------------------------------------------------- //
 
-#include "StdAfx.h"
-#include "BodyState.h"
-#include "Body.h"
-#include "AIVolume.h"
-#include "AIVolumeMgr.h"
-#include "GameServerShell.h"
-#include "MsgIDs.h"
-#include "Attachments.h"
-#include "AIUtils.h"
-#include "ServerMissionMgr.h"
-#include "PlayerObj.h"
+#include "stdafx.h"
+#include "bodystate.h"
+#include "body.h"
+#include "aivolume.h"
+#include "aivolumemgr.h"
+#include "gameservershell.h"
+#include "msgids.h"
+#include "attachments.h"
+#include "aiutils.h"
+#include "servermissionmgr.h"
+#include "playerobj.h"
 
 static CVarTrack s_RemovePowerups;
 static CVarTrack s_LifetimeTrack;

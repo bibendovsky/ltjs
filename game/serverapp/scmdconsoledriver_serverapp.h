@@ -13,7 +13,7 @@
 #ifndef ScmdConsoleDriver_ServerApp_H
 #define ScmdConsoleDriver_ServerApp_H
 
-#include "ScmdConsole.h"
+#include "scmdconsole.h"
 
 // ----------------------------------------------------------------------- //
 //

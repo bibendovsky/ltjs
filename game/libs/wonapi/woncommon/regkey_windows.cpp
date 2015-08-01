@@ -1,4 +1,4 @@
-#include "RegKey_Windows.h"
+#include "regkey_windows.h"
 
 using namespace std;
 using namespace WONAPI;

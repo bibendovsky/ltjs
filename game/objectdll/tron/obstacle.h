@@ -14,7 +14,7 @@
 #ifndef _OBSTACLE_H_
 #define _OBSTACLE_H_
 
-#include "GameBase.h"
+#include "gamebase.h"
 
 class Obstacle : public GameBase
 {

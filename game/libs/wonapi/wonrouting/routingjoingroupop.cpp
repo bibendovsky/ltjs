@@ -1,5 +1,5 @@
-#include "RoutingJoinGroupOp.h"
-#include "RoutingGetMembersOfGroupOp.h"
+#include "routingjoingroupop.h"
+#include "routinggetmembersofgroupop.h"
 
 using namespace WONAPI;
 

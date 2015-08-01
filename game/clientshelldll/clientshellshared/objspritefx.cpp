@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ObjSpriteFX.h"
-#include "VarTrack.h"
-#include "GameClientShell.h"
+#include "objspritefx.h"
+#include "vartrack.h"
+#include "gameclientshell.h"
 
 extern CGameClientShell*	g_pGameClientShell;
 

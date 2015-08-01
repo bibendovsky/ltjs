@@ -1,7 +1,7 @@
 #ifndef __CLIENT_TRACKEDNODECONTEXT_H__
 #define __CLIENT_TRACKEDNODECONTEXT_H__
 
-#include "TrackedNodeContext.h"
+#include "trackednodecontext.h"
 
 
 //

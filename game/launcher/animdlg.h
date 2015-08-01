@@ -19,7 +19,7 @@
 // AnimDlg.h : header file
 //
 
-#include "DlgEx.h"
+#include "dlgex.h"
 
 #define ANIM_RIGHT_DOWN		0
 #define ANIM_RIGHT_UP		1

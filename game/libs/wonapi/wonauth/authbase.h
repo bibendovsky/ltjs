@@ -1,10 +1,10 @@
 #ifndef __WON_AUTHBASE_H__
 #define __WON_AUTHBASE_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <time.h>
-#include "WONCommon/ReadBuffer.h"
-#include "WONCrypt/ElGamal.h"
+#include "woncommon/readbuffer.h"
+#include "woncrypt/elgamal.h"
 
 
 namespace WONAPI

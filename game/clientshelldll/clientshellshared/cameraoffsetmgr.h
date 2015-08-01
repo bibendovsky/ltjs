@@ -13,7 +13,7 @@
 #ifndef __CAMERA_OFFSET_MGR__
 #define __CAMERA_OFFSET_MGR__
 
-#include "WaveFn.h"
+#include "wavefn.h"
 
 #define	MAX_CAMERA_DELTAS			20
 #define MAX_STATIC_CAMERA_DELTAS	10

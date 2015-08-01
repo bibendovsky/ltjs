@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "LaserTriggerFX.h"
-#include "VarTrack.h"
-#include "GameClientShell.h"
-#include "VisionModeMgr.h"
+#include "lasertriggerfx.h"
+#include "vartrack.h"
+#include "gameclientshell.h"
+#include "visionmodemgr.h"
 
 VarTrack	g_vtLaserTriggerAlpha;
 

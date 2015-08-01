@@ -14,8 +14,8 @@
 #define __INTELLIGENCE_H__
 
 #include "ltengineobjects.h"
-#include "Prop.h"
-#include "IntelMgr.h"
+#include "prop.h"
+#include "intelmgr.h"
 
 LINKTO_MODULE( Intelligence );
 

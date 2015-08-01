@@ -12,14 +12,14 @@
 
 #include "stdafx.h"
 #include <stdio.h>
-#include "TronPlayerStats.h"
-#include "GameClientShell.h"
-#include "MsgIDs.h"
-#include "TronHUDMgr.h"
-#include "ClientWeaponBase.h"
-#include "ClientWeaponMgr.h"
-#include "MissionMgr.h"
-#include "KeyMgr.h"
+#include "tronplayerstats.h"
+#include "gameclientshell.h"
+#include "msgids.h"
+#include "tronhudmgr.h"
+#include "clientweaponbase.h"
+#include "clientweaponmgr.h"
+#include "missionmgr.h"
+#include "keymgr.h"
 
 CTronPlayerStats* g_pTronPlayerStats = LTNULL;
 

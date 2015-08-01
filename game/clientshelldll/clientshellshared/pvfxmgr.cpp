@@ -11,12 +11,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PVFXMgr.h"
-#include "CommonUtilities.h"
-#include "GameClientShell.h"
-#include "ClientWeaponBase.h"
-#include "ClientWeaponMgr.h"
-#include "FXButeMgr.h"
+#include "pvfxmgr.h"
+#include "commonutilities.h"
+#include "gameclientshell.h"
+#include "clientweaponbase.h"
+#include "clientweaponmgr.h"
+#include "fxbutemgr.h"
 
 
 // ----------------------------------------------------------------------- //

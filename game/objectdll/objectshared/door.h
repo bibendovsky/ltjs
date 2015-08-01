@@ -17,7 +17,7 @@
 // Includes...
 //
 
-	#include "ActiveWorldModel.h"
+	#include "activeworldmodel.h"
 
 //
 // Defines...

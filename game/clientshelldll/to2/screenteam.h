@@ -11,8 +11,8 @@
 #ifndef _SCREEN_TEAM_H_
 #define _SCREEN_TEAM_H_
 
-#include "BaseScreen.h"
-#include "LayoutMgr.h"
+#include "basescreen.h"
+#include "layoutmgr.h"
 
 class CScreenTeam : public CBaseScreen
 {

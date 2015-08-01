@@ -11,17 +11,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "LoadingScreen.h"
-#include "InterfaceMgr.h"
-#include "GameClientShell.h"
-#include "WinUtil.h"
-#include "BaseScreen.h"
-#include "MissionMgr.h"
-#include "MissionButeMgr.h"
-#include "FXButeMgr.h"
-#include "ClientMultiplayerMgr.h"
-#include "ScreenPostload.h"
-#include "ClientResShared.h"
+#include "loadingscreen.h"
+#include "interfacemgr.h"
+#include "gameclientshell.h"
+#include "winutil.h"
+#include "basescreen.h"
+#include "missionmgr.h"
+#include "missionbutemgr.h"
+#include "fxbutemgr.h"
+#include "clientmultiplayermgr.h"
+#include "screenpostload.h"
+#include "clientresshared.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

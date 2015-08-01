@@ -1,16 +1,16 @@
 #ifndef __WON_PLATFORM_H__
 #define __WON_PLATFORM_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 
 #if defined(WIN32)
-#include "Platform_Windows.h"
+#include "platform_windows.h"
 #elif defined(WINCE)
-#include "Platform_WinCE.h"
+#include "platform_wince.h"
 #elif defined(_LINUX)
-#include "Platform_Linux.h"
+#include "platform_linux.h"
 #elif defined(macintosh) && (macintosh == 1)
-#include "Platform_Mac.h"
+#include "platform_mac.h"
 #endif
 
 #endif

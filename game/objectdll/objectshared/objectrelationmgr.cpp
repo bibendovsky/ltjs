@@ -21,15 +21,15 @@
 // Includes
 #include "stdafx.h"
 
-#include "ObjectRelationMgr.h"
-#include "AIRegion.h"
-#include "AIVolume.h"
-#include "RelationMgr.h"
-#include "CollectiveRelationMgr.h"
-#include "AIAssert.h"
-#include "Character.h"
-#include "CharacterMgr.h"
-#include "RelationChangeObserver.h"
+#include "objectrelationmgr.h"
+#include "airegion.h"
+#include "aivolume.h"
+#include "relationmgr.h"
+#include "collectiverelationmgr.h"
+#include "aiassert.h"
+#include "character.h"
+#include "charactermgr.h"
+#include "relationchangeobserver.h"
 #include <list>
 #include <algorithm>
 

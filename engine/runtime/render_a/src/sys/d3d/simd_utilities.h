@@ -261,7 +261,7 @@ extern const F32vec4 _MASKSIGN_;
 
 
 // Include all the inlined functions
-#include "SimD_Utilities.inl"
+#include "simd_utilities.inl"
 
 */
 #endif // __SIMD_UTILITIES_H__

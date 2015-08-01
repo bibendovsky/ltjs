@@ -17,8 +17,8 @@
 // Includes...
 //
 	
-	#include "SpecialFX.h"
-	#include "ActivateTypeMgr.h"
+	#include "specialfx.h"
+	#include "activatetypemgr.h"
 
 
 class CActivateObjectHandler

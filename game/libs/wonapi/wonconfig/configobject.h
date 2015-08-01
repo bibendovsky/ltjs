@@ -1,11 +1,11 @@
 #ifndef __WON_CONFIGOBJECT_H__
 #define __WON_CONFIGOBJECT_H__
 
-#include "WONCommon/SmartPtr.h"
-#include "ConfigParser.h"
-#include "StringParser.h"
-#include "WONTypes.h"
-#include "ConfigValue.h"
+#include "woncommon/smartptr.h"
+#include "configparser.h"
+#include "stringparser.h"
+#include "wontypes.h"
+#include "configvalue.h"
 #include <list>
 
 namespace WONAPI

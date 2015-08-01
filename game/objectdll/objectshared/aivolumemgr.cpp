@@ -1,10 +1,10 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIVolumeMgr.h"
-#include "AIVolume.h"
-#include "AIVolumeNeighbor.h"
-#include "AI.h"
+#include "aivolumemgr.h"
+#include "aivolume.h"
+#include "aivolumeneighbor.h"
+#include "ai.h"
 
 // Globals
 

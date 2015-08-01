@@ -11,8 +11,8 @@
 // Includes....
 
 #include "stdafx.h"
-#include "BouncyChunkFX.h"
-#include "ClientFX.h"
+#include "bouncychunkfx.h"
+#include "clientfx.h"
 
 // ----------------------------------------------------------------------- //
 //

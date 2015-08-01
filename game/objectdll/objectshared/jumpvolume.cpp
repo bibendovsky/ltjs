@@ -15,11 +15,11 @@
 //
 
 	#include "stdafx.h"
-	#include "MsgIds.h"
-	#include "ObjectMsgs.h"
-	#include "ParsedMsg.h"
-	#include "JumpVolume.h"
-	#include "ContainerCodes.h"
+	#include "msgids.h"
+	#include "objectmsgs.h"
+	#include "parsedmsg.h"
+	#include "jumpvolume.h"
+	#include "containercodes.h"
 
 LINKFROM_MODULE( JumpVolume );
 

@@ -11,18 +11,18 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SecurityCamera.h"
+#include "securitycamera.h"
 #include "iltserver.h"
-#include "ServerUtilities.h"
-#include "SoundMgr.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "WeaponMgr.h"
-#include "SoundMgr.h"
-#include "CVarTrack.h"
-#include "ServerButeMgr.h"
-#include "GameServerShell.h"
-#include "ServerSoundMgr.h"
+#include "serverutilities.h"
+#include "soundmgr.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "weaponmgr.h"
+#include "soundmgr.h"
+#include "cvartrack.h"
+#include "serverbutemgr.h"
+#include "gameservershell.h"
+#include "serversoundmgr.h"
 
 LINKFROM_MODULE( SecurityCamera );
 

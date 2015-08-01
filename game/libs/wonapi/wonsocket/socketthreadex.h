@@ -1,14 +1,14 @@
 #ifndef __WON_SOCKETTHREADEX_H__
 #define __WON_SOCKETTHREADEX_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #if defined(WIN32)
-#include "SocketThreadEx_Windows.h"
+#include "socketthreadex_windows.h"
 #elif defined(_LINUX)
-#include "SocketThreadEx_Linux.h"
+#include "socketthreadex_linux.h"
 #else
 
-#include "SocketThreadSimple.h"
+#include "socketthreadsimple.h"
 namespace WONAPI
 {
 

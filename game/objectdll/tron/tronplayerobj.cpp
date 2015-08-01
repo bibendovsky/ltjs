@@ -11,13 +11,13 @@
 ****************************************************************************/
 
 #include "stdafx.h"
-#include "TronPlayerObj.h"
-#include "WeaponFireInfo.h"
-#include "Attachments.h"
-#include "ParsedMsg.h"
-#include "Weapon.h"
-#include "FXButeMgr.h"
-#include "LightCycleMgr.h"
+#include "tronplayerobj.h"
+#include "weaponfireinfo.h"
+#include "attachments.h"
+#include "parsedmsg.h"
+#include "weapon.h"
+#include "fxbutemgr.h"
+#include "lightcyclemgr.h"
 
 BEGIN_CLASS(CTronPlayerObj)
 END_CLASS_DEFAULT_FLAGS(CTronPlayerObj, CPlayerObj, NULL, NULL, CF_HIDDEN)

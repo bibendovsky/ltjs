@@ -4,9 +4,9 @@
 #define _AI_BRAIN_H_
 
 #include "ltengineobjects.h"
-#include "AIClassFactory.h"
-#include "AIButeMgr.h"
-#include "AIUtils.h"
+#include "aiclassfactory.h"
+#include "aibutemgr.h"
+#include "aiutils.h"
 
 class CAIHuman;
 class CCharacter;

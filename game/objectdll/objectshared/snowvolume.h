@@ -13,7 +13,7 @@
 #ifndef __SNOWVOLUME_H__
 #define __SNOWVOLUME_H__
 
-#include "VolumeEffect.h"
+#include "volumeeffect.h"
 
 
 LINKTO_MODULE( SnowVolume );

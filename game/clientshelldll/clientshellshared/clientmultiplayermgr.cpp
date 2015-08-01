@@ -11,18 +11,18 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ClientMultiplayerMgr.h"
-#include "GameClientShell.h"
-#include "MsgIds.h"
-#include "CharacterFx.h"
-#include "CMoveMgr.h"
+#include "clientmultiplayermgr.h"
+#include "gameclientshell.h"
+#include "msgids.h"
+#include "characterfx.h"
+#include "cmovemgr.h"
 #include "iserverdir.h"
-#include "MissionMgr.h"
-#include "MissionButeMgr.h"
-#include "InterfaceMgr.h"
-#include "ProfileMgr.h"
-#include "WeaponMgr.h"
-#include "CRC32.h"
+#include "missionmgr.h"
+#include "missionbutemgr.h"
+#include "interfacemgr.h"
+#include "profilemgr.h"
+#include "weaponmgr.h"
+#include "crc32.h"
 
 #pragma message( "FIXFIX:  Should really be called ClientConnectionMgr." )
 

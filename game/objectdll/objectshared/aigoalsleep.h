@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_SLEEP_H__
 #define __AIGOAL_SLEEP_H__
 
-#include "AIGoalWork.h"
+#include "aigoalwork.h"
 
 
 class CAIGoalSleep : public CAIGoalWork

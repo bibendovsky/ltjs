@@ -15,10 +15,10 @@
 //
 
 	#include "stdafx.h"
-	#include "WeaponMgr.h"
-	#include "ActivateTypeMgr.h"
-	#include "SFXMsgIds.h"
-	#include "MsgIds.h"
+	#include "weaponmgr.h"
+	#include "activatetypemgr.h"
+	#include "sfxmsgids.h"
+	#include "msgids.h"
 
 //
 // Defines...

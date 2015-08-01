@@ -1,4 +1,4 @@
-#include "ConfigParser.h"
+#include "configparser.h"
 
 using namespace std;
 using namespace WONAPI;

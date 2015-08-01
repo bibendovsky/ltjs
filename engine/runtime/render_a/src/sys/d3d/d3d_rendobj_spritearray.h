@@ -4,7 +4,7 @@
 #ifndef __D3DRENDOBJ_SPRITEARRAY_H__
 #define __D3DRENDOBJ_SPRITEARRAY_H__
 
-#include "VertexBufferController.h"
+#include "vertexbuffercontroller.h"
 #include "ltrenderstyle.h"
 
 class SharedTexture;

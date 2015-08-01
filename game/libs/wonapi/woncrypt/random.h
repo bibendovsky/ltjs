@@ -1,9 +1,9 @@
 #ifndef __WON_MINICRYPT_RANDOM_H__
 #define __WON_MINICRYPT_RANDOM_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/WONTypes.h"
-#include "MD5Digest.h"
+#include "woncommon/wontypes.h"
+#include "md5digest.h"
 
 namespace WONAPI
 {

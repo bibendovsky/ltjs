@@ -3,18 +3,18 @@
 #ifndef __AIBUTE_MGR_H__
 #define __AIBUTE_MGR_H__
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include "ltbasetypes.h"
-#include "DamageTypes.h"
-#include "CommandIds.h"
-#include "CharacterAlignment.h"
+#include "damagetypes.h"
+#include "commandids.h"
+#include "characteralignment.h"
 
 #pragma warning (disable : 4786)
 #include <map>
 #include <bitset>
 #include <vector>
 
-#include "UberAssert.h"
+#include "uberassert.h"
 
 
 // Forward declarations.
@@ -29,7 +29,7 @@ extern CAIButeMgr* g_pAIButeMgr;
 static const char* s_aszSenseTypes[] =
 {
 	#define SENSE_TYPE_AS_STRING 1
-	#include "AISenseTypeEnums.h"
+	#include "aisensetypeenums.h"
 	#undef SENSE_TYPE_AS_STRING
 };
 
@@ -90,7 +90,7 @@ enum EnumAIDataType
 	kAIData_InvalidType = -1,
 
 	#define AIDATA_TYPE_AS_ENUM 1
-	#include "AIDataTypeEnums.h"
+	#include "aidatatypeenums.h"
 	#undef AIDATA_TYPE_AS_ENUM
 
 	kAIData_Count,
@@ -102,7 +102,7 @@ enum EnumAIDataType
 static const char* s_aszAIDataTypes[] =
 {
 	#define AIDATA_TYPE_AS_STRING 1
-	#include "AIDataTypeEnums.h"
+	#include "aidatatypeenums.h"
 	#undef AIDATA_TYPE_AS_STRING
 };
 

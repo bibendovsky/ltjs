@@ -12,7 +12,7 @@
 #if !defined(_MENU_SYSTEM_H_)
 #define _MENU_SYSTEM_H_
 
-#include "BaseMenu.h"
+#include "basemenu.h"
 
 
 class CMenuSystem : public CBaseMenu

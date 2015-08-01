@@ -1,5 +1,5 @@
-#include "SendMsgOp.h"
-#include "NetStats.h"
+#include "sendmsgop.h"
+#include "netstats.h"
 using namespace WONAPI;
 
 //////////////////////////////////////////////////////////////////////////////

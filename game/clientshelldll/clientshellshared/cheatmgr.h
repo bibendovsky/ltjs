@@ -17,8 +17,8 @@
 
 #include "iclientshell.h"
 #include "iltclient.h"
-#include "CheatDefs.h"
-#include "ParsedMsg.h"
+#include "cheatdefs.h"
+#include "parsedmsg.h"
 
 // Cheat Manager class
 class CCheatMgr

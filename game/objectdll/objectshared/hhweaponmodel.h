@@ -14,7 +14,7 @@
 #define __HH_WEAPON_MODEL_H__
 
 #include "ltengineobjects.h"
-#include "GameBase.h"
+#include "gamebase.h"
 
 class CWeapon;
 struct WEAPON;

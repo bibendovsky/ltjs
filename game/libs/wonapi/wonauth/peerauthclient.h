@@ -1,10 +1,10 @@
 #ifndef __WON_PEERAUTHCLIENT_H__
 #define __WON_PEERAUTHCLIENT_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCrypt/Blowfish.h"
-#include "AuthPeerData.h"
-#include "AuthSession.h"
+#include "woncrypt/blowfish.h"
+#include "authpeerdata.h"
+#include "authsession.h"
 
 namespace WONAPI
 {

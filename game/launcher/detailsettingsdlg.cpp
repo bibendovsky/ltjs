@@ -11,8 +11,8 @@
 ********************************************************************************/
 
 #include "stdafx.h"
-#include "Launcher.h"
-#include "DetailSettingsDlg.h"
+#include "launcher.h"
+#include "detailsettingsdlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

@@ -12,13 +12,13 @@
 #if !defined(_MENU_MGR_H_)
 #define _MENU_MGR_H_
 
-#include "InterfaceResMgr.h"
-#include "MenuSystem.h"
-#include "MenuMission.h"
-#include "MenuInventory.h"
-#include "MenuKeys.h"
-#include "MenuIntel.h"
-#include "MenuPlayer.h"
+#include "interfaceresmgr.h"
+#include "menusystem.h"
+#include "menumission.h"
+#include "menuinventory.h"
+#include "menukeys.h"
+#include "menuintel.h"
+#include "menuplayer.h"
 
 
 // These flags are used in CMenuMgr::EnableMenuBar and need to correspond to each

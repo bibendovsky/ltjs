@@ -13,7 +13,7 @@
 #ifndef __DEBUG_LINE_SYSTEM_H__
 #define __DEBUG_LINE_SYSTEM_H__
 
-#include "DebugLine.h"
+#include "debugline.h"
 
 #pragma warning (disable : 4786)
 #include <deque>

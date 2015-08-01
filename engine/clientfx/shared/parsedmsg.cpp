@@ -3,7 +3,7 @@
 
 //#include "stdafx.h"
 
-#include "ParsedMsg.h"
+#include "parsedmsg.h"
 
 CParsedMsg::CToken CParsedMsg::s_cEmptyToken("");
 

@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Breakable.h"
+#include "breakable.h"
 
 LINKFROM_MODULE( Breakable );
 

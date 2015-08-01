@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PolyDebrisFX.h"
-#include "GameClientShell.h"
-#include "VarTrack.h"
+#include "polydebrisfx.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

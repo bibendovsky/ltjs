@@ -13,7 +13,7 @@
 #ifndef _TRON_MISSION_BUTE_MGR_H_
 #define _TRON_MISSION_BUTE_MGR_H_
 
-#include "MissionButeMgr.h"
+#include "missionbutemgr.h"
 
 #define MAX_SYSTEM_MEMORY_SLOTS 24
 

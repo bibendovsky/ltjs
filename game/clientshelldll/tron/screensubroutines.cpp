@@ -17,16 +17,16 @@
 // change the Escape() in Compile() to change back to gameplay state
 
 #include "stdafx.h"
-#include "ScreenSubroutines.h"
-#include "ScreenMgr.h"
-#include "LayoutMgr.h"
-#include "ScreenCommands.h"
-#include "WinUtil.h"
-#include "GameClientShell.h"
-#include "ModelButeMgr.h"
-#include "SubroutineMgr.h"
-#include "TRONPlayerStats.h"
-#include "TransitionFXMgr.h"
+#include "screensubroutines.h"
+#include "screenmgr.h"
+#include "layoutmgr.h"
+#include "screencommands.h"
+#include "winutil.h"
+#include "gameclientshell.h"
+#include "modelbutemgr.h"
+#include "subroutinemgr.h"
+#include "tronplayerstats.h"
+#include "transitionfxmgr.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

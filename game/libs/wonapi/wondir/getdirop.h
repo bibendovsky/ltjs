@@ -1,11 +1,11 @@
 #ifndef __WON_GETDIROP_H__
 #define __WON_GETDIROP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <list>
-#include "WONServer/ServerRequestOp.h"
-#include "DirEntity.h"
-#include "GetEntityRequest.h"
+#include "wonserver/serverrequestop.h"
+#include "direntity.h"
+#include "getentityrequest.h"
 
 namespace WONAPI
 {

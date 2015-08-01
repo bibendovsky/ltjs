@@ -9,9 +9,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ParticleShowerFX.h"
+#include "particleshowerfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
+#include "clientutilities.h"
 
 
 // ----------------------------------------------------------------------- //

@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TO2GameServerShell.h"
-#include "GameStartPoint.h"
-#include "ServerMissionMgr.h"
+#include "to2gameservershell.h"
+#include "gamestartpoint.h"
+#include "servermissionmgr.h"
 #include "iserverdir.h"
-#include "PlayerObj.h"
+#include "playerobj.h"
 #include "msgids.h"
 #include "iserverdir_titan.h"
 

@@ -14,7 +14,7 @@
 #define __SHARED_SCORE_H__
 
 #include "ltbasetypes.h"
-#include "ClientServerShared.h"
+#include "clientservershared.h"
 
 class CPlayerScore
 {

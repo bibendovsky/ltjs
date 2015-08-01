@@ -13,8 +13,8 @@
 //
 
 	#include "stdafx.h"
-	#include "LTBModelFX.h"
-	#include "ClientFX.h"
+	#include "ltbmodelfx.h"
+	#include "clientfx.h"
 
 //
 // Defines...

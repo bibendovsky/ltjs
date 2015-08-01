@@ -12,14 +12,14 @@
 
 #include "stdafx.h"
 #include <stdio.h>
-#include "TO2PlayerStats.h"
-#include "GameClientShell.h"
-#include "MsgIDs.h"
-#include "TO2HUDMgr.h"
-#include "ClientWeaponBase.h"
-#include "ClientWeaponMgr.h"
-#include "MissionMgr.h"
-#include "KeyMgr.h"
+#include "to2playerstats.h"
+#include "gameclientshell.h"
+#include "msgids.h"
+#include "to2hudmgr.h"
+#include "clientweaponbase.h"
+#include "clientweaponmgr.h"
+#include "missionmgr.h"
+#include "keymgr.h"
 #include "clientres.h"
 
 void ArmorFn(int argc, char **argv)

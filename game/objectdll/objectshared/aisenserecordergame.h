@@ -12,7 +12,7 @@
 #ifndef __AISENSE_RECORDER_GAME_H__
 #define __AISENSE_RECORDER_GAME_H__
 
-#include "AISenseRecorderAbstract.h"
+#include "aisenserecorderabstract.h"
 
 //
 // CLASS: CAISenseRecorderAbstract is an abstract base class, 

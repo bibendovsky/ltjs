@@ -1,5 +1,5 @@
-#include "EntityClearDataObjectsOp.h"
-#include "WONCommon/WriteBuffer.h"
+#include "entitycleardataobjectsop.h"
+#include "woncommon/writebuffer.h"
 
 using namespace WONAPI;
 

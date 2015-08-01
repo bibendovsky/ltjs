@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ATTACK_RANGED_H__
 #define __AIGOAL_ATTACK_RANGED_H__
 
-#include "AIGoalAttack.h"
+#include "aigoalattack.h"
 
 
 class CAIGoalAttackRanged : public CAIGoalAttack

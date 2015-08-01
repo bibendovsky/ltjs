@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TO2GameServerShell.h"
+#include "to2gameservershell.h"
 
 const char* g_sPlayerClass = "CPlayerObj";
 

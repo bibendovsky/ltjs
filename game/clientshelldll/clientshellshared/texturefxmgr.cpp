@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "TextureFXMgr.h"
+#include "texturefxmgr.h"
 
 CTextureFXMgr::CTextureFXMgr()
 {

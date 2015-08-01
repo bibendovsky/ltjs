@@ -1,8 +1,8 @@
 #ifndef __STRINGPARSER_H__
 #define __STRINGPARSER_H__
 
-#include "WONCommon/StringUtil.h"
-#include "WONTypes.h"
+#include "woncommon/stringutil.h"
+#include "wontypes.h"
 #include <list>
 
 namespace WONAPI

@@ -13,11 +13,11 @@
 //
 
 	#include "stdafx.h"
-	#include "HUDMgr.h"
-	#include "HUDRadar.h"
-	#include "GameClientShell.h"
-	#include "CharacterFX.h"
-	#include "RadarTypeMgr.h"
+	#include "hudmgr.h"
+	#include "hudradar.h"
+	#include "gameclientshell.h"
+	#include "characterfx.h"
+	#include "radartypemgr.h"
 
 LTPoly_GT4	teamPoly;
 uint32 nTeamColors[2][3] = {	{argbBlack,argbBlack,argbBlack},

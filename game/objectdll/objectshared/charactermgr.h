@@ -12,9 +12,9 @@
 #define __CHARACTER_MGR_H__
 
 #include "ltbasedefs.h"
-#include "Character.h"
-#include "DeathScene.h"
-#include "TemplateList.h"
+#include "character.h"
+#include "deathscene.h"
+#include "templatelist.h"
 
 class CAI;
 class AI_Dog;

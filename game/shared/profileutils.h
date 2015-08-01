@@ -12,8 +12,8 @@
 #define PROFILEUTILS_H
 
 #include "ltbasetypes.h"
-#include "NetDefs.h"
-#include "TeamMgr.h"
+#include "netdefs.h"
+#include "teammgr.h"
 #include <string>
 
 class CButeMgr;

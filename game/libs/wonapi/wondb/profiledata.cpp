@@ -1,8 +1,8 @@
-#include "WONAPI.h"
-#include "ProfileData.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONCommon/ReadBuffer.h"
-#include "WONCommon/StringUtil.h"
+#include "wonapi.h"
+#include "profiledata.h"
+#include "woncommon/writebuffer.h"
+#include "woncommon/readbuffer.h"
+#include "woncommon/stringutil.h"
 
 using namespace WONAPI;
 using namespace std;

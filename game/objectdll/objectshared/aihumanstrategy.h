@@ -3,10 +3,10 @@
 #ifndef __AI_HUMAN_STRATEGY_H__
 #define __AI_HUMAN_STRATEGY_H__
 
-#include "AIBrain.h"
-#include "AIStrategy.h"
-#include "AnimationMgr.h"
-#include "AIVolume.h"
+#include "aibrain.h"
+#include "aistrategy.h"
+#include "animationmgr.h"
+#include "aivolume.h"
 
 class CCharacter;
 class CAIHuman;

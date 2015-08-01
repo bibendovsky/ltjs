@@ -14,8 +14,8 @@
 #define _WORLD_PROPERTIES_H_
 
 #include "ltengineobjects.h"
-#include "..\shared\SoundFilterMgr.h"
-#include "GameBase.h"
+#include "..\shared\soundfiltermgr.h"
+#include "gamebase.h"
 
 LINKTO_MODULE( WorldProperties );
 

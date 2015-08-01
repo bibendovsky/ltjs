@@ -20,15 +20,15 @@
 #include "stdafx.h"
 
 #ifndef __AIHUMANSTATECATCH_H__
-#include "AIHumanStateCatch.h"		
+#include "aihumanstatecatch.h"		
 #endif
 
 #ifndef __AI_HUMAN_H__
-#include "AIHuman.h"
+#include "aihuman.h"
 #endif 
 
 #ifndef __AI_TARGET_H__
-#include "AITarget.h"
+#include "aitarget.h"
 #endif
 
 // Forward declarations

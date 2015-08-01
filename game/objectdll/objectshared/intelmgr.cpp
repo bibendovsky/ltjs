@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "IntelMgr.h"
-#include "CommonUtilities.h"
-#include "DebrisMgr.h"
-#include "WeaponMgr.h"
+#include "intelmgr.h"
+#include "commonutilities.h"
+#include "debrismgr.h"
+#include "weaponmgr.h"
 
 #define INTELMGR_TAG					"Intel"
 

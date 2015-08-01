@@ -10,12 +10,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalDistress.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIHuman.h"
-#include "AIUtils.h"
+#include "aigoaldistress.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "aisenserecorderabstract.h"
+#include "aihuman.h"
+#include "aiutils.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalDistress, kGoal_Distress);
 

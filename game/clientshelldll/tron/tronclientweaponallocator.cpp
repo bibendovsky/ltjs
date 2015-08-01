@@ -1,12 +1,12 @@
 
 #include "stdafx.h"
 
-#include "StandardCreator.h"
-#include "TronClientWeaponAllocator.h"
-#include "ClientWeaponBase.h"
-#include "ClientWeaponNone.h"
-#include "ClientWeaponDisc.h"
-#include "ClientWeaponClusterDisc.h"
+#include "standardcreator.h"
+#include "tronclientweaponallocator.h"
+#include "clientweaponbase.h"
+#include "clientweaponnone.h"
+#include "clientweapondisc.h"
+#include "clientweaponclusterdisc.h"
 
 //
 // Typedefs

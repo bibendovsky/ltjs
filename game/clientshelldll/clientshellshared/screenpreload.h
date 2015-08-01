@@ -11,7 +11,7 @@
 #if !defined(_SCREEN_PRELOAD_H_)
 #define _SCREEN_PRELOAD_H_
 
-#include "BaseScreen.h"
+#include "basescreen.h"
 
 class CScreenPreload : public CBaseScreen
 {

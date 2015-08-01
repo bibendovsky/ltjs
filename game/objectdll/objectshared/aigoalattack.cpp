@@ -10,16 +10,16 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAttack.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIHuman.h"
-#include "AINode.h"
-#include "AITarget.h"
-#include "AnimatorPlayer.h"
-#include "AIGoalButeMgr.h"
-#include "AIUtils.h"
+#include "aigoalattack.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "aisenserecorderabstract.h"
+#include "aihuman.h"
+#include "ainode.h"
+#include "aitarget.h"
+#include "animatorplayer.h"
+#include "aigoalbutemgr.h"
+#include "aiutils.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalAttack, kGoal_Attack);
 

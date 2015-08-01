@@ -10,10 +10,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAttackMelee.h"
-#include "AIGoalMgr.h"
-#include "AnimatorPlayer.h"
-#include "AI.h"
+#include "aigoalattackmelee.h"
+#include "aigoalmgr.h"
+#include "animatorplayer.h"
+#include "ai.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalAttackMelee, kGoal_AttackMelee);
 

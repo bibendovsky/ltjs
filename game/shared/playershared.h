@@ -14,8 +14,8 @@
 #ifndef __PLAYER_SHARED_H__
 #define __PLAYER_SHARED_H__
 
-#include "LTVector.h"
-#include "ModelButeMgr.h"
+#include "ltvector.h"
+#include "modelbutemgr.h"
 
 // Shared player stuff...
 

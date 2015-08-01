@@ -2,7 +2,7 @@
 #ifndef  _TO2ClientWeaponAllocator_h_INCLUDED_
 #define  _TO2ClientWeaponAllocator_h_INCLUDED_
 
-#include "ClientWeaponAllocator.h"
+#include "clientweaponallocator.h"
 
 //
 // This class's sole purpose is  to create each 

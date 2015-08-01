@@ -9,10 +9,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SmokeFX.h"
+#include "smokefx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ClientServerShared.h"
+#include "clientutilities.h"
+#include "clientservershared.h"
 
 extern LTVector g_vWorldWindVel;
 

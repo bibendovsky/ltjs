@@ -11,8 +11,8 @@
 ********************************************************************************/
 
 #include "stdafx.h"
-#include "Launcher.h"
-#include "MultiplayerDlg.h"
+#include "launcher.h"
+#include "multiplayerdlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

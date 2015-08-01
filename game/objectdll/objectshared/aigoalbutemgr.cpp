@@ -10,13 +10,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalButeMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIGoalAbstract.h"
-#include "AINode.h"
-#include "AINodeMgr.h"
-#include "ButeTools.h"
-#include "AIState.h"
+#include "aigoalbutemgr.h"
+#include "aisenserecorderabstract.h"
+#include "aigoalabstract.h"
+#include "ainode.h"
+#include "ainodemgr.h"
+#include "butetools.h"
+#include "aistate.h"
 
 // Globals/statics
 

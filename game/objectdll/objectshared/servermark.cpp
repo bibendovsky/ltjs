@@ -9,10 +9,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ServerMark.h"
-#include "WeaponMgr.h"
+#include "servermark.h"
+#include "weaponmgr.h"
 #include "ilttransform.h"
-#include "CVarTrack.h"
+#include "cvartrack.h"
 
 CVarTrack	g_cvarMarkWMShow;
 CVarTrack	g_cvarMarkWMFadeTime;

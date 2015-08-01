@@ -5,9 +5,9 @@
 #include "winutil.h"
 #include <time.h>
 #include <direct.h>
-#include <IO.h>
+#include <io.h>
 #include "ltbasedefs.h"
-#include "CommonUtilities.h"
+#include "commonutilities.h"
 
 BOOL CWinUtil::GetMoviesPath (char* strPath)
 {

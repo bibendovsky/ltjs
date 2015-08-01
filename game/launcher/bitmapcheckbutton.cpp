@@ -12,11 +12,11 @@
 
 
 #include "stdafx.h"
-#include "Launcher.h"
-#include "BitmapCheckButton.h"
-#include "DlgEx.h"
-#include "Resource.h"
-#include "PlaySound.h"
+#include "launcher.h"
+#include "bitmapcheckbutton.h"
+#include "dlgex.h"
+#include "resource.h"
+#include "playsound.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

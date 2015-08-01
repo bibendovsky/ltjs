@@ -10,16 +10,16 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AISenseRecorderGame.h"
-#include "AI.h"
-#include "AIBrain.h"
-#include "AIStimulusMgr.h"
-#include "AIVolume.h"
-#include "AIRegion.h"
-#include "PlayerObj.h"
-#include "Alarm.h"
-#include "AIUtils.h"
-#include "AIVolumeMgr.h"
+#include "aisenserecordergame.h"
+#include "ai.h"
+#include "aibrain.h"
+#include "aistimulusmgr.h"
+#include "aivolume.h"
+#include "airegion.h"
+#include "playerobj.h"
+#include "alarm.h"
+#include "aiutils.h"
+#include "aivolumemgr.h"
 
 
 //----------------------------------------------------------------------------

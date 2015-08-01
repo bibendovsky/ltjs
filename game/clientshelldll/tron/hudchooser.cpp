@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "HUDChooser.h"
-#include "PlayerStats.h"
-#include "InterfaceMgr.h"
-#include "PlayerMgr.h"
-#include "ClientWeaponMgr.h"
+#include "hudmgr.h"
+#include "hudchooser.h"
+#include "playerstats.h"
+#include "interfacemgr.h"
+#include "playermgr.h"
+#include "clientweaponmgr.h"
 
 /*
 current weapon =		(  1, 365, 47, 404 ) show this when the chooser is closed

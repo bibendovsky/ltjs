@@ -12,7 +12,7 @@
 #ifndef _AI_NODE_DISTURBANCE_H_
 #define _AI_NODE_DISTURBANCE_H_
 
-#include "AINode.h"
+#include "ainode.h"
 
 LINKTO_MODULE( AINodeDisturbance );
 

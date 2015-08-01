@@ -15,10 +15,10 @@
 //
 
 	#include "stdafx.h"
-	#include "CommandButeMgr.h"
-	#include "CommandMgr.h"
-	#include "ClientServerShared.h"
-	#include "GameServerShell.h"
+	#include "commandbutemgr.h"
+	#include "commandmgr.h"
+	#include "clientservershared.h"
+	#include "gameservershell.h"
 	
 	extern class CGameServerShell* g_pGameServerShell;
 //

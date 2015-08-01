@@ -13,8 +13,8 @@
 #ifndef __INTEL_MGR_H__
 #define __INTEL_MGR_H__
 
-#include "GameButeMgr.h"
-#include "TemplateList.h"
+#include "gamebutemgr.h"
+#include "templatelist.h"
 
 class CIntelMgr;
 extern CIntelMgr* g_pIntelMgr;

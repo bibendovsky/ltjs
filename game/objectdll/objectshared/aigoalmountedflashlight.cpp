@@ -10,11 +10,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalMountedFlashlight.h"
-#include "AI.h"
-#include "AIVolume.h"
-#include "AIUtils.h"
-#include "Attachments.h"
+#include "aigoalmountedflashlight.h"
+#include "ai.h"
+#include "aivolume.h"
+#include "aiutils.h"
+#include "attachments.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalMountedFlashlight, kGoal_MountedFlashlight);
 

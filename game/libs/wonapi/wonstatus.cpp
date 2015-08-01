@@ -1,6 +1,6 @@
 #define __WON_MASTER_CPP__
 
-#include "WONStatus.h"
+#include "wonstatus.h"
 #include <stdio.h>
 
 ///////////////////////////////////////////////////////////////////////////////

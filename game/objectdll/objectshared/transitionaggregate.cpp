@@ -15,11 +15,11 @@
 //
 
 	#include "stdafx.h"
-	#include "MsgIds.h"
-	#include "PlayerObj.h"
-	#include "TransitionArea.h"
-	#include "TransitionAggregate.h"
-	#include "TransitionMgr.h"
+	#include "msgids.h"
+	#include "playerobj.h"
+	#include "transitionarea.h"
+	#include "transitionaggregate.h"
+	#include "transitionmgr.h"
 
 
 

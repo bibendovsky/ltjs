@@ -12,8 +12,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "VolumeEffect.h"
-#include "DEditColors.h"
+#include "volumeeffect.h"
+#include "deditcolors.h"
 
 LINKFROM_MODULE( VolumeEffect );
 

@@ -10,11 +10,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalWork.h"
-#include "AIGoalMgr.h"
-#include "AI.h"
-#include "AIHumanState.h"
-#include "AnimationMgr.h"
+#include "aigoalwork.h"
+#include "aigoalmgr.h"
+#include "ai.h"
+#include "aihumanstate.h"
+#include "animationmgr.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalWork,			kGoal_Work);
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalPlacePoster,	kGoal_PlacePoster);

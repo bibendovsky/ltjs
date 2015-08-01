@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "ltguimgr.h"
-#include "LTGUILargeText.h"
+#include "ltguilargetext.h"
 
 
 

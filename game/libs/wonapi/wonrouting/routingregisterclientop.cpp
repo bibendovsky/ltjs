@@ -1,6 +1,6 @@
-#include "RoutingRegisterClientOp.h"
-#include "RoutingGetClientListOp.h"
-#include "RoutingGetGroupListOp.h"
+#include "routingregisterclientop.h"
+#include "routinggetclientlistop.h"
+#include "routinggetgrouplistop.h"
 
 using namespace WONAPI;
 

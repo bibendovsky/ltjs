@@ -15,8 +15,8 @@
 //
 	
 	#include "stdafx.h" 
-	#include "ClientFX.h"
-	#include "ParticleSystemFX.h"
+	#include "clientfx.h"
+	#include "particlesystemfx.h"
 
 //
 // Angle macros...

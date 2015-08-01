@@ -1,7 +1,7 @@
 #ifndef __SERVER_TRACKEDNODECONTEXT_H__
 #define __SERVER_TRACKEDNODECONTEXT_H__
 
-#include "TrackedNodeContext.h"
+#include "trackednodecontext.h"
 
 
 // Server records target settings for save/load.

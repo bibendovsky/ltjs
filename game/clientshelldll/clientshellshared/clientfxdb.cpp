@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "FxFlags.h"
-#include "FxDefs.h"
+#include "fxflags.h"
+#include "fxdefs.h"
 #include "iltmessage.h"
 #include "iltdrawprim.h"
-#include "ClientFXDB.h"
-#include "CMoveMgr.h"
-#include "WinUtil.h"
+#include "clientfxdb.h"
+#include "cmovemgr.h"
+#include "winutil.h"
 
 #define MAX_TAG_SIZE		(64)
 #define MAX_LINE_SIZE		(2048)

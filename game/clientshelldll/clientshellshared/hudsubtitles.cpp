@@ -8,11 +8,11 @@
 //
 // ----------------------------------------------------------------------- //
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "HUDSubtitles.h"
-#include "PlayerMgr.h"
-#include "InterfaceMgr.h"
-#include "VarTrack.h"
+#include "hudmgr.h"
+#include "hudsubtitles.h"
+#include "playermgr.h"
+#include "interfacemgr.h"
+#include "vartrack.h"
 
 VarTrack g_vtAdjustedRadius;
 

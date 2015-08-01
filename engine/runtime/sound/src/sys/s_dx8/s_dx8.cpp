@@ -7,7 +7,7 @@
 // For debug logging
 
 #include "stdio.h"
-#include "SysCounter.h"
+#include "syscounter.h"
 
 #include <vector>
 

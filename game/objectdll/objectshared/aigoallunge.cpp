@@ -10,17 +10,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalLunge.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIVolumeMgr.h"
-#include "AIVolume.h"
-#include "AIHuman.h"
-#include "AITarget.h"
-#include "AIUtils.h"
-#include "AICentralKnowledgeMgr.h"
-#include "CharacterMgr.h"
+#include "aigoallunge.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "aisenserecorderabstract.h"
+#include "aivolumemgr.h"
+#include "aivolume.h"
+#include "aihuman.h"
+#include "aitarget.h"
+#include "aiutils.h"
+#include "aicentralknowledgemgr.h"
+#include "charactermgr.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalLunge, kGoal_Lunge);
 

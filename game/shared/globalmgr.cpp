@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "GlobalMgr.h"
-#include "WeaponMgr.h"
-#include "ModelButeMgr.h"
-#include "FXButeMgr.h"
-#include "UberAssert.h"
+#include "globalmgr.h"
+#include "weaponmgr.h"
+#include "modelbutemgr.h"
+#include "fxbutemgr.h"
+#include "uberassert.h"
 
 
 //----------------------------------------------------------------------------

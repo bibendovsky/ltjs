@@ -11,7 +11,7 @@
 #if !defined(_SCREEN_END_DM_MISSION_H_)
 #define _SCREEN_END_DM_MISSION_H_
 
-#include "BaseScreen.h"
+#include "basescreen.h"
 
 class CScreenEndDMMission : public CBaseScreen
 {

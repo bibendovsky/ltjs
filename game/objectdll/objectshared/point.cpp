@@ -13,7 +13,7 @@
 //
 
 	#include "stdafx.h"		
-	#include "Point.h"
+	#include "point.h"
 
 
 LINKFROM_MODULE( Point );

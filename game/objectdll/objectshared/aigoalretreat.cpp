@@ -10,14 +10,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalRetreat.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIVolumeMgr.h"
-#include "AIVolume.h"
-#include "AIHuman.h"
-#include "CharacterMgr.h"
+#include "aigoalretreat.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "aisenserecorderabstract.h"
+#include "aivolumemgr.h"
+#include "aivolume.h"
+#include "aihuman.h"
+#include "charactermgr.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalRetreat, kGoal_Retreat);
 

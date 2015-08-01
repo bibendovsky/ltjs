@@ -15,14 +15,14 @@
 //
 
 	#include "stdafx.h"
-	#include "ObjectMsgs.h"
-	#include "ParsedMsg.h"
-	#include "WorldModel.h"
-	#include "ClientWeaponSFX.h"
-	#include "ServerMark.h"
-	#include "WeaponMgr.h"
-	#include "Attachments.h"
-	#include "FXButeMgr.h"
+	#include "objectmsgs.h"
+	#include "parsedmsg.h"
+	#include "worldmodel.h"
+	#include "clientweaponsfx.h"
+	#include "servermark.h"
+	#include "weaponmgr.h"
+	#include "attachments.h"
+	#include "fxbutemgr.h"
 
 LINKFROM_MODULE( WorldModel );
 

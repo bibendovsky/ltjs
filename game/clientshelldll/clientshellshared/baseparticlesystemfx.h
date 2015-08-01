@@ -13,7 +13,7 @@
 #ifndef __BASE_PARTICLE_SYSTEM_FX_H__
 #define __BASE_PARTICLE_SYSTEM_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 #define PSFX_DEFAULT_GRAVITY	-500
 #define PSFX_DEFAULT_RADIUS		500

@@ -13,9 +13,9 @@
 #ifndef __POLYGON_DEBRIS_FX_H__
 #define __POLYGON_DEBRIS_FX_H__
 
-#include "DebrisFX.h"
-#include "PolyLineFX.h"
-#include "FXStructs.h"
+#include "debrisfx.h"
+#include "polylinefx.h"
+#include "fxstructs.h"
 
 struct POLYDEBRISCREATESTRUCT : public SFXCREATESTRUCT
 {

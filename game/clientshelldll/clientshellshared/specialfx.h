@@ -15,8 +15,8 @@
 
 #include "ltbasedefs.h"
 #include "iltclient.h"
-#include "SharedBaseFXStructs.h"
-#include "SFXMsgIds.h"
+#include "sharedbasefxstructs.h"
+#include "sfxmsgids.h"
 
 #pragma warning( disable : 4786 )
 #include <vector>

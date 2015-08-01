@@ -1,9 +1,9 @@
 #ifndef __WON_CRYPTTRANSFORM_H__
 #define __WON_CRYPTTRANSFORM_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONSocket/AsyncSocket.h"
-#include "AuthSession.h"
+#include "wonsocket/asyncsocket.h"
+#include "authsession.h"
 
 
 namespace WONAPI

@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "FireFX.h"
-#include "RandomSparksFX.h"
-#include "GameClientShell.h"
-#include "ClientButeMgr.h"
+#include "firefx.h"
+#include "randomsparksfx.h"
+#include "gameclientshell.h"
+#include "clientbutemgr.h"
 
 #define FFX_DEFAULT_RADIUS					100.0f
 #define	FFX_MIN_RADIUS						20.0f

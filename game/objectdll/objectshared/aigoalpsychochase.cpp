@@ -10,12 +10,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalPsychoChase.h"
-#include "AI.h"
-#include "AIHumanState.h"
-#include "AIGoalMgr.h"
-#include "PlayerObj.h"
-#include "CharacterMgr.h"
+#include "aigoalpsychochase.h"
+#include "ai.h"
+#include "aihumanstate.h"
+#include "aigoalmgr.h"
+#include "playerobj.h"
+#include "charactermgr.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalPsychoChase, kGoal_PsychoChase);
 

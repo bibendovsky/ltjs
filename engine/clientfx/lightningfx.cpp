@@ -11,8 +11,8 @@
 // Includes....
 
 #include "stdafx.h"
-#include "LightningFX.h"
-#include "ClientFX.h"
+#include "lightningfx.h"
+#include "clientfx.h"
 
 // ----------------------------------------------------------------------- //
 //

@@ -2,8 +2,8 @@
 // okay to ignore
 #pragma warning(disable: 4786)
 
-#include "Stdafx.h"
-#include "ButeMgr.h"
+#include "stdafx.h"
+#include "butemgr.h"
 
 
 #if defined(_DEBUG)

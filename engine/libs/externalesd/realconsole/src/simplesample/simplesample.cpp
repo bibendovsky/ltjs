@@ -32,7 +32,7 @@
 #include "crtdebug.h"
 
 // RealNetworks Interstitial DLL
-#include "RngInterstitialClient.h"
+#include "rnginterstitialclient.h"
 
 // RealArcade client lib
 #include "rngclib.h"

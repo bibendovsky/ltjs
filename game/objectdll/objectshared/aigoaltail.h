@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_TAIL_H__
 #define __AIGOAL_TAIL_H__
 
-#include "AIGoalAbstractTargeted.h"
+#include "aigoalabstracttargeted.h"
 
 
 class CAIGoalTail : public CAIGoalAbstractTargeted

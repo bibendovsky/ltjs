@@ -1,7 +1,7 @@
 #ifndef __WON_SMARTPTR_H__
 #define __WON_SMARTPTR_H__
-#include "WONShared.h"
-#include "Platform.h"
+#include "wonshared.h"
+#include "platform.h"
 
 #ifdef  _MSC_VER
 #pragma pack(push,8) // ensure proper alignment on the mRefCount member

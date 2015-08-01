@@ -1,4 +1,4 @@
-#include "StringUtil.h"
+#include "stringutil.h"
 
 using namespace std;
 namespace WONAPI

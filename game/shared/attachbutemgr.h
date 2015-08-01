@@ -3,9 +3,9 @@
 #ifndef __ATTACHBUTE_MGR_H__
 #define __ATTACHBUTE_MGR_H__
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include "ltbasetypes.h"
-#include "ButeListReader.h"
+#include "butelistreader.h"
 
 class CAttachButeMgr;
 extern CAttachButeMgr* g_pAttachButeMgr;

@@ -3,7 +3,7 @@
 #ifndef __SPEAKER_H__
 #define __SPEAKER_H__
 
-#include "Character.h"
+#include "character.h"
 
 LINKTO_MODULE( Speaker );
 

@@ -13,8 +13,8 @@
 #ifndef __SOUND_FILTER_MGR_H__
 #define __SOUND_FILTER_MGR_H__
 
-#include "GameButeMgr.h"
-#include "TemplateList.h"
+#include "gamebutemgr.h"
+#include "templatelist.h"
 
 class CSoundFilterMgr;
 extern CSoundFilterMgr* g_pSoundFilterMgr;

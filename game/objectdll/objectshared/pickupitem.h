@@ -13,10 +13,10 @@
 #ifndef __PICKUPITEM_H__
 #define __PICKUPITEM_H__
 
-#include "GameBase.h"
-#include "ClientServerShared.h"
-#include "CommandMgr.h"
-#include "PropTypeMgr.h"
+#include "gamebase.h"
+#include "clientservershared.h"
+#include "commandmgr.h"
+#include "proptypemgr.h"
 
 LINKTO_MODULE( PickupItem );
 

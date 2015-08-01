@@ -18,7 +18,7 @@
 // Includes...
 //
 	
-	#include "GameBase.h"
+	#include "gamebase.h"
 
 LINKTO_MODULE( StartupCommand );
 

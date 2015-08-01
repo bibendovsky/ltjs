@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_GUARD_H__
 #define __AIGOAL_GUARD_H__
 
-#include "AIGoalAbstractTargeted.h"
+#include "aigoalabstracttargeted.h"
 
 
 // Forward Declarations.

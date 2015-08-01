@@ -3,7 +3,7 @@
 #define __TRACKEDNODE_H__
 
 #include <time.h>
-#include "LTObjRef.h"
+#include "ltobjref.h"
 
 //CTrackedNode :
 //	holds all information for a tracked node. This is a behind the scenes class

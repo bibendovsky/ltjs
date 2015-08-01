@@ -13,7 +13,7 @@
 #ifndef __GLOBAL_CLIENT_MGR_H__
 #define __GLOBAL_CLIENT_MGR_H__
 
-#include "GlobalMgr.h"
+#include "globalmgr.h"
 
 class CClientButeMgr;
 class CClientSoundMgr;

@@ -5,8 +5,8 @@ static const char  RngInterstitialClientVersion[] = "Version 1.1";
 
 #include "stdafx.h"
 #include "stdio.h"
-#include "RngInterstitialClient.h"
-#include "../RngInterstitial/RngInterstitial.h"
+#include "rnginterstitialclient.h"
+#include "../rnginterstitial/rnginterstitial.h"
 
 typedef INTERSTITIAL_API int (CALLBACK* GAMEPROC)(UINT);
 

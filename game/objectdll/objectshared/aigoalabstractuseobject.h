@@ -12,9 +12,9 @@
 #ifndef __AIGOAL_AbstractUseObject_H__
 #define __AIGOAL_AbstractUseObject_H__
 
-#include "AIGoalAbstractSearch.h"
-#include "AnimationProp.h"
-#include "AI.h"
+#include "aigoalabstractsearch.h"
+#include "animationprop.h"
+#include "ai.h"
 
 // Forward declarations.
 class AINodeUseObject;

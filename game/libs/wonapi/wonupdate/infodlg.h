@@ -4,9 +4,9 @@
 #ifndef __InfoDlg_H__
 #define __InfoDlg_H__
 
-#include "WONGUI/MSControls.h"
-#include "WONGUI/TextBox.h"
-#include "WONGUI/Dialog.h"
+#include "wongui/mscontrols.h"
+#include "wongui/textbox.h"
+#include "wongui/dialog.h"
 
 namespace WONAPI
 {

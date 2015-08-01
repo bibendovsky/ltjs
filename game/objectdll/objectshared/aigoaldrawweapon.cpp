@@ -10,13 +10,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalDrawWeapon.h"
-#include "AIGoalMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIHuman.h"
-#include "AITarget.h"
-#include "AIUtils.h"
-#include "AIHumanState.h"
+#include "aigoaldrawweapon.h"
+#include "aigoalmgr.h"
+#include "aisenserecorderabstract.h"
+#include "aihuman.h"
+#include "aitarget.h"
+#include "aiutils.h"
+#include "aihumanstate.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalDrawWeapon, kGoal_DrawWeapon);
 

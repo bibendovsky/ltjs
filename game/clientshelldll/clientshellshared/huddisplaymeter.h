@@ -15,7 +15,7 @@
 // Includes...
 //
 
-	#include "HUDMeter.h"
+	#include "hudmeter.h"
 
 class CHUDDisplayMeter : public CHUDMeter
 {

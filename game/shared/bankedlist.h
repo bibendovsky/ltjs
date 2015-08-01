@@ -143,6 +143,6 @@ private:
 	uint32 m_nIndex;
 };
 
-#include "BankedList_impl.h"
+#include "bankedlist_impl.h"
 
 #endif //__BANKEDLIST_H__

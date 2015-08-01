@@ -13,7 +13,7 @@
 // Includes....
 
 #include "stdafx.h"
-#include "ScreenTrail.h"
+#include "screentrail.h"
 
 void RenderPolyTrail(ILTClient *pClientDE, 
 					 CLinkList<TRAIL_SECTION> *pList, 

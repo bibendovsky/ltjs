@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PlayerLureFX.h"
-#include "GameClientShell.h"
-#include "CMoveMgr.h"
+#include "playerlurefx.h"
+#include "gameclientshell.h"
+#include "cmovemgr.h"
 
 PlayerLureFX::PlayerLureFXList PlayerLureFX::m_lstPlayerLureFXs;
 

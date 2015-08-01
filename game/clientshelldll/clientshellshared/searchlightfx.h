@@ -13,8 +13,8 @@
 #ifndef __SEARCH_LIGHT_FX_H__
 #define __SEARCH_LIGHT_FX_H__
 
-#include "SpecialFX.h"
-#include "LensFlareFX.h"
+#include "specialfx.h"
+#include "lensflarefx.h"
 
 struct SEARCHLIGHTCREATESTRUCT : public SFXCREATESTRUCT
 {

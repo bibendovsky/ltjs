@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TO2HUDMgr.h"
-#include "TO2PlayerStats.h"
-#include "SurfaceFunctions.h"
-#include "CharacterFX.h"
+#include "to2hudmgr.h"
+#include "to2playerstats.h"
+#include "surfacefunctions.h"
+#include "characterfx.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

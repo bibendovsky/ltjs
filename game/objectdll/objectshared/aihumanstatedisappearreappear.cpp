@@ -1,11 +1,11 @@
 // (c) 2001 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIHumanStateDisappearReappear.h"
-#include "AIHuman.h"
-#include "AITarget.h"
-#include "AIPathMgr.h"
-#include "AIUtils.h"
+#include "aihumanstatedisappearreappear.h"
+#include "aihuman.h"
+#include "aitarget.h"
+#include "aipathmgr.h"
+#include "aiutils.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(State, CAIHumanStateDisappearReappear, kState_HumanDisappearReappear);
 

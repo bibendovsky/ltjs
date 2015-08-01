@@ -23,7 +23,7 @@
 
 #include "mfcstub.h"
 
-#include "DebugNew.h"
+#include "debugnew.h"
 
 #include "clientheaders.h"
 #include "iltmessage.h"
@@ -39,9 +39,9 @@
 #include "ltobjref.h"
 #include "ltobjectcreate.h"
 
-#include "Factory.h"
+#include "factory.h"
 
-#include "ClientUtilities.h"
-#include "CommonUtilities.h"
+#include "clientutilities.h"
+#include "commonutilities.h"
 
 #endif // __STDAFX_H__

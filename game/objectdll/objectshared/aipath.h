@@ -3,10 +3,10 @@
 #ifndef __AI_PATH_H__
 #define __AI_PATH_H__
 
-#include "AIVolume.h"
-#include "AINode.h"
-#include "AIVolumeNeighbor.h"
-#include "AIClassFactory.h"
+#include "aivolume.h"
+#include "ainode.h"
+#include "aivolumeneighbor.h"
+#include "aiclassfactory.h"
 
 // Vectors.
 

@@ -18,11 +18,11 @@
 // Includes
 #include "stdafx.h"
 
-#include "CollectiveRelationMgr.h"
-#include "ObjectRelationMgr.h"
-#include "RelationMgr.h"
-#include "AIAssert.h"
-#include "ServerUtilities.h"
+#include "collectiverelationmgr.h"
+#include "objectrelationmgr.h"
+#include "relationmgr.h"
+#include "aiassert.h"
+#include "serverutilities.h"
 
 #include <algorithm>
 

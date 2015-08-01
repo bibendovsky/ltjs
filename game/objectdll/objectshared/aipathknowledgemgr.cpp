@@ -10,9 +10,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIPathKnowledgeMgr.h"
-#include "AIUtils.h"
-#include "AI.h"
+#include "aipathknowledgemgr.h"
+#include "aiutils.h"
+#include "ai.h"
 
 
 DEFINE_AI_FACTORY_CLASS( CAIPathKnowledgeMgr );

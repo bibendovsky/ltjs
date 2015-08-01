@@ -1,7 +1,7 @@
 #ifndef __WON_DetectFirewallOP_H__
 #define __WON_DetectFirewallOP_H__
-#include "WONShared.h"
-#include "WONServer/ServerRequestOp.h"
+#include "wonshared.h"
+#include "wonserver/serverrequestop.h"
 
 namespace WONAPI
 {

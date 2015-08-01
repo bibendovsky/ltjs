@@ -20,14 +20,14 @@
 #include "stdafx.h"
 
 #ifndef __AISPATIALREPRESENTATIONMGR_H__
-#include "AISpatialRepresentationMgr.h"
+#include "aispatialrepresentationmgr.h"
 #endif
 
-#include "AI.h"
-#include "AIPath.h"
-#include "FastHeap.h"
-#include "WorldProperties.h"
-#include "AIUtils.h"
+#include "ai.h"
+#include "aipath.h"
+#include "fastheap.h"
+#include "worldproperties.h"
+#include "aiutils.h"
 
 #include <algorithm>
 

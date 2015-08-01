@@ -6,10 +6,10 @@
 #define _BASE_SCREEN_H_
 
 
-#include "LTGUIMgr.h"
-#include "BaseScaleFX.h"
-#include "ChainedFX.h"
-#include "LTPoly.h"
+#include "ltguimgr.h"
+#include "basescalefx.h"
+#include "chainedfx.h"
+#include "ltpoly.h"
 
 struct INT_CHAR;
 

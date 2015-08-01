@@ -3,7 +3,7 @@
 #define  _WeaponFireInfo_h_INCLUDED_
 
 
-#include "MsgIDs.h"
+#include "msgids.h"
 
 
 struct WeaponFireInfo

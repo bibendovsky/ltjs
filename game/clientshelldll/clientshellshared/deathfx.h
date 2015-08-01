@@ -11,10 +11,10 @@
 #ifndef __DEATH_FX_H__
 #define __DEATH_FX_H__
 
-#include "SpecialFX.h"
-#include "ContainerCodes.h"
-#include "CharacterAlignment.h"
-#include "GibFX.h"
+#include "specialfx.h"
+#include "containercodes.h"
+#include "characteralignment.h"
+#include "gibfx.h"
 
 struct DEATHCREATESTRUCT : public SFXCREATESTRUCT
 {

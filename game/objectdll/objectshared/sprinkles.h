@@ -4,7 +4,7 @@
 
 
 #include "ltengineobjects.h"
-#include "SharedFXStructs.h"
+#include "sharedfxstructs.h"
 
 
 LINKTO_MODULE( Sprinkles );

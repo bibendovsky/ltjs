@@ -1,4 +1,4 @@
-#include "SocketThreadWinsock2.h"
+#include "socketthreadwinsock2.h"
 #include <crtdbg.h>
 using namespace WONAPI;
 

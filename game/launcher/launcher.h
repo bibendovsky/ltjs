@@ -23,7 +23,7 @@
 
 // Includes
 #include "resource.h"
-#include "RegMgr32.h"
+#include "regmgr32.h"
 
 // Defines
 #define ACTION_HOSTGAME				100

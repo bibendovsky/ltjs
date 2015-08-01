@@ -1,10 +1,10 @@
 #ifndef __WON_MINICRYPT_BLOWFISH_H__
 #define __WON_MINICRYPT_BLOWFISH_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <string>
-#include "WONCommon/WONTypes.h"
-#include "WONCommon/ByteBuffer.h"
+#include "woncommon/wontypes.h"
+#include "woncommon/bytebuffer.h"
 
 namespace WONAPI
 {

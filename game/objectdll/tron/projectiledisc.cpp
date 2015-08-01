@@ -11,16 +11,16 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ProjectileDisc.h"
-#include "MsgIDs.h"
-#include "WeaponFireInfo.h"
-#include "TronPlayerObj.h"
-#include "PlayerObj.h"
-#include "AIStimulusMgr.h"
-#include "CharacterMgr.h"
-#include "ImpactType.h"
-#include "FxDefs.h"
-#include "FXButeMgr.h"
+#include "projectiledisc.h"
+#include "msgids.h"
+#include "weaponfireinfo.h"
+#include "tronplayerobj.h"
+#include "playerobj.h"
+#include "aistimulusmgr.h"
+#include "charactermgr.h"
+#include "impacttype.h"
+#include "fxdefs.h"
+#include "fxbutemgr.h"
 
 //
 // LithTech Macros

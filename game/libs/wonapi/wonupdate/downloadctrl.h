@@ -4,11 +4,11 @@
 #ifndef __DownloadCtrl_H__
 #define __DownloadCtrl_H__
 
-#include "WONGUI/TextBox.h"
-#include "WONGUI/MSControls.h"
-#include "WONGUI/Button.h"
-#include "WizardCtrl.h"
-#include "ProgressBarComponent.h"
+#include "wongui/textbox.h"
+#include "wongui/mscontrols.h"
+#include "wongui/button.h"
+#include "wizardctrl.h"
+#include "progressbarcomponent.h"
 
 namespace WONAPI
 {

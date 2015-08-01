@@ -11,7 +11,7 @@
 #ifndef __PARTICLE_TRAIL_SEGMENT_FX_H__
 #define __PARTICLE_TRAIL_SEGMENT_FX_H__
 
-#include "BaseParticleSystemFX.h"
+#include "baseparticlesystemfx.h"
 
 
 struct PTSCREATESTRUCT : public BPSCREATESTRUCT

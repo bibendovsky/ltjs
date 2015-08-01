@@ -10,10 +10,10 @@
 
 
 #include "stdafx.h"
-#include "DoomsDayMissionMgr.h"
-#include "PlayerObj.h"
-#include "ServerSaveLoadMgr.h"
-#include "MissionButeMgr.h"
+#include "doomsdaymissionmgr.h"
+#include "playerobj.h"
+#include "serversaveloadmgr.h"
+#include "missionbutemgr.h"
 
 extern CVarTrack g_vtNetFriendlyFire;
 

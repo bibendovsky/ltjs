@@ -1,12 +1,12 @@
 #ifndef __WON_MINICRYPT_ELGAMAL_H__
 #define __WON_MINICRYPT_ELGAMAL_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "BigInteger.h"
-#include "Random.h"
-#include "WONCommon/WONTypes.h"
-#include "WONCommon/ByteBuffer.h"
-#include "WONCommon/WriteBuffer.h"
+#include "biginteger.h"
+#include "random.h"
+#include "woncommon/wontypes.h"
+#include "woncommon/bytebuffer.h"
+#include "woncommon/writebuffer.h"
 
 namespace WONAPI
 {

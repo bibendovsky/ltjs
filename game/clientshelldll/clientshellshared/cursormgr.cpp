@@ -12,10 +12,10 @@
 
 
 #include "stdafx.h"
-#include "VarTrack.h"
-#include "InterfaceMgr.h"
-#include "CursorMgr.h"
-#include "ClientResShared.h"
+#include "vartrack.h"
+#include "interfacemgr.h"
+#include "cursormgr.h"
+#include "clientresshared.h"
 
 VarTrack	g_vtCursorHack;
 

@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ClientRes.h"
-#include "TronHUDMgr.h"
-#include "TRONPlayerStats.h"
-#include "TronInterfaceMgr.h"
-#include "SubroutineMgr.h"
+#include "clientres.h"
+#include "tronhudmgr.h"
+#include "tronplayerstats.h"
+#include "troninterfacemgr.h"
+#include "subroutinemgr.h"
 
 // TODO mark objectives that are complete or just remove them?
 

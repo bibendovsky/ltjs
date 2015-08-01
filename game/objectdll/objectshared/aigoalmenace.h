@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_MENACE_H__
 #define __AIGOAL_MENACE_H__
 
-#include "AIGoalAbstractUseObject.h"
+#include "aigoalabstractuseobject.h"
 
 
 class CAIGoalMenace : public CAIGoalAbstractUseObject

@@ -1,7 +1,7 @@
 #ifndef __WON_IPADDR_H__
 #define __WON_IPADDR_H__
-#include "WONShared.h"
-#include "WONCommon/Platform.h"
+#include "wonshared.h"
+#include "woncommon/platform.h"
 
 #include <string>
 #include <set>

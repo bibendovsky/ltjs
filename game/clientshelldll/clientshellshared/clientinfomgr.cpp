@@ -9,9 +9,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ClientInfoMgr.h"
+#include "clientinfomgr.h"
 #include "iltclient.h"
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 #include <stdio.h>
 
 #define VERT_SPACING 3

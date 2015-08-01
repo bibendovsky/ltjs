@@ -11,8 +11,8 @@
 #ifndef __LASER_TRIGGER_H__
 #define __LASER_TRIGGER_H__
 
-#include "Trigger.h"
-#include "SharedFXStructs.h"
+#include "trigger.h"
+#include "sharedfxstructs.h"
 
 LINKTO_MODULE( LaserTrigger );
 

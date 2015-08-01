@@ -1,5 +1,5 @@
-#include "WriteBuffer.h"
-#include "LittleEndian.h"
+#include "writebuffer.h"
+#include "littleendian.h"
 using namespace WONAPI;
 
 ///////////////////////////////////////////////////////////////////////////////

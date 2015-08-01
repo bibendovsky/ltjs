@@ -1,6 +1,6 @@
 #ifndef __WON_DIRTYPES_H__
 #define __WON_DIRTYPES_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 namespace WONAPI
 {

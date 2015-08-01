@@ -14,10 +14,10 @@
 #define __PV_FX_MGR_H__
 
 #include "clientheaders.h"
-#include "BaseScaleFX.h"
-#include "DynamicLightFX.h"
-#include "SoundFX.h"
-#include "WeaponMgr.h"
+#include "basescalefx.h"
+#include "dynamiclightfx.h"
+#include "soundfx.h"
+#include "weaponmgr.h"
 
 struct SOUNDFX;
 

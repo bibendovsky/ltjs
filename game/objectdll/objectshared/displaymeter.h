@@ -14,8 +14,8 @@
 #define __DISPLAY_METER_H__
 
 #include "ltengineobjects.h"
-#include "CommandMgr.h"
-#include "GameBase.h"
+#include "commandmgr.h"
+#include "gamebase.h"
 
 #define DM_MAX_NUMBER_OF_PHASES		5
 

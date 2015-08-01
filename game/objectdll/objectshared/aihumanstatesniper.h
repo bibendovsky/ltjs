@@ -3,7 +3,7 @@
 #ifndef __AI_HUMAN_STATE_SNIPER_H__
 #define __AI_HUMAN_STATE_SNIPER_H__
 
-#include "AIHumanState.h"
+#include "aihumanstate.h"
 
 
 class CAIHumanStateSniper : public CAIHumanStateUseObject

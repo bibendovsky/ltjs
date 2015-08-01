@@ -12,7 +12,7 @@
 
 #include "stdafx.h"
 #include "screentintmgr.h"
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 
 
 CScreenTintMgr::CScreenTintMgr()

@@ -9,10 +9,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "PlayerStats.h"
-#include "DamageFxMgr.h"
-#include "InterfaceMgr.h"
+#include "hudmgr.h"
+#include "playerstats.h"
+#include "damagefxmgr.h"
+#include "interfacemgr.h"
 
 //******************************************************************************************
 //**

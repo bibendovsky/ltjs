@@ -3,9 +3,9 @@
 #ifndef __AI_HUMAN_STATE_H__
 #define __AI_HUMAN_STATE_H__
 
-#include "AIState.h"
-#include "AIHumanStrategy.h"
-#include "AITypes.h"
+#include "aistate.h"
+#include "aihumanstrategy.h"
+#include "aitypes.h"
 
 // Forward declarations.
 class CAI;

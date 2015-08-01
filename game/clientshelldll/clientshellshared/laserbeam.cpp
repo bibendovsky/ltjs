@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "LaserBeam.h"
-#include "GameClientShell.h"
-#include "ClientUtilities.h"
-#include "VarTrack.h"
-#include "CMoveMgr.h"
+#include "laserbeam.h"
+#include "gameclientshell.h"
+#include "clientutilities.h"
+#include "vartrack.h"
+#include "cmovemgr.h"
 
 VarTrack	g_cvarLaserBeamThickness;
 VarTrack	g_cvarLaserBeamAlpha;

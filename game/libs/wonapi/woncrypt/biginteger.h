@@ -1,12 +1,12 @@
 #ifndef __WON_MINICRYPT_BIGINTEGER_H__
 #define __WON_MINICRYPT_BIGINTEGER_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 
 #include <string>
 #include <assert.h>
-#include "WONCommon/WONTypes.h"
-#include "Random.h"
+#include "woncommon/wontypes.h"
+#include "random.h"
 
 
 namespace WONAPI

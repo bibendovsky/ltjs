@@ -8,9 +8,9 @@
 //
 // ----------------------------------------------------------------------- //
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "HUDMessageQueue.h"
-#include "InterfaceMgr.h"
+#include "hudmgr.h"
+#include "hudmessagequeue.h"
+#include "interfacemgr.h"
 
 
 const uint16 CHUDMessageQueue::kMaxHistory = 255;

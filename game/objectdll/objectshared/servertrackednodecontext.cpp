@@ -13,8 +13,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ServerTrackedNodeContext.h"
-#include "MsgIDs.h"
+#include "servertrackednodecontext.h"
+#include "msgids.h"
 
 // ----------------------------------------------------------------------- //
 //

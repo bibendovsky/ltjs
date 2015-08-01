@@ -11,8 +11,8 @@
 #ifndef __CONTAINER_CODES_H__
 #define __CONTAINER_CODES_H__
 
-#include "ClientServerShared.h"
-#include "CommonUtilities.h"
+#include "clientservershared.h"
+#include "commonutilities.h"
 
 #ifdef _CLIENTBUILD
 #include "iclientshell.h"

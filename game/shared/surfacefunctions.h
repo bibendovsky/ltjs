@@ -12,8 +12,8 @@
 #define __SURFACE_FUNCTIONS_H__
 
 #include "ltbasedefs.h"
-#include "SurfaceMgr.h"
-#include "SharedMovement.h"
+#include "surfacemgr.h"
+#include "sharedmovement.h"
 
 // ----------------------------------------------------------------------- //
 //

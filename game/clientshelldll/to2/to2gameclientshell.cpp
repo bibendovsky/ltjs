@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TO2GameClientShell.h"
+#include "to2gameclientshell.h"
 
 #include "msgids.h"
 

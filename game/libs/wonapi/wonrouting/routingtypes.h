@@ -1,8 +1,8 @@
 #ifndef __WON_ROUTINGTYPES_H__
 #define __WON_ROUTINGTYPES_H__
-#include "WONShared.h"
-#include "WONCommon/SmartPtr.h"
-#include "WONCommon/ByteBuffer.h"
+#include "wonshared.h"
+#include "woncommon/smartptr.h"
+#include "woncommon/bytebuffer.h"
 #include <list>
 #include <map>
 

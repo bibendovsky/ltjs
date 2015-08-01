@@ -1,8 +1,8 @@
 #ifndef __WON_READBUFFER_H__
 #define __WON_READBUFFER_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "ByteBuffer.h"
+#include "bytebuffer.h"
 
 namespace WONAPI
 {

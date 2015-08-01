@@ -12,8 +12,8 @@
 #ifndef __AIGOAL_SERUM_DEATH_H__
 #define __AIGOAL_SERUM_DEATH_H__
 
-#include "AIGoalAbstract.h"
-#include "AnimationMgr.h"
+#include "aigoalabstract.h"
+#include "animationmgr.h"
 
 
 class CAIGoalSerumDeath : public CAIGoalAbstract

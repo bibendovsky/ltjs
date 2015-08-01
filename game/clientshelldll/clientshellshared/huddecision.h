@@ -11,8 +11,8 @@
 #ifndef __HUD_DECISION_H
 #define __HUD_DECISION_H
 
-#include "HUDItem.h"
-#include "ClientServerShared.h"
+#include "huditem.h"
+#include "clientservershared.h"
 
 //******************************************************************************************
 //** HUD Message Queue

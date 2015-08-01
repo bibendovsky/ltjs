@@ -1,5 +1,5 @@
-#include "FileReader.h"
-#include "LittleEndian.h"
+#include "filereader.h"
+#include "littleendian.h"
 
 using namespace WONAPI;
 

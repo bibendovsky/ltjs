@@ -1,7 +1,7 @@
 #ifndef __WON_ROUTINGPEERCHATOP_H__
 #define __WON_ROUTINGPEERCHATOP_H__
-#include "WONShared.h"
-#include "RoutingOp.h"
+#include "wonshared.h"
+#include "routingop.h"
 #include <string>
 
 namespace WONAPI

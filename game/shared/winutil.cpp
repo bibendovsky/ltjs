@@ -4,7 +4,7 @@
 #include "winutil.h"
 #include <time.h>
 #include <direct.h>
-#include <IO.h>
+#include <io.h>
 #include "ltbasedefs.h"
 
 BOOL CWinUtil::GetMoviesPath (char* strPath)

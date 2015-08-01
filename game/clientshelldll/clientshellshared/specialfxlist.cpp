@@ -2,9 +2,9 @@
 // Implementation of the CSpecialFXList class
 
 #include "stdafx.h"
-#include "SpecialFXList.h"
+#include "specialfxlist.h"
 
-#include "SFXMgr.h"
+#include "sfxmgr.h"
 
 CSpecialFXList::~CSpecialFXList()
 {

@@ -12,20 +12,20 @@
 
 #include <vector>
 #include "stdafx.h"
-#include "WeaponMgr.h"
-#include "Weapons.h"
-#include "PlayerObj.h"
-#include "MsgIds.h"
+#include "weaponmgr.h"
+#include "weapons.h"
+#include "playerobj.h"
+#include "msgids.h"
 #include "iltserver.h"
-#include "Character.h"
-#include "ObjectMsgs.h"
-#include "HHWeaponModel.h"
-#include "AmmoBox.h"
-#include "GameServerShell.h"
-#include "WeaponItems.h"
-#include "Weapons.h"
-#include "Weapon.h"
-#include "Projectile.h"
+#include "character.h"
+#include "objectmsgs.h"
+#include "hhweaponmodel.h"
+#include "ammobox.h"
+#include "gameservershell.h"
+#include "weaponitems.h"
+#include "weapons.h"
+#include "weapon.h"
+#include "projectile.h"
 
 CBankedList<CWeapon> s_bankCWeapon;
 

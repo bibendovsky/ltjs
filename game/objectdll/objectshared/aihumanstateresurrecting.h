@@ -23,7 +23,7 @@
 
 // Includes
 #ifndef __AI_HUMAN_STATE_H__
-#include "AIHumanState.h"
+#include "aihumanstate.h"
 #endif
 
 // Forward declarations

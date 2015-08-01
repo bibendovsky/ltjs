@@ -1,6 +1,6 @@
-#include "DirEntity.h"
-#include "WONCommon/ReadBuffer.h"
-#include "WONCommon/WriteBuffer.h"
+#include "direntity.h"
+#include "woncommon/readbuffer.h"
+#include "woncommon/writebuffer.h"
 
 using namespace WONAPI;
 

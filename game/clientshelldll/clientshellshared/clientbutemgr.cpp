@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ClientButeMgr.h"
+#include "clientbutemgr.h"
 
 #define CBMGR_CHEATS_TAG				"Cheats"
 #define CBMGR_CHEATS_ATTRIBUTE_NAME		"Cheat"

@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PlayerSoundFX.h"
-#include "GameClientShell.h"
+#include "playersoundfx.h"
+#include "gameclientshell.h"
 #include "iltclient.h"
-#include "MsgIds.h"
+#include "msgids.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

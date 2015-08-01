@@ -11,7 +11,7 @@
 #ifndef __WORLD_MODEL_DEBRIS_H__
 #define __WORLD_MODEL_DEBRIS_H__
 
-#include "Door.h"
+#include "door.h"
 #include "ltengineobjects.h"
 
 LINKTO_MODULE( WorldModelDebris );

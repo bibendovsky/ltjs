@@ -3,11 +3,11 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "PopupText.h"
-#include "InterfaceMgr.h"
-#include "GameClientShell.h"
-#include "ClientWeaponMgr.h"
-#include "PopupMgr.h"
+#include "popuptext.h"
+#include "interfacemgr.h"
+#include "gameclientshell.h"
+#include "clientweaponmgr.h"
+#include "popupmgr.h"
 
 
 namespace

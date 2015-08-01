@@ -10,7 +10,7 @@
 
 
 #include "ltguimgr.h"
-#include "ltguiColumnCtrl.h"
+#include "ltguicolumnctrl.h"
 
 const uint8	CLTGUIColumnCtrl::kMaxNumColumns = 255;
 

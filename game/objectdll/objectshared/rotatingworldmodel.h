@@ -13,7 +13,7 @@
 #ifndef __ROTATING_WORLD_MODEL_H__
 #define __ROTATING_WORLD_MODEL_H__
 
-#include "ActiveWorldModel.h"
+#include "activeworldmodel.h"
 
 LINKTO_MODULE( RotatingWorldModel );
 

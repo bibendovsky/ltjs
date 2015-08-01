@@ -26,12 +26,12 @@
 #include "ltsysoptim.h"
 #endif
 
-#include "LTFontParams.h"
+#include "ltfontparams.h"
 
 #include "iltclient.h"
 #include "interface_helpers.h"
 
-#include <TCHAR.h>
+#include <tchar.h>
 
 // get the ILTTexInterface from the interface database
 static ILTTexInterface *pTexInterface = NULL;

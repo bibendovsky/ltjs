@@ -36,8 +36,8 @@
 #include "rmasite2.h"
 #include "rmaevent.h"
 
-#include "LTRList.h"
-#include "LTRVideoSurface.h"
+#include "ltrlist.h"
+#include "ltrvideosurface.h"
 
 //-----------------------------------------------------------------------------
 class NonDelegatingUnknown

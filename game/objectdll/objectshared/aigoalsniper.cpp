@@ -10,14 +10,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalSniper.h"
-#include "AIGoalMgr.h"
-#include "AIGoalButeMgr.h"
-#include "AI.h"
-#include "AINodeMgr.h"
-#include "AIHumanStateSniper.h"
-#include "AITarget.h"
-#include "AIVolume.h"
+#include "aigoalsniper.h"
+#include "aigoalmgr.h"
+#include "aigoalbutemgr.h"
+#include "ai.h"
+#include "ainodemgr.h"
+#include "aihumanstatesniper.h"
+#include "aitarget.h"
+#include "aivolume.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalSniper, kGoal_Sniper);
 

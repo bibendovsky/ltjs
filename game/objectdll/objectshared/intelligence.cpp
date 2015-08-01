@@ -11,13 +11,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Intelligence.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "PlayerObj.h"
-#include "CommandMgr.h"
-#include "ServerSoundMgr.h"
-#include "GameServerShell.h"
+#include "intelligence.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "playerobj.h"
+#include "commandmgr.h"
+#include "serversoundmgr.h"
+#include "gameservershell.h"
 
 LINKFROM_MODULE( Intelligence );
 

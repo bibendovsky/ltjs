@@ -13,7 +13,7 @@
 
 #include "mfcstub.h"
 
-#include "DebugNew.h"
+#include "debugnew.h"
 
 #include "iltclient.h"
 #include "iltserver.h"
@@ -29,7 +29,7 @@
 #include "ltobjectcreate.h"
 #include "iltcommon.h"
 
-#include "TemplateList.h"
+#include "templatelist.h"
 
 extern ILTClient *g_pLTClient;
 

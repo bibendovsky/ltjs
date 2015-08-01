@@ -12,8 +12,8 @@
 #ifndef __AIGOAL_SPECIAL_DAMAGE_H__
 #define __AIGOAL_SPECIAL_DAMAGE_H__
 
-#include "AIGoalAbstractSearch.h"
-#include "AnimationMgr.h"
+#include "aigoalabstractsearch.h"
+#include "animationmgr.h"
 
 enum DamageType;
 enum EnumAIStimulusID;

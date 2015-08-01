@@ -10,17 +10,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalMgr.h"
-#include "AIGoalAbstract.h"
-#include "AISenseRecorderAbstract.h"
-#include "AI.h"
-#include "AIState.h"
-#include "AIGoalButeMgr.h"
-#include "AnimationMgr.h"
-#include "ParsedMsg.h"
-#include "AIUtils.h"
-#include "AIMovement.h"
-#include "AIBrain.h"
+#include "aigoalmgr.h"
+#include "aigoalabstract.h"
+#include "aisenserecorderabstract.h"
+#include "ai.h"
+#include "aistate.h"
+#include "aigoalbutemgr.h"
+#include "animationmgr.h"
+#include "parsedmsg.h"
+#include "aiutils.h"
+#include "aimovement.h"
+#include "aibrain.h"
 
 #define GOAL_CMD_PREFIX		"GOAL_"
 #define GOAL_CMD_GOALSET	"GoalSet"
@@ -506,7 +506,7 @@ CAIGoalAbstract* CAIGoalMgr::AI_FACTORY_NEW_Goal(EnumAIGoalType eGoalType)
 	switch( eGoalType )
 	{
 		#define GOAL_TYPE_AS_SWITCH 1
-		#include "AIGoalTypeEnums.h"
+		#include "aigoaltypeenums.h"
 		#undef GOAL_TYPE_AS_SWITCH
 
 		default: AIASSERT( 0, m_pAI->m_hObject, "CAIGoalMgr::CreateFactoryGoal: Unrecognized goal type.");

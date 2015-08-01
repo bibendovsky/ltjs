@@ -4,7 +4,7 @@
 #ifndef __PARSEDMSG_H__
 #define __PARSEDMSG_H__
 
-#include "DebugNew.h"
+#include "debugnew.h"
 
 
 class CParsedMsg

@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ABSTRACT_SEARCH_H__
 #define __AIGOAL_ABSTRACT_SEARCH_H__
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 typedef std::vector< LTObjRef > AISEARCHREGION_LIST;
 

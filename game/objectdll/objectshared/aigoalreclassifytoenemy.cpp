@@ -18,11 +18,11 @@
 // Includes
 #include "stdafx.h"
 
-#include "AIGoalReclassifyToEnemy.h"		
-#include "AIGoalMgr.h"
-#include "AI.h"
-#include "ObjectRelationMgr.h"
-#include "RelationMgr.h"
+#include "aigoalreclassifytoenemy.h"		
+#include "aigoalmgr.h"
+#include "ai.h"
+#include "objectrelationmgr.h"
+#include "relationmgr.h"
 
 // Forward declarations
 

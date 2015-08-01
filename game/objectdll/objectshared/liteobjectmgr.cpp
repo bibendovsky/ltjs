@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "LiteObjectMgr.h"
-#include "GameBaseLite.h"
+#include "liteobjectmgr.h"
+#include "gamebaselite.h"
 
 #include <set>
 #include <algorithm>

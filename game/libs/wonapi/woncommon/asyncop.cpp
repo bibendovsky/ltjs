@@ -1,7 +1,7 @@
-#include "AsyncOp.h"
-#include "AsyncOpContainer.h"
-#include "TimerThread.h"
-#include "WONAPI.h"
+#include "asyncop.h"
+#include "asyncopcontainer.h"
+#include "timerthread.h"
+#include "wonapi.h"
 
 using namespace WONAPI;
 

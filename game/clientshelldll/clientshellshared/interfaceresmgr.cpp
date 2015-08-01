@@ -10,8 +10,8 @@
 
 #include "stdafx.h"
 #include "gameclientshell.h"
-#include "InterfaceResMgr.h"
-#include "ClientButeMgr.h"
+#include "interfaceresmgr.h"
+#include "clientbutemgr.h"
 
 
 CInterfaceResMgr*   g_pInterfaceResMgr = LTNULL;

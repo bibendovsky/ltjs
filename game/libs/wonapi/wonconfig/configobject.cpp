@@ -1,6 +1,6 @@
-#include "ConfigObject.h"
-#include "WONCommon/StringUtil.h"
-#include "StringParser.h"
+#include "configobject.h"
+#include "woncommon/stringutil.h"
+#include "stringparser.h"
 
 using namespace std;
 using namespace WONAPI;

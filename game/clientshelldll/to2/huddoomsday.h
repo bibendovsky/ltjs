@@ -11,7 +11,7 @@
 #ifndef __HUD_DOOM_H
 #define __HUD_DOOM_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 
 

@@ -13,10 +13,10 @@
 //
 
 	#include "stdafx.h"
-	#include "HUDMgr.h"
-	#include "PlayerStats.h"
-	#include "LayoutMgr.h"
-	#include "HUDProgressBar.h"
+	#include "hudmgr.h"
+	#include "playerstats.h"
+	#include "layoutmgr.h"
+	#include "hudprogressbar.h"
 
 // ----------------------------------------------------------------------- //
 //

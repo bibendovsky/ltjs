@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ATTACK_RANGED_DYNAMIC_H__
 #define __AIGOAL_ATTACK_RANGED_DYNAMIC_H__
 
-#include "AIGoalAttackRanged.h"
+#include "aigoalattackranged.h"
 
 
 class CAIGoalAttackRangedDynamic : public CAIGoalAttackRanged

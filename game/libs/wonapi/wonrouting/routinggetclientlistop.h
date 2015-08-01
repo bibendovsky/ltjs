@@ -1,7 +1,7 @@
 #ifndef __WON_ROUTINGGETCLIENTLISTOP_H__
 #define __WON_ROUTINGGETCLIENTLISTOP_H__
-#include "WONShared.h"
-#include "RoutingOp.h"
+#include "wonshared.h"
+#include "routingop.h"
 
 namespace WONAPI
 {

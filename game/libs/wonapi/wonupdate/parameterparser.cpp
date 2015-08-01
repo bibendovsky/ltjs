@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------------
 // ParameterParser.cpp
 //----------------------------------------------------------------------------------
-#include "ParameterParser.h"
-#include "CustomInfo.h"
-#include "PatchUtils.h"
+#include "parameterparser.h"
+#include "custominfo.h"
+#include "patchutils.h"
 
 
 using namespace WONAPI;

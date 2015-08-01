@@ -9,16 +9,16 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenHost.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "CommonUtilities.h"
-#include "ClientRes.h"
-#include "MissionMgr.h"
+#include "screenhost.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "commonutilities.h"
+#include "clientres.h"
+#include "missionmgr.h"
 #include "clientmultiplayermgr.h"
-#include "WinUtil.h"
-#include "ClientSaveLoadMgr.h"
-#include "GameClientShell.h"
+#include "winutil.h"
+#include "clientsaveloadmgr.h"
+#include "gameclientshell.h"
 
 static const int kMaxPortStrLen = 5;
 static const int kMaxBandwidthStrLen = 8;

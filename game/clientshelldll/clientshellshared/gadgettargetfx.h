@@ -11,8 +11,8 @@
 #ifndef __GADGETTARGET_FX_H__
 #define __GADGETTARGET_FX_H__
 
-#include "SpecialFX.h"
-#include "GadgetTargetTypes.h"
+#include "specialfx.h"
+#include "gadgettargettypes.h"
 
 struct GADGETTARGETCREATESTRUCT : public SFXCREATESTRUCT
 {

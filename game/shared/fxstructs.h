@@ -13,8 +13,8 @@
 #ifndef __FX_STRUCTS_H__
 #define __FX_STRUCTS_H__
 
-#include "TemplateList.h"
-#include "ButeMgr.h"
+#include "templatelist.h"
+#include "butemgr.h"
 
 // ScaleFX struct...
 

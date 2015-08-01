@@ -11,7 +11,7 @@
 #ifndef __PARTICLE_TRAIL_FX_H__
 #define __PARTICLE_TRAIL_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 
 struct PTCREATESTRUCT : public SFXCREATESTRUCT

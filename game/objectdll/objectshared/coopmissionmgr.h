@@ -11,7 +11,7 @@
 #ifndef __COOPMISSIONMGR_H__
 #define __COOPMISSIONMGR_H__
 
-#include "ServerMissionMgr.h"
+#include "servermissionmgr.h"
 
 class CCoopMissionMgr : public CServerMissionMgr
 {

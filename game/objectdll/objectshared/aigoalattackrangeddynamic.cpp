@@ -10,15 +10,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAttackRangedDynamic.h"
-#include "AIGoalMgr.h"
-#include "AIHumanStateAttackMove.h"
-#include "AI.h"
-#include "AIVolume.h"
-#include "AIVolumeMgr.h"
-#include "AITarget.h"
-#include "AnimatorPlayer.h"
-#include "CharacterMgr.h"
+#include "aigoalattackrangeddynamic.h"
+#include "aigoalmgr.h"
+#include "aihumanstateattackmove.h"
+#include "ai.h"
+#include "aivolume.h"
+#include "aivolumemgr.h"
+#include "aitarget.h"
+#include "animatorplayer.h"
+#include "charactermgr.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalAttackRangedDynamic, kGoal_AttackRangedDynamic);
 

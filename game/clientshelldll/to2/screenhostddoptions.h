@@ -16,8 +16,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BaseScreen.h"
-#include "NetDefs.h"
+#include "basescreen.h"
+#include "netdefs.h"
 
 class CScreenHostDDOptions : public CBaseScreen
 {

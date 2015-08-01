@@ -1,6 +1,6 @@
-#include "QueueSocket.h"
-#include "SocketOp.h"
-#include "WONCommon/TimerThread.h"
+#include "queuesocket.h"
+#include "socketop.h"
+#include "woncommon/timerthread.h"
 
 using namespace WONAPI;
 

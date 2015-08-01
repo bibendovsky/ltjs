@@ -11,28 +11,28 @@
 
 #include "stdafx.h"
 #include <limits.h>
-#include "FastHeap.h"
-#include "ContainerCodes.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "AIPath.h"
-#include "Door.h"
-#include "AIVolume.h"
-#include "AIVolumeMgr.h"
-#include "AIPathKnowledgeMgr.h"
-#include "AINodeMgr.h"
-#include "AIRegion.h"
-#include "AIRegionMgr.h"
-#include "AI.h"
-#include "DEditColors.h"
-#include "DebugLineSystem.h"
-#include "RelationMgr.h"
-#include "RelationButeMgr.h"
-#include "AIStimulusMgr.h"
-#include "AITarget.h"
-#include "PlayerObj.h"
-#include "ObjectRelationMgr.h"
-#include "CharacterMgr.h"
+#include "fastheap.h"
+#include "containercodes.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "aipath.h"
+#include "door.h"
+#include "aivolume.h"
+#include "aivolumemgr.h"
+#include "aipathknowledgemgr.h"
+#include "ainodemgr.h"
+#include "airegion.h"
+#include "airegionmgr.h"
+#include "ai.h"
+#include "deditcolors.h"
+#include "debuglinesystem.h"
+#include "relationmgr.h"
+#include "relationbutemgr.h"
+#include "aistimulusmgr.h"
+#include "aitarget.h"
+#include "playerobj.h"
+#include "objectrelationmgr.h"
+#include "charactermgr.h"
 
 LINKFROM_MODULE( AIVolume );
 
@@ -757,7 +757,7 @@ LTRESULT AIInformationVolumePlugin::PreHook_EditStringList(const char* szRezPath
 const char* AIVolume::ms_aszVolumeTypes[] =
 {
 	#define VOLUME_TYPE_AS_STRING 1
-	#include "AIVolumeTypeEnums.h"
+	#include "aivolumetypeenums.h"
 	#undef VOLUME_TYPE_AS_STRING
 };
 

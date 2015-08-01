@@ -17,8 +17,8 @@
 // Includes...
 //
 
-#include "PropType.h"
-#include "Timer.h"
+#include "proptype.h"
+#include "timer.h"
 
 class CPlayerObj;
 class DoomsDayPiece;

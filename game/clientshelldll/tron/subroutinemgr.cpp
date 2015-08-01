@@ -15,12 +15,12 @@
 
 
 #include "stdafx.h"
-#include "SubroutineMgr.h"
-#include "ScreenSubroutines.h"
-#include "ScreenRatings.h"
-#include "InterfaceMgr.h"
-#include "TronPlayerStats.h"
-#include "TronMissionButeMgr.h"
+#include "subroutinemgr.h"
+#include "screensubroutines.h"
+#include "screenratings.h"
+#include "interfacemgr.h"
+#include "tronplayerstats.h"
+#include "tronmissionbutemgr.h"
 
 #define SUBROUTINE_TAG				"Subroutine"
 

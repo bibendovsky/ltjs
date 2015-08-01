@@ -11,10 +11,10 @@
 #ifndef __PROJECTILE_FX_H__
 #define __PROJECTILE_FX_H__
 
-#include "SpecialFX.h"
-#include "WeaponMgr.h"
-#include "PolyLineFX.h"
-#include "ParticleTrailFX.h"
+#include "specialfx.h"
+#include "weaponmgr.h"
+#include "polylinefx.h"
+#include "particletrailfx.h"
 
 struct PROJECTILECREATESTRUCT : public SFXCREATESTRUCT
 {

@@ -12,7 +12,7 @@
 
 
 #include "stdafx.h"
-#include "SkeletonObject.h"
+#include "skeletonobject.h"
 
 BEGIN_CLASS(SkeletonObject)
 	// For this generic object, we'll have it be a model so we'll need

@@ -11,7 +11,7 @@
 #ifndef __DOOMSDAYPIECE_FX_H__
 #define __DOOMSDAYPIECE_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 struct DOOMSDAYPIECECREATESTRUCT : public SFXCREATESTRUCT
 {

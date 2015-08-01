@@ -1,6 +1,6 @@
-#include "HTTPGetOp.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONSocket/SocketOp.h"
+#include "httpgetop.h"
+#include "woncommon/writebuffer.h"
+#include "wonsocket/socketop.h"
 #include <time.h>
 #include <sys/stat.h>
 

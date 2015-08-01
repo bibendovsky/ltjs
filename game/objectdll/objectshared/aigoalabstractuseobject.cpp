@@ -10,15 +10,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAbstractUseObject.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIHumanState.h"
-#include "AINode.h"
-#include "AINodeMgr.h"
-#include "AIGoalMgr.h"
-#include "AIGoalButeMgr.h"
-#include "AIHuman.h"
-#include "AIUtils.h"
+#include "aigoalabstractuseobject.h"
+#include "aisenserecorderabstract.h"
+#include "aihumanstate.h"
+#include "ainode.h"
+#include "ainodemgr.h"
+#include "aigoalmgr.h"
+#include "aigoalbutemgr.h"
+#include "aihuman.h"
+#include "aiutils.h"
 
 
 // ----------------------------------------------------------------------- //

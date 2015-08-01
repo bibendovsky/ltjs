@@ -4,8 +4,8 @@
 #ifndef __AbortDlg_H__
 #define __AbortDlg_H__
 
-#include "WONGUI/MSControls.h"
-#include "WONGUI/TextBox.h"
+#include "wongui/mscontrols.h"
+#include "wongui/textbox.h"
 
 namespace WONAPI
 {

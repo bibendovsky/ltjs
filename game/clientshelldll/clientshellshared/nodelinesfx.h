@@ -11,7 +11,7 @@
 #ifndef __NODELINES_FX_H__
 #define __NODELINES_FX_H__
 
-#include "BaseScaleFX.h"
+#include "basescalefx.h"
 
 struct NLCREATESTRUCT : public SFXCREATESTRUCT
 {

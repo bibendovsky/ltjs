@@ -11,10 +11,10 @@
 #ifndef __TRON_GAME_SERVER_SHELL_H__
 #define __TRON_GAME_SERVER_SHELL_H__
 
-#include "GameServerShell.h"
-#include "TronVersionMgr.h"
-#include "TronMissionButeMgr.h"
-#include "LightCycleMgr.h"
+#include "gameservershell.h"
+#include "tronversionmgr.h"
+#include "tronmissionbutemgr.h"
+#include "lightcyclemgr.h"
 
 class Body;
 

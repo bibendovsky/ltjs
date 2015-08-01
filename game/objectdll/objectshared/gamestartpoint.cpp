@@ -11,14 +11,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "GameStartPoint.h"
+#include "gamestartpoint.h"
 #include "iltserver.h"
-#include "GameServerShell.h"
-#include "ServerUtilities.h"
-#include "SurfaceFunctions.h"
-#include "WeaponMgr.h"
-#include "PlayerObj.h"
-#include "ParsedMsg.h"
+#include "gameservershell.h"
+#include "serverutilities.h"
+#include "surfacefunctions.h"
+#include "weaponmgr.h"
+#include "playerobj.h"
+#include "parsedmsg.h"
 
 LINKFROM_MODULE( GameStartPoint );
 

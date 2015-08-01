@@ -11,17 +11,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Trigger.h"
+#include "trigger.h"
 #include "iltserver.h"
-#include "MsgIds.h"
-#include "PlayerObj.h"
+#include "msgids.h"
+#include "playerobj.h"
 #include "gameservershell.h"
-#include "SoundMgr.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "ServerSoundMgr.h"
+#include "soundmgr.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "serversoundmgr.h"
 #include <stdio.h>
-#include "AIUtils.h"
+#include "aiutils.h"
 
 LINKFROM_MODULE( Trigger );
 

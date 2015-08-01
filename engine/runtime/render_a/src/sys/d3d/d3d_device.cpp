@@ -24,7 +24,7 @@
 #include "screenglowmgr.h"
 #include "d3d_draw.h"
 #include "rendererconsolevars.h"
-#include "ConsoleCommands.h"
+#include "consolecommands.h"
 
 // The global D3D Shell...
 CD3D_Device g_Device;

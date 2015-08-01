@@ -13,11 +13,11 @@
 #ifndef __GAME_START_POINT_H__
 #define __GAME_START_POINT_H__
 
-#include "GameBase.h"
-#include "NetDefs.h"
-#include "ModelButeMgr.h"
-#include "SharedMovement.h"
-#include "CommandMgr.h"
+#include "gamebase.h"
+#include "netdefs.h"
+#include "modelbutemgr.h"
+#include "sharedmovement.h"
+#include "commandmgr.h"
 
 LINKTO_MODULE( GameStartPoint );
 

@@ -8,13 +8,13 @@
 //
 // ----------------------------------------------------------------------- //
 #include "stdafx.h"
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 #include "iltclient.h"
-#include "GameSettings.h"
+#include "gamesettings.h"
 #include "stdio.h"
 #include "windows.h"
-#include "GameClientShell.h"
-#include "VarTrack.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
 
 VarTrack	g_vtMouseScaleBase;
 VarTrack	g_vtMouseScaleInc;

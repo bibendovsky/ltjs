@@ -11,23 +11,23 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "WeaponMgr.h"
-#include "CommonUtilities.h"
-#include "WeaponFXTypes.h"
+#include "weaponmgr.h"
+#include "commonutilities.h"
+#include "weaponfxtypes.h"
 #include "winbase.h"
-#include "FXButeMgr.h"
-#include "CRC32.h"
+#include "fxbutemgr.h"
+#include "crc32.h"
 
 #ifdef _CLIENTBUILD
 // **************** Client only includes
-#include "GameClientShell.h"
-#include "ClientUtilities.h"
+#include "gameclientshell.h"
+#include "clientutilities.h"
 extern CGameClientShell* g_pGameClientShell;
 #else
 // **************** Server only includes
-#include "GameServerShell.h"
-#include "PlayerObj.h"
-#include "AIStimulusMgr.h"
+#include "gameservershell.h"
+#include "playerobj.h"
+#include "aistimulusmgr.h"
 #endif
 
 #define WMGR_WEAPONORDER_TAG				"WeaponOrder"

@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DoorKnob.h"
+#include "doorknob.h"
 
 LINKFROM_MODULE( DoorKnob );
 

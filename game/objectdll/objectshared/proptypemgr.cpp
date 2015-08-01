@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PropTypeMgr.h"
-#include "CommonUtilities.h"
-#include "DebrisMgr.h"
+#include "proptypemgr.h"
+#include "commonutilities.h"
+#include "debrismgr.h"
 
 #define PTMGR_TAG					"PropType"
 

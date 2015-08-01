@@ -33,9 +33,9 @@
 #include "rmaausvc.h"
 #include "rmawin.h"
 
-#include "LTRClientContext.h"
-#include "LTRAudioDevice.h"
-#include "LTRClientEngineSetup.h"
+#include "ltrclientcontext.h"
+#include "ltraudiodevice.h"
+#include "ltrclientenginesetup.h"
 
 #define LTREALCOREPLUGINFILENAME	"LITH3210.DLL"
 #define LTREALCOREENGINEFILENAME	"PNEN3260.DLL"	// Rahul@real.com said this value shouldn't change [mds 1/20/2001]

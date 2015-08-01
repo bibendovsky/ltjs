@@ -1,6 +1,6 @@
 #ifndef __WON_MD52_H__
 #define __WON_MD52_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 namespace WONAPI
 {

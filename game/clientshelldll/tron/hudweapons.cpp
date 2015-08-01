@@ -9,10 +9,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TronHUDMgr.h"
-#include "HUDWeapons.h"
-#include "ProfileMgr.h"
-#include "TronInterfaceMgr.h"
+#include "tronhudmgr.h"
+#include "hudweapons.h"
+#include "profilemgr.h"
+#include "troninterfacemgr.h"
 
 
 //******************************************************************************************

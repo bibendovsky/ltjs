@@ -3,7 +3,7 @@
 #ifndef __AI_REGION_MGR_H__
 #define __AI_REGION_MGR_H__
 
-#include "AIRegion.h"
+#include "airegion.h"
 
 class CAIPath;
 

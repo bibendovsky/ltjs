@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MarkSFX.h"
+#include "marksfx.h"
 #include "iltclient.h"
 #include "ltlink.h"
-#include "GameClientShell.h"
-#include "SurfaceFunctions.h"
-#include "VarTrack.h"
+#include "gameclientshell.h"
+#include "surfacefunctions.h"
+#include "vartrack.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

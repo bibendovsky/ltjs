@@ -10,12 +10,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalRespondToBackup.h"
-#include "AIHumanState.h"
-#include "AINodeMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIGoalMgr.h"
-#include "AIHuman.h"
+#include "aigoalrespondtobackup.h"
+#include "aihumanstate.h"
+#include "ainodemgr.h"
+#include "aisenserecorderabstract.h"
+#include "aigoalmgr.h"
+#include "aihuman.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalRespondToBackup, kGoal_RespondToBackup);
 

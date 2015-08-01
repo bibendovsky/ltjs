@@ -6,14 +6,14 @@
 // cancel what is going on.
 //----------------------------------------------------------------------------------
 #include <assert.h>
-#include "WONGUI/MSControls.h"
-#include "WONGUI/ChildLayouts.h"
-#include "WONGUI/SimpleComponent.h"
-#include "InfoDlg.h"
-#include "WizardCtrl.h"
-#include "DownloadCtrl.h"
-#include "WONUpdateCtrl.h"
-#include "CustomInfo.h"
+#include "wongui/mscontrols.h"
+#include "wongui/childlayouts.h"
+#include "wongui/simplecomponent.h"
+#include "infodlg.h"
+#include "wizardctrl.h"
+#include "downloadctrl.h"
+#include "wonupdatectrl.h"
+#include "custominfo.h"
 
 using namespace WONAPI;
 

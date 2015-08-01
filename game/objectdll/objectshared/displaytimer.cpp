@@ -11,13 +11,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DisplayTimer.h"
-#include "ServerUtilities.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "CommandMgr.h"
-#include "MsgIDs.h"
-#include "VersionMgr.h"
+#include "displaytimer.h"
+#include "serverutilities.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "commandmgr.h"
+#include "msgids.h"
+#include "versionmgr.h"
 
 LINKFROM_MODULE( DisplayTimer );
 

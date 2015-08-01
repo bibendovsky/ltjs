@@ -3,8 +3,8 @@
 #ifndef __ANIMATIONPARSER_H__
 #define __ANIMATIONPARSER_H__
 
-#include "AnimationStd.h"
-#include "AnimationProp.h"
+#include "animationstd.h"
+#include "animationprop.h"
 
 #include <string>
 

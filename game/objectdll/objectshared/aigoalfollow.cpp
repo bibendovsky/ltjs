@@ -10,14 +10,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalFollow.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AISenseRecorderAbstract.h"
-#include "AI.h"
-#include "PlayerObj.h"
-#include "CharacterMgr.h"
-#include "AIUtils.h"
+#include "aigoalfollow.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "aisenserecorderabstract.h"
+#include "ai.h"
+#include "playerobj.h"
+#include "charactermgr.h"
+#include "aiutils.h"
 
 extern CCharacterMgr* g_pCharacterMgr;
 

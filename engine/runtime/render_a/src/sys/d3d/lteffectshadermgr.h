@@ -14,7 +14,7 @@
 
 #include "ltbasedefs.h"
 #include "ltidtoobjecttable.h"
-#include "LTEffectImpl.h"
+#include "lteffectimpl.h"
 
 #include <d3dx9.h>
 

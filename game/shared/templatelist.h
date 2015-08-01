@@ -20,7 +20,7 @@
 
 #include "ltlink.h"
 #include "globals.h"
-#include "BankedList.h"
+#include "bankedlist.h"
 
 enum TListItemType { TLIT_FIRST=0, TLIT_NEXT, TLIT_CURRENT, TLIT_LAST };
 

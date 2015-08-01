@@ -12,7 +12,7 @@
 #if !defined(_MENU_KEYS_H_)
 #define _MENU_KEYS_H_
 
-#include "BaseMenu.h"
+#include "basemenu.h"
 
 class CMenuKeys : public CBaseMenu
 {

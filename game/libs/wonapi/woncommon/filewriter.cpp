@@ -1,6 +1,6 @@
-#include "FileWriter.h"
-#include "LittleEndian.h"
-#include "WONFile.h"
+#include "filewriter.h"
+#include "littleendian.h"
+#include "wonfile.h"
 
 using namespace WONAPI;
 

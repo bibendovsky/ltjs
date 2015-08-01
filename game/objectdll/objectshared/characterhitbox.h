@@ -13,9 +13,9 @@
 #ifndef __CHARACTER_HIT_BOX_H__
 #define __CHARACTER_HIT_BOX_H__
 
-#include "GameBase.h"
-#include "ModelButeMgr.h"
-#include "TemplateList.h"
+#include "gamebase.h"
+#include "modelbutemgr.h"
+#include "templatelist.h"
 
 class CProjectile;
 class CAttachments;

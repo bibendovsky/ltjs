@@ -1,9 +1,9 @@
 #ifndef __WON_MINICRYPT_MD5DIGEST_H__
 #define __WON_MINICRYPT_MD5DIGEST_H__
-#include "WONShared.h"
-#include "WONCommon/Platform.h"
+#include "wonshared.h"
+#include "woncommon/platform.h"
 
-#include "WONCommon/WONTypes.h"
+#include "woncommon/wontypes.h"
 
 namespace WONAPI
 {

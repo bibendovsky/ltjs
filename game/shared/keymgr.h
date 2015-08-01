@@ -11,11 +11,11 @@
 #ifndef _KEY_MGR_H_
 #define _KEY_MGR_H_
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include "ltbasetypes.h"
-#include "LTObjRef.h"
-#include "IDList.h"
-#include "ButeListReader.h"
+#include "ltobjref.h"
+#include "idlist.h"
+#include "butelistreader.h"
 
 #define KEY_DEFAULT_FILE	"Attributes\\KeyItems.txt"
 #define KEY_MAX_NAME		32

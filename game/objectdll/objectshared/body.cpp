@@ -11,32 +11,32 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Attachments.h"
-#include "Body.h"
+#include "attachments.h"
+#include "body.h"
 #include "iltserver.h"
-#include "WeaponFXTypes.h"
-#include "ClientServerShared.h"
-#include "GameServerShell.h"
-#include "SurfaceFunctions.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "SoundMgr.h"
-#include "MsgIDs.h"
-#include "SFXMsgIDs.h"
-#include "SharedFXStructs.h"
-#include "CharacterHitBox.h"
-#include "AIVolumeMgr.h"
-#include "BodyState.h"
-#include "PlayerObj.h"
-#include "WeaponItems.h"
-#include "AIStimulusMgr.h"
-#include "AIVolume.h"
-#include "AIInformationVolumeMgr.h"
-#include "AIUtils.h"
-#include "CharacterMgr.h"
-#include "Searchable.h"
-#include "ServerMissionMgr.h"
-#include "VersionMgr.h"
+#include "weaponfxtypes.h"
+#include "clientservershared.h"
+#include "gameservershell.h"
+#include "surfacefunctions.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "soundmgr.h"
+#include "msgids.h"
+#include "sfxmsgids.h"
+#include "sharedfxstructs.h"
+#include "characterhitbox.h"
+#include "aivolumemgr.h"
+#include "bodystate.h"
+#include "playerobj.h"
+#include "weaponitems.h"
+#include "aistimulusmgr.h"
+#include "aivolume.h"
+#include "aiinformationvolumemgr.h"
+#include "aiutils.h"
+#include "charactermgr.h"
+#include "searchable.h"
+#include "servermissionmgr.h"
+#include "versionmgr.h"
 
 #include <queue>
 #include <vector>
@@ -1096,7 +1096,7 @@ CBodyState* Body::AI_FACTORY_NEW_State(EnumAIStateType eStateType)
 	switch( eStateType )
 	{
 		#define STATE_TYPE_AS_SWITCH_BODY 1
-		#include "AIStateTypeEnums.h"
+		#include "aistatetypeenums.h"
 		#undef STATE_TYPE_AS_SWITCH_BODY
 
 		default: AIASSERT( 0, m_hObject, "Body::AI_FACTORY_NEW_State: Unrecognized state type.");

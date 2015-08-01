@@ -20,7 +20,7 @@
 #include "stdafx.h"
 
 #ifndef __AIASSERT_H__
-#include "AIAssert.h"		
+#include "aiassert.h"		
 #endif
 
 // Forward declarations

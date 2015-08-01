@@ -2,8 +2,8 @@
 //
 
 #include "stdafx.h"
-#include "Install.h"
-#include "InstallDlg.h"
+#include "install.h"
+#include "installdlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

@@ -14,10 +14,10 @@
 #define __ARC_CTRL_H
 
 #include "iltdrawprim.h"
-#include "ScreenSpriteMgr.h"
-#include "BaseScaleFX.h"
-#include "TronLayoutMgr.h"
-#include "SubroutineMgr.h"
+#include "screenspritemgr.h"
+#include "basescalefx.h"
+#include "tronlayoutmgr.h"
+#include "subroutinemgr.h"
 
 typedef enum 
 {

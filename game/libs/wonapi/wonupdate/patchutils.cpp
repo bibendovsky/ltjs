@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------------
 // PatchUtils.cpp : implementaion file.
 //----------------------------------------------------------------------------------
-#include "PatchUtils.h"
-#include "WONCommon/StringUtil.h"
+#include "patchutils.h"
+#include "woncommon/stringutil.h"
 
 
 using namespace WONAPI;

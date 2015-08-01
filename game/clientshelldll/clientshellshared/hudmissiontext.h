@@ -11,8 +11,8 @@
 #ifndef __HUD_MISSIONTEXT_H
 #define __HUD_MISSIONTEXT_H
 
-#include "HUDItem.h"
-#include "TimedText.h"
+#include "huditem.h"
+#include "timedtext.h"
 
 //******************************************************************************************
 //** HUD Message Queue

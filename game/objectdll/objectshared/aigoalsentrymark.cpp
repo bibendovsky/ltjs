@@ -19,35 +19,35 @@
 #include "stdafx.h"
 
 #ifndef __AIGOALSENTRYMARK_H__
-#include "AIGoalSentryMark.h"		
+#include "aigoalsentrymark.h"		
 #endif
 
 #ifndef __AI_H__
-#include "AI.h"
+#include "ai.h"
 #endif
 
 #ifndef _AI_BRAIN_H_
-#include "AIBrain.h"
+#include "aibrain.h"
 #endif
 
 #ifndef __AIHUMANSTATESENTRYCHALLENGE_H__
-#include "AIHumanStateSentryChallenge.h"
+#include "aihumanstatesentrychallenge.h"
 #endif
 
 #ifndef __AI_UTILS_H__
-#include "AIUtils.h"
+#include "aiutils.h"
 #endif
 
 #ifndef __AIGOAL_MGR_H__
-#include "AIGoalMgr.h"
+#include "aigoalmgr.h"
 #endif
 
 #ifndef __WEAPON_H__
-#include "Weapon.h"
+#include "weapon.h"
 #endif
 
 #ifndef __AI_HUMAN_H__
-#include "AIHuman.h"
+#include "aihuman.h"
 #endif
 
 // Forward declarations

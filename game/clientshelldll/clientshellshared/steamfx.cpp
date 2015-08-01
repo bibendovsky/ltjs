@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SteamFX.h"
-#include "VarTrack.h"
-#include "GameClientShell.h"
-#include "SoundMgr.h"
+#include "steamfx.h"
+#include "vartrack.h"
+#include "gameclientshell.h"
+#include "soundmgr.h"
 
 static VarTrack	s_cvarTweak;
 

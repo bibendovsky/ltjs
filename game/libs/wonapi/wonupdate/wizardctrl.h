@@ -7,8 +7,8 @@
 #ifndef __WizardCtrl_H__
 #define __WizardCtrl_H__
 
-#include "WONGUI/GUICompat.h"
-#include "WONGUI/Container.h"
+#include "wongui/guicompat.h"
+#include "wongui/container.h"
 
 namespace WONAPI
 {

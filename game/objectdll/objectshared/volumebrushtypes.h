@@ -13,7 +13,7 @@
 #ifndef __VOLUME_BRUSH_TYPES_H__
 #define __VOLUME_BRUSH_TYPES_H__
 
-#include "VolumeBrush.h"
+#include "volumebrush.h"
 
 LINKTO_MODULE( VolumeBrushTypes );
 

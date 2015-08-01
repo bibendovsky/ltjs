@@ -1,7 +1,7 @@
 #ifndef __WON_SENDMSGOP_H__
 #define __WON_SENDMSGOP_H__
-#include "WONShared.h"
-#include "SendBytesOp.h"
+#include "wonshared.h"
+#include "sendbytesop.h"
 
 namespace WONAPI
 {

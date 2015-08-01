@@ -9,8 +9,8 @@
 
 
 #include "stdafx.h"
-#include "ChainedFX.h"
-#include "GameClientShell.h"
+#include "chainedfx.h"
+#include "gameclientshell.h"
 
 
 void CChainedFX::Init(char* szIntroName, char* szShortIntroName, char* szLoopName)

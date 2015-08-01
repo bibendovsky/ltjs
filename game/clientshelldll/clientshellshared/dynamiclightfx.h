@@ -13,7 +13,7 @@
 #ifndef __DYNAMIC_LIGHT_FX_H__
 #define __DYNAMIC_LIGHT_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 
 struct DLCREATESTRUCT : public SFXCREATESTRUCT

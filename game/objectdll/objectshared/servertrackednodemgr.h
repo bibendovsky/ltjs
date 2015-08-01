@@ -1,7 +1,7 @@
 #ifndef __SERVER_TRACKEDNODEMGR_H__
 #define __SERVER_TRACKEDNODEMGR_H__
 
-#include "TrackedNodeMgr.h"
+#include "trackednodemgr.h"
 
 class CServerTrackedNodeMgr;
 extern CServerTrackedNodeMgr* g_pServerTrackedNodeMgr;

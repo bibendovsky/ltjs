@@ -12,7 +12,7 @@
 
 
 #include "stdafx.h"
-#include "InventoryButeMgr.h"
+#include "inventorybutemgr.h"
 
 // Globals/statics
 

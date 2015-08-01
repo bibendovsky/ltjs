@@ -12,9 +12,9 @@
 #if !defined(_SKL_CTRL_H_)
 #define _SKL_CTRL_H_
 
-#include "LTGuiMgr.h"
-#include "LTPoly.h"
-#include "SkillsButeMgr.h"
+#include "ltguimgr.h"
+#include "ltpoly.h"
+#include "skillsbutemgr.h"
 
 
 

@@ -13,8 +13,8 @@
 // write the renderFX function
 
 #include "stdafx.h"
-#include "ProceduralCtrl.h"
-#include "InterfaceMgr.h"
+#include "proceduralctrl.h"
+#include "interfacemgr.h"
 
 #define DEBUG_DELETEA(x) if (x)	{debug_deletea(x);x = LTNULL;}
 

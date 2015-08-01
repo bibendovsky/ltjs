@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SearchLightFX.h"
-#include "GameClientShell.h"
-#include "ClientWeaponUtils.h"
-#include "ClientButeMgr.h"
+#include "searchlightfx.h"
+#include "gameclientshell.h"
+#include "clientweaponutils.h"
+#include "clientbutemgr.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

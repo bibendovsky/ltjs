@@ -13,7 +13,7 @@
 #ifndef __SCATTERVOLUME_H__
 #define __SCATTERVOLUME_H__
 
-#include "VolumeEffect.h"
+#include "volumeeffect.h"
 
 
 LINKTO_MODULE( ScatterVolume );

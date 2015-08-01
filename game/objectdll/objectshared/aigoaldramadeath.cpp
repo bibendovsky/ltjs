@@ -10,11 +10,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalDramaDeath.h"
-#include "AIGoalMgr.h"
-#include "AI.h"
-#include "AIHumanStateLaunch.h"
-#include "AINodeMgr.h"
+#include "aigoaldramadeath.h"
+#include "aigoalmgr.h"
+#include "ai.h"
+#include "aihumanstatelaunch.h"
+#include "ainodemgr.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalDramaDeath, kGoal_DramaDeath);
 

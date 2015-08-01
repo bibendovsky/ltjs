@@ -11,16 +11,16 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "GameBase.h"
-#include "CVarTrack.h"
-#include "ObjectMsgs.h"
-#include "CommandMgr.h"
-#include "VersionMgr.h"
-#include "TransitionAggregate.h"
-#include "ClientServerShared.h"
-#include "ParsedMsg.h"
-#include "ObjectTemplateMgr.h"
-#include "PlayerObj.h"
+#include "gamebase.h"
+#include "cvartrack.h"
+#include "objectmsgs.h"
+#include "commandmgr.h"
+#include "versionmgr.h"
+#include "transitionaggregate.h"
+#include "clientservershared.h"
+#include "parsedmsg.h"
+#include "objecttemplatemgr.h"
+#include "playerobj.h"
 
 extern CVarTrack g_ShowDimsTrack;
 

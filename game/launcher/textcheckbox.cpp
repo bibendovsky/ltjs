@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "launcher.h"
-#include "TextCheckBox.h"
+#include "textcheckbox.h"
 #include "dlgex.h"
 #include "playsound.h"
 

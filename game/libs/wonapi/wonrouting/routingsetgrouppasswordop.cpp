@@ -1,4 +1,4 @@
-#include "RoutingSetGroupPasswordOp.h"
+#include "routingsetgrouppasswordop.h"
 using namespace WONAPI;
 
 ///////////////////////////////////////////////////////////////////////////////

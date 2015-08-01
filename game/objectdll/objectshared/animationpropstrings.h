@@ -16,7 +16,7 @@
 static const char* s_aszAnimPropGroup[] =
 {
 	#define ANIM_PROP_GROUP_AS_STRING 1
-	#include "AnimationPropGroupEnums.h"
+	#include "animationpropgroupenums.h"
 	#undef ANIM_PROP_GROUP_AS_STRING
 };
 
@@ -24,7 +24,7 @@ static const char* s_aszAnimPropGroup[] =
 static const char* s_aszAnimProp[] =
 {
 	#define ANIM_PROP_AS_STRING 1
-	#include "AnimationPropEnums.h"
+	#include "animationpropenums.h"
 	#undef ANIM_PROP_AS_STRING
 };
 

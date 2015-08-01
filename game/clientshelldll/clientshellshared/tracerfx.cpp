@@ -11,12 +11,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TracerFX.h"
+#include "tracerfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "SFXMsgIds.h"
-#include "GameClientShell.h"
-#include "VarTrack.h"
+#include "clientutilities.h"
+#include "sfxmsgids.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

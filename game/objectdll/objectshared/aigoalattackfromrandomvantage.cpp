@@ -10,13 +10,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAttackFromRandomVantage.h"
-#include "AI.h"
-#include "AIHumanState.h"
-#include "AIGoalMgr.h"
-#include "AINodeMgr.h"
-#include "PlayerObj.h"
-#include "CharacterMgr.h"
+#include "aigoalattackfromrandomvantage.h"
+#include "ai.h"
+#include "aihumanstate.h"
+#include "aigoalmgr.h"
+#include "ainodemgr.h"
+#include "playerobj.h"
+#include "charactermgr.h"
 
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalAttackFromRandomVantage, kGoal_AttackFromRandomVantage);

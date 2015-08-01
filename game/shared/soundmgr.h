@@ -13,8 +13,8 @@
 #ifndef __SOUND_MGR_H__
 #define __SOUND_MGR_H__
 
-#include "SoundTypes.h"
-#include "GameButeMgr.h"
+#include "soundtypes.h"
+#include "gamebutemgr.h"
 #include "ltbasedefs.h"
 
 // #defines...

@@ -2,7 +2,7 @@
 //#ifndef _CONSOLE
 //#include "windows.h"
 //#endif
-#include "ControlFileMgr.h"
+#include "controlfilemgr.h"
 #include "ltmem.h"
 #include <stdlib.h>
 #include <stdio.h>

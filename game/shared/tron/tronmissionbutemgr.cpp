@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 #include "stdafx.h"
-#include "TronMissionButeMgr.h"
+#include "tronmissionbutemgr.h"
 
 CMissionButeMgr* g_pMissionButeMgr = NULL;
 CTronMissionButeMgr* g_pTronMissionButeMgr = NULL;

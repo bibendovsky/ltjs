@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "BasePolyDrawFX.h"
+#include "basepolydrawfx.h"
 
 void BasePolyDrawFn(HLOCALOBJ hObj, void *pUser)
 {

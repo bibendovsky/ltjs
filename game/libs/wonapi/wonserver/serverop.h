@@ -1,10 +1,10 @@
 #ifndef __WON_SERVEROP_H__
 #define __WON_SERVEROP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/AsyncOpTracker.h"
-#include "WONSocket/BlockingSocket.h"
-#include "WONAuth/AuthContext.h"
+#include "woncommon/asyncoptracker.h"
+#include "wonsocket/blockingsocket.h"
+#include "wonauth/authcontext.h"
 
 
 namespace WONAPI

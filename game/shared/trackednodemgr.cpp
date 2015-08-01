@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "TrackedNode.h"
-#include "TrackedNodeMgr.h"
+#include "trackednode.h"
+#include "trackednodemgr.h"
 
 #include <algorithm>
 

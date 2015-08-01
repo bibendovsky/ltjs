@@ -1,7 +1,7 @@
 #ifndef __CLIENT_TRACKEDNODEMGR_H__
 #define __CLIENT_TRACKEDNODEMGR_H__
 
-#include "TrackedNodeMgr.h"
+#include "trackednodemgr.h"
 
 class CClientTrackedNodeMgr;
 extern CClientTrackedNodeMgr* g_pClientTrackedNodeMgr;

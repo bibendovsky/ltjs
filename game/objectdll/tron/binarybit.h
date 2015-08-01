@@ -13,8 +13,8 @@
 #ifndef _BINARYBIT_H_
 #define _BINARYBIT_H_
 
-#include "GameBase.h"
-#include "CommandMgr.h"
+#include "gamebase.h"
+#include "commandmgr.h"
 
 enum BinaryBitState
 {

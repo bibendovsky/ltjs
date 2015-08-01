@@ -11,16 +11,16 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Explosion.h"
+#include "explosion.h"
 #include "iltserver.h"
-#include "ServerUtilities.h"
-#include "WeaponFXTypes.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "DamageTypes.h"
-#include "SharedFXStructs.h"
-#include "SFXMsgIds.h"
-#include "Character.h"
+#include "serverutilities.h"
+#include "weaponfxtypes.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "damagetypes.h"
+#include "sharedfxstructs.h"
+#include "sfxmsgids.h"
+#include "character.h"
 
 #define MIN_RADIUS_PERCENT				0.25f
 

@@ -14,7 +14,7 @@
 #define __CURSOR_MGR_H__
 
 #include "iltcursor.h"
-#include "ScreenSpriteMgr.h"
+#include "screenspritemgr.h"
 
 
 class CCursorMgr;

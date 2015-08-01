@@ -1,6 +1,6 @@
-#include "ElGamal.h"
-#include "MD5Digest.h"
-#include "WONCommon/LittleEndian.h"
+#include "elgamal.h"
+#include "md5digest.h"
+#include "woncommon/littleendian.h"
 
 using namespace std;
 using namespace WONAPI;

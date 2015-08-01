@@ -1,10 +1,10 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIRegionMgr.h"
-#include "AIPath.h"
-#include "FastHeap.h"
-#include "WorldProperties.h"
+#include "airegionmgr.h"
+#include "aipath.h"
+#include "fastheap.h"
+#include "worldproperties.h"
 
 // Globals
 

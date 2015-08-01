@@ -24,34 +24,34 @@
 #include "stdafx.h"
 
 #ifndef __AIHUMANSTATESENTRYCHALLENGE_H__
-#include "AIHumanStateSentryChallenge.h"		
+#include "aihumanstatesentrychallenge.h"		
 #endif
 
 #ifndef __AI_HUMAN_H__
-#include "AIHuman.h"
+#include "aihuman.h"
 #endif 
 
 #ifndef __OBJECTRELATIONMGR_H__
-#include "ObjectRelationMgr.h"
+#include "objectrelationmgr.h"
 #endif
 
 #ifndef __AIVOLUME_H__
-#include "AIVolume.h"
+#include "aivolume.h"
 #endif 
 
 #ifndef __AI_VOLUME_MGR_H__
-#include "AIVolumeMgr.h"
+#include "aivolumemgr.h"
 #endif
 
 #ifndef __AIINFORMATIONVOLUMEMGR_H__
-#include "AIInformationVolumeMgr.h"
+#include "aiinformationvolumemgr.h"
 #endif
 
 #ifndef __AIREGION_H__
-#include "AIRegion.h"
+#include "airegion.h"
 #endif
 
-#include "Weapon.h"
+#include "weapon.h"
 
 // Forward declarations
 

@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PickupItemFX.h"
+#include "pickupitemfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ClientServerShared.h"
-#include "GameClientShell.h"
-#include "SFXMsgIds.h"
+#include "clientutilities.h"
+#include "clientservershared.h"
+#include "gameclientshell.h"
+#include "sfxmsgids.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

@@ -19,7 +19,7 @@
 //
 	
 	#include "iaggregate.h"
-	#include "BankedList.h"
+	#include "bankedlist.h"
 
 class CTransitionAggregate : public IAggregate
 {

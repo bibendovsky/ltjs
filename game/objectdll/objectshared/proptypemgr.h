@@ -13,9 +13,9 @@
 #ifndef __PROP_TYPE_MGR_H__
 #define __PROP_TYPE_MGR_H__
 
-#include "GameButeMgr.h"
-#include "TemplateList.h"
-#include "ButeListReader.h"
+#include "gamebutemgr.h"
+#include "templatelist.h"
+#include "butelistreader.h"
 
 struct ObjectCreateStruct;
 class CPropTypeMgr;

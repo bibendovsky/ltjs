@@ -15,8 +15,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "ClientUtilities.h"
-#include "ButeMgr.h"
+#include "clientutilities.h"
+#include "butemgr.h"
 
 class CPerformanceMgr;
 extern CPerformanceMgr* g_pPerformanceMgr;
@@ -33,7 +33,7 @@ typedef struct sDetailSetting_t
 enum eDetailID
 {
 #define INCLUDE_AS_ENUM
-#include "PerformanceEnum.h"
+#include "performanceenum.h"
 #undef INCLUDE_AS_ENUM
 
 	kNumDetailSettings

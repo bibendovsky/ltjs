@@ -11,14 +11,14 @@
 #if !defined(_BASE_MENU_H_)
 #define _BASE_MENU_H_
 
-#include "LTGUIMgr.h"
-#include "LTPoly.h"
+#include "ltguimgr.h"
+#include "ltpoly.h"
 
 
 enum eMenuID
 {
 #define INCLUDE_AS_ENUM
-#include "MenuEnum.h"
+#include "menuenum.h"
 #undef INCLUDE_AS_ENUM
 };
 

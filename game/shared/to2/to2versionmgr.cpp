@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TO2VersionMgr.h"
+#include "to2versionmgr.h"
 #if defined(_CLIENTBUILD)
-#include "ClientResShared.h"
+#include "clientresshared.h"
 #endif
 
 #ifdef _TO2DEMO

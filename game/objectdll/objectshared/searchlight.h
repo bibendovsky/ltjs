@@ -12,10 +12,10 @@
 #define __SEARCH_LIGHT_H__
 
 #include "ltengineobjects.h"
-#include "CharacterAlignment.h"
-#include "Scanner.h"
-#include "SFXFuncs.h"
-#include "Timer.h"
+#include "characteralignment.h"
+#include "scanner.h"
+#include "sfxfuncs.h"
+#include "timer.h"
 
 LINKTO_MODULE( SearchLight );
 

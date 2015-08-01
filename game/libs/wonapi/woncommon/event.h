@@ -1,20 +1,20 @@
 #ifndef __WON_EVENT_H__
 #define __WON_EVENT_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #ifndef __WON_SINGLETHREADED__
 
 #if defined(WIN32)
-#include "Event_Windows.h"
+#include "event_windows.h"
 #elif defined(_LINUX)
-#include "Event_Linux.h"
+#include "event_linux.h"
 #elif defined(macintosh) && (macintosh == 1)
-#include "Event_Mac.h"
+#include "event_mac.h"
 #endif
 
 #else // __WON_SINGLETHREADED__
 
-#include "Platform.h"
+#include "platform.h"
 namespace WONAPI
 {
 

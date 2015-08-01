@@ -2,13 +2,13 @@
 // OptionalPatchCtrl.cpp
 //----------------------------------------------------------------------------------
 #include <assert.h>
-#include "WONGUI/MSControls.h"
-#include "WONGUI/ChildLayouts.h"
-#include "WONGUI/TabCtrl.h"
-#include "WONGUI/SimpleComponent.h"
-#include "OptionalPatchCtrl.h"
-#include "WONUpdateCtrl.h"
-#include "CustomInfo.h"
+#include "wongui/mscontrols.h"
+#include "wongui/childlayouts.h"
+#include "wongui/tabctrl.h"
+#include "wongui/simplecomponent.h"
+#include "optionalpatchctrl.h"
+#include "wonupdatectrl.h"
+#include "custominfo.h"
 
 using namespace WONAPI;
 

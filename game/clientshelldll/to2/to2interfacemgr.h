@@ -13,11 +13,11 @@
 #ifndef __TO2INTERFACE_MGR_H__
 #define __TO2INTERFACE_MGR_H__
 
-#include "InterfaceMgr.h"
-#include "TO2HUDMgr.h"
-#include "TO2ScreenMgr.h"
-#include "TO2PlayerStats.h"
-#include "TO2LayoutMgr.h"
+#include "interfacemgr.h"
+#include "to2hudmgr.h"
+#include "to2screenmgr.h"
+#include "to2playerstats.h"
+#include "to2layoutmgr.h"
 
 class CTO2InterfaceMgr : public CInterfaceMgr
 {

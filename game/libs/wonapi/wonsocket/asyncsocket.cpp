@@ -2,8 +2,8 @@
 #if defined(WIN32) || defined(_LINUX)
 #include <sys/timeb.h>
 #endif // WIN32 || _LINUX
-#include "AsyncSocket.h"
-#include "NetStats.h"
+#include "asyncsocket.h"
+#include "netstats.h"
 #include <time.h>
 using namespace WONAPI;
 

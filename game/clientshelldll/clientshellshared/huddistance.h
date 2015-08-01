@@ -17,8 +17,8 @@
 // Includes...
 //
 
-	#include "HUDItem.h"
-	#include "HUDBar.h"
+	#include "huditem.h"
+	#include "hudbar.h"
 
 
 class CHUDDistance : public CHUDItem

@@ -13,7 +13,7 @@
 //
 
 	#include "stdafx.h"
-	#include "HUDMeter.h"
+	#include "hudmeter.h"
 
 
 // ----------------------------------------------------------------------- //

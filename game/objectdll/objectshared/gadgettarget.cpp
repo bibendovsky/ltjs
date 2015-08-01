@@ -15,14 +15,14 @@
 //
 
 	#include "stdafx.h"
-	#include "ObjectMsgs.h"
-	#include "ParsedMsg.h"
-	#include "MsgIDs.h"
-	#include "PlayerObj.h"
-	#include "Spawner.h"
-	#include "GadgetTargetTypes.h"
-	#include "GadgetTarget.h"
-	#include "ServerSoundMgr.h"
+	#include "objectmsgs.h"
+	#include "parsedmsg.h"
+	#include "msgids.h"
+	#include "playerobj.h"
+	#include "spawner.h"
+	#include "gadgettargettypes.h"
+	#include "gadgettarget.h"
+	#include "serversoundmgr.h"
 
 LINKFROM_MODULE( GadgetTarget );
 

@@ -15,7 +15,7 @@
 
 #include "iaggregate.h"
 #include "ltbasedefs.h"
-#include "WeaponMgr.h"
+#include "weaponmgr.h"
 
 class BaseClass;
 class ILTServer;

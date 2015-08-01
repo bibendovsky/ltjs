@@ -12,8 +12,8 @@
 #ifndef __AISENSE_RECORDER_ABSTRACT_H__
 #define __AISENSE_RECORDER_ABSTRACT_H__
 
-#include "AIButeMgr.h"
-#include "AISensing.h"
+#include "aibutemgr.h"
+#include "aisensing.h"
 
 class CAIStimulusRecord;
 class CAISenseRecorderAbstract;
@@ -30,7 +30,7 @@ enum EnumAISenseType
 	kSense_None			= 0,
 
 	#define SENSE_TYPE_AS_ENUM 1
-	#include "AISenseTypeEnums.h"
+	#include "aisensetypeenums.h"
 	#undef SENSE_TYPE_AS_ENUM
 
 	kSense_All			= 0xffffffff,

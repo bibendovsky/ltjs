@@ -10,13 +10,13 @@
 
 
 #include "stdafx.h"
-#include "TO2PlayerMgr.h"
-#include "TO2HUDMgr.h"
-#include "MsgIDs.h"
-#include "GameClientShell.h"
-#include "PlayerCamera.h"
-#include "TargetMgr.h"
-#include "WeaponMgr.h"
+#include "to2playermgr.h"
+#include "to2hudmgr.h"
+#include "msgids.h"
+#include "gameclientshell.h"
+#include "playercamera.h"
+#include "targetmgr.h"
+#include "weaponmgr.h"
 
 
 

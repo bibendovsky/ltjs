@@ -19,7 +19,7 @@
 // BitmapCheckButton.h : header file
 //
 
-#include "StaticEx.h"
+#include "staticex.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CBitmapCheckButton window

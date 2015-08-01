@@ -9,10 +9,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TronPlayerMgr.h"
-#include "TronPlayerStats.h" // needed for energy transfer data
-#include "HUDMgr.h"
-#include "SubroutineMgr.h"
+#include "tronplayermgr.h"
+#include "tronplayerstats.h" // needed for energy transfer data
+#include "hudmgr.h"
+#include "subroutinemgr.h"
 
 CTronPlayerMgr* g_pTronPlayerMgr = NULL;
 

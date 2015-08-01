@@ -10,13 +10,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalDisappearReappear.h"
-#include "AIGoalMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIHuman.h"
-#include "AIHumanStateDisappearReappear.h"
-#include "AIBrain.h"
-#include "AIHumanState.h"
+#include "aigoaldisappearreappear.h"
+#include "aigoalmgr.h"
+#include "aisenserecorderabstract.h"
+#include "aihuman.h"
+#include "aihumanstatedisappearreappear.h"
+#include "aibrain.h"
+#include "aihumanstate.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalDisappearReappear, kGoal_DisappearReappear);
 

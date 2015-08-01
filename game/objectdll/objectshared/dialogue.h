@@ -17,7 +17,7 @@
 // Includes...
 //
 
-	#include "GameBase.h"
+	#include "gamebase.h"
 
 //
 // Defines...

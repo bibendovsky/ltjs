@@ -11,13 +11,13 @@
 
 #include "stdafx.h"
 #include "clientres.h"
-#include "TronTargetMgr.h"
-#include "TronPlayerMgr.h"
-#include "GameClientShell.h"
-#include "CharacterFX.h"
-#include "BodyFX.h"
-#include "PickupItemFX.h"
-#include "PlayerMgr.h"
+#include "trontargetmgr.h"
+#include "tronplayermgr.h"
+#include "gameclientshell.h"
+#include "characterfx.h"
+#include "bodyfx.h"
+#include "pickupitemfx.h"
+#include "playermgr.h"
 
 // ----------------------------------------------------------------------- //
 //

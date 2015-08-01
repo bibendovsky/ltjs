@@ -11,13 +11,13 @@
 
 #include "stdafx.h"
 
-#include "GameClientShell.h"
-#include "InterfaceMgr.h"
-#include "PlayerMgr.h"
-#include "PlayerStats.h"
-#include "MsgIDs.h"
-#include "ClientWeaponMgr.h"
-#include "ClientWeaponAllocator.h"
+#include "gameclientshell.h"
+#include "interfacemgr.h"
+#include "playermgr.h"
+#include "playerstats.h"
+#include "msgids.h"
+#include "clientweaponmgr.h"
+#include "clientweaponallocator.h"
 
 //
 // Defines

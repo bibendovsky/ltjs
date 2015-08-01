@@ -11,8 +11,8 @@
 #ifndef __KEY_PAD_H__
 #define __KEY_PAD_H__
 
-#include "Prop.h"
-#include "Timer.h"
+#include "prop.h"
+#include "timer.h"
 
 LINKTO_MODULE( KeyPad );
 

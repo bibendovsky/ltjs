@@ -13,14 +13,14 @@
 #ifndef __PROJECTILE_H__
 #define __PROJECTILE_H__
 
-#include "GameBase.h"
-#include "DamageTypes.h"
-#include "SurfaceMgr.h"
-#include "WeaponMgr.h"
-#include "Destructible.h"
-#include "ModelButeMgr.h"
-#include "LTObjRef.h"
-#include "ImpactType.h"
+#include "gamebase.h"
+#include "damagetypes.h"
+#include "surfacemgr.h"
+#include "weaponmgr.h"
+#include "destructible.h"
+#include "modelbutemgr.h"
+#include "ltobjref.h"
+#include "impacttype.h"
 
 LINKTO_MODULE( Projectile );
 

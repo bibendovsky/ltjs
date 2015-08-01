@@ -11,8 +11,8 @@
 // Includes....
 
 #include "stdafx.h"
-#include "PolyFanFX.h"
-#include "ClientFX.h"
+#include "polyfanfx.h"
+#include "clientfx.h"
 
 // ----------------------------------------------------------------------- //
 //

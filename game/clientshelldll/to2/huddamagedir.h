@@ -11,7 +11,7 @@
 #ifndef __HUD_DAMAGE_DIR_H
 #define __HUD_DAMAGE_DIR_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 
 

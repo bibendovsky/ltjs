@@ -22,7 +22,7 @@
 #endif // _MSC_VER >= 1000
 
 // Includes
-#include "ProjectileClusterDisc.h"
+#include "projectileclusterdisc.h"
 
 // Forward declarations
 

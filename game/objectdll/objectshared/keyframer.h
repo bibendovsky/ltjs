@@ -12,11 +12,11 @@
 #define __KEYFRAMER_H__
 
 #include "ltengineobjects.h"
-#include "CDynArray.h"
-#include "KeyData.h"
+#include "cdynarray.h"
+#include "keydata.h"
 #include "commonutilities.h"
 #include "iobjectplugin.h"
-#include "GameBase.h"
+#include "gamebase.h"
 
 LINKTO_MODULE( KeyFramer );
 

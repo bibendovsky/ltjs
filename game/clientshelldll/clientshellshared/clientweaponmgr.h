@@ -13,7 +13,7 @@
 #define  _ClientWeaponMgr_h_INCLUDED_
 
 
-#include "ClientWeaponBase.h"
+#include "clientweaponbase.h"
 
 
 //

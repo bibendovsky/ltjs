@@ -12,13 +12,13 @@
 
 #include "stdafx.h"
 #include <stdlib.h>
-#include "ClientUtilities.h"
-#include "GameClientShell.h"
-#include "VarTrack.h"
-#include "VKdefs.h"
-#include "WeaponMgr.h"
-#include "ClientServerShared.h"
-#include "ClientMultiplayerMgr.h"
+#include "clientutilities.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
+#include "vkdefs.h"
+#include "weaponmgr.h"
+#include "clientservershared.h"
+#include "clientmultiplayermgr.h"
 
 //-------------------------------------------------------------------------------------------
 // CropSurface

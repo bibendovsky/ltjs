@@ -11,14 +11,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "HeadBobMgr.h"
-#include "GameClientShell.h"
-#include "SurfaceFunctions.h"
-#include "VarTrack.h"
-#include "CharacterFX.h"
-#include "VehicleMgr.h"
-#include "ClientWeaponBase.h"
-#include "CMoveMgr.h"
+#include "headbobmgr.h"
+#include "gameclientshell.h"
+#include "surfacefunctions.h"
+#include "vartrack.h"
+#include "characterfx.h"
+#include "vehiclemgr.h"
+#include "clientweaponbase.h"
+#include "cmovemgr.h"
 
 CHeadBobMgr* g_pHeadBobMgr = LTNULL;
 

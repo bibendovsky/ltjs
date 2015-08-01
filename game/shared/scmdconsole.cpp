@@ -12,15 +12,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScmdConsole.h"
-#include "ScmdShared.h"
-#include "ParsedMsg.h"
+#include "scmdconsole.h"
+#include "scmdshared.h"
+#include "parsedmsg.h"
 #include "resshared.h"
-#include "DebugNew.h"
-#include "MsgIds.h"
-#include "CommonUtilities.h"
-#include "AutoMessage.h"
-#include "NetDefs.h"
+#include "debugnew.h"
+#include "msgids.h"
+#include "commonutilities.h"
+#include "automessage.h"
+#include "netdefs.h"
 #include <vector>
 #include <algorithm>
 

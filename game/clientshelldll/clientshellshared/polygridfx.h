@@ -13,8 +13,8 @@
 #ifndef __POLY_GRID_FX_H__
 #define __POLY_GRID_FX_H__
 
-#include "SpecialFX.h"
-#include "PolyGridBuffer.h"
+#include "specialfx.h"
+#include "polygridbuffer.h"
 
 #define PGSURFACE_PLASMA_NORMAL		0
 #define PGSURFACE_PLASMA_FOUR_RING	1

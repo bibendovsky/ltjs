@@ -11,10 +11,10 @@
 #ifndef __DEBRIS_FX_H__
 #define __DEBRIS_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 #include "client_physics.h"
-#include "DebrisMgr.h"
-#include "BankedList.h"
+#include "debrismgr.h"
+#include "bankedlist.h"
 
 #define MAX_DEBRIS 20
 

@@ -13,12 +13,12 @@
 #ifndef __TRONINTERFACE_MGR_H__
 #define __TRONINTERFACE_MGR_H__
 
-#include "InterfaceMgr.h"
-#include "TRONHUDMgr.h"
-#include "TRONScreenMgr.h"
-#include "TRONPlayerStats.h"
-#include "SubroutineMgr.h"
-#include "TronLayoutMgr.h"
+#include "interfacemgr.h"
+#include "tronhudmgr.h"
+#include "tronscreenmgr.h"
+#include "tronplayerstats.h"
+#include "subroutinemgr.h"
+#include "tronlayoutmgr.h"
 
 class CTronInterfaceMgr : public CInterfaceMgr
 {

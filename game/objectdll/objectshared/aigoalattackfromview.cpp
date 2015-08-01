@@ -10,18 +10,18 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAttackFromView.h"
-#include "AIHumanState.h"
-#include "AINodeMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIGoalMgr.h"
-#include "AIHuman.h"
-#include "AIVolume.h"
-#include "AIGoalButeMgr.h"
-#include "AITarget.h"
-#include "AIPathMgr.h"
-#include "PlayerObj.h"
-#include "CharacterMgr.h"
+#include "aigoalattackfromview.h"
+#include "aihumanstate.h"
+#include "ainodemgr.h"
+#include "aisenserecorderabstract.h"
+#include "aigoalmgr.h"
+#include "aihuman.h"
+#include "aivolume.h"
+#include "aigoalbutemgr.h"
+#include "aitarget.h"
+#include "aipathmgr.h"
+#include "playerobj.h"
+#include "charactermgr.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalAttackFromView, kGoal_AttackFromView);
 

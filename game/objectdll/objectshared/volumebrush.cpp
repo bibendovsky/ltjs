@@ -11,17 +11,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "VolumeBrush.h"
+#include "volumebrush.h"
 #include "iltserver.h"
-#include "ServerUtilities.h"
-#include "PolyGrid.h"
-#include "Character.h"
-#include "SFXMsgIds.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "SurfaceMgr.h"
-#include "MsgIds.h"
-#include "SurfaceFunctions.h"
+#include "serverutilities.h"
+#include "polygrid.h"
+#include "character.h"
+#include "sfxmsgids.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "surfacemgr.h"
+#include "msgids.h"
+#include "surfacefunctions.h"
 
 LINKFROM_MODULE( VolumeBrush );
 
@@ -30,7 +30,7 @@ LINKFROM_MODULE( VolumeBrush );
 #define TRIGGER_MSG_ON					"ON"
 #define TRIGGER_MSG_OFF					"OFF"
 
-#include "CVarTrack.h"
+#include "cvartrack.h"
 static CVarTrack vtRemoveFilters;
 
 #pragma force_active on

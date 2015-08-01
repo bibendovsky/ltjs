@@ -15,7 +15,7 @@
 // Includes...
 //
 
-	#include "DeathMatchMissionMgr.h"
+	#include "deathmatchmissionmgr.h"
 
 
 class CTeamDeathMatchMissionMgr : public CDeathMatchMissionMgr

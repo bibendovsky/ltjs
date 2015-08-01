@@ -12,9 +12,9 @@
 #ifndef __AIGOAL_ABSTRACT_STIMULATED_H__
 #define __AIGOAL_ABSTRACT_STIMULATED_H__
 
-#include "AIGoalAbstract.h"
-#include "LTObjRef.h"
-#include "RelationChangeObserver.h"
+#include "aigoalabstract.h"
+#include "ltobjref.h"
+#include "relationchangeobserver.h"
 
 // Forward declarations.
 enum  EnumAISenseType;

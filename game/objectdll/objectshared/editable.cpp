@@ -9,9 +9,9 @@
 //----------------------------------------------------------
 
 #include "stdafx.h"
-#include "Editable.h"
+#include "editable.h"
 #include "iltserver.h"
-#include "ObjectMsgs.h"
+#include "objectmsgs.h"
 
 // ----------------------------------------------------------------------- //
 //

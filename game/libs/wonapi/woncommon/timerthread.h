@@ -1,11 +1,11 @@
 #ifndef __WON_TIMERTHREAD_H__
 #define __WON_TIMERTHREAD_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "BiMap.h"
-#include "Thread.h"
-#include "AsyncOp.h"
-#include "CriticalSection.h"
+#include "bimap.h"
+#include "thread.h"
+#include "asyncop.h"
+#include "criticalsection.h"
 
 namespace WONAPI
 {

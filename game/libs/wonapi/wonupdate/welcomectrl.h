@@ -4,9 +4,9 @@
 #ifndef __WelcomeCtrl_H__
 #define __WelcomeCtrl_H__
 
-#include "WONGUI/TextBox.h"
-#include "WONGUI/MSControls.h"
-#include "WizardCtrl.h"
+#include "wongui/textbox.h"
+#include "wongui/mscontrols.h"
+#include "wizardctrl.h"
 
 namespace WONAPI
 {

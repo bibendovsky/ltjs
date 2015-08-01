@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 
-#include "LightGroupFX.h"
+#include "lightgroupfx.h"
 
 static uint32 s_LG;
 

@@ -11,7 +11,7 @@
 #ifndef __HUD_DAMAGE_H
 #define __HUD_DAMAGE_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 
 class CHUDDamage : public CHUDItem

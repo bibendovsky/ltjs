@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenPlayer.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ClientMultiplayerMgr.h"
+#include "screenplayer.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "clientmultiplayermgr.h"
 
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 extern CGameClientShell* g_pGameClientShell;
 
 static const int kMaxBandwidthStrLen = 8;

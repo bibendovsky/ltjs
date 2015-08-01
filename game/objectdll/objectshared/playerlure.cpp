@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ServerSpecialFX.h"
-#include "PlayerLure.h"
+#include "serverspecialfx.h"
+#include "playerlure.h"
 
 LINKFROM_MODULE( PlayerLure );
 

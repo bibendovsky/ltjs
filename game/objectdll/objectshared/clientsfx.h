@@ -12,7 +12,7 @@
 #define __CLIENT_SFX_H__
 
 #include "ltengineobjects.h"
-#include "GameBase.h"
+#include "gamebase.h"
 
 LINKTO_MODULE( ClientSFX );
 

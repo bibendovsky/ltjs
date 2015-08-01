@@ -13,8 +13,8 @@
 #ifndef __MUZZLEFLASH_PARTICLE_FX_H__
 #define __MUZZLEFLASH_PARTICLE_FX_H__
 
-#include "BaseParticleSystemFX.h"
-#include "FXButeMgr.h"
+#include "baseparticlesystemfx.h"
+#include "fxbutemgr.h"
 
 struct MFPCREATESTRUCT : public BPSCREATESTRUCT
 {

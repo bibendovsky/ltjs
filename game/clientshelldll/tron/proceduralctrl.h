@@ -14,10 +14,10 @@
 #ifndef __PROCEDURAL_CTRL_H
 #define __PROCEDURAL_CTRL_H
 
-#include "ScreenSpriteMgr.h"
-#include "BaseScaleFX.h"
-#include "TronLayoutMgr.h"
-#include "SubroutineMgr.h"
+#include "screenspritemgr.h"
+#include "basescalefx.h"
+#include "tronlayoutmgr.h"
+#include "subroutinemgr.h"
 
 
 class CProceduralCtrl

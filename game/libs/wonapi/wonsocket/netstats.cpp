@@ -1,4 +1,4 @@
-#include "NetStats.h"
+#include "netstats.h"
 
 using namespace WONAPI;
 

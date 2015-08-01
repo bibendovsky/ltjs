@@ -11,12 +11,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DisplayMeter.h"
-#include "ServerUtilities.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "CommandMgr.h"
-#include "MsgIDs.h"
+#include "displaymeter.h"
+#include "serverutilities.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "commandmgr.h"
+#include "msgids.h"
 
 LINKFROM_MODULE( DisplayMeter );
 

@@ -10,9 +10,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MissionButeMgr.h"
-#include "CommonUtilities.h"
-#include "WeaponMgr.h"
+#include "missionbutemgr.h"
+#include "commonutilities.h"
+#include "weaponmgr.h"
 
 
 #define MMGR_MISSION_NAMEID				"NameId"

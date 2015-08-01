@@ -13,7 +13,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ClientTrackedNodeContext.h"
+#include "clienttrackednodecontext.h"
 
 
 // ----------------------------------------------------------------------- //

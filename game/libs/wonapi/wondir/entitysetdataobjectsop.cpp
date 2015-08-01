@@ -1,5 +1,5 @@
-#include "EntitySetDataObjectsOp.h"
-#include "WONCommon/WriteBuffer.h"
+#include "entitysetdataobjectsop.h"
+#include "woncommon/writebuffer.h"
 
 using namespace WONAPI;
 

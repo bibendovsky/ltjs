@@ -1,11 +1,11 @@
 #ifndef __WON_AUTHSESSION_H__
 #define __WON_AUTHSESSION_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONStatus.h"
-#include "WONCommon/SmartPtr.h"
-#include "WONCommon/ReadBuffer.h"
-#include "WONCrypt/Blowfish.h"
+#include "wonstatus.h"
+#include "woncommon/smartptr.h"
+#include "woncommon/readbuffer.h"
+#include "woncrypt/blowfish.h"
 
 namespace WONAPI
 {

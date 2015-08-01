@@ -11,15 +11,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "KeyPad.h"
-#include "SoundMgr.h"
-#include "ServerUtilities.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "WeaponMgr.h"
-#include "CommandMgr.h"
-#include "Spawner.h"
-#include "ServerSoundMgr.h"
+#include "keypad.h"
+#include "soundmgr.h"
+#include "serverutilities.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "weaponmgr.h"
+#include "commandmgr.h"
+#include "spawner.h"
+#include "serversoundmgr.h"
 
 LINKFROM_MODULE( KeyPad );
 

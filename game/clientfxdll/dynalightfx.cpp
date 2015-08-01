@@ -11,8 +11,8 @@
 // Includes....
 
 #include "stdafx.h"
-#include "DynaLightFX.h"
-#include "ClientFX.h"
+#include "dynalightfx.h"
+#include "clientfx.h"
 
 // ----------------------------------------------------------------------- //
 //

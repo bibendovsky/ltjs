@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Group.h"
+#include "group.h"
 #include "iltmessage.h"
 #include "commonutilities.h"
 #include "serverutilities.h"
-#include "ParsedMsg.h"
+#include "parsedmsg.h"
 
 LINKFROM_MODULE( Group );
 

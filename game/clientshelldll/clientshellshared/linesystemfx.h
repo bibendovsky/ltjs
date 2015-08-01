@@ -11,7 +11,7 @@
 #ifndef __LINE_SYSTEM_FX_H__
 #define __LINE_SYSTEM_FX_H__
 
-#include "BaseLineSystemFX.h"
+#include "baselinesystemfx.h"
 
 struct LSCREATESTRUCT : public SFXCREATESTRUCT
 {

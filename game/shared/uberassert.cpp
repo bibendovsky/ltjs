@@ -15,7 +15,7 @@
 
 #include <stdafx.h>
 #include <crtdbg.h>
-#include "UberAssert.h"
+#include "uberassert.h"
 #include "stacktrace.h"
 
 #ifdef _DEBUG

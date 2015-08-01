@@ -14,11 +14,11 @@
 #define __WEAPON_MGR_H__
 
 #include "ltbasetypes.h"
-#include "DamageTypes.h"
-#include "CommandIds.h"
-#include "TemplateList.h"
-#include "GameButeMgr.h"
-#include "ButeListReader.h"
+#include "damagetypes.h"
+#include "commandids.h"
+#include "templatelist.h"
+#include "gamebutemgr.h"
+#include "butelistreader.h"
 
 class CWeaponMgr;
 class CFXButeMgrPlugin;

@@ -5,13 +5,13 @@
 #include <windows.h>
 
 #include <assert.h>
-#include "WONGUI/GUICompat.h"
-#include "WONGUI/ChildLayouts.h"
-#include "AboutDlg.h"
-#include "Resource.h"
-#include "../WONUpdateCtrl.h"
-#include "../AbortDlg.h"
-#include "../CustomInfo.h"
+#include "wongui/guicompat.h"
+#include "wongui/childlayouts.h"
+#include "aboutdlg.h"
+#include "resource.h"
+#include "../wonupdatectrl.h"
+#include "../abortdlg.h"
+#include "../custominfo.h"
 
 using namespace WONAPI;
 

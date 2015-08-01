@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SoundMgr.h"
-#include "CommonUtilities.h"
-#include "SoundButeMgr.h"
+#include "soundmgr.h"
+#include "commonutilities.h"
+#include "soundbutemgr.h"
 
 #define SMGR_DEFAULT_INNERRADIUSPERCENT		0.25f
 #define SMGR_BASE_SOUND_ID					1000

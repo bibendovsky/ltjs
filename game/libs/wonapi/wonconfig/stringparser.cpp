@@ -1,5 +1,5 @@
-#include "StringParser.h"
-#include "WONCommon/LittleEndian.h"
+#include "stringparser.h"
+#include "woncommon/littleendian.h"
 
 using namespace std;
 using namespace WONAPI;

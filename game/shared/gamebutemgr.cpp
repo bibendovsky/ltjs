@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 
 #define BUTE_DEBUG_LEVEL		5
 

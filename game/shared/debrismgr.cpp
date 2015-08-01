@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DebrisMgr.h"
-#include "CommonUtilities.h"
+#include "debrismgr.h"
+#include "commonutilities.h"
 
 #define DEBRISMGR_DEBRIS_TAG					"Debris"
 

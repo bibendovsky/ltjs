@@ -13,7 +13,7 @@
 #ifndef __POLY_GRID_H__
 #define __POLY_GRID_H__
 
-#include "ClientSFX.h"
+#include "clientsfx.h"
 
 LINKTO_MODULE( PolyGrid );
 

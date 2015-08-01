@@ -9,14 +9,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenShake.h"
+#include "screenshake.h"
 #include "iltserver.h"
-#include "MsgIds.h"
-#include "PlayerObj.h"
-#include "SoundMgr.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "ServerSoundMgr.h"
+#include "msgids.h"
+#include "playerobj.h"
+#include "soundmgr.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "serversoundmgr.h"
 
 const int c_nINFINITE_SHAKES = -1;
 const LTFLOAT c_fENTIRE_LEVEL = -1.0f;

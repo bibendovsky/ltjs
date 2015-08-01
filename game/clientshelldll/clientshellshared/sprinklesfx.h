@@ -3,8 +3,8 @@
 #define __SPRINKLESFX_H__
 
 
-#include "SpecialFX.h"
-#include "SharedFXStructs.h"
+#include "specialfx.h"
+#include "sharedfxstructs.h"
 
 
 

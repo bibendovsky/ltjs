@@ -1,7 +1,7 @@
 #ifndef __WON_CRITICALSECTION_WINDOWS_H__
 #define __WON_CRITICALSECTION_WINDOWS_H__
-#include "WONShared.h"
-#include "Platform_Windows.h"
+#include "wonshared.h"
+#include "platform_windows.h"
 
 namespace WONAPI
 {

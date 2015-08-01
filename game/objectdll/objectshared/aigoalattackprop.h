@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ATTACK_PROP_H__
 #define __AIGOAL_ATTACK_PROP_H__
 
-#include "AIGoalAttack.h"
+#include "aigoalattack.h"
 
 
 class CAIGoalAttackProp : public CAIGoalAttack

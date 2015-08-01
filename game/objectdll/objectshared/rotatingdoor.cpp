@@ -15,7 +15,7 @@
 // 
 
 #include "stdafx.h"
-#include "RotatingDoor.h"
+#include "rotatingdoor.h"
 
 LINKFROM_MODULE( RotatingDoor );
 

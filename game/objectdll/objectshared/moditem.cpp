@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ModItem.h"
-#include "MsgIds.h"
+#include "moditem.h"
+#include "msgids.h"
 #include "iltserver.h"
-#include "PlayerObj.h"
-#include "ObjectMsgs.h"
+#include "playerobj.h"
+#include "objectmsgs.h"
 
 LINKFROM_MODULE( ModItem );
 

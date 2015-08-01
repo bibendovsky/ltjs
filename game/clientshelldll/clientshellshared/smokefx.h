@@ -11,7 +11,7 @@
 #ifndef __SMOKE_FX_H__
 #define __SMOKE_FX_H__
 
-#include "BaseParticleSystemFX.h"
+#include "baseparticlesystemfx.h"
 
 
 struct SMCREATESTRUCT : public BPSCREATESTRUCT

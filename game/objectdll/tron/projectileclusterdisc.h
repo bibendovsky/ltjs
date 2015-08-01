@@ -14,7 +14,7 @@
 #include <vector>
 
 
-#include "ProjectileDisc.h"
+#include "projectiledisc.h"
 
 
 class CClusterDisc : public CDisc

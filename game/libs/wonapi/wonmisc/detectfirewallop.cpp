@@ -1,4 +1,4 @@
-#include "DetectFirewallOp.h"
+#include "detectfirewallop.h"
 
 using namespace WONAPI;
 

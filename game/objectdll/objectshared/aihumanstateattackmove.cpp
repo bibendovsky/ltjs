@@ -1,11 +1,11 @@
 // (c) 2002 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIHumanStateAttackMove.h"
-#include "AIHuman.h"
-#include "AITarget.h"
-#include "AICentralKnowledgeMgr.h"
-#include "TrackedNodeContext.h"
+#include "aihumanstateattackmove.h"
+#include "aihuman.h"
+#include "aitarget.h"
+#include "aicentralknowledgemgr.h"
+#include "trackednodecontext.h"
 
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(State, CAIHumanStateAttackMove, kState_HumanAttackMove);

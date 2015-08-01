@@ -13,7 +13,7 @@
 #ifndef _SKELETONOBJECT_H_
 #define _SKELETONOBJECT_H_
 
-#include "GameBase.h"
+#include "gamebase.h"
 
 // This is for a generic object derived from GameBase
 class SkeletonObject : public GameBase

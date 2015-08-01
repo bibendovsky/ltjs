@@ -10,8 +10,8 @@
 
 
 #include "stdafx.h"
-#include "SkillControl.h"
-#include "InterfaceMgr.h"
+#include "skillcontrol.h"
+#include "interfacemgr.h"
 
 HTEXTURE  CSkillCtrl::m_hChecked = NULL;
 HTEXTURE  CSkillCtrl::m_hUnchecked = NULL;

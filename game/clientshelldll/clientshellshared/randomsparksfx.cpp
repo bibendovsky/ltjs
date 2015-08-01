@@ -9,9 +9,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "RandomSparksFX.h"
+#include "randomsparksfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
+#include "clientutilities.h"
 
 
 // ----------------------------------------------------------------------- //

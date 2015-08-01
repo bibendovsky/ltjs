@@ -13,7 +13,7 @@
 #ifndef __DOOR_KNOB_H__
 #define __DOOR_KNOB_H__
 
-#include "Prop.h"
+#include "prop.h"
 
 LINKTO_MODULE( DoorKnob );
 

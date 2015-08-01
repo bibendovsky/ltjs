@@ -12,8 +12,8 @@
 #if !defined(_MENU_INVENTORY_H_)
 #define _MENU_INVENTORY_H_
 
-#include "BaseMenu.h"
-#include "WeaponMgr.h"
+#include "basemenu.h"
+#include "weaponmgr.h"
 
 class CAmmoMenu : public CSubMenu
 {

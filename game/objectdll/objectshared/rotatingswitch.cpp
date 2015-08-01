@@ -15,7 +15,7 @@
 //
 
 	#include "stdafx.h"
-	#include "RotatingSwitch.h"
+	#include "rotatingswitch.h"
 
 LINKFROM_MODULE( RotatingSwitch );
 

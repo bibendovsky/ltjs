@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "TrackedNode.h"
-#include "TrackedNodeMgr.h"
+#include "trackednode.h"
+#include "trackednodemgr.h"
 
 #define DRAWBASIS 0
 #if DRAWBASIS
 	#ifndef _CLIENTBUILD
-		#include "DebugLineSystem.h"
+		#include "debuglinesystem.h"
 	#endif
 #endif
 //-----------------------------------------------------------------------------------------

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------------
 // ProgressBarComponent.cpp
 //----------------------------------------------------------------------------------
-#include "ProgressBarComponent.h"
-#include "WONGUI/ColorScheme.h"
+#include "progressbarcomponent.h"
+#include "wongui/colorscheme.h"
 
 using namespace WONAPI;
 

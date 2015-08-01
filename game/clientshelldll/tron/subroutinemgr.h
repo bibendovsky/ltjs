@@ -22,9 +22,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include "ltbasetypes.h"
-#include "ScreenSpriteMgr.h"
+#include "screenspritemgr.h"
 
 #define SUBROUTINE_DEFAULT_FILE		"Attributes\\Subroutines.txt"
 #define SUBROUTINE_MAX_NAME			32

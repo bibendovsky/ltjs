@@ -1,13 +1,13 @@
 //----------------------------------------------------------------------------------
 // WONUpdateCtrl.cpp
 //----------------------------------------------------------------------------------
-#include "WONAPI/WONAPI.h"
-#include "WONGUI/SimpleComponent.h"
-#include "WONGUI/MSControls.h"
-#include "WONGUI/ChildLayouts.h"
-#include "WONUpdateCtrl.h"
-#include "MessageDlg.h"
-#include "CustomInfo.h"
+#include "wonapi/wonapi.h"
+#include "wongui/simplecomponent.h"
+#include "wongui/mscontrols.h"
+#include "wongui/childlayouts.h"
+#include "wonupdatectrl.h"
+#include "messagedlg.h"
+#include "custominfo.h"
 
 using namespace WONAPI;
 

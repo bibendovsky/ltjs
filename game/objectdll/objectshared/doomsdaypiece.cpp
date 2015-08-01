@@ -15,10 +15,10 @@
 //
 
 	#include "stdafx.h"
-	#include "ParsedMsg.h"
-	#include "PlayerObj.h"
-	#include "DoomsDayDevice.h"
-	#include "DoomsDayPiece.h"
+	#include "parsedmsg.h"
+	#include "playerobj.h"
+	#include "doomsdaydevice.h"
+	#include "doomsdaypiece.h"
 
 //
 // Globals...

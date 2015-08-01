@@ -15,7 +15,7 @@
 
 #include "ltengineobjects.h"
 #include "clientservershared.h"
-#include "GameBase.h"
+#include "gamebase.h"
 
 LINKTO_MODULE( DecisionObject );
 

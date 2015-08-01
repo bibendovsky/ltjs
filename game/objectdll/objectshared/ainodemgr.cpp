@@ -1,19 +1,19 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "ServerUtilities.h"
-#include "AINodeMgr.h"
-#include "AINode.h"
-#include "VolumeBrushTypes.h"
-#include "SurfaceFunctions.h"
+#include "serverutilities.h"
+#include "ainodemgr.h"
+#include "ainode.h"
+#include "volumebrushtypes.h"
+#include "surfacefunctions.h"
 #include "ctype.h"
-#include "SFXMsgIDs.h"
-#include "NodeLine.h"
-#include "AIUtils.h"
-#include "AIVolume.h"
-#include "AIPathKnowledgeMgr.h"
-#include "AI.h"
-#include "ObjectRelationMgr.h"
+#include "sfxmsgids.h"
+#include "nodeline.h"
+#include "aiutils.h"
+#include "aivolume.h"
+#include "aipathknowledgemgr.h"
+#include "ai.h"
+#include "objectrelationmgr.h"
 
 // Globals/statics
 

@@ -1,10 +1,10 @@
 #ifndef __WON_PeerAuthServerOp_H__
 #define __WON_PeerAuthServerOp_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCrypt/Blowfish.h"
-#include "WONServer/ServerOp.h"
-#include "PeerAuthServer.h"
+#include "woncrypt/blowfish.h"
+#include "wonserver/serverop.h"
+#include "peerauthserver.h"
 
 namespace WONAPI
 {

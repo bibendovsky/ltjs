@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ExplosionFX.h"
-#include "FXButeMgr.h"
-#include "ClientServerShared.h"
+#include "explosionfx.h"
+#include "fxbutemgr.h"
+#include "clientservershared.h"
 
 // ----------------------------------------------------------------------- //
 //

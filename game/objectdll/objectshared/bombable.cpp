@@ -15,15 +15,15 @@
 //
 
 	#include "stdafx.h"
-	#include "MsgIds.h"
-	#include "PlayerObj.h"
-	#include "Spawner.h"
-	#include "GadgetTargetTypes.h"
-	#include "Bombable.h"
-	#include "ParsedMsg.h"
-	#include "FXButeMgr.h"
-	#include "ServerSpecialFX.h"
-	#include "ServerSoundMgr.h"
+	#include "msgids.h"
+	#include "playerobj.h"
+	#include "spawner.h"
+	#include "gadgettargettypes.h"
+	#include "bombable.h"
+	#include "parsedmsg.h"
+	#include "fxbutemgr.h"
+	#include "serverspecialfx.h"
+	#include "serversoundmgr.h"
 
 //
 // Defines...

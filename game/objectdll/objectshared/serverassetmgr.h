@@ -13,7 +13,7 @@
 #ifndef __SERVER_ASSET_MGR_H__
 #define __SERVER_ASSET_MGR_H__
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 
 class CServerAssetMgr : public CGameButeMgr
 {

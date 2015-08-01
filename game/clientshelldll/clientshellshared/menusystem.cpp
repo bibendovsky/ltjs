@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MenuSystem.h"
-#include "InterfaceMgr.h"
-#include "ClientResShared.h"
-#include "ClientMultiplayerMgr.h"
-#include "ClientSaveLoadMgr.h"
+#include "menusystem.h"
+#include "interfacemgr.h"
+#include "clientresshared.h"
+#include "clientmultiplayermgr.h"
+#include "clientsaveloadmgr.h"
 namespace
 {
 	enum eMenuCmds

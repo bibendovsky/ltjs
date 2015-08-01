@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // Debug new handler implementation
 
-#include "StdAfx.h"
+#include "stdafx.h"
 
 #ifdef LTMEMTRACK
 

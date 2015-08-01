@@ -1,8 +1,8 @@
 
 
-#include "GameSpySupport.h"
-#include "WONDir/GetServiceOp.h"
-#include "WONCommon/StringUtil.h"
+#include "gamespysupport.h"
+#include "wondir/getserviceop.h"
+#include "woncommon/stringutil.h"
 
   
 using namespace WONAPI;

@@ -15,13 +15,13 @@
 //
 
 	#include "stdafx.h"
-	#include "PlayerMgr.h"
-	#include "CMoveMgr.h"
-	#include "MsgIds.h"
-	#include "LeanMgr.h"
-	#include "InterfaceMgr.h"
-	#include "PlayerCamera.h"
-	#include "VehicleMgr.h"
+	#include "playermgr.h"
+	#include "cmovemgr.h"
+	#include "msgids.h"
+	#include "leanmgr.h"
+	#include "interfacemgr.h"
+	#include "playercamera.h"
+	#include "vehiclemgr.h"
 
 //
 // Globals...

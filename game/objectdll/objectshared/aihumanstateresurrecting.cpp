@@ -19,15 +19,15 @@
 #include "stdafx.h"
 
 #ifndef __AIHUMANSTATERESURRECTING_H__
-#include "AIHumanStateResurrecting.h"		
+#include "aihumanstateresurrecting.h"		
 #endif
 
 #ifndef __AI_HUMAN_H__
-#include "AIHuman.h"
+#include "aihuman.h"
 #endif
 
-#include "MsgIds.h"
-#include "DebrisFuncs.h"
+#include "msgids.h"
+#include "debrisfuncs.h"
 
 // Forward declarations
 

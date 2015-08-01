@@ -1,4 +1,4 @@
-#include "RoutingBecomeModeratorOp.h"
+#include "routingbecomemoderatorop.h"
 using namespace WONAPI;
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -15,7 +15,7 @@
 
 #include "ltbasedefs.h"
 #include "iltfontmanager.h"
-#include "TeamMgr.h"
+#include "teammgr.h"
 
 extern ILTFontManager*	g_pFontManager;
 

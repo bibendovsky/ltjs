@@ -9,15 +9,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenFailure.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "TO2InterfaceMgr.h"
-#include "SaveLoadMgr.h"
-#include "GameClientShell.h"
-#include "ClientSaveLoadMgr.h"
-#include "ClientMultiplayerMgr.h"
-#include "MissionMgr.h"
+#include "screenfailure.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "to2interfacemgr.h"
+#include "saveloadmgr.h"
+#include "gameclientshell.h"
+#include "clientsaveloadmgr.h"
+#include "clientmultiplayermgr.h"
+#include "missionmgr.h"
 
 namespace
 {

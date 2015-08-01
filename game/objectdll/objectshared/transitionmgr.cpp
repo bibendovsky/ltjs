@@ -15,13 +15,13 @@
 //
 
 #include "stdafx.h"
-#include "PlayerObj.h"
-#include "WorldProperties.h"
-#include "TransitionArea.h"
-#include "TransitionMgr.h"
-#include "AIStimulusMgr.h"
-#include "ServerMissionMgr.h"
-#include "ServerSaveLoadMgr.h"
+#include "playerobj.h"
+#include "worldproperties.h"
+#include "transitionarea.h"
+#include "transitionmgr.h"
+#include "aistimulusmgr.h"
+#include "servermissionmgr.h"
+#include "serversaveloadmgr.h"
 
 //
 // Defines...

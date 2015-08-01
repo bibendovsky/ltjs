@@ -15,10 +15,10 @@
 //
 
 	#include "stdafx.h"
-	#include "CharacterFX.h"
-	#include "TriggerTypeMgr.h"
-	#include "TriggerFX.h"
-	#include "ClientResShared.h"
+	#include "characterfx.h"
+	#include "triggertypemgr.h"
+	#include "triggerfx.h"
+	#include "clientresshared.h"
 
 
 #define	TRIGFX_DIMS_MODEL	"Models\\1x1_square.ltb"

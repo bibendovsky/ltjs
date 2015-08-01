@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "BaseParticleSystemFX.h"
+#include "baseparticlesystemfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "GameClientShell.h"
+#include "clientutilities.h"
+#include "gameclientshell.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

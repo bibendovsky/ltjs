@@ -1,5 +1,5 @@
 #if defined(WIN32)
-#include "Platform_Windows.cpp"
+#include "platform_windows.cpp"
 #elif defined(_LINUX)
-#include "Platform_Linux.cpp"
+#include "platform_linux.cpp"
 #endif

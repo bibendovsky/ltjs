@@ -12,8 +12,8 @@
 #define __ALARM_H__
 
 #include "ltengineobjects.h"
-#include "CommandMgr.h"
-#include "Prop.h"
+#include "commandmgr.h"
+#include "prop.h"
 
 LINKTO_MODULE( Alarm );
 

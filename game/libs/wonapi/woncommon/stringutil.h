@@ -1,8 +1,8 @@
 #ifndef __WON_STRINGUTIL_H__
 #define __WON_STRINGUTIL_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "Platform.h"
+#include "platform.h"
 #include <string>
 
 namespace WONAPI

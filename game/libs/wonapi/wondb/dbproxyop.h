@@ -1,9 +1,9 @@
 #ifndef __WON_DBPROXYOP_H__
 #define __WON_DBPROXYOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONServer/ServerRequestOp.h"
-#include "WONCommon/WriteBuffer.h"
+#include "wonserver/serverrequestop.h"
+#include "woncommon/writebuffer.h"
 
 namespace WONAPI 
 {

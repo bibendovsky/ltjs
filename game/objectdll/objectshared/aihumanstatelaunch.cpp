@@ -1,9 +1,9 @@
 // (c) 2002 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIHumanStateLaunch.h"
-#include "AIHuman.h"
-#include "AIMovement.h"
+#include "aihumanstatelaunch.h"
+#include "aihuman.h"
+#include "aimovement.h"
 
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(State, CAIHumanStateLaunch, kState_HumanLaunch);

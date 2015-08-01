@@ -1,8 +1,8 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
-#include "StdAfx.h"
-#include "Speaker.h"
-#include "SharedFXStructs.h"
+#include "stdafx.h"
+#include "speaker.h"
+#include "sharedfxstructs.h"
 
 LINKFROM_MODULE( Speaker );
 

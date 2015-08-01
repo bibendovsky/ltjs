@@ -15,7 +15,7 @@
 
 LINKTO_MODULE( TextureFX );
 
-#include "GameBase.h"
+#include "gamebase.h"
 
 class TextureFX : public GameBase
 {

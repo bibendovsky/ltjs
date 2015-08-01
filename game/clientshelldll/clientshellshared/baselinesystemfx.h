@@ -11,7 +11,7 @@
 #ifndef __BASE_LINE_SYSTEM_FX_H__
 #define __BASE_LINE_SYSTEM_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 class CBaseLineSystemFX : public CSpecialFX
 {

@@ -12,20 +12,20 @@
 
 #include "stdafx.h"
 #include <stdio.h>
-#include "Searchable.h"
+#include "searchable.h"
 #include "iltserver.h"
-#include "MsgIds.h"
-#include "ServerUtilities.h"
-#include "PlayerObj.h"
-#include "GameServerShell.h"
-#include "ObjectMsgs.h"
+#include "msgids.h"
+#include "serverutilities.h"
+#include "playerobj.h"
+#include "gameservershell.h"
+#include "objectmsgs.h"
 #include "iltphysics.h"
-#include "PickupItem.h"
-#include "ServerSoundMgr.h"
-#include "Spawner.h"
-#include "ServerUtilities.h"
-#include "PlayerButes.h"
-#include "Body.h"
+#include "pickupitem.h"
+#include "serversoundmgr.h"
+#include "spawner.h"
+#include "serverutilities.h"
+#include "playerbutes.h"
+#include "body.h"
 
 extern CGameServerShell* g_pGameServerShell;
 

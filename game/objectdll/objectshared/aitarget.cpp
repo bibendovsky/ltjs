@@ -1,13 +1,13 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
-#include "StdAfx.h"
-#include "AI.h"
-#include "AITarget.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIUtils.h"
-#include "AIBrain.h"
-#include "ObjectRelationMgr.h" 
-#include "CharacterMgr.h" 
+#include "stdafx.h"
+#include "ai.h"
+#include "aitarget.h"
+#include "aisenserecorderabstract.h"
+#include "aiutils.h"
+#include "aibrain.h"
+#include "objectrelationmgr.h" 
+#include "charactermgr.h" 
 
 DEFINE_AI_FACTORY_CLASS(CAITarget);
 

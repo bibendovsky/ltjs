@@ -13,8 +13,8 @@
 #ifndef __LIGHTNING_H__
 #define __LIGHTNING_H__
 
-#include "ClientSFX.h"
-#include "SFXMsgIds.h"
+#include "clientsfx.h"
+#include "sfxmsgids.h"
 
 LINKTO_MODULE( Lightning );
 

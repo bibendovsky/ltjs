@@ -11,7 +11,7 @@
 #ifndef __HUD_CARRYING_H
 #define __HUD_CARRYING_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 
 

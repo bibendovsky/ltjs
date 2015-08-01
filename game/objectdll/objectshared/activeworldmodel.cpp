@@ -15,15 +15,15 @@
 //
 
 	#include "stdafx.h"
-	#include "ActiveWorldModel.h"
-	#include "ServerSoundMgr.h"
-	#include "AIStimulusMgr.h"
-	#include "AINode.h"
-	#include "AINodeMgr.h"
-	#include "AIState.h"
-	#include "ParsedMsg.h"
-	#include "KeyMgr.h"
-	#include "AIUtils.h"
+	#include "activeworldmodel.h"
+	#include "serversoundmgr.h"
+	#include "aistimulusmgr.h"
+	#include "ainode.h"
+	#include "ainodemgr.h"
+	#include "aistate.h"
+	#include "parsedmsg.h"
+	#include "keymgr.h"
+	#include "aiutils.h"
 
 	extern CAIStimulusMgr* g_pAIStimulusMgr;
 

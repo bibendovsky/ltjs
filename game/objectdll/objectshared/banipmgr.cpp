@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "BanIPMgr.h"
+#include "banipmgr.h"
 
 class BanIPMgr_Impl : public BanIPMgr
 {

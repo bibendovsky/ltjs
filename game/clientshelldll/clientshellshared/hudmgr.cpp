@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "GameClientShell.h"
+#include "hudmgr.h"
+#include "gameclientshell.h"
 
 
 CHUDMgr*			g_pHUDMgr = LTNULL;

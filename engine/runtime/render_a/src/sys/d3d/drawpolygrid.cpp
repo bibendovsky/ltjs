@@ -35,7 +35,7 @@ define_holder(IClientShell, i_client_shell);
 #include "ltpixelshadermgr.h"
 #include "rendererframestats.h"
 
-#include "LTEffectImpl.h"
+#include "lteffectimpl.h"
 #include "lteffectshadermgr.h"
 #include "ltshaderdevicestateimp.h"
 #include "rendererconsolevars.h"

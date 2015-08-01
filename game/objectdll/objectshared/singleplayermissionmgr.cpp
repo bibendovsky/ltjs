@@ -10,11 +10,11 @@
 
 
 #include "stdafx.h"
-#include "SinglePlayerMissionMgr.h"
-#include "MusicMgr.h"
-#include "PlayerObj.h"
-#include "MsgIds.h"
-#include "MissionButeMgr.h"
+#include "singleplayermissionmgr.h"
+#include "musicmgr.h"
+#include "playerobj.h"
+#include "msgids.h"
+#include "missionbutemgr.h"
 
 // --------------------------------------------------------------------------- //
 //

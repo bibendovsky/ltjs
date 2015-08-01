@@ -9,14 +9,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ParticleTrailFX.h"
+#include "particletrailfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ParticleTrailSegmentFX.h"
-#include "GameClientShell.h"
-#include "MsgIds.h"
-#include "WeaponFXTypes.h"
-#include "VarTrack.h"
+#include "clientutilities.h"
+#include "particletrailsegmentfx.h"
+#include "gameclientshell.h"
+#include "msgids.h"
+#include "weaponfxtypes.h"
+#include "vartrack.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

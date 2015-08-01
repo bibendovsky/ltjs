@@ -11,7 +11,7 @@
 #ifndef __MARKSFX_H__
 #define __MARKSFX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 #include "ltlink.h"
 
 struct MARKCREATESTRUCT : public SFXCREATESTRUCT

@@ -19,19 +19,19 @@
 #include "stdafx.h"
 
 #ifndef __AIGOALRESURRECTING_H__
-#include "AIGoalResurrecting.h"		
+#include "aigoalresurrecting.h"		
 #endif
 
 #ifndef __AIGOAL_MGR_H__
-#include "AIGoalMgr.h"
+#include "aigoalmgr.h"
 #endif
 
 #ifndef __AI_H__
-#include "AI.h"
+#include "ai.h"
 #endif
 
 #ifndef __AIHUMANSTATERESURRECTING_H__
-#include "AIHumanStateResurrecting.h"
+#include "aihumanstateresurrecting.h"
 #endif
 
 // Forward declarations

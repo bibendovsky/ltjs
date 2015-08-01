@@ -10,10 +10,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAttackRanged.h"
-#include "AIGoalMgr.h"
-#include "AnimatorPlayer.h"
-#include "AI.h"
+#include "aigoalattackranged.h"
+#include "aigoalmgr.h"
+#include "animatorplayer.h"
+#include "ai.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalAttackRanged, kGoal_AttackRanged);
 

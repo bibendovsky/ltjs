@@ -10,8 +10,8 @@
 
 
 #include "stdafx.h"
-#include "BaseMenu.h"
-#include "InterfaceMgr.h"
+#include "basemenu.h"
+#include "interfacemgr.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // SubMenu members

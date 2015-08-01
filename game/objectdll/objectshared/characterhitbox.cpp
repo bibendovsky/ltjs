@@ -11,16 +11,16 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "CharacterHitBox.h"
-#include "Character.h"
-#include "Body.h"
-#include "Projectile.h"
-#include "ServerUtilities.h"
-#include "CVarTrack.h"
-#include "MsgIds.h"
-#include "ObjectMsgs.h"
-#include "Attachments.h"
-#include "GameServerShell.h"
+#include "characterhitbox.h"
+#include "character.h"
+#include "body.h"
+#include "projectile.h"
+#include "serverutilities.h"
+#include "cvartrack.h"
+#include "msgids.h"
+#include "objectmsgs.h"
+#include "attachments.h"
+#include "gameservershell.h"
 
 LINKFROM_MODULE( CharacterHitBox );
 

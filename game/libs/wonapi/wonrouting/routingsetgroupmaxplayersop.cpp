@@ -1,4 +1,4 @@
-#include "RoutingSetGroupMaxPlayersOp.h"
+#include "routingsetgroupmaxplayersop.h"
 using namespace WONAPI;
 
 ///////////////////////////////////////////////////////////////////////////////

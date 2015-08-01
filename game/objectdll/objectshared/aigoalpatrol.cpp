@@ -10,12 +10,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalPatrol.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AINodeMgr.h"
-#include "AIPathMgr.h"
-#include "AI.h"
+#include "aigoalpatrol.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "ainodemgr.h"
+#include "aipathmgr.h"
+#include "ai.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalPatrol, kGoal_Patrol);
 

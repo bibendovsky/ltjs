@@ -1,10 +1,10 @@
 //----------------------------------------------------------------------------------
 // ResourceManager.cpp
 //----------------------------------------------------------------------------------
-#include "ResourceManager.h"
-#include "PatchUtils.h"
-#include "CustomInfo.h"
-#include "Resources/SierraUpWRS.h"
+#include "resourcemanager.h"
+#include "patchutils.h"
+#include "custominfo.h"
+#include "resources/sierraupwrs.h"
 
 using namespace WONAPI;
 

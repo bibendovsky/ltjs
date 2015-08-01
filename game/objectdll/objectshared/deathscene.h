@@ -12,8 +12,8 @@
 #define __DEATH_SCENE_H__
 
 #include "ltengineobjects.h"
-#include "CharacterAlignment.h"
-#include "Character.h"
+#include "characteralignment.h"
+#include "character.h"
 
 class CBody;
 class CObjectRelationMgr;

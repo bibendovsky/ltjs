@@ -8,14 +8,14 @@
 //
 // ----------------------------------------------------------------------- //
 #include "stdafx.h"
-#include "HUDMgr.h"
-#include "HUDDecision.h"
-#include "InterfaceResMgr.h"
-#include "LayoutMgr.h"
-#include "PlayerMgr.h"
-#include "MsgIDs.h"
-#include "ClientUtilities.h"
-#include "CMoveMgr.h"
+#include "hudmgr.h"
+#include "huddecision.h"
+#include "interfaceresmgr.h"
+#include "layoutmgr.h"
+#include "playermgr.h"
+#include "msgids.h"
+#include "clientutilities.h"
+#include "cmovemgr.h"
 
 
 static const char* szOpenSound = "interface\\snd\\dialogueopen.wav";

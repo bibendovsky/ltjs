@@ -13,12 +13,12 @@
 #ifndef __POLY_LINE_FX_H__
 #define __POLY_LINE_FX_H__
 
-#include "BasePolyDrawFX.h"
-#include "SoundMgr.h"
-#include "SFXMsgIds.h"
-#include "TemplateList.h"
-#include "BankedList.h"
-#include "ILTDrawPrim.h"
+#include "basepolydrawfx.h"
+#include "soundmgr.h"
+#include "sfxmsgids.h"
+#include "templatelist.h"
+#include "bankedlist.h"
+#include "iltdrawprim.h"
 
 struct PLFXCREATESTRUCT : public SFXCREATESTRUCT
 {

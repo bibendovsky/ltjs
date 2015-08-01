@@ -13,7 +13,7 @@
 #ifndef _TO2_MISSION_BUTE_MGR_H_
 #define _TO2_MISSION_BUTE_MGR_H_
 
-#include "MissionButeMgr.h"
+#include "missionbutemgr.h"
 
 class CTO2MissionButeMgr : public CMissionButeMgr
 {

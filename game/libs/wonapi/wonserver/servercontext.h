@@ -1,11 +1,11 @@
 #ifndef __WON_SERVERCONTEXT_H__
 #define __WON_SERVERCONTEXT_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/SmartPtr.h"
-#include "WONCommon/CriticalSection.h"
-#include "WONSocket/IPAddr.h"
-#include "WONDir/DirEntity.h"
+#include "woncommon/smartptr.h"
+#include "woncommon/criticalsection.h"
+#include "wonsocket/ipaddr.h"
+#include "wondir/direntity.h"
 
 #include <map>
 

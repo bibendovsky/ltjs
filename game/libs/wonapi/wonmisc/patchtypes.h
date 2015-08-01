@@ -3,9 +3,9 @@
 #ifndef __PATCHTYPES_H__
 #define __PATCHTYPES_H__
 
-#include "WONCommon/SmartPtr.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONCommon/ReadBuffer.h"
+#include "woncommon/smartptr.h"
+#include "woncommon/writebuffer.h"
+#include "woncommon/readbuffer.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////

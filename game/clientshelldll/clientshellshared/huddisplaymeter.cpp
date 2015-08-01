@@ -13,9 +13,9 @@
 //
 
 	#include "stdafx.h"
-	#include "HUDMgr.h"
-	#include "LayoutMgr.h"
-	#include "HUDDisplayMeter.h"
+	#include "hudmgr.h"
+	#include "layoutmgr.h"
+	#include "huddisplaymeter.h"
 
 // ----------------------------------------------------------------------- //
 //

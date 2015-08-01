@@ -9,7 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "LTGuiMgr.h"
+#include "ltguimgr.h"
 
 class CPopupText
 {

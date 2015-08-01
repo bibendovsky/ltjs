@@ -10,15 +10,15 @@
 
 
 #include "stdafx.h"
-#include "MenuMgr.h"
-#include "GameClientShell.h"
+#include "menumgr.h"
+#include "gameclientshell.h"
 extern CGameClientShell* g_pGameClientShell;
 
 
 static char s_aMenuName[MENU_ID_UNASSIGNED+1][32] =
 {
 #define INCLUDE_AS_STRING
-#include "MenuEnum.h"
+#include "menuenum.h"
 #undef INCLUDE_AS_STRING
 
 };

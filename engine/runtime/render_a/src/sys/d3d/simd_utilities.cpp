@@ -19,7 +19,7 @@
 //
 /*
 #include <windows.h>
-#include "SimD_Utilities.h"
+#include "simd_utilities.h"
 #include <memory.h>
 #ifdef USE_AMLIB
 #include "amaths.h"

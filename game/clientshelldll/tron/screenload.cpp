@@ -10,19 +10,19 @@
 
 
 #include "stdafx.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "MissionButeMgr.h"
-#include "ScreenLoad.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "missionbutemgr.h"
+#include "screenload.h"
 
-#include "InterfaceMgr.h"
-#include "GameClientShell.h"
-#include "ClientSaveLoadMgr.h"
-#include "MissionMgr.h"
-#include "ClientMultiplayerMgr.h"
+#include "interfacemgr.h"
+#include "gameclientshell.h"
+#include "clientsaveloadmgr.h"
+#include "missionmgr.h"
+#include "clientmultiplayermgr.h"
 
 
-#include "WinUtil.h"
+#include "winutil.h"
 #include <stdio.h>
 #include <time.h>
 

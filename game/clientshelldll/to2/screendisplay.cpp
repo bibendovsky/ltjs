@@ -9,13 +9,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenDisplay.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ClientRes.h"
+#include "screendisplay.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "clientres.h"
 
-#include "GameClientShell.h"
-#include "GameSettings.h"
+#include "gameclientshell.h"
+#include "gamesettings.h"
 extern CGameClientShell* g_pGameClientShell;
 
 namespace

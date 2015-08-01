@@ -1,9 +1,9 @@
 #ifndef __WON_WONAPI_H__
 #define __WON_WONAPI_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/TimerThread.h"
-#include "WONCommon/AsyncOpContainer.h"
+#include "woncommon/timerthread.h"
+#include "woncommon/asyncopcontainer.h"
 
 
 namespace WONAPI

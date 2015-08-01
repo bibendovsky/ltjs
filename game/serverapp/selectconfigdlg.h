@@ -7,7 +7,7 @@
 // SelectConfigDlg.h : header file
 //
 
-#include "Resource.h"
+#include "resource.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CSelectConfigDlg dialog

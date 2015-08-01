@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_PATROL_H__
 #define __AIGOAL_PATROL_H__
 
-#include "AIGoalAbstract.h"
+#include "aigoalabstract.h"
 
 
 // Forward Declarations.

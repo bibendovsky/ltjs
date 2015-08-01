@@ -11,10 +11,10 @@
 #ifndef __DEBUGLINE_FX_H__
 #define __DEBUGLINE_FX_H__
 
-#include "LTBaseTypes.h"
-#include "BaseLineSystemFX.h"
-#include "DebugLine.h"
-#include "ILTDrawPrim.h"
+#include "ltbasetypes.h"
+#include "baselinesystemfx.h"
+#include "debugline.h"
+#include "iltdrawprim.h"
 #include "iltfontmanager.h"
 
 #pragma warning( disable : 4786 )

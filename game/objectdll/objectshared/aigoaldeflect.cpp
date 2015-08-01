@@ -21,28 +21,28 @@
 #include "stdafx.h"
 
 #ifndef __AIGOALDEFLECT_H__
-#include "AIGoalDeflect.h"		
+#include "aigoaldeflect.h"		
 #endif
 
 #ifndef __AIHUMANSTATEDEFLECT_H__
-#include "AIHumanStateDeflect.h"
+#include "aihumanstatedeflect.h"
 #endif
 
 #ifndef __AISENSE_RECORDER_ABSTRACT_H__
-#include "AISenseRecorderAbstract.h"
+#include "aisenserecorderabstract.h"
 #endif
 
 #ifndef __AIGOAL_MGR_H__
-#include "AIGoalMgr.h"
+#include "aigoalmgr.h"
 #endif
 
 #ifndef __AI_H__
-#include "AI.h"
+#include "ai.h"
 #endif
 
 
 #ifndef __WEAPON_H__
-#include "Weapon.h"
+#include "weapon.h"
 #endif
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalDeflect, kGoal_Deflect);

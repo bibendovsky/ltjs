@@ -11,7 +11,7 @@
 #ifndef __DEATHMATCHMISSIONMGR_H__
 #define __DEATHMATCHMISSIONMGR_H__
 
-#include "ServerMissionMgr.h"
+#include "servermissionmgr.h"
 
 class CDeathMatchMissionMgr : public CServerMissionMgr
 {

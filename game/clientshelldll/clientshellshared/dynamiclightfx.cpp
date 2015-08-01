@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DynamicLightFX.h"
+#include "dynamiclightfx.h"
 #include "iltclient.h"
-#include "VarTrack.h"
+#include "vartrack.h"
 
 static VarTrack g_vtDLightOffsetX;
 static VarTrack g_vtDLightOffsetY;

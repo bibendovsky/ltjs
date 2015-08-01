@@ -14,7 +14,7 @@
 #define __FLASH_LIGHT_H__
 
 #include "ltbasedefs.h"
-#include "PolyLineFX.h"
+#include "polylinefx.h"
 
 class CFlashLight
 {

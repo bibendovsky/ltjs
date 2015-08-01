@@ -13,7 +13,7 @@
 #ifndef __GROUP_H__
 #define __GROUP_H__
 
-#include "GameBaseLite.h"
+#include "gamebaselite.h"
 #include "commonutilities.h"
 
 #define MAX_GROUP_TARGETS	50

@@ -11,7 +11,7 @@
 #if !defined(_CHAINED_FX_H_)
 #define _CHAINED_FX_H_
 
-#include "ClientFXMgr.h"
+#include "clientfxmgr.h"
 
 struct INT_FX;
 

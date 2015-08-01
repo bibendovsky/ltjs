@@ -34,7 +34,7 @@
 #include "rmawin.h"
 #include "rmavsurf.h"
 
-#include "LTRVDef.h"
+#include "ltrvdef.h"
 
 // Screen support
 //#include "ddutils.h"

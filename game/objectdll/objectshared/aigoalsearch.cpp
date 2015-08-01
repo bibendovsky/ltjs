@@ -10,13 +10,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalSearch.h"
-#include "AIGoalMgr.h"
-#include "AIHuman.h"
-#include "AIUtils.h"
-#include "AIHumanState.h"
-#include "AIRegion.h"
-#include "AINode.h"
+#include "aigoalsearch.h"
+#include "aigoalmgr.h"
+#include "aihuman.h"
+#include "aiutils.h"
+#include "aihumanstate.h"
+#include "airegion.h"
+#include "ainode.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalSearch, kGoal_Search);
 

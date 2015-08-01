@@ -13,15 +13,15 @@
 #ifndef __GLOBAL_MGR_H__
 #define __GLOBAL_MGR_H__
 
-#include "SurfaceMgr.h"
-#include "MissionButeMgr.h"
-#include "SkillsButeMgr.h"
+#include "surfacemgr.h"
+#include "missionbutemgr.h"
+#include "skillsbutemgr.h"
 
-#include "SoundMgr.h"
-#include "DebrisMgr.h"
-#include "SoundFilterMgr.h"
-#include "SoundButeMgr.h"
-#include "DamageTypes.h"
+#include "soundmgr.h"
+#include "debrismgr.h"
+#include "soundfiltermgr.h"
+#include "soundbutemgr.h"
+#include "damagetypes.h"
 
 
 class CFXButeMgr;

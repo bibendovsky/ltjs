@@ -2,9 +2,9 @@
 #define __CLIENTINFOMGR_H
 
 #include "ltbasedefs.h"
-#include "ClientUtilities.h"
-#include "SharedMission.h"
-#include "SharedScoring.h"
+#include "clientutilities.h"
+#include "sharedmission.h"
+#include "sharedscoring.h"
 
 class ILTClient;
 

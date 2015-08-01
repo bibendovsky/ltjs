@@ -1,6 +1,6 @@
 #ifndef __WON_FILEREADER_H__
 #define __WON_FILEREADER_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <stdio.h>
 #include <exception>

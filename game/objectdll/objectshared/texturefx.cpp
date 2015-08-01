@@ -12,11 +12,11 @@
 
 #include "stdafx.h"
 
-#include "TextureFX.h"
+#include "texturefx.h"
 
-#include "MsgIDs.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
+#include "msgids.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
 
 LINKFROM_MODULE( TextureFX );
 

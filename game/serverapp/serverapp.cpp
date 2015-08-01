@@ -5,9 +5,9 @@
 // Includes...
 
 #include "stdafx.h"
-#include "ServerApp.h"
-#include "ServerDlg.h"
-#include "Resource.h"
+#include "serverapp.h"
+#include "serverdlg.h"
+#include "resource.h"
 
 // Globals...
 

@@ -1,9 +1,9 @@
 #ifndef __WON_SINGLETHREADED__
 
 #if defined(WIN32)
-#include "Event_Windows.cpp"
+#include "event_windows.cpp"
 #elif defined(_LINUX)
-#include "Event_Linux.cpp"
+#include "event_linux.cpp"
 #endif
 
 #endif // __WON_SINGLETHREADED__

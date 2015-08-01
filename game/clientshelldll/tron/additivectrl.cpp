@@ -11,7 +11,7 @@
 //-------------------------------------------------------------------------
 
 #include "stdafx.h"
-#include "AdditiveCtrl.h"
+#include "additivectrl.h"
 
 //////////////////////////////////////////////////////////////////////
 // CAdditiveCtrl Construction/Destruction

@@ -11,9 +11,9 @@
 #ifndef __VOLUME_BRUSH_FX_H__
 #define __VOLUME_BRUSH_FX_H__
 
-#include "SpecialFX.h"
-#include "ContainerCodes.h"
-#include "SurfaceDefs.h"
+#include "specialfx.h"
+#include "containercodes.h"
+#include "surfacedefs.h"
 
 struct VBCREATESTRUCT : public SFXCREATESTRUCT
 {

@@ -14,7 +14,7 @@
 // Includes...
 
 #include "stdafx.h"
-#include "Sparam.h"
+#include "sparam.h"
 
 
 // Functions...

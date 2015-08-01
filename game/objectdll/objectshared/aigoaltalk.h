@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_TALK_H__
 #define __AIGOAL_TALK_H__
 
-#include "AIGoalGuard.h"
+#include "aigoalguard.h"
 
 // Forward Declarations.
 

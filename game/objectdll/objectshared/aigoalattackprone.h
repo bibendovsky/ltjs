@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ATTACK_PRONE_H__
 #define __AIGOAL_ATTACK_PRONE_H__
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 
 class CAIGoalAttackProne : public CAIGoalAbstractStimulated

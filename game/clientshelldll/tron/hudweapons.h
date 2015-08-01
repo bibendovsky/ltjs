@@ -11,7 +11,7 @@
 #ifndef __HUD_WEAPONS_H
 #define __HUD_WEAPONS_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 
 class CHUDWeapons : public CHUDItem

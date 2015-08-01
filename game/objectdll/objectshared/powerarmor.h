@@ -22,8 +22,8 @@
 #endif // _MSC_VER >= 1000
 
 // Includes
-#include "Prop.h"
-#include "IHitBoxUser.h"
+#include "prop.h"
+#include "ihitboxuser.h"
 
 // Forward declarations
 

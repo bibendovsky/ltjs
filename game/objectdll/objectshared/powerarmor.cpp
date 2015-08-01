@@ -19,12 +19,12 @@
 // Includes
 #include "stdafx.h"
 
-#include "PowerArmor.h"		
+#include "powerarmor.h"		
 #include "ltserverobj.h"
-#include "ObjectMsgs.h"
-#include "Attachments.h"
-#include "ModelButeMgr.h"
-#include "CharacterHitBox.h"
+#include "objectmsgs.h"
+#include "attachments.h"
+#include "modelbutemgr.h"
+#include "characterhitbox.h"
 
 // Forward declarations
 

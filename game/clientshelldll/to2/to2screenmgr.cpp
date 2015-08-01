@@ -10,72 +10,72 @@
 
 
 #include "stdafx.h"
-#include "TO2ScreenMgr.h"
+#include "to2screenmgr.h"
 
 //screens
-#include "BaseScreen.h"
-#include "ScreenMain.h"
+#include "basescreen.h"
+#include "screenmain.h"
 
 //under main
-#include "ScreenSingle.h"
-#include "ScreenMulti.h"
-#include "ScreenOptions.h"
-#include "ScreenProfile.h"
+#include "screensingle.h"
+#include "screenmulti.h"
+#include "screenoptions.h"
+#include "screenprofile.h"
 
 //under single
-#include "ScreenLoad.h"
-#include "ScreenSave.h"
+#include "screenload.h"
+#include "screensave.h"
 
 //under multi
-#include "ScreenPlayer.h"
-#include "ScreenPlayerSkills.h"
-#include "ScreenHost.h"
-#include "ScreenJoin.h"
-#include "ScreenJoinLAN.h"
-#include "ScreenPlayerTeam.h"
+#include "screenplayer.h"
+#include "screenplayerskills.h"
+#include "screenhost.h"
+#include "screenjoin.h"
+#include "screenjoinlan.h"
+#include "screenplayerteam.h"
 
 //under options
-#include "ScreenDisplay.h"
-#include "ScreenAudio.h"
-#include "ScreenControls.h"
-#include "ScreenGame.h"
-#include "ScreenPerformance.h"
+#include "screendisplay.h"
+#include "screenaudio.h"
+#include "screencontrols.h"
+#include "screengame.h"
+#include "screenperformance.h"
 
 //under multi/host
-#include "ScreenHostOptions.h"
-#include "ScreenHostDMOptions.h"
-#include "ScreenHostTDMOptions.h"
-#include "ScreenHostDDOptions.h"
-#include "ScreenHostMission.h"
-#include "ScreenHostLevels.h"
-#include "ScreenHostWeapons.h"
-#include "ScreenTeam.h"
+#include "screenhostoptions.h"
+#include "screenhostdmoptions.h"
+#include "screenhosttdmoptions.h"
+#include "screenhostddoptions.h"
+#include "screenhostmission.h"
+#include "screenhostlevels.h"
+#include "screenhostweapons.h"
+#include "screenteam.h"
 
 //under options/game
-#include "ScreenCrosshair.h"
+#include "screencrosshair.h"
 
 //under options/controls
-#include "ScreenMouse.h"
-#include "ScreenKeyboard.h"
-#include "ScreenJoystick.h"
-#include "ScreenConfigure.h"
+#include "screenmouse.h"
+#include "screenkeyboard.h"
+#include "screenjoystick.h"
+#include "screenconfigure.h"
 
 
-#include "ScreenFailure.h"
-#include "ScreenEndMission.h"
-#include "ScreenEndCoopMission.h"
-#include "ScreenEndDMMission.h"
-#include "ScreenPreload.h"
-#include "ScreenPostload.h"
+#include "screenfailure.h"
+#include "screenendmission.h"
+#include "screenendcoopmission.h"
+#include "screenenddmmission.h"
+#include "screenpreload.h"
+#include "screenpostload.h"
 
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 extern CGameClientShell* g_pGameClientShell;
 
 
 static char s_aScreenName[SCREEN_ID_UNASSIGNED+1][32] =
 {
 #define INCLUDE_AS_STRING
-#include "ScreenEnum.h"
+#include "screenenum.h"
 #undef INCLUDE_AS_STRING
 
 };

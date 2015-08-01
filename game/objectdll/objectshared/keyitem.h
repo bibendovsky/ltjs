@@ -12,8 +12,8 @@
 #define __KEY_ITEM_H__
 
 #include "ltengineobjects.h"
-#include "Prop.h"
-#include "KeyMgr.h"
+#include "prop.h"
+#include "keymgr.h"
 
 #define KEY_MAX_CONTROLOBJS	20
 

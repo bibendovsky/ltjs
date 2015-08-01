@@ -2,7 +2,7 @@
 #ifndef  _TIMEDTEXT_H_INCLUDED_
 #define  _TIMEDTEXT_H_INCLUDED_
 
-#include "CUIPolyString.h"
+#include "cuipolystring.h"
 
 // When the text scrolls, the top line is "out of range" and should
 // fade away.  Unfortunately there is an obstacle with the way the

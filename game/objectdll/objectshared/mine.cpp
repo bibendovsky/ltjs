@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "Mine.h"
+#include "mine.h"
 
 LINKFROM_MODULE( Mine );
 

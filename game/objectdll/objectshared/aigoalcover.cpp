@@ -10,13 +10,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalCover.h"
-#include "AIHumanState.h"
-#include "AINodeMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIGoalMgr.h"
-#include "AIHuman.h"
-#include "AIGoalButeMgr.h"
+#include "aigoalcover.h"
+#include "aihumanstate.h"
+#include "ainodemgr.h"
+#include "aisenserecorderabstract.h"
+#include "aigoalmgr.h"
+#include "aihuman.h"
+#include "aigoalbutemgr.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalCover, kGoal_Cover);
 

@@ -12,7 +12,7 @@
 #define _TRANSITIONFXMGR_H
 
 // *sigh* I didn't want to do this.
-#include "ChainedFX.h"
+#include "chainedfx.h"
 
 class CTransitionFXMgr
 {

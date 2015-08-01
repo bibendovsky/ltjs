@@ -1,6 +1,6 @@
 #ifndef __WON_REGKEY_WINDOWS_H__
 #define __WON_REGKEY_WINDOWS_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 // RegKey
 
@@ -8,8 +8,8 @@
 // string and long values to created, read, updated, or deleted.
 
 #include <string>
-#include "ByteBuffer.h"
-#include "Platform_Windows.h"
+#include "bytebuffer.h"
+#include "platform_windows.h"
 
 namespace WONAPI
 {

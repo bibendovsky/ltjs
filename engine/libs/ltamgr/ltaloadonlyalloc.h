@@ -2,7 +2,7 @@
 #define __LTALOADONLYALLOC_H__
 
 #ifndef __ILTAALLOCATOR_H__
-#	include "ILTAAllocator.h"
+#	include "iltaallocator.h"
 #endif
 
 //forward declarations

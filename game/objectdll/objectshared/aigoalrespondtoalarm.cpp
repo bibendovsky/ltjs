@@ -10,19 +10,19 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalRespondToAlarm.h"
-#include "AIGoalMgr.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIHumanState.h"
-#include "AIHuman.h"
-#include "Alarm.h"
-#include "AINodeMgr.h"
-#include "AINodeGuard.h"
-#include "AIVolume.h"
-#include "AIRegion.h"
-#include "AIStimulusMgr.h"
-#include "AIVolumeMgr.h"
-#include "AICentralKnowledgeMgr.h"
+#include "aigoalrespondtoalarm.h"
+#include "aigoalmgr.h"
+#include "aisenserecorderabstract.h"
+#include "aihumanstate.h"
+#include "aihuman.h"
+#include "alarm.h"
+#include "ainodemgr.h"
+#include "ainodeguard.h"
+#include "aivolume.h"
+#include "airegion.h"
+#include "aistimulusmgr.h"
+#include "aivolumemgr.h"
+#include "aicentralknowledgemgr.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalRespondToAlarm, kGoal_RespondToAlarm);
 

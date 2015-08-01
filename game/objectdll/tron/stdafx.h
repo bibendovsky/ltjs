@@ -22,7 +22,7 @@
 
 #include "mfcstub.h"
 
-#include "DebugNew.h"
+#include "debugnew.h"
 
 #include "iltclient.h"
 #include "iltserver.h"
@@ -40,29 +40,29 @@
 
 #include "ltobjref.h"
 
-#include "Factory.h"
+#include "factory.h"
 
-#include "ServerUtilities.h"
-#include "GameServerShell.h"
-#include "CommonUtilities.h"
+#include "serverutilities.h"
+#include "gameservershell.h"
+#include "commonutilities.h"
 
 // Infrequently changed, often included files:
-#include "GameBase.h"
-#include "ButeListReader.h"
-#include "ClientLightFX.h"
-#include "ClientServerShared.h"
-#include "CommandMgr.h"
-#include "CommandObject.h"
-#include "AIClassFactory.h"
-#include "CVarTrack.h"
-#include "Controller.h"
-#include "DebrisFuncs.h"
-#include "DestructibleModel.h"
-#include "FastHeap.h"
-#include "FastStack.h"
-#include "Prop.h"
-#include "BankedList.h"
-#include "Editable.h"
-#include "ServerUtilities.h"
+#include "gamebase.h"
+#include "butelistreader.h"
+#include "clientlightfx.h"
+#include "clientservershared.h"
+#include "commandmgr.h"
+#include "commandobject.h"
+#include "aiclassfactory.h"
+#include "cvartrack.h"
+#include "controller.h"
+#include "debrisfuncs.h"
+#include "destructiblemodel.h"
+#include "fastheap.h"
+#include "faststack.h"
+#include "prop.h"
+#include "bankedlist.h"
+#include "editable.h"
+#include "serverutilities.h"
 
 #endif // __STDAFX_H__

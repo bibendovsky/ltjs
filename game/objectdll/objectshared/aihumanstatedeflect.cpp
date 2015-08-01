@@ -19,15 +19,15 @@
 #include "stdafx.h"
 
 #ifndef __AIHUMANSTATEDEFLECT_H__
-#include "AIHumanStateDeflect.h"		
+#include "aihumanstatedeflect.h"		
 #endif
 
 #ifndef __AI_HUMAN_H__
-#include "AIHuman.h"
+#include "aihuman.h"
 #endif 
 
 #ifndef __AI_TARGET_H__
-#include "AITarget.h"
+#include "aitarget.h"
 #endif
 
 // Forward declarations

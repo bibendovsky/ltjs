@@ -14,8 +14,8 @@
 #ifndef _TRONPLAYEROBJ_H_
 #define _TRONPLAYEROBJ_H_
 
-#include "PlayerObj.h"
-#include "Ratings.h"
+#include "playerobj.h"
+#include "ratings.h"
 
 class CTronPlayerObj : public CPlayerObj
 {

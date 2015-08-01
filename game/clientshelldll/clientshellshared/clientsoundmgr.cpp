@@ -11,12 +11,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ClientSoundMgr.h"
-#include "CommonUtilities.h"
-#include "VarTrack.h"
-#include "SoundFilterMgr.h"
-#include "SoundButeMgr.h"
-#include "ClientUtilities.h"
+#include "clientsoundmgr.h"
+#include "commonutilities.h"
+#include "vartrack.h"
+#include "soundfiltermgr.h"
+#include "soundbutemgr.h"
+#include "clientutilities.h"
 
 // Global pointer to client sound mgr...
 

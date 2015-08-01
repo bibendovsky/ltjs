@@ -13,7 +13,7 @@
 
 #include "iltserver.h"
 #include <memory.h>  // for memset
-#include "ImpactType.h"
+#include "impacttype.h"
 
 struct CLIENTWEAPONFX
 {

@@ -1,4 +1,4 @@
-#include "AuthPubKeyBlock.h"
+#include "authpubkeyblock.h"
 
 using namespace WONAPI;
 

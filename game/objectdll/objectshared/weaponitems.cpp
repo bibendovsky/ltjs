@@ -14,13 +14,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "WeaponItems.h"
-#include "MsgIds.h"
+#include "weaponitems.h"
+#include "msgids.h"
 #include "iltserver.h"
-#include "Character.h"
-#include "ObjectMsgs.h"
-#include "CVarTrack.h"
-#include "GameServerShell.h"
+#include "character.h"
+#include "objectmsgs.h"
+#include "cvartrack.h"
+#include "gameservershell.h"
 
 LINKFROM_MODULE( WeaponItems );
 

@@ -15,7 +15,7 @@
 #pragma warning( disable : 4786 )
 #include <map>
 #include <vector>
-#include "AIAssert.h"
+#include "aiassert.h"
 
 // Forward declarations.
 class CAIClassFactory;

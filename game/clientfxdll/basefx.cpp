@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "BaseFx.h"
-#include "ClientFX.h"
+#include "basefx.h"
+#include "clientfx.h"
 
 CBaseFXProps::CBaseFXProps() : 
 	m_pScaleKeys		(NULL),

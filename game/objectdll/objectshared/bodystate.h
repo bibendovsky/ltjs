@@ -3,7 +3,7 @@
 #ifndef __BODY_STATE_H__
 #define __BODY_STATE_H__
 
-#include "AIState.h"
+#include "aistate.h"
 
 class Body;
 

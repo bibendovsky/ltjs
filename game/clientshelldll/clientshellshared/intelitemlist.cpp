@@ -10,7 +10,7 @@
 
 
 #include "stdafx.h"
-#include "IntelItemList.h"
+#include "intelitemlist.h"
 
 
 void CIntelItemList::Clear()

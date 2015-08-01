@@ -19,7 +19,7 @@
 // Includes
 //
 
-#include "WeaponMgr.h"
+#include "weaponmgr.h"
 
 
 //

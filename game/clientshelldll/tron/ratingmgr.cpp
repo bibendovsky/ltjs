@@ -5,7 +5,7 @@
 //
 // Class to encapsulate management of the Performance Ratings
 #include "stdafx.h"
-#include "RatingMgr.h"
+#include "ratingmgr.h"
 
 // TODO
 // differentiate between m_AddArray and m_PlayerAddArray

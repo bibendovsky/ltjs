@@ -14,11 +14,11 @@
 #ifndef __ADDITIVE_CTRL_H
 #define __ADDITIVE_CTRL_H
 
-#include "ScreenSpriteMgr.h"
-#include "BaseScaleFX.h"
-#include "TronLayoutMgr.h"
+#include "screenspritemgr.h"
+#include "basescalefx.h"
+#include "tronlayoutmgr.h"
 //#include "SubroutineMgr.h"
-#include "RatingMgr.h"
+#include "ratingmgr.h"
 
 class CAdditiveCtrl
 {

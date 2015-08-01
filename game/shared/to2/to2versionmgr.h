@@ -13,7 +13,7 @@
 #ifndef _TO2VERSIONMGR_H_
 #define _TO2VERSIONMGR_H_
 
-#include "VersionMgr.h"
+#include "versionmgr.h"
 
 class CTO2VersionMgr : public CVersionMgr
 {

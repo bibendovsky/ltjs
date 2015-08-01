@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MsgIDs.h"
-#include "ScatterVolume.h"
+#include "msgids.h"
+#include "scattervolume.h"
 
 extern HSTRING ReadHStringProp(const char* pszPropName, ILTServer* pServer);
 

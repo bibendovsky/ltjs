@@ -1,10 +1,10 @@
 #ifndef __WON_AUTHPEERDATA_H__
 #define __WON_AUTHPEERDATA_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "AuthCertificate.h"
-#include "Auth2Certificate.h"
-#include "AuthPubKeyBlock.h"
+#include "authcertificate.h"
+#include "auth2certificate.h"
+#include "authpubkeyblock.h"
 
 
 namespace WONAPI

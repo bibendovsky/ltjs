@@ -8,8 +8,8 @@
 //
 // ----------------------------------------------------------------------- //
 
-#include "StdAfx.h"
-#include "AssertMgr.h"
+#include "stdafx.h"
+#include "assertmgr.h"
 
 // Statics
 

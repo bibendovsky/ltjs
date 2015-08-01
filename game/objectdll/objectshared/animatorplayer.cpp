@@ -1,11 +1,11 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "ObjectMsgs.h"
-#include "MsgIDs.h"
-#include "SFXMsgIds.h"
-#include "AnimatorPlayer.h"
-#include "PlayerObj.h"
+#include "objectmsgs.h"
+#include "msgids.h"
+#include "sfxmsgids.h"
+#include "animatorplayer.h"
+#include "playerobj.h"
 
 static CVarTrack s_vtPlayerAnimDebug;
 

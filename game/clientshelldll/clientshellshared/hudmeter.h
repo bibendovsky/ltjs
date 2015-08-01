@@ -15,9 +15,9 @@
 // Includes...
 //
 	
-	#include "HUDItem.h"
-	#include "HUDBar.h"
-	#include "CommonUtilities.h"
+	#include "huditem.h"
+	#include "hudbar.h"
+	#include "commonutilities.h"
 
 class CHUDMeter : public CHUDItem
 {

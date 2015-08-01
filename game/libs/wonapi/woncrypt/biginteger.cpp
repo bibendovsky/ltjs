@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <math.h>
 
-#include "BigInteger.h"
+#include "biginteger.h"
 
 using namespace std;
 using namespace WONAPI;

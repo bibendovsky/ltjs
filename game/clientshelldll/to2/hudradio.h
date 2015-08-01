@@ -11,8 +11,8 @@
 #ifndef __HUD_RADIO_H
 #define __HUD_RADIO_H
 
-#include "HUDItem.h"
-#include "ClientServerShared.h"
+#include "huditem.h"
+#include "clientservershared.h"
 
 #define MAX_RADIO_CHOICES 6
 //******************************************************************************************

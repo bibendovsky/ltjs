@@ -11,9 +11,9 @@
 // Includes....
 
 #include "stdafx.h"
-#include "ClientFX.h"
-#include "FallingStuffFX.h"
-#include "FastList.h"
+#include "clientfx.h"
+#include "fallingstufffx.h"
+#include "fastlist.h"
 #include "math.h"
 
 // Globals....

@@ -5,7 +5,7 @@
 #include "stdafx.h"  // e. g. stdafx.h
 #include "resource.h"  // e.g. resource.h
 
-#include "Splash.h"  // e.g. splash.h
+#include "splash.h"  // e.g. splash.h
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

@@ -13,7 +13,7 @@
 #ifndef SCMDCONSOLEDRIVER_CSHELL_H
 #define SCMDCONSOLEDRIVER_CSHELL_H
 
-#include "ScmdConsole.h"
+#include "scmdconsole.h"
 
 // ----------------------------------------------------------------------- //
 //

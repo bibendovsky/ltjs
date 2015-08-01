@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "LineSystemFX.h"
+#include "linesystemfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ClientServerShared.h"
-#include "GameClientShell.h"
-#include "VarTrack.h"
+#include "clientutilities.h"
+#include "clientservershared.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
 
 #define MAX_LINES_PER_SECOND	1000			// Max lines to be created in a second
 #define MAX_TOTAL_LINES			4000			// Max lines total (all systems)

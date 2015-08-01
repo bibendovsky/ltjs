@@ -16,7 +16,7 @@
 
 #include <windows.h>
 #include <assert.h>
-#include <Tlhelp32.h>
+#include <tlhelp32.h>
 #include "dbghelp.h"
 
 //#include <list>

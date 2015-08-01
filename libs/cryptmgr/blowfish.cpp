@@ -623,7 +623,7 @@ static UWORD_32bits bf_S_Orig[4][256] = {
 #include <stdio.h>              /* used for debugging */
 #include <string.h>
 #ifdef MACINTOSH
-   #include <Types.h>           /* FIXME: do we need this? */
+   #include <types.h>           /* FIXME: do we need this? */
 #endif
 
 //#include "blowfish.h"

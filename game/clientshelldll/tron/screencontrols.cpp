@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenControls.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "GameSettings.h"
-#include "InterfaceMgr.h"
-#include "GameSettings.h"
+#include "screencontrols.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "gamesettings.h"
+#include "interfacemgr.h"
+#include "gamesettings.h"
 
 namespace
 {

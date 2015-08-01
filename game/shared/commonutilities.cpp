@@ -10,7 +10,7 @@
 
 #include "stdafx.h"
 #include "ltbasedefs.h"
-#include "CommonUtilities.h"
+#include "commonutilities.h"
 
 // Globally available interface pointers
 

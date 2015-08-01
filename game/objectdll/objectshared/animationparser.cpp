@@ -1,12 +1,12 @@
 
-#include "StdAfx.h"
-#include "AnimationParser.h"
-#include "AnimationParse.h"
-#include "AnimationLex.h"
-#include "AnimationMgr.h"
+#include "stdafx.h"
+#include "animationparser.h"
+#include "animationparse.h"
+#include "animationlex.h"
+#include "animationmgr.h"
 
-#include "AnimationPropStrings.h"
-#include "UberAssert.h"
+#include "animationpropstrings.h"
+#include "uberassert.h"
 
 using namespace Animation;
 

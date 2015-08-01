@@ -32,11 +32,11 @@
 #include "rmaausvc.h"
 #include "rmawin.h"
 
-#include "LTRClientContext.h"
-#include "LTRAudioDevice.h"
-#include "LTRAudioHook.h"
-#include "LTRAudioInfoResponse.h"
-#include "LTReal_impl.h"
+#include "ltrclientcontext.h"
+#include "ltraudiodevice.h"
+#include "ltraudiohook.h"
+#include "ltraudioinforesponse.h"
+#include "ltreal_impl.h"
 
 class CLTRealAudioPlayer;
 typedef CLithBaseList<CLTRealAudioPlayer> AudioPlayerList;

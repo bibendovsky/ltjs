@@ -1,9 +1,9 @@
 #ifndef __WON_THREAD_MAC_H__
 #define __WON_THREAD_MAC_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "Platform_Mac.h"
-#include "Event.h"
+#include "platform_mac.h"
+#include "event.h"
 
 namespace WONAPI
 {

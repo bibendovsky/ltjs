@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SharedFXStructs.h"
-#include "VersionMgr.h"
+#include "sharedfxstructs.h"
+#include "versionmgr.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //

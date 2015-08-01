@@ -14,9 +14,9 @@
 
 #include "stdafx.h"
 #include "ltserverobj.h"
-#include "DebrisFuncs.h"
-#include "SFXMsgIds.h"
-#include "DebrisMgr.h"
+#include "debrisfuncs.h"
+#include "sfxmsgids.h"
+#include "debrismgr.h"
 
 #ifndef __PSX2
 CDebrisMgrPlugin s_DebrisMgrPlugin;

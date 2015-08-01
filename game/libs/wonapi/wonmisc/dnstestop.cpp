@@ -1,7 +1,7 @@
 
 
-#include "DNSTestOp.h"
-#include "WONCommon/StringUtil.h"
+#include "dnstestop.h"
+#include "woncommon/stringutil.h"
 
 using namespace WONAPI;
 

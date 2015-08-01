@@ -15,13 +15,13 @@
 //
 
 #include "stdafx.h"
-#include "ServerSaveLoadMgr.h"
-#include "MsgIds.h"
-#include "WinUtil.h"
-#include "TransitionMgr.h"
-#include "PlayerObj.h"
-#include "WorldProperties.h"
-#include "ServerMissionMgr.h"
+#include "serversaveloadmgr.h"
+#include "msgids.h"
+#include "winutil.h"
+#include "transitionmgr.h"
+#include "playerobj.h"
+#include "worldproperties.h"
+#include "servermissionmgr.h"
 
 // 
 // Globals...

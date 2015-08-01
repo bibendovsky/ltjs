@@ -14,10 +14,10 @@
 #define __PLAYER_VEHICLE_H__
 
 #include "ltengineobjects.h"
-#include "Prop.h"
-#include "Timer.h"
-#include "SharedMovement.h"
-#include "SharedFXStructs.h"
+#include "prop.h"
+#include "timer.h"
+#include "sharedmovement.h"
+#include "sharedfxstructs.h"
 
 LINKTO_MODULE( PlayerVehicle );
 

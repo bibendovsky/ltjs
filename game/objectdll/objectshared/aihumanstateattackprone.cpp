@@ -1,10 +1,10 @@
 // (c) 2002 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIHumanStateAttackProne.h"
-#include "AICentralKnowledgeMgr.h"
-#include "AIHuman.h"
-#include "AITarget.h"
+#include "aihumanstateattackprone.h"
+#include "aicentralknowledgemgr.h"
+#include "aihuman.h"
+#include "aitarget.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(State, CAIHumanStateAttackProne, kState_HumanAttackProne);
 

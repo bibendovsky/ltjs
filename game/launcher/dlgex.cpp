@@ -11,10 +11,10 @@
 ;
 ********************************************************************************/
 #include "stdafx.h"
-#include "DlgEx.h"
-#include "BitmapCheckButton.h"
-#include "TextCheckBox.h"
-#include "ButtonEx.h"
+#include "dlgex.h"
+#include "bitmapcheckbutton.h"
+#include "textcheckbox.h"
+#include "buttonex.h"
 //#include "anibutton.h"
 
 #ifdef _DEBUG

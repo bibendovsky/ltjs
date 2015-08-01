@@ -15,9 +15,9 @@
 //
 
 	#include "stdafx.h"
-	#include "ObjectMsgs.h"
-	#include "ParsedMsg.h"
-	#include "CommandObject.h"
+	#include "objectmsgs.h"
+	#include "parsedmsg.h"
+	#include "commandobject.h"
 
 
 LINKFROM_MODULE( CommandObject );

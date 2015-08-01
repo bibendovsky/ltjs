@@ -12,7 +12,7 @@
 #ifndef _AI_NODE_GUARD_H_
 #define _AI_NODE_GUARD_H_
 
-#include "AINode.h"
+#include "ainode.h"
 
 LINKTO_MODULE( AINodeGuard );
 

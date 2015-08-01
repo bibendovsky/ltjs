@@ -2,12 +2,12 @@
 // AboutDlg.cpp
 //----------------------------------------------------------------------------------
 #include <assert.h>
-#include "WONGUI/MSControls.h"
-#include "WONGUI/ChildLayouts.h"
-#include "WONGUI/SimpleComponent.h"
-#include "AboutDlg.h"
-#include "../CustomInfo.h"
-#include "../WizardCtrl.h"
+#include "wongui/mscontrols.h"
+#include "wongui/childlayouts.h"
+#include "wongui/simplecomponent.h"
+#include "aboutdlg.h"
+#include "../custominfo.h"
+#include "../wizardctrl.h"
 
 using namespace WONAPI;
 

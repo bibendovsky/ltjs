@@ -3,10 +3,10 @@
 #define _STACK_WALK_H_
 
 #include <stdio.h>
-#include <Windows.h>
-#include <Winnt.h>
-#include <ImageHlp.h>
-#include <CrtDbg.h>
+#include <windows.h>
+#include <winnt.h>
+#include <imagehlp.h>
+#include <crtdbg.h>
 
 #pragma comment (lib, "ImageHlp.lib")
 

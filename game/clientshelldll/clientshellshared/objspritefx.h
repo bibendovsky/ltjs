@@ -13,9 +13,9 @@
 #ifndef __OBJSPRITE_FX_H__
 #define __OBJSPRITE_FX_H__
 
-#include "SpecialFX.h"
-#include "SmokeFX.h"
-#include "SharedFXStructs.h"
+#include "specialfx.h"
+#include "smokefx.h"
+#include "sharedfxstructs.h"
 
 class CObjSpriteFX : public CSpecialFX
 {

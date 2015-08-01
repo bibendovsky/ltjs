@@ -15,8 +15,8 @@
 //
 	
 #include "stdafx.h"
-#include "VisionModeMgr.h"
-#include "PlayerMgr.h"
+#include "visionmodemgr.h"
+#include "playermgr.h"
 
 
 

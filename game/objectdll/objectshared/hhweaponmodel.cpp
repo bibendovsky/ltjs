@@ -11,15 +11,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "HHWeaponModel.h"
+#include "hhweaponmodel.h"
 #include "iltserver.h"
-#include "ServerUtilities.h"
-#include "PlayerObj.h"
-#include "Weapon.h"
-#include "SoundMgr.h"
-#include "ServerSoundMgr.h"
+#include "serverutilities.h"
+#include "playerobj.h"
+#include "weapon.h"
+#include "soundmgr.h"
+#include "serversoundmgr.h"
 #include <stdio.h>
-#include "ParsedMsg.h"
+#include "parsedmsg.h"
 
 extern char g_tokenSpace[];
 extern char *g_pTokens[];

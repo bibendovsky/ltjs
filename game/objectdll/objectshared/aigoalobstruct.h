@@ -22,8 +22,8 @@
 #endif // _MSC_VER >= 1000
 
 // Includes
-#include "AIGoalAbstractStimulated.h"
-#include "AINode.h"
+#include "aigoalabstractstimulated.h"
+#include "ainode.h"
  
 // Forward declarations
 

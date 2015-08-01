@@ -16,8 +16,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BaseScreen.h"
-#include "PerformanceMgr.h"
+#include "basescreen.h"
+#include "performancemgr.h"
 
 
 // #define _SHOW_PERFORMACE_FRAMERATE_

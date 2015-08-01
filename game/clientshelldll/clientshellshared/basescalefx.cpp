@@ -11,10 +11,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "BaseScaleFX.h"
+#include "basescalefx.h"
 #include "iltclient.h"
-#include "GameClientShell.h"
-#include "VarTrack.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
 #ifndef __PSX2
 #include "winutil.h"
 #endif

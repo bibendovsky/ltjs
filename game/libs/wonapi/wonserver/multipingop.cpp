@@ -1,4 +1,4 @@
-#include "MultiPingOp.h"
+#include "multipingop.h"
 #include <time.h>
 using namespace WONAPI;
 using namespace std;

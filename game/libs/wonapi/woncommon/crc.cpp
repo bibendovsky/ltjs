@@ -1,4 +1,4 @@
-#include "CRC.h"
+#include "crc.h"
 using namespace WONAPI;
 
 namespace {

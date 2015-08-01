@@ -20,9 +20,9 @@
 	#include "iltclient.h"
 	#include "iltmodel.h"
 	#include "ltobjref.h"
-	#include "FastList.h"
-	#include "LinkList.h"
-	#include "FXProp.h"
+	#include "fastlist.h"
+	#include "linklist.h"
+	#include "fxprop.h"
 
 	#include <stdio.h>
 	

@@ -11,7 +11,7 @@
 #ifndef __SINGLEPLAYERMISSIONMGR_H__
 #define __SINGLEPLAYERMISSIONMGR_H__
 
-#include "ServerMissionMgr.h"
+#include "servermissionmgr.h"
 
 class CSinglePlayerMissionMgr : public CServerMissionMgr
 {

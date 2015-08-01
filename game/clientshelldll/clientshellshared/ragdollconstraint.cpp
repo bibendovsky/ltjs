@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "RagDollConstraint.h"
-#include "RagDoll.h"
-#include "RagDollNode.h"
+#include "ragdollconstraint.h"
+#include "ragdoll.h"
+#include "ragdollnode.h"
 
 //------------------------------------------------------------------------------------------------
 // Utility functions

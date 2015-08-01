@@ -19,10 +19,10 @@
 #include "stdafx.h"
 
 #ifndef __AIINFORMATIONVOLUMEMGR_H__
-#include "AIInformationVolumeMgr.h"		
+#include "aiinformationvolumemgr.h"		
 #endif
 
-#include "AIVolume.h"
+#include "aivolume.h"
 
 // Forward declarations
 

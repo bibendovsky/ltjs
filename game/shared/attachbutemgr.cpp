@@ -1,8 +1,8 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AttachButeMgr.h"
-#include "CommonUtilities.h"
+#include "attachbutemgr.h"
+#include "commonutilities.h"
 
 // Globals/statics
 

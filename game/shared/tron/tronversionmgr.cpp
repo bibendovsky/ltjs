@@ -11,7 +11,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TronVersionMgr.h"
+#include "tronversionmgr.h"
 
 static const char* s_szVersion		= "TRON Build 20 (05/09/02) DO NOT DISTRIBUTE";
 static const char* s_szBuild		= "Build 20 (05/09/02)";

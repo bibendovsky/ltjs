@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "PolyGridModifier.h"
+#include "polygridmodifier.h"
 #include "iltserver.h"
 
 LINKFROM_MODULE( PolyGridModifier );

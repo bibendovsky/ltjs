@@ -12,7 +12,7 @@
 #define __NODLINE_H__
 
 #include "ltengineobjects.h"
-#include "ClientServerShared.h"
+#include "clientservershared.h"
 
 LINKTO_MODULE( NodeLine );
 

@@ -1,8 +1,8 @@
-#include "PeerAuthOp.h"
-#include "GetCertOp.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONSocket/SocketOp.h"
-#include "CryptTransform.h"
+#include "peerauthop.h"
+#include "getcertop.h"
+#include "woncommon/writebuffer.h"
+#include "wonsocket/socketop.h"
+#include "crypttransform.h"
 
 using namespace std;
 using namespace WONAPI;

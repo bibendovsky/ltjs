@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "StackTracer.h"
+#include "stacktracer.h"
 
 #include <dbghelp.h>
 #include <stdio.h>

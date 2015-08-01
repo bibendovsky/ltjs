@@ -1,9 +1,9 @@
 #ifndef __WON_GETCERTOP_H__
 #define __WON_GETCERTOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "AuthContext.h" 
-#include "WONServer/ServerRequestOp.h"
+#include "authcontext.h" 
+#include "wonserver/serverrequestop.h"
 
 
 namespace WONAPI

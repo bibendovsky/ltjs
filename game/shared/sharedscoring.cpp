@@ -11,12 +11,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SharedScoring.h"
-#include "MsgIDs.h"
+#include "sharedscoring.h"
+#include "msgids.h"
 #ifndef _CLIENTBUILD
-#include "ServerMissionMgr.h"
-#include "PlayerObj.h"
-#include "ServerUtilities.h"
+#include "servermissionmgr.h"
+#include "playerobj.h"
+#include "serverutilities.h"
 #endif
 
 // ----------------------------------------------------------------------- //

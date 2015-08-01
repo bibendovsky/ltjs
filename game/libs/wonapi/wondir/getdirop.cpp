@@ -1,6 +1,6 @@
-#include "GetDirOp.h"
-#include "WONCommon/WriteBuffer.h"
-#include "WONCommon/ReadBuffer.h"
+#include "getdirop.h"
+#include "woncommon/writebuffer.h"
+#include "woncommon/readbuffer.h"
 //#include "DirEntityReplyParser.h"
 
 using namespace std;

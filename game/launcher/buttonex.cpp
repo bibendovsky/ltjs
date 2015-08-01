@@ -11,10 +11,10 @@
 ********************************************************************************/
 
 #include "stdafx.h"
-#include "ButtonEx.h"
-#include "Resource.h"
-#include "DlgEx.h"
-#include "PlaySound.h"
+#include "buttonex.h"
+#include "resource.h"
+#include "dlgex.h"
+#include "playsound.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

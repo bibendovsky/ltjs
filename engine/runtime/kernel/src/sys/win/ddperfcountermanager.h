@@ -7,7 +7,7 @@
 
 
 #ifndef __PERFCOUNTERMANAGER_H__
-#include "PerfCounterManager.h"
+#include "perfcountermanager.h"
 #endif
 
 #ifndef __ILTPERFCOUNTER_H__

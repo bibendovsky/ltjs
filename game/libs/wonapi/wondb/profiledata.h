@@ -1,7 +1,7 @@
 #ifndef __WON_PROFILEDATA_H__
 #define __WON_PROFILEDATA_H__
-#include "WONShared.h"
-#include "WONCommon/ByteBuffer.h"
+#include "wonshared.h"
+#include "woncommon/bytebuffer.h"
 
 namespace WONAPI
 {

@@ -11,9 +11,9 @@
 #ifndef __SERVERMISSIONMGR_H__
 #define __SERVERMISSIONMGR_H__
 
-#include "ClientServerShared.h"
-#include "PlayerTracker.h"
-#include "ServerMissionSettings.h"
+#include "clientservershared.h"
+#include "playertracker.h"
+#include "servermissionsettings.h"
 
 typedef std::vector< int > Campaign;
 

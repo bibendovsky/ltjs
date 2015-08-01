@@ -12,8 +12,8 @@
 #if !defined(_ACTIVATION_DATA_H_)
 #define _ACTIVATION_DATA_H_
 
-#include "MsgIDs.h"
-#include "LTObjRef.h"
+#include "msgids.h"
+#include "ltobjref.h"
 
 class CActivationData
 {

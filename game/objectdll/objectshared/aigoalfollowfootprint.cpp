@@ -10,11 +10,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalFollowFootprint.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIHumanState.h"
-#include "AIGoalMgr.h"
-#include "AIHuman.h"
+#include "aigoalfollowfootprint.h"
+#include "aisenserecorderabstract.h"
+#include "aihumanstate.h"
+#include "aigoalmgr.h"
+#include "aihuman.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalFollowFootprint, kGoal_FollowFootprint);
 

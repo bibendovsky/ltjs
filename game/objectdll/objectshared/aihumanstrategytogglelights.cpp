@@ -1,14 +1,14 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIHumanStrategyToggleLights.h"
-#include "AIHumanStrategy.h"
-#include "AIHuman.h"
-#include "AIVolumeMgr.h"
-#include "AIVolume.h"
-#include "AIUtils.h"
-#include "CharacterMgr.h"
-#include "PlayerObj.h"
+#include "aihumanstrategytogglelights.h"
+#include "aihumanstrategy.h"
+#include "aihuman.h"
+#include "aivolumemgr.h"
+#include "aivolume.h"
+#include "aiutils.h"
+#include "charactermgr.h"
+#include "playerobj.h"
 
 // Factory
 

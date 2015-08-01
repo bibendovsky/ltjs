@@ -1,7 +1,7 @@
-#include "WONCommon/Platform.h"
+#include "woncommon/platform.h"
 #include <memory>
 #include <time.h>
-#include "Random.h"
+#include "random.h"
 
 using namespace std;
 using namespace WONAPI;

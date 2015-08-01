@@ -19,7 +19,7 @@
 enum EnumAnimMovement {
 	kAM_Invalid = -1,
 	#define ANIM_MOVEMENT_AS_ENUM 1
-	#include "AnimationMovementEnums.h"
+	#include "animationmovementenums.h"
 	#undef ANIM_MOVEMENT_AS_ENUM 
 	kAM_Count,
 }; 
@@ -30,7 +30,7 @@ enum EnumAnimMovement {
 static const char* s_aszAnimMovement[] =
 {
 	#define ANIM_MOVEMENT_AS_STRING 1
-	#include "AnimationMovementEnums.h"
+	#include "animationmovementenums.h"
 	#undef ANIM_MOVEMENT_AS_STRING
 };
 

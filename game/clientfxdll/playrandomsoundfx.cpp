@@ -11,8 +11,8 @@
 // Includes....
 
 #include "stdafx.h"
-#include "PlayRandomSoundFX.h"
-#include "ClientFX.h"
+#include "playrandomsoundfx.h"
+#include "clientfx.h"
 #include "stdio.h"
 
 // ----------------------------------------------------------------------- //

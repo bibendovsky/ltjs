@@ -1,4 +1,4 @@
-#include "MD5Digest.h"
+#include "md5digest.h"
 
 using namespace WONAPI;
 

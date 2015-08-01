@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TO2GameClientShell.h"
+#include "to2gameclientshell.h"
 
 // These macros create a bunch of static variables whose constructors do initialization
 // for hooking into the engine.  They need to get created before all other static variables

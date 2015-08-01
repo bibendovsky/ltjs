@@ -23,7 +23,7 @@ define_holder(IClientShell, i_client_shell);
 #include "d3d_viewparams.h"
 #include "common_draw.h"
 
-#include "LTEffectImpl.h"
+#include "lteffectimpl.h"
 #include "lteffectshadermgr.h"
 #include "ltshaderdevicestateimp.h"
 #include "rendererconsolevars.h"

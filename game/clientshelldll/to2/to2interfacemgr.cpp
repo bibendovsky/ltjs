@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TO2InterfaceMgr.h"
-#include "GameClientShell.h"
+#include "to2interfacemgr.h"
+#include "gameclientshell.h"
 
 // ----------------------------------------------------------------------- //
 //

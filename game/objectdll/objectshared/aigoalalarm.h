@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ALARM_H__
 #define __AIGOAL_ALARM_H__
 
-#include "AIGoalAbstractUseObject.h"
+#include "aigoalabstractuseobject.h"
 
 
 class CAIGoalAlarm : public CAIGoalAbstractUseObject

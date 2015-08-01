@@ -1,13 +1,13 @@
 #include "stdafx.h"
-#include "ProfileUtils.h"
-#include "ButeMgr.h"
+#include "profileutils.h"
+#include "butemgr.h"
 #include "ltbasedefs.h"
-#include "ModelButeMgr.h"
-#include "CommonUtilities.h"
-#include "ResShared.h"
+#include "modelbutemgr.h"
+#include "commonutilities.h"
+#include "resshared.h"
 #ifdef _CLIENTBUILD
-#include "ClientUtilities.h"
-#include "ClientResShared.h"
+#include "clientutilities.h"
+#include "clientresshared.h"
 #endif //_CLIENTBUILD
 
 

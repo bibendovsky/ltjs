@@ -10,12 +10,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalTalk.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AI.h"
-#include "AINodeGuard.h"
-#include "AIUtils.h"
+#include "aigoaltalk.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "ai.h"
+#include "ainodeguard.h"
+#include "aiutils.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalTalk, kGoal_Talk);
 

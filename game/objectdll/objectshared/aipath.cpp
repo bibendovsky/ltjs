@@ -1,10 +1,10 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
-#include "StdAfx.h"
-#include "AIPath.h"
-#include "AI.h"
-#include "AIVolumeMgr.h"
-#include "AIPathMgr.h"
+#include "stdafx.h"
+#include "aipath.h"
+#include "ai.h"
+#include "aivolumemgr.h"
+#include "aipathmgr.h"
 
 DEFINE_AI_FACTORY_CLASS(CAIPathWaypoint);
 DEFINE_AI_FACTORY_CLASS(CAIPath);

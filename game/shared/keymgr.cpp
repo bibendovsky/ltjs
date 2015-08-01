@@ -9,8 +9,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "KeyMgr.h"
-#include "IDList.h"
+#include "keymgr.h"
+#include "idlist.h"
 
 
 #define KEY_TAG					"KeyItem"
@@ -28,7 +28,7 @@
 CKeyMgr* g_pKeyMgr = LTNULL;
 
 #ifndef _CLIENTBUILD
-#include "Character.h"
+#include "character.h"
 CKeyMgr CKeyMgrPlugin::sm_KeyMgr;
 #endif
 

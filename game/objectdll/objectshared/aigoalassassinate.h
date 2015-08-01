@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ASSASSINATE_H__
 #define __AIGOAL_ASSASSINATE_H__
 
-#include "AIGoalAbstractTargeted.h"
+#include "aigoalabstracttargeted.h"
 
 // Forward declarations.
 class AINodeAssassinate;

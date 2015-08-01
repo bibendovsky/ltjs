@@ -10,8 +10,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AICentralKnowledgeMgr.h"
-#include "AIUtils.h"
+#include "aicentralknowledgemgr.h"
+#include "aiutils.h"
 
 
 DEFINE_AI_FACTORY_CLASS(CAICentralKnowledgeRecord);

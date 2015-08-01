@@ -12,8 +12,8 @@
 #ifndef __WEAPON_STRING_DEFS_H__
 #define __WEAPON_STRING_DEFS_H__
 
-#include "ClientResShared.h"
-#include "WeaponMgr.h"
+#include "clientresshared.h"
+#include "weaponmgr.h"
 
 #define	  WS_ERROR_STRING	"Error"
 

@@ -10,14 +10,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAbstractStimulated.h"
-#include "AISenseRecorderAbstract.h"
-#include "AIStimulusMgr.h"
-#include "AIGoalMgr.h"
-#include "AI.h"
-#include "AIUtils.h"
-#include "AIMovement.h"
-#include "ObjectRelationMgr.h"
+#include "aigoalabstractstimulated.h"
+#include "aisenserecorderabstract.h"
+#include "aistimulusmgr.h"
+#include "aigoalmgr.h"
+#include "ai.h"
+#include "aiutils.h"
+#include "aimovement.h"
+#include "objectrelationmgr.h"
 
 // ----------------------------------------------------------------------- //
 //

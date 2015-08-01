@@ -39,6 +39,6 @@
 
 #endif // LTMEMTRACK
 
-#include "DebugNew_impl.h"
+#include "debugnew_impl.h"
 
 #endif //__DEBUGNEW_H__

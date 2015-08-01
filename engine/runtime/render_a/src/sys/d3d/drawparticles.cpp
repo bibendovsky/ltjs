@@ -19,7 +19,7 @@ define_holder(IClientShell, i_client_shell);
 #include "renderstruct.h"
 #include "counter.h"
 
-#include "LTEffectImpl.h"
+#include "lteffectimpl.h"
 #include "lteffectshadermgr.h"
 #include "ltshaderdevicestateimp.h"
 #include "rendererconsolevars.h"

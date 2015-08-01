@@ -12,13 +12,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScmdServer.h"
-#include "ScmdShared.h"
-#include "GameServerShell.h"
-#include "PlayerObj.h"
-#include "ServerMissionMgr.h"
-#include "MissionButeMgr.h"
-#include "BanIPMgr.h"
+#include "scmdserver.h"
+#include "scmdshared.h"
+#include "gameservershell.h"
+#include "playerobj.h"
+#include "servermissionmgr.h"
+#include "missionbutemgr.h"
+#include "banipmgr.h"
 
 class ScmdServer_Impl : public ScmdServer
 {

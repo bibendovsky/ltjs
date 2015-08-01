@@ -13,16 +13,16 @@
 #ifndef __BREAKABLE_H__
 #define __BREAKABLE_H__
 /*
-#include "Door.h"
-#include "Timer.h"
-#include "Steam.h"
+#include "door.h"
+#include "timer.h"
+#include "steam.h"
 */
 
 //
 // Includes...
 //
  
-	#include "ActiveWorldModel.h"
+	#include "activeworldmodel.h"
 
 LINKTO_MODULE( Breakable );
 

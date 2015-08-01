@@ -9,7 +9,7 @@
 //------------------------------------------------------------------
 
 #include "stdafx.h"
-#include "TextureProp.h"
+#include "textureprop.h"
 #include "bdefs.h"
 #include "dtxmgr_lib.h"
 

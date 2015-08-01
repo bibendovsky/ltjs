@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "TrackedNode.h"
+#include "trackednode.h"
 
 CTrackedNode::CTrackedNode() :
 	m_hModel(NULL),

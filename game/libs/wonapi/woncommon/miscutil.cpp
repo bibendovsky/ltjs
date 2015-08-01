@@ -3,7 +3,7 @@
 //
 // This file was cribbed (and modified several times) from AdBanner.
 //----------------------------------------------------------------------------
-#include "MiscUtil.h"
+#include "miscutil.h"
 
 using namespace std;
 namespace WONAPI

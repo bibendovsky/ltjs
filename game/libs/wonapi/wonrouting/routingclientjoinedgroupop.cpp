@@ -1,4 +1,4 @@
-#include "RoutingClientJoinedGroupOp.h"
+#include "routingclientjoinedgroupop.h"
 using namespace WONAPI;
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -11,11 +11,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TronHUDMgr.h"
+#include "tronhudmgr.h"
 
-#include "TRONPlayerStats.h"
-#include "SurfaceFunctions.h"
-#include "CharacterFX.h"
+#include "tronplayerstats.h"
+#include "surfacefunctions.h"
+#include "characterfx.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

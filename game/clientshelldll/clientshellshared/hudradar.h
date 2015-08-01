@@ -16,7 +16,7 @@
 // Includes...
 //
 
-	#include "HUDItem.h"
+	#include "huditem.h"
 	#include "ltguimgr.h"
 
 struct RADAR_PLAYER_OBJ

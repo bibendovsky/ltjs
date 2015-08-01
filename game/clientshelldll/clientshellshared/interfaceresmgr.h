@@ -15,8 +15,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "LTGUIMgr.h"
-#include "InterfaceSurfMgr.h"
+#include "ltguimgr.h"
+#include "interfacesurfmgr.h"
 #include "iltfontmanager.h"
 
 class CGameClientShell;

@@ -1,9 +1,9 @@
 #ifndef __WON_FINDPATCHOP_H__
 #define __WON_FINDPATCHOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/AsyncOpTracker.h"
-#include "GetVersionOp.h"
+#include "woncommon/asyncoptracker.h"
+#include "getversionop.h"
 
 namespace WONAPI
 {

@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_FOLLOW_FOOTPRINT_H__
 #define __AIGOAL_FOLLOW_FOOTPRINT_H__
 
-#include "AIGoalAbstractSearch.h"
+#include "aigoalabstractsearch.h"
 
 
 class CAIGoalFollowFootprint : public CAIGoalAbstractSearch

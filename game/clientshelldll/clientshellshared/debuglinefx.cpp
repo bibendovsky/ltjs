@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DebugLineFX.h"
-#include "ClientUtilities.h"
-#include "MsgIDs.h"
-#include "InterfaceMgr.h"
-#include "PlayerMgr.h"
+#include "debuglinefx.h"
+#include "clientutilities.h"
+#include "msgids.h"
+#include "interfacemgr.h"
+#include "playermgr.h"
 
 #pragma warning( disable : 4786 )
 #include <algorithm>

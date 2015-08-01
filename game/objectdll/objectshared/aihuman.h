@@ -3,11 +3,11 @@
 #ifndef __AI_HUMAN_H__
 #define __AI_HUMAN_H__
 
-#include "AIClassFactory.h"
-#include "AI.h"
-#include "AnimationProp.h"
-#include "AIStrategy.h"
-#include "Searchable.h"
+#include "aiclassfactory.h"
+#include "ai.h"
+#include "animationprop.h"
+#include "aistrategy.h"
+#include "searchable.h"
 
 LINKTO_MODULE( AIHuman );
 

@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "BaseLineSystemFX.h"
+#include "baselinesystemfx.h"
 #include "iltclient.h"
 
 

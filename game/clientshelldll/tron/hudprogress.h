@@ -11,7 +11,7 @@
 #ifndef __HUD_PROGRESS_H
 #define __HUD_PROGRESS_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 typedef enum {
 	// outer frame

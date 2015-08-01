@@ -11,7 +11,7 @@
 #ifndef __PARTICLE_SYSTEM_FX_H__
 #define __PARTICLE_SYSTEM_FX_H__
 
-#include "BaseParticleSystemFX.h"
+#include "baseparticlesystemfx.h"
 
 
 struct PSCREATESTRUCT : public BPSCREATESTRUCT

@@ -1,4 +1,4 @@
-#include "RoutingMemberFlagsChangedOp.h"
+#include "routingmemberflagschangedop.h"
 using namespace WONAPI;
 
 ///////////////////////////////////////////////////////////////////////////////

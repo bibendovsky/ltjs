@@ -33,9 +33,9 @@
 #include "rmaausvc.h"
 #include "rmawin.h"
 
-#include "LTRClientContext.h"
-#include "LTRAudioDevice.h"
-#include "LTRClientEngineSetup.h"
+#include "ltrclientcontext.h"
+#include "ltraudiodevice.h"
+#include "ltrclientenginesetup.h"
 
 //-----------------------------------------------------------------------------
 #define LITH_PLUGIN_VERSION     0

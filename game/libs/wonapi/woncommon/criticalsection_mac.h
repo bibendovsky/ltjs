@@ -1,7 +1,7 @@
 #ifndef __WON_CRITICALSECTION_MAC_H__
 #define __WON_CRITICALSECTION_MAC_H__
-#include "WONShared.h"
-#include "Platform_Mac.h"
+#include "wonshared.h"
+#include "platform_mac.h"
 
 
 namespace WONAPI

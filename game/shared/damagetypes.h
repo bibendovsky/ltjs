@@ -14,7 +14,7 @@
 #define __DAMAGE_TYPES_H__
 
 #include "ltbasedefs.h"
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include <bitset>
 
 #define DTMGR_DEFAULT_FILE		"Attributes\\DamageTypes.txt"
@@ -31,7 +31,7 @@ enum DamageType
 {
 	DT_INVALID = -1,
 #define INCLUDE_AS_ENUM
-#include "DamageTypesEnum.h"
+#include "damagetypesenum.h"
 #undef INCLUDE_AS_ENUM
 	kNumDamageTypes
 };
@@ -39,7 +39,7 @@ enum DamageType
 static const char* pDTNames[kNumDamageTypes] =
 {
 #define INCLUDE_AS_STRING
-#include "DamageTypesEnum.h"
+#include "damagetypesenum.h"
 #undef INCLUDE_AS_STRING
 };
 

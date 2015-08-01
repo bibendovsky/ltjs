@@ -11,7 +11,7 @@
 #ifndef __HUD_WEAPON_H
 #define __HUD_WEAPON_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 //******************************************************************************************
 //** HUD Weapon display

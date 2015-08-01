@@ -11,7 +11,7 @@
 #ifndef __HUD_PERMISSIONS_H
 #define __HUD_PERMISSIONS_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 //******************************************************************************************
 //** HUD Ratings display

@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_DISAPPEAR_REAPPEAR_H__
 #define __AIGOAL_DISAPPEAR_REAPPEAR_H__
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 
 class CAIGoalDisappearReappear : public CAIGoalAbstractStimulated

@@ -11,8 +11,8 @@
 #ifndef __HUD_CHAT_H
 #define __HUD_CHAT_H
 
-#include "HUDItem.h"
-#include "LTGUIMgr.h"
+#include "huditem.h"
+#include "ltguimgr.h"
 
 const int kMaxChatLength = 64;
 const int kMaxChatHistory = 25;

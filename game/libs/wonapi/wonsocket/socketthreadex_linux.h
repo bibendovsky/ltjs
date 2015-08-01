@@ -1,15 +1,15 @@
 #ifndef __WON_SocketThreadEx_Linux_H__
 #define __WON_SocketThreadEx_Linux_H__
 
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <set>
 #include <list>
 #include <vector>
 #include <sys/poll.h>
 
-#include "SocketThread.h"
-#include "WONCommon/BiMap.h"
+#include "socketthread.h"
+#include "woncommon/bimap.h"
 
 namespace WONAPI
 {

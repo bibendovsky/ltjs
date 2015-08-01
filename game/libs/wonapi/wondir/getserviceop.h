@@ -1,10 +1,10 @@
 #ifndef __WON_GETSERVICEOP_H__
 #define __WON_GETSERVICEOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <list>
-#include "WONServer/ServerRequestOp.h"
-#include "DirEntity.h"
+#include "wonserver/serverrequestop.h"
+#include "direntity.h"
 
 
 namespace WONAPI

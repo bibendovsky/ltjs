@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ObjectiveSprite.h"
+#include "objectivesprite.h"
 #include "iltserver.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "SFXFuncs.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "sfxfuncs.h"
 
 LINKFROM_MODULE( ObjectiveSprite );
 

@@ -1,4 +1,4 @@
-#include "MediaMetrix.h"
+#include "mediametrix.h"
 
 #ifdef WIN32_NOT_XBOX
 

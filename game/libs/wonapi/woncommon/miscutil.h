@@ -1,6 +1,6 @@
 #ifndef __WON_MISCUTIL_H__
 #define __WON_MISCUTIL_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <string>
 

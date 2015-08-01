@@ -15,9 +15,9 @@
 
 #include "ltbasedefs.h"
 #include "overlays.h"
-#include "IDList.h"
-#include "IntelItemList.h"
-#include "SkillsButeMgr.h"
+#include "idlist.h"
+#include "intelitemlist.h"
+#include "skillsbutemgr.h"
 #include "weaponmgr.h"
 
 class CGameClientShell;

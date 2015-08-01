@@ -15,7 +15,7 @@
 #endif
 
 #ifndef DE_SERVER_COMPILE
-#include "ConsoleCommands.h"
+#include "consolecommands.h"
 #endif // DE_SERVER_COMPILE
 
 #ifdef _WIN32

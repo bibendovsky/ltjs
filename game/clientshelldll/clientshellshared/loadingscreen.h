@@ -13,8 +13,8 @@
 #ifndef __LOADINGSCREEN_H__
 #define __LOADINGSCREEN_H__
 
-#include "BaseScreen.h"
-#include "ScreenMgr.h"
+#include "basescreen.h"
+#include "screenmgr.h"
 
 class CLoadingScreen
 {

@@ -4,12 +4,12 @@
 #ifndef __MotdCtrl_H__
 #define __MotdCtrl_H__
 
-#include "WONAPI/WONCommon/AsyncOp.h"
-#include "WONAPI/WONMisc/GetMOTDOp.h"
-#include "WONGUI/TextBox.h"
-#include "WONGUI/MSControls.h"
-#include "WONGUI/Button.h"
-#include "WizardCtrl.h"
+#include "wonapi/woncommon/asyncop.h"
+#include "wonapi/wonmisc/getmotdop.h"
+#include "wongui/textbox.h"
+#include "wongui/mscontrols.h"
+#include "wongui/button.h"
+#include "wizardctrl.h"
 
 namespace WONAPI
 {

@@ -13,16 +13,16 @@
 // Includes....
 
 #include "stdafx.h"
-#include "ShellCasingFX.h"
+#include "shellcasingfx.h"
 #include "iltclient.h"
 #include "ltlink.h"
-#include "ClientUtilities.h"
-#include "WeaponMgr.h"
-#include "GameClientShell.h"
-#include "ClientWeaponUtils.h"
-#include "SurfaceFunctions.h"
-#include "VarTrack.h"
-#include "FXButeMgr.h"
+#include "clientutilities.h"
+#include "weaponmgr.h"
+#include "gameclientshell.h"
+#include "clientweaponutils.h"
+#include "surfacefunctions.h"
+#include "vartrack.h"
+#include "fxbutemgr.h"
 
 
 VarTrack	g_vtShellMaxBounceCountTrack;

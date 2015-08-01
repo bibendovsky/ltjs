@@ -9,12 +9,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "BulletTrailFX.h"
+#include "bullettrailfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ContainerCodes.h"
-#include "ClientServerShared.h"
-#include "GameClientShell.h"
+#include "clientutilities.h"
+#include "containercodes.h"
+#include "clientservershared.h"
+#include "gameclientshell.h"
 
 #define MAX_TRAIL_LENGTH 3000.0f
 

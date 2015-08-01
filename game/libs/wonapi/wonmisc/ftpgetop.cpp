@@ -1,4 +1,4 @@
-#include "FTPGetOp.h"
+#include "ftpgetop.h"
 #include <sys/stat.h>
 
 using namespace WONAPI;

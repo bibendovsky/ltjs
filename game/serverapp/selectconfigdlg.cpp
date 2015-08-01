@@ -3,8 +3,8 @@
 
 #include "stdafx.h"
 #include "serverapp.h"
-#include "SelectConfigDlg.h"
-#include "ServerDlg.h"
+#include "selectconfigdlg.h"
+#include "serverdlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

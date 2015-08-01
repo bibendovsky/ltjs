@@ -1,5 +1,5 @@
-#include "RemoveEntityOp.h"
-#include "WONCommon/WriteBuffer.h"
+#include "removeentityop.h"
+#include "woncommon/writebuffer.h"
 
 using namespace WONAPI;
 

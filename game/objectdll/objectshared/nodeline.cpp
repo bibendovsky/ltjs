@@ -9,11 +9,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "NodeLine.h"
-#include "MsgIds.h"
+#include "nodeline.h"
+#include "msgids.h"
 #include "iltserver.h"
-#include "ServerUtilities.h"
-#include "ClientServerShared.h"
+#include "serverutilities.h"
+#include "clientservershared.h"
 
 LINKFROM_MODULE( NodeLine );
 

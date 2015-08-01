@@ -12,10 +12,10 @@
 
 #include "stdafx.h"
 #include <stdio.h>
-#include "InterfaceTimer.h"
-#include "GameClientShell.h"
+#include "interfacetimer.h"
+#include "gameclientshell.h"
 #include "iltclient.h"
-#include "InterfaceResMgr.h"
+#include "interfaceresmgr.h"
 
 static void BuildTimeString(char* aBuffer, int nTime);
 

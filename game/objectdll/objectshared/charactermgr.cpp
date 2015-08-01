@@ -9,17 +9,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "CharacterMgr.h"
-#include "AI.h"
-#include "Scanner.h"
-#include "AIPathMgr.h"
-#include "AIPathMgr.h"
-#include "AITarget.h"
-#include "AIHuman.h"
-#include "AIUtils.h"
-#include "MusicMgr.h"
-#include "DeathScene.h"
-#include "RelationMgr.h"
+#include "charactermgr.h"
+#include "ai.h"
+#include "scanner.h"
+#include "aipathmgr.h"
+#include "aipathmgr.h"
+#include "aitarget.h"
+#include "aihuman.h"
+#include "aiutils.h"
+#include "musicmgr.h"
+#include "deathscene.h"
+#include "relationmgr.h"
 
 const int CCharacterMgr::s_kCharacterLists = 2;
 CTList<class CCharacter*>*  CCharacterMgr::s_aCharacterLists[s_kCharacterLists];

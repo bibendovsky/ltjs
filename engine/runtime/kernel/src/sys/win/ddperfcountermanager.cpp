@@ -1,7 +1,7 @@
 // Win32_PerfCounterManager.cpp
 
 #include "bdefs.h"
-#include "DDPerfCounterManager.h"
+#include "ddperfcountermanager.h"
 
 #ifndef NO_PROFILE 
 

@@ -9,15 +9,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ParticleTrailSegmentFX.h"
+#include "particletrailsegmentfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ContainerCodes.h"
-#include "ClientServerShared.h"
-#include "WeaponFXTypes.h"
-#include "GameSettings.h"
-#include "GameClientShell.h"
-#include "VarTrack.h"
+#include "clientutilities.h"
+#include "containercodes.h"
+#include "clientservershared.h"
+#include "weaponfxtypes.h"
+#include "gamesettings.h"
+#include "gameclientshell.h"
+#include "vartrack.h"
 
 extern LTVector g_vWorldWindVel;
 extern CGameClientShell* g_pGameClientShell;

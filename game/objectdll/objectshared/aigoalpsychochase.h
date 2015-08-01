@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_PSYCHOCHASE_H__
 #define __AIGOAL_PSYCHOCHASE_H__
 
-#include "AIGoalChase.h"
+#include "aigoalchase.h"
 
 
 class CAIGoalPsychoChase : public CAIGoalChase

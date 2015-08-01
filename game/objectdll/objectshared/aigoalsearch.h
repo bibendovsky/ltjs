@@ -12,8 +12,8 @@
 #ifndef __AIGOAL_SEARCH_H__
 #define __AIGOAL_SEARCH_H__
 
-#include "AIGoalAbstractSearch.h"
-#include "AISenseRecorderAbstract.h"
+#include "aigoalabstractsearch.h"
+#include "aisenserecorderabstract.h"
 
 
 class CAIGoalSearch : public CAIGoalAbstractSearch

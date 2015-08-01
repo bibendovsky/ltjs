@@ -9,8 +9,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "LTGUIMgr.h"
-#include "Timer.h"
+#include "ltguimgr.h"
+#include "timer.h"
 
 class CWeaponChooser
 {

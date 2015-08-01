@@ -16,10 +16,10 @@
 // stl vector
 #include <vector>
 
-#include "PVFXMgr.h"
-#include "ClientFXMgr.h"
-#include "MsgIDs.h"
-#include "ClientWeaponBase.h"
+#include "pvfxmgr.h"
+#include "clientfxmgr.h"
+#include "msgids.h"
+#include "clientweaponbase.h"
 
 // forward definitions to reduce header dependancies
 struct CLIENTFX_LINK;

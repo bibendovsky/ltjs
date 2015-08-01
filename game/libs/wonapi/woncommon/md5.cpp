@@ -1,11 +1,11 @@
 //----------------------------------------------------------------------------
 // MD5 clone.
 //----------------------------------------------------------------------------
-#include "Platform.h"
+#include "platform.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "MD5.h"
+#include "md5.h"
 ///#define ASM
 
 

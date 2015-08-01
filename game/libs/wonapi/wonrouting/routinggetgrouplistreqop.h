@@ -1,8 +1,8 @@
 #ifndef __WON_ROUTINGGETGROUPLISTREQOP_H__
 #define __WON_ROUTINGGETGROUPLISTREQOP_H__
 
-#include "WONServer/ServerRequestOp.h"
-#include "RoutingGetGroupListOp.h"
+#include "wonserver/serverrequestop.h"
+#include "routinggetgrouplistop.h"
 
 namespace WONAPI
 {

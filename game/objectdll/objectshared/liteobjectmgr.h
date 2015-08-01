@@ -13,7 +13,7 @@
 #ifndef __LITE_OBJECT_MGR_H__
 #define __LITE_OBJECT_MGR_H__
 
-#include "ButeMgr.h"
+#include "butemgr.h"
 #include <vector>
 
 class GameBaseLite;

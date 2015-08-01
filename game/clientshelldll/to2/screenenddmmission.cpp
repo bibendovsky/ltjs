@@ -9,14 +9,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenEndDMMission.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ScreenPreload.h"
-#include "TO2InterfaceMgr.h"
-#include "GameClientShell.h"
-#include "MissionMgr.h"
-#include "HUDMgr.h"
+#include "screenenddmmission.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "screenpreload.h"
+#include "to2interfacemgr.h"
+#include "gameclientshell.h"
+#include "missionmgr.h"
+#include "hudmgr.h"
 
 
 

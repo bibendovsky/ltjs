@@ -9,13 +9,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenGame.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
+#include "screengame.h"
+#include "screenmgr.h"
+#include "screencommands.h"
 
-#include "GameClientShell.h"
-#include "VersionMgr.h"
-#include "ResShared.h"
+#include "gameclientshell.h"
+#include "versionmgr.h"
+#include "resshared.h"
 
 namespace
 {

@@ -13,8 +13,8 @@
 #ifndef __FIRE_H__
 #define __FIRE_H__
 
-#include "ClientSFX.h"
-#include "SFXMsgIds.h"
+#include "clientsfx.h"
+#include "sfxmsgids.h"
 
 LINKTO_MODULE( Fire );
 

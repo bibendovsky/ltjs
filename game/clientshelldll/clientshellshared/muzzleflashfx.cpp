@@ -11,12 +11,12 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MuzzleFlashFX.h"
+#include "muzzleflashfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
+#include "clientutilities.h"
 #include "iltmodel.h"
 #include "ilttransform.h"
-#include "VarTrack.h"
+#include "vartrack.h"
 
 VarTrack	g_vtReallyClose;
 

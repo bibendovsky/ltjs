@@ -13,21 +13,21 @@
 #ifndef __CHARACTER_FX_H__
 #define __CHARACTER_FX_H__
 
-#include "SpecialFX.h"
-#include "SurfaceMgr.h"
-#include "NodeController.h"
-#include "ModelButeMgr.h"
+#include "specialfx.h"
+#include "surfacemgr.h"
+#include "nodecontroller.h"
+#include "modelbutemgr.h"
 #include "iltmodel.h"
-#include "SharedFXStructs.h"
-#include "PolyLineFX.h"
-#include "Timer.h"
-#include "FlashLight.h"
-#include "ClientTrackedNodeMgr.h"
-#include "ClientTrackedNodeContext.h"
-#include "ClientFXMgr.h"
+#include "sharedfxstructs.h"
+#include "polylinefx.h"
+#include "timer.h"
+#include "flashlight.h"
+#include "clienttrackednodemgr.h"
+#include "clienttrackednodecontext.h"
+#include "clientfxmgr.h"
 #include "iltfontmanager.h"
-#include "FXButeMgr.h"
-#include "HitBox.h"
+#include "fxbutemgr.h"
+#include "hitbox.h"
 
 #define MAX_DINGS	5
 

@@ -20,11 +20,11 @@
 #include "stdafx.h"
 
 #ifndef __BUTETOOLS_H__
-#include "ButeTools.h"		
+#include "butetools.h"		
 #endif
 
-#include "ButeMgr.h"
-#include "AIUtils.h"
+#include "butemgr.h"
+#include "aiutils.h"
 
 // Forward declarations
 

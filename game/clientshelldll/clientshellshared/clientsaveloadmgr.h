@@ -13,7 +13,7 @@
 #ifndef __CLIENTSAVELOADMGR_H__
 #define __CLIENTSAVELOADMGR_H__
 
-#include "SaveLoadMgr.h"
+#include "saveloadmgr.h"
 
 // 
 // Globals...

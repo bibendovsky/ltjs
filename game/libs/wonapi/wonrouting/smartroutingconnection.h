@@ -1,10 +1,10 @@
 #ifndef __WON_SMARTROUTINGCONNECTION_H__
 #define __WON_SMARTROUTINGCONNECTION_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "RoutingConnection.h"
-#include "WONCommon/StringUtil.h"
-#include "AllRoutingOps.h"
+#include "routingconnection.h"
+#include "woncommon/stringutil.h"
+#include "allroutingops.h"
 
 namespace WONAPI
 {

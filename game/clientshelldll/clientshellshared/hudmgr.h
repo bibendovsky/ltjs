@@ -13,19 +13,19 @@
 #ifndef __HUDMGR_H
 #define __HUDMGR_H
 
-#include "HUDItem.h"
-#include "HUDMessageQueue.h"
-#include "HUDChatInput.h"
-#include "HUDTransmission.h"
-#include "HUDPaused.h"
-#include "HUDMissionText.h"
-#include "HUDSubtitles.h"
-#include "HUDDamage.h"
-#include "HUDDecision.h"
-#include "HUDPopup.h"
-#include "HUDRadar.h"
-#include "HUDDisplayMeter.h"
-#include "HUDScores.h"
+#include "huditem.h"
+#include "hudmessagequeue.h"
+#include "hudchatinput.h"
+#include "hudtransmission.h"
+#include "hudpaused.h"
+#include "hudmissiontext.h"
+#include "hudsubtitles.h"
+#include "huddamage.h"
+#include "huddecision.h"
+#include "hudpopup.h"
+#include "hudradar.h"
+#include "huddisplaymeter.h"
+#include "hudscores.h"
 
 enum eHUDUpdateFlag
 {

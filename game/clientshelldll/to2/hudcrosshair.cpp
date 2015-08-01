@@ -9,18 +9,18 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TO2HUDMgr.h"
-#include "HUDCrosshair.h"
-#include "PlayerStats.h"
-#include "SurfaceFunctions.h"
-#include "CharacterFX.h"
-#include "BodyFX.h"
-#include "TO2GameClientShell.h"
-#include "ClientWeaponBase.h"
-#include "ClientWeaponMgr.h"
-#include "TargetMgr.h"
-#include "CMoveMgr.h"
-#include "VehicleMgr.h"
+#include "to2hudmgr.h"
+#include "hudcrosshair.h"
+#include "playerstats.h"
+#include "surfacefunctions.h"
+#include "characterfx.h"
+#include "bodyfx.h"
+#include "to2gameclientshell.h"
+#include "clientweaponbase.h"
+#include "clientweaponmgr.h"
+#include "targetmgr.h"
+#include "cmovemgr.h"
+#include "vehiclemgr.h"
 
 namespace
 {

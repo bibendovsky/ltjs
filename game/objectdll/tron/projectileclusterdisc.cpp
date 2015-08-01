@@ -12,12 +12,12 @@
 
 
 #include "stdafx.h"
-#include "FXButeMgr.h"
-#include "ProjectileDisc.h"
-#include "ProjectileClusterDisc.h"
-#include "WeaponFireInfo.h"
-#include "Weapons.h"
-#include "Weapon.h"
+#include "fxbutemgr.h"
+#include "projectiledisc.h"
+#include "projectileclusterdisc.h"
+#include "weaponfireinfo.h"
+#include "weapons.h"
+#include "weapon.h"
 
 //
 // LithTech Macros

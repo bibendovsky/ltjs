@@ -11,7 +11,7 @@
 #ifndef __HUD_HEALTHENERGY_H
 #define __HUD_HEALTHENERGY_H
 
-#include "HUDItem.h"
+#include "huditem.h"
 
 //******************************************************************************************
 //** HUD countdown timer display

@@ -9,14 +9,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "BaseScreen.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "SoundMgr.h"
-#include "VKDefs.h"
-#include "GameClientShell.h"
-#include "TransitionFXMgr.h"
-#include "FXButeMgr.h"
+#include "basescreen.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "soundmgr.h"
+#include "vkdefs.h"
+#include "gameclientshell.h"
+#include "transitionfxmgr.h"
+#include "fxbutemgr.h"
 
 LTBOOL		CBaseScreen::s_bReadLayout = LTFALSE;
 LTRect		CBaseScreen::s_HelpRect;

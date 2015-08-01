@@ -15,8 +15,8 @@
 //
 	
 	#include "stdafx.h"
-	#include "PlayerObj.h"
-	#include "PlayerTrigger.h"
+	#include "playerobj.h"
+	#include "playertrigger.h"
 
 
 LINKFROM_MODULE( PlayerTrigger );

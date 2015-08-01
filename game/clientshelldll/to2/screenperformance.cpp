@@ -9,14 +9,14 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenPerformance.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "MissionMgr.h"
-#include "PerformanceTest.h"
-#include "ClientMultiplayerMgr.h"
+#include "screenperformance.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "missionmgr.h"
+#include "performancetest.h"
+#include "clientmultiplayermgr.h"
 
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 extern CGameClientShell* g_pGameClientShell;
 extern VarTrack	g_vtPerformanceTestMode;
 

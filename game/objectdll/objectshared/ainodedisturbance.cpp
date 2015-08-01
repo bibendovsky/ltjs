@@ -10,10 +10,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AINodeDisturbance.h"
-#include "ParsedMsg.h"
-#include "RelationButeMgr.h"
-#include "AIStimulusMgr.h"
+#include "ainodedisturbance.h"
+#include "parsedmsg.h"
+#include "relationbutemgr.h"
+#include "aistimulusmgr.h"
 
 LINKFROM_MODULE( AINodeDisturbance );
 

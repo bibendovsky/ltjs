@@ -13,9 +13,9 @@
 #ifndef __CLIENTMULTIPLAYERMGR_H_
 #define __CLIENTMULTIPLAYERMGR_H_
 
-#include "VarTrack.h"
-#include "NetDefs.h"
-#include "ProfileUtils.h"
+#include "vartrack.h"
+#include "netdefs.h"
+#include "profileutils.h"
 
 class IServerDirectory;
 

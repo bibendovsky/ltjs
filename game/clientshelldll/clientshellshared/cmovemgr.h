@@ -15,11 +15,11 @@
 
 
 #include "iltclient.h"
-#include "ContainerCodes.h"
-#include "SharedMovement.h"
-#include "SurfaceMgr.h"
-#include "VarTrack.h"
-#include "CameraOffsetMgr.h"
+#include "containercodes.h"
+#include "sharedmovement.h"
+#include "surfacemgr.h"
+#include "vartrack.h"
+#include "cameraoffsetmgr.h"
 #include "timer.h"
 
 class CGameClientShell;

@@ -1,5 +1,5 @@
-#include "PeerAuthServer.h"
-#include "WONCommon/WriteBuffer.h"
+#include "peerauthserver.h"
+#include "woncommon/writebuffer.h"
 
 using namespace std;
 using namespace WONAPI;

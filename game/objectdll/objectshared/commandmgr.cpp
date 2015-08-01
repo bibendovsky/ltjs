@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "CommandMgr.h"
-#include "ServerUtilities.h"
-#include "GameBaseLite.h"
+#include "commandmgr.h"
+#include "serverutilities.h"
+#include "gamebaselite.h"
 
 CCommandMgr* g_pCmdMgr = LTNULL;
 

@@ -13,7 +13,7 @@
 #ifndef _TRONVERSIONMGR_H_
 #define _TRONVERSIONMGR_H_
 
-#include "VersionMgr.h"
+#include "versionmgr.h"
 
 class CTronVersionMgr : public CVersionMgr
 {

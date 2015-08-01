@@ -3,7 +3,7 @@
 #ifndef MUSICMGR_H
 #define MUSICMGR_H
 
-#include "ButeMgr.h"
+#include "butemgr.h"
 extern class CMusicMgr* g_pMusicMgr;
 class CMusicButeMgr;
 

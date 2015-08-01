@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 #include "stdafx.h"
-#include "TO2MissionButeMgr.h"
+#include "to2missionbutemgr.h"
 
 CMissionButeMgr* g_pMissionButeMgr = NULL;
 

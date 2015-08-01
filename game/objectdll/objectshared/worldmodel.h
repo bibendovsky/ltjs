@@ -17,10 +17,10 @@
 // Includes...
 // 
 
-#include "GameBase.h"
-#include "DestructibleModel.h"
-#include "LTObjRef.h"
-#include "ActivateTypeMgr.h"
+#include "gamebase.h"
+#include "destructiblemodel.h"
+#include "ltobjref.h"
+#include "activatetypemgr.h"
 
 LINKTO_MODULE( WorldModel );
 

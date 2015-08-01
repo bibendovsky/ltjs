@@ -15,7 +15,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include "ltbasetypes.h"
 
 

@@ -3,8 +3,8 @@
 
 #include "stdafx.h"
 
-#include "CRC32.h"
-#include "CommonUtilities.h"
+#include "crc32.h"
+#include "commonutilities.h"
 #include <stdio.h>
 
 using namespace CRC32;

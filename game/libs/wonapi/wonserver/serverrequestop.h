@@ -1,11 +1,11 @@
 #ifndef __WON_SERVERREQUESTOP_H__
 #define __WON_SERVERREQUESTOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 
-#include "WONCommon/ByteBuffer.h"
-#include "WONSocket/BlockingSocket.h"
-#include "ServerOp.h"
+#include "woncommon/bytebuffer.h"
+#include "wonsocket/blockingsocket.h"
+#include "serverop.h"
 
 
 namespace WONAPI

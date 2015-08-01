@@ -1,13 +1,13 @@
 #ifndef __WON_QUEUESOCKET_H__
 #define __WON_QUEUESOCKET_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #include <list>
-#include "WONCommon/SmartPtr.h"
-#include "WONCommon/CriticalSection.h"
-#include "WONCommon/AsyncOp.h"
-#include "AsyncSocket.h"
-#include "CloseOp.h"
+#include "woncommon/smartptr.h"
+#include "woncommon/criticalsection.h"
+#include "woncommon/asyncop.h"
+#include "asyncsocket.h"
+#include "closeop.h"
 
 namespace WONAPI
 {

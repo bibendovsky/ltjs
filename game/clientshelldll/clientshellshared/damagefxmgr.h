@@ -17,12 +17,12 @@
 // Includes...
 //
 
-	#include "GameButeMgr.h"
+	#include "gamebutemgr.h"
 	#include "sprinklesfx.h"
-	#include "VarTrack.h"
-	#include "Timer.h"
-	#include "TemplateList.h"
-	#include "ClientFXMgr.h"
+	#include "vartrack.h"
+	#include "timer.h"
+	#include "templatelist.h"
+	#include "clientfxmgr.h"
 //
 // Defins...
 //

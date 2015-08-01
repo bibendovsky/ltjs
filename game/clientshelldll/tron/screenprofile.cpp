@@ -2,14 +2,14 @@
 //
 //////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "ScreenProfile.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ClientRes.h"
-#include "NetDefs.h"
+#include "screenprofile.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "clientres.h"
+#include "netdefs.h"
 
-#include "GameClientShell.h"
-#include "profileMgr.h"
+#include "gameclientshell.h"
+#include "profilemgr.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

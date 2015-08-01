@@ -13,8 +13,8 @@
 #ifndef __LIGHT_FX_H__
 #define __LIGHT_FX_H__
 
-#include "GameBase.h"
-#include "Destructible.h"
+#include "gamebase.h"
+#include "destructible.h"
 #include "iobjectplugin.h"
 
 

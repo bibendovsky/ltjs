@@ -1,5 +1,5 @@
-#include "RecvMsgOp.h"
-#include "NetStats.h"
+#include "recvmsgop.h"
+#include "netstats.h"
 using namespace WONAPI;
 
 //////////////////////////////////////////////////////////////////////////////

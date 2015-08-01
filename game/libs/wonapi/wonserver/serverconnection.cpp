@@ -1,5 +1,5 @@
-#include "ServerConnection.h"
-#include "WONSocket/SocketOp.h"
+#include "serverconnection.h"
+#include "wonsocket/socketop.h"
 
 using namespace WONAPI;
 

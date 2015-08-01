@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ClientWeaponClusterDisc.h"
-#include "FXButeMgr.h"
-#include "RatingMgr.h"
+#include "clientweaponclusterdisc.h"
+#include "fxbutemgr.h"
+#include "ratingmgr.h"
 
 CClientWeaponClusterDisc::CClientWeaponClusterDisc()
 	: CClientWeaponDisc()

@@ -1,9 +1,9 @@
 #ifndef __WON_THREAD_LINUX_H__
 #define __WON_THREAD_LINUX_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "Platform_Linux.h"
-#include "Event.h"
+#include "platform_linux.h"
+#include "event.h"
 
 namespace WONAPI
 {

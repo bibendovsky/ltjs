@@ -22,7 +22,7 @@
 #endif // _MSC_VER >= 1000
 
 // Includes
-#include "RelationButeMgr.h"		
+#include "relationbutemgr.h"		
 
 // Forward declarations
 class CCollectiveRelationMgr;

@@ -18,7 +18,7 @@
 
 #include "dshowvideomgrimpl.h"
 
-#include "../../../../Libs/MFCStub/mfcs_macros.h"
+#include "../../../../libs/mfcstub/mfcs_macros.h"
 
 //----------------------------------------------------------------------------
 //

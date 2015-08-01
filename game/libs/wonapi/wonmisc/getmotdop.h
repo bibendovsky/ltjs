@@ -1,10 +1,10 @@
 #ifndef __WON_GETMOTDOP_H__
 #define __WON_GETMOTDOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/AsyncOpTracker.h"
-#include "WONCommon/ByteBuffer.h"
-#include "HTTPGetOp.h"
+#include "woncommon/asyncoptracker.h"
+#include "woncommon/bytebuffer.h"
+#include "httpgetop.h"
 
 namespace WONAPI
 {

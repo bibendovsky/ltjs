@@ -15,8 +15,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "BaseScreen.h"
-#include "BaseScaleFX.h"
+#include "basescreen.h"
+#include "basescalefx.h"
 
 class CScreenMain : public CBaseScreen
 {

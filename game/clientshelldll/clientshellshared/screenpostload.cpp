@@ -11,13 +11,13 @@
 
 
 #include "stdafx.h"
-#include "ScreenPostload.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "InterfaceMgr.h"
-#include "GameClientShell.h"
-#include "MissionMgr.h"
-#include "ClientMultiplayerMgr.h"
+#include "screenpostload.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "interfacemgr.h"
+#include "gameclientshell.h"
+#include "missionmgr.h"
+#include "clientmultiplayermgr.h"
 
 
 namespace

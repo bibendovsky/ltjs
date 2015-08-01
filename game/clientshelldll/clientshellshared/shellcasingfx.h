@@ -13,7 +13,7 @@
 #ifndef __SHELLCASING_FX_H__
 #define __SHELLCASING_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 #include "ltlink.h"
 #include "client_physics.h"
 

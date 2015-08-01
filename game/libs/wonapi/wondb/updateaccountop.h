@@ -1,11 +1,11 @@
 #ifndef __WON_UPDATEACCOUNTOP_H__
 #define __WON_UPDATEACCOUNTOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONServer/ServerRequestOp.h"
-#include "WONDB/ProfileData.h"
-#include "WONCrypt/ElGamal.h"
-#include "WONCrypt/Blowfish.h"
+#include "wonserver/serverrequestop.h"
+#include "wondb/profiledata.h"
+#include "woncrypt/elgamal.h"
+#include "woncrypt/blowfish.h"
 
 namespace WONAPI
 {

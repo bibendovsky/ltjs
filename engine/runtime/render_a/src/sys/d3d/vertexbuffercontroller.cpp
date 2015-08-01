@@ -1,7 +1,7 @@
 // VertexBufferController.cpp
 
 #include "precompile.h"
-#include "VertexBufferController.h"
+#include "vertexbuffercontroller.h"
 
 #include "d3d_device.h"
 #include "d3d_renderstatemgr.h"

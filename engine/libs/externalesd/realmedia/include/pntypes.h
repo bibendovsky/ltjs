@@ -16,8 +16,8 @@
  */
 
 #ifdef _VXWORKS
-#include "types/vxTypesOld.h"
-#include "vxWorks.h"
+#include "types/vxtypesold.h"
+#include "vxworks.h"
      /* md3 - added to override SENS macro. net/mbuf.h */
 #    ifdef m_flags
 #    undef m_flags
@@ -596,7 +596,7 @@ typedef ULONG32 PNXIMAGE;
 /* throw in some defines for VXWORKS */
 #define MAXPATHLEN 255
 
-#include "vxworks/MemOverd.h"
+#include "vxworks/memoverd.h"
 
 #endif
 

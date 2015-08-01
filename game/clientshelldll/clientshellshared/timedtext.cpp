@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
-#include "TimedText.h"
-#include "GameClientShell.h"
+#include "timedtext.h"
+#include "gameclientshell.h"
 
 // uncomment the next line if you want to do some extra debugging
 //#define TIMEDTEXT_DEBUG

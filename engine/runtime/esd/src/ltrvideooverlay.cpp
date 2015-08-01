@@ -12,7 +12,7 @@
 
 #ifdef LITHTECH_ESD
 
-#include "LTRVideoOverlay.h"
+#include "ltrvideooverlay.h"
 #include "iltesd.h"
 #include "interface_helpers.h"
 extern int32 g_ScreenWidth, g_ScreenHeight;

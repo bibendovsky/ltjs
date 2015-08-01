@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ATTACK_MELEE_H__
 #define __AIGOAL_ATTACK_MELEE_H__
 
-#include "AIGoalAttack.h"
+#include "aigoalattack.h"
 
 
 class CAIGoalAttackMelee : public CAIGoalAttack

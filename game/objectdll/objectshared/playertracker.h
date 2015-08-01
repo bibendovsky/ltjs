@@ -14,7 +14,7 @@
 #ifndef __PLAYERTRACKER_H__
 #define __PLAYERTRACKER_H__
 
-#include "LTObjRef.h"
+#include "ltobjref.h"
 
 class CPlayerObj;
 

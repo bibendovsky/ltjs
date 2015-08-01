@@ -13,8 +13,8 @@
 #ifndef __SERVERSAVELOADMGR_H__
 #define __SERVERSAVELOADMGR_H__
 
-#include "SaveLoadMgr.h"
-#include "PlayerTracker.h"
+#include "saveloadmgr.h"
+#include "playertracker.h"
 
 // 
 // Globals...

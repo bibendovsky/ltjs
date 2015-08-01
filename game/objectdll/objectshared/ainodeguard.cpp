@@ -10,11 +10,11 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AINodeGuard.h"
-#include "AINodeMgr.h"
-#include "AIUtils.h"
-#include "AITypes.h"
-#include "AIAssert.h"
+#include "ainodeguard.h"
+#include "ainodemgr.h"
+#include "aiutils.h"
+#include "aitypes.h"
+#include "aiassert.h"
 
 LINKFROM_MODULE( AINodeGuard );
 

@@ -13,8 +13,8 @@
 #ifndef __EXPLOSION_FX_H__
 #define __EXPLOSION_FX_H__
 
-#include "SpecialFX.h"
-#include "SharedFXStructs.h"
+#include "specialfx.h"
+#include "sharedfxstructs.h"
 
 class CExplosionFX : public CSpecialFX
 {

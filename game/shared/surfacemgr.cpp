@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "SurfaceMgr.h"
-#include "CommonUtilities.h"
-#include "FXButeMgr.h"
+#include "surfacemgr.h"
+#include "commonutilities.h"
+#include "fxbutemgr.h"
 
 #define SRFMGR_GLOBAL_TAG                       "Global"
 

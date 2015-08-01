@@ -11,7 +11,7 @@
 #ifndef __SERVER_BUTE_MGR_H__
 #define __SERVER_BUTE_MGR_H__
 
-#include "GameButeMgr.h"
+#include "gamebutemgr.h"
 #include "ltbasetypes.h"
 
 

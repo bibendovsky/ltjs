@@ -10,13 +10,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AISenseRecorderAbstract.h"
-#include "AI.h"
-#include "AIState.h"
-#include "AIGoalMgr.h"
-#include "AIStimulusMgr.h"
-#include "AIUtils.h"
-#include "PlayerObj.h"
+#include "aisenserecorderabstract.h"
+#include "ai.h"
+#include "aistate.h"
+#include "aigoalmgr.h"
+#include "aistimulusmgr.h"
+#include "aiutils.h"
+#include "playerobj.h"
 
 // ----------------------------------------------------------------------- //
 //

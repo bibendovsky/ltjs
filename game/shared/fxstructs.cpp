@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "FXStructs.h"
-#include "CommonUtilities.h"
+#include "fxstructs.h"
+#include "commonutilities.h"
 
 #define	SCALEFX_NAME				"Name"
 #define	SCALEFX_TYPE				"Type"

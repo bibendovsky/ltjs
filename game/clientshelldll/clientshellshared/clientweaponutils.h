@@ -12,7 +12,7 @@
 #define __CLIENT_WEAPON_UTILS_H__
 
 #include "ltbasedefs.h"
-#include "SurfaceMgr.h"
+#include "surfacemgr.h"
 
 // ----------------------------------------------------------------------- //
 //

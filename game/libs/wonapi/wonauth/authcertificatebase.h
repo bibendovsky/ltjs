@@ -1,8 +1,8 @@
 #ifndef __WON_AUTHCERTIFICATEBASE_H__
 #define __WON_AUTHCERTIFICATEBASE_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "AuthBase.h"
+#include "authbase.h"
 
 
 namespace WONAPI

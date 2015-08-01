@@ -11,9 +11,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MsgIDs.h"
-#include "SnowVolume.h"
-#include "DEditColors.h"
+#include "msgids.h"
+#include "snowvolume.h"
+#include "deditcolors.h"
 
 extern HSTRING ReadHStringProp(const char* pszPropName, ILTServer* pServer);
 

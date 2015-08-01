@@ -13,10 +13,10 @@
 #ifndef __CLIENT_UTILITIES_H__
 #define __CLIENT_UTILITIES_H__
 
-#include "SoundTypes.h"
+#include "soundtypes.h"
 #include "iltclient.h"
-#include "CommonUtilities.h"
-#include "SoundMgr.h"
+#include "commonutilities.h"
+#include "soundmgr.h"
 
 #define DEG2RAD(x)		(((x)*MATH_PI)/180.0f)
 #define RAD2DEG(x)		(((x)*180.0f)/MATH_PI)

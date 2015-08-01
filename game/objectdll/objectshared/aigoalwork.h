@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_WORK_H__
 #define __AIGOAL_WORK_H__
 
-#include "AIGoalAbstractUseObject.h"
+#include "aigoalabstractuseobject.h"
 
 
 class CAIGoalWork : public CAIGoalAbstractUseObject

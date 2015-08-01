@@ -3,9 +3,9 @@
 #ifndef __AI_SOUNDS_H__
 #define __AI_SOUNDS_H__
 
-#include "CharacterAlignment.h"
-#include "Character.h"
-#include "AISenseRecorderAbstract.h"
+#include "characteralignment.h"
+#include "character.h"
+#include "aisenserecorderabstract.h"
 
 class CAI;
 
@@ -17,7 +17,7 @@ enum EnumAISoundType
 	kAIS_InvalidType = -1,
 
 	#define AISOUND_TYPE_AS_ENUM 1
-	#include "AISoundTypeEnums.h"
+	#include "aisoundtypeenums.h"
 	#undef AISOUND_TYPE_AS_ENUM
 
 	kAIS_Count,
@@ -29,7 +29,7 @@ enum EnumAISoundType
 static const char* s_aszAISoundTypes[] =
 {
 	#define AISOUND_TYPE_AS_STRING 1
-	#include "AISoundTypeEnums.h"
+	#include "aisoundtypeenums.h"
 	#undef AISOUND_TYPE_AS_STRING
 };
 

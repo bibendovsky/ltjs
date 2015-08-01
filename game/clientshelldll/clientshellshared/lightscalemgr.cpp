@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "iltclient.h"
-#include "LightScaleMgr.h"
+#include "lightscalemgr.h"
 
 //the vector that indicates that a light scale is not used
 static const LTVector g_vInvalidLightScale(-1.0f, -1.0f, -1.0f);

@@ -1,6 +1,6 @@
 #ifndef __WON_PLATFORM_LINUX_H__
 #define __WON_PLATFORM_LINUX_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
 #define __cdecl
 

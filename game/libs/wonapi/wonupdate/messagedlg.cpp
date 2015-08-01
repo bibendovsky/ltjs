@@ -2,12 +2,12 @@
 // MessageDlg.cpp
 //----------------------------------------------------------------------------------
 #include <assert.h>
-#include "MessageDlg.h"
-#include "WONGUI/MSControls.h"
-#include "WONGUI/ChildLayouts.h"
-#include "WONGUI/SimpleComponent.h"
-#include "WizardCtrl.h"
-#include "CustomInfo.h"
+#include "messagedlg.h"
+#include "wongui/mscontrols.h"
+#include "wongui/childlayouts.h"
+#include "wongui/simplecomponent.h"
+#include "wizardctrl.h"
+#include "custominfo.h"
 
 
 using namespace WONAPI;

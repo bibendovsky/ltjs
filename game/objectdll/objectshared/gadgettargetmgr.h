@@ -17,9 +17,9 @@
 // Includes...
 //
 
-	#include "GameButeMgr.h"
-	#include "TemplateList.h"
-	#include "ButeListReader.h"
+	#include "gamebutemgr.h"
+	#include "templatelist.h"
+	#include "butelistreader.h"
 
 //
 // Forwards...

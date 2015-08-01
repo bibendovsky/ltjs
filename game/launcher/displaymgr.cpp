@@ -13,8 +13,8 @@
 
 // Includes...
 
-#include "StdAfx.h"
-#include "DisplayMgr.h"
+#include "stdafx.h"
+#include "displaymgr.h"
 #include "io.h"
 
 #include "d3d8.h"

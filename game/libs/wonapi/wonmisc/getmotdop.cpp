@@ -1,6 +1,6 @@
-#include "WONAPI.h"
-#include "GetMOTDOp.h"
-#include "WONCommon/StringUtil.h"
+#include "wonapi.h"
+#include "getmotdop.h"
+#include "woncommon/stringutil.h"
 
 using namespace WONAPI;
 using namespace std;

@@ -1,10 +1,10 @@
 #ifndef __WON_SOCKETTHREAD_H__
 #define __WON_SOCKETTHREAD_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "SocketOp.h"
-#include "WONCommon/Thread.h"
-#include "WONCommon/CriticalSection.h"
+#include "socketop.h"
+#include "woncommon/thread.h"
+#include "woncommon/criticalsection.h"
 
 namespace WONAPI
 {

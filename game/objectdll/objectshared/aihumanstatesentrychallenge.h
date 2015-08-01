@@ -22,7 +22,7 @@
 #endif // _MSC_VER >= 1000
 
 // Includes
-#include "AIHumanState.h"
+#include "aihumanstate.h"
 
 // Forward declarations
 

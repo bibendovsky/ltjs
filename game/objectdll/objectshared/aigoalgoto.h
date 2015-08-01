@@ -12,8 +12,8 @@
 #ifndef __AIGOAL_GOTO_H__
 #define __AIGOAL_GOTO_H__
 
-#include "AIGoalAbstract.h"
-#include "AnimationProp.h"
+#include "aigoalabstract.h"
+#include "animationprop.h"
 
 
 class CAIGoalGoto : public CAIGoalAbstract

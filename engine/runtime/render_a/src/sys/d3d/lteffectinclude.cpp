@@ -1,5 +1,5 @@
 #include "precompile.h"
-#include "LTEffectInclude.h"
+#include "lteffectinclude.h"
 #include "rendererconsolevars.h"
 
 //IClientFileMgr

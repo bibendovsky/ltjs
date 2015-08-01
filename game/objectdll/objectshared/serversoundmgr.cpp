@@ -11,8 +11,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ServerSoundMgr.h"
-#include "CommonUtilities.h"
+#include "serversoundmgr.h"
+#include "commonutilities.h"
 
 // Global pointer to server sound mgr...
 
@@ -149,7 +149,7 @@ HLTSOUND CServerSoundMgr::PlaySound(PlaySoundInfo & psi)
 //
 // ----------------------------------------------------------------------- //
 
-#include "AISounds.h"
+#include "aisounds.h"
 void CServerSoundMgr::FormatAttributeFile()
 {
 

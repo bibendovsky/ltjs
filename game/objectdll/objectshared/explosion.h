@@ -13,10 +13,10 @@
 #ifndef __EXPLOSION_H__
 #define __EXPLOSION_H__
 
-#include "GameBase.h"
-#include "DamageTypes.h"
-#include "FXButeMgr.h"
-#include "Timer.h"
+#include "gamebase.h"
+#include "damagetypes.h"
+#include "fxbutemgr.h"
+#include "timer.h"
 
 LINKTO_MODULE( Explosion );
 

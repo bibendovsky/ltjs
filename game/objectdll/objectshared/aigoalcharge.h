@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_CHARGE_H__
 #define __AIGOAL_CHARGE_H__
 
-#include "AIGoalAbstractStimulated.h"
+#include "aigoalabstractstimulated.h"
 
 
 class CAIGoalCharge : public CAIGoalAbstractStimulated

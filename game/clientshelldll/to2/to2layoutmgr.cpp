@@ -10,7 +10,7 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "TO2LayoutMgr.h"
+#include "to2layoutmgr.h"
 
 CLayoutMgr* g_pLayoutMgr = LTNULL;
 

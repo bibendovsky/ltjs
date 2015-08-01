@@ -14,8 +14,8 @@
 #define __SOUND_FX_H__
 
 #include "ltengineobjects.h"
-#include "SoundFilterMgr.h"
-#include "GameBase.h"
+#include "soundfiltermgr.h"
+#include "gamebase.h"
 
 LINKTO_MODULE( ServerSoundFx );
 

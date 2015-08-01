@@ -1,5 +1,5 @@
 #if defined(WIN32)
-#include "SocketThreadEx_Windows.cpp"
+#include "socketthreadex_windows.cpp"
 #elif defined(_LINUX)
-#include "SocketThreadEx_Linux.cpp"
+#include "socketthreadex_linux.cpp"
 #endif

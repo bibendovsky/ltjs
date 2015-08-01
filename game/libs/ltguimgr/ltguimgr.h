@@ -17,7 +17,7 @@
 #include "iltfontmanager.h"
 
 //TO2 specific 
-#include "..\..\shared\DebugNew.h"
+#include "..\..\shared\debugnew.h"
 
 #pragma warning( disable : 4786 )
 #include <vector>

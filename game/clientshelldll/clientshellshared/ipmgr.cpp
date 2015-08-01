@@ -15,7 +15,7 @@
 
 #include "stdafx.h"
 #include "iltclient.h"
-#include "IpMgr.h"
+#include "ipmgr.h"
 
 
 // Functions...

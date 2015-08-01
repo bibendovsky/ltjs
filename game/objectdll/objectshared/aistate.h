@@ -3,9 +3,9 @@
 #ifndef __AI_STATE_H__
 #define __AI_STATE_H__
 
-#include "MusicMgr.h"
-#include "AIClassFactory.h"
-#include "UberAssert.h"
+#include "musicmgr.h"
+#include "aiclassfactory.h"
+#include "uberassert.h"
 
 // Forward Declarations.
 struct DamageStruct;
@@ -21,7 +21,7 @@ class CParsedMsg;
 enum EnumAIStateType
 {
 	#define STATE_TYPE_AS_ENUM 1
-	#include "AIStateTypeEnums.h"
+	#include "aistatetypeenums.h"
 	#undef STATE_TYPE_AS_ENUM
 
 	kState_Count,
@@ -33,7 +33,7 @@ enum EnumAIStateType
 static const char* s_aszStateTypes[] =
 {
 	#define STATE_TYPE_AS_STRING 1
-	#include "AIStateTypeEnums.h"
+	#include "aistatetypeenums.h"
 	#undef STATE_TYPE_AS_STRING
 };
 

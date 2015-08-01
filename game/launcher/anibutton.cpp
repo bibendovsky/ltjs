@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "launcher.h"
-#include "AniButton.h"
+#include "anibutton.h"
 #include "dlgex.h"
 #include "playsound.h"
 #include "vfw.h"

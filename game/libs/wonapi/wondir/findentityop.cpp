@@ -1,5 +1,5 @@
-#include "FindEntityOp.h"
-#include "DirEntityReplyParser.h"
+#include "findentityop.h"
+#include "direntityreplyparser.h"
 
 using namespace WONAPI;
 ///////////////////////////////////////////////////////////////////////////////

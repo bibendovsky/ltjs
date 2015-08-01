@@ -19,7 +19,7 @@
 // MultiplayerDlg.h : header file
 //
 
-#include "AnimDlg.h"
+#include "animdlg.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // MultiplayerDlg dialog

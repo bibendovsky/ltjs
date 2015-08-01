@@ -10,8 +10,8 @@
 
 
 #include "stdafx.h"
-#include "ObjectiveControl.h"
-#include "InterfaceMgr.h"
+#include "objectivecontrol.h"
+#include "interfacemgr.h"
 
 LTBOOL CObjectiveCtrl::Create (const char *pText, 	CUIFont *pFont, uint8 nFontSize, uint16 nTextOffset, HTEXTURE hTex)
 {

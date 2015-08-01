@@ -9,13 +9,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ScreenEndMission.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ScreenPreload.h"
-#include "TronInterfaceMgr.h"
-#include "GameClientShell.h"
-#include "MissionMgr.h"
+#include "screenendmission.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "screenpreload.h"
+#include "troninterfacemgr.h"
+#include "gameclientshell.h"
+#include "missionmgr.h"
 
 namespace
 {

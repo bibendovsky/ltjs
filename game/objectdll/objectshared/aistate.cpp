@@ -1,14 +1,14 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AI.h"
-#include "AIState.h"
-#include "AINodeMgr.h"
-#include "AIVolumeMgr.h"
-#include "AITarget.h"
-#include "ParsedMsg.h"
-#include "AIUtils.h"
-#include "AIMovement.h"
+#include "ai.h"
+#include "aistate.h"
+#include "ainodemgr.h"
+#include "aivolumemgr.h"
+#include "aitarget.h"
+#include "parsedmsg.h"
+#include "aiutils.h"
+#include "aimovement.h"
 
 
 //DEFINE_SPECIFIC_AI_FACTORY(State);

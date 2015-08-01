@@ -3,10 +3,10 @@
 #ifndef __AI_MOVEMENT_H__
 #define __AI_MOVEMENT_H__
 
-#include "FastStack.h"
-#include "AnimationMovement.h"
-#include "AnimationProp.h"
-#include "AIVolume.h"
+#include "faststack.h"
+#include "animationmovement.h"
+#include "animationprop.h"
+#include "aivolume.h"
 
 class CAI;
 

@@ -1,7 +1,7 @@
 #ifndef __WON_MEDIAMETRIX_H__
 #define __WON_HEDIAMETRIX_H__
-#include "WONShared.h"
-#include "WONCommon/Platform.h"
+#include "wonshared.h"
+#include "woncommon/platform.h"
 #include <string>
 
 namespace WONAPI

@@ -11,9 +11,9 @@
 ********************************************************************************/
 
 #include "stdafx.h"
-#include "Launcher.h"
-#include "MessageBoxDlg.h"
-#include "ButtonEx.h"
+#include "launcher.h"
+#include "messageboxdlg.h"
+#include "buttonex.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

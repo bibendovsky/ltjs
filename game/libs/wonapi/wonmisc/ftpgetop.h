@@ -1,9 +1,9 @@
 #ifndef __WON_FTPGETOP_H__
 #define __WON_FTPGETOP_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONCommon/AsyncOpTracker.h"
-#include "WONSocket/BlockingSocket.h"
+#include "woncommon/asyncoptracker.h"
+#include "wonsocket/blockingsocket.h"
 
 
 namespace WONAPI

@@ -10,13 +10,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIGoalAttackProp.h"
-#include "AIGoalMgr.h"
-#include "AIHumanState.h"
-#include "AINodeMgr.h"
-#include "AIHuman.h"
-#include "AIGoalButeMgr.h"
-#include "Prop.h"
+#include "aigoalattackprop.h"
+#include "aigoalmgr.h"
+#include "aihumanstate.h"
+#include "ainodemgr.h"
+#include "aihuman.h"
+#include "aigoalbutemgr.h"
+#include "prop.h"
 
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalAttackProp, kGoal_AttackProp);
 

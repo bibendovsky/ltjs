@@ -9,17 +9,17 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "WeatherFX.h"
+#include "weatherfx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ParticleSystemFX.h"
-#include "SFXMgr.h"
-#include "GameClientShell.h"
+#include "clientutilities.h"
+#include "particlesystemfx.h"
+#include "sfxmgr.h"
+#include "gameclientshell.h"
 #include "iltphysics.h"
-#include "ClientWeaponUtils.h"
-#include "ClientButeMgr.h"
-#include "GameButes.h"
-#include "SurfaceFunctions.h"
+#include "clientweaponutils.h"
+#include "clientbutemgr.h"
+#include "gamebutes.h"
+#include "surfacefunctions.h"
 
 extern CClientButeMgr* g_pClientButeMgr;
 

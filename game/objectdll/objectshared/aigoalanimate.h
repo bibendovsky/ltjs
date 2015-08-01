@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_ANIMATE_H__
 #define __AIGOAL_ANIMATE_H__
 
-#include "AIGoalAbstract.h"
+#include "aigoalabstract.h"
 
 
 class CAIGoalAnimate : public CAIGoalAbstract

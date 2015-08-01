@@ -15,11 +15,11 @@
 //
 
 	#include "stdafx.h"
-	#include "ObjectMsgs.h"
-	#include "ParsedMsg.h"
-	#include "ContainerCodes.h"
-	#include "TransitionArea.h"
-	#include "TransitionMgr.h"
+	#include "objectmsgs.h"
+	#include "parsedmsg.h"
+	#include "containercodes.h"
+	#include "transitionarea.h"
+	#include "transitionmgr.h"
 
 LINKFROM_MODULE( TransitionArea );
 

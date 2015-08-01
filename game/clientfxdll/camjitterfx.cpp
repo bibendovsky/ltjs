@@ -14,7 +14,7 @@
 
 #include "stdafx.h"
 #include "clientfx.h"
-#include "CamJitterFX.h"
+#include "camjitterfx.h"
 
 // ----------------------------------------------------------------------- //
 //

@@ -2,16 +2,16 @@
 //
 //////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "ScreenHostMission.h"
-#include "ScreenMgr.h"
-#include "ScreenCommands.h"
-#include "ClientRes.h"
-#include "NetDefs.h"
-#include "profileMgr.h"
+#include "screenhostmission.h"
+#include "screenmgr.h"
+#include "screencommands.h"
+#include "clientres.h"
+#include "netdefs.h"
+#include "profilemgr.h"
 #include "clientmultiplayermgr.h"
-#include "WinUtil.h"
+#include "winutil.h"
 
-#include "GameClientShell.h"
+#include "gameclientshell.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

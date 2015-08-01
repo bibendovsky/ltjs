@@ -1,4 +1,4 @@
-#include "WONFile.h"
+#include "wonfile.h"
 #include <sys/stat.h>
 
 #ifdef WIN32

@@ -4,8 +4,8 @@
 #ifndef __AUTOMESSAGE_H__
 #define __AUTOMESSAGE_H__
 
-#include "ILTCommon.h"  // For g_pCommonLT
-#include "ILTMessage.h"
+#include "iltcommon.h"  // For g_pCommonLT
+#include "iltmessage.h"
 
 class ILTMessage_Write;
 class ILTMessage_Read;

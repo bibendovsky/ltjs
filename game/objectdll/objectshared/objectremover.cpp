@@ -9,10 +9,10 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "ObjectRemover.h"
-#include "ServerUtilities.h"
-#include "ObjectMsgs.h"
-#include "AIUtils.h"
+#include "objectremover.h"
+#include "serverutilities.h"
+#include "objectmsgs.h"
+#include "aiutils.h"
 #include "time.h"
 
 LINKFROM_MODULE( ObjectRemover );

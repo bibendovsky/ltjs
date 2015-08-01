@@ -15,9 +15,9 @@
 //
 
 	#include "stdafx.h"
-	#include "GadgetTargetMgr.h"
-	#include "WeaponMgr.h"
-	#include "FXButeMgr.h"
+	#include "gadgettargetmgr.h"
+	#include "weaponmgr.h"
+	#include "fxbutemgr.h"
 
 //
 // Define...

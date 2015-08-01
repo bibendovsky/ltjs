@@ -13,8 +13,8 @@
 #ifndef __PROJECTILE_TYPES_H__
 #define __PROJECTILE_TYPES_H__
 
-#include "Projectile.h"
-#include "Timer.h"
+#include "projectile.h"
+#include "timer.h"
 
 struct PROXCLASSDATA;
 struct KITTYCLASSDATA;

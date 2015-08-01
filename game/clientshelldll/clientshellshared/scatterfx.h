@@ -13,7 +13,7 @@
 #ifndef __SCATTER_FX_H__
 #define __SCATTER_FX_H__
 
-#include "SpecialFX.h"
+#include "specialfx.h"
 
 
 #define SCATTER_BLINDOBJECTID		0x73f53a84	// ID for scatter blind object data

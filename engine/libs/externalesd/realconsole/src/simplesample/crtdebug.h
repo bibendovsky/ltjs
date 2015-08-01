@@ -35,7 +35,7 @@
 #include <windows.h>
 #include <windef.h>
 #include <winnt.h>
-#include <Tchar.h>
+#include <tchar.h>
 
 #define ASSERT	_ASSERT				// use the CRT version of ASSERT
 

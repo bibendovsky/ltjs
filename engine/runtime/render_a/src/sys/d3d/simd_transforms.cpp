@@ -9,7 +9,7 @@
 //#include "Model.h"
 //#include "de_world.h"
 //#include "VertexBufferController.h"
-#include "SimD_Utilities.h"
+#include "simd_utilities.h"
 
 
 //#include "setupmodel.h"

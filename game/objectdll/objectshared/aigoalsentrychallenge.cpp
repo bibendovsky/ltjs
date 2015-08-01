@@ -23,15 +23,15 @@
 // Includes
 #include "stdafx.h"
 
-#include "AIGoalSentryChallenge.h"		
-#include "AnimationProp.h"
-#include "AIHumanStateSentryChallenge.h"
-#include "AIGoalMgr.h"
-#include "AIHuman.h"
-#include "AISenseRecorderAbstract.h"
-#include "AITarget.h"
-#include "Weapon.h"
-#include "AIUtils.h"
+#include "aigoalsentrychallenge.h"		
+#include "animationprop.h"
+#include "aihumanstatesentrychallenge.h"
+#include "aigoalmgr.h"
+#include "aihuman.h"
+#include "aisenserecorderabstract.h"
+#include "aitarget.h"
+#include "weapon.h"
+#include "aiutils.h"
 
 // Forward declarations
 

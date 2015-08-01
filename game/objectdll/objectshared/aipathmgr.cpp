@@ -1,19 +1,19 @@
 // (c) 1997-2000 Monolith Productions, Inc.  All Rights Reserved
 
 #include "stdafx.h"
-#include "AIPathMgr.h"
-#include "AIPath.h"
-#include "AI.h"
-#include "AIRegionMgr.h"
-#include "AIVolumeMgr.h"
-#include "AINodeMgr.h"
-#include "FastHeap.h"
-#include "ProjectileTypes.h"
-#include "Door.h"
-#include "AIInformationVolumeMgr.h"
-#include "AIBrain.h"
-#include "AIMovement.h"
-#include "AIPathKnowledgeMgr.h"
+#include "aipathmgr.h"
+#include "aipath.h"
+#include "ai.h"
+#include "airegionmgr.h"
+#include "aivolumemgr.h"
+#include "ainodemgr.h"
+#include "fastheap.h"
+#include "projectiletypes.h"
+#include "door.h"
+#include "aiinformationvolumemgr.h"
+#include "aibrain.h"
+#include "aimovement.h"
+#include "aipathknowledgemgr.h"
 
 #define CURVE_SUBDIVISION_DEPTH 5
 #define CURVE_MIN_ANGLE_DELTA_SLOW 10.f

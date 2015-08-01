@@ -15,7 +15,7 @@
 //
 	
 	#include "stdafx.h"
-	#include "SpinningWorldModel.h"
+	#include "spinningworldmodel.h"
 
 //
 // Defines...

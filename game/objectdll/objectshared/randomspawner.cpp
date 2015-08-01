@@ -9,9 +9,9 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "RandomSpawner.h"
-#include "ServerUtilities.h"
-#include "ObjectMsgs.h"
+#include "randomspawner.h"
+#include "serverutilities.h"
+#include "objectmsgs.h"
 
 LINKFROM_MODULE( RandomSpawner );
 

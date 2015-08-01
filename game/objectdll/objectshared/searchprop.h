@@ -13,8 +13,8 @@
 #ifndef __SEARCH_PROP_H__
 #define __SEARCH_PROP_H__
 
-#include "PropType.h"
-#include "Searchable.h"
+#include "proptype.h"
+#include "searchable.h"
 
 LINKTO_MODULE( SearchProp );
 

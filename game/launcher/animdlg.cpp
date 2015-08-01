@@ -11,8 +11,8 @@
 ********************************************************************************/
 
 #include "stdafx.h"
-#include "AnimDlg.h"
-#include "PlaySound.h"
+#include "animdlg.h"
+#include "playsound.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

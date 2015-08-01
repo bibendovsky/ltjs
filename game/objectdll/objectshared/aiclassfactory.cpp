@@ -10,8 +10,8 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "AIClassFactory.h"
-#include "AIUtils.h"
+#include "aiclassfactory.h"
+#include "aiutils.h"
 
 
 // Globals/Statics

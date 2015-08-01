@@ -9,13 +9,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "DoomsdayPieceFX.h"
+#include "doomsdaypiecefx.h"
 #include "iltclient.h"
-#include "ClientUtilities.h"
-#include "ClientServerShared.h"
-#include "GameClientShell.h"
-#include "SFXMsgIds.h"
-#include "HUDMgr.h"
+#include "clientutilities.h"
+#include "clientservershared.h"
+#include "gameclientshell.h"
+#include "sfxmsgids.h"
+#include "hudmgr.h"
 
 extern CGameClientShell* g_pGameClientShell;
 

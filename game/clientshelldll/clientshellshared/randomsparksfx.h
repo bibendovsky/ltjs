@@ -11,7 +11,7 @@
 #ifndef __RANDOM_SPARKS_FX_H__
 #define __RANDOM_SPARKS_FX_H__
 
-#include "BaseParticleSystemFX.h"
+#include "baseparticlesystemfx.h"
 
 struct RANDOMSPARKSCREATESTRUCT : public BPSCREATESTRUCT
 {

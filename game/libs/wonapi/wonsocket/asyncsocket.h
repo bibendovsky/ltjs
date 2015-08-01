@@ -1,12 +1,12 @@
 #ifndef __WON_ASYNCSOCKET_H__
 #define __WON_ASYNCSOCKET_H__
-#include "WONShared.h"
+#include "wonshared.h"
 
-#include "WONStatus.h"
-#include "WONCommon/CriticalSection.h"
-#include "WONCommon/SmartPtr.h"
-#include "WONCommon/ByteBuffer.h"
-#include "IPAddr.h"
+#include "wonstatus.h"
+#include "woncommon/criticalsection.h"
+#include "woncommon/smartptr.h"
+#include "woncommon/bytebuffer.h"
+#include "ipaddr.h"
 
 #include <list>
 

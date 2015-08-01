@@ -1,5 +1,5 @@
-#include "WONAPI.h"
-#include "WONServer/PingOp.h"
+#include "wonapi.h"
+#include "wonserver/pingop.h"
 #include <iostream>
 
 using namespace std;

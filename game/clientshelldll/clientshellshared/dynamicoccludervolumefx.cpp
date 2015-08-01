@@ -15,7 +15,7 @@
 //
 
 	#include "stdafx.h"
-	#include "DynamicOccluderVolumeFX.h"
+	#include "dynamicoccludervolumefx.h"
 
 
 // ----------------------------------------------------------------------- //

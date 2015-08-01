@@ -13,10 +13,10 @@
 #ifndef __LASER_TRIGGER_FX_H__
 #define __LASER_TRIGGER_FX_H__
 
-#include "SpecialFX.h"
-#include "SharedFXStructs.h"
-#include "PolyLineFX.h"
-#include "BaseScaleFX.h"
+#include "specialfx.h"
+#include "sharedfxstructs.h"
+#include "polylinefx.h"
+#include "basescalefx.h"
 
 class CLaserTriggerFX : public CSpecialFX
 {

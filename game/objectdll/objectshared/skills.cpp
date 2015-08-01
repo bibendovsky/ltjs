@@ -9,13 +9,13 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "MsgIds.h"
-#include "Skills.h"
-#include "MissionButeMgr.h"
-#include "GameServerShell.h"
-#include "ParsedMsg.h"
-#include "ServerMissionMgr.h"
-#include "PlayerObj.h"
+#include "msgids.h"
+#include "skills.h"
+#include "missionbutemgr.h"
+#include "gameservershell.h"
+#include "parsedmsg.h"
+#include "servermissionmgr.h"
+#include "playerobj.h"
 
 // Constructor
 CSkills::CSkills()

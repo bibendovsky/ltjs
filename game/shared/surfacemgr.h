@@ -13,9 +13,9 @@
 #ifndef __SURFACE_MGR_H__
 #define __SURFACE_MGR_H__
 
-#include "GameButeMgr.h"
-#include "TemplateList.h"
-#include "SurfaceDefs.h"
+#include "gamebutemgr.h"
+#include "templatelist.h"
+#include "surfacedefs.h"
 
 class CSurfaceMgr;
 struct CScaleFX;

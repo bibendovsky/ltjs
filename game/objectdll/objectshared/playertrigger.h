@@ -17,7 +17,7 @@
 // Includes...
 //
 
-	#include "Trigger.h"
+	#include "trigger.h"
 
 LINKTO_MODULE( PlayerTrigger )
 

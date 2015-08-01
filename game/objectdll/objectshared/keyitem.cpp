@@ -9,15 +9,15 @@
 // ----------------------------------------------------------------------- //
 
 #include "stdafx.h"
-#include "KeyItem.h"
-#include "ObjectMsgs.h"
-#include "ParsedMsg.h"
-#include "PlayerObj.h"
-#include "CommandMgr.h"
-#include "ServerSoundMgr.h"
-#include "GameServerShell.h"
-#include "ServerSpecialFX.h"
-#include "FxFlags.h"
+#include "keyitem.h"
+#include "objectmsgs.h"
+#include "parsedmsg.h"
+#include "playerobj.h"
+#include "commandmgr.h"
+#include "serversoundmgr.h"
+#include "gameservershell.h"
+#include "serverspecialfx.h"
+#include "fxflags.h"
 
 LINKFROM_MODULE( KeyItem );
 

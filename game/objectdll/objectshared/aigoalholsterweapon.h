@@ -12,7 +12,7 @@
 #ifndef __AIGOAL_HOLSTER_WEAPON_H__
 #define __AIGOAL_HOLSTER_WEAPON_H__
 
-#include "AIGoalAbstract.h"
+#include "aigoalabstract.h"
 
 
 class CAIGoalHolsterWeapon : public CAIGoalAbstract

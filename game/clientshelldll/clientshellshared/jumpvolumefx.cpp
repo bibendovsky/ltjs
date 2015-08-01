@@ -15,7 +15,7 @@
 //
 
 	#include "stdafx.h"
-	#include "JumpVolumeFX.h"
+	#include "jumpvolumefx.h"
 
 
 
