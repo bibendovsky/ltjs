@@ -30,6 +30,7 @@
 #include "aiassert.h"
 
 #include <algorithm>
+#include <functional>
 
 // Forward declarations
 
@@ -870,7 +871,11 @@ int CRelationUser::Save(ILTMessage_Write *pMsg)
 	// Save each of the Active Relationships
 	std::for_each( m_Momentos.begin(),
 		m_Momentos.end(),
+#if _MSC_VER >= 1900
+        std::bind2nd(std::mem_fun(&RelationMomento::Save), pMsg));
+#else
 		std::bind2nd( std::mem_fun1(&RelationMomento::Save), pMsg ));
+#endif
 
 	SAVE_TIME( m_flTimeRelationsLast );
 

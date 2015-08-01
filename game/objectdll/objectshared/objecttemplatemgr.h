@@ -4,10 +4,38 @@
 #ifndef __OBJECTTEMPLATEMGR_H__
 #define __OBJECTTEMPLATEMGR_H__
 
+#if _MSC_VER >= 1900
+#include <unordered_map>
+#else
 #include <hash_map>
+#endif
 
 
-#if _MSC_VER >= 1300
+#if _MSC_VER >= 1900
+
+class ObjectTemplateMgrHashCompare {
+public:
+    size_t operator()(
+        const std::string& key) const
+    {
+        uint32 hash = 0;
+
+        for (auto ch : key) {
+            hash = (13 * hash) + (::toupper(ch) - '@');
+        }
+
+        return hash;
+    }
+
+    bool operator()(
+        const std::string& key1,
+        const std::string& key2) const
+    {
+        return ::stricmp(key1.c_str(), key2.c_str()) == 0;
+    }
+}; // ObjectTemplateMgrHashCompare
+
+#elif _MSC_VER >= 1300
 
 class ObjectTemplateMgrHashCompare
 {
@@ -80,9 +108,13 @@ protected:
 
 	typedef std::hash_map< std::string, ObjectCreateStruct, ObjectTemplateMgrHashCompare > TTemplateMap;
 
-#elif _MSC_VER > 1300
+#elif _MSC_VER > 1300 && _MSC_VER < 1900
 
 	typedef stdext::hash_map< std::string, ObjectCreateStruct, ObjectTemplateMgrHashCompare > TTemplateMap;
+
+#elif _MSC_VER >= 1900
+
+    typedef std::unordered_map< std::string, ObjectCreateStruct, ObjectTemplateMgrHashCompare, ObjectTemplateMgrHashCompare > TTemplateMap;
 
 #else
 

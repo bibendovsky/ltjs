@@ -113,8 +113,10 @@ public:
 	// Used to define map of strings to CSymTabItems.
 #if _MSC_VER == 1300
 	typedef std::hash_map< char const*, CReservedWord, ButeMgrHashCompare > ReservedWordMap;
-#elif _MSC_VER > 1300  // NET 2003
+#elif _MSC_VER > 1300 && _MSC_VER < 1900 // NET 2003
 	typedef stdext::hash_map< char const*, CReservedWord, ButeMgrHashCompare > ReservedWordMap;
+#elif _MSC_VER >= 1900  // VC 14.0
+    typedef std::unordered_map< char const*, CReservedWord, ButeMgrHashCompare, ButeMgrHashCompare > ReservedWordMap;
 #else
 	typedef std::hash_map< char const*, CReservedWord, hash_str_nocase, equal_str_nocase > ReservedWordMap;
 #endif // NEXT2002

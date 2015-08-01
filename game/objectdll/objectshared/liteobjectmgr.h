@@ -74,9 +74,13 @@ private:
 
 	typedef std::hash_map< const char *, GameBaseLite *, ButeMgrHashCompare > TNameMap;
 
-#elif _MSC_VER > 1300
+#elif _MSC_VER > 1300 && _MSC_VER < 1900
 
 	typedef stdext::hash_map< const char *, GameBaseLite *, ButeMgrHashCompare > TNameMap;
+
+#elif _MSC_VER >= 1900
+
+    typedef std::unordered_map< const char *, GameBaseLite *, ButeMgrHashCompare, ButeMgrHashCompare > TNameMap;
 
 #else
 

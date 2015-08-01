@@ -21,8 +21,13 @@
 #include <map>
 #include <set>
 #include <functional>
+#if _MSC_VER >= 1900
+#include <unordered_set>
+#include <unordered_map>
+#else
 #include <hash_set>
 #include <hash_map>
+#endif
 #if _MSC_VER >= 1300
 #	include <iosfwd>
 #	include <strstream>
@@ -35,7 +40,31 @@
 #include <fstream>
 
 
-#if _MSC_VER >= 1300
+#if _MSC_VER >= 1900
+
+class ButeMgrHashCompare {
+public:
+    size_t operator()(
+        const char* key) const
+    {
+        uint32 hash = 0;
+
+        for (; *key; ++key) {
+            hash = (13 * hash) + (::toupper(*key) - '@');
+        }
+
+        return hash;
+    }
+
+    bool operator()(
+        const char* key1,
+        const char* key2) const
+    {
+        return ::stricmp(key1, key2) == 0;
+    }
+}; // ButeMgrHashCompare
+
+#elif _MSC_VER >= 1300
 
 class ButeMgrHashCompare
 {
@@ -348,7 +377,7 @@ private:
 
 	// Used to define map of strings to TableOfItems.
 	typedef std::hash_map< char const*, TableOfItems*, ButeMgrHashCompare > TableOfTags;
-#elif _MSC_VER > 1300  // NET 2003
+#elif _MSC_VER > 1300 && _MSC_VER < 1900 // NET 2003
 	// Used to define dictionary of strings.
 	// This must be case sensitive!
 	typedef stdext::hash_set< CString, ButeMgrHashCompare > StringHolder;
@@ -358,6 +387,16 @@ private:
 
 	// Used to define map of strings to TableOfItems.
 	typedef stdext::hash_map< char const*, TableOfItems*, ButeMgrHashCompare > TableOfTags;
+#elif _MSC_VER >= 1900  // VC 14.0
+    // Used to define dictionary of strings.
+    // This must be case sensitive!
+    typedef std::unordered_set< CString, ButeMgrHashCompare, ButeMgrHashCompare > StringHolder;
+
+    // Used to define map of strings to CSymTabItems.
+    typedef std::unordered_map< char const*, CSymTabItem*, ButeMgrHashCompare, ButeMgrHashCompare > TableOfItems;
+
+    // Used to define map of strings to TableOfItems.
+    typedef std::unordered_map< char const*, TableOfItems*, ButeMgrHashCompare, ButeMgrHashCompare > TableOfTags;
 #else
 	// Used to define dictionary of strings.
 	// This must be case sensitive!

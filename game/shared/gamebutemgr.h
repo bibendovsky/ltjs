@@ -14,7 +14,11 @@
 #include "butemgr.h"
 
 #pragma warning( disable : 4786 )
+#if _MSC_VER >= 1900
+#include <unordered_map>
+#else
 #include <hash_map>
+#endif
 
 
 void GBM_DisplayError(const char* szMsg);
@@ -30,9 +34,13 @@ void GBM_DisplayError(const char* szMsg);
 
 typedef std::hash_map< const char *, int, ButeMgrHashCompare > IndexTable;
 
-#elif _MSC_VER > 1300
+#elif _MSC_VER > 1300 && _MSC_VER < 1900
 
 typedef stdext::hash_map< const char *, int, ButeMgrHashCompare > IndexTable;
+
+#elif _MSC_VER >= 1900
+
+typedef std::unordered_map< const char *, int, ButeMgrHashCompare, ButeMgrHashCompare > IndexTable;
 
 #else
 
