@@ -67,6 +67,10 @@ function(ltjs_add_default_options)
         add_compile_options(-wd4996)
     endif ()
 
+    if (NOT MSVC)
+        add_compile_options("-std=c++11")
+    endif ()
+
     # ---------------------
     # Debug compile options
     # ---------------------
