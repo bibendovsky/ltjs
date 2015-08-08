@@ -321,7 +321,7 @@ If the instance name is \b Default, the more simple \b define_holder macro may b
     /* for this holder definition in a compiled object file.             */         \
     static SStaticSearchHolder                                                      \
         __var_search_holder_##interface_name##_##instance_name##_= {                \
-            SEARCH_MARKER_HOLDER, SEARCH_MARKER_INT,                                \
+            SEARCH_MARKER_HOLDER, static_cast<int32>(SEARCH_MARKER_INT),            \
             #interface_name, #instance_name,                                        \
             interface_name::_##interface_name##_VERSION_};                          \
     /* Define the holder variable itself. */                                        \

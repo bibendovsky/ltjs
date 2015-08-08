@@ -895,6 +895,9 @@ public:
 	LTVector3f m_O;
 
 public:
+    using T::TransformVectorToLocal;
+    using T::TransformVectorToParent;
+
 
 	LTCoordinateFrame()
 		:	m_O(0,0,0)
@@ -1076,6 +1079,7 @@ public:
 		T::Rotate( v );
 	}
 
+#if 0
 	/*!
 	\param	a	the angle through which to rotate this frame
 	\param	u	the axis about which to rotate this frame
@@ -1098,6 +1102,7 @@ public:
 		//rotate the local axes
 		this->Rotate( a, u );
 	}
+#endif
 
 	/*!
 	\param v	

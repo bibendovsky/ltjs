@@ -1612,6 +1612,9 @@ Number of valid objects in m_pList.
 template<class T, int size>
 class ObjArray : public BaseObjArray<T> {
 public:
+    using BaseObjArray<T>::m_pArray;
+    using BaseObjArray<T>::m_MaxListSize;
+
     ObjArray() {
         m_pArray = m_Array;
         m_MaxListSize = size;
