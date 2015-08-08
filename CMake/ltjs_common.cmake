@@ -24,6 +24,9 @@ function(ltjs_add_default_options)
     if (MSVC)
         add_compile_options($<$<CONFIG:DEBUG>:-D_CRT_SECURE_NO_WARNINGS>)
         add_compile_options($<$<CONFIG:DEBUG>:-D_ITERATOR_DEBUG_LEVEL=0>)
+
+        # Accept deprecated containers for Visual C++ 14
+        add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS)
     endif ()
 
 

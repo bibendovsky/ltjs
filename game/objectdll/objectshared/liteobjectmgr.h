@@ -70,45 +70,10 @@ public:
 
 private:
 
-#if _MSC_VER == 1300
-
-	typedef std::hash_map< const char *, GameBaseLite *, ButeMgrHashCompare > TNameMap;
-
-#elif _MSC_VER > 1300 && _MSC_VER < 1900
-
-	typedef stdext::hash_map< const char *, GameBaseLite *, ButeMgrHashCompare > TNameMap;
-
-#elif _MSC_VER >= 1900
-
-    typedef std::unordered_map< const char *, GameBaseLite *, ButeMgrHashCompare, ButeMgrHashCompare > TNameMap;
-
+#ifdef __MINGW32__
+    typedef __gnu_cxx::hash_map< const char *, GameBaseLite *, ButeMgrHashCompare > TNameMap;
 #else
-
-	struct eqstr_nocase
-	{
-		bool operator()(const char* s1, const char* s2) const
-		{
-			return stricmp(s1, s2) == 0;
-		}
-	};
-
-	struct hash_str_nocase
-	{
-		unsigned long operator()(const char* str) const
-		{
-			unsigned long hash = 0;
-			for ( ; *str; ++str)
-				hash = 5*hash + tolower(*str);
-
-			return hash;
-		}
-	};
-
-	// The map for storing the name/GameBaseLite* association
-	// Note : I happen to know that the lite game object names are stored in the object...
-	// If that changes, the const char * part of this would need changing...
-	typedef std::hash_map<const char *, GameBaseLite *, hash_str_nocase, eqstr_nocase> TNameMap;
-
+    typedef stdext::hash_map< const char *, GameBaseLite *, ButeMgrHashCompare > TNameMap;
 #endif // VC7
 
 private:
