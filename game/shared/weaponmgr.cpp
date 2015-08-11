@@ -1552,16 +1552,27 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 
 	// Use the members as the default value incase the attribute doesn't exist...
 
+    CAVector tmp_vector;
 	nNameId					= buteMgr.GetInt( aTagName, WMGR_WEAPON_NAMEID, nNameId );
 	nDescriptionId          = buteMgr.GetInt( aTagName, WMGR_WEAPON_DESCRIPTIONID, nDescriptionId );
 	nIsAmmoNoPickupId		= buteMgr.GetInt( aTagName, WMGR_WEAPON_ISAMMONOPICKUPID, nIsAmmoNoPickupId );
 	nClientWeaponType       = buteMgr.GetInt( aTagName, WMGR_WEAPON_CLIENT_WEAPON_TYPE, nClientWeaponType );
 	nAniType                = buteMgr.GetInt( aTagName, WMGR_WEAPON_ANITYPE, nAniType );
-	vPos                    = buteMgr.GetVector( aTagName, WMGR_WEAPON_POS, CAVector( VEC_EXPAND(vPos) ));
-	vMuzzlePos              = buteMgr.GetVector( aTagName, WMGR_WEAPON_MUZZLEPOS, CAVector( VEC_EXPAND(vMuzzlePos) ));
-	vBreachOffset           = buteMgr.GetVector( aTagName, WMGR_WEAPON_BREACHOFFSET, CAVector( VEC_EXPAND(vBreachOffset) ));
-	vHHScale                = buteMgr.GetVector( aTagName, WMGR_WEAPON_HHSCALE, CAVector( VEC_EXPAND(vHHScale) ));
-	vRecoil                 = buteMgr.GetVector( aTagName, WMGR_WEAPON_RECOIL, CAVector( VEC_EXPAND(vRecoil) ));
+
+    tmp_vector = CAVector(VEC_EXPAND(vPos));
+	vPos                    = buteMgr.GetVector( aTagName, WMGR_WEAPON_POS, tmp_vector);
+
+    tmp_vector = CAVector(VEC_EXPAND(vMuzzlePos));
+	vMuzzlePos              = buteMgr.GetVector( aTagName, WMGR_WEAPON_MUZZLEPOS, tmp_vector);
+
+    tmp_vector = CAVector(VEC_EXPAND(vBreachOffset));
+	vBreachOffset           = buteMgr.GetVector( aTagName, WMGR_WEAPON_BREACHOFFSET, tmp_vector);
+
+    tmp_vector = CAVector(VEC_EXPAND(vHHScale));
+	vHHScale                = buteMgr.GetVector( aTagName, WMGR_WEAPON_HHSCALE, tmp_vector);
+
+    tmp_vector = CAVector(VEC_EXPAND(vRecoil));
+	vRecoil                 = buteMgr.GetVector( aTagName, WMGR_WEAPON_RECOIL, tmp_vector);
 
 	// The name is only set in the Init so we cannot override it!
 	// DO NOT list name here.
@@ -2621,7 +2632,10 @@ void MOD::InitMembers( CButeMgr &buteMgr, char *aTagName )
 	nPriority			= buteMgr.GetInt( aTagName, WMGR_MOD_PRIORITY, nPriority );
     bIntegrated         = (LTBOOL) buteMgr.GetInt( aTagName, WMGR_MOD_INTEGRATED, bIntegrated );
 	fScreenTintTime		= (LTFLOAT) buteMgr.GetDouble( aTagName, WMGR_MOD_TINT_TIME, fScreenTintTime );
-	vScreenTintColor	= buteMgr.GetVector( aTagName, WMGR_MOD_TINT_COLOR, CAVector( VEC_EXPAND(vScreenTintColor) ));
+
+    CAVector tmp_vector(VEC_EXPAND(vScreenTintColor));
+	vScreenTintColor	= buteMgr.GetVector( aTagName, WMGR_MOD_TINT_COLOR, tmp_vector);
+
 	fPowerupScale		= (LTFLOAT) buteMgr.GetDouble( aTagName, WMGR_MOD_POWERUPSCALE, fPowerupScale );
 	nAISilencedFireSndRadius = buteMgr.GetInt( aTagName, WMGR_MOD_SILENCESND_RADIUS, nAISilencedFireSndRadius );
 
@@ -2842,7 +2856,8 @@ void GEAR::InitMembers( CButeMgr &buteMgr, char *aTagName )
 	fProtection			= (fProtection < 0.0f ? 0.0f : (fProtection > 1.0f ? 1.0f : fProtection));
 	fStealth			= (fStealth < 0.0f ? 0.0f : (fStealth > 1.0f ? 1.0f : fStealth));
 
-	vScreenTintColor	= buteMgr.GetVector( aTagName, WMGR_GEAR_TINT_COLOR, CAVector( VEC_EXPAND( vScreenTintColor ) ));
+    CAVector tmp_vector(VEC_EXPAND(vScreenTintColor));
+	vScreenTintColor	= buteMgr.GetVector( aTagName, WMGR_GEAR_TINT_COLOR, tmp_vector);
 
 
 	// The name is only set in the Init so we cannot override it!

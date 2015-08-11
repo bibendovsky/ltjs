@@ -500,7 +500,8 @@ void CMuzzleFlashFX::SetRot(const LTRotation &rRot)
 		{
 			if (g_vtReallyClose.GetFloat())
 			{
-				g_pLTClient->SetObjectRotation(hObj, &LTRotation());
+                LTRotation rotation;
+				g_pLTClient->SetObjectRotation(hObj, &rotation);
 			}
 			else
 			{

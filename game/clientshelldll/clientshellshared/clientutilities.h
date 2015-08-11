@@ -17,6 +17,7 @@
 #include "iltclient.h"
 #include "commonutilities.h"
 #include "soundmgr.h"
+#include "clientservershared.h"
 
 #define DEG2RAD(x)		(((x)*MATH_PI)/180.0f)
 #define RAD2DEG(x)		(((x)*180.0f)/MATH_PI)

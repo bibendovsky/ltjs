@@ -354,7 +354,7 @@ private :
 
 	enum DSSL { eDSBottomLeft, eDSBottomRight };
 	
-	void	SetDebugString(char* strMessage, DSSL eLoc=eDSBottomRight, uint8 nLine=0);
+	void	SetDebugString(const char* strMessage, DSSL eLoc=eDSBottomRight, uint8 nLine=0);
 	void	ClearDebugStrings();
 	void	RenderDebugStrings();
 

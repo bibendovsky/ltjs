@@ -3606,7 +3606,7 @@ void CGameClientShell::UpdateDebugInfo()
 //
 // --------------------------------------------------------------------------- //
 
-void CGameClientShell::SetDebugString(char* strMessage, DSSL eLoc, uint8 nLine)
+void CGameClientShell::SetDebugString(const char* strMessage, DSSL eLoc, uint8 nLine)
 {
 	if (!strMessage || strMessage[0] == '\0') return;
 	if (nLine < 0 || nLine >= kMaxDebugStrings) return;

@@ -3266,7 +3266,8 @@ void CVehicleMgr::CalculateLureVehicleRotation(LTVector & vPlayerPYR,
 	float fAmount;
 	float fPitchPercent;
 	float fRollPercent;
-	GetContouringInfo( vPlayerF, rRot.Up( ), fAmount, fPitchPercent, fRollPercent );
+    auto up_vector = rRot.Up();
+	GetContouringInfo( vPlayerF, up_vector, fAmount, fPitchPercent, fRollPercent );
 
 	vPYR.z = fAmount * fRollPercent;
 

@@ -26,7 +26,7 @@ public:
 	}
 
 	//copy constructor
-	CPolyGridBuffer(const CPolyGridBuffer<typename T>& rhs) :
+	CPolyGridBuffer(const CPolyGridBuffer<T>& rhs) :
 		m_pData(NULL), m_nWidth(0), m_nHeight(0), m_bOwnBuffer(false)
 	{
 		*this = rhs;
@@ -85,7 +85,7 @@ public:
 	}
 
 	//assignement operator
-	CPolyGridBuffer<typename T>& operator=(const CPolyGridBuffer<typename T>& rhs)
+	CPolyGridBuffer<T>& operator=(const CPolyGridBuffer<T>& rhs)
 	{
 		if(Resize(rhs.GetWidth(), rhs.GetHeight()))
 		{

@@ -1385,7 +1385,8 @@ void CPlayerMgr::HandleMsgPlayerDamage (ILTMessage_Read *pMsg)
 
 			if( dmgFlag & pDamageFX->m_nDamageFlag || pDamageFX->m_vtTestFX.GetFloat() > 0.0f )
 			{
-				CLIENTFX_CREATESTRUCT fxInit( pDamageFX->m_szTakingHealthFXName, FXFLAG_REALLYCLOSE, LTVector(0,0,0) ); 
+                LTVector zero_vector(0, 0, 0);
+				CLIENTFX_CREATESTRUCT fxInit( pDamageFX->m_szTakingHealthFXName, FXFLAG_REALLYCLOSE, zero_vector ); 
 				g_pClientFXMgr->CreateClientFX( LTNULL, fxInit, LTTRUE );
 			}
 			
@@ -1403,7 +1404,8 @@ void CPlayerMgr::HandleMsgPlayerDamage (ILTMessage_Read *pMsg)
 
 			if( dmgFlag & pDamageFX->m_nDamageFlag || pDamageFX->m_vtTestFX.GetFloat() > 0.0f )
 			{
-				CLIENTFX_CREATESTRUCT fxInit( pDamageFX->m_szTakingArmorFXName, FXFLAG_REALLYCLOSE, LTVector(0,0,0) ); 
+                LTVector zero_vector(0, 0, 0);
+				CLIENTFX_CREATESTRUCT fxInit( pDamageFX->m_szTakingArmorFXName, FXFLAG_REALLYCLOSE, zero_vector ); 
 				g_pClientFXMgr->CreateClientFX( LTNULL, fxInit, LTTRUE );
 			}
 			

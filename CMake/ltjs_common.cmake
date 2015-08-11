@@ -72,6 +72,7 @@ function(ltjs_add_default_options)
 
     if (NOT MSVC)
         add_compile_options("-std=c++11")
+        add_compile_options("-Wfatal-errors")
     endif ()
 
     # ---------------------

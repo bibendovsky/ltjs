@@ -1066,8 +1066,10 @@ void DAMAGEFX::Update( float fElapsedTime )
 
 	{
 		bool bForce = ( !m_bActive && !m_bUpdateSoundAndVisuals && !m_bFade);
-		g_pDamageFXMgr->SetDamageFXTintColor( UpdateTintColor(), bForce );
-		g_pDamageFXMgr->SetDamageFXLightScale( UpdateLightScale(), bForce );
+        auto tint_color = UpdateTintColor();
+		g_pDamageFXMgr->SetDamageFXTintColor( tint_color, bForce );
+        auto light_scale = UpdateTintColor();
+		g_pDamageFXMgr->SetDamageFXLightScale( light_scale, bForce );
 
 		fFovX += m_fFOVXOffset * m_fMoveMult;
 		fFovY += m_fFOVYOffset * m_fMoveMult;
@@ -1359,7 +1361,8 @@ void DAMAGEFX::StartSoundAndVisuals()
 		LTVector vCamPos;
 		g_pLTClient->GetObjectPos( g_pPlayerMgr->GetCamera(), &vCamPos );
 
-		CLIENTFX_CREATESTRUCT	fxInit( m_szFXName, FXFLAG_LOOP | FXFLAG_REALLYCLOSE, LTVector(0,0,0) ); 
+        LTVector zero_vector(0, 0, 0);
+		CLIENTFX_CREATESTRUCT	fxInit( m_szFXName, FXFLAG_LOOP | FXFLAG_REALLYCLOSE, zero_vector ); 
 		g_pClientFXMgr->CreateClientFX(&m_DamageFXInstance, fxInit, LTTRUE );
 	}
 }

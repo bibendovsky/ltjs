@@ -20,7 +20,7 @@
 #endif
  
 #if TRAIT_TYPE_AS_ENUM
-	#define ADD_TRAIT_TYPE(label, val) kTrait_##label## = val,
+	#define ADD_TRAIT_TYPE(label, val) kTrait_##label = val,
 	#define SET_NUM_TRAIT_TYPES(val) kTrait_Count = val,
 #elif TRAIT_TYPE_AS_STRING
 	#define ADD_TRAIT_TYPE(label, val) #label,
