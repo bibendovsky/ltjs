@@ -31,11 +31,7 @@ void CCryptMgr::SetKey(const char* key)
 
 
 
-#if _MSC_VER >= 1300
 void CCryptMgr::Encrypt(std::istream& is, std::ostream& os)
-#else
-void CCryptMgr::Encrypt(istream& is, ostream& os)
-#endif // VC7
 {
 	int n = 0;
 	char buf[8];
@@ -53,11 +49,7 @@ void CCryptMgr::Encrypt(istream& is, ostream& os)
 
 
 
-#if _MSC_VER >= 1300
 void CCryptMgr::Decrypt(std::istream& is, std::ostream& os)
-#else
-void CCryptMgr::Decrypt(istream& is, ostream& os)
-#endif // VC7
 {
 	int n = 0;
 	char buf[8];
