@@ -49,7 +49,7 @@ public:
 	// Remove all entries from the table.
 	void		Term()
 	{
-		for (MapType::iterator iter(m_Map.begin()); iter != m_Map.end(); ++iter)
+		for (typename MapType::iterator iter(m_Map.begin()); iter != m_Map.end(); ++iter)
 		{
 			delete iter->second;
 			iter->second = LTNULL;
@@ -61,7 +61,7 @@ public:
 	// Fast lookup by ID
 	Type*		Get(int ID)
 	{
-		MapType::iterator iter(m_Map.find(ID));
+		typename MapType::iterator iter(m_Map.find(ID));
 		if (iter != m_Map.end())
 		{
 			return iter->second;
@@ -74,7 +74,7 @@ public:
 	// This function searches the map by iterating and comparing strings.
 	Type*		Get(const char *pName)
 	{
-		for (MapType::iterator iter(m_Map.begin()); iter != m_Map.end(); ++iter)
+		for (typename MapType::iterator iter(m_Map.begin()); iter != m_Map.end(); ++iter)
 		{
 			if (lstrcmpi(pName, iter->second->GetName()) == 0)
 			{
@@ -122,7 +122,7 @@ public:
 	// Remove an entry from the table.
 	void		Remove(int ID)
 	{
-		MapType::iterator iter(m_Map.find(ID));
+		typename MapType::iterator iter(m_Map.find(ID));
 		if (iter != m_Map.end())
 		{
 			// Delete the action.
@@ -143,9 +143,9 @@ protected:
 	// In order to maintain these pointers, we need to walk the map and reset each "next" pointer.
 	void		UpdateNextPointers()
 	{
-		for (MapType::iterator iter(m_Map.begin()); iter != m_Map.end(); ++iter)
+		for (typename MapType::iterator iter(m_Map.begin()); iter != m_Map.end(); ++iter)
 		{
-			MapType::iterator iterNext = iter;
+            typename MapType::iterator iterNext = iter;
 			++iterNext;
 
 			if (iterNext == m_Map.end())

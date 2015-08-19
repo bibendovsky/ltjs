@@ -167,7 +167,7 @@ Interface implementations are retrieved from the interface manager with the
     /* definition in a compiled object file.                            */          \
     static SStaticSearchInterface                                                   \
         __var_search_##interface_class##_##impl_class##_##instance_name##_ = {      \
-            SEARCH_MARKER_INTERFACE, SEARCH_MARKER_INT, #interface_class,           \
+            SEARCH_MARKER_INTERFACE, static_cast<int32>(SEARCH_MARKER_INT), #interface_class, \
             #impl_class, #instance_name,                                            \
             interface_class::_##interface_class##_VERSION_};                        \
 

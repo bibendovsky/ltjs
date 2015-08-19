@@ -354,12 +354,12 @@ ILTStream &operator>>(ILTStream &cStream, SRBOccluder &cPoly)
 ILTStream &operator>>(ILTStream &cStream, SRBLightGroup &cLightGroup)
 {
 	uint16 nLength;
-	cStream >> (uint16)nLength;
+	cStream >> nLength;
 	cLightGroup.m_nID = 0;
 	for (; nLength; --nLength)
 	{
 		uint8 nNextChar;
-		cStream >> (uint8)nNextChar;
+		cStream >> nNextChar;
 		cLightGroup.m_nID *= 31;
 		cLightGroup.m_nID += (uint32)nNextChar;
 	}
@@ -367,7 +367,7 @@ ILTStream &operator>>(ILTStream &cStream, SRBLightGroup &cLightGroup)
 	cStream >> cLightGroup.m_vColor;
 
 	uint32 nDataLength;
-	cStream >> (uint32)nDataLength;
+	cStream >> nDataLength;
 	LT_MEM_TRACK_ALLOC(cLightGroup.m_aVertexIntensities.resize(nDataLength, 0), LT_MEM_TYPE_RENDER_LIGHTGROUP);
 	cStream.Read(static_cast<void*>(&(*cLightGroup.m_aVertexIntensities.begin())), nDataLength);
 
@@ -531,9 +531,9 @@ bool CD3D_RenderBlock::Load(ILTStream *pStream)
 			}
 
 			// Load the lightmap
-			*pStream >> (uint32)cCurSection.m_nLightmapWidth;
-			*pStream >> (uint32)cCurSection.m_nLightmapHeight;
-			*pStream >> (uint32)cCurSection.m_nLightmapSize;
+			*pStream >> cCurSection.m_nLightmapWidth;
+			*pStream >> cCurSection.m_nLightmapHeight;
+			*pStream >> cCurSection.m_nLightmapSize;
 			if (cCurSection.m_nLightmapSize)
 			{
 				LT_MEM_TRACK_ALLOC(cCurSection.m_pLightmapData = new uint8[cCurSection.m_nLightmapSize],LT_MEM_TYPE_RENDER_LIGHTMAP);

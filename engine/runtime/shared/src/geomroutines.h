@@ -233,7 +233,7 @@ LTBOOL g_InsideConvex( T *pRoot, TVector3<F> &pt )
 */
 
 
-
+#if 0
 template<class T, class F>
 T* g_IntersectRay( T *pRoot, TVector3<F> &pt, TVector3<F> &dir, F &t, TVector3<F> &intersection, uint32 flags )
 {
@@ -295,9 +295,9 @@ T* g_IntersectRay( T *pRoot, TVector3<F> &pt, TVector3<F> &dir, F &t, TVector3<F
 
 	return LTNULL;
 }
+#endif
 
-
-
+#if 0
 // ----------------------------------------------------------------------- //
 //      Routine:        g_LocatePointInTree
 //      Purpose:        Finds where the given point is in the BSP tree.
@@ -324,7 +324,7 @@ int g_LocatePointInTree( M *pWorld, TVector3<F> &point, int iRoot )
 			return (side == FrontSide) ? iRoot : NODE_OUT;
 	}
 }
-
+#endif
 
 // ----------------------------------------------------------------------- //
 //
