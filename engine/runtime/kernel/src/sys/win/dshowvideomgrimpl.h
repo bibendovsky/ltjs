@@ -13,6 +13,10 @@
 #ifndef __DSHOWVIDEOMGRIMPL_H__
 #define __DSHOWVIDEOMGRIMPL_H__
 
+
+#ifdef LTJS_USE_DIRECTSHOW
+
+
 #ifndef __VIDEOMGR_H__
 #include "videomgr.h"
 #endif
@@ -158,6 +162,9 @@ public:
 	bool	m_StartedSampling; 
 
 };
+
+
+#endif // LTJS_USE_DIRECTSHOW
 
 
 #endif

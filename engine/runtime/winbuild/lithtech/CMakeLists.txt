@@ -570,7 +570,6 @@ if (MSVC)
         ${PATH_TO_DX_LIBS}/ddraw.lib
         ${PATH_TO_DX_LIBS}/d3dx9.lib
         ${PATH_TO_DX_LIBS}/d3d9.lib
-        debug ${PATH_TO_DX_LIBS}/dxerr9.lib
         ${PATH_TO_DX_LIBS}/dxguid.lib
         winmm
         ${PATH_TO_DX_LIBS}/dplayx.lib
@@ -585,7 +584,6 @@ target_link_libraries(
     ltjs_lib_lt_mem
     ltjs_lib_rez_mgr
     ltjs_lib_std_lith
-    ltjs_lib_dshow
     ltjs_lib_ilt_sound
     ltjs_lib_lith
     ltjs_lib_ui
