@@ -1,8 +1,10 @@
 #ifndef __WON_MINICRYPT_BLOWFISH_H__
 #define __WON_MINICRYPT_BLOWFISH_H__
-#include "wonshared.h"
 
+
+#include <cstdint>
 #include <string>
+#include "wonshared.h"
 #include "woncommon/wontypes.h"
 #include "woncommon/bytebuffer.h"
 
@@ -21,8 +23,8 @@ public:
 	};
 
 private:
-	static const int Pinit[];
-	static const int Sinit[];
+	static const uint32_t Pinit[];
+	static const uint32_t Sinit[];
 
 	int S0[256];
     int S1[256];
