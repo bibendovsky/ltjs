@@ -16,7 +16,7 @@
 //
 // ENUM: Animation Movements.
 //
-enum EnumAnimMovement {
+enum EnumAnimMovement : int {
 	kAM_Invalid = -1,
 	#define ANIM_MOVEMENT_AS_ENUM 1
 	#include "animationmovementenums.h"

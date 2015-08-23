@@ -14,7 +14,7 @@
 
 #include "aigoalabstractsearch.h"
 
-enum  EnumAIStateStatus;
+enum  EnumAIStateStatus : int;
 class AIVolumeJunction;
 
 

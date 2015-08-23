@@ -25,13 +25,13 @@ struct AISenseRecord;
 struct UnblockNode;
 struct BlockNode;
 struct DamageStruct;
-enum   EnumAISoundType;
+enum   EnumAISoundType : int;
 
 
 //
 // ENUM: Types of goals.
 //
-enum EnumAIGoalType
+enum EnumAIGoalType : int
 {
 	kGoal_InvalidType= -1,
 	#define GOAL_TYPE_AS_ENUM 1

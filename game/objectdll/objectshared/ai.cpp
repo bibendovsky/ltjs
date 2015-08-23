@@ -2207,7 +2207,10 @@ void CAI::SetUnconscious(bool bUnconscious)
 
 					//attach pickup item
 					HATTACHMENT hAttachment;
-					if ( LT_OK != g_pLTServer->CreateAttachment(m_hObject, pObj->m_hObject, (char *)apAttachmentPositions[cWeapons]->GetName(), &LTVector(0,0,0), &LTRotation(), &hAttachment) )
+                    LTVector zero_vector(0, 0, 0);
+                    LTRotation zero_rotation;
+
+					if ( LT_OK != g_pLTServer->CreateAttachment(m_hObject, pObj->m_hObject, (char *)apAttachmentPositions[cWeapons]->GetName(), &zero_vector, &zero_rotation, &hAttachment) )
 					{
 						g_pLTServer->RemoveObject(pObj->m_hObject);
 					}
@@ -2513,7 +2516,8 @@ bool CAI::HandleCommand(const CParsedMsg &cMsg)
 			}
 			else
 			{
-                g_pPhysicsLT->SetVelocity(m_hObject, &LTVector(0,0,0));
+                LTVector zero_vector(0, 0, 0);
+                g_pPhysicsLT->SetVelocity(m_hObject, &zero_vector);
 
 				bGravity = false;
 			}
@@ -3618,11 +3622,7 @@ void CAI::UpdateInfo()
 		else if( g_AIInfoTrack.GetFloat() == 4.0f )
 		{
 			// Show Relations.
-#if _MSC_VER >= 1300
 			std::ostrstream out;
-#else
-			ostrstream out;
-#endif // VC7
 			out << *(m_pRelationMgr->GetRelationUser()) << '\n' << '\0';
 			info += out.str();
 		}

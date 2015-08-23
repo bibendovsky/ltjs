@@ -381,7 +381,7 @@ const int c_nNumValidCmds = sizeof(s_ValidCmds)/sizeof(s_ValidCmds[0]);
 // Operator methods
 ///////////////////////////////////
 
-eExpressionVal CheckExpression( ConParse &cpExpression );
+static eExpressionVal CheckExpression( ConParse &cpExpression );
 
 static LTBOOL Op_Int_equals( void *arg1, void *arg2 )
 {

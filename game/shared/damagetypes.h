@@ -27,7 +27,7 @@ extern DTINFO DTInfoArray[];
 // IMPORTANT NOTE:  If you add a new DamageType, make sure you update
 // the DTInfoArray in DamageTypes.cpp!!!
 
-enum DamageType
+enum DamageType : int
 {
 	DT_INVALID = -1,
 #define INCLUDE_AS_ENUM

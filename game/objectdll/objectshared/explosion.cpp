@@ -347,7 +347,7 @@ void Explosion::AreaDamageObject(HOBJECT hObj)
 {
 	if (!hObj) return;
 
-	HOBJECT hDamager = m_hFiredFrom ? m_hFiredFrom : m_hObject;
+	HOBJECT hDamager = m_hFiredFrom ? static_cast<HOBJECT>(m_hFiredFrom) : m_hObject;
 
     LTVector vObjPos;
 	g_pLTServer->GetObjectPos(hObj, &vObjPos);
@@ -431,7 +431,7 @@ void Explosion::ProgDamageObject(HOBJECT hObj)
 {
 	if (!hObj) return;
 
-	HOBJECT hDamager = m_hFiredFrom ? m_hFiredFrom : m_hObject;
+	HOBJECT hDamager = m_hFiredFrom ? static_cast<HOBJECT>(m_hFiredFrom) : m_hObject;
 
     LTVector vObjPos;
 	g_pLTServer->GetObjectPos(hObj, &vObjPos);

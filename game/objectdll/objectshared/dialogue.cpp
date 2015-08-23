@@ -34,9 +34,9 @@ LINKFROM_MODULE( Dialogue );
 //
 
 	#define ADD_DIALOGUE_PROP(num, group) \
-		ADD_REALPROP_FLAG(Delay##num##, 0.0f, group)\
-		ADD_STRINGPROP_FLAG(Dialogue##num##, 0, group)\
-		ADD_STRINGPROP_FLAG(StartDialogueCommand##num##, "", group | PF_NOTIFYCHANGE)
+		ADD_REALPROP_FLAG(Delay##num, 0.0f, group)\
+		ADD_STRINGPROP_FLAG(Dialogue##num, 0, group)\
+		ADD_STRINGPROP_FLAG(StartDialogueCommand##num, "", group | PF_NOTIFYCHANGE)
 		
 
 BEGIN_CLASS( Dialogue )

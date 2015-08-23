@@ -359,7 +359,10 @@ void DoomsDayDevice::InitialUpdate( )
 			char *pszSocket = strtok( NULL, "\0" );
 
 			HATTACHMENT hAttachment;
-			g_pLTServer->CreateAttachment( m_hObject, pObj->m_hObject, pszSocket, &LTVector(0,0,0), &LTRotation(), &hAttachment );
+            LTVector zero_vector(0, 0, 0);
+            LTRotation zero_rotation;
+
+			g_pLTServer->CreateAttachment( m_hObject, pObj->m_hObject, pszSocket, &zero_vector, &zero_rotation, &hAttachment );
 	
 		}
 	}
@@ -812,7 +815,10 @@ bool DoomsDayDevice::AddDoomsDayPiece( DoomsDayPiece *pDDPiece, CPlayerObj *pPla
 	char *pszSocket = strtok( NULL, "\0" );
 
 	HATTACHMENT hAttachment;
-	g_pLTServer->CreateAttachment( m_hObject, pDDPiece->m_hObject, pszSocket, &LTVector(0,0,0), &LTRotation(), &hAttachment );
+    LTVector zero_vector(0, 0, 0);
+    LTRotation zero_rotation;
+
+	g_pLTServer->CreateAttachment( m_hObject, pDDPiece->m_hObject, pszSocket, &zero_vector, &zero_rotation, &hAttachment );
 	
 	// Hide the target object...
 

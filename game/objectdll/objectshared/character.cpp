@@ -3663,7 +3663,8 @@ void CCharacter::StartDeath()
             LTVector vPos;
 			g_pLTServer->GetObjectPos(m_hObject, &vPos);
 
-			SpawnItem(buf, vPos, LTRotation());
+            LTRotation zero_rotation;
+			SpawnItem(buf, vPos, zero_rotation);
 		}
 	}
 }

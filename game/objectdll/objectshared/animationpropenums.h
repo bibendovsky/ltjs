@@ -19,7 +19,7 @@
 #endif
  
 #if ANIM_PROP_AS_ENUM
-	#define ADD_ANIM_PROP(label) kAP_##label##,
+	#define ADD_ANIM_PROP(label) kAP_##label,
 #elif ANIM_PROP_AS_STRING
 	#define ADD_ANIM_PROP(label) #label,
 #else

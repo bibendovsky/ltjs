@@ -49,7 +49,7 @@ class CAIGoalSentryChallenge : public CAIGoalAbstractStimulated
 		DECLARE_AI_FACTORY_CLASS_SPECIFIC(Goal, CAIGoalSentryChallenge, kGoal_SentryChallenge);
 
 		CAIGoalSentryChallenge( );
-		virtual CAIGoalSentryChallenge::~CAIGoalSentryChallenge();
+		virtual ~CAIGoalSentryChallenge();
 
 		virtual void Save(ILTMessage_Write *pMsg);
 		virtual void Load(ILTMessage_Read *pMsg);

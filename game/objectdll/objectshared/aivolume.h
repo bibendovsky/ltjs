@@ -28,7 +28,7 @@ class AIVolume;
 class AINode;
 class AINodeSearch;
 class CAI;
-enum  EnumAIStimulusID;
+enum  EnumAIStimulusID : int;
 
 
 class AISpatialNeighbor;

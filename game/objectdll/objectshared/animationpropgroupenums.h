@@ -19,7 +19,7 @@
 #endif
  
 #if ANIM_PROP_GROUP_AS_ENUM
-	#define ADD_ANIM_PROP_GROUP(label) kAPG_##label##,
+	#define ADD_ANIM_PROP_GROUP(label) kAPG_##label,
 #elif ANIM_PROP_GROUP_AS_STRING
 	#define ADD_ANIM_PROP_GROUP(label) #label,
 #else

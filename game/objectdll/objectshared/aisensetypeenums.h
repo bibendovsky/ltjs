@@ -20,7 +20,7 @@
 #endif
  
 #if SENSE_TYPE_AS_ENUM
-	#define ADD_SENSE_TYPE(label, val) kSense_##label## = (1 << val),
+	#define ADD_SENSE_TYPE(label, val) kSense_##label = (1 << val),
 	#define SET_NUM_SENSE_TYPES(val) kSense_Count = val,
 #elif SENSE_TYPE_AS_STRING
 	#define ADD_SENSE_TYPE(label, val) #label,

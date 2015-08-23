@@ -23,8 +23,8 @@ struct BEARTRAPCLASSDATA;
 struct BANANACLASSDATA;
 struct SPEARCLASSDATA;
 
-enum ContainerCode;
-enum EnumAIStimulusID;
+enum ContainerCode : int;
+enum EnumAIStimulusID : int;
 
 LINKTO_MODULE( ProjectileTypes );
 

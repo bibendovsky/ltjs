@@ -1291,7 +1291,8 @@ void CCoin::RotateToRest()
 
 		if ( pObj && pObj->m_hObject )
 		{
-			g_pPhysicsLT->SetVelocity(pObj->m_hObject, &LTVector(0,0,0));
+            LTVector zero_vector(0, 0, 0);
+			g_pPhysicsLT->SetVelocity(pObj->m_hObject, &zero_vector);
 		}
 
 		g_pCommonLT->SetObjectFlags(m_hObject, OFT_Flags, 0, FLAG_VISIBLE);
@@ -1434,7 +1435,9 @@ LTBOOL CKitty::Setup(CWeapon const* pWeapon, WeaponFireInfo const& info)
 	BaseClass* pObj = SpawnObject(szSpawn, vPos, rRot);
 	if( pObj && pObj->m_hObject )
 	{
-		g_pPhysicsLT->SetVelocity(pObj->m_hObject, &LTVector(0,0,0));
+        LTVector zero_vector(0, 0, 0);
+
+		g_pPhysicsLT->SetVelocity(pObj->m_hObject, &zero_vector);
 		m_hSpawnedKitty = pObj->m_hObject;
 
 		// Since we now have a duplicate object that can be picked up set the actual kitty invisible...
@@ -2071,7 +2074,9 @@ LTBOOL CBearTrap::Setup( const CWeapon *pWeapon, const WeaponFireInfo &info )
 	BaseClass* pObj = SpawnObject(szSpawn, vPos, rRot);
 	if( pObj && pObj->m_hObject )
 	{
-		g_pPhysicsLT->SetVelocity(pObj->m_hObject, &LTVector(0,0,0));
+        LTVector zero_vector(0, 0, 0);
+
+		g_pPhysicsLT->SetVelocity(pObj->m_hObject, &zero_vector);
 		m_hSpawnedBearTrap = pObj->m_hObject;
 
 
@@ -2549,7 +2554,9 @@ void CBanana::RotateToRest()
 			HOBJECT hFilter[] = { m_hObject, m_hFiredFrom, LTNULL	};
 			MoveObjectToFloor( pObj->m_hObject, hFilter, MoveToFloorFilterFn );
 
-			g_pPhysicsLT->SetVelocity(pObj->m_hObject, &LTVector(0,0,0));
+            LTVector zero_vector(0, 0, 0);
+
+			g_pPhysicsLT->SetVelocity(pObj->m_hObject, &zero_vector);
 			m_hSpawnedBanana = pObj->m_hObject;
 
 			// Reset the model file to the projectile model...

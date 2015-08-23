@@ -448,7 +448,7 @@ typedef std::vector<CMDMGR_CLASS_DESC*> CMDMGR_CLASS_DESC_VECTOR;
 
 #define CMDMGR_END_REGISTER_CLASS_FLAGS( class_name, parent_class, flags ) \
 	}; \
-	static CMDMGR_CLASS_DESC _CmdMgrClassDesc##class_name##(#class_name, \
+	static CMDMGR_CLASS_DESC _CmdMgrClassDesc##class_name(#class_name, \
 															#parent_class, \
 															sizeof(_##class_name##_Msgs_) / sizeof(MSG_PRECHECK), \
 															&_##class_name##_Msgs_[0], \

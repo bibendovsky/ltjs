@@ -25,7 +25,7 @@
 
 // [KLS 6/28/02] - Make sure you update the CC_XXX_FLAGs below if you add
 // a new container code!!!!
-enum ContainerCode 
+enum ContainerCode : int
 {
 	CC_NO_CONTAINER=0,
 	CC_WATER=1,

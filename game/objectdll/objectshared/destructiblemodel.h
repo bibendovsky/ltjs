@@ -20,7 +20,7 @@
 #define DEFAULT_DWMA_MASS			2000.0f
 
 class CFXButeMgrPlugin;
-enum EnumAIStimulusID;
+enum EnumAIStimulusID : int;
 
 
 // Use ADD_DESTRUCTIBLE_WORLD_MODEL_AGGREGATE() in your class definition
