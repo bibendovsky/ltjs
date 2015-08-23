@@ -97,7 +97,7 @@ public:
 
 private:
     // constructors and destructors
-	CRezItm::CRezItm();
+	CRezItm();
 
 	// init and term
     void InitRezItm(CRezDir* pParentDir, REZNAME sName, REZID nID, CRezTyp* pType, REZDESC sDesc,
