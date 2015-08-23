@@ -14,7 +14,7 @@
 
 
 // a few platform-specificities
-#ifdef WIN32
+//#ifdef WIN32
 
 /*!	
 On the PC, this is an alpha of 1.0 (opaque).
@@ -29,7 +29,7 @@ On the PC, this is the default color of a CUIWidget.
 */
 	#define CUI_DEFAULT_WIDGET_COLOR	0x00FFFFFF
 
-#endif
+//#endif
 
 
 
