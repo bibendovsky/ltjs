@@ -114,6 +114,7 @@ set_target_properties(
     ${LTJS_TARGET}
     PROPERTIES
         OUTPUT_NAME clientfx
+        PREFIX ""
         SUFFIX .fxd
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_GAME_BIN_DIR}
 )

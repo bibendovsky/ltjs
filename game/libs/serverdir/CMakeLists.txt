@@ -53,6 +53,7 @@ set_target_properties(
     ${LTJS_TARGET}
     PROPERTIES
         OUTPUT_NAME serverdir
+        PREFIX ""
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
 

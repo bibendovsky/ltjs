@@ -25,5 +25,6 @@ set_target_properties(
     ${LTJS_TARGET}
     PROPERTIES
         OUTPUT_NAME sres
+        PREFIX ""
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_TO2_BIN_DIR}
 )
