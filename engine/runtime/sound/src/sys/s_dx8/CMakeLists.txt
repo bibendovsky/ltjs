@@ -62,6 +62,16 @@ if (MSVC)
     )
 endif ()
 
+if (MINGW)
+    set(
+        PLIBS
+        ${CMAKE_CURRENT_SOURCE_DIR}/eaxguid.lib
+        dxguid
+        msacm32
+        winmm
+    )
+endif ()
+
 target_link_libraries(
     ${LTJS_TARGET}
     ltjs_lib_lt_mem
