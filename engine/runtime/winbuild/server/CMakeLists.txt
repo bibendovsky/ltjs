@@ -414,8 +414,6 @@ endif ()
 if (MINGW)
     set(
         LIBS
-        #${PATH_TO_DX_LIBS}/dxguid.lib
-        #${PATH_TO_DX_LIBS}/dplayx.lib
         winmm
         ws2_32
     )

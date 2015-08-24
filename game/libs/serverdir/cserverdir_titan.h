@@ -284,7 +284,11 @@ private:
 	ERequestResult BlockOnCompletion(uint32 nTimeout);
 
 	// StartRenderThread functions
+#ifdef __MINGW32__
+    static unsigned long __attribute__((stdcall)) StartRenderThread_Bootstrap(void *pParam);
+#else
 	static unsigned long _stdcall StartRenderThread_Bootstrap(void *pParam);
+#endif
 	uint32 StartRenderThread_Run();
 
 	// Handle a network message

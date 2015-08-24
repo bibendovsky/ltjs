@@ -573,8 +573,8 @@ if (MSVC)
         ${PATH_TO_DX_LIBS}/d3dx9.lib
         ${PATH_TO_DX_LIBS}/d3d9.lib
         ${PATH_TO_DX_LIBS}/dxguid.lib
-        ${PATH_TO_DX_LIBS}/dplayx.lib
         ${PATH_TO_DX_LIBS}/dinput8.lib
+        ${PATH_TO_DX_LIBS}/dplayx.lib
         winmm
     )
 endif ()
