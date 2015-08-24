@@ -411,12 +411,22 @@ if (MSVC)
     )
 endif ()
 
+if (MINGW)
+    set(
+        LIBS
+        #${PATH_TO_DX_LIBS}/dxguid.lib
+        #${PATH_TO_DX_LIBS}/dplayx.lib
+        winmm
+        ws2_32
+    )
+endif ()
+
 target_link_libraries(
     ${LTJS_TARGET}
-    ${LIBS}
+    ltjs_lib_rez_mgr
     ltjs_lib_lith
     ltjs_lib_std_lith
     ltjs_lib_lt_mem
-    ltjs_lib_rez_mgr
     ltjs_lib_info
+    ${LIBS}
 )
