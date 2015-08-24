@@ -15,7 +15,7 @@
 
 // Special pre-defined surface types...
 
-enum SurfaceType
+enum SurfaceType : int
 {
 	ST_UNKNOWN				= 0,	// Unknown value
 	ST_AIR					= 1,	// Not a surface, but not the sky either
