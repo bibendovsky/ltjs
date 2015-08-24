@@ -217,9 +217,15 @@ if (MSVC)
     )
 endif ()
 
+if (MINGW)
+    set(
+        PLIBS
+        winmm
+    )
+endif ()
+
 target_link_libraries(
     ${LTJS_TARGET}
-    ${PLIBS}
     ltjs_lib_client_shell
     ltjs_lib_bute_mgr
     ltjs_lib_crypt_mgr
@@ -228,4 +234,5 @@ target_link_libraries(
     ltjs_lib_mfc_stub
     ltjs_lib_std_lith
     ltjs_server_dir
+    ${PLIBS}
 )
