@@ -73,6 +73,7 @@ target_link_libraries(
     ltjs_lib_object
     ltjs_lib_bute_mgr
     ltjs_lib_std_lith
+    ltjs_lib_client_shell
     ltjs_lib_crypt_mgr
     ltjs_lib_reg_mgr
     ltjs_lib_mfc_stub
