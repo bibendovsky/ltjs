@@ -41,5 +41,5 @@ HLTMODULE LTLibraryLoader::GetMainHandle()
 
 HLTPROC LTLibraryLoader::GetProcAddress(HLTMODULE hModule, const char* pszProcName)
 {
-	return ::GetProcAddress((HMODULE)hModule, pszProcName);
+	return reinterpret_cast<HLTPROC>(::GetProcAddress((HMODULE)hModule, pszProcName));
 }

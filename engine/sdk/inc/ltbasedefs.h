@@ -2142,7 +2142,7 @@ Maximum number of sky objects.
 #define MATH_ONE_OVER_128	0.0078125f
 
 
-#define INLINE_FN __inline
+#define INLINE_FN
 
 template<class T, class TB>
 INLINE_FN T LTDIFF(T a, TB b) { return ((a < (T)b) ? ((T)b - a) : (a - (T)b)); }

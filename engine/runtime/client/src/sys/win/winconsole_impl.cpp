@@ -1113,7 +1113,9 @@ void CConsole::BorderedRectangle(uint32 fillColor, uint32 borderColor, LTRect re
 
 }
 
-extern uint32	g_ScreenWidth, g_ScreenHeight;
+extern int32 g_ScreenWidth;
+extern int32 g_ScreenHeight;
+
 void CConsole::Draw() {
 #ifndef DE_HEADLESS_CLIENT
 	//	if ((!m_pFontBitmapData) || (!m_pStruct)) return;

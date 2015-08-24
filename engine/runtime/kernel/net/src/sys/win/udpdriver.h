@@ -587,7 +587,7 @@ public:
 	virtual LTRESULT GetPingStatus(uint32 nPingID, uint32 *pStatus, uint32 *pLatency);
 	virtual LTRESULT RemovePing(uint32 nPingID);
 
-	virtual LTRESULT CUDPDriver::OpenSocket( SOCKET* phSocket );
+	virtual LTRESULT OpenSocket( SOCKET* phSocket );
 
 	virtual void UpdateGUID(LTGUID &cGUID);
 	

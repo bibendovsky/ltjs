@@ -62,12 +62,12 @@ private:
 bool CClientLightGroup::Load(ILTStream *pStream)
 {
 	uint16 nLength;
-	*pStream >> (uint16)nLength;
+	*pStream >> nLength;
 	m_nID = 0;
 	for (; nLength; --nLength)
 	{
 		uint8 nNextChar;
-		*pStream >> (uint8)nNextChar;
+		*pStream >> nNextChar;
 		m_nID *= 31;
 		m_nID += (uint32)nNextChar;
 	}
@@ -371,7 +371,7 @@ bool CWorldClientBSP::LoadRenderData(ILTStream *pStream)
 	world_bsp_shared->LightTable().ClearLightGroups();
 
 	uint32 nNumLightGroups;
-	*pStream >> (uint32)nNumLightGroups;
+	*pStream >> nNumLightGroups;
 	LT_MEM_TRACK_ALLOC(m_aLightGroups.reserve(nNumLightGroups), LT_MEM_TYPE_WORLD);
 	CClientLightGroup LightGroup;
 	for (; nNumLightGroups; --nNumLightGroups)

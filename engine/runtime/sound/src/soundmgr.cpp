@@ -1525,7 +1525,7 @@ LTRESULT CSoundMgr::Update()
                 !(pSoundInstance->GetPlaySoundFlags() & PLAYSOUND_LOOP) && 
                 pSoundInstance->GetHSoundDE() != (HLTSOUND)INVALID_OBJECTID)
             {
-                cNewSoundUpdatePacket.Writeuint16((uint16)pSoundInstance->GetHSoundDE());
+                cNewSoundUpdatePacket.Writeuint16(static_cast<uint16>(reinterpret_cast<size_t>(pSoundInstance->GetHSoundDE())));
             }
         }
     }

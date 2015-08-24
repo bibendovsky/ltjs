@@ -23,7 +23,8 @@ struct RenderContext
 extern bool		g_bRunWindowed;
 
 extern RenderStruct* g_pStruct;
-extern uint32	g_ScreenWidth, g_ScreenHeight;
+extern int32 g_ScreenWidth;
+extern int32 g_ScreenHeight;
 extern HWND		g_hWnd;
 
 void*	dalloc(unsigned long size);

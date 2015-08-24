@@ -9,10 +9,13 @@
 #include "de_world.h"
 #include "collision.h"
 
+#include <cmath>
 #include <stack>
 
+#if 0
 #ifdef _WIN32
 #define isnan _isnan
+#endif
 #endif
 
 
@@ -1782,7 +1785,7 @@ void CPlayerMover::MoveTo(const LTVector &vEnd, LTVector *pResult)
 	}
 
 	// Guard against NAN bugs making it out of this routine
-	if (isnan(pResult->x) || isnan(pResult->y) || isnan(pResult->z))
+	if (std::isnan(pResult->x) || std::isnan(pResult->y) || std::isnan(pResult->z))
 	{
 		ASSERT(!"Invalid result encountered in player movement");
 		*pResult = vOrigin;

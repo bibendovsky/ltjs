@@ -69,7 +69,7 @@ LTRESULT CSysTexInterface::FindTextureFromName(HTEXTURE &hTexture, const char *p
 
 	if (pIdent->m_pData) 
 	{
-		(SharedTexture*)hTexture = (SharedTexture*)pIdent->m_pData; 
+		hTexture = static_cast<SharedTexture*>(pIdent->m_pData);
 		return LT_OK; 
 	}
 

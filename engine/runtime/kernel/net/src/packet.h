@@ -415,13 +415,8 @@ public:
 	CPacket_Read()
 		: m_nStart(0)
 	{
-#ifdef __LINUX
 		CPacket_Write cPacketWrite;
 		Init(cPacketWrite);
-#else	
-		Init(CPacket_Write());
-#endif
-
 	}
 	
 	// Create a packet reader based on the data in a packet writer.

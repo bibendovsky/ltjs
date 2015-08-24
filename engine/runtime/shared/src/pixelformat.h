@@ -9,6 +9,8 @@
 #include "ltbasetypes.h"
 #endif
 
+#include "ltassert.h"
+
 // 0-8 inclusive.
 #define NUM_SCALE_TABLES    9
 
