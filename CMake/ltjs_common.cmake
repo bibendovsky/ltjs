@@ -20,6 +20,7 @@ function(ltjs_add_default_options)
 
     add_definitions(-DNOPS2)
     add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-D_FINAL>)
+    add_compile_options($<$<CONFIG:DEBUG>:-D_DEBUG>)
 
     if (MSVC)
         add_compile_options($<$<CONFIG:DEBUG>:-D_CRT_SECURE_NO_WARNINGS>)

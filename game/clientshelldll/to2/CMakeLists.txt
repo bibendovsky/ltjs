@@ -227,8 +227,8 @@ endif ()
 
 target_link_libraries(
     ${LTJS_TARGET}
-    ltjs_lib_client_shell
     ltjs_lib_bute_mgr
+    ltjs_lib_client_shell
     ltjs_lib_crypt_mgr
     ltjs_lib_reg_mgr
     ltjs_lib_lt_gui_mgr

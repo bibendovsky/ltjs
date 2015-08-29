@@ -584,6 +584,7 @@ if (MINGW)
         LIBS
         d3d9
         d3dx9
+        dbghelp
         dxguid
         dinput8
         winmm

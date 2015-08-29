@@ -1005,7 +1005,7 @@ int32 CAPIHolderBase::Version() {
     //
 
     #ifdef _DEBUG
-        #if defined(__LINUX)
+        #if defined(__MINGW32__)
             #define BREAK1()
         #else
             #define BREAK1() __asm {int 3}

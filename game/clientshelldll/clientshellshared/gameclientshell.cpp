@@ -2104,7 +2104,8 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 	{
 #ifndef _FINAL
 		char *pCheat = "mpclip";
-		g_pCheatMgr->Check(CParsedMsg( 1, &pCheat ));
+        CParsedMsg msg(1, &pCheat);
+		g_pCheatMgr->Check(msg);
 #endif
 		return;
 	}
@@ -2113,7 +2114,8 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 	{
 #ifndef _FINAL
 		char *pCheat = "mppoltergeist";
-		g_pCheatMgr->Check(CParsedMsg( 1, &pCheat ));
+        CParsedMsg msg(1, &pCheat);
+		g_pCheatMgr->Check(msg);
 #endif
 		return;
 	}

@@ -415,6 +415,7 @@ endif ()
 if (MINGW)
     set(
         LIBS
+        dbghelp
         winmm
         ws2_32
     )
