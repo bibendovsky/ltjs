@@ -70,11 +70,7 @@ public:
 
 private:
 
-#ifdef __MINGW32__
-    typedef __gnu_cxx::hash_map< const char *, GameBaseLite *, ButeMgrHashCompare > TNameMap;
-#else
-    typedef stdext::hash_map< const char *, GameBaseLite *, ButeMgrHashCompare > TNameMap;
-#endif // VC7
+    typedef std::unordered_map< const char *, GameBaseLite *, ButeMgrHashCompare, ButeMgrHashCompare > TNameMap;
 
 private:
 	enum { k_nInvalidSerializeID = 0xFFFFFFFF };

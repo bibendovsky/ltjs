@@ -21,8 +21,8 @@
 #include <map>
 #include <set>
 #include <functional>
-#include <hash_set>
-#include <hash_map>
+#include <unordered_set>
+#include <unordered_map>
 #include <iosfwd>
 #include <strstream>
 #include <iostream>
@@ -33,12 +33,14 @@ class ButeMgrHashCompare
 {
 public:
 
+#if 0
 	// parameters for hash table
 	enum
 	{
 		bucket_size = 4,	// 0 < bucket_size
 		min_buckets = 8		// min_buckets = 2 ^^ N, 0 < N
 	};
+#endif
 
 	ButeMgrHashCompare()
 	{
@@ -71,7 +73,7 @@ private:
 
 	bool 		Compare(const char *lhs, const char *rhs) const
 	{
-		return stricmp(lhs, rhs) < 0;
+		return stricmp(lhs, rhs) == 0;
 	}
 };
 
@@ -290,27 +292,15 @@ private:
 
 	void (*m_pDisplayFunc)(const char* szMsg);
 
-#ifdef __MINGW32__
-	// Used to define dictionary of strings.
-	// This must be case sensitive!
-	typedef __gnu_cxx::hash_set< CString, ButeMgrHashCompare > StringHolder;
-
-	// Used to define map of strings to CSymTabItems.
-	typedef __gnu_cxx::hash_map< char const*, CSymTabItem*, ButeMgrHashCompare > TableOfItems;
-
-	// Used to define map of strings to TableOfItems.
-	typedef __gnu_cxx::hash_map< char const*, TableOfItems*, ButeMgrHashCompare > TableOfTags;
-#else
     // Used to define dictionary of strings.
     // This must be case sensitive!
-    typedef stdext::hash_set< CString, ButeMgrHashCompare > StringHolder;
+    typedef std::unordered_set< CString, ButeMgrHashCompare, ButeMgrHashCompare > StringHolder;
 
     // Used to define map of strings to CSymTabItems.
-    typedef stdext::hash_map< char const*, CSymTabItem*, ButeMgrHashCompare > TableOfItems;
+    typedef std::unordered_map< char const*, CSymTabItem*, ButeMgrHashCompare, ButeMgrHashCompare > TableOfItems;
 
     // Used to define map of strings to TableOfItems.
-    typedef stdext::hash_map< char const*, TableOfItems*, ButeMgrHashCompare > TableOfTags;
-#endif
+    typedef std::unordered_map< char const*, TableOfItems*, ButeMgrHashCompare, ButeMgrHashCompare > TableOfTags;
 
 
 	// Holds all strings for keys and string values.

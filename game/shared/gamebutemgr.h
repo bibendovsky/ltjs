@@ -14,7 +14,7 @@
 #include "butemgr.h"
 
 #pragma warning( disable : 4786 )
-#include <hash_map>
+#include <unordered_map>
 
 
 void GBM_DisplayError(const char* szMsg);
@@ -26,11 +26,7 @@ void GBM_DisplayError(const char* szMsg);
 //
 // ----------------------------------------------------------------------- //
 
-#ifdef __MINGW32__
-typedef __gnu_cxx::hash_map< const char *, int, ButeMgrHashCompare > IndexTable;
-#else
-typedef stdext::hash_map< const char *, int, ButeMgrHashCompare > IndexTable;
-#endif // VC7
+typedef std::unordered_map< const char *, int, ButeMgrHashCompare, ButeMgrHashCompare > IndexTable;
 
 
 

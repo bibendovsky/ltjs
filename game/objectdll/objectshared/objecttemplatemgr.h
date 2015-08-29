@@ -4,19 +4,21 @@
 #ifndef __OBJECTTEMPLATEMGR_H__
 #define __OBJECTTEMPLATEMGR_H__
 
-#include <hash_map>
+#include <unordered_map>
 
 
 class ObjectTemplateMgrHashCompare
 {
 public:
 
+#if 0
 	// parameters for hash table
 	enum
 	{
 		bucket_size = 4,	// 0 < bucket_size
 		min_buckets = 8		// min_buckets = 2 ^^ N, 0 < N
 	};
+#endif
 
 	ObjectTemplateMgrHashCompare()
 	{
@@ -51,7 +53,7 @@ private:
 
 	bool 		Compare(const std::string &lhs, const std::string &rhs) const
 	{
-		return stricmp(lhs.c_str(), rhs.c_str()) < 0;
+		return stricmp(lhs.c_str(), rhs.c_str()) == 0;
 	}
 };
 
@@ -72,11 +74,7 @@ public:
 
 protected:
 
-#ifdef __MINGW32__
-    typedef __gnu_cxx::hash_map< std::string, ObjectCreateStruct, ObjectTemplateMgrHashCompare > TTemplateMap;
-#else
-	typedef stdext::hash_map< std::string, ObjectCreateStruct, ObjectTemplateMgrHashCompare > TTemplateMap;
-#endif
+	typedef std::unordered_map< std::string, ObjectCreateStruct, ObjectTemplateMgrHashCompare, ObjectTemplateMgrHashCompare > TTemplateMap;
 
 	TTemplateMap m_cTemplates;
 };

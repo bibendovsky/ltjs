@@ -110,13 +110,8 @@ public:
         int m_tokenMinor;
     };
 
-#ifdef __MINGW32__
     // Used to define map of strings to CSymTabItems.
-    typedef __gnu_cxx::hash_map< char const*, CReservedWord, ButeMgrHashCompare > ReservedWordMap;
-#else
-    // Used to define map of strings to CSymTabItems.
-    typedef stdext::hash_map< char const*, CReservedWord, ButeMgrHashCompare > ReservedWordMap;
-#endif
+    typedef std::unordered_map< char const*, CReservedWord, ButeMgrHashCompare, ButeMgrHashCompare > ReservedWordMap;
 
     CReservedWords()
     {

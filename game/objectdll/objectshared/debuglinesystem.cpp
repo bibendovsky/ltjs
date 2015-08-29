@@ -19,7 +19,7 @@
 #include "objecttemplatemgr.h"
 
 #pragma warning( disable : 4786 )
-#include <hash_map>
+#include <unordered_map>
 #include <string>
 
 LINKFROM_MODULE( DebugLineSystem );
@@ -121,11 +121,7 @@ namespace LineSystem
 			  pLineSystem(0) {}
 	};
 
-#ifdef __MINGW32__
-    typedef __gnu_cxx::hash_map< std::string, SystemEntry, ObjectTemplateMgrHashCompare > SystemMap;
-#else
-	typedef stdext::hash_map< std::string, SystemEntry, ObjectTemplateMgrHashCompare > SystemMap;
-#endif
+	typedef std::unordered_map< std::string, SystemEntry, ObjectTemplateMgrHashCompare, ObjectTemplateMgrHashCompare > SystemMap;
 
 	SystemMap g_systems;
 
