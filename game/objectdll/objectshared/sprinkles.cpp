@@ -7,15 +7,15 @@ LINKFROM_MODULE( Sprinkles );
 
 
 #define ADD_SPRINKLE_PROP(num, defFilename) \
-	ADD_STRINGPROP_FLAG(Filename##num##, defFilename, PF_FILENAME)\
-	ADD_STRINGPROP_FLAG(SkinName##num##, "", PF_FILENAME)\
-	ADD_LONGINTPROP(Count##num##, 16)\
-	ADD_REALPROP(Speed##num##, 50.0f)\
-	ADD_REALPROP(Size##num##, 10.0f)\
-	ADD_REALPROP_FLAG(SpawnRadius##num##, 500.0f, PF_RADIUS)\
-	ADD_COLORPROP(ColorMin##num##, 255.0f, 255.0f, 255.0f)\
-	ADD_COLORPROP(ColorMax##num##, 255.0f, 255.0f, 255.0f)\
-	ADD_VECTORPROP_VAL(AnglesVel##num##, 1.0f, 1.0f, 1.0f)
+	ADD_STRINGPROP_FLAG(Filename##num, defFilename, PF_FILENAME)\
+	ADD_STRINGPROP_FLAG(SkinName##num, "", PF_FILENAME)\
+	ADD_LONGINTPROP(Count##num, 16)\
+	ADD_REALPROP(Speed##num, 50.0f)\
+	ADD_REALPROP(Size##num, 10.0f)\
+	ADD_REALPROP_FLAG(SpawnRadius##num, 500.0f, PF_RADIUS)\
+	ADD_COLORPROP(ColorMin##num, 255.0f, 255.0f, 255.0f)\
+	ADD_COLORPROP(ColorMax##num, 255.0f, 255.0f, 255.0f)\
+	ADD_VECTORPROP_VAL(AnglesVel##num, 1.0f, 1.0f, 1.0f)
 
 
 

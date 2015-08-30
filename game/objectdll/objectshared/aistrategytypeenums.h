@@ -19,11 +19,11 @@
 #endif
  
 #if STRATEGY_TYPE_AS_ENUM
-	#define ADD_STRATEGY_TYPE(aitype,label) kStrat_##aitype##label##,
+	#define ADD_STRATEGY_TYPE(aitype,label) kStrat_##aitype##label,
 #elif STRATEGY_TYPE_AS_STRING
 	#define ADD_STRATEGY_TYPE(aitype,label) #aitype#label,
 #elif STRATEGY_TYPE_AS_SWITCH
-	#define ADD_STRATEGY_TYPE(aitype,label) case kStrat_##aitype##label##: extern CAIClassAbstract* AIFactoryCreateCAI##aitype##Strategy##label##(); return (CAI##aitype##Strategy*)AIFactoryCreateCAI##aitype##Strategy##label##();
+	#define ADD_STRATEGY_TYPE(aitype,label) case kStrat_##aitype##label: extern CAIClassAbstract* AIFactoryCreateCAI##aitype##Strategy##label(); return (CAI##aitype##Strategy*)AIFactoryCreateCAI##aitype##Strategy##label();
 #else
 	#error	To use this include file, first define either STRATEGY_TYPE_AS_ENUM or STRATEGY_TYPE_AS_STRING, to include the Strategies as enums, or string constants.
 #endif

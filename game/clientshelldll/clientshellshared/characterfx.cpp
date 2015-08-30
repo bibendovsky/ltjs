@@ -844,7 +844,7 @@ void CCharacterFX::UpdateSounds()
 			{
 //				g_pLTClient->CPrint("Playing Ding Sound at Time %.2f", m_fNextDingTime[i]);
 				m_fNextDingTime[i] = -1.0f;
-				char* pSound = "Guns\\snd\\Impacts\\MultiDing.wav";
+				const char* pSound = "Guns\\snd\\Impacts\\MultiDing.wav";
 				g_pClientSoundMgr->PlaySoundLocal(pSound, SOUNDPRIORITY_PLAYER_HIGH);
 			}
 		}

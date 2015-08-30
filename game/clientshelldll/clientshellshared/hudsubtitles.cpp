@@ -355,7 +355,7 @@ void CHUDSubtitles::SetScale(float fScale)
 void CHUDSubtitles::UpdateLayout()
 {
 
-	char *pTag = "Subtitle";
+    const char *pTag = "Subtitle";
 
 	m_CinematicPos = g_pLayoutMgr->GetPoint(pTag,"Pos");
 	m_nCinematicWidth = (uint16)g_pLayoutMgr->GetInt(pTag,"Width");

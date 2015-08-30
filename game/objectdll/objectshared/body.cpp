@@ -1528,7 +1528,10 @@ void Body::AddWeapon(HOBJECT hWeapon, char *pszPosition)
 	{
 
 		HATTACHMENT hAttachment;
-		if ( LT_OK == g_pLTServer->CreateAttachment(m_hObject, hWeapon, pszPosition, &LTVector(0,0,0), &LTRotation(), &hAttachment) )
+        LTVector zero_vector(0, 0, 0);
+        LTRotation zero_rotation;
+
+		if ( LT_OK == g_pLTServer->CreateAttachment(m_hObject, hWeapon, pszPosition, &zero_vector, &zero_rotation, &hAttachment) )
 		{
 			m_ahWeapons[m_cWeapons++] = hWeapon;
 			return;

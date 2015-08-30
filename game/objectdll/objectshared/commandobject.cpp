@@ -29,16 +29,16 @@ LINKFROM_MODULE( CommandObject );
 	#define EVNTED_BASE_STRING	"Event"
 
 	#define ADD_COMMAND_EDITOR_TRACK( base_string, track, flags ) \
-				ADD_STRINGPROP_FLAG( ##base_string##T##track##E0, "", flags ) \
-				ADD_STRINGPROP_FLAG( ##base_string##T##track##E1, "", flags ) \
-				ADD_STRINGPROP_FLAG( ##base_string##T##track##E2, "", flags ) \
-				ADD_STRINGPROP_FLAG( ##base_string##T##track##E3, "", flags ) \
-				ADD_STRINGPROP_FLAG( ##base_string##T##track##E4, "", flags ) \
-				ADD_STRINGPROP_FLAG( ##base_string##T##track##E5, "", flags ) \
-				ADD_STRINGPROP_FLAG( ##base_string##T##track##E6, "", flags ) \
-				ADD_STRINGPROP_FLAG( ##base_string##T##track##E7, "", flags ) \
-				ADD_STRINGPROP_FLAG( ##base_string##T##track##E8, "", flags ) \
-				ADD_STRINGPROP_FLAG( ##base_string##T##track##E9, "", flags )
+				ADD_STRINGPROP_FLAG( base_string##T##track##E0, "", flags ) \
+				ADD_STRINGPROP_FLAG( base_string##T##track##E1, "", flags ) \
+				ADD_STRINGPROP_FLAG( base_string##T##track##E2, "", flags ) \
+				ADD_STRINGPROP_FLAG( base_string##T##track##E3, "", flags ) \
+				ADD_STRINGPROP_FLAG( base_string##T##track##E4, "", flags ) \
+				ADD_STRINGPROP_FLAG( base_string##T##track##E5, "", flags ) \
+				ADD_STRINGPROP_FLAG( base_string##T##track##E6, "", flags ) \
+				ADD_STRINGPROP_FLAG( base_string##T##track##E7, "", flags ) \
+				ADD_STRINGPROP_FLAG( base_string##T##track##E8, "", flags ) \
+				ADD_STRINGPROP_FLAG( base_string##T##track##E9, "", flags )
 
 	#define ADD_EVENT_EDITOR_INFO( tracks, objects_per_track, base_string, flags ) \
 				ADD_STRINGPROP_FLAG( EventDialogInfo, #tracks" "#objects_per_track" "#base_string, flags ) \

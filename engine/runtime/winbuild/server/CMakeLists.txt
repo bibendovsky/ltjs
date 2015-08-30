@@ -388,6 +388,7 @@ set_target_properties(
     ${LTJS_TARGET}
     PROPERTIES
         OUTPUT_NAME server
+        PREFIX ""
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
 
@@ -411,12 +412,21 @@ if (MSVC)
     )
 endif ()
 
+if (MINGW)
+    set(
+        LIBS
+        dbghelp
+        winmm
+        ws2_32
+    )
+endif ()
+
 target_link_libraries(
     ${LTJS_TARGET}
-    ${LIBS}
+    ltjs_lib_rez_mgr
     ltjs_lib_lith
     ltjs_lib_std_lith
     ltjs_lib_lt_mem
-    ltjs_lib_rez_mgr
     ltjs_lib_info
+    ${LIBS}
 )

@@ -414,7 +414,8 @@ void CProjectileFX::CreateFlare(const LTVector & vPos, const LTRotation & rRot)
 	if (!m_hFlare) return;
 
     LTFLOAT fScale = m_pProjectileFX->fFlareScale;
-	m_pClientDE->SetObjectScale(m_hFlare, &LTVector(fScale, fScale, 1.0f));
+    LTVector scale_vector(fScale, fScale, 1.0f);
+	m_pClientDE->SetObjectScale(m_hFlare, &scale_vector);
 }
 
 

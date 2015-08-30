@@ -19,7 +19,7 @@
 #endif
  
 #if AISOUND_TYPE_AS_ENUM
-	#define ADD_AISOUND_TYPE(label) kAIS_##label##,
+	#define ADD_AISOUND_TYPE(label) kAIS_##label,
 #elif AISOUND_TYPE_AS_STRING
 	#define ADD_AISOUND_TYPE(label) #label,
 #else

@@ -5942,7 +5942,8 @@ void CPlayerObj::BuildKeepAlives(ObjectList* pList)
 	
 	g_pCommonLT->SetObjectFlags(m_hObject, OFT_Flags, FLAG_FORCECLIENTUPDATE, FLAGMASK_ALL);
 
-	g_pPhysicsLT->SetVelocity(m_hObject, &(LTVector(0, 0, 0)) );
+    LTVector zero_vector(0, 0, 0);
+	g_pPhysicsLT->SetVelocity(m_hObject, &zero_vector );
 
 	{ ///////////////////////////////////////////////////////////////////////////
 
@@ -7891,7 +7892,10 @@ void CPlayerObj::SetCarriedObject( HOBJECT hObject, bool bTransition /* = false 
 		static char* pSocket = "Body";
 
 		HATTACHMENT hAttachment;
-		if (LT_OK != g_pLTServer->CreateAttachment(m_hObject, m_hCarriedObject, pSocket, &LTVector(0,0,0), &LTRotation(), &hAttachment))
+        LTVector zero_vector(0, 0, 0);
+        LTRotation zero_rotation;
+
+		if (LT_OK != g_pLTServer->CreateAttachment(m_hObject, m_hCarriedObject, pSocket, &zero_vector, &zero_rotation, &hAttachment))
 		{
 			ASSERT(!"CreateAttachment() failed.");
 			g_pLTServer->CPrint("Failed to attach body.");

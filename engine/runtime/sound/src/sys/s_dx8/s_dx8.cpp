@@ -1981,7 +1981,11 @@ BOOL CStream::SetCurrentPosition( DWORD dwStartOffset )
 #define NUM_PLAY_NOTIFICATIONS  16
 #define STREAM_BUF_SECONDS	3
 
+#ifdef __MINGW32__
+unsigned long __attribute__((stdcall)) CDx8SoundSys::ThreadBootstrap(void *pUserData)
+#else
 unsigned long _stdcall CDx8SoundSys::ThreadBootstrap(void *pUserData)
+#endif
 {
 	CDx8SoundSys* pSoundSys = (CDx8SoundSys*) pUserData;
 	return (unsigned long)pSoundSys->Thread_Func();
@@ -2613,7 +2617,7 @@ HACMDRIVERID SelectHardCodedADPCMCodec()
 		LOG_WRITE( g_pLogFile, "Unable to load IMAADP32.ACM\n" );
 		return NULL;
 	}
-	void *pDriverProc = GetProcAddress( hDLL, "DriverProc" );
+	void *pDriverProc = reinterpret_cast<void*>(GetProcAddress( hDLL, "DriverProc" ));
 	HACMDRIVERID hResult;
 	MMRESULT mmResult;
 	mmResult = acmDriverAdd( &hResult, hDLL, (LPARAM)pDriverProc, 0, ACM_DRIVERADDF_FUNCTION | ACM_DRIVERADDF_LOCAL );
@@ -2703,7 +2707,7 @@ HACMDRIVERID SelectHardCodedMP3Codec()
 		LOG_WRITE( g_pLogFile, "Unable to load L3CODECA.ACM\n" );
 		return NULL;
 	}
-	void *pDriverProc = GetProcAddress( hDLL, "DriverProc" );
+	void *pDriverProc = reinterpret_cast<void*>(GetProcAddress( hDLL, "DriverProc" ));
 	HACMDRIVERID hResult;
 	MMRESULT mmResult;
 	mmResult = acmDriverAdd( &hResult, hDLL, (LPARAM)pDriverProc, 0, ACM_DRIVERADDF_FUNCTION | ACM_DRIVERADDF_LOCAL );
@@ -3528,7 +3532,9 @@ void CDx8SoundSys::Set3DPosition( LH3DPOBJECT hObj, float fX, float fY, float fZ
 		return;
 
 	I3DObject* p3DObject = ( I3DObject* )hObj;
-	p3DObject->SetPosition( LTVector( fX, fY, fZ ) );
+
+    LTVector position(fX, fY, fZ);
+	p3DObject->SetPosition( position );
 }
 
 void CDx8SoundSys::Set3DVelocityVector( LH3DPOBJECT hObj, float fDX_per_s, float fDY_per_s, float fDZ_per_s )
@@ -3537,7 +3543,9 @@ void CDx8SoundSys::Set3DVelocityVector( LH3DPOBJECT hObj, float fDX_per_s, float
 		return;
 
 	I3DObject* p3DObject = ( I3DObject* )hObj;
-	p3DObject->SetVelocity( LTVector( fDX_per_s, fDY_per_s, fDZ_per_s ) );
+
+    LTVector velocity(fDX_per_s, fDY_per_s, fDZ_per_s);
+	p3DObject->SetVelocity( velocity );
 }
 
 void CDx8SoundSys::Set3DOrientation( LH3DPOBJECT hObj, float fX_face, float fY_face, float fZ_face, float fX_up, float fY_up, float fZ_up )
@@ -3546,7 +3554,11 @@ void CDx8SoundSys::Set3DOrientation( LH3DPOBJECT hObj, float fX_face, float fY_f
 		return;
 
 	I3DObject* p3DObject = ( I3DObject* )hObj;
-	p3DObject->SetOrientation( LTVector( fX_up, fY_up, fZ_up ), LTVector( fX_face, fY_face, fZ_face ) );
+
+    LTVector up_vector(fX_up, fY_up, fZ_up);
+    LTVector face_vector(fX_face, fY_face, fZ_face);
+
+	p3DObject->SetOrientation( up_vector, face_vector );
 }
 
 void CDx8SoundSys::Set3DUserData( LH3DPOBJECT hObj, U32 uiIndex, S32 siValue )

@@ -79,4 +79,4 @@ typedef SmartPtr<DBProxyOp> DBProxyOpPtr;
 
 }; // namespace WONAPI
 
-#endif __WON_DBPROXYOP_H__
+#endif // __WON_DBPROXYOP_H__

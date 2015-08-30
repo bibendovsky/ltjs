@@ -24,7 +24,7 @@ private:
     friend class t_Parent::t_Iter;
 #else
     friend t_Parent;
-    friend t_Parent::t_Iter;
+    friend typename t_Parent::t_Iter;
 #endif
 
 	// Is this bank currently full?
@@ -645,7 +645,7 @@ uint32 CBankedList<T>::GetFootprint()
 	}
 
 	// Add in the empty banks
-	t_Bank *pFinger = m_pEmptyHead;
+	pFinger = m_pEmptyHead;
 	while (pFinger)
 	{
 		nSize += sizeof(*pFinger);

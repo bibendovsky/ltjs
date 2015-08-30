@@ -44,7 +44,7 @@ namespace
 	char*	s_sBuf    = LTNULL;
 }
 
-static char* GetTextBuffer(char* sName);
+static char* GetTextBuffer(const char* sName);
 
 
 // Functions...
@@ -874,7 +874,7 @@ void CCredits::AddCredits()
 
 	// Get the credits text buffer...
 
-	char* sName = NULL;
+	const char* sName = NULL;
 
 	switch (GetMode())
 	{
@@ -957,7 +957,7 @@ CCredit* CCredits::GetCredit(uint16 iCredit)
 
 // Functions...
 
-char* GetTextBuffer(char* sName)
+char* GetTextBuffer(const char* sName)
 {
 	//if (s_sBuf)
 	//{

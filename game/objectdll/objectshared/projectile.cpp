@@ -1097,7 +1097,7 @@ void CProjectile::Detonate(HOBJECT hObj)
 	// Handle impact damage...
 	if (hObj)
 	{
-		HOBJECT hDamager = m_hFiredFrom ? m_hFiredFrom : m_hObject;
+		HOBJECT hDamager = m_hFiredFrom ? static_cast<HOBJECT>(m_hFiredFrom) : m_hObject;
 
 		ImpactDamageObject(hDamager, hObj);
 	}

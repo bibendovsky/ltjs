@@ -103,6 +103,8 @@ VideoMgr* CreateVideoMgr( const char *pszName )
 	}
 	else if ( want_dshow )
 	{
+
+#ifdef LTJS_USE_DIRECTSHOW
 		VideoMgr* pVidMgr;
 
 		LT_MEM_TRACK_ALLOC(pVidMgr = new DShowVideoMgr(),LT_MEM_TYPE_MISC);
@@ -119,7 +121,7 @@ VideoMgr* CreateVideoMgr( const char *pszName )
 			delete pVidMgr;
 			pVidMgr = NULL;
 		}
-
+#endif // LTJS_USE_DIRECTSHOW
 
 	}
 

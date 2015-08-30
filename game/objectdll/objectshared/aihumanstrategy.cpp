@@ -4617,8 +4617,9 @@ void CAIHumanStrategyShootBurst::Aim()
 		{
 			// Make sure our loop sound is killed when switching to aim
 
-			m_eState == eStateFiring ? pWeapon->PlayAnimation( pWeapon->GetPostFireAni(), true, false, true ) :
-									   pWeapon->KillLoopSound();
+			m_eState == eStateFiring ?
+                static_cast<void>(pWeapon->PlayAnimation( pWeapon->GetPostFireAni(), true, false, true )) :
+                pWeapon->KillLoopSound();
 		}
 	}
 
@@ -4723,9 +4724,12 @@ void CAIHumanStrategyFlashlight::FlashlightCreate()
 		::SetNextUpdate(m_hFlashlightModel, UPDATE_NEVER);
 
 		HATTACHMENT hAttachment;
-		if ( LT_OK == g_pLTServer->CreateAttachment(GetAI()->GetObject(), m_hFlashlightModel, "Light", &LTVector(0,0,0), &LTRotation(), &hAttachment) )
-		{
+        LTVector zero_vector(0, 0, 0);
+        LTRotation zero_rotation;
 
+		if ( LT_OK == g_pLTServer->CreateAttachment(GetAI()->GetObject(), m_hFlashlightModel, "Light", &zero_vector, &zero_rotation, &hAttachment) )
+		{
+            // FIXME
 		}
 	}
 }

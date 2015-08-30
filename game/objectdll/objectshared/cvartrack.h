@@ -20,7 +20,7 @@
 						m_pVarName = NULL;
 					}
 
-        LTBOOL       Init(ILTServer *pServerDE, char *pVarName, char *pStartVal, float fStartVal)
+        LTBOOL       Init(ILTServer *pServerDE, const char *pVarName, const char *pStartVal, float fStartVal)
 		{
 			if (!pServerDE)
 				return LTFALSE;
@@ -97,7 +97,7 @@
 
 		HCONVAR		m_hVar;
         ILTServer   *m_pServerDE;
-		char		*m_pVarName;
+		const char  *m_pVarName;
 	};
 
 

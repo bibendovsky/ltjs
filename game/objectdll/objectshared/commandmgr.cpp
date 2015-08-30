@@ -381,7 +381,7 @@ const int c_nNumValidCmds = sizeof(s_ValidCmds)/sizeof(s_ValidCmds[0]);
 // Operator methods
 ///////////////////////////////////
 
-eExpressionVal CheckExpression( ConParse &cpExpression );
+static eExpressionVal CheckExpression( ConParse &cpExpression );
 
 static LTBOOL Op_Int_equals( void *arg1, void *arg2 )
 {
@@ -1988,7 +1988,7 @@ LTBOOL CCommandMgr::ProcessListCommands(ConParse & parse, int nCmdIndex)
 //
 // ----------------------------------------------------------------------- //
 
-void CCommandMgr::DevPrint(char *msg, ...)
+void CCommandMgr::DevPrint(const char *msg, ...)
 {
 #define _DEV_BUILD
 #ifdef _DEV_BUILD

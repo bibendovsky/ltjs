@@ -24,7 +24,7 @@
 #endif
  
 #if VOLUME_TYPE_AS_ENUM
-	#define ADD_VOLUME_TYPE(label, val) kVolumeType_##label## = (1 << val),
+	#define ADD_VOLUME_TYPE(label, val) kVolumeType_##label = (1 << val),
 	#define SET_NUM_VOLUME_TYPES(val) kVolumeType_Count = val,
 #elif VOLUME_TYPE_AS_STRING
 	#define ADD_VOLUME_TYPE(label, val) #label,

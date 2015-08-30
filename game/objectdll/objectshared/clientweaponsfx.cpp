@@ -58,7 +58,8 @@ void CreateClientWeaponFX(CLIENTWEAPONFX & theStruct)
 				{
 					if (WFX_MARK & pAmmo->pImpactFX->nFlags)
 					{
-                        CreateServerMark((CLIENTWEAPONFX)theStruct);
+                        auto fx = theStruct;
+                        CreateServerMark(fx);
 					}
 				}
 

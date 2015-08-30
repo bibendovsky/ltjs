@@ -18,7 +18,7 @@
 #include "uberassert.h"
 #include "stacktrace.h"
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(__MINGW32__)
 
 
 #define MAX_BUFFER 512

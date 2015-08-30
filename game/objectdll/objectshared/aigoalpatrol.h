@@ -17,7 +17,7 @@
 
 // Forward Declarations.
 class AINodePatrol;
-enum  EnumAnimProp;
+enum  EnumAnimProp : int;
 
 
 class CAIGoalPatrol : public CAIGoalAbstract

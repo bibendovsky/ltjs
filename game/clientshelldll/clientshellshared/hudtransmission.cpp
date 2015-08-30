@@ -70,7 +70,7 @@ void CHUDTransmission::Show(const char *pszString)
 
 void CHUDTransmission::UpdateLayout()
 {
-	char *pTag = "Transmission";
+    const char *pTag = "Transmission";
 	m_BasePos = g_pLayoutMgr->GetPoint(pTag,"BasePos");
 
 	uint8 nFont = (uint8)g_pLayoutMgr->GetInt(pTag,"Font");

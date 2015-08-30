@@ -496,11 +496,17 @@ public:
 	// for decompressing streams
 	BYTE*				m_pCompressedBuffer;
 	BYTE*				m_pDecompressedBuffer;
-		WaveFile			m_WaveStream[MAX_WAVE_STREAMS];
+	
+	WaveFile			m_WaveStream[MAX_WAVE_STREAMS];
 	
 private:
 
+#ifdef __MINGW32__
+    static unsigned long __attribute__((stdcall)) ThreadBootstrap(void *pUserData);
+#else
 	static unsigned long _stdcall ThreadBootstrap(void *pUserData);
+#endif
+
 	uint32				Thread_Func();
 	HANDLE				m_cThread_Handle;
 

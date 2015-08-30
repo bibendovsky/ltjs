@@ -30,7 +30,7 @@ class CGameSoundMgr : public CGameButeMgr
         HLTSOUND    PlaySoundFromObject(HOBJECT hObject, char const* pName, LTFLOAT fORadius=-1.0f, SoundPriority ePriority=SOUNDPRIORITY_MISC_LOW,
 										uint32 dwFlags=0, uint8 nVolume=SMGR_DEFAULT_VOLUME, float fPitchShift=1.0f, LTFLOAT fIRadius=-1.0f, uint8 nSoundClass = 0 );
 
-        HLTSOUND    PlaySoundFromPos(LTVector & vPos, char const* pName, LTFLOAT fORadius=-1.0f, SoundPriority ePriority=SOUNDPRIORITY_MISC_LOW,
+        HLTSOUND    PlaySoundFromPos(const LTVector & vPos, char const* pName, LTFLOAT fORadius=-1.0f, SoundPriority ePriority=SOUNDPRIORITY_MISC_LOW,
 									uint32 dwFlags=0, uint8 nVolume=SMGR_DEFAULT_VOLUME, float fPitchShift=1.0f, LTFLOAT fIRadius=-1.0f, uint8 nSoundClass = 0 );
 
 		void		GetRandomSoundFilename(const char* pTag, const char* pAttributeBase, char *pBuf, uint16 nBufLen);

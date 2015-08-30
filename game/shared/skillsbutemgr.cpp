@@ -109,7 +109,7 @@ namespace
 	char s_aTagName[30];
 	char s_aAttName[100];
 
-	char *szInternalSkillNames[kNumSkills] =
+	const char *szInternalSkillNames[kNumSkills] =
 	{
 		"Stealth",
 		"Stamina",

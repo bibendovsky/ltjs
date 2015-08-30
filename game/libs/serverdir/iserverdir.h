@@ -213,8 +213,6 @@ public:
 	// Is this request in request list?
 	virtual bool IsRequestPending(ERequest ePendingRequest) const = 0;
 
-	// A list of servers
-	typedef std::vector<std::string> TPeerList;
 	// Returns the most recently successful request
 	virtual ERequest GetLastSuccessfulRequest() const = 0;
 	// Returns the most recently failed request

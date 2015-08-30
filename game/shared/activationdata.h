@@ -27,7 +27,7 @@ public:
 		m_nType = MID_ACTIVATE_NORMAL;
 		m_hTarget = NULL;
 		m_vIntersect.Init();
-		m_nSurfaceType = NULL;
+		m_nSurfaceType = 0;
 	}
 
 	void Write(ILTMessage_Write *pMsg)

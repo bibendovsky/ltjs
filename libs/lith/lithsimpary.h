@@ -14,6 +14,10 @@
 #ifndef __LITHSIMPARY_H__
 #define __LITHSIMPARY_H__
 
+
+#include <cstring>
+
+
 #ifndef __LITH_H__
 #include "lith.h"
 #endif

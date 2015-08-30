@@ -16,6 +16,13 @@
 #endif
 
 
+template<class T, class TB>
+T LTMIN(T a, TB b);
+
+template<class T, class TB>
+T LTMAX(T a, TB b);
+
+
 //---------------------------------------------------------------------------//
 /*!
 The LTVector2 template allows the application to define a 2-dimensional vector

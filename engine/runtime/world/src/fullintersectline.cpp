@@ -134,7 +134,7 @@ inline bool UseThisObject(LTObject* pServerObj,
 	return true;
 }
 
-inline bool i_BoundingBoxTest(const LTVector& Point1, const LTVector& Point2, const LTObject *pServerObj, 
+bool i_BoundingBoxTest(const LTVector& Point1, const LTVector& Point2, const LTObject *pServerObj, 
     LTVector *pIntersectPt, LTPlane *pIntersectPlane)
 {
     float t;
@@ -303,8 +303,12 @@ inline bool i_OrientedBoundingBoxTest(const ModelOBB &mobb,
 
 	// Setup our OBB's translated position
 	LTMatrix obb_mat;
+    LTVector right_vector(tf.m_Rot.Right());
+    LTVector up_vector(tf.m_Rot.Up());
+    LTVector forward_vector(tf.m_Rot.Forward());
+
 	obb_mat.Identity();
-	obb_mat.SetBasisVectors( &tf.m_Rot.Right(), &tf.m_Rot.Up(), &tf.m_Rot.Forward() );
+	obb_mat.SetBasisVectors( &right_vector, &up_vector, &forward_vector );
 	obb_mat.SetTranslation( tf.m_Pos );
 	obb_mat.Apply(vObbPos);  
 
@@ -424,8 +428,12 @@ static bool i_TestModelOBBS(ModelInstance *pObj)
 		// setup the coordinate frame of the obb.
         LTMatrix obb_mat;
         LTVector vTPos(obb->m_Pos);
+        LTVector right_vector(tf.m_Rot.Right());
+        LTVector up_vector(tf.m_Rot.Up());
+        LTVector forward_vector(tf.m_Rot.Forward());
+
         obb_mat.Identity();
-        obb_mat.SetBasisVectors( &tf.m_Rot.Right(), &tf.m_Rot.Up(), &tf.m_Rot.Forward() );
+        obb_mat.SetBasisVectors( &right_vector, &up_vector, &forward_vector );
         obb_mat.SetTranslation( tf.m_Pos );
         obb_mat.Apply(vTPos);
 

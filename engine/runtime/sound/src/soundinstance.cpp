@@ -138,9 +138,9 @@ LTRESULT	CSoundInstance::Init( CSoundBuffer &soundBuffer, PlaySoundInfo &playSou
 	else
 	{ 
  		m_hSound = ( HLTSOUND )playSoundInfo.m_hSound;
-		g_pClientMgr->AddToObjectMap((uint16)playSoundInfo.m_hSound );
-		g_pClientMgr->m_ObjectMap[( uint16 )playSoundInfo.m_hSound].m_nRecordType = RECORDTYPE_SOUND;
-		g_pClientMgr->m_ObjectMap[( uint16 )playSoundInfo.m_hSound].m_pRecordData = this;
+		g_pClientMgr->AddToObjectMap(static_cast<uint16>(reinterpret_cast<size_t>(playSoundInfo.m_hSound)) );
+		g_pClientMgr->m_ObjectMap[static_cast<uint16>(reinterpret_cast<size_t>(playSoundInfo.m_hSound))].m_nRecordType = RECORDTYPE_SOUND;
+		g_pClientMgr->m_ObjectMap[static_cast<uint16>(reinterpret_cast<size_t>(playSoundInfo.m_hSound))].m_pRecordData = this;
 	}
 
 	// Set this so the game can use it...
@@ -241,9 +241,9 @@ void CSoundInstance::Term( )
 LTRESULT CSoundInstance::DisconnectFromServer( )
 {
 	// If this is a server sound, then remove it from the id list...
-	if(( uint16 )m_hSound != INVALID_OBJECTID && !( m_dwPlaySoundFlags & PLAYSOUND_CLIENT ))
+	if(static_cast<uint16>(reinterpret_cast<size_t>(m_hSound)) != INVALID_OBJECTID && !( m_dwPlaySoundFlags & PLAYSOUND_CLIENT ))
 	{
-		g_pClientMgr->ClearObjectMapEntry((uint16)m_hSound);
+		g_pClientMgr->ClearObjectMapEntry(static_cast<uint16>(reinterpret_cast<size_t>(m_hSound)));
 		m_hSound = ( HLTSOUND )INVALID_OBJECTID;
 	}
 

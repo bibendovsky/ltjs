@@ -2350,7 +2350,8 @@ LTBOOL FIREFX::Init(CButeMgr & buteMgr, char* aTagName)
 	szFXName		= GetString( buteMgr, aTagName, FXBMGR_FIREFX_FXNAME, FXBMGR_MAX_NAME_LENGTH );
 	szBeamFXName	= GetString( buteMgr, aTagName, FXBMGR_FIREFX_BEAMFXNAME, FXBMGR_MAX_NAME_LENGTH );
 
-	vShellScale = buteMgr.GetVector(aTagName, FXBMGR_FIREFX_SHELLSCALE, CAVector( 1.0f, 1.0f, 1.0f ));
+    CAVector one_vector(1.0f, 1.0f, 1.0f);
+	vShellScale = buteMgr.GetVector(aTagName, FXBMGR_FIREFX_SHELLSCALE, one_vector);
 
 	nFlags = 0;
 

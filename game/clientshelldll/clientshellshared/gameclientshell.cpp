@@ -838,7 +838,7 @@ void CGameClientShell::ResetCharacterFXSoundData()
 //
 // ----------------------------------------------------------------------- //
 
-void CGameClientShell::CSPrint(char* msg, ...)
+void CGameClientShell::CSPrint(const char* msg, ...)
 {
 	// parse the message
 
@@ -2104,7 +2104,8 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 	{
 #ifndef _FINAL
 		char *pCheat = "mpclip";
-		g_pCheatMgr->Check(CParsedMsg( 1, &pCheat ));
+        CParsedMsg msg(1, &pCheat);
+		g_pCheatMgr->Check(msg);
 #endif
 		return;
 	}
@@ -2113,7 +2114,8 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 	{
 #ifndef _FINAL
 		char *pCheat = "mppoltergeist";
-		g_pCheatMgr->Check(CParsedMsg( 1, &pCheat ));
+        CParsedMsg msg(1, &pCheat);
+		g_pCheatMgr->Check(msg);
 #endif
 		return;
 	}
@@ -3606,7 +3608,7 @@ void CGameClientShell::UpdateDebugInfo()
 //
 // --------------------------------------------------------------------------- //
 
-void CGameClientShell::SetDebugString(char* strMessage, DSSL eLoc, uint8 nLine)
+void CGameClientShell::SetDebugString(const char* strMessage, DSSL eLoc, uint8 nLine)
 {
 	if (!strMessage || strMessage[0] == '\0') return;
 	if (nLine < 0 || nLine >= kMaxDebugStrings) return;
@@ -4040,7 +4042,7 @@ void CGameClientShell::RestoreMusic()
 ///				specified by pCVarName.
 //
 // --------------------------------------------------------------------------- //
-void CGameClientShell::MirrorSConVar(char *pSVarName, char *pCVarName)
+void CGameClientShell::MirrorSConVar(const char *pSVarName, const char *pCVarName)
 {
 	char buf[512];
 	float fVal = 0.0f;

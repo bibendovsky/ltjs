@@ -114,11 +114,11 @@ class CVehicleMgr
 	void		UpdateVehicleMotion();
 	void		UpdateVehicleGear();
 	void		UpdateVehicleSounds();
-	char*		GetIdleSnd();
-	char*		GetBrakeSnd();
-	char*		GetAccelSnd();
-	char*		GetDecelSnd();
-	char*		GetImpactSnd(LTFLOAT fCurVelocityPercent, SURFACE* pSurface);
+	const char* GetIdleSnd();
+    const char* GetBrakeSnd();
+    const char* GetAccelSnd();
+    const char* GetDecelSnd();
+    const char* GetImpactSnd(LTFLOAT fCurVelocityPercent, SURFACE* pSurface);
 	
 	LTFLOAT		GetVehicleAccelTime();
 	LTFLOAT		GetVehicleMinTurnAccel();
@@ -140,8 +140,8 @@ class CVehicleMgr
 
 	void        KillAllVehicleSounds(HLTSOUND hException=LTNULL);
 	
-	void		PlayVehicleAni(char* pAniName, LTBOOL bReset=LTTRUE, LTBOOL bLoop=LTFALSE);
-	LTBOOL		IsCurVehicleAni(char* pAniName, LTBOOL & bIsDone);
+	void		PlayVehicleAni(const char* pAniName, LTBOOL bReset=LTTRUE, LTBOOL bLoop=LTFALSE);
+	LTBOOL		IsCurVehicleAni(const char* pAniName, LTBOOL & bIsDone);
 
 	LTBOOL		PreSetPhysicsModel(PlayerPhysicsModel eModel);
 

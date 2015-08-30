@@ -560,8 +560,8 @@ void d3d_MakeCubicEnvMap(const char* pszPrefix, uint32 nSize, const SceneDesc& I
 	}
 
 	//ok, so the screen can take it, so let us begin setting up all 6 images
-	uint32 nOldScreenWidth = g_ScreenWidth;
-	uint32 nOldScreenHeight = g_ScreenHeight;
+	int32 nOldScreenWidth = g_ScreenWidth;
+	int32 nOldScreenHeight = g_ScreenHeight;
 
 	//first off, override our screen dimensions to fit those of the cubic environment map
 	g_ScreenWidth = nSize;

@@ -195,8 +195,8 @@ void CLiteObjectMgr::Clear()
 	m_aNameMap.clear();
 
 	// Clear the initial update list
-	m_aInitialUpdateObjects.swap(TObjectList());
-	m_aInitialUpdateObjectsLoad.swap(TObjectList());
+    TObjectList().swap(m_aInitialUpdateObjects);
+    TObjectList().swap(m_aInitialUpdateObjectsLoad);
 
 	// You're clean, now
 	SetDirty(eDirty_All, false);
@@ -375,7 +375,7 @@ void CLiteObjectMgr::PreStartWorld(bool bSwitchingWorlds)
 	else
 	{
 		m_aDeleteObjects.insert(m_aDeleteObjects.end(), m_aActiveObjects.begin(), m_aActiveObjects.end());
-		m_aActiveObjects.swap(TObjectList());
+        TObjectList().swap(m_aActiveObjects);
 	}
 	m_nNumActiveObjects = 0;
 
@@ -384,7 +384,7 @@ void CLiteObjectMgr::PreStartWorld(bool bSwitchingWorlds)
 	else
 	{
 		m_aDeleteObjects.insert(m_aDeleteObjects.end(), m_aInactiveObjects.begin(), m_aInactiveObjects.end());
-		m_aInactiveObjects.swap(TObjectList());
+        TObjectList().swap(m_aInactiveObjects);
 	}
 	m_nNumInactiveObjects = 0;
 
@@ -392,7 +392,7 @@ void CLiteObjectMgr::PreStartWorld(bool bSwitchingWorlds)
 	m_aNameMap.clear();
 
 	// Clear the initial update list
-	m_aInitialUpdateObjects.swap(TObjectList());
+    TObjectList().swap(m_aInitialUpdateObjects);
 
 	// You're clean, now
 	SetDirty(eDirty_All, false);
@@ -528,7 +528,7 @@ void CLiteObjectMgr::RemoveObjectList(TObjectList &aList)
 		}
 	}
 	// Forget...
-	aList.swap(TObjectList());
+    TObjectList().swap(aList);
 }
 
 GameBaseLite *CLiteObjectMgr::LoadObjectInfo(ILTMessage_Read *pMsg, uint32 nSerializeID)
@@ -591,7 +591,7 @@ void CLiteObjectMgr::HandlePendingInitialUpdates()
 			(*iCurObj)->InitialUpdate(INITIALUPDATE_SAVEGAME);
 	}
 	// Clear the list
-	m_aInitialUpdateObjectsLoad.swap(TObjectList());
+    TObjectList().swap(m_aInitialUpdateObjectsLoad);
 	// Send initial updates to all the objects that are waiting for one
 	iCurObj = m_aInitialUpdateObjects.begin();
 	for (; iCurObj != m_aInitialUpdateObjects.end(); ++iCurObj)
@@ -600,7 +600,7 @@ void CLiteObjectMgr::HandlePendingInitialUpdates()
 			(*iCurObj)->InitialUpdate(INITIALUPDATE_NORMAL);
 	}
 	// Clear the list
-	m_aInitialUpdateObjects.swap(TObjectList());
+    TObjectList().swap(m_aInitialUpdateObjects);
 }
 
 void CLiteObjectMgr::HandlePendingDeletes()

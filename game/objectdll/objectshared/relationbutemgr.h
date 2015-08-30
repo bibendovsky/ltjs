@@ -68,7 +68,7 @@ struct RelationUser_Template
 	RelationUser_Template()
 	{
 		m_nTemplateID = -1;
-		m_szKey[0] = NULL;
+		m_szKey[0] = '\0';
 	}
 
 	int			m_nTemplateID;	// Template ID for lookups without a string compare.
@@ -82,7 +82,7 @@ struct DataUser_Template
 	DataUser_Template()
 	{
 		m_nTemplateID = -1;
-		m_szKey[0] = NULL;
+		m_szKey[0] = '\0';
 	}
 
 	int			m_nTemplateID;	// Template ID for lookups without a string compare.
@@ -95,8 +95,8 @@ struct Collective_Template
 	Collective_Template()
 	{
 		m_nTemplateID = -1;
-		m_szKey[0] = NULL;
-		m_szRelationSet[0] = NULL;
+		m_szKey[0] = '\0';
+		m_szRelationSet[0] = '\0';
 	}
 
 	int		m_nTemplateID;	// Template ID for lookups without a string compare.
@@ -110,10 +110,10 @@ struct ObjectRelationMgr_Template
 	ObjectRelationMgr_Template()
 	{
 		m_nTemplateID = -1;
-		m_szKey[0] = NULL;
-		m_szCollectiveName[0] = NULL;
-		m_szRelationSet[0] = NULL;
-		m_szDataSet[0] = NULL;
+		m_szKey[0] = '\0';
+		m_szCollectiveName[0] = '\0';
+		m_szRelationSet[0] = '\0';
+		m_szDataSet[0] = '\0';
 	}
 
 	int		m_nTemplateID;	// Template ID for lookups without a string compare.

@@ -564,30 +564,43 @@ if (MSVC)
         PATH_TO_DX_LIBS
         ${CMAKE_SOURCE_DIR}/directx/lib/x86
     )
+endif ()
 
+if (MSVC)
     set(
         LIBS
         ${PATH_TO_DX_LIBS}/ddraw.lib
         ${PATH_TO_DX_LIBS}/d3dx9.lib
         ${PATH_TO_DX_LIBS}/d3d9.lib
-        debug ${PATH_TO_DX_LIBS}/dxerr9.lib
         ${PATH_TO_DX_LIBS}/dxguid.lib
-        winmm
-        ${PATH_TO_DX_LIBS}/dplayx.lib
         ${PATH_TO_DX_LIBS}/dinput8.lib
+        ${PATH_TO_DX_LIBS}/dplayx.lib
+        winmm
+    )
+endif ()
+
+if (MINGW)
+    set(
+        LIBS
+        d3d9
+        d3dx9
+        dbghelp
+        dxguid
+        dinput8
+        winmm
+        ws2_32
     )
 endif ()
 
 target_link_libraries(
     ${LTJS_TARGET}
-    ${LIBS}
     ltjs_lib_d3d_render
     ltjs_lib_lt_mem
     ltjs_lib_rez_mgr
     ltjs_lib_std_lith
-    ltjs_lib_dshow
     ltjs_lib_ilt_sound
     ltjs_lib_lith
     ltjs_lib_ui
     ltjs_lib_info
+    ${LIBS}
 )

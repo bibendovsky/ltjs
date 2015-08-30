@@ -85,4 +85,4 @@ class CVersionMgr
 
 extern CVersionMgr* g_pVersionMgr;
 
-#endif __VERSION_MGR_H__
+#endif // __VERSION_MGR_H__

@@ -272,7 +272,7 @@ void CHUDScores::Update()
 
 void CHUDScores::UpdateLayout()
 {
-	char *pTag = "Scores";
+    const char *pTag = "Scores";
 	m_BasePos = g_pLayoutMgr->GetPoint(pTag,"BasePos");
 	uint8 nFont = (uint8)g_pLayoutMgr->GetInt(pTag,"Font");
 	m_nBaseFontSize = (uint8)g_pLayoutMgr->GetInt(pTag,"FontSize");

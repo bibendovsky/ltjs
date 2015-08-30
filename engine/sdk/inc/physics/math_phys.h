@@ -162,6 +162,7 @@ inline	T DEGREES_TO_RADIANS( T a )	{ return a*RADIANS_PER_DEGREE; }
 
 
 //---------------------------------------------------------------------------//
+#if 0
 //read time stamp (cycle) counter
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifdef _WIN32
@@ -179,7 +180,7 @@ inline int32 rdtsc()
 }
 #endif//win32
 #endif//doxygen
-
+#endif
 
 //---------------------------------------------------------------------------//
 /*!

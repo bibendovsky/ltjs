@@ -131,7 +131,7 @@ void GetConsoleString(char const* sKey, char* sDest, char const* sDefault)
 char*  GetConsoleTempString(char const* sKey, char const* sDefault)
 {
 	static char szTmp[256];
-	szTmp[0] = NULL;
+	szTmp[0] = '\0';
     if (g_pLTClient)
 	{
         HCONSOLEVAR hVar = g_pLTClient->GetConsoleVar(( char* )sKey);

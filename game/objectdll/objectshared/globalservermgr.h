@@ -43,7 +43,7 @@ class CGlobalServerMgr : public CGlobalMgr
 
 	protected :
 
-		virtual void	ShutdownWithError(char* pMgrName, char* pButeFilePath);
+		virtual void	ShutdownWithError(const char* pMgrName, const char* pButeFilePath);
 
 	private :
 

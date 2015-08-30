@@ -61,7 +61,7 @@ void CInterfaceSurfMgr::FreeAllSurfaces()
 }
 
 // Returns a handle to a surface from its bitmap filename.
-HSURFACE CInterfaceSurfMgr::GetSurface(char *lpszSurface)
+HSURFACE CInterfaceSurfMgr::GetSurface(const char *lpszSurface)
 {
 	if (!lpszSurface)
 	{
@@ -108,7 +108,7 @@ HSURFACE CInterfaceSurfMgr::GetSurface(char *lpszSurface)
 }
 
 // Frees a surface.  It is only removed when its reference count reaches zero
-void CInterfaceSurfMgr::FreeSurface(char *lpszSurface)
+void CInterfaceSurfMgr::FreeSurface(const char *lpszSurface)
 {
 	int nIndex=FindSurfaceIndex(lpszSurface);
 
@@ -148,7 +148,7 @@ void CInterfaceSurfMgr::FreeSurface(int nIndex)
 }
 
 // Finds a surface index into the surface array
-int CInterfaceSurfMgr::FindSurfaceIndex(char *lpszSurface)
+int CInterfaceSurfMgr::FindSurfaceIndex(const char *lpszSurface)
 {
 	unsigned int i;
 	for (i=0; i < m_sharedSurfaceArray.GetSize(); i++)

@@ -655,13 +655,13 @@ namespace Animation
 
 			// Methods
 
-            const CMap<std::string, std::string, t_nSize>::FnHash& GetFnHash() const
+            const typename CMap<std::string, std::string, t_nSize>::FnHash& GetFnHash() const
 			{
 				static FnHashCStr fnHashCStr;
 				return fnHashCStr;
 			}
 
-            const CMap<std::string, std::string, t_nSize>::FnCompare& GetFnCompare() const
+            const typename CMap<std::string, std::string, t_nSize>::FnCompare& GetFnCompare() const
 			{
 				static FnCompareCStr fnCompareCStr;
 				return fnCompareCStr;
@@ -696,13 +696,13 @@ namespace Animation
 
 			// Methods
 
-            const CMap<std::string, t_Cls, t_nSize>::FnHash& GetFnHash() const
+            const typename CMap<std::string, t_Cls, t_nSize>::FnHash& GetFnHash() const
 			{
 				static FnHashCStr fnHashCStr;
 				return fnHashCStr;
 			}
 
-            const CMap<std::string, t_Cls, t_nSize>::FnCompare& GetFnCompare() const
+            const typename CMap<std::string, t_Cls, t_nSize>::FnCompare& GetFnCompare() const
 			{
 				static FnCompareCStr fnCompareCStr;
 				return fnCompareCStr;

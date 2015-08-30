@@ -16,16 +16,10 @@
 #include "debugline.h"
 #include "msgids.h"
 #include "ltobjref.h"
-#if _MSC_VER >= 1300
-#	include "objecttemplatemgr.h"
-#endif // VC7
+#include "objecttemplatemgr.h"
 
 #pragma warning( disable : 4786 )
-#ifdef _MSC_VER >= 1900
 #include <unordered_map>
-#else
-#include <hash_map>
-#endif
 #include <string>
 
 LINKFROM_MODULE( DebugLineSystem );
@@ -127,13 +121,7 @@ namespace LineSystem
 			  pLineSystem(0) {}
 	};
 
-#if _MSC_VER >= 1300 && _MSC_VER < 1900
-	typedef std::hash_map< std::string, SystemEntry, ObjectTemplateMgrHashCompare > SystemMap;
-#elif _MSC_VER >= 1900
-    typedef std::unordered_map< std::string, SystemEntry, ObjectTemplateMgrHashCompare, ObjectTemplateMgrHashCompare > SystemMap;
-#else
-	typedef std::hash_map< std::string, SystemEntry > SystemMap;
-#endif // VC7
+	typedef std::unordered_map< std::string, SystemEntry, ObjectTemplateMgrHashCompare, ObjectTemplateMgrHashCompare > SystemMap;
 
 	SystemMap g_systems;
 

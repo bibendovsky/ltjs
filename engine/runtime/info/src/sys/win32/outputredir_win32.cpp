@@ -83,7 +83,7 @@ void COutputRedir::OutputToASSERT()
 	//assert
 	//(void)( (0) || (_assert(m_pPrintBuffer, __FILE__, __LINE__), 0) );
 
-#ifdef _WIN32
+#ifndef __MINGW32__
 	//_assert(m_pPrintBuffer, __FILE__, __LINE__);
     _CrtDbgReport(_CRT_ASSERT, NULL, 0, "server.dll", "%s", m_pPrintBuffer);
 #else

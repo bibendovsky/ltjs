@@ -10,8 +10,8 @@
 //
 // ------------------------------------------------------------------ //
 
+#include <cmath>
 #include "bdefs.h"
-
 #include "de_world.h"
 #include "collision.h"
 #include "de_objects.h"
@@ -23,9 +23,13 @@
 #include "world_blocker_math.h"
 #include "iltphysics.h"
 
+
+#if 0
 #ifdef _WIN32
 #define isnan _isnan
 #endif
+#endif
+
 /*
 	BASIC COLLISION ALGORITHM
 
@@ -1521,9 +1525,9 @@ bool CollideCylinderWithTree
 			else
 			{
 				if (nRetryHitCount != pInfo->m_nHits ||
-					(isnan(theCylinder.m_vEnd[0])) ||
-					(isnan(theCylinder.m_vEnd[1])) ||
-					(isnan(theCylinder.m_vEnd[2])) )
+					(std::isnan(theCylinder.m_vEnd[0])) ||
+					(std::isnan(theCylinder.m_vEnd[1])) ||
+					(std::isnan(theCylinder.m_vEnd[2])) )
 					theCylinder.m_vEnd = P0 + offset;
 				break;
 			}

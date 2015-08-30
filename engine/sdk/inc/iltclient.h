@@ -1524,7 +1524,7 @@ is an 8-bit PCX file. (You can use any palette you want.)
 
 Used for: 2D Rendering.
 */
-    HSURFACE (*CreateSurfaceFromBitmap)(char *pBitmapName);
+    HSURFACE (*CreateSurfaceFromBitmap)(const char *pBitmapName);
 
 /*!
 \param  pData     The data returned from CreateHeightmapFromBitmap.
@@ -3769,7 +3769,7 @@ what you want and it fills in pData.
 
 Used for: Misc.
 */
-    LTRESULT (*GetEngineHook)(char *pName, void **pData);
+    LTRESULT (*GetEngineHook)(const char *pName, void **pData);
 
 /*!
 \param pCaps Name of engine hook.

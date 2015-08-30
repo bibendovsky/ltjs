@@ -360,7 +360,7 @@ void CHUDMessageQueue::DecHistoryOffset()
 void CHUDChatMsgQueue::UpdateLayout()
 {
 
-	char *pTag = "ChatMessageQueue";
+	const char *pTag = "ChatMessageQueue";
 	m_BasePos = g_pLayoutMgr->GetPoint(pTag,"BasePos");
 
 	uint8 nFont = (uint8)g_pLayoutMgr->GetInt(pTag,"Font");
@@ -450,7 +450,7 @@ void CHUDPickupMsgQueue::UpdateLayout()
 {
 	m_bTopJustify = LTFALSE;
 
-	char *pTag = "PickupMessageQueue";
+	const char *pTag = "PickupMessageQueue";
 	m_BasePos = g_pLayoutMgr->GetPoint(pTag,"BasePos");
 
 	uint8 nFont = (uint8)g_pLayoutMgr->GetInt(pTag,"Font");
@@ -502,7 +502,7 @@ void CHUDRewardMsgQueue::UpdateLayout()
 {
 	m_bTopJustify = LTFALSE;
 
-	char *pTag = "RewardMessageQueue";
+    const char *pTag = "RewardMessageQueue";
 	m_BasePos = g_pLayoutMgr->GetPoint(pTag,"BasePos");
 
 	uint8 nFont = (uint8)g_pLayoutMgr->GetInt(pTag,"Font");

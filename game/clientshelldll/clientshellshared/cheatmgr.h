@@ -29,7 +29,16 @@ class CCheatMgr
 		void	Init();
 
         LTBOOL  Check( CParsedMsg &cMsg );
-        LTBOOL  Check( const char* pMsg ) { return (pMsg && pMsg[0] ? Check(CParsedMsg(1, (const char * const *)&pMsg)) : LTFALSE); }
+        LTBOOL  Check( const char* pMsg )
+        {
+            if (pMsg && pMsg[0]) {
+                CParsedMsg parsed_message(1, (const char * const *)&pMsg);
+                return Check(parsed_message);
+            }
+            else {
+                return LTFALSE;
+            }
+        }
         void	ClearCheater() { m_bPlayerCheated = LTFALSE; }
         LTBOOL	IsCheater() { return m_bPlayerCheated; }
 
@@ -42,7 +51,7 @@ class CCheatMgr
 
 		struct CheatInfo
 		{
-			char			*pzText;
+            const char*     pzText;
 			LTBOOL			bActive;
 		};
 

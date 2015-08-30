@@ -1,4 +1,5 @@
 #include "blowfish.h"
+#include <cstdint>
 #include "random.h"
 #include "woncommon/littleendian.h"
 
@@ -343,7 +344,7 @@ bool Blowfish::Create(int theLen)
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-const int Blowfish::Pinit[] = 
+const uint32_t Blowfish::Pinit[] = 
 {
         0x243F6A88, 0x85A308D3, 0x13198A2E, 0x03707344,
         0xA4093822, 0x299F31D0, 0x082EFA98, 0xEC4E6C89,
@@ -352,7 +353,7 @@ const int Blowfish::Pinit[] =
         0x9216D5D9, 0x8979FB1B
 };
 
-const int Blowfish::Sinit[] = 
+const uint32_t Blowfish::Sinit[] =
 {
         0xD1310BA6, 0x98DFB5AC, 0x2FFD72DB, 0xD01ADFB7,    // S0
         0xB8E1AFED, 0x6A267E96, 0xBA7C9045, 0xF12C7F99,

@@ -1303,7 +1303,7 @@ static LTRESULT cis_FreeHeightmap(uint8* pData)
 }
 
 
-static HSURFACE cis_CreateSurfaceFromBitmap(char *pBitmapName)
+static HSURFACE cis_CreateSurfaceFromBitmap(const char *pBitmapName)
 {
 	LoadedBitmap bitmap;
 	HSURFACE hRet;
@@ -1662,7 +1662,7 @@ static LTRESULT cis_SetSurfaceAlpha(HSURFACE hSurface, float alpha)
 }
 
 
-static LTRESULT cis_GetEngineHook(char *pName, void **pData)
+static LTRESULT cis_GetEngineHook(const char *pName, void **pData)
 {
 	if(stricmp(pName, "hwnd") == 0)
 	{

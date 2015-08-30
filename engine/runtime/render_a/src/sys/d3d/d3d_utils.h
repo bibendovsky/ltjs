@@ -150,6 +150,7 @@ inline void GetVertexFlags_and_Size(VERTEX_BLEND_TYPE VertBlendType, uint32 iVer
 }
 
 // For error checking/reporting...
+#if 0
 #ifdef _DEBUG
 #define OUTPUT_D3D_ERROR(iLevel,hResult)					\
 	{														\
@@ -161,6 +162,27 @@ inline void GetVertexFlags_and_Size(VERTEX_BLEND_TYPE VertBlendType, uint32 iVer
 	}
 #else
 #define OUTPUT_D3D_ERROR(iLevel,hResult)
+#endif
+#else
+#ifdef _DEBUG
+inline void OUTPUT_D3D_ERROR(
+    uint32 level,
+    HRESULT result)
+{
+    ::AddDebugMessage(
+        level,
+        "D3D9 error code: %08lx.",
+        result);
+}
+#else
+inline void OUTPUT_D3D_ERROR(
+    uint32 level,
+    HRESULT result)
+{
+    static_cast<void>(level);
+    static_cast<void>(result);
+}
+#endif
 #endif
 
 // Checking results of D3D Calls...

@@ -440,7 +440,7 @@ HLTSOUND CGameSoundMgr::PlaySoundFromObject(HOBJECT hObject, char const* pName, 
 //
 // ----------------------------------------------------------------------- //
 
-HLTSOUND CGameSoundMgr::PlaySoundFromPos(LTVector & vPos, char const* pName, LTFLOAT fORadius,
+HLTSOUND CGameSoundMgr::PlaySoundFromPos(const LTVector & vPos, char const* pName, LTFLOAT fORadius,
                                      SoundPriority ePriority, uint32 dwFlags,
 									 uint8 nVolume, float fPitchShift, LTFLOAT fIRadius, uint8 nSoundClass )
 {

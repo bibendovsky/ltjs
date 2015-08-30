@@ -35,8 +35,8 @@ static const char s_szDefaultSkin[]		= "Props\\Skins\\PuAmmoBox.dtx";
 		
  
 #define ADD_AMMO_PROP(num) \
-		ADD_STRINGPROP_FLAG(AmmoType##num##, UNUSED_STRING, PF_STATICLIST)\
-		ADD_LONGINTPROP(AmmoCount##num##, 0)
+		ADD_STRINGPROP_FLAG(AmmoType##num, UNUSED_STRING, PF_STATICLIST)\
+		ADD_LONGINTPROP(AmmoCount##num, 0)
 
 LINKFROM_MODULE( AmmoBox );
 

@@ -44,42 +44,42 @@
 
 		// Member Functions
 
-		void								Enum(char *sName, int value)
+		void								Enum(const char *sName, int value)
 											{
 												strcpy(m_sName, sName);
 												m_nType = eDataType::ENUM;
 												m_data.m_nVal = value;
 											}
 		
-		void								Int(char *sName, int value) 
+		void								Int(const char *sName, int value)
 											{ 
 												strcpy(m_sName, sName);
 												m_nType = eDataType::INTEGER;
 												m_data.m_nVal = value;
 											}
 
-		void								Float(char *sName, float value) 
+		void								Float(const char *sName, float value)
 											{ 
 												strcpy(m_sName, sName);
 												m_nType = eDataType::FLOAT;
 												m_data.m_fVal = value;
 											}
 
-		void								String(char *sName, char *sString) 
+		void								String(const char *sName, const char *sString)
 											{ 
 												strcpy(m_sName, sName);
 												m_nType = eDataType::STRING;												
 												strcpy(m_data.m_sVal, sString);
 											}
 
-		void								Combo(char *sName, char *sString) 
+		void								Combo(const char *sName, const char *sString)
 											{ 
 												strcpy(m_sName, sName);
 												m_nType = eDataType::COMBO;
 												strcpy(m_data.m_sVal, sString);
 											}
 
-		void								Vector(char *sName, float *pfVec) 
+		void								Vector(const char *sName, const float *pfVec)
 											{ 
 												strcpy(m_sName, sName);
 												m_nType = eDataType::VECTOR;
@@ -88,7 +88,7 @@
 												m_data.m_fVec[2] = pfVec[2];
 											}
 
-		void								Vector4(char *sName, float *pfVec4) 
+		void								Vector4(const char *sName, const float *pfVec4)
 											{ 
 												strcpy(m_sName, sName);
 												m_nType = eDataType::VECTOR;
@@ -98,7 +98,7 @@
 												m_data.m_fVec[3] = pfVec4[3];
 											}
 
-		void								ClrKey(char *sName, float tmKey, uint32 dwCol)
+		void								ClrKey(const char *sName, float tmKey, uint32 dwCol)
 											{
 												strcpy(m_sName, sName);
 												m_nType = eDataType::CLRKEY;
@@ -106,7 +106,7 @@
 												m_data.m_clrKey.m_dwCol = dwCol;
 											}
 
-		void								Path(char *sName, char *sString) 
+		void								Path(const char *sName, const char *sString)
 											{ 
 												strcpy(m_sName, sName);
 												m_nType = eDataType::PATH;

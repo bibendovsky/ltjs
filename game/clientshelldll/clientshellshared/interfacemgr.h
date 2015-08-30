@@ -572,7 +572,7 @@ private:
 		LTBOOL	m_bSeenDemoScreens;
 
 		void	NextMovie(bool bEndMovies=false);
-		char*	GetCurrentMovie();
+		const char*	GetCurrentMovie();
 		HVIDEO	m_hMovie;
 		int		m_nCurMovie;
 

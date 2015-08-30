@@ -34,14 +34,31 @@ add_library(
     ${SRCS}
 )
 
+if (MSVC)
+    set_target_properties(
+        ${LTJS_TARGET}
+        PROPERTIES
+            LINK_FLAGS /SUBSYSTEM:WINDOWS
+    )
+endif ()
+
+if (MINGW)
+    set(
+        LIBS
+        ws2_32
+    )
+endif ()
+
 set_target_properties(
     ${LTJS_TARGET}
     PROPERTIES
         OUTPUT_NAME serverdir
+        PREFIX ""
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
 
 target_link_libraries(
     ${LTJS_TARGET}
     ltjs_lib_won_api
+    ${LIBS}
 )

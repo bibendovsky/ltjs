@@ -397,7 +397,7 @@ static void con_RestartRender(int argc, char *argv[])
 //------------------------------------------------------------------
 static void con_ResizeScreen(int argc, char *argv[])
 {
-	uint32 oldScreenWidth, oldScreenHeight;
+	int32 oldScreenWidth, oldScreenHeight;
 	LTRESULT dResult;
 
 	if(argc >= 2)

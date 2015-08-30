@@ -211,7 +211,7 @@ LTBOOL CBaseMenu::Init()
 	m_List.UseArrows(nOffset ,1.0f,s_Up,s_UpH,s_Down,s_DownH);
 	CLTGUIWindow::AddControl(&m_List,pos);
 
-	m_Resume.Create(LoadTempString(IDS_RESUME),MC_CLOSE,NULL,pFont,m_TitleFontSize,this);
+	m_Resume.Create(LoadTempString(IDS_RESUME),MC_CLOSE,0,pFont,m_TitleFontSize,this);
 
 	pos.x = s_Size.x - m_Indent.x - m_Resume.GetWidth();
 	pos.y = 12;
@@ -292,7 +292,7 @@ uint16 CBaseMenu::AddControl (int stringID, uint32 commandID, LTBOOL bStatic)
 	return AddControl(LoadTempString(stringID),commandID,bStatic);
 }
 
-uint16 CBaseMenu::AddControl (char *pString, uint32 commandID, LTBOOL bStatic)
+uint16 CBaseMenu::AddControl (const char *pString, uint32 commandID, LTBOOL bStatic)
 {
 	CUIFont* pFont = g_pInterfaceResMgr->GetFont(m_FontFace);
 	if (!pFont) return -1;

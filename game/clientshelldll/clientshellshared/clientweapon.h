@@ -23,7 +23,7 @@
 
 // forward definitions to reduce header dependancies
 struct CLIENTFX_LINK;
-enum SurfaceType;
+enum SurfaceType : int;
 
 //
 // Defines

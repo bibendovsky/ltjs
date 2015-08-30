@@ -120,7 +120,7 @@ void CHUDMissionText::SetScale(float fScale)
 void CHUDMissionText::UpdateLayout()
 {
 
-	char *pTag = "MissionText";
+    const char *pTag = "MissionText";
 	m_BasePos = g_pLayoutMgr->GetPoint(pTag,"Pos");
 
 	uint8 nFont = (uint8)g_pLayoutMgr->GetInt(pTag,"Font");

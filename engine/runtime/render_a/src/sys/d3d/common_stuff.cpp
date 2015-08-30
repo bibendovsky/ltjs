@@ -11,7 +11,10 @@ RenderStruct *g_pStruct=NULL;
 HWND	g_hWnd;
 bool	g_bRunWindowed;
 
-uint32	g_ScreenWidth, g_ScreenHeight;
+#if 0
+uint32 g_ScreenWidth;
+uint32 g_ScreenHeight;
+#endif
 
 // The main list of ConVars.
 BaseConVar* g_pConVars	= NULL;

@@ -523,8 +523,11 @@ void CAttachments::CreateWeaponAttachment(CAttachmentPosition *pAttachmentPositi
 	// Attach it
 
 	HATTACHMENT hAttachment;
+    LTVector zero_vector(0, 0, 0);
+    LTRotation zero_rotation;
+
     LTRESULT dRes = g_pLTServer->CreateAttachment(m_hObject, pModel->m_hObject, (char*)pAttachmentPosition->GetName(),
-												 &LTVector(0,0,0), &LTRotation(), &hAttachment);
+												 &zero_vector, &zero_rotation, &hAttachment);
 
 	((CAttachmentWeapon*)pAttachment)->Init(m_hObject, pModel->m_hObject, -1, nWeaponID, nAmmoID);
 
@@ -597,7 +600,10 @@ void CAttachments::CreateObjectAttachment(CAttachmentPosition *pAttachmentPositi
 	// Attach it
 
 	HATTACHMENT hAttachment;
-    LTRESULT dRes = g_pLTServer->CreateAttachment(m_hObject, pModel->m_hObject, (char*)pAttachmentPosition->GetName(), &LTVector(0,0,0), &LTRotation(), &hAttachment);
+    LTVector zero_vector(0, 0, 0);
+    LTRotation zero_rotation;
+
+    LTRESULT dRes = g_pLTServer->CreateAttachment(m_hObject, pModel->m_hObject, (char*)pAttachmentPosition->GetName(), &zero_vector, &zero_rotation, &hAttachment);
 
 	// Notify the attachment that it is being attached.
 	SendTriggerMsgToObject(g_pLTServer->HandleToObject(m_hObject), pModel->m_hObject, LTFALSE, KEY_ATTACH);
@@ -671,8 +677,10 @@ void CAttachments::CreatePropAttachment(CAttachmentPosition *pAttachmentPosition
 	// Attach it
 
 	HATTACHMENT hAttachment;
+    LTVector zero_vector(0, 0, 0);
+
     LTRESULT dRes = g_pLTServer->CreateAttachment(m_hObject, pModel->m_hObject, (char*)pAttachmentPosition->GetName(),
-											   &LTVector(0,0,0), &rRot, &hAttachment);
+											   &zero_vector, &rRot, &hAttachment);
 
 	if ( dRes != LT_OK ) 
 	{
@@ -731,9 +739,11 @@ void CAttachments::ReInit(HOBJECT hNewObj)
 				}
 
 				// Attach the model to us...
+                LTVector zero_vector(0, 0, 0);
+                LTRotation zero_rotation;
 
                 g_pLTServer->CreateAttachment(m_hObject, hModel, (char*)pCurPos->GetName(),
-					&LTVector(0,0,0), &LTRotation(), &hAttachment);
+					&zero_vector, &zero_rotation, &hAttachment);
 
 				// Notify the attachment that it is being attached.
 				SendTriggerMsgToObject(g_pLTServer->HandleToObject(m_hObject), hModel, LTFALSE, KEY_ATTACH);
@@ -1100,8 +1110,10 @@ void CAttachments::RemoveAndRecreateAttachments()
 				g_pLTServer->RemoveAttachment( hAttachment );
 
 				// Reattach
-				
-				if( LT_OK != g_pLTServer->CreateAttachment( m_hObject, pAttachment->GetModel(), pAttachPos->GetName(), &LTVector(0,0,0), &LTRotation(), &hAttachment ))
+                LTVector zero_vector(0, 0, 0);
+                LTRotation zero_rotation;
+
+				if( LT_OK != g_pLTServer->CreateAttachment( m_hObject, pAttachment->GetModel(), pAttachPos->GetName(), &zero_vector, &zero_rotation, &hAttachment ))
 				{
 					UBER_ASSERT1( 0, "CAttachments::RemoveAndRecreateAttachments: Unable to reattach attachment at position '%s'", pAttachPos->GetName() );
 					continue;

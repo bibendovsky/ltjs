@@ -14,10 +14,10 @@
 //          the actual .cpp after BEGIN_CLASS
 //
 #define DEFINE_DEDIT_COLOR(class_name, r, g, b) \
-	static LTVector GetDeditColor##class_name##() { return LTVector(r, g, b); }
+	static LTVector GetDeditColor##class_name() { return LTVector(r, g, b); }
 
 #define ADD_DEDIT_COLOR(class_name) \
-	ADD_COLORPROP_FLAG(Color, GetDeditColor##class_name##().x, GetDeditColor##class_name##().y, GetDeditColor##class_name##().z, PT_COLOR|PF_HIDDEN)
+	ADD_COLORPROP_FLAG(Color, GetDeditColor##class_name().x, GetDeditColor##class_name().y, GetDeditColor##class_name().z, PT_COLOR|PF_HIDDEN)
 
 
 //

@@ -13,7 +13,7 @@
 #ifndef __BODY_PROP_H__
 #define __BODY_PROP_H__
 
-enum  EnumAIStateType;
+enum  EnumAIStateType : int;
 class CAttachments;
 class CBodyState;
 class CSearchable;

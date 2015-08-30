@@ -14,7 +14,7 @@
 
 #include "aigoalabstractsearch.h"
 
-enum EnumAIStimulusID;
+enum EnumAIStimulusID : int;
 
 class CAIGoalRespondToAlarm : public CAIGoalAbstractSearch
 {

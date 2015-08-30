@@ -19,11 +19,11 @@
 #endif
  
 #if GOAL_TYPE_AS_ENUM
-	#define ADD_GOAL_TYPE(label) kGoal_##label##,
+	#define ADD_GOAL_TYPE(label) kGoal_##label,
 #elif GOAL_TYPE_AS_STRING
 	#define ADD_GOAL_TYPE(label) #label,
 #elif GOAL_TYPE_AS_SWITCH
-	#define ADD_GOAL_TYPE(label) case kGoal_##label##: extern CAIClassAbstract* AIFactoryCreateCAIGoal##label##(); return (CAIGoalAbstract*)AIFactoryCreateCAIGoal##label##();
+	#define ADD_GOAL_TYPE(label) case kGoal_##label: extern CAIClassAbstract* AIFactoryCreateCAIGoal##label(); return (CAIGoalAbstract*)AIFactoryCreateCAIGoal##label();
 #else
 	#error	To use this include file, first define either GOAL_TYPE_AS_ENUM or GOAL_TYPE_AS_STRING, to include the goals as enums, or string constants.
 #endif

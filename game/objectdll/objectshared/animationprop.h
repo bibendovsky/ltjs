@@ -27,7 +27,8 @@ enum EnumAnimPropGroup {
 //
 // ENUM: Animation Properties.
 //
-enum EnumAnimProp {
+enum EnumAnimProp : int
+{
 	kAP_Invalid = -1,
 	#define ANIM_PROP_AS_ENUM 1
 	#include "animationpropenums.h"

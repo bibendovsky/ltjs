@@ -21,61 +21,26 @@
 #include <map>
 #include <set>
 #include <functional>
-#if _MSC_VER >= 1900
 #include <unordered_set>
 #include <unordered_map>
-#else
-#include <hash_set>
-#include <hash_map>
-#endif
-#if _MSC_VER >= 1300
-#	include <iosfwd>
-#	include <strstream>
-#	include <iostream>
-#else
-#	include <istream>
-#	include "fstream.h"
-#	include "strstrea.h"
-#endif // VC7
+#include <iosfwd>
+#include <sstream>
+#include <iostream>
 #include <fstream>
 
-
-#if _MSC_VER >= 1900
-
-class ButeMgrHashCompare {
-public:
-    size_t operator()(
-        const char* key) const
-    {
-        uint32 hash = 0;
-
-        for (; *key; ++key) {
-            hash = (13 * hash) + (::toupper(*key) - '@');
-        }
-
-        return hash;
-    }
-
-    bool operator()(
-        const char* key1,
-        const char* key2) const
-    {
-        return ::stricmp(key1, key2) == 0;
-    }
-}; // ButeMgrHashCompare
-
-#elif _MSC_VER >= 1300
 
 class ButeMgrHashCompare
 {
 public:
 
+#if 0
 	// parameters for hash table
 	enum
 	{
 		bucket_size = 4,	// 0 < bucket_size
 		min_buckets = 8		// min_buckets = 2 ^^ N, 0 < N
 	};
+#endif
 
 	ButeMgrHashCompare()
 	{
@@ -108,44 +73,9 @@ private:
 
 	bool 		Compare(const char *lhs, const char *rhs) const
 	{
-		return stricmp(lhs, rhs) < 0;
+		return stricmp(lhs, rhs) == 0;
 	}
 };
-
-#else
-
-struct equal_str
-{
-	bool operator()(const char* s1, const char* s2) const
-	{
-		return strcmp(s1, s2) == 0;
-	}
-};
-
-struct equal_str_nocase
-{
-	bool operator()(const char* s1, const char* s2) const
-	{
-		return stricmp(s1, s2) == 0;
-	}
-};
-
-struct hash_str_nocase
-{
-	// Copied for stl-port's std::hash<const char*>.
-	// Added tolower function on the string.
-	unsigned long operator()(const char* str) const
-	{
-	  unsigned long hash = 0;
-	  for ( ; *str; ++str)
-		  hash = 5*hash + tolower(*str);
-
-	  return hash;
-	}
-};
-
-#endif // VC7
-
 
 
 class CButeMgr
@@ -256,13 +186,8 @@ public:
 	void SetDisplayFunc(void (*pF)(const char* szMsg)) { m_pDisplayFunc = pF; }
 	CString GetErrorString() { return m_sErrorString; }
 
-#if _MSC_VER >= 1300
 	bool Parse( std::istream& iStream, int decryptCode = 0);
 	bool Parse( std::istream& iCrypt, int nLen, const char* cryptKey);
-#else
-	bool Parse( istream& iStream, int decryptCode = 0);
-	bool Parse( istream& iCrypt, int nLen, const char* cryptKey);
-#endif // VC7
 
 #if defined(_USE_REZFILE_)
 	bool Parse(CRezItm* pItem, int decryptCode = 0);
@@ -367,27 +292,6 @@ private:
 
 	void (*m_pDisplayFunc)(const char* szMsg);
 
-#if _MSC_VER == 1300 // NET 2002
-	// Used to define dictionary of strings.
-	// This must be case sensitive!
-	typedef std::hash_set< CString, ButeMgrHashCompare > StringHolder;
-
-	// Used to define map of strings to CSymTabItems.
-	typedef std::hash_map< char const*, CSymTabItem*, ButeMgrHashCompare > TableOfItems;
-
-	// Used to define map of strings to TableOfItems.
-	typedef std::hash_map< char const*, TableOfItems*, ButeMgrHashCompare > TableOfTags;
-#elif _MSC_VER > 1300 && _MSC_VER < 1900 // NET 2003
-	// Used to define dictionary of strings.
-	// This must be case sensitive!
-	typedef stdext::hash_set< CString, ButeMgrHashCompare > StringHolder;
-
-	// Used to define map of strings to CSymTabItems.
-	typedef stdext::hash_map< char const*, CSymTabItem*, ButeMgrHashCompare > TableOfItems;
-
-	// Used to define map of strings to TableOfItems.
-	typedef stdext::hash_map< char const*, TableOfItems*, ButeMgrHashCompare > TableOfTags;
-#elif _MSC_VER >= 1900  // VC 14.0
     // Used to define dictionary of strings.
     // This must be case sensitive!
     typedef std::unordered_set< CString, ButeMgrHashCompare, ButeMgrHashCompare > StringHolder;
@@ -397,17 +301,6 @@ private:
 
     // Used to define map of strings to TableOfItems.
     typedef std::unordered_map< char const*, TableOfItems*, ButeMgrHashCompare, ButeMgrHashCompare > TableOfTags;
-#else
-	// Used to define dictionary of strings.
-	// This must be case sensitive!
-	typedef std::hash_set< CString, std::hash< char const* >, equal_str > StringHolder;
-
-	// Used to define map of strings to CSymTabItems.
-	typedef std::hash_map< char const*, CSymTabItem*, hash_str_nocase, equal_str_nocase > TableOfItems;
-
-	// Used to define map of strings to TableOfItems.
-	typedef std::hash_map< char const*, TableOfItems*, hash_str_nocase, equal_str_nocase > TableOfTags;
-#endif // .NET 2002
 
 
 	// Holds all strings for keys and string values.
@@ -468,13 +361,8 @@ private:
 	};
 	static bool GetTagsTraverseFunc( char const* pszTagName, TableOfItems& theTableOfItems, void* pContext );
 
-#if _MSC_VER >= 1300
 	std::istream* m_pData;
 	std::iostream *m_pSaveData;
-#else
-	istream* m_pData;
-	iostream *m_pSaveData;
-#endif // VC7
 
 	char * m_szLineBuffer;
 	const char * m_szLineBufferPtr;
@@ -530,11 +418,7 @@ private:
 };
 
 
-#if _MSC_VER >= 1300
 inline bool CButeMgr::Parse( std::istream& iStream, int decryptCode)
-#else
-inline bool CButeMgr::Parse( istream& iStream, int decryptCode)
-#endif // VC7
 {
 	Reset();
 	m_pData = &iStream;
@@ -552,39 +436,23 @@ inline bool CButeMgr::Parse( istream& iStream, int decryptCode)
 	return retVal;
 }
 
-#if _MSC_VER >= 1300
-inline bool CButeMgr::Parse( std::istream& iCrypt, int nLen, const char* cryptKey)
-#else
-inline bool CButeMgr::Parse( istream& iCrypt, int nLen, const char* cryptKey)
-#endif // VC7
+inline bool CButeMgr::Parse(
+    std::istream& iCrypt,
+    int nLen,
+    const char* cryptKey)
 {
-	m_bCrypt = true;
-	m_cryptMgr.SetKey(cryptKey);
-	char* buf2 = new char[nLen];
-#if _MSC_VER >= 1300
-	std::ostrstream* pOss = new std::ostrstream(buf2, nLen);
-#else
-	ostrstream* pOss = new ostrstream(buf2, nLen);
-#endif // VC7
-	m_cryptMgr.Decrypt(iCrypt, *pOss);
+    m_bCrypt = true;
+    m_cryptMgr.SetKey(cryptKey);
 
-#if _MSC_VER >= 1300
-	std::istrstream* pIStream = new std::istrstream(const_cast<const char*>(buf2), pOss->pcount());
-#else
-	istrstream* pIStream = new istrstream(buf2, pOss->pcount());
-#endif // VC7
+    std::stringstream oss;
+    m_cryptMgr.Decrypt(iCrypt, oss);
 
-	delete pOss;
+    Reset();
 
-	Reset();
+    bool retVal = Parse(oss);
 
-	bool retVal = Parse( *pIStream );
-
-	delete pIStream;
-	delete buf2;
-	return retVal;
+    return retVal;
 }
-
 
 
 #if defined(_USE_REZFILE_)
@@ -592,11 +460,7 @@ inline bool CButeMgr::Parse(CRezItm* pItem, int decryptCode)
 {
 	if (!pItem)
 		return false;
-#if _MSC_VER >= 1300
 	std::istrstream* pIStream = new std::istrstream((char*)pItem->Load(), pItem->GetSize());
-#else
-	istrstream* pIStream = new istrstream((char*)pItem->Load(), pItem->GetSize());
-#endif // VC7
 	if( !pIStream )
 		return false;
 
@@ -615,11 +479,7 @@ inline bool CButeMgr::Parse(CRezItm* pItem, const char* cryptKey)
 		return false;
 	char* buf1 = (char*)pItem->Load();
 	int len = pItem->GetSize();
-#if _MSC_VER >= 1300
 	std::istrstream* pIss = new std::istrstream(buf1, len);
-#else
-	istrstream* pIss = new istrstream(buf1, len);
-#endif // VC7
 
 	Reset();
 
@@ -631,69 +491,55 @@ inline bool CButeMgr::Parse(CRezItm* pItem, const char* cryptKey)
 }
 #endif
 
-
-
-
-
-inline bool CButeMgr::Parse(void* pData, unsigned long size, int decryptCode,
-							CString sAttributeFilename)
+inline bool CButeMgr::Parse(
+    void* pData,
+    unsigned long size,
+    int decryptCode,
+    CString sAttributeFilename)
 {
-	if (!pData)
-		return false;
-#if _MSC_VER >= 1300
-	std::istrstream* pIStream = new std::istrstream((char*)pData, size);
-#else
-	istrstream* pIStream = new istrstream((char*)pData, size);
-#endif // VC7
+    if (!pData)
+        return false;
 
-	// Need to set the attribute filename if we want to Save the butemgr later...
-	m_sAttributeFilename = sAttributeFilename;
+    std::string string(static_cast<const char*>(pData), size);
+    std::istringstream iss(string);
 
-	bool retVal = Parse( *pIStream, decryptCode );
+    // Need to set the attribute filename if we want to Save the butemgr later...
+    m_sAttributeFilename = sAttributeFilename;
 
-	delete pIStream;
+    bool retVal = Parse(iss, decryptCode);
 
-	return retVal;
+    return retVal;
 }
 
-
-
-
-inline bool CButeMgr::Parse(void* pData, unsigned long size, const char* cryptKey,
-							CString sAttributeFilename)
+inline bool CButeMgr::Parse(
+    void* pData,
+    unsigned long size,
+    const char* cryptKey,
+    CString sAttributeFilename)
 {
-	if (!pData)
-		return false;
-	char* buf1 = (char*)pData;
-	int len = size;
-#if _MSC_VER >= 1300
-	std::istrstream* pIss = new std::istrstream(buf1, len);
-#else
-	istrstream* pIss = new istrstream(buf1, len);
-#endif // VC7
+    if (!pData)
+        return false;
 
-	Reset();
+    std::string string(static_cast<const char*>(pData), size);
+    int len = size;
 
-	// Need to set the attribute filename if we want to Save the butemgr later...
-	m_sAttributeFilename = sAttributeFilename;
+    std::istringstream iss(string);
 
-	bool retVal = Parse( *pIss, len, cryptKey );
+    Reset();
 
-	delete pIss;
+    // Need to set the attribute filename if we want to Save the butemgr later...
+    m_sAttributeFilename = sAttributeFilename;
 
-	return retVal;
+    bool retVal = Parse(iss, len, cryptKey);
+
+    return retVal;
 }
-
 
 
 
 inline bool CButeMgr::Parse(CString sAttributeFilename, int decryptCode)
 {
-#if _MSC_VER >= 1300
 	std::ifstream* pIStream = new std::ifstream(sAttributeFilename, std::ios_base::in);
-#else
-	ifstream* pIStream = new ifstream(sAttributeFilename, ios::in | ios::nocreate);
-#endif // VC7
 	if( !pIStream )
 		return false;
 	if (pIStream->fail())
@@ -716,11 +562,7 @@ inline bool CButeMgr::Parse(CString sAttributeFilename, int decryptCode)
 
 inline bool CButeMgr::Parse(CString sAttributeFilename, const char* cryptKey)
 {
-#if _MSC_VER >= 1300
 	std::ifstream* pIs = new std::ifstream(sAttributeFilename, std::ios_base::binary);
-#else
-	ifstream* pIs = new ifstream(sAttributeFilename, ios::nocreate | ios::binary);
-#endif // VC7
 	if (!pIs)
 		return false;
 	if (pIs->fail())
@@ -729,11 +571,7 @@ inline bool CButeMgr::Parse(CString sAttributeFilename, const char* cryptKey)
 		return false;
 	}
 
-#if _MSC_VER >= 1300
 	pIs->seekg(0, std::ios_base::end);
-#else
-	pIs->seekg(0, ios::end);
-#endif // VC7
 	long len = pIs->tellg();
 
 	pIs->seekg(0);

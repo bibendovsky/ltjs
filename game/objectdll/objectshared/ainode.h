@@ -10,9 +10,9 @@
 #include "debuglinesystem.h"
 
 // Forward declarations.
-enum EnumAISoundType;
-enum EnumAINodeType;
-enum EnumAIStateType;
+enum EnumAISoundType : int;
+enum EnumAINodeType : int;
+enum EnumAIStateType : int;
 
 class AIVolume;
 class CAIHuman;
@@ -22,7 +22,7 @@ LINKTO_MODULE( AINode );
 //
 // ENUM: Types of AI nodes.
 //
-enum EnumAINodeType
+enum EnumAINodeType : int
 {
 	kNode_InvalidType = -1,
 

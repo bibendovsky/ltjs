@@ -862,9 +862,9 @@ void CLayoutMgr::GetScreenAttachment(eScreenID screenId, int num, char *pBuf, in
 
 uint32 CLayoutMgr::GetScreenSelectedColor(eScreenID screenId)
 {
-	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
+	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
     LTVector vColor;
-	if (screenId != MENU_ID_NONE && m_buteMgr.Exist(pTag,LO_SELECTED_COLOR))
+	if (screenId != SCREEN_ID_NONE && m_buteMgr.Exist(pTag,LO_SELECTED_COLOR))
 	{
 		vColor = m_buteMgr.GetVector(pTag, LO_SELECTED_COLOR);
 	}
@@ -882,9 +882,9 @@ uint32 CLayoutMgr::GetScreenSelectedColor(eScreenID screenId)
 
 uint32 CLayoutMgr::GetScreenNonSelectedColor(eScreenID screenId)
 {
-	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
+	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
     LTVector vColor;
-	if (screenId != MENU_ID_NONE && m_buteMgr.Exist(pTag,LO_NONSELECTED_COLOR))
+	if (screenId != SCREEN_ID_NONE && m_buteMgr.Exist(pTag,LO_NONSELECTED_COLOR))
 	{
 		vColor = m_buteMgr.GetVector(pTag, LO_NONSELECTED_COLOR);
 	}
@@ -902,9 +902,9 @@ uint32 CLayoutMgr::GetScreenNonSelectedColor(eScreenID screenId)
 
 uint32 CLayoutMgr::GetScreenDisabledColor(eScreenID screenId)
 {
-	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
+	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
     LTVector vColor;
-	if (screenId != MENU_ID_NONE && m_buteMgr.Exist(pTag,LO_DISABLED_COLOR))
+	if (screenId != SCREEN_ID_NONE && m_buteMgr.Exist(pTag,LO_DISABLED_COLOR))
 	{
 		vColor = m_buteMgr.GetVector(pTag, LO_DISABLED_COLOR);
 	}
@@ -924,44 +924,44 @@ uint32 CLayoutMgr::GetScreenDisabledColor(eScreenID screenId)
 // Custom Screen values
 LTBOOL CLayoutMgr::HasCustomValue(eScreenID screenId, char *pAttribute)
 {
-	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
+	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 
 	return m_buteMgr.Exist(pTag, pAttribute);
 }
 
 LTIntPt  CLayoutMgr::GetScreenCustomPoint(eScreenID screenId, char *pAttribute)
 {
-	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
+	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	return GetPoint(pTag, pAttribute);
 }
 
 LTRect   CLayoutMgr::GetScreenCustomRect(eScreenID screenId, char *pAttribute)
 {
-	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
+	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	return GetRect(pTag, pAttribute);
 }
 
 int		CLayoutMgr::GetScreenCustomInt(eScreenID screenId, char *pAttribute)
 {
-	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
+	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	return GetInt(pTag, pAttribute);
 }
 
 LTFLOAT CLayoutMgr::GetScreenCustomFloat(eScreenID screenId, char *pAttribute)
 {
-	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
+	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	return GetFloat(pTag, pAttribute);
 }
 
 void	CLayoutMgr::GetScreenCustomString(eScreenID screenId, char *pAttribute, char *pBuf, int nBufLen)
 {
-	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
+	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	GetString(pTag, pAttribute, pBuf, nBufLen);
 }
 
 LTVector CLayoutMgr::GetScreenCustomVector(eScreenID screenId, char *pAttribute)
 {
-	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
+	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	return GetVector(pTag, pAttribute);
 }
 
@@ -2506,44 +2506,44 @@ uint32 CLayoutMgr::GetMenuDisabledColor(eMenuID menuId)
 }
 
 // Custom Menu values
-LTBOOL CLayoutMgr::MenuHasCustomValue(eMenuID menuId, char *pAttribute)
+LTBOOL CLayoutMgr::MenuHasCustomValue(eMenuID menuId, const char *pAttribute)
 {
 	char* pTag = (char*)g_pInterfaceMgr->GetMenuMgr()->GetMenuName(menuId);
 
 	return m_buteMgr.Exist(pTag, pAttribute);
 }
 
-LTIntPt  CLayoutMgr::GetMenuCustomPoint(eMenuID menuId, char *pAttribute)
+LTIntPt  CLayoutMgr::GetMenuCustomPoint(eMenuID menuId, const char *pAttribute)
 {
 	char* pTag = (char*)g_pInterfaceMgr->GetMenuMgr()->GetMenuName(menuId);
 	return GetPoint(pTag, pAttribute);
 }
 
-LTRect   CLayoutMgr::GetMenuCustomRect(eMenuID menuId, char *pAttribute)
+LTRect   CLayoutMgr::GetMenuCustomRect(eMenuID menuId, const char *pAttribute)
 {
 	char* pTag = (char*)g_pInterfaceMgr->GetMenuMgr()->GetMenuName(menuId);
 	return GetRect(pTag, pAttribute);
 }
 
-int		CLayoutMgr::GetMenuCustomInt(eMenuID menuId, char *pAttribute)
+int		CLayoutMgr::GetMenuCustomInt(eMenuID menuId, const char *pAttribute)
 {
 	char* pTag = (char*)g_pInterfaceMgr->GetMenuMgr()->GetMenuName(menuId);
 	return GetInt(pTag, pAttribute);
 }
 
-LTFLOAT CLayoutMgr::GetMenuCustomFloat(eMenuID menuId, char *pAttribute)
+LTFLOAT CLayoutMgr::GetMenuCustomFloat(eMenuID menuId, const char *pAttribute)
 {
 	char* pTag = (char*)g_pInterfaceMgr->GetMenuMgr()->GetMenuName(menuId);
 	return GetFloat(pTag, pAttribute);
 }
 
-void	CLayoutMgr::GetMenuCustomString(eMenuID menuId, char *pAttribute, char *pBuf, int nBufLen)
+void	CLayoutMgr::GetMenuCustomString(eMenuID menuId, const char *pAttribute, char *pBuf, int nBufLen)
 {
 	char* pTag = (char*)g_pInterfaceMgr->GetMenuMgr()->GetMenuName(menuId);
 	GetString(pTag, pAttribute, pBuf, nBufLen);
 }
 
-LTVector CLayoutMgr::GetMenuCustomVector(eMenuID menuId, char *pAttribute)
+LTVector CLayoutMgr::GetMenuCustomVector(eMenuID menuId, const char *pAttribute)
 {
 	char* pTag = (char*)g_pInterfaceMgr->GetMenuMgr()->GetMenuName(menuId);
 	return GetVector(pTag, pAttribute);
@@ -2555,32 +2555,32 @@ LTVector CLayoutMgr::GetMenuCustomVector(eMenuID menuId, char *pAttribute)
 //	Private Helper functions
 //
 // ------------------------------------------------------------------------//
-LTBOOL CLayoutMgr::Exist(char *pTag)
+LTBOOL CLayoutMgr::Exist(const char *pTag)
 {
 	return m_buteMgr.Exist(pTag);
 }
 
-LTBOOL CLayoutMgr::HasValue(char *pTag,char *pAttribute)
+LTBOOL CLayoutMgr::HasValue(const char *pTag, const char *pAttribute)
 {
 	return m_buteMgr.Exist(pTag,pAttribute);
 }
 
-LTBOOL CLayoutMgr::GetBool(char *pTag,char *pAttribute, LTBOOL bDefault)
+LTBOOL CLayoutMgr::GetBool(const char *pTag, const char *pAttribute, LTBOOL bDefault)
 {
     return (LTBOOL) m_buteMgr.GetInt(pTag,pAttribute, bDefault);
 }
 
-LTFLOAT CLayoutMgr::GetFloat(char *pTag,char *pAttribute, float fDefault)
+LTFLOAT CLayoutMgr::GetFloat(const char *pTag, const char *pAttribute, float fDefault)
 {
     return (LTFLOAT)m_buteMgr.GetDouble(pTag, pAttribute, fDefault);
 }
 
-int	CLayoutMgr::GetInt(char *pTag,char *pAttribute, int nDefault)
+int	CLayoutMgr::GetInt(const char *pTag, const char *pAttribute, int nDefault)
 {
 	return m_buteMgr.GetInt(pTag, pAttribute, nDefault);
 }
 
-LTIntPt CLayoutMgr::GetPoint(char *pTag,char *pAttribute)
+LTIntPt CLayoutMgr::GetPoint(const char *pTag, const char *pAttribute)
 {
     CPoint zero(0,0);
     CPoint tmp = m_buteMgr.GetPoint(pTag, pAttribute, zero);
@@ -2588,7 +2588,7 @@ LTIntPt CLayoutMgr::GetPoint(char *pTag,char *pAttribute)
 	return pt;
 }
 
-LTRect CLayoutMgr::GetRect(char *pTag,char *pAttribute)
+LTRect CLayoutMgr::GetRect(const char *pTag, const char *pAttribute)
 {
     CRect zero(0,0,0,0);
     CRect tmp = m_buteMgr.GetRect(pTag, pAttribute, zero );
@@ -2597,14 +2597,14 @@ LTRect CLayoutMgr::GetRect(char *pTag,char *pAttribute)
 
 }
 
-void CLayoutMgr::GetString(char *pTag,char *pAttribute,char *pBuf, int nBufLen)
+void CLayoutMgr::GetString(const char *pTag, const char *pAttribute,char *pBuf, int nBufLen)
 {
 
 	m_buteMgr.GetString(pTag, pAttribute, "", pBuf, nBufLen);
 	
 }
 
-LTVector CLayoutMgr::GetVector(char *pTag,char *pAttribute)
+LTVector CLayoutMgr::GetVector(const char *pTag, const char *pAttribute)
 {
 	CAVector vRet(0.0,0.0,0.0);
 	return m_buteMgr.GetVector(pTag, pAttribute, vRet);

@@ -110,16 +110,8 @@ public:
         int m_tokenMinor;
     };
 
-	// Used to define map of strings to CSymTabItems.
-#if _MSC_VER == 1300
-	typedef std::hash_map< char const*, CReservedWord, ButeMgrHashCompare > ReservedWordMap;
-#elif _MSC_VER > 1300 && _MSC_VER < 1900 // NET 2003
-	typedef stdext::hash_map< char const*, CReservedWord, ButeMgrHashCompare > ReservedWordMap;
-#elif _MSC_VER >= 1900  // VC 14.0
+    // Used to define map of strings to CSymTabItems.
     typedef std::unordered_map< char const*, CReservedWord, ButeMgrHashCompare, ButeMgrHashCompare > ReservedWordMap;
-#else
-	typedef std::hash_map< char const*, CReservedWord, hash_str_nocase, equal_str_nocase > ReservedWordMap;
-#endif // NEXT2002
 
     CReservedWords()
     {
@@ -964,11 +956,7 @@ bool CButeMgr::Tag()
 
 bool CButeMgr::AuxTabItemsSave( char const* pszAttName, CSymTabItem& theItem, void* pContext )
 {
-#if _MSC_VER >= 1300
 	std::ofstream* pSaveData = (std::ofstream*)pContext;
-#else
-	ofstream* pSaveData = (ofstream*)pContext;
-#endif // VC7
 
 	*pSaveData << "\r\n" << pszAttName << " = ";
 
@@ -1023,11 +1011,7 @@ bool CButeMgr::AuxTabItemsSave( char const* pszAttName, CSymTabItem& theItem, vo
 
 bool CButeMgr::NewTabsSave( const char* pszTagName, TableOfItems& theTabOfItems, void* pContext )
 {
-#if _MSC_VER >= 1300
 	std::ofstream* pSaveData = (std::ofstream*)pContext;
-#else
-	ofstream* pSaveData = (ofstream*)pContext;
-#endif // VC7
 
 	*pSaveData << "\r\n\r\n" << "[" << pszTagName << "]";
 
@@ -1080,154 +1064,108 @@ bool CButeMgr::TagList()
 	return true;
 }
 
-
-
-
-
-bool CButeMgr::Save(const char* szNewFileName)
+bool CButeMgr::Save(
+    const char* szNewFileName)
 {
-	Reset();
+    Reset();
 
-	if (m_sAttributeFilename.IsEmpty() && !szNewFileName)
-		return false;
+    if (m_sAttributeFilename.IsEmpty() && !szNewFileName)
+        return false;
 
-	m_bPutChar = true;
+    m_bPutChar = true;
 
-	char buf[4096];
+    char buf[4096];
 
-	if ( m_sAttributeFilename.GetBuffer() == NULL )
-		m_sAttributeFilename = "";
+    if (m_sAttributeFilename.GetBuffer() == NULL)
+        m_sAttributeFilename = "";
 
-#if _MSC_VER >= 1300
-	std::ifstream is(m_sAttributeFilename, std::ios_base::binary);
-#else
-	ifstream is(m_sAttributeFilename, ios::nocreate | ios::binary);
-#endif // VC7
+    std::ifstream is(m_sAttributeFilename, std::ios_base::binary);
 
-	long nFileLength=0;
-	if (is.is_open())
-	{
-#if _MSC_VER >= 1300
-		is.seekg(0, std::ios_base::end);
-#else
-		is.seekg(0, ios::end);
-#endif // VC7
-		nFileLength = is.tellg();
-	}
+    long nFileLength = 0;
+    if (is.is_open()) {
+        is.seekg(0, std::ios_base::end);
+        nFileLength = is.tellg();
+    }
 
- 	if (nFileLength==0)
- 		nFileLength = 1;
+    if (nFileLength == 0)
+        nFileLength = 1;
 
-	is.clear();
-	is.seekg(0);
+    is.clear();
+    is.seekg(0);
 
-	// Create the buffer.
-	char *pssBuf = new char[nFileLength];
-	pssBuf[0] = '\0';
+    // Create the buffer.
+    char *pssBuf = new char[nFileLength];
+    pssBuf[0] = '\0';
 
-#if _MSC_VER >= 1300
-	std::strstream ss(pssBuf, nFileLength, std::ios_base::in | std::ios_base::out);
-#else
-	strstream ss(pssBuf, nFileLength, ios::in | ios::out);
-#endif // VC7
+    std::stringstream ss;
 
-	if (m_bCrypt)
-	{
-		m_cryptMgr.Decrypt(is, ss);
-#if _MSC_VER >= 1300
-		m_pSaveData = new std::iostream(new std::strstreambuf(nFileLength));
-#else
-		m_pSaveData = new iostream(new strstreambuf(nFileLength));
-#endif // VC7
-	}
-	else
-	{
-		if (is.is_open())
-		{
-			while (!is.eof())
-			{
-				is.read(buf, 4096);
-				ss.write(buf, is.gcount());
-			}
-		}
+    if (m_bCrypt) {
+        m_cryptMgr.Decrypt(is, ss);
+        m_pSaveData = new std::stringstream();
+    } else {
+        if (is.is_open()) {
+            while (!is.eof()) {
+                is.read(buf, 4096);
+                ss.write(buf, is.gcount());
+            }
+        }
 
-		is.close();
+        is.close();
 
-		if (szNewFileName)
-#if _MSC_VER >= 1300
-			m_pSaveData = new std::fstream(szNewFileName, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-#else
-			m_pSaveData = new fstream(szNewFileName, ios::binary | ios::in | ios::out | ios::trunc);
-#endif // VC7
-		else
-#if _MSC_VER >= 1300
-			m_pSaveData = new std::fstream(m_sAttributeFilename, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-#else
-			m_pSaveData = new fstream(m_sAttributeFilename, ios::binary | ios::in | ios::out | ios::trunc);
-#endif // VC7
+        if (szNewFileName)
+            m_pSaveData = new std::fstream(szNewFileName, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+        else
+            m_pSaveData = new std::fstream(m_sAttributeFilename, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+    }
 
-	}
+    if (m_pSaveData->fail()) {
+        delete m_pSaveData;
+        m_pSaveData = NULL;
 
-	if( m_pSaveData->fail( ))
-	{
-		delete m_pSaveData;
-		m_pSaveData = NULL;
+        // Delete the buffer.
+        delete[] pssBuf;
+        pssBuf = NULL;
 
-		// Delete the buffer.
-		delete [] pssBuf;
-		pssBuf = NULL;
+        m_bPutChar = false;
 
-		m_bPutChar = false;
+        return false;
+    }
 
-		return false;
-	}
-
-#if _MSC_VER >= 1300
     m_pSaveData->flags(m_pSaveData->flags() | std::ios_base::showpoint | std::ios_base::fixed);
-#else
-    m_pSaveData->flags(m_pSaveData->flags() | ios::showpoint | ios::fixed);
-#endif // VC7
 
-	ss.clear();
-	m_pData = &ss;
+    ss.clear();
+    m_pData = &ss;
 
-	TagList();
+    TagList();
 
-	// add new tag items
-	TraverseTableOfTags( m_newTagTab, NewTabsSave, m_pSaveData );
+    // add new tag items
+    TraverseTableOfTags(m_newTagTab, NewTabsSave, m_pSaveData);
 
-	m_pSaveData->clear();
-	if (m_bCrypt)
-	{
-		if (szNewFileName)
-#if _MSC_VER >= 1300
-			m_cryptMgr.Encrypt(*m_pSaveData, std::ofstream(szNewFileName, std::ios_base::binary));
-#else
-			m_cryptMgr.Encrypt(*m_pSaveData, ofstream(szNewFileName, ios::binary));
-#endif // VC7
-		else
-#if _MSC_VER >= 1300
-			m_cryptMgr.Encrypt(*m_pSaveData, std::ofstream(m_sAttributeFilename, std::ios_base::binary));
-#else
-			m_cryptMgr.Encrypt(*m_pSaveData, ofstream(m_sAttributeFilename, ios::binary));
-#endif // VC7
-	}
+    m_pSaveData->clear();
+    if (m_bCrypt) {
+        auto file_name = (
+            szNewFileName ?
+            szNewFileName :
+            static_cast<const char*>(m_sAttributeFilename));
 
-	// Delete the buffer.
-	delete [] pssBuf;
-	pssBuf = NULL;
+        std::ofstream stream(file_name, std::ios_base::binary);
 
-	if (m_bCrypt)
-		delete m_pSaveData->rdbuf();
-	delete m_pSaveData;
-	m_pSaveData = NULL;
+        m_cryptMgr.Encrypt(*m_pSaveData, stream);
+    }
 
-	m_bPutChar = false;
+    // Delete the buffer.
+    delete[] pssBuf;
+    pssBuf = NULL;
 
-	return true;
+    if (m_bCrypt)
+        delete m_pSaveData->rdbuf();
+    delete m_pSaveData;
+    m_pSaveData = NULL;
+
+    m_bPutChar = false;
+
+    return true;
 }
-
-
 
 bool CButeMgr::Exist(const char* szTagName, const char* szAttName)
 {

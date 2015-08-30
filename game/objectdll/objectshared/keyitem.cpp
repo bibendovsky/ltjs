@@ -38,27 +38,27 @@ static char *s_szActivate = "ACTIVATE";
 
 
 #define ADD_KEYITEM_CONTROL_OBJECTS( base_name, flags ) \
-		PROP_DEFINEGROUP( ##base_name##s, flags ) \
-			ADD_STRINGPROP_FLAG( ##base_name##0, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##1, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##2, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##3, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##4, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##5, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##6, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##7, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##8, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##9, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##10, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##11, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##12, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##13, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##14, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##15, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##16, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##17, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##18, "", flags | PF_OBJECTLINK ) \
-			ADD_STRINGPROP_FLAG( ##base_name##19, "", flags | PF_OBJECTLINK )
+		PROP_DEFINEGROUP( base_name##s, flags ) \
+			ADD_STRINGPROP_FLAG( base_name##0, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##1, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##2, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##3, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##4, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##5, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##6, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##7, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##8, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##9, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##10, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##11, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##12, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##13, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##14, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##15, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##16, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##17, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##18, "", flags | PF_OBJECTLINK ) \
+			ADD_STRINGPROP_FLAG( base_name##19, "", flags | PF_OBJECTLINK )
 
 #pragma force_active on
 BEGIN_CLASS(KeyItem)

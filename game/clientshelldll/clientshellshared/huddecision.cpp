@@ -219,7 +219,7 @@ void CHUDDecision::SetScale(float fScale)
 void CHUDDecision::UpdateLayout()
 {
 
-	char *pTag = "DecisionWindow";
+    const char *pTag = "DecisionWindow";
 	m_BasePos = g_pLayoutMgr->GetPoint(pTag,"Pos");
 
 	uint8 nFont = (uint8)g_pLayoutMgr->GetInt(pTag,"Font");

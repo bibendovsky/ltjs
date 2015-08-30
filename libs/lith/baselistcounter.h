@@ -44,7 +44,7 @@ protected:
 class CBaseListCounter : public CLTBaseList {
 public:
     // Constructors and destructors
-    CBaseListCounter() { m_nCount = 0; CLTBaseList::CLTBaseList(); };
+    CBaseListCounter() : CLTBaseList() { m_nCount = 0; };
     ~CBaseListCounter() { };
 
     // member insert and delete functions

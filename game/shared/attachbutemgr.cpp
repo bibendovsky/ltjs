@@ -477,5 +477,6 @@ LTVector CAttachButeMgr::GetPVAttachmentScale( int nPVAttachmentID )
 	}
 		
 	sprintf( s_aTagName, "%s%d", ABM_PVATTACHMENT, nPVAttachmentID );
-	return m_buteMgr.GetVector( s_aTagName, ABM_PVATTACHMENT_SCALE, CAVector( 0, 0, 0));
+    CAVector zero_vector(0, 0, 0);
+	return m_buteMgr.GetVector( s_aTagName, ABM_PVATTACHMENT_SCALE, zero_vector);
 }

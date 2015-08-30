@@ -90,7 +90,7 @@ protected:
 	void		SetTitle(int stringID);
 
 	uint16		AddControl (int stringID, uint32 commandID, LTBOOL bStatic = LTFALSE);
-	uint16		AddControl (char *pString, uint32 commandID, LTBOOL bStatic = LTFALSE);
+	uint16		AddControl (const char *pString, uint32 commandID, LTBOOL bStatic = LTFALSE);
 
 	void UpdateFrame();
 

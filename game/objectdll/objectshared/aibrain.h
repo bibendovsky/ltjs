@@ -11,7 +11,7 @@
 class CAIHuman;
 class CCharacter;
 enum Direction;
-enum EnumAIWeaponType;
+enum EnumAIWeaponType : int;
 
 enum DodgeStatus
 {

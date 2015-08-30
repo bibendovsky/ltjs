@@ -327,7 +327,7 @@ HTEXTURE CUIFontManager::StringToTexture(uint8* pTTFData, uint32 dataSize, uint3
 
 //	--------------------------------------------------------------------------
 CUIPolyString* CUIFontManager::CreatePolyString(CUIFont* font, 
-										  char* buf,
+										  const char* buf,
 										  float x,
 										  float y)
 {
@@ -345,7 +345,7 @@ CUIPolyString* CUIFontManager::CreatePolyString(CUIFont* font,
 
 //	--------------------------------------------------------------------------
 CUIFormattedPolyString*	CUIFontManager::CreateFormattedPolyString(CUIFont* font, 
-											     char* buf,
+											     const char* buf,
 											     float x,
 											     float y,
 												 CUI_ALIGNMENTTYPE alignment)

@@ -111,7 +111,7 @@ static char s_aTagName[30];
 //
 // ----------------------------------------------------------------------- //
 
-LTBOOL BuildScaleFXList(ScaleFXList & list, CButeMgr & buteMgr, char* pTagBase)
+LTBOOL BuildScaleFXList(ScaleFXList & list, CButeMgr & buteMgr, const char* pTagBase)
 {
     if (!pTagBase) return LTFALSE;
 
@@ -304,7 +304,7 @@ void CScaleFX::Cache()
 // ----------------------------------------------------------------------- //
 
 LTBOOL BuildPShowerFXList(PShowerFXList & list, CButeMgr & buteMgr,
-						 char* pTagBase)
+						 const char* pTagBase)
 {
     if (!pTagBase) return LTFALSE;
 
@@ -442,7 +442,7 @@ void CPShowerFX::Cache()
 // ----------------------------------------------------------------------- //
 
 LTBOOL BuildPolyDebrisFXList(PolyDebrisFXList & list, CButeMgr & buteMgr,
-							char* pTagBase)
+							const char* pTagBase)
 {
     if (!pTagBase) return LTFALSE;
 

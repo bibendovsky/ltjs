@@ -49,9 +49,9 @@ class RelationSet;
 class CObjectRelationMgr;
 class CSearchable;
 
-enum  EnumAIStateType;
-enum  EnumAIStimulusID;
-enum CharacterClass;
+enum  EnumAIStateType : int;
+enum  EnumAIStimulusID : int;
+enum CharacterClass : int;
 
 struct CHARCREATESTRUCT;
 

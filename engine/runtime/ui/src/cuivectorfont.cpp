@@ -10,6 +10,8 @@
 //
 //-------------------------------------------------------------------
 
+#include <string>
+
 #include "bdefs.h"
 #include "dtxmgr.h"
 #include "sysstreamsim.h"

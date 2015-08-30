@@ -53,7 +53,7 @@ LTBOOL CWeatherFX::Init(SFXCREATESTRUCT* psfxCreateStruct)
 	//m_vRainVel.y = g_pClientButeMgr->GetWeatherAttributeFloat(WEATHER_BUTE_RAINVEL);
 	//m_vSnowVel.y = g_pClientButeMgr->GetWeatherAttributeFloat(WEATHER_BUTE_SNOWVEL);
 
-	char* pBute = WEATHER_BUTE_RAINVELLIGHT;
+	const char* pBute = WEATHER_BUTE_RAINVELLIGHT;
 	if (m_dwFlags & WFLAG_NORMAL_RAIN)
 	{
 		pBute = WEATHER_BUTE_RAINVELNORMAL;
@@ -140,7 +140,7 @@ LTBOOL CWeatherFX::CreateSnow()
 	double fVelY = double(m_vSnowVel.y);
     LTFLOAT fLifetime = fabs(fVelY) > 0.01 ? (LTFLOAT) (m_vDims.y*2.0f / fabs(fVelY)) : 0.0f;
 
-	char* pBute = WEATHER_BUTE_SNOWLIGHT;
+	const char* pBute = WEATHER_BUTE_SNOWLIGHT;
 	if (m_dwFlags & WFLAG_NORMAL_SNOW)
 	{
 		pBute = WEATHER_BUTE_SNOWNORMAL;
@@ -226,7 +226,7 @@ LTBOOL CWeatherFX::CreateRain()
     LTFLOAT fLifetime = fabs(fVelY) > 0.01 ? (LTFLOAT) (m_vDims.y*2.0f / fabs(fVelY)) : 0.0f;
 
 
-	char* pDropsBute = WEATHER_BUTE_RAINLIGHT;
+	const char* pDropsBute = WEATHER_BUTE_RAINLIGHT;
 
 	if (m_dwFlags & WFLAG_NORMAL_RAIN)
 	{

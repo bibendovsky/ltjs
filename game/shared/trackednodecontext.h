@@ -5,7 +5,7 @@
 
 // Groups of tracking nodes exist for different purposes.
 
-enum EnumTrackedNodeGroup
+enum EnumTrackedNodeGroup : int
 {
 	kTrack_None = -1,
 	kTrack_LookAt,
