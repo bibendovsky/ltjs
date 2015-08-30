@@ -150,9 +150,9 @@ typedef CTList<CPolyDebrisFX*> PolyDebrisFXList;
 
 // Global functions...
 
-LTBOOL BuildScaleFXList(ScaleFXList & list, CButeMgr & buteMgr, char* pTagBase);
-LTBOOL BuildPShowerFXList(PShowerFXList & list, CButeMgr & buteMgr, char* pTagBase);
-LTBOOL BuildPolyDebrisFXList(PolyDebrisFXList & list, CButeMgr & buteMgr, char* pTagBase);
+LTBOOL BuildScaleFXList(ScaleFXList & list, CButeMgr & buteMgr, const char* pTagBase);
+LTBOOL BuildPShowerFXList(PShowerFXList & list, CButeMgr & buteMgr, const char* pTagBase);
+LTBOOL BuildPolyDebrisFXList(PolyDebrisFXList & list, CButeMgr & buteMgr, const char* pTagBase);
 
 
 

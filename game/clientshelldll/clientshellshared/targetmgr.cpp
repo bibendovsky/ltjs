@@ -364,7 +364,7 @@ void CTargetMgr::Update()
 			}
 			else
 			{
-				m_szDebugString[0] = NULL;
+				m_szDebugString[0] = '\0';
 			}
 
 			// is this a person we can talk to?
@@ -910,7 +910,7 @@ void CTargetMgr::SetGadgetTarget( bool bDisabling )
 		break;
 	case eINVALID:
 	default:
-		SetTargetStringID(NULL);
+		SetTargetStringID(0);
 		break;
 	}
 	
@@ -1094,7 +1094,7 @@ bool CTargetMgr::IsTargetInRange()
 void CTargetMgr::ClearTargetInfo()
 {
 	//clear our targeting info
-	SetTargetStringID(NULL);
+	SetTargetStringID(0);
 	m_hTarget = NULL;
 	m_fTargetRange = 10000.0f;
 	m_nTargetTeam = INVALID_TEAM;

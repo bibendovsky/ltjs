@@ -5252,7 +5252,7 @@ void CInterfaceMgr::AddInterfaceSFX(CSpecialFX* pSFX, ISFXType eType)
 
 	if (GetObjectType(hObj)== OT_MODEL)
 	{
-		char* pAniName = LTNULL;
+		const char* pAniName = LTNULL;
 		switch (eType)
 		{
 			case IFX_NORMAL :
@@ -5612,28 +5612,28 @@ HLTSOUND CInterfaceMgr::UpdateInterfaceSound()
 	switch (m_eNextSound)
 	{
 		case IS_SELECT:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundSelect(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundSelect(), PLAYSOUND_LOCAL);
 		break;
 		case IS_CHANGE:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundChange(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundChange(), PLAYSOUND_LOCAL);
 		break;
 		case IS_PAGE:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundPageChange(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundPageChange(), PLAYSOUND_LOCAL);
 		break;
 		case IS_UP:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowUp(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowUp(), PLAYSOUND_LOCAL);
 		break;
 		case IS_DOWN:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowDown(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowDown(), PLAYSOUND_LOCAL);
 		break;
 		case IS_LEFT:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowLeft(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowLeft(), PLAYSOUND_LOCAL);
 		break;
 		case IS_RIGHT:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowRight(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowRight(), PLAYSOUND_LOCAL);
 		break;
 		case IS_NO_SELECT:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundUnselectable(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundUnselectable(), PLAYSOUND_LOCAL);
 		break;
 		default :
 		break;
@@ -5668,7 +5668,7 @@ void CInterfaceMgr::NextMovie(bool bEndMovies /*=false*/)
 		m_hMovie = LTNULL;
 	}
 
-	char* pMovie = (bEndMovies ? LTNULL : GetCurrentMovie());
+	const char* pMovie = (bEndMovies ? LTNULL : GetCurrentMovie());
 
 	if (!pMovie || pVideoMgr->StartOnScreenVideo(pMovie, PLAYBACK_FULLSCREEN, m_hMovie) != LT_OK)
 	{
@@ -5689,9 +5689,9 @@ void CInterfaceMgr::NextMovie(bool bEndMovies /*=false*/)
 //
 // --------------------------------------------------------------------------- //
 
-char* CInterfaceMgr::GetCurrentMovie()
+const char* CInterfaceMgr::GetCurrentMovie()
 {
-	char* pMovie = LTNULL;
+	const char* pMovie = LTNULL;
 
 	switch (m_nCurMovie)
 	{

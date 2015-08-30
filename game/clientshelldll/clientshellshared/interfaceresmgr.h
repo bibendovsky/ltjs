@@ -36,8 +36,8 @@ public:
 
     LTBOOL              Init();
 	void				Term();
-	HSURFACE			GetSharedSurface(char *lpszPath)	{ return m_InterfaceSurfMgr.GetSurface(lpszPath); }
-	void				FreeSharedSurface(char *lpszPath)	{ m_InterfaceSurfMgr.FreeSurface(lpszPath); }
+	HSURFACE			GetSharedSurface(const char *lpszPath)	{ return m_InterfaceSurfMgr.GetSurface(lpszPath); }
+	void				FreeSharedSurface(const char *lpszPath)	{ m_InterfaceSurfMgr.FreeSurface(lpszPath); }
 	void				FreeSharedSurface(HSURFACE hSurf)	{ m_InterfaceSurfMgr.FreeSurface(hSurf); }
 
 	HTEXTURE			GetTexture(const char *szTexName);

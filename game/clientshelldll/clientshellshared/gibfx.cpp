@@ -659,7 +659,7 @@ void CGibFX::HandleBounce(int nIndex)
 		sc.fFinalAlpha		= 0.0f;
 		sc.nType			= OT_SPRITE;
 
-		char* pBloodFiles[] =
+		const char* pBloodFiles[] =
 		{
 			"Sprites\\BloodSplat1.spr",
 			"Sprites\\BloodSplat2.spr",
@@ -723,7 +723,7 @@ void CGibFX::CreateLingeringSmoke(int nIndex)
 
 	SMCREATESTRUCT sm;
 
-	char* pTexture = "Sprites\\SmokeTest.spr";
+	const char* pTexture = "Sprites\\SmokeTest.spr";
 
 	VEC_SET(sm.vColor1, 100.0f, 100.0f, 100.0f);
 	VEC_SET(sm.vColor2, 125.0f, 125.0f, 125.0f);
@@ -788,8 +788,10 @@ void CGibFX::CreateMiniBloodExplosion(int nIndex)
     uint8 nDetailLevel = pSettings->SpecialFXSetting();
 	if (nDetailLevel == RS_LOW) return;
 
-	char* szBlood[2] = { "SpecialFX\\ParticleTextures\\Blood_1.dtx",
-					     "SpecialFX\\ParticleTextures\\Blood_2.dtx" };
+    const char* szBlood[2] = {
+        "SpecialFX\\ParticleTextures\\Blood_1.dtx",
+        "SpecialFX\\ParticleTextures\\Blood_2.dtx",
+    };
 
 	PARTICLESHOWERCREATESTRUCT ps;
 
@@ -854,7 +856,7 @@ void CGibFX::CreateBloodSpray()
 	sc.fFinalAlpha		= 0.0f;
 	sc.nType			= OT_SPRITE;
 
-	char* pBloodFiles[] =
+	const char* pBloodFiles[] =
 	{
 		"Sprites\\BloodSplat1.spr",
 		"Sprites\\BloodSplat2.spr",

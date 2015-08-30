@@ -78,7 +78,7 @@ LTBOOL CMenuMgr::Init()
 	m_nMenuPos		= g_pLayoutMgr->GetMenuPosition();
 
 	char szTemp[128];
-	char *pTag = "Menu";
+	const char *pTag = "Menu";
 
 	g_pLayoutMgr->GetString(pTag,"SlideInSound",szTemp,sizeof(szTemp));
 	m_sSlideInSound = szTemp;
@@ -116,7 +116,7 @@ LTBOOL CMenuMgr::Init()
 	{
 		CLTGUITextCtrl *pCtrl = debug_new(CLTGUITextCtrl);
 		CBaseMenu *pMenu = m_MenuArray[i];
-		pCtrl->Create(pMenu->GetTitle(),i,NULL,pFont,fontSize,&m_MenuBar);
+		pCtrl->Create(pMenu->GetTitle(),i,0,pFont,fontSize,&m_MenuBar);
 		pCtrl->SetColors(g_nSelectColor,argbBlack,argbWhite);
 		pCtrl->SetParam1(pMenu->GetMenuID());
 		m_MenuBar.AddControl(pCtrl,offset);

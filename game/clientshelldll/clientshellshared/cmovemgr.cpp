@@ -1051,9 +1051,9 @@ void CMoveMgr::HandleFallLand(LTFLOAT fDistFell)
 
 			if (bPlaySound)
 			{
-				char* pNormalSounds[] = { "Chars\\Snd\\player\\landing1.wav", "Chars\\Snd\\player\\landing2.wav" };
-				char* pVehicleSounds[] = { "Snd\\vehicle\\snowmobile\\landing1.wav", "Snd\\vehicle\\snowmobile\\landing2.wav" };
-				char** pSounds = (m_pVehicleMgr->IsVehiclePhysics() ? pVehicleSounds : pNormalSounds);
+				const char* pNormalSounds[] = { "Chars\\Snd\\player\\landing1.wav", "Chars\\Snd\\player\\landing2.wav" };
+				const char* pVehicleSounds[] = { "Snd\\vehicle\\snowmobile\\landing1.wav", "Snd\\vehicle\\snowmobile\\landing2.wav" };
+				const char** pSounds = (m_pVehicleMgr->IsVehiclePhysics() ? pVehicleSounds : pNormalSounds);
 				
 				g_pClientSoundMgr->PlaySoundLocal(pSounds[GetRandom(0,1)], SOUNDPRIORITY_PLAYER_HIGH);
 			}
@@ -1689,7 +1689,7 @@ void CMoveMgr::UpdateStartMotion(LTBOOL bForce)
 
 			if (bPlaySound)
 			{
-				char* pSounds[] = { "Chars\\Snd\\jump1.wav", "Chars\\Snd\\jump2.wav" };
+				const char* pSounds[] = { "Chars\\Snd\\jump1.wav", "Chars\\Snd\\jump2.wav" };
 				g_pClientSoundMgr->PlaySoundLocal(pSounds[GetRandom(0,1)], SOUNDPRIORITY_PLAYER_HIGH);
 			}
 		}

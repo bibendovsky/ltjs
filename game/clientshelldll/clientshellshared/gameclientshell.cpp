@@ -838,7 +838,7 @@ void CGameClientShell::ResetCharacterFXSoundData()
 //
 // ----------------------------------------------------------------------- //
 
-void CGameClientShell::CSPrint(char* msg, ...)
+void CGameClientShell::CSPrint(const char* msg, ...)
 {
 	// parse the message
 
@@ -4042,7 +4042,7 @@ void CGameClientShell::RestoreMusic()
 ///				specified by pCVarName.
 //
 // --------------------------------------------------------------------------- //
-void CGameClientShell::MirrorSConVar(char *pSVarName, char *pCVarName)
+void CGameClientShell::MirrorSConVar(const char *pSVarName, const char *pCVarName)
 {
 	char buf[512];
 	float fVal = 0.0f;

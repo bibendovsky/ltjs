@@ -99,7 +99,7 @@ struct VAR_STRUCT : public ILTObjRefReceiver
 
 struct OPERATOR_STRUCT
 {
-	OPERATOR_STRUCT( char *pOpName = "", LTBOOL bLogical = LTFALSE, IntOperatorFn pOpFn = LTNULL, ECmdMgrVarType eVarType = eCMVar_Int )
+	OPERATOR_STRUCT( const char *pOpName = "", LTBOOL bLogical = LTFALSE, IntOperatorFn pOpFn = LTNULL, ECmdMgrVarType eVarType = eCMVar_Int )
 		:	m_OpName	( pOpName ),
 			m_bLogical	( bLogical ),
 			m_OpFn		( pOpFn ),
@@ -108,7 +108,7 @@ struct OPERATOR_STRUCT
 
 	}
 
-	char			*m_OpName;
+    const char*     m_OpName;
 	LTBOOL			m_bLogical;
 	IntOperatorFn	m_OpFn;
 	ECmdMgrVarType	m_eVarType;
@@ -280,7 +280,7 @@ struct CMD_STRUCT_PARAM
 
 struct CMD_PROCESS_STRUCT
 {
-    CMD_PROCESS_STRUCT(char* pCmd="", int nArgs=0, ProcessCmdFn pFn=LTNULL, char* pSyn="", PreCheckCmdFn pPreFn=LTNULL)
+    CMD_PROCESS_STRUCT(const char* pCmd="", int nArgs=0, ProcessCmdFn pFn=LTNULL, const char* pSyn="", PreCheckCmdFn pPreFn=LTNULL)
 	{
 		pCmdName	= pCmd;
 		nNumArgs	= nArgs;
@@ -289,8 +289,8 @@ struct CMD_PROCESS_STRUCT
 		pPreCheckFn	= pPreFn;
 	}
 
-	char*			pCmdName;
-	char*			pSyntax;
+    const char*     pCmdName;
+    const char*     pSyntax;
 	int				nNumArgs;
 	ProcessCmdFn	pProcessFn;
 	PreCheckCmdFn	pPreCheckFn;
@@ -351,7 +351,7 @@ class CCommandMgr
 
         LTBOOL  AddDelayedCmd(CMD_STRUCT_PARAM & cmd, int nCmdIndex);
         LTBOOL  CheckArgs(ConParse & parse, int nNum);
-		void	DevPrint(char *msg, ...);
+		void	DevPrint(const char *msg, ...);
 
 		void	VarChanged( VAR_STRUCT *pVar );
 
@@ -409,8 +409,8 @@ typedef LTBOOL (*ValidateMsgFn)( ILTPreInterface *pInterface, ConParse &cpMsgPar
 
 struct MSG_PRECHECK
 {
-	MSG_PRECHECK( char *pName = "", int nMinArgs = 0, int nMaxArgs = 0, 
-					ValidateMsgFn pFn = LTNULL, char *pSyntax = "", bool bSpecial = false )
+	MSG_PRECHECK( const char *pName = "", int nMinArgs = 0, int nMaxArgs = 0, 
+					ValidateMsgFn pFn = LTNULL, const char *pSyntax = "", bool bSpecial = false )
 	{
 		m_szMsgName		= pName;
 		m_nMinArgs		= nMinArgs;
@@ -420,10 +420,10 @@ struct MSG_PRECHECK
 		m_bSpecial		= bSpecial;
 	};
 
-	char			*m_szMsgName;
+    const char*     m_szMsgName;
 	int				m_nMinArgs;
 	int				m_nMaxArgs;
-	char			*m_szSyntax;
+    const char*     m_szSyntax;
 	ValidateMsgFn	m_pValidateFn;
 	bool			m_bSpecial;
 };

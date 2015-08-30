@@ -28,7 +28,7 @@ struct PARTICLESHOWERCREATESTRUCT : public BPSCREATESTRUCT
     LTFLOAT  fEmissionRadius;
     LTFLOAT  fRadius;
     LTFLOAT  fGravity;
-	char*	pTexture;
+	const char* pTexture;
 };
 
 inline PARTICLESHOWERCREATESTRUCT::PARTICLESHOWERCREATESTRUCT()

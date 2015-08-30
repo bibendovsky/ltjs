@@ -1882,7 +1882,7 @@ LTBOOL WEAPON::Init(CButeMgr & buteMgr, char* aTagName)
 	else
 	{
 		szLongName = debug_newa( char, 1);
-		szLongName[0] = NULL;
+		szLongName[0] = '\0';
 	}
 
 	pTok = strtok(NULL,"@");
@@ -2422,7 +2422,7 @@ LTBOOL AMMO::Init(CButeMgr & buteMgr, char* aTagName)
 	else
 	{
 		szLongName = debug_newa( char, 1);
-		szLongName[0] = NULL;
+		szLongName[0] = '\0';
 	}
 
 	pTok = strtok(NULL,"@");

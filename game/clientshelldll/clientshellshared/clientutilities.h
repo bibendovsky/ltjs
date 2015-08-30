@@ -60,7 +60,7 @@ void	WriteConsoleFloat(char const* sKey, LTFLOAT fValue);
 void StartTimingCounter();
 void EndTimingCounter(char *msg, ...);
 
-inline LTBOOL GetAttachmentSocketTransform(HOBJECT hObj, char* pSocketName,
+inline LTBOOL GetAttachmentSocketTransform(HOBJECT hObj, const char* pSocketName,
                                           LTVector & vPos, LTRotation & rRot)
 {
     if (!hObj || !pSocketName) return LTFALSE;

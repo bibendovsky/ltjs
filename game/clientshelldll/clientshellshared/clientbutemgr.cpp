@@ -228,7 +228,7 @@ void CClientButeMgr::GetCheat(uint8 nCheatNum, char *pBuf, uint16 nBufLen)
 //
 // ----------------------------------------------------------------------- //
 
-int CClientButeMgr::GetGameAttributeInt(char* pAttribute)
+int CClientButeMgr::GetGameAttributeInt(const char* pAttribute)
 {
 	if (!pAttribute) return 0;
 
@@ -243,7 +243,7 @@ int CClientButeMgr::GetGameAttributeInt(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-float CClientButeMgr::GetGameAttributeFloat(char* pAttribute)
+float CClientButeMgr::GetGameAttributeFloat(const char* pAttribute)
 {
 	if (!pAttribute) return 0.0f;
 
@@ -258,7 +258,7 @@ float CClientButeMgr::GetGameAttributeFloat(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-void CClientButeMgr::GetGameAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen)
+void CClientButeMgr::GetGameAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen)
 {
 	if (!pAttribute)
 	{
@@ -284,7 +284,7 @@ void CClientButeMgr::GetGameAttributeString(char* pAttribute, char *pBuf, uint16
 //
 // ----------------------------------------------------------------------- //
 
-int CClientButeMgr::GetCameraAttributeInt(char* pAttribute)
+int CClientButeMgr::GetCameraAttributeInt(const char* pAttribute)
 {
 	if (!pAttribute) return 0;
 
@@ -299,7 +299,7 @@ int CClientButeMgr::GetCameraAttributeInt(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-float CClientButeMgr::GetCameraAttributeFloat(char* pAttribute)
+float CClientButeMgr::GetCameraAttributeFloat(const char* pAttribute)
 {
 	if (!pAttribute) return 0.0f;
 
@@ -314,7 +314,7 @@ float CClientButeMgr::GetCameraAttributeFloat(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-void CClientButeMgr::GetCameraAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen)
+void CClientButeMgr::GetCameraAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen)
 {
 	if (!pAttribute)
 	{
@@ -343,7 +343,7 @@ void CClientButeMgr::GetCameraAttributeString(char* pAttribute, char *pBuf, uint
 //
 // ----------------------------------------------------------------------- //
 
-float CClientButeMgr::GetReverbAttributeFloat(char* pAttribute)
+float CClientButeMgr::GetReverbAttributeFloat(const char* pAttribute)
 {
 	if (!pAttribute) return 0.0f;
 
@@ -367,7 +367,7 @@ float CClientButeMgr::GetReverbAttributeFloat(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-float CClientButeMgr::GetWeatherAttributeFloat(char* pAttribute)
+float CClientButeMgr::GetWeatherAttributeFloat(const char* pAttribute)
 {
 	if (!pAttribute) return 0.0f;
 
@@ -382,7 +382,7 @@ float CClientButeMgr::GetWeatherAttributeFloat(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-void CClientButeMgr::GetWeatherAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen)
+void CClientButeMgr::GetWeatherAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen)
 {
 	pBuf[0] = LTNULL;
 	if (!pAttribute) return;
@@ -405,7 +405,7 @@ void CClientButeMgr::GetWeatherAttributeString(char* pAttribute, char *pBuf, uin
 //
 // ----------------------------------------------------------------------- //
 
-float CClientButeMgr::GetSpecialFXAttributeFloat(char* pAttribute)
+float CClientButeMgr::GetSpecialFXAttributeFloat(const char* pAttribute)
 {
 	if (!pAttribute) return 0.0f;
 
@@ -420,7 +420,7 @@ float CClientButeMgr::GetSpecialFXAttributeFloat(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-void CClientButeMgr::GetSpecialFXAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen)
+void CClientButeMgr::GetSpecialFXAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen)
 {
 	pBuf[0] = LTNULL;
 	if (!pAttribute) return;
@@ -444,7 +444,7 @@ void CClientButeMgr::GetSpecialFXAttributeString(char* pAttribute, char *pBuf, u
 //
 // ----------------------------------------------------------------------- //
 
-float CClientButeMgr::GetBreathFXAttributeFloat(char* pAttribute)
+float CClientButeMgr::GetBreathFXAttributeFloat(const char* pAttribute)
 {
 	if (!pAttribute) return 0.0f;
 
@@ -459,7 +459,7 @@ float CClientButeMgr::GetBreathFXAttributeFloat(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-int CClientButeMgr::GetBreathFXAttributeInt(char* pAttribute)
+int CClientButeMgr::GetBreathFXAttributeInt(const char* pAttribute)
 {
 	if (!pAttribute) return 0;
 
@@ -474,7 +474,7 @@ int CClientButeMgr::GetBreathFXAttributeInt(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-void CClientButeMgr::GetBreathFXAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen)
+void CClientButeMgr::GetBreathFXAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen)
 {
 	pBuf[0] = LTNULL;
 	if (!pAttribute) return;
@@ -490,7 +490,7 @@ void CClientButeMgr::GetBreathFXAttributeString(char* pAttribute, char *pBuf, ui
 //
 // ----------------------------------------------------------------------- //
 
-LTVector CClientButeMgr::GetBreathFXAttributeVector(char* pAttribute)
+LTVector CClientButeMgr::GetBreathFXAttributeVector(const char* pAttribute)
 {
 	return m_buteMgr.GetVector(CBMGR_BREATHFX_TAG, pAttribute);
 }
@@ -511,7 +511,7 @@ LTVector CClientButeMgr::GetBreathFXAttributeVector(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-void CClientButeMgr::GetInterfaceAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen)
+void CClientButeMgr::GetInterfaceAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen)
 {
 	if (!pAttribute) return;
 
@@ -526,7 +526,7 @@ void CClientButeMgr::GetInterfaceAttributeString(char* pAttribute, char *pBuf, u
 //
 // ----------------------------------------------------------------------- //
 
-float CClientButeMgr::GetInterfaceAttributeFloat(char* pAttribute, float fDef)
+float CClientButeMgr::GetInterfaceAttributeFloat(const char* pAttribute, float fDef)
 {
 	if (!pAttribute) return fDef;
 

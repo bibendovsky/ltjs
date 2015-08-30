@@ -79,7 +79,7 @@ extern CWeaponMgr* g_pWeaponMgr;
 
 
 // Helper function for allocating memory for a string property and returning a pointer to the new string
-inline char* GetString( CButeMgr & buteMgr, const char* szTagName, const char* szAttName, uint32 dwMaxLen, char* defVal = "" )
+inline char* GetString( CButeMgr & buteMgr, const char* szTagName, const char* szAttName, uint32 dwMaxLen, const char* defVal = "" )
 {
 	static char	szTemp[WMGR_MAX_FILE_PATH] = { '\0' };
 	char		*szResult = LTNULL;	

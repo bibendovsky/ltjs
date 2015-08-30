@@ -46,7 +46,7 @@ class CGlobalMgr
 
 		CDTButeMgr		m_DTButeMgr;	
 
-		virtual void	ShutdownWithError(char* pMgrName, char* pButeFilePath) = 0;
+		virtual void	ShutdownWithError(const char* pMgrName, const char* pButeFilePath) = 0;
 };
 
 #endif // __GLOBAL_MGR_H__

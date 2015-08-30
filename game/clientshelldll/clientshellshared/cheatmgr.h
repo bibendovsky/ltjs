@@ -51,7 +51,7 @@ class CCheatMgr
 
 		struct CheatInfo
 		{
-			char			*pzText;
+            const char*     pzText;
 			LTBOOL			bActive;
 		};
 

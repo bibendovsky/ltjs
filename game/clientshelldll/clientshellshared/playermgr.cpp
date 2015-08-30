@@ -4569,7 +4569,7 @@ void CPlayerMgr::UpdateContainers()
 
     LTVector vScale(1.0f, 1.0f, 1.0f), vLightAdd(0.0f, 0.0f, 0.0f);
 
-    char* pCurSound      = NULL;
+    const char* pCurSound = NULL;
 	uint8 nSoundFilterId = 0;
     uint32 dwUserFlags   = USRFLG_VISIBLE;
     m_bUseWorldFog       = LTTRUE;

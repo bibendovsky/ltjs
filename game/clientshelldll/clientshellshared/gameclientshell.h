@@ -99,7 +99,7 @@ public:
 
     void        SetInputState(bool bAllowInput);
 
-	void		CSPrint(char* msg, ...);
+	void		CSPrint(const char* msg, ...);
 
 	void		BuildClientSaveMsg(ILTMessage_Write *pMsg, SaveDataState eSaveDataState);
 	void		UnpackClientSaveMsg(ILTMessage_Read *pMsg);
@@ -299,7 +299,7 @@ private :
 	// Private helper functions...
 
 	void	FirstUpdate();
-	void	MirrorSConVar(char *pSVarName, char *pCVarName);
+	void	MirrorSConVar(const char *pSVarName, const char *pCVarName);
 	void	Adjust1stPersonCamera();
 	void	UpdateWeaponPosition();
 	void	UpdateWeaponMuzzlePosition();

@@ -1315,7 +1315,7 @@ void CWeaponFX::CreateBloodSplatFX()
 				sc.bMultiply		= LTTRUE;
 				sc.bPausable		= LTTRUE;
 
-				char* pBloodFiles[] =
+				const char* pBloodFiles[] =
 				{
 					"FX\\Test\\Blood\\Spr\\BloodL1.spr",
 					"FX\\Test\\Blood\\Spr\\BloodL2.spr",

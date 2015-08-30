@@ -144,7 +144,7 @@ SOUNDFILTER* CSoundFilterMgr::GetFilter(uint8 nId)
 //
 // ----------------------------------------------------------------------- //
 
-SOUNDFILTER* CSoundFilterMgr::GetFilter(char* pName)
+SOUNDFILTER* CSoundFilterMgr::GetFilter(const char* pName)
 {
     if (!pName) return LTNULL;
 

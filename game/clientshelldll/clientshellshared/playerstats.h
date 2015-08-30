@@ -91,11 +91,11 @@ public:
 	// [KLS - 02/13/02] Updated to support checking for mods on weapons other than
 	// the current weapon...
      virtual uint8           GetMod(ModType eType, const WEAPON* pW=LTNULL) = 0;
-    virtual inline uint8    GetSilencer(const WEAPON* pW=LTNULL) = 0;
-    virtual inline uint8    GetScope(const WEAPON* pW=LTNULL) = 0;
+    virtual uint8    GetSilencer(const WEAPON* pW=LTNULL) = 0;
+    virtual uint8    GetScope(const WEAPON* pW=LTNULL) = 0;
 
-    virtual inline LTBOOL    CanBeSilenced() = 0;
-    virtual inline LTBOOL    CanHaveScope() = 0;
+    virtual LTBOOL    CanBeSilenced() = 0;
+    virtual LTBOOL    CanHaveScope() = 0;
 
 
     virtual uint32       GetAmmoCount(uint8 nAmmoId) const = 0;

@@ -47,27 +47,27 @@ namespace
 
 	// model animation names
 	// I wish they could be const, but the engine's interface isn't
-	char *ns_szSelectAnimationName = "Select";
-	char *ns_szDeselectAnimationName = "Deselect";
-	char *ns_szReloadAnimationName = "Reload";
+	const char *ns_szSelectAnimationName = "Select";
+    const char *ns_szDeselectAnimationName = "Deselect";
+    const char *ns_szReloadAnimationName = "Reload";
 
-	char *ns_szAltSelectAnimationName = "AltSelect";
-	char *ns_szAltDeselectAnimationName = "AltDeselect";
-	char *ns_szAltDeselect2AnimationName = "AltDeselect2";
-	char *ns_szAltReloadAnimationName = "AltReload";
+    const char *ns_szAltSelectAnimationName = "AltSelect";
+    const char *ns_szAltDeselectAnimationName = "AltDeselect";
+    const char *ns_szAltDeselect2AnimationName = "AltDeselect2";
+    const char *ns_szAltReloadAnimationName = "AltReload";
 
-	char *ns_szPreFireAnimationName = "PreFire";
-	char *ns_szPostFireAnimationName = "PostFire";
+    const char *ns_szPreFireAnimationName = "PreFire";
+    const char *ns_szPostFireAnimationName = "PostFire";
 
-	char *ns_szIdleAnimationBasename = "Idle_";
+    const char *ns_szIdleAnimationBasename = "Idle_";
 
-	char *ns_szFireAnimationName = "Fire";
-	char *ns_szFireAnimationBasename = "Fire";
+    const char *ns_szFireAnimationName = "Fire";
+    const char *ns_szFireAnimationBasename = "Fire";
 
-	char *ns_szAltIdleAnimationBasename = "AltIdle_";
+    const char *ns_szAltIdleAnimationBasename = "AltIdle_";
 
-	char *ns_szAltFireAnimationName = "AltFire";
-	char *ns_szAltFireAnimationBasename = "AltFire";
+    const char *ns_szAltFireAnimationName = "AltFire";
+    const char *ns_szAltFireAnimationBasename = "AltFire";
 
 	// If -1.0f, the anmiation rates will be unchanged,
 	// else they will run at the specified speed.

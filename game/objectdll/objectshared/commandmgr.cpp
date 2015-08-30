@@ -1988,7 +1988,7 @@ LTBOOL CCommandMgr::ProcessListCommands(ConParse & parse, int nCmdIndex)
 //
 // ----------------------------------------------------------------------- //
 
-void CCommandMgr::DevPrint(char *msg, ...)
+void CCommandMgr::DevPrint(const char *msg, ...)
 {
 #define _DEV_BUILD
 #ifdef _DEV_BUILD
