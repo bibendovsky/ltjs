@@ -1064,121 +1064,108 @@ bool CButeMgr::TagList()
 	return true;
 }
 
-
-
-
-
-bool CButeMgr::Save(const char* szNewFileName)
+bool CButeMgr::Save(
+    const char* szNewFileName)
 {
-	Reset();
+    Reset();
 
-	if (m_sAttributeFilename.IsEmpty() && !szNewFileName)
-		return false;
+    if (m_sAttributeFilename.IsEmpty() && !szNewFileName)
+        return false;
 
-	m_bPutChar = true;
+    m_bPutChar = true;
 
-	char buf[4096];
+    char buf[4096];
 
-	if ( m_sAttributeFilename.GetBuffer() == NULL )
-		m_sAttributeFilename = "";
+    if (m_sAttributeFilename.GetBuffer() == NULL)
+        m_sAttributeFilename = "";
 
-	std::ifstream is(m_sAttributeFilename, std::ios_base::binary);
+    std::ifstream is(m_sAttributeFilename, std::ios_base::binary);
 
-	long nFileLength=0;
-	if (is.is_open())
-	{
-		is.seekg(0, std::ios_base::end);
-		nFileLength = is.tellg();
-	}
+    long nFileLength = 0;
+    if (is.is_open()) {
+        is.seekg(0, std::ios_base::end);
+        nFileLength = is.tellg();
+    }
 
- 	if (nFileLength==0)
- 		nFileLength = 1;
+    if (nFileLength == 0)
+        nFileLength = 1;
 
-	is.clear();
-	is.seekg(0);
+    is.clear();
+    is.seekg(0);
 
-	// Create the buffer.
-	char *pssBuf = new char[nFileLength];
-	pssBuf[0] = '\0';
+    // Create the buffer.
+    char *pssBuf = new char[nFileLength];
+    pssBuf[0] = '\0';
 
-	std::strstream ss(pssBuf, nFileLength, std::ios_base::in | std::ios_base::out);
+    std::stringstream ss;
 
-	if (m_bCrypt)
-	{
-		m_cryptMgr.Decrypt(is, ss);
-		m_pSaveData = new std::iostream(new std::strstreambuf(nFileLength));
-	}
-	else
-	{
-		if (is.is_open())
-		{
-			while (!is.eof())
-			{
-				is.read(buf, 4096);
-				ss.write(buf, is.gcount());
-			}
-		}
+    if (m_bCrypt) {
+        m_cryptMgr.Decrypt(is, ss);
+        m_pSaveData = new std::stringstream();
+    } else {
+        if (is.is_open()) {
+            while (!is.eof()) {
+                is.read(buf, 4096);
+                ss.write(buf, is.gcount());
+            }
+        }
 
-		is.close();
+        is.close();
 
-		if (szNewFileName)
-			m_pSaveData = new std::fstream(szNewFileName, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-		else
-			m_pSaveData = new std::fstream(m_sAttributeFilename, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-	}
+        if (szNewFileName)
+            m_pSaveData = new std::fstream(szNewFileName, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+        else
+            m_pSaveData = new std::fstream(m_sAttributeFilename, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+    }
 
-	if( m_pSaveData->fail( ))
-	{
-		delete m_pSaveData;
-		m_pSaveData = NULL;
+    if (m_pSaveData->fail()) {
+        delete m_pSaveData;
+        m_pSaveData = NULL;
 
-		// Delete the buffer.
-		delete [] pssBuf;
-		pssBuf = NULL;
+        // Delete the buffer.
+        delete[] pssBuf;
+        pssBuf = NULL;
 
-		m_bPutChar = false;
+        m_bPutChar = false;
 
-		return false;
-	}
+        return false;
+    }
 
     m_pSaveData->flags(m_pSaveData->flags() | std::ios_base::showpoint | std::ios_base::fixed);
 
-	ss.clear();
-	m_pData = &ss;
+    ss.clear();
+    m_pData = &ss;
 
-	TagList();
+    TagList();
 
-	// add new tag items
-	TraverseTableOfTags( m_newTagTab, NewTabsSave, m_pSaveData );
+    // add new tag items
+    TraverseTableOfTags(m_newTagTab, NewTabsSave, m_pSaveData);
 
-	m_pSaveData->clear();
-	if (m_bCrypt)
-	{
+    m_pSaveData->clear();
+    if (m_bCrypt) {
         auto file_name = (
             szNewFileName ?
-                szNewFileName :
-                static_cast<const char*>(m_sAttributeFilename));
+            szNewFileName :
+            static_cast<const char*>(m_sAttributeFilename));
 
         std::ofstream stream(file_name, std::ios_base::binary);
 
         m_cryptMgr.Encrypt(*m_pSaveData, stream);
-	}
+    }
 
-	// Delete the buffer.
-	delete [] pssBuf;
-	pssBuf = NULL;
+    // Delete the buffer.
+    delete[] pssBuf;
+    pssBuf = NULL;
 
-	if (m_bCrypt)
-		delete m_pSaveData->rdbuf();
-	delete m_pSaveData;
-	m_pSaveData = NULL;
+    if (m_bCrypt)
+        delete m_pSaveData->rdbuf();
+    delete m_pSaveData;
+    m_pSaveData = NULL;
 
-	m_bPutChar = false;
+    m_bPutChar = false;
 
-	return true;
+    return true;
 }
-
-
 
 bool CButeMgr::Exist(const char* szTagName, const char* szAttName)
 {

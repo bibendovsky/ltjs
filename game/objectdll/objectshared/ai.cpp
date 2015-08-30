@@ -3622,9 +3622,9 @@ void CAI::UpdateInfo()
 		else if( g_AIInfoTrack.GetFloat() == 4.0f )
 		{
 			// Show Relations.
-			std::ostrstream out;
+            std::ostringstream out;
 			out << *(m_pRelationMgr->GetRelationUser()) << '\n' << '\0';
-			info += out.str();
+            info += out.str().c_str();
 		}
 
 		if( info != m_cstrCurrentInfo )

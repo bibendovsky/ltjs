@@ -24,7 +24,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <iosfwd>
-#include <strstream>
+#include <sstream>
 #include <iostream>
 #include <fstream>
 
@@ -436,27 +436,23 @@ inline bool CButeMgr::Parse( std::istream& iStream, int decryptCode)
 	return retVal;
 }
 
-inline bool CButeMgr::Parse( std::istream& iCrypt, int nLen, const char* cryptKey)
+inline bool CButeMgr::Parse(
+    std::istream& iCrypt,
+    int nLen,
+    const char* cryptKey)
 {
-	m_bCrypt = true;
-	m_cryptMgr.SetKey(cryptKey);
-	char* buf2 = new char[nLen];
-	std::ostrstream* pOss = new std::ostrstream(buf2, nLen);
-	m_cryptMgr.Decrypt(iCrypt, *pOss);
+    m_bCrypt = true;
+    m_cryptMgr.SetKey(cryptKey);
 
-	std::istrstream* pIStream = new std::istrstream(const_cast<const char*>(buf2), pOss->pcount());
+    std::stringstream oss;
+    m_cryptMgr.Decrypt(iCrypt, oss);
 
-	delete pOss;
+    Reset();
 
-	Reset();
+    bool retVal = Parse(oss);
 
-	bool retVal = Parse( *pIStream );
-
-	delete pIStream;
-	delete buf2;
-	return retVal;
+    return retVal;
 }
-
 
 
 #if defined(_USE_REZFILE_)
@@ -495,51 +491,49 @@ inline bool CButeMgr::Parse(CRezItm* pItem, const char* cryptKey)
 }
 #endif
 
-
-
-
-
-inline bool CButeMgr::Parse(void* pData, unsigned long size, int decryptCode,
-							CString sAttributeFilename)
+inline bool CButeMgr::Parse(
+    void* pData,
+    unsigned long size,
+    int decryptCode,
+    CString sAttributeFilename)
 {
-	if (!pData)
-		return false;
-	std::istrstream* pIStream = new std::istrstream((char*)pData, size);
+    if (!pData)
+        return false;
 
-	// Need to set the attribute filename if we want to Save the butemgr later...
-	m_sAttributeFilename = sAttributeFilename;
+    std::string string(static_cast<const char*>(pData), size);
+    std::istringstream iss(string);
 
-	bool retVal = Parse( *pIStream, decryptCode );
+    // Need to set the attribute filename if we want to Save the butemgr later...
+    m_sAttributeFilename = sAttributeFilename;
 
-	delete pIStream;
+    bool retVal = Parse(iss, decryptCode);
 
-	return retVal;
+    return retVal;
 }
 
-
-
-
-inline bool CButeMgr::Parse(void* pData, unsigned long size, const char* cryptKey,
-							CString sAttributeFilename)
+inline bool CButeMgr::Parse(
+    void* pData,
+    unsigned long size,
+    const char* cryptKey,
+    CString sAttributeFilename)
 {
-	if (!pData)
-		return false;
-	char* buf1 = (char*)pData;
-	int len = size;
-	std::istrstream* pIss = new std::istrstream(buf1, len);
+    if (!pData)
+        return false;
 
-	Reset();
+    std::string string(static_cast<const char*>(pData), size);
+    int len = size;
 
-	// Need to set the attribute filename if we want to Save the butemgr later...
-	m_sAttributeFilename = sAttributeFilename;
+    std::istringstream iss(string);
 
-	bool retVal = Parse( *pIss, len, cryptKey );
+    Reset();
 
-	delete pIss;
+    // Need to set the attribute filename if we want to Save the butemgr later...
+    m_sAttributeFilename = sAttributeFilename;
 
-	return retVal;
+    bool retVal = Parse(iss, len, cryptKey);
+
+    return retVal;
 }
-
 
 
 
