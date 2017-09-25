@@ -160,6 +160,7 @@ char* CHelpers::GetNextDirName( char *pIn, char *pOut )
 	uint32		len = strlen(pIn);
 	uint32		inPos=0, outPos=0;
 
+    static_cast<void>(len);
 
 	// Skip \ characters.
 	while( (pIn[inPos] == '/') || (pIn[inPos] == '\\') )

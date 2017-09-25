@@ -60,7 +60,9 @@ LTBOOL CMoFileIO::Open( const char *pFilename, const char *pAccess )
 		Close();
 	}
 
-	if( !(m_pFile = fopen(pFilename, pAccess)) )
+    m_pFile = fopen(pFilename, pAccess);
+
+	if( !(m_pFile) )
 		return FALSE;
 
 	fseek( m_pFile, 0, SEEK_END );
