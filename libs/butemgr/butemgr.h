@@ -572,7 +572,7 @@ inline bool CButeMgr::Parse(CString sAttributeFilename, const char* cryptKey)
 	}
 
 	pIs->seekg(0, std::ios_base::end);
-	long len = pIs->tellg();
+	const auto len = static_cast<long>(pIs->tellg());
 
 	pIs->seekg(0);
 

@@ -500,7 +500,7 @@ void CButeMgr::ConsumeChar()
 	else
 		m_bLineCounterFlag = false;
 
-    m_currentChar = c;
+    m_currentChar = static_cast<unsigned char>(c);
 	m_checksum += c;
 }
 
@@ -541,8 +541,8 @@ void CButeMgr::LookupCodes(short State, unsigned char currentChar)
 		CReservedWords::CReservedWord const* p = s_reservedWords.Lookup(m_szTokenString);
 		if (p)
 		{
-			m_token = p->m_token;
-			m_tokenMinor = p->m_tokenMinor;
+			m_token = static_cast<short>(p->m_token);
+			m_tokenMinor = static_cast<short>(p->m_tokenMinor);
 		}
 	}
 }
@@ -604,7 +604,10 @@ bool CButeMgr::ScanTok()
 				return true;
         }
     }
+
+#if 0
 	return true;
+#endif // 0
 }
 
 
@@ -617,7 +620,7 @@ void CButeMgr::DisplayMessage(const char* szMsg, ...)
 	va_start(v, szMsg);
 	char aMsgBuffer[2048];
 	_vsnprintf(aMsgBuffer, sizeof(aMsgBuffer), szMsg, v);
-	m_sErrorString.Format("ButeMgr (%s, %d):  %s", m_sAttributeFilename, m_lineNumber, aMsgBuffer);
+	m_sErrorString.Format("ButeMgr (%s, %d):  %s", static_cast<LPCTSTR>(m_sAttributeFilename), m_lineNumber, aMsgBuffer);
 
 //	TRACE("%s\n", (m_sErrorString.GetBuffer(0)));
 	if (m_pDisplayFunc)
@@ -720,7 +723,7 @@ bool CButeMgr::Statement()
 		case CastByteTok:
 			if (!Match(PosIntegerTok))
 				return false;
-			byteValue = atoi(m_szTokenString);
+			byteValue = static_cast<BYTE>(atoi(m_szTokenString));
 			if (!m_pSaveData)
 			{
 				if (!bDuplicate)
@@ -922,7 +925,10 @@ bool CButeMgr::StatementList()
 		else if (m_token != IdTok)
 			return false;
 	}
+
+#if 0
 	return true;
+#endif // 0
 }
 
 
@@ -1084,7 +1090,7 @@ bool CButeMgr::Save(
     long nFileLength = 0;
     if (is.is_open()) {
         is.seekg(0, std::ios_base::end);
-        nFileLength = is.tellg();
+        nFileLength = static_cast<long>(is.tellg());
     }
 
     if (nFileLength == 0)
@@ -1591,8 +1597,8 @@ CButeMgr::CSymTabItem* CButeMgr::GetSymTabItem( const char* pszTagName, const ch
 int CButeMgr::GetInt(const char* szTagName, const char* szAttName, int defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == IntType)
 			return (pItem->data.i);
@@ -1639,8 +1645,8 @@ void CButeMgr::SetInt(const char* szTagName, const char* szAttName, int val)
 DWORD CButeMgr::GetDword(const char* szTagName, const char* szAttName, DWORD defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		switch (pItem->SymType)
 		{
@@ -1690,8 +1696,8 @@ void CButeMgr::SetDword(const char* szTagName, const char* szAttName, DWORD val)
 BYTE CButeMgr::GetByte(const char* szTagName, const char* szAttName, BYTE defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		switch (pItem->SymType)
 		{
@@ -1741,8 +1747,8 @@ void CButeMgr::SetByte(const char* szTagName, const char* szAttName, BYTE val)
 bool CButeMgr::GetBool(const char* szTagName, const char* szAttName, bool defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		switch (pItem->SymType)
 		{
@@ -1797,8 +1803,8 @@ void CButeMgr::SetBool(const char* szTagName, const char* szAttName, bool val)
 float CButeMgr::GetFloat(const char* szTagName, const char* szAttName, float defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		switch (pItem->SymType)
 		{
@@ -1851,8 +1857,8 @@ void CButeMgr::SetFloat(const char* szTagName, const char* szAttName, float val)
 double CButeMgr::GetDouble(const char* szTagName, const char* szAttName, double defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		switch (pItem->SymType)
 		{
@@ -1904,8 +1910,8 @@ void CButeMgr::SetDouble(const char* szTagName, const char* szAttName, double va
 const char *CButeMgr::GetString(const char* szTagName, const char* szAttName, const char *defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == StringType)
 			return *(pItem->data.s);
@@ -1979,8 +1985,8 @@ void CButeMgr::SetString(const char* szTagName, const char* szAttName, const cha
 CRect& CButeMgr::GetRect(const char* szTagName, const char* szAttName, CRect& defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == RectType)
 			return *(pItem->data.r);
@@ -2028,8 +2034,8 @@ void CButeMgr::SetRect(const char* szTagName, const char* szAttName, const CRect
 CPoint& CButeMgr::GetPoint(const char* szTagName, const char* szAttName, CPoint& defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == PointType)
 			return *(pItem->data.point);
@@ -2077,8 +2083,8 @@ void CButeMgr::SetPoint(const char* szTagName, const char* szAttName, const CPoi
 CAVector& CButeMgr::GetVector(const char* szTagName, const char* szAttName, CAVector& defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == VectorType)
 			return *(pItem->data.v);
@@ -2127,8 +2133,8 @@ void CButeMgr::SetVector(const char* szTagName, const char* szAttName, const CAV
 CARange& CButeMgr::GetRange(const char* szTagName, const char* szAttName, CARange& defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == RangeType)
 			return *(pItem->data.range);
