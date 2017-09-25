@@ -832,7 +832,7 @@ BOOL IsCommandSet(char cFlag, const char* pszCommand)
 	int nCommandLen = strlen(pszCommand);
 
 	//get the uppercase version of the flag
-	char cUpperFlag = toupper(cFlag);
+	const auto cUpperFlag = static_cast<char>(toupper(cFlag));
 
 	//go through each character and do a case insensitive test for the flag
 	for(int nCurrChar = 0; nCurrChar < nCommandLen; nCurrChar++)

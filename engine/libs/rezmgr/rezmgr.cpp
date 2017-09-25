@@ -963,15 +963,15 @@ BOOL CRezDir::ReadDirBlock(CBaseRezFile* pRezFile, DWORD Pos, DWORD Size, BOOL b
       pCur += sizeof(DWORD);
 
       // variables to store data read in
-      DWORD Pos;
-      DWORD Size;
+      DWORD pos2;
+      DWORD size2;
       DWORD Time;
       char* sDirName;
 
       // convert simple header variables
-      Pos = (*(DWORD*)pCur);
+      pos2 = (*(DWORD*)pCur);
       pCur += sizeof(DWORD);
-      Size = (*(DWORD*)pCur);
+      size2 = (*(DWORD*)pCur);
       pCur += sizeof(DWORD);
       Time = (*(DWORD*)pCur);
       pCur += sizeof(DWORD);
@@ -985,15 +985,15 @@ BOOL CRezDir::ReadDirBlock(CBaseRezFile* pRezFile, DWORD Pos, DWORD Size, BOOL b
 	  if (pDir == NULL) {	
 
         // construct new directory item
-        LT_MEM_TRACK_ALLOC(pDir = new CRezDir(m_pRezMgr, this, sDirName, Pos, Size, Time, m_pRezMgr->m_nDirNumHashBins, m_pRezMgr->m_nTypNumHashBins),LT_MEM_TYPE_MISC);
+        LT_MEM_TRACK_ALLOC(pDir = new CRezDir(m_pRezMgr, this, sDirName, pos2, size2, Time, m_pRezMgr->m_nDirNumHashBins, m_pRezMgr->m_nTypNumHashBins),LT_MEM_TYPE_MISC);
         ASSERT(pDir != NULL);
 
         // insert new directory item in hash table
         m_haDir.Insert(&pDir->m_heDir);
       }
 	  else {
-	    pDir->m_nDirPos = Pos;
-		pDir->m_nDirSize = Size;
+	    pDir->m_nDirPos = pos2;
+		pDir->m_nDirSize = size2;
 		pDir->m_nLastTimeModified = Time;
 	  }
     }
@@ -1004,8 +1004,8 @@ BOOL CRezDir::ReadDirBlock(CBaseRezFile* pRezFile, DWORD Pos, DWORD Size, BOOL b
       pCur += sizeof(DWORD);
 
       // variables to store data read in
-      DWORD Pos;
-      DWORD Size;
+      DWORD pos2;
+      DWORD size2;
       DWORD Time;
       DWORD ID;
       DWORD Type;
@@ -1015,9 +1015,9 @@ BOOL CRezDir::ReadDirBlock(CBaseRezFile* pRezFile, DWORD Pos, DWORD Size, BOOL b
       DWORD* pKeyAry;
 
       // convert simple header variables
-      Pos = (*(DWORD*)pCur);
+      pos2 = (*(DWORD*)pCur);
       pCur += sizeof(DWORD);
-      Size = (*(DWORD*)pCur);
+      size2 = (*(DWORD*)pCur);
       pCur += sizeof(DWORD);
       Time = (*(DWORD*)pCur);
       pCur += sizeof(DWORD);
@@ -1076,7 +1076,7 @@ BOOL CRezDir::ReadDirBlock(CBaseRezFile* pRezFile, DWORD Pos, DWORD Size, BOOL b
 //        CRezItm* pItm = new CRezItm(this,sName,ID,pTyp,sDescription,Size,Pos,Time,NumKeys,pKeyAry,pRezFile);
 		CRezItm* pItm = m_pRezMgr->AllocateRezItm();
         ASSERT(pItm != NULL);
-		pItm->InitRezItm(this,sName,ID,pTyp,sDescription,Size,Pos,Time,NumKeys,pKeyAry,pRezFile);
+		pItm->InitRezItm(this,sName,ID,pTyp,sDescription,size2,pos2,Time,NumKeys,pKeyAry,pRezFile);
 
         // insert new resource item in hash tables
         pTyp->m_haName.Insert(&pItm->m_heName);
@@ -1774,7 +1774,7 @@ BOOL CRezMgr::Flush() {
     Header.LargestDirNameSize     = m_nLargestDirNameSize;    
     Header.LargestRezNameSize     = m_nLargestRezNameSize;	
     Header.LargestCommentSize     = m_nLargestCommentSize;	
-    Header.IsSorted               = m_bIsSorted;                
+    Header.IsSorted               = (m_bIsSorted != FALSE);
     
     // write the header
     m_pPrimaryRezFile->Write(0,0,sizeof(Header),&Header);
