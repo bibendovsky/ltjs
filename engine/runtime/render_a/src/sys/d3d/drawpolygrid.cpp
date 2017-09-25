@@ -207,8 +207,11 @@ void CFresnelTable::GenerateTable(float fVolumeIOR, float fBaseReflection)
 		//now convert it to the appropriate format
 		m_nTable[nCurrEntry] = ((uint32)(fVal * 255.0f)) << 24;
 
-		if(nCurrEntry && m_nTable[nCurrEntry] < m_nTable[nCurrEntry - 1])
-			int nBreakme = 1;
+        if (nCurrEntry && m_nTable[nCurrEntry] < m_nTable[nCurrEntry - 1])
+        {
+            int nBreakme = 1;
+            static_cast<void>(nBreakme);
+        }
 
 		fCos += fCosInc;
 	}
@@ -317,7 +320,7 @@ static inline void d3d_SetupVertexPos(VertType *pVertex, float fX, float fY, flo
 static void d3d_SetDefaultBlendStates()
 {
 	//disable the fancier approach
-	D3D_CALL(PD3DDEVICE->SetRenderState(D3DRS_TEXTUREFACTOR, D3DRGBA_255(255, 255, 255, 255)));
+	D3D_CALL(PD3DDEVICE->SetRenderState(D3DRS_TEXTUREFACTOR, static_cast<DWORD>(D3DRGBA_255(255, 255, 255, 255))));
 
 	PD3DDEVICE->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
 	PD3DDEVICE->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
@@ -504,6 +507,9 @@ static void GeneratePolyGridVectors(LTPolyGrid* pGrid, VertType* pVert, Function
 	float fWidthTimesHeight	= fWidth * fHeight;
 	float fTileXScale		= fWidth / (nWidth - 1);
 	float fTileZScale		= fHeight / (nHeight - 1);
+
+    static_cast<void>(fTileXScale);
+    static_cast<void>(fTileZScale);
 
 	//first generate the corners
 	//UL
@@ -703,6 +709,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			{
 				//get the type of this texture
 				ESharedTexType eTexType = pTex->m_eTexType;
+                static_cast<void>(eTexType);
 
 				//the base texture
 				SharedTexture* pBaseTex		= NULL;
@@ -1134,10 +1141,10 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			}
 
 			//now we need to generate the normals for the polygrid
-			LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
-			if(pEffect)
+			LTEffectImpl* pEffect2 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
+			if(pEffect2)
 			{
-				ID3DXEffect* pD3DEffect = pEffect->GetEffect();
+				ID3DXEffect* pD3DEffect = pEffect2->GetEffect();
 				if(pD3DEffect)
 				{
 					GeneratePolyGridVectors(pGrid, (CPolyGridEffectVertex*)g_TriVertList, GenerateEffectBasisSpace);
@@ -1250,10 +1257,10 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			}
 
 			//now we need to generate the normals for the polygrid
-			LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
-			if(pEffect)
+			LTEffectImpl* pEffect3 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
+			if(pEffect3)
 			{
-				ID3DXEffect* pD3DEffect = pEffect->GetEffect();
+				ID3DXEffect* pD3DEffect = pEffect3->GetEffect();
 				if(pD3DEffect)
 				{
 					GeneratePolyGridVectors(pGrid, (CPolyGridEffectVertex*)g_TriVertList, GenerateEffectBasisSpace);
@@ -1356,20 +1363,20 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			{
 				uint32 nPoliesThisFrame = (nRemainingPolies > g_CV_PolyGridBufferSize) ? g_CV_PolyGridBufferSize: nRemainingPolies;
 				
-				LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
-				if(pEffect)
+				LTEffectImpl* pEffect4 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
+				if(pEffect4)
 				{
-					pEffect->UploadVertexDeclaration();
+					pEffect4->UploadVertexDeclaration();
 
-					ID3DXEffect* pD3DEffect = pEffect->GetEffect();
+					ID3DXEffect* pD3DEffect = pEffect4->GetEffect();
 					if(pD3DEffect)
 					{
-						i_client_shell->OnEffectShaderSetParams(pEffect, NULL, NULL, LTShaderDeviceStateImp::GetSingleton());
+						i_client_shell->OnEffectShaderSetParams(pEffect4, NULL, NULL, LTShaderDeviceStateImp::GetSingleton());
 
 						UINT nPasses = 0;
 						pD3DEffect->Begin(&nPasses, 0);
 
-						for(int i = 0; i < nPasses; ++i)
+						for(UINT i = 0; i < nPasses; ++i)
 						{
 							pD3DEffect->BeginPass(i);
 							D3D_CALL(PD3DDEVICE->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST,0,nNumVerts,nPoliesThisFrame,&pGrid->m_Indices[nCurrentVertPosition],D3DFMT_INDEX16,g_TriVertList, nVertexSize));
@@ -1391,20 +1398,20 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 		}
 		else
 		{
-			LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
-			if(pEffect)
+			LTEffectImpl* pEffect5 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
+			if(pEffect5)
 			{
-				pEffect->UploadVertexDeclaration();
+				pEffect5->UploadVertexDeclaration();
 
-				ID3DXEffect* pD3DEffect = pEffect->GetEffect();
+				ID3DXEffect* pD3DEffect = pEffect5->GetEffect();
 				if(pD3DEffect)
 				{
-					i_client_shell->OnEffectShaderSetParams(pEffect, NULL, NULL, LTShaderDeviceStateImp::GetSingleton());
+					i_client_shell->OnEffectShaderSetParams(pEffect5, NULL, NULL, LTShaderDeviceStateImp::GetSingleton());
 
 					UINT nPasses = 0;
 					pD3DEffect->Begin(&nPasses, 0);
 					
-					for(int i = 0; i < nPasses; ++i)
+					for(UINT i = 0; i < nPasses; ++i)
 					{
 						pD3DEffect->BeginPass(i);
 						D3D_CALL(PD3DDEVICE->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST,0,nNumVerts,(pGrid->m_nIndices)/3,pGrid->m_Indices,D3DFMT_INDEX16,g_TriVertList, nVertexSize));

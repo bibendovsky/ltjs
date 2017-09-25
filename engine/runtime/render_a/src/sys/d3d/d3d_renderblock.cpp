@@ -304,7 +304,7 @@ CD3D_RenderBlock::CD3D_RenderBlock() :
 	for (uint32 nChildLoop = 0; nChildLoop < k_NumChildren; ++nChildLoop)
 		m_aChildren[nChildLoop] = reinterpret_cast<CD3D_RenderBlock*>(k_InvalidChild);
 	for (uint32 nShaderIndexLoop = 0; nShaderIndexLoop < k_eShader_Num + 2; ++nShaderIndexLoop)
-		m_aShaderIndices[nShaderIndexLoop] = k_InvalidShaderIndex;
+		m_aShaderIndices[nShaderIndexLoop] = static_cast<uint32>(k_InvalidShaderIndex);
 }
 
 CD3D_RenderBlock::~CD3D_RenderBlock()
@@ -580,8 +580,10 @@ bool CD3D_RenderBlock::Load(ILTStream *pStream)
 		uint32 nMaxVertex = 0;
 		uint32 nSectionIndex = 0;
 
+        static_cast<void>(nSectionIndex);
+
 		// Read in the indices
-		uint32 nIndexOffset = 0;
+		uint32 nIndexOffset2 = 0;
 		for (uint32 nTriLoop = 0; nTriLoop < m_nTriCount; ++nTriLoop)
 		{
 			uint32 nIndex0, nIndex1, nIndex2;
@@ -590,12 +592,12 @@ bool CD3D_RenderBlock::Load(ILTStream *pStream)
 				(nIndex0 < m_nVertexCount) &&
 				(nIndex1 < m_nVertexCount) &&
 				(nIndex2 < m_nVertexCount));
-			m_aIndices[nIndexOffset] = (uint16)nIndex0;
-			++nIndexOffset;
-			m_aIndices[nIndexOffset] = (uint16)nIndex1;
-			++nIndexOffset;
-			m_aIndices[nIndexOffset] = (uint16)nIndex2;
-			++nIndexOffset;
+			m_aIndices[nIndexOffset2] = (uint16)nIndex0;
+			++nIndexOffset2;
+			m_aIndices[nIndexOffset2] = (uint16)nIndex1;
+			++nIndexOffset2;
+			m_aIndices[nIndexOffset2] = (uint16)nIndex2;
+			++nIndexOffset2;
 
 			// skip the poly index (for now)
 			uint32 nPolyIndex;
@@ -1048,11 +1050,11 @@ void CD3D_RenderBlock::GetTriVertexColors(uint32 nBaseIndex, LTRGB aColors[3]) c
 				LTRGB &nResult = aColors[nResultIndex[nCurResult]];
 				LTVector vLightAdd = iCurLG->m_vColor * (float)nNextValue;
 				uint32 nColorR = nResult.r + (uint32)vLightAdd.x;
-				nResult.r = LTMIN(nColorR, 0xFF);
+				nResult.r = static_cast<uint8>(LTMIN(nColorR, 0xFF));
 				uint32 nColorG = nResult.g + (uint32)vLightAdd.y;
-				nResult.g = LTMIN(nColorG, 0xFF);
+				nResult.g = static_cast<uint8>(LTMIN(nColorG, 0xFF));
 				uint32 nColorB = nResult.b + (uint32)vLightAdd.z;
-				nResult.b = LTMIN(nColorB, 0xFF);
+				nResult.b = static_cast<uint8>(LTMIN(nColorB, 0xFF));
 			}
 		}
 	}
@@ -1078,7 +1080,7 @@ void CD3D_RenderBlock::UpdateShaderLightmaps(bool bFullUpdate)
 			continue;
 
 		uint8 *pLMData = 0;
-		uint32 nLMDataStride;
+		uint32 nLMDataStride = 0;
 
 		TLightGroupList::const_iterator iCurLG = m_aLightGroups.begin();
 		for (; iCurLG != m_aLightGroups.end(); ++iCurLG)
@@ -1128,7 +1130,7 @@ void CD3D_RenderBlock::UpdateShaderLightmaps(bool bFullUpdate)
 				uint32 nStrideSkip = nLMDataStride - iCurSubLM->m_nWidth * 3;
 				SRBLightGroup::SSubLM::TDataList::const_iterator iCurInput = iCurSubLM->m_aData.begin();
 				uint8 nRunLength = 0;
-				uint8 nRunValueR, nRunValueG, nRunValueB;
+				uint8 nRunValueR = 0, nRunValueG = 0, nRunValueB = 0;
 				for (; pCurTexel != pEndTexel; pCurTexel += 3)
 				{
 					if (nRunLength)
@@ -1367,7 +1369,7 @@ void CD3D_RenderBlock::Release()
 		return;
 
 	for (uint32 nCurShader = 0; nCurShader < k_eShader_Num; ++nCurShader)
-		m_aShaderIndices[nCurShader] = k_InvalidShaderIndex;
+		m_aShaderIndices[nCurShader] = static_cast<uint32>(k_InvalidShaderIndex);
 
 	m_bShadersBound = false;
 }
@@ -1571,6 +1573,7 @@ void CD3D_RenderBlock::ExtendSkyBounds(const ViewParams& Params, float &fMinX, f
 			bool bCurClip = fCurNearDist > 0.0f;
 
 			bool bVertOK = true;
+            static_cast<void>(bVertOK);
 
 			if (bCurClip != bPrevClip)
 			{
@@ -1777,10 +1780,10 @@ void CD3D_RenderBlock::GetIntersectInfo(const SIntersection &sIntersect,
 					// Convert it from the texture format
 					PValue nFinalColor;
 					g_FormatMgr.PValueFromFormatColor(&cTextureFormat, *pTexel, nFinalColor);
-					pResult_TextureColor->r = PValue_GetR(nFinalColor);
-					pResult_TextureColor->g = PValue_GetG(nFinalColor);
-					pResult_TextureColor->b = PValue_GetB(nFinalColor);
-					pResult_TextureColor->a = PValue_GetA(nFinalColor);
+					pResult_TextureColor->r = static_cast<uint8>(PValue_GetR(nFinalColor));
+					pResult_TextureColor->g = static_cast<uint8>(PValue_GetG(nFinalColor));
+					pResult_TextureColor->b = static_cast<uint8>(PValue_GetB(nFinalColor));
+					pResult_TextureColor->a = static_cast<uint8>(PValue_GetA(nFinalColor));
 				}
 			}
 		}

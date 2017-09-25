@@ -202,6 +202,7 @@ inline HRESULT CheckResult(HRESULT hResult)
 	if (hResult != 0)
 	{
 		int i = 1;
+        static_cast<void>(i);
 	}
 	return hResult;
 }

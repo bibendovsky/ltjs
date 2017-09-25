@@ -69,7 +69,7 @@ void CDirect3DDevice9Wrapper::ReadCurrentDeviceState()
 	uint32 nStateID = 0;
 	for (; nStateID < k_nNumRenderStates; ++nStateID)
 	{
-		m_aCurrentDirtyIndex[nStateID] = k_nInvalidIndex;
+		m_aCurrentDirtyIndex[nStateID] = static_cast<uint32>(k_nInvalidIndex);
 		if (g_aValidRSList[nStateID])
 			GetDevice()->GetRenderState((D3DRENDERSTATETYPE)nStateID, (DWORD*)&m_aCurrentStates[nStateID]);
 		else
@@ -81,7 +81,7 @@ void CDirect3DDevice9Wrapper::ReadCurrentDeviceState()
 	{
 		for (uint32 nTSSState = 0; nTSSState < k_nNumTSSStates; ++nTSSState, ++nStateID)
 		{
-			m_aCurrentDirtyIndex[nStateID] = k_nInvalidIndex;
+			m_aCurrentDirtyIndex[nStateID] = static_cast<uint32>(k_nInvalidIndex);
 			if (g_aValidTSSList[nTSSState])
 				GetDevice()->GetTextureStageState(nTextureStage, (D3DTEXTURESTAGESTATETYPE)nTSSState, (DWORD*)&m_aCurrentStates[nStateID]);
 			else
@@ -131,7 +131,7 @@ void CDirect3DDevice9Wrapper::FlushStates()
 			}
 		}
 		// Clear the dirty index
-		m_aCurrentDirtyIndex[nDirtyID] = k_nInvalidIndex;
+		m_aCurrentDirtyIndex[nDirtyID] = static_cast<uint32>(k_nInvalidIndex);
 	}
 
 	// And now you're clean!

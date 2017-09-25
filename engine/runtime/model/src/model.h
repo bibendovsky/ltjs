@@ -702,7 +702,7 @@ public :
 		if( m_pUsedNodeList != NULL )
 			delete[] m_pUsedNodeList ;
 		LT_MEM_TRACK_ALLOC( m_pUsedNodeList = new uint8[ size ] ,LT_MEM_TYPE_MODEL);
-		m_UsedNodeListSize = size ;
+		m_UsedNodeListSize = static_cast<uint8>(size);
 	}
 
 	uint8*					m_pUsedNodeList; // most distal nodes used by this mesh.

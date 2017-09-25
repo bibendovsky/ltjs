@@ -493,7 +493,7 @@ void CRenderModelPieceList::RenderPieceList(float fAlpha)
 					}
 
 					//begin the new one
-					BeginRenderableModelPiece(Piece.m_pRenderPiece, Piece.m_pTransforms, pCurrRenderStyle, -1, true);
+					BeginRenderableModelPiece(Piece.m_pRenderPiece, Piece.m_pTransforms, pCurrRenderStyle, static_cast<uint32>(-1), true);
 
 					//save the new one
 					pPrevRPiece = Piece.m_pRenderPiece;
@@ -551,7 +551,7 @@ void CRenderModelPieceList::RenderPieceList(float fAlpha)
 						//					BeginRenderableModelPiece(Piece.m_pRenderPiece, Piece.m_pTransforms, pCurrRenderStyle, -1);
 
 						//ok, we can finally render our piece
-						RenderModelPiece(Piece.m_pRenderPiece, Piece.m_pInstance, Piece.m_pTransforms, pCurrRenderStyle, -1, true);
+						RenderModelPiece(Piece.m_pRenderPiece, Piece.m_pInstance, Piece.m_pTransforms, pCurrRenderStyle, static_cast<uint32>(-1), true);
 
 						//					EndRenderableModelPiece(Piece.m_pRenderPiece);
 

@@ -192,7 +192,9 @@ static bool CastRayAtSky( const LTVector& vFrom, const LTVector& vDir )
 		return false;
 	}
 
+#if 0
 	return true;
+#endif // 0
 }
 
 

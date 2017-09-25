@@ -147,6 +147,8 @@ void CD3D_Device::FreeDevice()
 	if (m_pD3DDevice)
 	{
 		uint32 iRefCnt = m_pD3DDevice->Release();
+        static_cast<void>(iRefCnt);
+
 		// Remember, this is actually the wrapper we're deleting here.  The above
 		// call to Release is for the actual D3D device.
 		delete m_pD3DDevice;
@@ -439,6 +441,7 @@ void CD3D_Device::PreCalcSomeDeviceCaps()
 		d3d_GetDepthStencilBits(m_ExtraDevCaps.m_DepthStencilBufferFormat,iZDepth,iStencilDepth);
 		m_ExtraDevCaps.m_bHasStencilBuffer = (iStencilDepth>0 ? true : false);
 		int iRefCnt	= pDepthStencilBuffer->Release();
+        static_cast<void>(iRefCnt);
 	}
 }
 
@@ -450,7 +453,8 @@ void CD3D_Device::CheckSpecialCards()
 
 
 	// First check if they want to force it.
-	char* pForceMode = "ForceMode";
+	auto pForceMode = "ForceMode";
+    static_cast<void>(pForceMode);
 
 	//here we can check the different vendor ID's as well as the ForceMode console variable
 	//to determine if we have any special cards that we need to do custom configurations on

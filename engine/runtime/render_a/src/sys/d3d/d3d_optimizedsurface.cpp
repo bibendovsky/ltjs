@@ -555,6 +555,11 @@ void d3d_BlitToScreen3D(BlitRequest *pRequest)
 	float	destRectWidth	= (float)(pDestRect->right - pDestRect->left);
 	float	destRectHeight	= (float)(pDestRect->bottom - pDestRect->top);
 
+    static_cast<void>(destRectHeight);
+    static_cast<void>(destRectWidth);
+    static_cast<void>(srcRectHeight);
+    static_cast<void>(srcRectWidth);
+
 	// Init default stuff in the verts.
 	TLVertex verts[4];		
 	verts[0].color = verts[1].color = verts[2].color = verts[3].color = g_Optimized2DColor;
@@ -697,6 +702,7 @@ void d3d_BlitToScreen3D_Old(BlitRequest *pRequest)
 			D3D_CALL(PD3DDEVICE->SetVertexShader(NULL));
 			D3D_CALL(PD3DDEVICE->SetFVF(TLVERTEX_FORMAT));
 			HRESULT hResult = D3D_CALL(PD3DDEVICE->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, verts, sizeof(TLVertex)));
+            static_cast<void>(hResult);
 		}
 	}
 	d3d_SetTextureDirect(pOldTexture, 0);
@@ -712,6 +718,8 @@ void d3d_WarpToScreen3D(BlitRequest *pRequest)
 	RSurface* pRSurface  = (RSurface*)pRequest->m_hBuffer;
 	SurfaceTiles *pTiles = pRSurface->m_pTiles;
 	SurfaceTile *pTile;
+
+    static_cast<void>(byAlpha);
 
 	// If there aren't any tiles, get us out of here cause it's not an optimized surface
 	assert(pTiles);
@@ -791,6 +799,7 @@ void d3d_WarpToScreen3D(BlitRequest *pRequest)
 			D3D_CALL(PD3DDEVICE->SetVertexShader(NULL));
 			D3D_CALL(PD3DDEVICE->SetFVF(TLVERTEX_FORMAT));
 			HRESULT hResult = D3D_CALL(PD3DDEVICE->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, verts, sizeof(TLVertex)));
+            static_cast<void>(hResult);
 
 			// Increment the X position
 			xPos += pTile->m_nTileWidth; 

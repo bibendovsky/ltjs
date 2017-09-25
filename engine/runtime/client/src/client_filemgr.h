@@ -44,7 +44,7 @@ public:
             {
                 m_FileType = FILE_ANYFILE;
                 m_pFilename = NULL;
-                m_FileID = -1;
+                m_FileID = static_cast<uint16>(-1);
             }
 
 

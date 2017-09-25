@@ -145,7 +145,7 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 		// fill it with quad references
 		for( uint32 i = 0; i < DYNAMICPARTICLE_NUMQUADS; ++i )
 		{
-			baseVert = i*4;
+			baseVert = static_cast<uint16>(i*4);
 			*(curIndex++) = baseVert;
 			*(curIndex++) = baseVert+1;
 			*(curIndex++) = baseVert+2;
@@ -161,7 +161,8 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 	if( lighting && !g_pDynamicParticleLighting )
 	{
 		uint32 numLightingData = DYNAMICPARTICLE_VBSIZE / 3;
-		if( !(g_pDynamicParticleLighting = new DynamicParticleLightingData[numLightingData]) )
+        g_pDynamicParticleLighting = new DynamicParticleLightingData[numLightingData];
+		if( !(g_pDynamicParticleLighting) )
 			return;
 	}
 
@@ -488,6 +489,13 @@ static void LightDynamicParticlesNonDirectional( DynamicParticleVertex* verts, u
 			float radSqr = curLight.GetRadiusSqr();
 			float cosFov = curLight.GetCosFOV();
 			float invCosFov = 1.0f / (1.0f - cosFov);
+
+            static_cast<void>(lightPos);
+            static_cast<void>(col);
+            static_cast<void>(dir);
+            static_cast<void>(radSqr);
+            static_cast<void>(invCosFov);
+
 			// spotlight
 			for( ; i < numSamples; ++i )
 				lightData[i].acc += CalcSpotlightSample( curLight, lightData[i].pos);
@@ -495,9 +503,9 @@ static void LightDynamicParticlesNonDirectional( DynamicParticleVertex* verts, u
 		else
 		{
 			// assume dir light, just give all points the lights color
-			const LTVector& color = curLight.GetColor();
+			const LTVector& color2 = curLight.GetColor();
 			for( ; i < numSamples; ++i )
-				lightData[i].acc += color;
+				lightData[i].acc += color2;
 		}
 	}
 

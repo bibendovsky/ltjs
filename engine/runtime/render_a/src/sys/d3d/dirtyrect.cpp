@@ -51,7 +51,7 @@ void InvalidateRect(LTRect *pRect)
 	else {									// Attempt to combine this invalid area with one we already have...
 		uint32 i;
 		LTRect comb;
-		int area1, area2, areac, areaBest;
+		int area1, area2, areac, areaBest = 0;
 		int bestRef = -1;
 
 		if (g_invalidRectCount>=MAX_INVALID_RECTS-1) {
@@ -90,6 +90,7 @@ void DirtyRectSwap()
 	RegionData.rdh.rcBound.bottom	= g_Device.GetModeInfo()->Height;	RegionData.rdh.rcBound.right	= g_Device.GetModeInfo()->Width;
 
 	HRESULT hResult = PD3DDEVICE->Present(NULL,NULL,NULL,&RegionData);
+    static_cast<void>(hResult);
 }
 
 void ClearDirtyRects()

@@ -43,7 +43,7 @@ void d3d_ProcessModel(LTObject *pObject)
 	//we need to take this model, and clear out any indices it holds
 	ModelInstance* pInstance = pObject->ToModel();
 
-	pInstance->m_nRenderInfoIndex		= CRenderModelInfoList::GetSingleton().QueueModelInfo(pInstance);
+	pInstance->m_nRenderInfoIndex		= static_cast<uint16>(CRenderModelInfoList::GetSingleton().QueueModelInfo(pInstance));
 	pInstance->m_nRenderInfoParentIndex = pInstance->m_nRenderInfoIndex;
 
 	//first off, see if the object's overall alpha is less then 255. If it is

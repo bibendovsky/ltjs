@@ -450,7 +450,10 @@ bool d3d_InitFrame(ViewParams* pParams, SceneDesc *pDesc)
 			uint32 nWidth = 0;
 			uint32 nHeight = 0;
 			RenderTargetParams params = pRenderTarget->GetRenderTargetParams();
-		
+
+            static_cast<void>(nWidth);
+            static_cast<void>(nHeight);
+
 			int x1 = 0;
 			int x2 = params.Width;
 			int y1 = 0;

@@ -131,6 +131,7 @@ void d3d_DeleteContext(HRENDERCONTEXT hContext)
 	if (hContext) 
 	{
 		RenderContext* pContext = (RenderContext*)hContext;
+        static_cast<void>(pContext);
 		dfree(hContext); 
 	}
 }

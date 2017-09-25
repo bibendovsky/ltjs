@@ -139,6 +139,8 @@ bool CTextureScriptInterpreter::LoadScript(const char* pszFilename)
 	Ref.m_pFilename			= pszFilename;
 	FileIdentifier* pIdent	= g_pIClientFileMgr->GetFileIdentifier(&Ref, TYPECODE_UNKNOWN);
 
+    static_cast<void>(pIdent);
+
 	//open up the stream
 	ILTStream* pStream = g_pIClientFileMgr->OpenFile(&Ref);
 

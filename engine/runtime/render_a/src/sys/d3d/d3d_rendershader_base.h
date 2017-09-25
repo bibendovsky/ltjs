@@ -275,7 +275,8 @@ public:
 		uint16 *pEndOut = &pCurOut[cISection.m_nTriCount * 3];
 		const uint16 *pCurIn = &aIndices[cSection.m_nStartIndex];
 		const uint16 *pEndIn = &pCurIn[cSection.m_nTriCount * 3];
-		uint16 nOffset = cSection.m_nStartVertex - cISection.m_nStartVertex;
+        static_cast<void>(pEndIn);
+		const auto nOffset = static_cast<uint16>(cSection.m_nStartVertex - cISection.m_nStartVertex);
 		while (pCurOut != pEndOut)
 		{
 			*pCurOut = *pCurIn - nOffset;

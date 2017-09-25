@@ -354,7 +354,7 @@ static void d3d_DrawRotatableSprite(const ViewParams& Params, SpriteInstance *pI
 			UINT nPasses = 0;
 			pD3DEffect->Begin(&nPasses, 0);
 
-			for(int i = 0; i < nPasses; ++i)
+			for(UINT i = 0; i < nPasses; ++i)
 			{
 				pD3DEffect->BeginPass(i);
 				D3D_CALL(PD3DDEVICE->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, nPoints-2, pPoints, sizeof(CSpriteVertex)));
@@ -483,7 +483,7 @@ static void d3d_DrawSprite(const ViewParams& Params, SpriteInstance *pInstance, 
 			UINT nPasses = 0;
 			pD3DEffect->Begin(&nPasses, 0);
 
-			for(int i = 0; i < nPasses; ++i)
+			for(UINT i = 0; i < nPasses; ++i)
 			{
 				pD3DEffect->BeginPass(i);
 				D3D_CALL(PD3DDEVICE->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, SpriteVerts, sizeof(CSpriteVertex)));

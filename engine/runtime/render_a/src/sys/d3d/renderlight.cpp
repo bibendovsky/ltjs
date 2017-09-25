@@ -276,7 +276,7 @@ LTVector CRenderLight::GetLightSample(const LTVector& vPos) const
 	if(fDistSqr >= m_fRadiusSqr)
 		return LTVector(0.0f, 0.0f, 0.0f);	
 
-	float fDistPercent;
+	float fDistPercent = 0.0F;
 
 	float fDist	= (float)sqrt(fDistSqr);
 

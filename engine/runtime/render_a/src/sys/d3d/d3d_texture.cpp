@@ -56,6 +56,7 @@ bool d3d_TransferTexture(RTexture* pTexture, TextureData* pTextureData)
 	}
 
 	BPPIdent SrcBPP						= pTextureData->m_Header.GetBPPIdent();
+    static_cast<void>(SrcBPP);
 
 	if (iRTextureMipLevels > pTextureData->m_Header.m_nMipmaps) 
 	{	
@@ -389,6 +390,8 @@ bool CTextureManager::UploadRTexture(TextureData* pSrcTexture, uint32 iSrcLvl, R
 			HRESULT hResult = D3DXLoadSurfaceFromMemory(pDstSurface,NULL,NULL,pSrcData,D3DSrcFormat,SrcPitch,NULL,&SrcRect,D3DX_FILTER_NONE,0);
 
 			uint32 iRefCnt = pDstSurface->Release();
+            static_cast<void>(iRefCnt);
+
 			if (hResult != D3D_OK) 
 				return false; 
 	
@@ -490,8 +493,8 @@ RTexture* CTextureManager::CreateRTexture(SharedTexture* pSharedTexture, Texture
 		return NULL; 
 	
 	pRTexture->m_Flags				 = (uint8)nFlags;
-	pRTexture->m_BaseWidth			 = pTextureData->m_Mips[baseMipmapOffset].m_Width;
-	pRTexture->m_BaseHeight			 = pTextureData->m_Mips[baseMipmapOffset].m_Height;
+	pRTexture->m_BaseWidth			 = static_cast<uint16>(pTextureData->m_Mips[baseMipmapOffset].m_Width);
+	pRTexture->m_BaseHeight			 = static_cast<uint16>(pTextureData->m_Mips[baseMipmapOffset].m_Height);
 	pRTexture->m_DetailTextureScale	 = pTextureData->m_Header.GetDetailTextureScale();
 	pRTexture->m_DetailTextureAngleC = (float)cos(fAngle);
 	pRTexture->m_DetailTextureAngleS = (float)sin(fAngle);
@@ -619,7 +622,9 @@ void CTextureManager::FreeTexture(RTexture* pTexture)
 
 	if (pTexture->m_pD3DTexture) 
 	{
-		uint32 iRefCnt			= pTexture->m_pD3DTexture->Release(); 
+		uint32 iRefCnt			= pTexture->m_pD3DTexture->Release();
+        static_cast<void>(iRefCnt);
+
 		pTexture->m_pD3DTexture = NULL; 
 	}
 
@@ -631,7 +636,7 @@ void CTextureManager::FreeTexture(RTexture* pTexture)
 
 uint32 CTextureManager::GetPitch(D3DFORMAT Format, uint32 iWidth)
 {
-	uint32 iPitch;
+	uint32 iPitch = 0;
 	if (Format == D3DFMT_DXT1 || Format == D3DFMT_DXT3 || Format == D3DFMT_DXT5) {
 		switch (Format) {
 		case D3DFMT_DXT1 : iPitch = iWidth*2; break;
