@@ -192,7 +192,7 @@ void COutputRedir::AddFilterLevel(ECOutput_Level level, ECOutput_ReDir dest)
 	else {
 		// a single level
 		for (int32 cat=0; cat<OUTPUT_CATEGORY_ALL; cat++) {
-			m_pFilterTable[cat][level] = dest;
+			m_pFilterTable[cat][level] = static_cast<uint8>(dest);
 		}
 	}
 }
@@ -220,14 +220,14 @@ void COutputRedir::AddFilterLevelInCategory(ECOutput_Category category, ECOutput
 
 				if (category == OUTPUT_CATEGORY_ALL || category == cat) {
 					if (level == OUTPUT_LEVEL_ALL || level == lev) {
-						m_pFilterTable[cat][lev] = dest;
+						m_pFilterTable[cat][lev] = static_cast<uint8>(dest);
 					}
 				}
 			}
 		}
 	}
 	else {
-		m_pFilterTable[category][level] = dest;
+		m_pFilterTable[category][level] = static_cast<uint8>(dest);
 	}
 }
 
