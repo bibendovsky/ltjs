@@ -59,6 +59,7 @@ bool CBouncyChunkProps::ParseProperties(FX_PROP* pProps, uint32 nNumProps)
 			// Get the path name
 
 			char *sExt  = strtok(sTmp, "|");
+            static_cast<void>(sExt);
 			char *sPath = strtok(NULL, "|");
 			if (sPath) strcpy(m_sModelName, sPath);
 		}
@@ -70,6 +71,7 @@ bool CBouncyChunkProps::ParseProperties(FX_PROP* pProps, uint32 nNumProps)
 			// Get the path name
 
 			char *sExt  = strtok(sTmp, "|");
+            static_cast<void>(sExt);
 			char *sPath = strtok(NULL, "|");
 			if (sPath) strcpy(m_sSkinName, sPath);
 		}
@@ -81,6 +83,7 @@ bool CBouncyChunkProps::ParseProperties(FX_PROP* pProps, uint32 nNumProps)
 			// Get the path name
 
 			char *sExt  = strtok(sTmp, "|");
+            static_cast<void>(sExt);
 			char *sPath = strtok(NULL, "|");
 			if (sPath)
 			{

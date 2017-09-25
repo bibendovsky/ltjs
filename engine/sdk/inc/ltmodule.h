@@ -779,10 +779,10 @@ int32 CAPIHolderBase::Version() {
 
     protected:
         //the name of the interface
-        char *name;
+        char *name_;
 
         //the version of the interface.
-        int32 version;
+        int32 version_;
 
         //the array of interface implementations.
         database_array<IBase, const char *> *interfaces;
@@ -815,11 +815,11 @@ int32 CAPIHolderBase::Version() {
     //
 
     const char *CInterfaceNameMgr::InterfaceName() {
-        return name;    
+        return name_;
     }
 
     int32 CInterfaceNameMgr::InterfaceVersion() {
-        return version;
+        return version_;
     }
 
 
@@ -856,10 +856,10 @@ int32 CAPIHolderBase::Version() {
 
     protected:
         //name of the interface we control.
-        const char *name;
+        const char *name_;
 
         //version of the interface we control.
-        int32 version;
+        int32 version_;
     };
 
     //
@@ -867,11 +867,11 @@ int32 CAPIHolderBase::Version() {
     //
 
     const char *CInterfaceChooser::InterfaceName() {
-        return name;    
+        return name_;
     }
 
     int32 CInterfaceChooser::InterfaceVersion() {
-        return version;
+        return version_;
     }
 
 
@@ -899,13 +899,13 @@ int32 CAPIHolderBase::Version() {
 
     protected:
         //our list of names.
-        const char **choices;
+        const char **choices_;
 
         //how many there are
-        uint32 num_choices;
+        uint32 num_choices_;
 
         //the default imp name.
-        char def_name[64];
+        char def_name_[64];
     };
 
     //

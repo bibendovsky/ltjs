@@ -119,7 +119,8 @@ If the dest buffer is a static buffer, use LTStrCpy; otherwise, do
 a normal string copy.
 */
 #define SAFE_STRCPY(dest, src) {\
-    if (sizeof(dest) > 4)\
+    constexpr auto is_size_greater_than_4 = (sizeof(dest) > 4);\
+    if (is_size_greater_than_4)\
     {\
         LTStrCpy(dest, src, sizeof(dest));\
     }\

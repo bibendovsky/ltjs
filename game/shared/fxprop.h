@@ -144,6 +144,7 @@
 												assert(m_nType == eDataType::PATH);
 
 												char *sExt  = strtok( m_data.m_sVal, "|" );
+                                                static_cast<void>(sExt);
 												char *sPath = strtok( LTNULL, "|" );
 												
 												if( sPath && _stricmp( sPath, "..." ))

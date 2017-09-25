@@ -736,10 +736,10 @@ RELATION SortedArrayCompareNameMgr(CInterfaceNameMgr *other, CInterfaceNameMgr *
 
 CInterfaceNameMgr::CInterfaceNameMgr(const char *name, int32 version) {
     //copy the name.
-    this->name = LTStrCpyCreate(name);
+    name_ = LTStrCpyCreate(name);
 
     //save the version
-    this->version = version;
+    version_ = version;
 
     //we have no current interface implemenation
     current_interface = NULL;
@@ -752,7 +752,7 @@ CInterfaceNameMgr::CInterfaceNameMgr(const char *name, int32 version) {
 
 CInterfaceNameMgr::~CInterfaceNameMgr() {
     //delete our name
-    delca(name);
+    delca(name_);
 
     //delete our arrays
     delc(choosers);
@@ -991,7 +991,7 @@ void CInterfaceNameMgr::TransferFrom(CInterfaceNameMgr *other) {
         IFBREAKBREAK(api == NULL);
 
         //add the implementation to ourself.
-        CInterfaceDatabase::AddAPI(api, name, version);
+        CInterfaceDatabase::AddAPI(api, name_, version_);
     }
 }
 
@@ -1008,10 +1008,10 @@ void CInterfaceNameMgr::TransferFrom(CInterfaceNameMgr *other) {
 
 void CInterfaceChooser::Init(const char *name, int32 version) {
     //save the name.
-    this->name = name;
+    name_ = name;
 
     //save the version
-    this->version = version;
+    version_ = version;
 }
 
 void CInterfaceChooserList::Init(const char *name, int32 version,
@@ -1021,11 +1021,11 @@ void CInterfaceChooserList::Init(const char *name, int32 version,
     CInterfaceChooser::Init(name, version);
 
     //save the parameters
-    this->choices = choices;
-    this->num_choices = num_choices;
+    choices_ = choices;
+    num_choices_ = num_choices;
 
     //copy the default name into our buffer.
-    LTStrCpy(this->def_name, def_name, sizeof(this->def_name));
+    LTStrCpy(def_name_, def_name, sizeof(def_name_));
 }
 
 void CInterfaceChooserList::Add(IBase *api, CInterfaceNameMgr *mgr) {
@@ -1040,12 +1040,12 @@ void CInterfaceChooserList::Remove(IBase *api, CInterfaceNameMgr *mgr) {
 
 EChooserRun CInterfaceChooserList::Run(CInterfaceNameMgr *mgr) {
     //try to use the default interface.
-    if (mgr->UseImplementation(def_name) == true) return CR_OK;
+    if (mgr->UseImplementation(def_name_) == true) return CR_OK;
 
     //try to use the other choices we have
-    for (uint32 i = 0; i < num_choices; i++) {
+    for (uint32 i = 0; i < num_choices_; i++) {
         //try to use this implementation.
-        if (mgr->UseImplementation(choices[i]) == true) return CR_OK;
+        if (mgr->UseImplementation(choices_[i]) == true) return CR_OK;
     }
 
     //couldnt set it correctly
@@ -1054,10 +1054,10 @@ EChooserRun CInterfaceChooserList::Run(CInterfaceNameMgr *mgr) {
 
 EChooserRun CInterfaceChooserList::SetImplementation(uint32 index) {
     //check the index
-    IFBREAKRETURNVAL(index >= num_choices, CR_BAD_PARAM);
+    IFBREAKRETURNVAL(index >= num_choices_, CR_BAD_PARAM);
 
     //set this name as default
-    LTStrCpy(this->def_name, choices[index], sizeof(this->def_name));
+    LTStrCpy(def_name_, choices_[index], sizeof(def_name_));
 
     //trigger our run function.
     return CInterfaceDatabase::RunChooser(this);
@@ -1069,7 +1069,7 @@ EChooserRun CInterfaceChooserList::SetImplementation(const char *name) {
     if (name[0] == '\0') return CR_BAD_PARAM;
 
     //set this as our default
-    LTStrCpy(this->def_name, name, sizeof(this->def_name));
+    LTStrCpy(def_name_, name, sizeof(def_name_));
 
     //trigger our run function.
     return CInterfaceDatabase::RunChooser(this);

@@ -77,6 +77,7 @@ bool CFallingStuffProps::ParseProperties(FX_PROP* pProps, uint32 nNumProps)
 			// Get the path name
 
 			char *sExt  = strtok(sTmp, "|");
+            static_cast<void>(sExt);
 			char *sPath = strtok(NULL, "|");
 			if (sPath) strcpy(m_sSpriteName, sPath);
 		}
@@ -128,6 +129,7 @@ bool CFallingStuffProps::ParseProperties(FX_PROP* pProps, uint32 nNumProps)
 			// Get the path name
 
 			char *sExt  = strtok(sTmp, "|");
+            static_cast<void>(sExt);
 			char *sPath = strtok(NULL, "|");
 			if (sPath) strcpy(m_sImpactSpriteName, sPath);
 		}
@@ -518,11 +520,11 @@ bool CFallingStuffFX::Update(float tmFrameTime)
 			// Setup the rotation
 			
 			dRot = LTRotation(0, 0, 0, 1);
-			LTRotation orient(dRot);
+			LTRotation orient2(dRot);
 
-			orient.Rotate( orient.Up(), rot );
+			orient2.Rotate( orient2.Up(), rot );
 			
-			m_pLTClient->SetObjectRotation(pSprite->m_hObject, &orient);
+			m_pLTClient->SetObjectRotation(pSprite->m_hObject, &orient2);
 
 			// Check to see if we need to start a splash sprite
 
@@ -543,13 +545,13 @@ bool CFallingStuffFX::Update(float tmFrameTime)
 					ObjectCreateStruct ocs;
 					INIT_OBJECTCREATESTRUCT(ocs);
 
-					LTVector vScale;
-					vScale.Init(0.0f, 0.0f, 0.0f);
+					LTVector vScale2;
+					vScale2.Init(0.0f, 0.0f, 0.0f);
 
 					ocs.m_ObjectType = OT_SPRITE;
 					ocs.m_Flags		 = FLAG_VISIBLE | FLAG_ROTATABLESPRITE | FLAG_NOLIGHT;
 					ocs.m_Pos		 = cii.m_Point + (cii.m_Plane.m_Normal * 2.0f);
-					ocs.m_Scale		 = vScale;
+					ocs.m_Scale		 = vScale2;
 
 					LTRotation dOrient( cii.m_Plane.m_Normal, LTVector(0.0f, 1.0f, 0.0f) );
 
@@ -558,8 +560,8 @@ bool CFallingStuffFX::Update(float tmFrameTime)
 					pSplash->m_hObject = m_pLTClient->CreateObject(&ocs);
 					pSplash->m_scale = 0.0f;
 
-					LTRotation orient(dRot);
-					m_pLTClient->SetObjectRotation(pSplash->m_hObject, &orient);
+					LTRotation orient3(dRot);
+					m_pLTClient->SetObjectRotation(pSplash->m_hObject, &orient3);
 
 					pSplash->m_tmElapsed = 0.0f;
 					
@@ -587,7 +589,7 @@ bool CFallingStuffFX::Update(float tmFrameTime)
 
 	while (pSplashNode)
 	{
-		CLinkListNode<SPLASH *> *pDelNode = NULL;
+		CLinkListNode<SPLASH *> *pDelNode2 = NULL;
 
 		SPLASH *pSplash = pSplashNode->m_Data;
 
@@ -614,12 +616,12 @@ bool CFallingStuffFX::Update(float tmFrameTime)
 		if (pSplash->m_tmElapsed > GetProps()->m_tmImpactLifespan)
 		{
 			m_pLTClient->RemoveObject(pSplash->m_hObject);
-			pDelNode = pSplashNode;
+			pDelNode2 = pSplashNode;
 		}
 
 		pSplashNode = pSplashNode->m_pNext;
 
-		if (pDelNode) m_collSplashes.Remove(pDelNode);
+		if (pDelNode2) m_collSplashes.Remove(pDelNode2);
 	}
 
 	// Success !!

@@ -55,6 +55,7 @@ bool CPolyFanProps::ParseProperties(FX_PROP* pProps, uint32 nNumProps)
 			// Get the path name
 
 			char *sExt  = strtok(sTmp, "|");
+            static_cast<void>(sExt);
 			char *sPath = strtok(NULL, "|");
 			if (sPath) strcpy(m_sPolyFanName, sPath);
 		}

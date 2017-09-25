@@ -268,6 +268,7 @@ bool CPolyTubeFX::Update(float tmFrameTime)
 	}
 	
 	float tmAddPtInterval = GetProps()->m_tmAddPtInterval * 2.0f;
+    static_cast<void>(tmAddPtInterval);
 
 	LTRotation rRot;
 	m_pLTClient->GetObjectRotation( m_hObject, &rRot );
@@ -367,6 +368,7 @@ bool CPolyTubeFX::Update(float tmFrameTime)
 	pNode = m_collPathPts.GetHead();
 
 	float fCurU = 0.0f;
+    static_cast<void>(fCurU);
 
 	while (pNode)
 	{
@@ -411,6 +413,9 @@ bool CPolyTubeFX::Update(float tmFrameTime)
 				
 				vBisector.x = (x1 + x2) / 2.0f;
 				vBisector.y = (y1 + y2) / 2.0f;
+
+                static_cast<void>(z1);
+                static_cast<void>(z2);
 			}
 
 			pNode->m_Data.m_vBisector = vBisector;
