@@ -85,8 +85,8 @@ LTBOOL CLTGUILargeText::SetSize(LTIntPt ptTextSize)
 	if (ptTextSize.y < m_nBaseFontSize)
 		return LTFALSE;
 
-	SetFixedWidth(ptTextSize.x);
-	m_nFixedHeight = ptTextSize.y;
+	SetFixedWidth(static_cast<uint16>(ptTextSize.x));
+	m_nFixedHeight = static_cast<uint16>(ptTextSize.y);
 
 	CalculateSize();
 
@@ -289,17 +289,17 @@ void CLTGUILargeText::SetBasePos ( LTIntPt pos )
 
 	if (m_pUp)
 	{
-		LTIntPt pos = m_basePos;
-		pos.x += m_nFixedWidth;
-		m_pUp->SetBasePos(pos);
+		LTIntPt pos2 = m_basePos;
+		pos2.x += m_nFixedWidth;
+		m_pUp->SetBasePos(pos2);
 	}
 
 	if (m_pDown)
 	{
-		LTIntPt pos = m_basePos;
-		pos.x += m_nFixedWidth;
-		pos.y += (m_nFixedHeight - m_pDown->GetHeight());
-		m_pDown->SetBasePos(pos);
+		LTIntPt pos3 = m_basePos;
+		pos3.x += m_nFixedWidth;
+		pos3.y += (m_nFixedHeight - m_pDown->GetHeight());
+		m_pDown->SetBasePos(pos3);
 	}
 
 }

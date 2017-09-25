@@ -63,7 +63,7 @@ public:
 	void			RemoveAllColumns();					// Removes all of the columns
 
 	// Return the number of columns
-	uint8			GetNumColumns()						{ return m_columnArray.size(); }
+	uint8			GetNumColumns()						{ return static_cast<uint8>(m_columnArray.size()); }
 
 	// Render the control
 	void			Render ();

@@ -259,7 +259,7 @@ void CLTGUIEditCtrl::SetText(const char *pString)
 		m_pText->SetCharScreenHeight(m_nFontSize);
 		CalculateSize();
 	}
-	m_nCaretPos = strlen(pString);
+	m_nCaretPos = static_cast<uint16>(strlen(pString));
 }
 const char* CLTGUIEditCtrl::GetText()
 {
@@ -522,7 +522,7 @@ void CLTGUIEditCtrl::SetFixedWidth(uint16 nWidth, LTBOOL bUseFrame)
 			if (nOldCaret > m_pText->GetLength())
 				m_nCaretPos = m_pText->GetLength();
 			else
-				m_nCaretPos = nOldCaret;
+				m_nCaretPos = static_cast<uint16>(nOldCaret);
 		}
 	}
 	else

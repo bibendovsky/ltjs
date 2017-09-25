@@ -165,7 +165,7 @@ void CLTGUICycleCtrl::RemoveString(uint8 nIndex)
 
 	if (m_nSelIndex >= (int)m_stringArray.size())
 	{
-		m_nSelIndex = (int)m_stringArray.size()-1;
+		m_nSelIndex = static_cast<uint8>((int)m_stringArray.size()-1);
 		CalculateSize();
 	}
 	else if (m_nSelIndex > nIndex)
@@ -304,7 +304,7 @@ LTBOOL CLTGUICycleCtrl::OnLeft ( )
 	uint8 newSel = m_nSelIndex;
 	if ( newSel == 0 )
 	{
-		newSel=m_stringArray.size()-1;
+		newSel= static_cast<uint8>(m_stringArray.size()-1);
 	}
 	else
 		newSel--;
