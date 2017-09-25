@@ -288,6 +288,11 @@ CUI_RESULTTYPE CUICheck_Impl::SetText(const char* pText)
 
 	int32 len = strlen(pText);
 
+    static_cast<void>(x);
+    static_cast<void>(y);
+    static_cast<void>(wrap);
+    static_cast<void>(len);
+
 	// if not polystring exists, make one
 	if (!m_pPolyStr) {
 		m_pPolyStr = pLTFontManager->CreateFormattedPolyString(m_pFont, NULL, m_Rect.x, m_Rect.y, m_Halign);
@@ -436,7 +441,7 @@ void CUICheck_Impl::Reposition()
 void CUICheck_Impl::AlignTextInWidget()
 {
 	float w, h;
-	float ypos, xpos;
+	float ypos = 0.0F, xpos = 0.0F;
 
 	if (m_pPolyStr) {
 		

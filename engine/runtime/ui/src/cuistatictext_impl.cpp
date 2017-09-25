@@ -64,6 +64,7 @@ CUI_RESULTTYPE CUIStaticText_Impl::SetText(const char* pText)
 	uint32 wrap	= (uint32) (m_Rect.width - m_GutterRight - m_GutterLeft);
 
 	int32 len = strlen(pText);
+    static_cast<void>(len);
 
 	// make sure there's a font
 	if (!m_pFont) return CUIR_NO_FONT;
@@ -93,7 +94,7 @@ CUI_RESULTTYPE CUIStaticText_Impl::SetText(const char* pText)
 	if (!m_pPolyStr) return CUIR_OUT_OF_MEMORY;
 
 	// make the polystring conform to the label
-	m_pPolyStr->SetWrapWidth(wrap);
+	m_pPolyStr->SetWrapWidth(static_cast<uint16>(wrap));
 	m_pPolyStr->SetCharScreenHeight(m_CharHeight);
 	m_pPolyStr->SetColors(m_pTextColors[0], m_pTextColors[1], m_pTextColors[2], m_pTextColors[3]);
 	m_pPolyStr->SetText(pText);
@@ -290,7 +291,7 @@ void CUIStaticText_Impl::Draw()
 void CUIStaticText_Impl::AlignTextInWidget()
 {
 	float w, h;
-	float ypos, xpos;	
+	float ypos = 0.0F, xpos = 0.0F;
 
 	if (m_pPolyStr) {
 		

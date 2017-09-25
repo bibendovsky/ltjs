@@ -204,6 +204,9 @@ bool CUIBitmapFont::CreatePropFont(const uint8* pData, uint32 nWidth, uint32 nHe
 	bool	green    = false;
 	bool	reading  = false;
 
+    static_cast<void>(opaque);
+    static_cast<void>(reading);
+
 	uint32	u        = 0; 
 	uint32 	v        = 0; 
 
@@ -215,7 +218,10 @@ bool CUIBitmapFont::CreatePropFont(const uint8* pData, uint32 nWidth, uint32 nHe
 	// first, find a line of text
 	int32 ytop = 0;
 	int32 ybot = 0;
-	
+
+    static_cast<void>(ybot);
+    static_cast<void>(ytop);
+
 	// max text height
 	m_CharTexHeight = 0;
 
@@ -246,11 +252,11 @@ bool CUIBitmapFont::CreatePropFont(const uint8* pData, uint32 nWidth, uint32 nHe
 
 				// try and set the max character height
 				if ( (y - v - 1) > m_CharTexHeight)
-					m_CharTexHeight = y - v - 1;
+					m_CharTexHeight = static_cast<uint8>(y - v - 1);
 
-				m_pFontTable[curindex*3] = x - u + 1;
-				m_pFontTable[curindex*3+1] = u; 
-				m_pFontTable[curindex*3+2] = v; 
+				m_pFontTable[curindex*3] = static_cast<uint16>(x - u + 1);
+				m_pFontTable[curindex*3+1] = static_cast<uint16>(u);
+				m_pFontTable[curindex*3+2] = static_cast<uint16>(v);
 
 				u = x + 1;
 				curindex++;
@@ -304,7 +310,7 @@ bool CUIBitmapFont::BuildDefaultMap()
 	int i = 0;
 	for(int r = 33; r < 127; r++)
 	{
-		m_pFontMap[r] = i;
+		m_pFontMap[r] = static_cast<uint8>(i);
 		i++;
 	}
 

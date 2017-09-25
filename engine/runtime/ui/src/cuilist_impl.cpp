@@ -109,7 +109,7 @@ CUI_RESULTTYPE CUIList_Impl::SetCharHeight(uint8 height)
 		while (pNode) {			
 			pStr = (CUIPolyString*) pNode->m_pData;
 			if (pStr) {
-				pStr->SetCharScreenHeight(m_CharHeight);
+				pStr->SetCharScreenHeight(static_cast<uint8>(m_CharHeight));
 			}
 			pNode = pNode->m_pNext;
 		}
@@ -134,7 +134,7 @@ CUI_RESULTTYPE CUIList_Impl::AddItem(const char* text, int32 index)
 	if (!pStr) return CUIR_OUT_OF_MEMORY;
 
 	// set it's dims
-	pStr->SetCharScreenHeight(m_CharHeight);
+	pStr->SetCharScreenHeight(static_cast<uint8>(m_CharHeight));
 	pStr->SetColors(m_pTextColors[0], m_pTextColors[1], m_pTextColors[2], m_pTextColors[3]);
 
 	if (m_pList) {
