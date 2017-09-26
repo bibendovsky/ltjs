@@ -148,6 +148,7 @@ void CHUDScores::Update()
 	if (IsTeamGameType())
 	{
 		CUserProfile *pProfile = g_pProfileMgr->GetCurrentProfile();
+        static_cast<void>(pProfile);
 
 		for( uint8 team = 0; team < kNumTeams; ++team )
 		{
@@ -259,7 +260,7 @@ void CHUDScores::Update()
 		if (IsTeamGameType() && team > 0)
 		{
 			pos.y += nHeight[team-1] + 8;
-			UpdateTeamPos(team,pos);
+			UpdateTeamPos(static_cast<uint8>(team),pos);
 		}
 
 	}
@@ -324,11 +325,11 @@ void CHUDScores::UpdateLayout()
 
 	CUIFont* pFont = g_pInterfaceResMgr->GetFont(nFont);
 
-	uint16 nCol1 = g_pLayoutMgr->GetInt(pTag,"NameColumn");
-	uint16 nCol2 = g_pLayoutMgr->GetInt(pTag,"ScoreColumn");
-	uint16 nCol3 = g_pLayoutMgr->GetInt(pTag,"KillColumn");
-	uint16 nCol4 = g_pLayoutMgr->GetInt(pTag,"TagColumn");
-	uint16 nCol5 = g_pLayoutMgr->GetInt(pTag,"PingColumn");
+	uint16 nCol1 = static_cast<uint16>(g_pLayoutMgr->GetInt(pTag,"NameColumn"));
+	uint16 nCol2 = static_cast<uint16>(g_pLayoutMgr->GetInt(pTag,"ScoreColumn"));
+	uint16 nCol3 = static_cast<uint16>(g_pLayoutMgr->GetInt(pTag,"KillColumn"));
+	uint16 nCol4 = static_cast<uint16>(g_pLayoutMgr->GetInt(pTag,"TagColumn"));
+	uint16 nCol5 = static_cast<uint16>(g_pLayoutMgr->GetInt(pTag,"PingColumn"));
 
 	m_nFrameWidth = (nCol1+nCol2+nCol3+nCol4+nCol5) + 16;
 

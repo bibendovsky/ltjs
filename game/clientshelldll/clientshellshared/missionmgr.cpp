@@ -993,6 +993,7 @@ bool CMissionMgr::ClearMissionInfo( )
 bool CMissionMgr::SendStartGameMessage( )
 {
 	CUserProfile *pProfile = g_pProfileMgr->GetCurrentProfile();
+    static_cast<void>(pProfile);
 
 	m_bGameOver = false;
 

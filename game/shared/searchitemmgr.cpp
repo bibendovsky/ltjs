@@ -88,7 +88,7 @@ SEARCH_SET::SearchObjectType SEARCH_SET::GetRandomSearchObjectType(float fJunkMo
 	uint8 nTotal = 100 - (nItemPercent - nJunkChance);
 
 	//roll the die...
-	uint8 nRandVal = GetRandom(1, nTotal);
+	uint8 nRandVal = static_cast<uint8>(GetRandom(1, nTotal));
 
 	SearchObjectType eType = eUnknownObjectType;
 	if (nRandVal <= nJunkChance)
@@ -139,7 +139,7 @@ bool SEARCH_SET::GetRandomSearchObjectInfo(SearchObjectResult & soResult, float 
 		{
 			if (nAmmos > 0)
 			{
-				uint8 nIndex	 = GetRandom(0, nAmmos-1);
+				uint8 nIndex	 = static_cast<uint8>(GetRandom(0, nAmmos-1));
 				soResult.nId	 = anAmmos[nIndex];
 				soResult.nAmount = anAmmoAmounts[nIndex];
 			}
@@ -230,10 +230,10 @@ LTBOOL CSearchItemMgr::Init(const char* szAttributeFile)
 		pNew->nId = nNumSets;
 		m_buteMgr.GetString(s_aTagName, SET_NAME, "", pNew->szName, sizeof(pNew->szName));
 
-		pNew->nItemPercent		= m_buteMgr.GetInt(s_aTagName, SET_ITEM_PERCENT, 100);
-		pNew->nAmmoPercent		= m_buteMgr.GetInt(s_aTagName, SET_AMMO_PERCENT, 0);
-		pNew->nWeaponPercent	= m_buteMgr.GetInt(s_aTagName, SET_WEAPON_PERCENT, 0);
-		pNew->nGearPercent		= m_buteMgr.GetInt(s_aTagName, SET_GEAR_PERCENT, 0);
+		pNew->nItemPercent		= static_cast<uint8>(m_buteMgr.GetInt(s_aTagName, SET_ITEM_PERCENT, 100));
+		pNew->nAmmoPercent		= static_cast<uint8>(m_buteMgr.GetInt(s_aTagName, SET_AMMO_PERCENT, 0));
+		pNew->nWeaponPercent	= static_cast<uint8>(m_buteMgr.GetInt(s_aTagName, SET_WEAPON_PERCENT, 0));
+		pNew->nGearPercent		= static_cast<uint8>(m_buteMgr.GetInt(s_aTagName, SET_GEAR_PERCENT, 0));
 
 		int nTotalPercent = pNew->nItemPercent + pNew->nAmmoPercent + pNew->nWeaponPercent +
 			pNew->nGearPercent;
@@ -262,7 +262,7 @@ LTBOOL CSearchItemMgr::Init(const char* szAttributeFile)
 				ASSERT(pAmmo);
 				if (pAmmo)
 				{
-					pNew->anAmmos[pNew->nAmmos] = pAmmo->nId;
+					pNew->anAmmos[pNew->nAmmos] = static_cast<uint8>(pAmmo->nId);
 
 					// Pull out the ammo amount...
 					pszTok = strtok(NULL,",");
@@ -296,7 +296,7 @@ LTBOOL CSearchItemMgr::Init(const char* szAttributeFile)
 				ASSERT(pWeapon);
 				if (pWeapon)
 				{
-					pNew->anWeapons[pNew->nWeapons] = pWeapon->nId;
+					pNew->anWeapons[pNew->nWeapons] = static_cast<uint8>(pWeapon->nId);
 				}
 				else
 				{
@@ -325,7 +325,7 @@ LTBOOL CSearchItemMgr::Init(const char* szAttributeFile)
 				ASSERT(pGear);
 				if (pGear)
 				{
-					pNew->anGears[pNew->nGears] = pGear->nId;
+					pNew->anGears[pNew->nGears] = static_cast<uint8>(pGear->nId);
 				}
 				else
 				{

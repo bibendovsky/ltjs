@@ -295,15 +295,15 @@ void CHUDMessageQueue::SetHistoryOffset(uint16 nOffset)
 	if (m_History.size() <= m_HistoryMsgs.size())
 		nMaxOffset = 0;
 	else
-		nMaxOffset = (m_History.size() - m_HistoryMsgs.size());
+		nMaxOffset = static_cast<uint16>(m_History.size() - m_HistoryMsgs.size());
 	
 	if (nOffset > nMaxOffset)
 		nOffset = nMaxOffset;
 
 	m_nHistoryOffset = nOffset;
 
-	uint8 nMsg = m_HistoryMsgs.size() - 1;
-	uint8 nIndex = (m_History.size() - m_nHistoryOffset) - 1;
+	uint8 nMsg = static_cast<uint8>(m_HistoryMsgs.size() - 1);
+	uint8 nIndex = static_cast<uint8>((m_History.size() - m_nHistoryOffset) - 1);
 
 	while (nMsg < m_HistoryMsgs.size())
 	{
@@ -333,9 +333,9 @@ void CHUDMessageQueue::IncHistoryOffset()
 	if (m_History.size() <= m_HistoryMsgs.size())
 		nMaxOffset = 0;
 	else
-		nMaxOffset = (m_History.size() - m_HistoryMsgs.size());
+		nMaxOffset = static_cast<uint16>(m_History.size() - m_HistoryMsgs.size());
 
-	uint16 nOffset = m_nHistoryOffset + m_HistoryMsgs.size();
+	uint16 nOffset = static_cast<uint16>(m_nHistoryOffset + m_HistoryMsgs.size());
 
 	if (nOffset > nMaxOffset)
 		nOffset = nMaxOffset;
@@ -349,7 +349,7 @@ void CHUDMessageQueue::DecHistoryOffset()
 	uint16 nOffset = m_nHistoryOffset;
 
 	if (nOffset > m_HistoryMsgs.size())
-		nOffset -= m_HistoryMsgs.size();
+		nOffset -= static_cast<uint16>(m_HistoryMsgs.size());
 	else
 		nOffset = 0;
 

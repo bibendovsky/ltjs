@@ -92,7 +92,7 @@ void AddLocalImpactFX(HLOCALOBJ hObj, const LTVector & vFirePos, const LTVector 
 	w.hObjectHit	= hObj;
 	w.nWeaponId		= nWeaponId;
 	w.nAmmoId		= nAmmoId;
-	w.nSurfaceType	= eType;
+	w.nSurfaceType	= static_cast<uint8>(eType);
 	w.wIgnoreFX 	= wIgnFX;
     w.nShooterId    = (uint8)dwId;
     w.bLocal        = LTTRUE;

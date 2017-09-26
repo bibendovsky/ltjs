@@ -159,7 +159,7 @@ LTBOOL CCheatMgr::Check( CParsedMsg &cMsg )
 	// convert it to cheat compatible text
     unsigned int i;
     for ( i = 0; i < strlen(cMsg.GetArg(0).c_str()); i++ )
-		buf[i] = ((buf[i] ^ 38) + i) ^ 7;
+		buf[i] = static_cast<char>(((buf[i] ^ 38) + i) ^ 7);
 
 	// then compare the converted text
 	for ( i = 0; i < CHEAT_MAX; i++ )

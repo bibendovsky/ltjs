@@ -114,7 +114,7 @@ LTBOOL CDebrisMgr::Init(const char* szAttributeFile)
 
 		if (pDebris && pDebris->Init(m_buteMgr, s_aTagName))
 		{
-			pDebris->nId = nNum;
+			pDebris->nId = static_cast<uint8>(nNum);
 			m_DebrisList.AddTail(pDebris);
 		}
 		else

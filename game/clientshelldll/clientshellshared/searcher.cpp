@@ -166,6 +166,7 @@ void CSearcher::OnSearchMessage( ILTMessage_Read *pMsg )
 	case SEARCH_FOUND:
 		{
 			uint8 nFind = pMsg->Readuint8();
+            static_cast<void>(nFind);
 			uint8 nId = pMsg->Readuint8();
 
 			SEARCH_ITEM *pItem = g_pSearchItemMgr->GetItem(nId);

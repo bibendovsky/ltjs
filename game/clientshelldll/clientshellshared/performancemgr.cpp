@@ -439,11 +439,11 @@ void CPerformanceMgr::GetPerformanceOptions(sPerformCfg *pCfg)
 {
 	for (int i = 0; i < kNumDetailSettings; i++)
 	{
-		pCfg->nSettings[i] = GetConsoleInt(sSettings[i].szVar,pCfg->nSettings[i]);
+		pCfg->nSettings[i] = static_cast<uint8>(GetConsoleInt(sSettings[i].szVar,pCfg->nSettings[i]));
 	}
 	for (int grp = 0; grp < kNumTextureGroups; grp++)
 	{
-		pCfg->nDetails[grp] = GetConsoleInt(sTextureGroups[grp].szVar,pCfg->nDetails[grp]);
+		pCfg->nDetails[grp] = static_cast<int8>(GetConsoleInt(sTextureGroups[grp].szVar,pCfg->nDetails[grp]));
 	}
 
 	GetConsoleString("PerformanceConfig",pCfg->szName,pCfg->szName);
@@ -454,7 +454,7 @@ void CPerformanceMgr::LoadPerformanceOptions(CButeMgr &buteMgr,sPerformCfg *pCfg
 {
 	for (int i = 0; i < kNumDetailSettings; i++)
 	{
-		pCfg->nSettings[i] = buteMgr.GetInt("Settings",sSettings[i].szName, 0);
+		pCfg->nSettings[i] = static_cast<uint8>(buteMgr.GetInt("Settings",sSettings[i].szName, 0));
 	}
 
 	int nDetail = pCfg->nSettings[kPerform_DetailLevel];
@@ -470,7 +470,7 @@ void CPerformanceMgr::LoadPerformanceOptions(CButeMgr &buteMgr,sPerformCfg *pCfg
 	{
 		for (int grp = 0; grp < kNumTextureGroups; grp++)
 		{
-			pCfg->nDetails[grp] = buteMgr.GetInt("Details",sTextureGroups[grp].szName, 0);
+			pCfg->nDetails[grp] = static_cast<int8>(buteMgr.GetInt("Details",sTextureGroups[grp].szName, 0));
 		}
 	}
 }

@@ -73,7 +73,7 @@ CLIENTFX_INSTANCE::CLIENTFX_INSTANCE()
 	m_fDuration( 0.0f ),
 	m_vPos( 0.0f, 0.0f, 0.0f ),
 	m_rRot( 0.0f, 0.0f, 0.0f, 1.0f ),
-	m_dwID( -1 ),
+	m_dwID( static_cast<uint32>(-1) ),
 	m_hParent( LTNULL ),
 	m_dwObjectFlags( 0 ),
 	m_dwObjectFlags2( 0 ),
@@ -1421,7 +1421,6 @@ uint32 CClientFXMgr::GetUniqueID()
 
 void CClientFXMgr::OnSpecialEffectNotify(HOBJECT hObject, ILTMessage_Read *pMsg)
 {
-	uint32		dwServerID = 0;
 	char		sName[256];
 	uint32		dwFxFlags;
 	LTVector	vPos;

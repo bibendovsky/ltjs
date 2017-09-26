@@ -92,7 +92,6 @@ LTBOOL CNodeController::Init(CCharacterFX* pCharacterFX)
 
 	// Map all the nodes in our skeleton in the bute file to the nodes in the actual model file
 
-	int iNode = 0;
 	HMODELNODE hCurNode = INVALID_MODEL_NODE;
     while ( g_pLTClient->GetModelLT()->GetNextNode(GetCFX()->GetServerObj(), hCurNode, hCurNode) == LT_OK)
 	{

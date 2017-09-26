@@ -729,7 +729,7 @@ void CMusic::Save(ILTMessage_Write *pMsg)
 	if (!pMsg) return;
 
 	pMsg->Writeint32( m_State.nIntensity );
-	pMsg->Writeuint8( m_State.nIntensityEnact );
+	pMsg->Writeuint8( static_cast<uint8>(m_State.nIntensityEnact) );
 }
 
 // ----------------------------------------------------------------------- //

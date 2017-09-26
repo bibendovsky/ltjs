@@ -777,7 +777,7 @@ inline uint8 CWeaponMgr::GetWeaponPriorities(uint8* pPriorityArray, int nArrayLe
 		}
 	}
 
-	return nNumWeapons;
+	return static_cast<uint8>(nNumWeapons);
 }
 
 inline LTBOOL CWeaponMgr::IsValidWeaponId(int nWeaponId) const

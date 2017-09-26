@@ -278,6 +278,7 @@ void CScreenPreload::FirstUpdate( )
 		if (strlen(szFXName))
 		{
 			CBaseScaleFX *pSFX = CreateScaleFX(szFXName);
+            static_cast<void>(pSFX);
 		}
 
 		n++;

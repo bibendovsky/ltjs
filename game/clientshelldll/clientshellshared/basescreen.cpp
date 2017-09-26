@@ -358,6 +358,8 @@ void CBaseScreen::Escape()
 	if (!m_pScreenMgr->PreviousScreen())
 	{
         HLOCALOBJ hPlayerObj = g_pLTClient->GetClientObject();
+        static_cast<void>(hPlayerObj);
+
 		if (g_pPlayerMgr->IsPlayerInWorld() &&
 			(!g_pPlayerMgr->IsPlayerDead() || IsMultiplayerGame( )) )
 		{
@@ -683,7 +685,7 @@ uint16 CBaseScreen::NextSelection()
 {
 	uint16 select = m_nSelection;
 	if (select == kNoSelection)
-		select = m_controlArray.size()-1;
+		select = static_cast<uint16>(m_controlArray.size()-1);
 	uint16 oldSelect = select;
 	
 	CLTGUICtrl* pCtrl = LTNULL;	
@@ -719,7 +721,7 @@ uint16 CBaseScreen::PreviousSelection()
 	{
 		if (select == 0)
 		{
-			select = m_controlArray.size()-1;
+			select = static_cast<uint16>(m_controlArray.size()-1);
 		}
 		else
 			select--;
@@ -937,7 +939,7 @@ uint16 CBaseScreen::SetSelection(uint16 select, LTBOOL bFindSelectable)
 	{
 		if (nOldSelect != kNoSelection)
 		{
-			GetControl(nOldSelect)->Select(LTFALSE);
+			GetControl(static_cast<uint16>(nOldSelect))->Select(LTFALSE);
 			OnSelectionChange();
 		}
 		m_nOldSelection = m_nSelection;
@@ -953,7 +955,7 @@ uint16 CBaseScreen::SetSelection(uint16 select, LTBOOL bFindSelectable)
 	if (select >= 0)
 	{
 		if (select >= m_controlArray.size())
-			select = m_controlArray.size()-1;
+			select = static_cast<uint16>(m_controlArray.size()-1);
 	}
 
 
@@ -961,7 +963,7 @@ uint16 CBaseScreen::SetSelection(uint16 select, LTBOOL bFindSelectable)
 	if (!pSelCtrl)
 	{
 		UpdateHelpText();
-		return nOldSelect;
+		return static_cast<uint16>(nOldSelect);
 	}
 	//check to see if we can select this item
 	if (!pSelCtrl->IsEnabled())
@@ -970,7 +972,7 @@ uint16 CBaseScreen::SetSelection(uint16 select, LTBOOL bFindSelectable)
 		if (!bFindSelectable)
 		{
 			UpdateHelpText();
-			return nOldSelect;
+			return static_cast<uint16>(nOldSelect);
 		}
 
 		//keep looking until we run out of on screen items or find a selectable one
@@ -982,14 +984,14 @@ uint16 CBaseScreen::SetSelection(uint16 select, LTBOOL bFindSelectable)
 		if (!pSelCtrl || !pSelCtrl->IsEnabled())
 		{
 			UpdateHelpText();
-			return nOldSelect;
+			return static_cast<uint16>(nOldSelect);
 		}
 	}
 
 
 	if (nOldSelect != kNoSelection)
 	{
-		GetControl(nOldSelect)->Select(LTFALSE);
+		GetControl(static_cast<uint16>(nOldSelect))->Select(LTFALSE);
 	}
 
 	m_nOldSelection = m_nSelection;
@@ -998,7 +1000,7 @@ uint16 CBaseScreen::SetSelection(uint16 select, LTBOOL bFindSelectable)
 	if (m_nSelection == kNoSelection)
 	{
 		UpdateHelpText();
-		return nOldSelect;
+		return static_cast<uint16>(nOldSelect);
 	}
 
 	LTIntPt pos = pSelCtrl->GetPos();
@@ -1037,6 +1039,7 @@ LTBOOL CBaseScreen::GetControlUnderPoint(int xPos, int yPos, uint16 *pnIndex)
 	{
 		//start with last control
 		int ndx = (m_controlArray.size()-1) - i;
+        static_cast<void>(ndx);
 
 		// Check to see if the click is in the bounding box for the control
 		if (m_controlArray[i]->IsOnMe(xPos,yPos) && m_controlArray[i]->IsEnabled())
@@ -1086,7 +1089,7 @@ void CBaseScreen::RemoveAll(LTBOOL bDelete)
 uint16 CBaseScreen::AddControl(CLTGUICtrl* pCtrl)
 {
 	m_controlArray.push_back(pCtrl);
-	uint16 num = m_controlArray.size();
+	uint16 num = static_cast<uint16>(m_controlArray.size());
 	if (num == m_nSelection+1)
         pCtrl->Select(LTTRUE);
 	if (num > 0)
@@ -1209,7 +1212,7 @@ CLTGUICycleCtrl* CBaseScreen::CreateCycle(char *pString, int helpID, int nHeader
 	uint8 nFontSize = g_pLayoutMgr->GetScreenFontSize((eScreenID)m_nScreenID);
 
 
-    if (!pCtrl->Create(pString, helpID, pFont, nFontSize, nHeaderWidth, pnValue))
+    if (!pCtrl->Create(pString, helpID, pFont, nFontSize, static_cast<uint16>(nHeaderWidth), pnValue))
 	{
 		debug_delete(pCtrl);
         return LTNULL;
@@ -1270,7 +1273,7 @@ CLTGUIToggle* CBaseScreen::CreateToggle(char *pString, int helpID, int nHeaderWi
 	uint8 nFontSize = g_pLayoutMgr->GetScreenFontSize((eScreenID)m_nScreenID);
 
 
-    if (!pCtrl->Create(pString, helpID, pFont, nFontSize, nHeaderWidth, pbValue))
+    if (!pCtrl->Create(pString, helpID, pFont, nFontSize, static_cast<uint16>(nHeaderWidth), pbValue))
 	{
 		debug_delete(pCtrl);
         return LTNULL;
@@ -1343,7 +1346,7 @@ CLTGUISlider* CBaseScreen::CreateSlider(char *pString, int helpID, int nHeaderWi
 	}
 
 
-    if (!pCtrl->Create(pString, helpID, pFont, nFontSize, hBar, nHeaderWidth, nBarWidth, nBarHeight, pnValue))
+    if (!pCtrl->Create(pString, helpID, pFont, nFontSize, hBar, static_cast<uint16>(nHeaderWidth), static_cast<uint16>(nBarWidth), static_cast<uint16>(nBarHeight), pnValue))
 	{
 		debug_delete(pCtrl);
         return LTNULL;
@@ -1648,6 +1651,7 @@ void CBaseScreen::CreateInterfaceSFX()
 		if (strlen(szFXName))
 		{
 			CBaseScaleFX *pSFX = CreateScaleFX(szFXName);
+            static_cast<void>(pSFX);
 		}
 
 		n++;
@@ -2058,6 +2062,9 @@ void CBaseScreen::UpdateHelpText()
 		int nWidth = s_HelpRect.right - s_HelpRect.left;
 		int nHeight = s_HelpRect.bottom - s_HelpRect.top;
 
+        static_cast<void>(nWidth);
+        static_cast<void>(nHeight);
+
 		if (m_dwCurrHelpID)
 		{
 			char szHelpText[256] = "";
@@ -2066,14 +2073,14 @@ void CBaseScreen::UpdateHelpText()
 			if (s_pHelpStr && strlen(szHelpText))
 			{
 				s_pHelpStr->SetText(szHelpText);
-				uint16 nWidth = (uint16)( (LTFLOAT)s_HelpWidth * g_pInterfaceResMgr->GetXRatio());
+				uint16 nWidth2 = (uint16)( (LTFLOAT)s_HelpWidth * g_pInterfaceResMgr->GetXRatio());
 				float helpX = (float)s_HelpRect.left * g_pInterfaceResMgr->GetXRatio();
 				float helpY = (float)s_HelpRect.top * g_pInterfaceResMgr->GetYRatio();
 				uint8 nSize = (uint8)((LTFLOAT)s_HelpSize * g_pInterfaceResMgr->GetXRatio());
 
 				s_pHelpStr->SetPosition(helpX,helpY);
 				s_pHelpStr->SetCharScreenHeight(nSize);
-				s_pHelpStr->SetWrapWidth(nWidth);
+				s_pHelpStr->SetWrapWidth(nWidth2);
 			}
 
 		}
@@ -2159,8 +2166,9 @@ void CBaseScreen::SetTitleSize(uint8 nFontSize)
 	if (m_pTitleString)
 	{
 		CUIFont* pFont = g_pInterfaceResMgr->GetFont(m_TitleFont);
-		uint8 nFontSize = (uint8)((LTFLOAT)m_TitleSize * g_pInterfaceResMgr->GetXRatio());
-		m_pTitleString->SetCharScreenHeight(nFontSize);
+        static_cast<void>(pFont);
+		uint8 nFontSize2 = (uint8)((LTFLOAT)m_TitleSize * g_pInterfaceResMgr->GetXRatio());
+		m_pTitleString->SetCharScreenHeight(nFontSize2);
 	}
 }
 

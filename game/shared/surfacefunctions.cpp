@@ -173,7 +173,9 @@ char* GetMovementSound(SurfaceType eSurfType, LTBOOL bLeftFoot,
 		break;
 	}
 
+#if 0
 	return LTNULL;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //

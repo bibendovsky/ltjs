@@ -151,7 +151,7 @@ void CHUDPopup::Show( uint8 nPopupID, const char *pText )
 	LTIntPt pos( (640 - pPopup->sSize.x) / 2, (480 - pPopup->sSize.y) / 2 );
 
 	m_Frame.SetFrame(g_pInterfaceResMgr->GetTexture(pPopup->szFrame));
-	m_Frame.SetSize(pPopup->sSize.x,pPopup->sSize.y);
+	m_Frame.SetSize(static_cast<uint16>(pPopup->sSize.x),static_cast<uint16>(pPopup->sSize.y));
 	m_Frame.SetBasePos(pos);
 	m_Frame.SetScale(g_pInterfaceResMgr->GetXRatio());
 

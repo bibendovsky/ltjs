@@ -212,11 +212,11 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 			}
 		case VK_RIGHT:
 			{
-				LTBOOL handled = LTFALSE;
-				handled = pMenu->OnRight();
-				if (!handled && pMenu == m_pCurrentMenu)
+				LTBOOL handled2 = LTFALSE;
+				handled2 = pMenu->OnRight();
+				if (!handled2 && pMenu == m_pCurrentMenu)
 				{
-					handled = NextMenu();
+					handled2 = NextMenu();
 					g_pInterfaceMgr->RequestInterfaceSound(IS_PAGE);
 				}
 				break;
@@ -295,7 +295,6 @@ void CMenuMgr::HandleKeyUp (int vkey)
 
 	if (vkey == VK_ESCAPE)
 	{
-		CLTGUIWindow *pMenu = LTNULL;
 		if (m_pSubMenu)
 		{
 			HideSubMenu(true);
@@ -372,7 +371,7 @@ LTBOOL CMenuMgr::PreviousMenu()
 
 	uint8 index = m_nMenuIndex;
 	if (index == 0)
-		index = m_MenuArray.size();
+		index = static_cast<uint8>(m_MenuArray.size());
 	index--;
 
 	while (index != m_nMenuIndex)
@@ -382,7 +381,7 @@ LTBOOL CMenuMgr::PreviousMenu()
 		else
 		{
 			if (index == 0)
-				index = m_MenuArray.size();
+				index = static_cast<uint8>(m_MenuArray.size());
 			index--;
 		}
 	}
@@ -606,7 +605,6 @@ void	CMenuMgr::OnRButtonDown(int x, int y)
 
 void CMenuMgr::OnRButtonUp(int x, int y)
 {
-	CLTGUIWindow *pMenu = LTNULL;
 	if (m_pSubMenu)
 	{
 		HideSubMenu(true);
@@ -896,7 +894,7 @@ void CMenuMgr::EnableMenuBar(bool bEnable/*=true*/, uint32 nMenuFlags/*=MB_ALL*/
 
 	for (int i=0; i < MB_NUM_CTRLS; i++)
 	{
-		CLTGUICtrl* pCtrl = m_MenuBar.GetControl(i);
+		CLTGUICtrl* pCtrl = m_MenuBar.GetControl(static_cast<uint16>(i));
 		if (pCtrl)
 		{
 			if (MBCtrlFlags[i] & nMenuFlags)
@@ -1021,5 +1019,8 @@ uint32 CMenuBar::OnCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2)
 		g_pInterfaceMgr->GetMenuMgr()->SlideOut();
 		return 1;
 	}
+
+#if 0
 	return 0;
+#endif // 0
 }

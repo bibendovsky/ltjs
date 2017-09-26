@@ -219,7 +219,7 @@ void CGadgetDisabler::Update( )
 				nA = 100 - nVal;
 			else
 				// Not to accurate but it looks good
-				nA = int(((100.0f - nVal) / 75.0f) * 255) + (100 - nVal);
+				nA = static_cast<uint8>(int(((100.0f - nVal) / 75.0f) * 255) + (100 - nVal));
 			
 			uint8 a, r, g, b;
 

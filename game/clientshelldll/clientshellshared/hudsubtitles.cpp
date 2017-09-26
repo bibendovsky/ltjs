@@ -263,6 +263,7 @@ LTBOOL CHUDSubtitles::Show(int nStringId, LTVector vSpeakerPos, LTFLOAT fRadius,
 		m_bOverflow = LTTRUE;
 		LTFLOAT fTimePerLine = m_fDuration / ((LTFLOAT)numLines + 1.0f);
 		LTFLOAT fRemainingLines = (LTFLOAT)(numLines - m_nMaxLines);
+        static_cast<void>(fRemainingLines);
 		LTFLOAT fDelay = (LTFLOAT)m_nMaxLines * fTimePerLine;
 		m_fScrollStartTime = fDelay;
 

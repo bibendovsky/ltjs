@@ -946,7 +946,7 @@ void CCharacterFX::CreateUnderwaterFX(const LTVector & vPos)
 	sm.fParticleCreateDelta	= 0.1f;
 	sm.fMinParticleLife		= 1.0f;
 	sm.fMaxParticleLife		= 3.0f;
-	sm.nNumParticles		= GetRandom(2, 5);
+	sm.nNumParticles		= static_cast<uint8>(GetRandom(2, 5));
     sm.bIgnoreWind          = LTTRUE;
 	sm.hstrTexture			= m_pClientDE->CreateString(DEFAULT_BUBBLE_TEXTURE);
 
@@ -1068,7 +1068,7 @@ void CCharacterFX::CreateZzzFX()
 	sm.fParticleCreateDelta	= 0.1f;
 	sm.fMinParticleLife		= 1.0f;
 	sm.fMaxParticleLife		= 3.0f;
-	sm.nNumParticles		= GetRandom(1, 1);
+	sm.nNumParticles		= static_cast<uint8>(GetRandom(1, 1));
     sm.bIgnoreWind          = LTFALSE;
 	sm.hstrTexture			= m_pClientDE->CreateString(DEFAULT_ZZZ_TEXTURE);
 
@@ -1230,7 +1230,7 @@ void CCharacterFX::CreateCigaretteFX()
 	sm.fParticleCreateDelta	= 0.1f;
 	sm.fMinParticleLife		= 1.0f;
 	sm.fMaxParticleLife		= 3.0f;
-	sm.nNumParticles		= GetRandom(1, 2);
+	sm.nNumParticles		= static_cast<uint8>(GetRandom(1, 2));
     sm.bIgnoreWind          = LTFALSE;
 	sm.hstrTexture			= m_pClientDE->CreateString(DEFAULT_CIGARETTE_TEXTURE);
 
@@ -1334,6 +1334,7 @@ void CCharacterFX::OnModelKey(HLOCALOBJ hObj, ArgList *pArgs)
 	{
 		
 		ModelId eModelId = GetModelId();
+        static_cast<void>(eModelId);
 
 		if (pArgs->argc > 1)
 		{
@@ -1373,7 +1374,7 @@ void CCharacterFX::OnModelKey(HLOCALOBJ hObj, ArgList *pArgs)
 				if(pArgs->argc >= i+3)
 				{
 					nRS = (atoi)(pArgs->argv[i+1]);
-					SetObjectRenderStyle(m_hServerObject,nRS,pArgs->argv[i+2]);
+					SetObjectRenderStyle(m_hServerObject,static_cast<uint8>(nRS),pArgs->argv[i+2]);
 				}
 				else
 				{
@@ -1704,7 +1705,7 @@ void CCharacterFX::PlayMovementSound(LTVector vPos, SurfaceType eSurface,
 			nVolume = ( int )((( float )nVolume * g_vtQuietMovementVolumeFactor.GetFloat( )) + 0.5f );
 		}
 
-		g_pClientSoundMgr->PlaySoundFromPos(vPos, pSound, FOOTSTEP_SOUND_RADIUS, ePriority, dwFlags, nVolume);
+		g_pClientSoundMgr->PlaySoundFromPos(vPos, pSound, FOOTSTEP_SOUND_RADIUS, ePriority, dwFlags, static_cast<uint8>(nVolume));
 	}
 }
 
@@ -2684,7 +2685,7 @@ void CCharacterFX::UpdateBreathFX()
 				sm.fRadius				= g_pClientButeMgr->GetBreathFXAttributeFloat("Radius");
 				sm.fMinParticleLife		= g_pClientButeMgr->GetBreathFXAttributeFloat("MinPLife");
 				sm.fMaxParticleLife		= g_pClientButeMgr->GetBreathFXAttributeFloat("MaxPLife");
-				sm.nNumParticles		= g_pClientButeMgr->GetBreathFXAttributeInt("NumParticles");
+				sm.nNumParticles		= static_cast<uint8>(g_pClientButeMgr->GetBreathFXAttributeInt("NumParticles"));
 
                 sm.bIgnoreWind          = LTFALSE;
 				sm.fLifeTime			= sm.fMaxParticleLife;
@@ -2784,7 +2785,7 @@ void CCharacterFX::CreateAttachClientFX()
 	int nNumClientFX = g_pModelButeMgr->GetNumClientFX( mModelId );
 	for ( int i = 0; i < nNumClientFX ; ++i )
 	{
-		char const *pClientFXName = g_pModelButeMgr->GetClientFX( mModelId, i );
+		char const *pClientFXName = g_pModelButeMgr->GetClientFX( mModelId, static_cast<uint8>(i) );
 		if ( pClientFXName && ( '\0' != pClientFXName[ 0 ] ) )
 		{
 			CLIENTFX_CREATESTRUCT fxInit( pClientFXName, FXFLAG_LOOP, m_hServerObject );

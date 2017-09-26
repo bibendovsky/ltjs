@@ -95,7 +95,7 @@ LTBOOL CHUDMgr::Init()
 	g_pDisplayMeter = &m_DisplayMeter;
 	g_pScores = &m_Scores;
 
-	m_nCurrentLayout = GetConsoleInt("HUDLayout",0);
+	m_nCurrentLayout = static_cast<uint8>(GetConsoleInt("HUDLayout",0));
 	
 	ItemArray::iterator iter = m_itemArray.begin();
 	while (iter != m_itemArray.end())
@@ -105,7 +105,7 @@ LTBOOL CHUDMgr::Init()
 		iter++;
 	}
 
-	m_UpdateFlags = kHUDAll;
+	m_UpdateFlags = static_cast<uint32>(kHUDAll);
 
 	g_pHUDMgr = this;
 
@@ -144,7 +144,7 @@ void CHUDMgr::Update()
 	int nLayout = GetConsoleInt("HUDLayout",0);
 	if (nLayout != m_nCurrentLayout)
 	{
-		m_nCurrentLayout = nLayout;
+		m_nCurrentLayout = static_cast<uint8>(nLayout);
 		UpdateLayout();
 	}
 	m_UpdateFlags |= kHUDFrame;
@@ -189,7 +189,7 @@ void CHUDMgr::QueueUpdate(uint32 nUpdateFlag)
 
 void CHUDMgr::ScreenDimsChanged()
 {
-	m_UpdateFlags = kHUDAll;
+	m_UpdateFlags = static_cast<uint32>(kHUDAll);
 }
 
 void CHUDMgr::NextLayout()
@@ -207,7 +207,7 @@ void CHUDMgr::NextLayout()
 void CHUDMgr::PrevLayout()
 {
 	if (m_nCurrentLayout == 0)
-		m_nCurrentLayout =  g_pLayoutMgr->GetNumHUDLayouts() - 1;
+		m_nCurrentLayout =  static_cast<uint8>(g_pLayoutMgr->GetNumHUDLayouts() - 1);
 	else
 		m_nCurrentLayout--;
     WriteConsoleInt("HUDLayout",m_nCurrentLayout);
@@ -228,7 +228,7 @@ void CHUDMgr::UpdateLayout()
 	}
 
 
-	m_UpdateFlags = kHUDAll;
+	m_UpdateFlags = static_cast<uint32>(kHUDAll);
 
 }
 

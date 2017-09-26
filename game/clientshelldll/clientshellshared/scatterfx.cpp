@@ -152,12 +152,12 @@ LTBOOL CScatterFX::CreateObject( ILTClient* pClientDE )
 		for( uint32 i = 0; i < numVolumes; i++ )
 		{
 			// get the position of this subvolume
-			LTVector pos;
-			pos.x = *((float*)curBlindData);
+			LTVector pos2;
+			pos2.x = *((float*)curBlindData);
 			curBlindData += fltSz;
-			pos.y = *((float*)curBlindData);
+			pos2.y = *((float*)curBlindData);
 			curBlindData += fltSz;
-			pos.z = *((float*)curBlindData);
+			pos2.z = *((float*)curBlindData);
 			curBlindData += fltSz;
 
 			// get the dimensions of this subvolume
@@ -208,9 +208,9 @@ LTBOOL CScatterFX::CreateObject( ILTClient* pClientDE )
 				//------
 			}
 
-			AdjustBounds( pos, dims );
+			AdjustBounds( pos2, dims );
 
-			m_pSubVolumes[i].Init( this, pos, dims, numParticles, particles );
+			m_pSubVolumes[i].Init( this, pos2, dims, numParticles, particles );
 		}
 
 		// we're done with the blind data for this object, free it
@@ -572,6 +572,7 @@ bool CScatterFXSubVolume::FillVertexBuffer( void* pVertexBufferData, void* pLigh
 	uint32 curWave = (uint32)((fmod( (m_Parent->m_fWaveRate * seconds), 360.0 ) / 360.0) * SCATTERFX_TABLESIZE);
 
 	float width = m_Parent->m_fWidth;
+    static_cast<void>(width);
 	float height = m_Parent->m_fHeight;
 
 	float waveAmt, waveXOffset, waveZOffset;

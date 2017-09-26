@@ -54,7 +54,7 @@ inline WCREATESTRUCT::WCREATESTRUCT()
 	nSurfaceType	= 0;
 	wIgnoreFX		= 0;
     bLocal          = LTFALSE;
-	nShooterId		= -1;
+	nShooterId		= static_cast<uint8>(-1);
 }
 
 
@@ -74,8 +74,8 @@ class CWeaponFX : public CSpecialFX
 			m_wIgnoreFX		= 0;
 			m_fInstDamage	= 0;
 			m_fAreaDamage	= 0;
-			m_nShooterId	= -1;
-			m_nLocalId		= -1;
+			m_nShooterId	= static_cast<uint8>(-1);
+			m_nLocalId		= static_cast<uint8>(-1);
             m_bLocal        = LTFALSE;
 
 			m_vFirePos.Init();

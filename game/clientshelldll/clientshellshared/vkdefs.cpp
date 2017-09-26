@@ -89,5 +89,5 @@ char VKToASCII (int nKey)
 		}
 	}
 
-	return nKey;
+	return static_cast<char>(nKey);
 }

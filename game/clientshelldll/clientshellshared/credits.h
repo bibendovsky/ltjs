@@ -62,7 +62,7 @@ public:
 	void				Term();
 	void				Clear();
 
-	uint16				GetNumStrings() { return(m_Strings.size()); }
+	uint16				GetNumStrings() { return static_cast<uint16>(m_Strings.size()); }
 //	HSTRING				GetString(int iString);
 	int					GetState() { return(m_nState); }
 
@@ -120,7 +120,7 @@ public:
 	LTBOOL				IsClearingScreen() { return(m_bClearScreen); }
 
 	CCredit*			GetCredit(uint16 iCredit);
-	uint16				GetNumCredits() { return(m_Credits.size()); }
+	uint16				GetNumCredits() { return static_cast<uint16>(m_Credits.size()); }
 	int					GetMode() { return(m_nMode); }
 
 	void				HandleInput(int vkey);

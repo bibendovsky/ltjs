@@ -493,8 +493,8 @@ bool DMGameOptions::LoadFromBute( CButeMgr& bute )
 	m_nTimeLimit = (uint8)bute.GetInt(szTagName,"TimeLimit",10);
 	m_nRounds = (uint8)bute.GetInt( szTagName, "Rounds", 0 );
 
-	m_nFragScore = bute.GetInt(szTagName,"FragScore", 2);
-	m_nTagScore = bute.GetInt(szTagName,"TagScore", 1);
+	m_nFragScore = static_cast<uint8>(bute.GetInt(szTagName,"FragScore", 2));
+	m_nTagScore = static_cast<uint8>(bute.GetInt(szTagName,"TagScore", 1));
 
 	return true;
 }
@@ -622,7 +622,7 @@ bool TeamDMGameOptions::LoadFromBute( CButeMgr& bute )
 	m_nRounds = (uint8)bute.GetInt( szTagName, "Rounds", 1 );
 	m_bFriendlyFire = bute.GetBool(szTagName,"FriendlyFire",true);	
 
-	m_nNumTeams = bute.GetInt( szTagName, "NumTeams", 2 );
+	m_nNumTeams = static_cast<uint8>(bute.GetInt( szTagName, "NumTeams", 2 ));
 
 	char szAttName[32] = {0};
 	char szTemp[32] = {0};
@@ -643,8 +643,8 @@ bool TeamDMGameOptions::LoadFromBute( CButeMgr& bute )
 		m_sTeamName[i] = szString;
 	}
 
-	m_nFragScore = bute.GetInt(szTagName,"FragScore", 2);
-	m_nTagScore = bute.GetInt(szTagName,"TagScore", 1);
+	m_nFragScore = static_cast<uint8>(bute.GetInt(szTagName,"FragScore", 2));
+	m_nTagScore = static_cast<uint8>(bute.GetInt(szTagName,"TagScore", 1));
 
 	m_nRevivingScore = ( uint8 )bute.GetInt( szTagName, "ReviveScore", 1 );
 
@@ -808,7 +808,7 @@ bool DoomsdayGameOptions::LoadFromBute( CButeMgr& bute )
 	m_nRounds = (uint8)bute.GetInt(szTagName, "Rounds", 1 );
 	m_bFriendlyFire = bute.GetBool(szTagName,"FriendlyFire",true);	
 
-	m_nNumTeams = bute.GetInt( szTagName, "NumTeams", 2 );
+	m_nNumTeams = static_cast<uint8>(bute.GetInt( szTagName, "NumTeams", 2 ));
 
 	char szAttName[32] = {0};
 	char szTemp[32] = {0};
@@ -829,8 +829,8 @@ bool DoomsdayGameOptions::LoadFromBute( CButeMgr& bute )
 		m_sTeamName[i] = szString;
 	}
 
-	m_nFragScore = bute.GetInt(szTagName,"FragScore", 2);
-	m_nTagScore = bute.GetInt(szTagName,"TagScore", 1);
+	m_nFragScore = static_cast<uint8>(bute.GetInt(szTagName,"FragScore", 2));
+	m_nTagScore = static_cast<uint8>(bute.GetInt(szTagName,"TagScore", 1));
 
 	m_nDeviceCompletedScore = ( uint8 )bute.GetInt( szTagName, "DeviceCompletedScore", 10 );
 	m_nLightPiecePlacedScore = ( uint8 )bute.GetInt( szTagName, "LightPiecePlacedScore", 3 );

@@ -57,7 +57,7 @@ class CKeyMgr : public CGameButeMgr, public ILTObjRefReceiver
 	void		Save( ILTMessage_Write *pMsg, uint32 dwSaveFlags );
 	void		Load( ILTMessage_Read *pMsg, uint32 dwLoadFlags );
 
-	uint16		GetNumKeys() {return m_KeyArray.size();}
+	uint16		GetNumKeys() {return static_cast<uint16>(m_KeyArray.size());}
 
 	LTBOOL		IsValidKey(uint16 nID) {return nID < m_KeyArray.size();}
 	KEY*		GetKey(uint16 nID);

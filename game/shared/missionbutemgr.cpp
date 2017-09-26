@@ -168,17 +168,17 @@ bool CMissionButeMgr::IsMissionLevel(char const* pWorldFile, int & nMissionId, i
 		{
 
 			//strip path (if there is one) from each levels name
-			char const* pTmp = strrchr(pMission->aLevels[i].szLevel,'\\');
-			if (pTmp)
+			char const* pTmp2 = strrchr(pMission->aLevels[i].szLevel,'\\');
+			if (pTmp2)
 			{
-				pTmp++;
+				pTmp2++;
 			}
 			else
 			{
-				pTmp = pMission->aLevels[i].szLevel;
+				pTmp2 = pMission->aLevels[i].szLevel;
 			}
 
-			if (stricmp( pTmp, pWorldFile ) == 0)
+			if (stricmp( pTmp2, pWorldFile ) == 0)
 			{
 				nMissionId = pMission->nId;
 				nLevel = i;

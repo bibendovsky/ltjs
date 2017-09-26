@@ -1773,7 +1773,7 @@ uint8 CModelButeMgr::GetNumDefaultAttachments(ModelId eModelId)
 	_ASSERT(eModelId >= 0 && eModelId < m_cModels);
 	if(eModelId >= 0 && eModelId < m_cModels)
 	{
-		return m_aModels[eModelId].m_lstDefaultAttachments.size();
+		return static_cast<uint8>(m_aModels[eModelId].m_lstDefaultAttachments.size());
 	}
 
 	return 0;
@@ -1794,7 +1794,7 @@ uint8 CModelButeMgr::GetNumPlayerViewAttachments( ModelId eModelId )
 	_ASSERT( eModelId >= 0 && eModelId < m_cModels );
 	if(eModelId >= 0 && eModelId < m_cModels)
 	{
-		return m_aModels[eModelId].m_lstPVAttachments.size();
+		return static_cast<uint8>(m_aModels[eModelId].m_lstPVAttachments.size());
 	}
 
 	return 0;

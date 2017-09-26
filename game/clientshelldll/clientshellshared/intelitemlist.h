@@ -49,7 +49,7 @@ public:
 	void Save(ILTMessage_Write *pMsg);
 	void Load(ILTMessage_Read *pMsg);
 
-	uint16		GetCount() {return m_IntelArray.size();}
+	uint16		GetCount() {return static_cast<uint16>(m_IntelArray.size());}
 	INTEL_ITEM*	Get(uint16 nIndex);
 
 private:

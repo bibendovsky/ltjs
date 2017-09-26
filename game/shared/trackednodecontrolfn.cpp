@@ -720,8 +720,8 @@ void TrackedNodeControlFn(const NodeControlData& Data, void* pUser)
 			pNode->m_pNodeMgr->GetBaseInterface()->GetModelLT()->GetBindPoseNodeTransform(pNode->m_hModel, pNode->m_hNode, mOriginalBinding);
 
 			//steal the orientation from that and save it in the binding space
-			LTVector vTranslation;
-			mBindingSpace.GetTranslation(vTranslation);
+			LTVector vTranslation2;
+			mBindingSpace.GetTranslation(vTranslation2);
 
 			//apply the orientation of the model
 			LTRotation ModelRot;
@@ -732,7 +732,7 @@ void TrackedNodeControlFn(const NodeControlData& Data, void* pUser)
 			ModelRot.ConvertToMatrix(mModelOr);
 
 			MatMul3x3(&mBindingSpace, &mModelOr, &mOriginalBinding);
-			mBindingSpace.SetTranslation(vTranslation);
+			mBindingSpace.SetTranslation(vTranslation2);
 		}
 
 #if DRAWBASIS

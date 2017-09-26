@@ -106,13 +106,13 @@ LTBOOL CDebrisFX::Init(SFXCREATESTRUCT* psfxCreateStruct)
 		m_ds.fFadeTime		= pDebris->fFadetime;
 		m_ds.fMinScale		= pDebris->fMinScale;
 		m_ds.fMaxScale		= pDebris->fMaxScale;
-		m_ds.nNumDebris		= pDebris->nNumber;
+		m_ds.nNumDebris		= static_cast<uint8>(pDebris->nNumber);
 		m_ds.vMaxVel		= pDebris->vMaxVel;
 		m_ds.vMinVel		= pDebris->vMinVel;
 		m_ds.vMinDOffset	= pDebris->vMinDOffset;
 		m_ds.vMaxDOffset	= pDebris->vMaxDOffset;
-		m_ds.nMaxBounce		= pDebris->nMaxBounce;
-		m_ds.nMinBounce		= pDebris->nMinBounce;
+		m_ds.nMaxBounce		= static_cast<uint8>(pDebris->nMaxBounce);
+		m_ds.nMinBounce		= static_cast<uint8>(pDebris->nMinBounce);
 		m_ds.vMinWorldVel	= pDebris->vMinWorldVel;
 		m_ds.vMaxWorldVel	= pDebris->vMaxWorldVel;
 		m_ds.fGravityScale	= pDebris->fGravityScale;
@@ -127,16 +127,16 @@ LTBOOL CDebrisFX::Init(SFXCREATESTRUCT* psfxCreateStruct)
 	CGameSettings* pSettings = g_pInterfaceMgr->GetSettings();
     if (!pSettings) return LTFALSE;
 
-    uint8 nDebrisLevel = GetConsoleInt("DebrisFXLevel", RS_HIGH);
+    uint8 nDebrisLevel = static_cast<uint8>(GetConsoleInt("DebrisFXLevel", RS_HIGH));
 	if (nDebrisLevel == RS_LOW)
 	{
-		m_ds.nNumDebris = int(float(m_ds.nNumDebris) * 0.333f);
+		m_ds.nNumDebris = static_cast<uint8>(int(float(m_ds.nNumDebris) * 0.333f));
 		m_ds.fMinLifeTime *= 0.333f;
 		m_ds.fMaxLifeTime *= 0.333f;
 	}
 	else if (nDebrisLevel == RS_MED)
 	{
-		m_ds.nNumDebris = int(float(m_ds.nNumDebris) * 0.666f);
+		m_ds.nNumDebris = static_cast<uint8>(int(float(m_ds.nNumDebris) * 0.666f));
 		m_ds.fMinLifeTime *= 0.666f;
 		m_ds.fMaxLifeTime *= 0.666f;
 	}
@@ -520,7 +520,7 @@ void CDebrisFX::CreateDebris(int i, LTVector vPos)
 	if (!pTracker)
 		return;
 
-	pTracker->m_hDebris = g_pDebrisMgr->CreateDebris(m_ds.nDebrisId, vPos, i+1);
+	pTracker->m_hDebris = g_pDebrisMgr->CreateDebris(m_ds.nDebrisId, vPos, static_cast<uint8>(i+1));
 	if (!pTracker->m_hDebris) return;
 
     LTVector vScale(1.0f, 1.0f, 1.0f);
@@ -549,6 +549,7 @@ LTBOOL CDebrisFX::OkToRemoveDebris(int i)
 
 	return LTTRUE;
 
+#if 0
 	if (i < 0 || i >= m_ds.nNumDebris) return LTTRUE;
 
     if (!m_pClientDE || !g_pGameClientShell || !IsValidDebris(i) || m_ds.bForceRemove) return LTTRUE;
@@ -580,6 +581,7 @@ LTBOOL CDebrisFX::OkToRemoveDebris(int i)
 	// Client is looking our way, don't remove it yet...
 
     return LTFALSE;
+#endif // 0
 }
 
 

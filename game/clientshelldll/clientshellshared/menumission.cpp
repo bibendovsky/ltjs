@@ -29,7 +29,7 @@ CMenuMission::CMenuMission()
 	m_pLevelCtrl = LTNULL;
 	m_pObjLabel = LTNULL;
 	m_pParameters = LTNULL;
-	m_nFirstObj = -1;
+	m_nFirstObj = static_cast<uint16>(-1);
 }
 
 
@@ -41,7 +41,7 @@ LTBOOL CMenuMission::Init()
 
 	SetTitle(IDS_TITLE_BRIEFING);
 
-	uint16 nWidth = s_Size.x - 2*m_Indent.x;
+	uint16 nWidth = static_cast<uint16>(s_Size.x - 2*m_Indent.x);
 
 	uint8 nMissSize = (uint8)g_pLayoutMgr->GetMenuCustomInt(m_MenuID,"MissionFontSize");
 	uint16 ndx = AddControl("<mission name>",0,LTTRUE);
@@ -152,8 +152,9 @@ void CMenuMission::OnFocus(LTBOOL bFocus)
 		}
 
 		uint16 nextItem = m_nFirstObj;
+        static_cast<void>(nextItem);
 		uint16 numItems = 0;
-		uint16 nWidth = s_Size.x - 2*m_Indent.x;
+		uint16 nWidth = static_cast<uint16>(s_Size.x - 2*m_Indent.x);
 
 		g_pPlayerStats->SetObjectivesSeen();
 
@@ -358,7 +359,7 @@ void CMenuMission::OnFocus(LTBOOL bFocus)
 uint16 CMenuMission::AddObjectiveControl (int stringID, LTBOOL bCompleted, LTBOOL bOptional)
 {
 	CUIFont* pFont = g_pInterfaceResMgr->GetFont(m_FontFace);
-	if (!pFont) return -1;
+	if (!pFont) return static_cast<uint16>(-1);
 
 	CObjectiveCtrl* pCtrl=debug_new(CObjectiveCtrl);
 
@@ -373,7 +374,7 @@ uint16 CMenuMission::AddObjectiveControl (int stringID, LTBOOL bCompleted, LTBOO
     if (!pCtrl->Create(szString, pFont, nObjSize, 16, m_BulletTex))
 	{
 		debug_delete(pCtrl);
-        return -1;
+        return static_cast<uint16>(-1);
 	}
 
 	pCtrl->SetBasePos(m_nextPos);

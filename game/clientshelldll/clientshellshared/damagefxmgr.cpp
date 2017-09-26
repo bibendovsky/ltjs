@@ -547,7 +547,7 @@ bool CDamageFXMgr::OnModelKey( HLOCALOBJ hObj, ArgList *pArgs )
 // ----------------------------------------------------------------------- //
 
 DAMAGEFX::DAMAGEFX()
-:	m_nID					( DMGFXMGR_INVALID_ID ),
+:	m_nID					( static_cast<uint32>(DMGFXMGR_INVALID_ID) ),
 	m_nDamageFlag			( 0 ),
 	m_szName				( LTNULL ),
 	m_szIcon				( LTNULL ),
@@ -596,7 +596,7 @@ DAMAGEFX::DAMAGEFX()
 	m_nNumSprinkles			( 0 ),
 	m_bJumpRequested		( LTFALSE ),
 	m_nNumJumps				( 0 ),
-	m_nJumpsToEscape		( -1 ),
+	m_nJumpsToEscape		( static_cast<uint8>(-1) ),
 	m_bAttachCameraToAni	( LTFALSE ),
 	m_bShowClientModel		( LTFALSE ),
 	m_bAnimationControlsFX	( LTFALSE ),
@@ -709,7 +709,7 @@ LTBOOL DAMAGEFX::Init( CButeMgr &ButeMgr, char *aTagName )
 	m_bAllowMovement	= !!ButeMgr.GetInt( aTagName, DMGFXMGR_ALLOWMOVEMENT );
 	m_bAllowInput		= !!ButeMgr.GetInt( aTagName, DMGFXMGR_ALLOWINPUT );
 
-	m_nJumpsToEscape	= ButeMgr.GetInt( aTagName, DMGFXMGR_NUMJUMPSTOESCAPE );
+	m_nJumpsToEscape	= static_cast<int8>(ButeMgr.GetInt( aTagName, DMGFXMGR_NUMJUMPSTOESCAPE ));
 
 	m_bInstantEffect	= (LTBOOL)ButeMgr.GetInt( aTagName, DMGFXMGR_INSTANTEFFECT, 0 );
 
@@ -793,7 +793,7 @@ void DAMAGEFX::Start( )
 				CAutoMessage cMsg;
 				cMsg.Writeuint8( MID_WEAPON_SOUND_LOOP );
 				cMsg.Writeuint8( PSI_INVALID );
-				cMsg.Writeuint8( pWeapon->GetWeaponId() );
+				cMsg.Writeuint8( static_cast<uint8>(pWeapon->GetWeaponId()) );
 				g_pLTClient->SendToServer( cMsg.Read(), MESSAGE_GUARANTEED );
 			}
 		}

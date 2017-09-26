@@ -330,7 +330,7 @@ CTeam* CTeamMgr::GetTeam(uint8 nID)
 
 uint8 CTeamMgr::GetNumTeams()
 {
-	return m_teams.size();
+	return static_cast<uint8>(m_teams.size());
 }
 
 #ifdef _CLIENTBUILD
@@ -351,9 +351,9 @@ void CTeamMgr::UpdateTeam(ILTMessage_Read *pMsg)
 
 	if (!pTeam)
 	{
-		CTeam* pTeam = debug_new(CTeam);
-		pTeam->Init(nID,pMsg);
-		m_teams.push_back(pTeam);
+		CTeam* pTeam2 = debug_new(CTeam);
+		pTeam2->Init(nID,pMsg);
+		m_teams.push_back(pTeam2);
 	}
 	else
 	{

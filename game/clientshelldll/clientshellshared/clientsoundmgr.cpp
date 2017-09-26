@@ -155,7 +155,7 @@ HLTSOUND CClientSoundMgr::PlaySoundLocal(const char *pName, SoundPriority ePrior
 		
 		// Should we use passed in values or SoundBute values...
 
-		psi.m_nPriority		= (ePriority == SOUNDPRIORITY_MISC_LOW ? SOUNDPRIORITY_MISC_LOW : sb.m_ePriority);
+		psi.m_nPriority		= static_cast<unsigned char>(ePriority == SOUNDPRIORITY_MISC_LOW ? SOUNDPRIORITY_MISC_LOW : sb.m_ePriority);
 		psi.m_nVolume		= (nVolume == SMGR_DEFAULT_VOLUME ? SMGR_DEFAULT_VOLUME : sb.m_nVolume);
 		psi.m_fPitchShift	= (fPitchShift >= 1.0f ? 1.0f : sb.m_fPitch);
 		dwFlags				= sb.m_nFlags;
@@ -165,7 +165,7 @@ HLTSOUND CClientSoundMgr::PlaySoundLocal(const char *pName, SoundPriority ePrior
 		// Just a normal sound file, play it with the passed in values...
 
 		strncpy(psi.m_szSoundName, pName, _MAX_PATH);
-		psi.m_nPriority		= ePriority;
+		psi.m_nPriority		= static_cast<unsigned char>(ePriority);
 		psi.m_nVolume		= nVolume;
 		psi.m_fPitchShift	= fPitchShift;
 		psi.m_nSoundVolumeClass = nSoundClass;

@@ -700,7 +700,7 @@ LTBOOL CWeaponMgr::Init(const char* szAttributeFile)
 		m_nNumClasses = 1;
 		m_pClasses = debug_newa(uint8, 1);
 		if (!m_pClasses) return LTFALSE;
-		m_pClasses[0] = m_nLastPlayerWeapon;
+		m_pClasses[0] = static_cast<uint8>(m_nLastPlayerWeapon);
 	}
 
 
@@ -733,7 +733,7 @@ LTBOOL CWeaponMgr::Init(const char* szAttributeFile)
 					pWeapon = GetWeapon(szWeaponName);
 					if (pWeapon)
 					{
-						m_pWeaponPriorities[i] = pWeapon->nId;
+						m_pWeaponPriorities[i] = static_cast<uint8>(pWeapon->nId);
 					}
 				}
 			}
@@ -1660,10 +1660,10 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 
 		char szStr[WMGR_MAX_NAME_LENGTH] = {0};
 		int n = 0;
-		for( int i = 0; i < nNumAmmoIds; ++i )
+		for( int i2 = 0; i2 < nNumAmmoIds; ++i2 )
 		{
-			aAmmoIds[i] = WMGR_INVALID_ID;
-			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_AMMONAME, i );
+			aAmmoIds[i2] = WMGR_INVALID_ID;
+			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_AMMONAME, i2 );
 
 			buteMgr.GetString(aTagName, s_aAttName, szStr, sizeof(szStr));
 			if (szStr[0])
@@ -1687,9 +1687,9 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 		if (n < nNumAmmoIds)
 		{
 			int		*tmpAmmoIds = debug_newa( int, n );
-			for (int i = 0; i < n; ++i)
+			for (int i3 = 0; i3 < n; ++i3)
 			{
-				tmpAmmoIds[i] = aAmmoIds[i];
+				tmpAmmoIds[i3] = aAmmoIds[i3];
 			}
 
 			debug_deletea( aAmmoIds );
@@ -1727,10 +1727,10 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 
 		char szStr[WMGR_MAX_NAME_LENGTH] = {0};
 		int n = 0;
-		for( int i = 0; i < nNumModIds; ++i )
+		for( int i4 = 0; i4 < nNumModIds; ++i4 )
 		{
-			aModIds[i] = WMGR_INVALID_ID;
-			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_MODNAME, i );
+			aModIds[i4] = WMGR_INVALID_ID;
+			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_MODNAME, i4 );
 
 			buteMgr.GetString(aTagName, s_aAttName, szStr, sizeof(szStr));
 			if (szStr[0])
@@ -1754,9 +1754,9 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 		if (n < nNumModIds)
 		{
 			int		*tmpModIds = debug_newa( int, n );
-			for (int i = 0; i < n; ++i)
+			for (int i5 = 0; i5 < n; ++i5)
 			{
-				tmpModIds[i] = aModIds[i];
+				tmpModIds[i5] = aModIds[i5];
 			}
 
 			debug_deletea( aModIds );
@@ -1791,10 +1791,10 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 		
 
 		char szStr[WMGR_MAX_NAME_LENGTH] = {0};
-		for( int i = 0; i < nNumPVFXTypes; ++i )
+		for( int i6 = 0; i6 < nNumPVFXTypes; ++i6 )
 		{
-			aPVFXTypes[i] = WMGR_INVALID_ID;
-			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_PVFXNAME, i );
+			aPVFXTypes[i6] = WMGR_INVALID_ID;
+			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_PVFXNAME, i6 );
 
 			buteMgr.GetString(aTagName, s_aAttName, szStr, sizeof(szStr));
 			if (szStr[0])
@@ -1802,7 +1802,7 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 				PVFX* pPVFX = g_pFXButeMgr->GetPVFX(szStr);
 				if (pPVFX)
 				{
-					aPVFXTypes[i] = pPVFX->nId;
+					aPVFXTypes[i6] = pPVFX->nId;
 				}
 			}
 		}
@@ -2287,7 +2287,6 @@ void AMMO::InitMembers( CButeMgr &buteMgr, char *aTagName )
 	GetStringIfExist( buteMgr, aTagName, WMGR_AMMO_ICON, &szIcon, WMGR_MAX_FILE_PATH );
 
 
-	int nId = 0;
 	char szStr[128] = "";
 	buteMgr.GetString(aTagName, WMGR_AMMO_IMPACTFX, "", szStr, sizeof(szStr));
 	if( buteMgr.Success( ))

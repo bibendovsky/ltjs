@@ -130,7 +130,7 @@ LTBOOL CGameButeMgr::Parse(const char* sButeFile)
     if (dr != LT_OK || !pDStream)
 	{
 		char sError[512];
-		sprintf(sError,"ERROR CGameButeMgr couldn't open file %s!",m_strAttributeFile);
+		sprintf(sError,"ERROR CGameButeMgr couldn't open file %s!",static_cast<LPCTSTR>(m_strAttributeFile));
 		GBM_DisplayError(sError);
 
 #ifdef _CLIENTBUILD

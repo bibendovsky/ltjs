@@ -757,7 +757,7 @@ void CGameClientShell::InitSound()
 		soundInfo.m_nNumSWVoices = 32;
 	}
 
-	soundInfo.m_nSampleRate		= g_nSampleRate;
+	soundInfo.m_nSampleRate		= static_cast<unsigned short>(g_nSampleRate);
 	soundInfo.m_nBitsPerSample	= 16;
 	soundInfo.m_nVolume			= (unsigned short)pSettings->SoundVolume();
 
@@ -965,7 +965,6 @@ uint32 CGameClientShell::OnEngineInitialized(RMode *pMode, LTGUID *pAppGuid)
 	sprintf (strConsole, "+NumRuns %f", nNumRuns);
     g_pLTClient->RunConsoleString(strConsole);
 
-    bool bNetworkGameStarted = false;
 
 	//setup our render mode to only allow hardware TnL rendering modes at 32 bpp
 	RMode rMode;
@@ -1612,7 +1611,6 @@ void CGameClientShell::Update()
 	else
 	{
 		// we should not be here, since we think we should rendering the world, but we are not
-		bool bBlackScreen = true;
 	}
 
 }
@@ -1902,6 +1900,7 @@ void CGameClientShell::UpdateScreenFlash()
 	// [KLS 2/27/02] - Removed ALL screen flashing...
 	return;
 
+#if 0
 	if (!m_bFlashScreen) return;
 
     LTVector vLightAdd;
@@ -1939,6 +1938,7 @@ void CGameClientShell::UpdateScreenFlash()
 	vLightAdd.z = (vLightAdd.z < 0.0f ? 0.0f : (vLightAdd.z > 1.0f ? 1.0f : vLightAdd.z));
 
 	m_ScreenTintMgr.Set(TINT_SCREEN_FLASH,&vLightAdd);
+#endif // 0
 }
 
 
@@ -2470,6 +2470,7 @@ void CGameClientShell::HandleMsgMultiplayerOptions( ILTMessage_Read* pMsg )
 	bool bFriendlyFire = pMsg->Readbool( );
 	uint8 nDifficulty = pMsg->Readuint8( );
 	float fPlayerDiffFactor = pMsg->Readfloat( );
+    static_cast<void>(fPlayerDiffFactor);
 
 	switch (m_eGameType)
 	{
@@ -2531,7 +2532,7 @@ void CGameClientShell::FlashScreen(const LTVector &vFlashColor, const LTVector &
 	// [KLS 2/27/02] - Removed ALL screen flashing...
 	return;
 
-
+#if 0
 	CGameSettings* pSettings = GetInterfaceMgr( )->GetSettings();
 	if (!pSettings) return;
 
@@ -2579,6 +2580,7 @@ void CGameClientShell::FlashScreen(const LTVector &vFlashColor, const LTVector &
 	m_fFlashRampDown	= fRampDown;
 	VEC_COPY(m_vFlashColor, vFlashColor);
 	VEC_MULSCALAR(m_vFlashColor, m_vFlashColor, fMul);
+#endif // 0
 }
 
 
@@ -4194,7 +4196,7 @@ void CGameClientShell::BuildClientSaveMsg(ILTMessage_Write *pMsg, SaveDataState 
 
 	// Save the state of the save data...
 
-	pMsg->Writeuint8( eSaveDataState );
+	pMsg->Writeuint8( static_cast<uint8>(eSaveDataState) );
 
 	// Save complex data members...
 
@@ -4207,7 +4209,7 @@ void CGameClientShell::BuildClientSaveMsg(ILTMessage_Write *pMsg, SaveDataState 
 
 	pMsg->WriteLTVector(m_vFlashColor);
 
-	pMsg->Writeuint8(m_eDifficulty);
+	pMsg->Writeuint8(static_cast<uint8>(m_eDifficulty));
 	pMsg->Writebool(m_bFlashScreen);
 
 	pMsg->Writefloat(m_fFlashTime);
@@ -4661,7 +4663,7 @@ void CGameClientShell::SetDifficulty(GameDifficulty e)
 	{
 		CAutoMessage cMsg;
 		cMsg.Writeuint8(MID_DIFFICULTY);
-		cMsg.Writeuint8(m_eDifficulty);
+		cMsg.Writeuint8(static_cast<uint8>(m_eDifficulty));
 		g_pLTClient->SendToServer(cMsg.Read(), MESSAGE_GUARANTEED);
 	}
 }

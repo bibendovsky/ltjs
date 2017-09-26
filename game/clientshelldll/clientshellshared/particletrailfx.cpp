@@ -179,7 +179,7 @@ LTBOOL CParticleTrailFX::Update()
 		pts.fOffsetTime		= m_fOffsetTime;
 		pts.fRadius			= g_cvarSmokeTrailParticleRadius.GetFloat();
 		pts.fGravity		= 0.0f;
-		pts.nNumPerPuff		= m_nNumPerPuff;
+		pts.nNumPerPuff		= static_cast<uint8>(m_nNumPerPuff);
 
 		if (m_nType & PT_BLOOD)
 		{

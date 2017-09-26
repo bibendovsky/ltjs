@@ -24,7 +24,7 @@
 #define	TRIGFX_DIMS_MODEL	"Models\\1x1_square.ltb"
 #define TRIGFX_DIMS_SKIN	"Models\\1x1_square.dtx"
 
-static bool TriggerDimsFilterFn( HOBJECT hTest, void *pUserData )
+inline bool TriggerDimsFilterFn( HOBJECT hTest, void *pUserData )
 {
 	if( hTest == (HOBJECT)pUserData )
 		return true;

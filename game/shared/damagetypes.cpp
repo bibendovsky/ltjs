@@ -65,7 +65,7 @@ LTBOOL CDTButeMgr::Init(const char* szAttributeFile)
 
 	for (int i = 0; i < kNumDamageTypes; i++)
 	{
-		DTInfoArray[i].nDamageFlag = ( 1 << ( uint64 )i );
+		DTInfoArray[i].nDamageFlag = static_cast<uint64>(1) << i;
 
 		DTInfoArray[i].bJarCamera = (LTBOOL)m_buteMgr.GetInt(pDTNames[i],"JarCamera",0);
 		DTInfoArray[i].bGadget = (LTBOOL)m_buteMgr.GetInt(pDTNames[i],"Gadget",0);

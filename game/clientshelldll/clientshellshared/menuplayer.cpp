@@ -81,7 +81,7 @@ LTBOOL CMenuPlayer::Init()
 	int nNameWidth = g_pLayoutMgr->GetMenuCustomInt(m_MenuID,"NameWidth");
 	int nLevelWidth = g_pLayoutMgr->GetMenuCustomInt(m_MenuID,"LevelWidth");
 	int nUpgradeWidth = s_Size.x - ( (m_Indent.x * 2) + nNameWidth + nLevelWidth);
-
+    static_cast<void>(nUpgradeWidth);
 
 	LTVector vColor = g_pLayoutMgr->GetMenuCustomVector(m_MenuID,"HighlightColor");
 	uint8 nA = 255;
@@ -118,7 +118,7 @@ LTBOOL CMenuPlayer::Init()
 	offset.y += (m_Level.GetHeight() + 12);
 
 	m_Header.Create(LTNULL,LTNULL,pFont,m_FontSize, LTNULL);
-	m_Header.AddColumn(" ",nNameWidth);
+	m_Header.AddColumn(" ",static_cast<uint16>(nNameWidth));
 	m_Header.AddColumn(LoadTempString(IDS_CURRENT),60);
 	m_Header.AddColumn(LoadTempString(IDS_UPGRADE),60);
 	m_Header.SetColors(m_NonSelectedColor,m_NonSelectedColor,m_NonSelectedColor);
@@ -130,7 +130,7 @@ LTBOOL CMenuPlayer::Init()
 	for (uint8 m = 0; m < kMaxModifiers; ++m)
 	{
 		m_Mods[m].Create(LTNULL,LTNULL,pFont,m_FontSize,LTNULL);
-		m_Mods[m].AddColumn(" ",nNameWidth);
+		m_Mods[m].AddColumn(" ",static_cast<uint16>(nNameWidth));
 		m_Mods[m].AddColumn("100",60);
 		m_Mods[m].AddColumn("100",60);
 		m_Mods[m].SetColors(skillHighlightColor,m_NonSelectedColor,m_DisabledColor);
@@ -154,7 +154,7 @@ LTBOOL CMenuPlayer::Init()
 
 	uint8 nHelpFont = (uint8)g_pLayoutMgr->GetMenuCustomInt(m_MenuID,"HelpFontSize");
 	offset = g_pLayoutMgr->GetMenuCustomPoint(m_MenuID,"HelpOffset");
-	uint16 nWidth = 600 - 2* offset.x;
+	uint16 nWidth = static_cast<uint16>(600 - 2* offset.x);
 	if (!nHelpFont)
 		nHelpFont = m_FontSize;
 	m_ModDesc.Create("description",LTNULL,LTNULL,pFont,nHelpFont,LTNULL);
@@ -172,18 +172,18 @@ LTBOOL CMenuPlayer::Init()
 
 	//Rank control
 	m_pRank = AddColumnCtrl();
-	m_pRank->AddColumn(LoadTempString(IDS_RANK),nNameWidth);
-	m_pRank->AddColumn("Novice",nNameWidth);
+	m_pRank->AddColumn(LoadTempString(IDS_RANK),static_cast<uint16>(nNameWidth));
+	m_pRank->AddColumn("Novice",static_cast<uint16>(nNameWidth));
 
 	//Total points control
 	m_pTotal = AddColumnCtrl();
-	m_pTotal->AddColumn(LoadTempString(IDS_SCORE),nNameWidth);
-	m_pTotal->AddColumn("0",nNameWidth);
+	m_pTotal->AddColumn(LoadTempString(IDS_SCORE),static_cast<uint16>(nNameWidth));
+	m_pTotal->AddColumn("0",static_cast<uint16>(nNameWidth));
 
 	//Avail points control
 	m_pAvail = AddColumnCtrl();
-	m_pAvail->AddColumn(LoadTempString(IDS_SKILL_PTS),nNameWidth);
-	m_pAvail->AddColumn("0",nNameWidth);
+	m_pAvail->AddColumn(LoadTempString(IDS_SKILL_PTS),static_cast<uint16>(nNameWidth));
+	m_pAvail->AddColumn("0",static_cast<uint16>(nNameWidth));
 
 	AddControl(" ",0,LTTRUE);
 
@@ -195,7 +195,7 @@ LTBOOL CMenuPlayer::Init()
 		if (g_pSkillsButeMgr->IsAvailable(skl) )
 		{
 			m_pSkills[i] = debug_new(CSkillCtrl);
-			m_pSkills[i]->Create(skl,(MC_CUSTOM+i),pFont,m_FontSize,this,nNameWidth);
+			m_pSkills[i]->Create(skl,(MC_CUSTOM+i),pFont,m_FontSize,this,static_cast<uint16>(nNameWidth));
 			m_List.AddControl(m_pSkills[i]);
 		}
 
@@ -468,7 +468,7 @@ void CMenuPlayer::UpdatePopup()
 void CMenuPlayer::UpdateModText(bool bForce)
 {
 	static uint16 nCurrentHelp = 0;
-	uint16 nHelp = m_Popup.GetHelpID();
+	uint16 nHelp = static_cast<uint16>(m_Popup.GetHelpID());
 
 	if (bForce || nHelp != nCurrentHelp)
 	{

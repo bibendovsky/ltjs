@@ -59,7 +59,7 @@ LTBOOL CGibFX::Init(SFXCREATESTRUCT* psfxCreateStruct)
 		m_eGibTypes[i] = pGib->eGibTypes[i];
 	}
 
-	m_nNumRandomGibs = GetRandom(3, 6);
+	m_nNumRandomGibs = static_cast<uint8>(GetRandom(3, 6));
 	m_nNumGibs += m_nNumRandomGibs;
 	if (m_nNumGibs > MAX_GIB) m_nNumGibs = MAX_GIB;
 
@@ -154,7 +154,7 @@ LTBOOL CGibFX::CreateObject(ILTClient *pClientDE)
 		m_pGibTrail[i] = CreateGibTrail(m_hGib[i]);
 
         m_ActiveEmitters[i] = LTTRUE;
-		m_BounceCount[i]	 = GetRandom(2, 5);
+		m_BounceCount[i]	 = static_cast<uint8>(GetRandom(2, 5));
 
 		VEC_SET(vVel, GetRandom(vVelMin.x, vVelMax.x),
 					  50.0f + GetRandom(vVelMin.y, vVelMax.y),

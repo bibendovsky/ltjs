@@ -138,7 +138,7 @@ LTBOOL CActivateTypeMgr::Init( const char *szAttributeFile /* = ATMGR_DEFAULT_FI
 		{
 			// Set the ID and add it to the list...
 			
-			pActivateType->nId = nNum;
+			pActivateType->nId = static_cast<uint8>(nNum);
 			m_ActivateTypeList.AddTail( pActivateType );
 		}
 		else
@@ -219,12 +219,12 @@ ACTIVATETYPE *CActivateTypeMgr::GetActivateType( const char *pName )
 // ----------------------------------------------------------------------- //
 
 ACTIVATETYPE::ACTIVATETYPE()
-:	nId				( ATMGR_INVALID_ID ),
+:	nId				( static_cast<uint8>(ATMGR_INVALID_ID) ),
 	szName			( LTNULL )
 {
 	for( int i = 0; i < eMaxStates; ++i )
 	{
-		dwStateID[i] = ATMGR_INVALID_ID;
+		dwStateID[i] = static_cast<uint32>(ATMGR_INVALID_ID);
 	}
 }
 

@@ -541,10 +541,10 @@ int CIpMgr::ReadIps()
 	{
 		wsprintf(sKey, "Ip%i", i);
 
-		HCONSOLEVAR hVar = m_pClientDE->GetConsoleVar(sKey);
-		if (hVar)
+		HCONSOLEVAR hVar2 = m_pClientDE->GetConsoleVar(sKey);
+		if (hVar2)
 		{
-			const char* sValue = m_pClientDE->GetVarValueString(hVar);
+			const char* sValue = m_pClientDE->GetVarValueString(hVar2);
 			if (sValue)
 			{
 				if (AddIp(sValue)) count++;

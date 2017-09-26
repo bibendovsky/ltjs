@@ -351,7 +351,7 @@ static bool FillPSIFromButeOrParams( char const* pName, PlaySoundInfo& psi, floa
 		
 		// Should we use passed in values or SoundBute values...
 
-		psi.m_nPriority		= (ePriority == SOUNDPRIORITY_MISC_LOW ? SOUNDPRIORITY_MISC_LOW : sb.m_ePriority);
+		psi.m_nPriority		= static_cast<unsigned char>(ePriority == SOUNDPRIORITY_MISC_LOW ? SOUNDPRIORITY_MISC_LOW : sb.m_ePriority);
 		psi.m_fOuterRadius	= (fORadius > -1.0f ? fORadius : sb.m_fOuterRad);
 		psi.m_fInnerRadius	= (fIRadius > -1.0f ? fIRadius : sb.m_fInnerRad);
 		psi.m_nVolume		= (nVolume == SMGR_DEFAULT_VOLUME ? SMGR_DEFAULT_VOLUME : sb.m_nVolume);
@@ -363,7 +363,7 @@ static bool FillPSIFromButeOrParams( char const* pName, PlaySoundInfo& psi, floa
 		// Just a normal sound file, play it with the passed in values...
 
 		strncpy(psi.m_szSoundName, pName, _MAX_PATH);
-		psi.m_nPriority		= ePriority;
+		psi.m_nPriority		= static_cast<unsigned char>(ePriority);
 		psi.m_fOuterRadius	= fORadius;
 		psi.m_fInnerRadius	= fIRadius;
 		psi.m_nVolume		= nVolume;

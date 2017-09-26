@@ -541,6 +541,7 @@ LTBOOL CPolyLineFX::Draw(ILTDrawPrim   *pDraw)
 	// because this is used for all BasePolyDrawFX objects)...
 
     uint32 dwFlags = (m_Flags & FLAG_REALLYCLOSE) ? FLAG_REALLYCLOSE : 0;
+    static_cast<void>(dwFlags);
 
     LTBOOL bCalculatedNormal = LTFALSE;
 

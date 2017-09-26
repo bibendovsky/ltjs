@@ -676,10 +676,10 @@ uint8 CLayoutMgr::GetScreenTitleFont(eScreenID screenId)
 	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	if (m_buteMgr.Exist(pTag,LO_SCREEN_TITLE_FONT))
 	{
-		return GetInt(pTag, LO_SCREEN_TITLE_FONT);
+		return static_cast<uint8>(GetInt(pTag, LO_SCREEN_TITLE_FONT));
 	}
 	else
-		return GetInt(LO_DEFAULT_TAG, LO_SCREEN_TITLE_FONT);
+		return static_cast<uint8>(GetInt(LO_DEFAULT_TAG, LO_SCREEN_TITLE_FONT));
 }
 
 uint8 CLayoutMgr::GetScreenTitleSize(eScreenID screenId)
@@ -687,10 +687,10 @@ uint8 CLayoutMgr::GetScreenTitleSize(eScreenID screenId)
 	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	if (m_buteMgr.Exist(pTag,LO_SCREEN_TITLE_SIZE))
 	{
-		return GetInt(pTag, LO_SCREEN_TITLE_SIZE);
+		return static_cast<uint8>(GetInt(pTag, LO_SCREEN_TITLE_SIZE));
 	}
 	else
-		return GetInt(LO_DEFAULT_TAG, LO_SCREEN_TITLE_SIZE);
+		return static_cast<uint8>(GetInt(LO_DEFAULT_TAG, LO_SCREEN_TITLE_SIZE));
 }
 
 uint8 CLayoutMgr::GetScreenFontFace(eScreenID screenId)
@@ -698,10 +698,10 @@ uint8 CLayoutMgr::GetScreenFontFace(eScreenID screenId)
 	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	if (m_buteMgr.Exist(pTag,LO_SCREEN_ITEM_FONT))
 	{
-		return GetInt(pTag, LO_SCREEN_ITEM_FONT);
+		return static_cast<uint8>(GetInt(pTag, LO_SCREEN_ITEM_FONT));
 	}
 	else
-		return GetInt(LO_DEFAULT_TAG, LO_SCREEN_ITEM_FONT);
+		return static_cast<uint8>(GetInt(LO_DEFAULT_TAG, LO_SCREEN_ITEM_FONT));
 }
 
 uint8 CLayoutMgr::GetScreenFontSize(eScreenID screenId)
@@ -709,10 +709,10 @@ uint8 CLayoutMgr::GetScreenFontSize(eScreenID screenId)
 	char* pTag = (char*)g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	if (m_buteMgr.Exist(pTag,LO_SCREEN_ITEM_SIZE))
 	{
-		return GetInt(pTag, LO_SCREEN_ITEM_SIZE);
+		return static_cast<uint8>(GetInt(pTag, LO_SCREEN_ITEM_SIZE));
 	}
 	else
-		return GetInt(LO_DEFAULT_TAG, LO_SCREEN_ITEM_SIZE);
+		return static_cast<uint8>(GetInt(LO_DEFAULT_TAG, LO_SCREEN_ITEM_SIZE));
 }
 
 LTRect   CLayoutMgr::GetScreenPageRect(eScreenID screenId)

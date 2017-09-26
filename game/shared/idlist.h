@@ -81,7 +81,7 @@ struct IDList
     inline void Save(ILTMessage_Write *pMsg)
 	{
 		if (!pMsg) return;
-		pMsg->Writeuint8(m_IDArray.size());
+		pMsg->Writeuint8(static_cast<uint8>(m_IDArray.size()));
 
 		IDArray::iterator iter = m_IDArray.begin();
 		while (iter != m_IDArray.end())

@@ -49,7 +49,7 @@ public:
     LTBOOL      Init(const char* szAttributeFile=POPUP_DEFAULT_FILE);
 	void		Term();
 
-	uint16		GetNumPopups() {return m_PopupArray.size();}
+	uint16		GetNumPopups() {return static_cast<uint16>(m_PopupArray.size());}
 
 	LTBOOL		IsValidPopup(uint8 nID) {return nID < m_PopupArray.size();}
 	POPUP*		GetPopup(uint8 nID);

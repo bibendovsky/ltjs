@@ -33,7 +33,7 @@ public:
     void    ReadData(ILTMessage_Read *pMsg);
 
 	uint8		GetID()			const { return m_nID; }
-	uint8		GetNumPlayers()	const { return m_players.size(); }
+	uint8		GetNumPlayers()	const { return static_cast<uint8>(m_players.size()); }
 	PlayerIDSet const& GetPlayerIDSet( ) const { return m_players; }
 	int32		GetScore()		const { return m_nScore; }
 	const char* GetName()		const { return m_sName.c_str(); }

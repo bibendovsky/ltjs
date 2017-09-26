@@ -78,7 +78,9 @@ uint32 CMenuIntel::OnCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2)
 		}
 	}
 
+#if 0
 	return 1;
+#endif // 0
 }
 
 
@@ -153,7 +155,7 @@ void CMenuIntel::OnFocus(LTBOOL bFocus)
 			SetScale(g_pInterfaceResMgr->GetXRatio());
 		}
 
-		SetSelection(GetIndex(&m_List));
+		SetSelection(static_cast<uint16>(GetIndex(&m_List)));
 	}
 }
 
@@ -164,10 +166,12 @@ void CMenuIntel::GetIntelName(uint32 nTextId, char *pBuf, int nBufSize)
 	if (strchr(pBuf,'@'))
 	{
 		char* pTok = strtok(pBuf,"@");
+        static_cast<void>(pTok);
 	}
 	else
 	{
 		char* pTok = strtok(pBuf,"\n\t,");
+        static_cast<void>(pTok);
 		int i = 24;
 		int len = strlen(pBuf);
 		if (len <= i) i = len;

@@ -29,7 +29,7 @@
 
 CPlayerScore::CPlayerScore()
 {
-	m_nClientID = -1;
+	m_nClientID = static_cast<uint32>(-1);
 	m_nScore = 0;
 	m_nFrags = 0;
 	m_nTags = 0;

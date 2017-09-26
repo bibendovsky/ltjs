@@ -205,7 +205,7 @@ void CPlayerViewAttachmentMgr::CreatePVAttachment( const char *pszPVAttachmentPo
 	// The attachment is set up so give it an Update and add it to our list...
 
 	m_lstPVAttachments.push_back( pva );
-	UpdatePVAttachment( m_lstPVAttachments.size() - 1);
+	UpdatePVAttachment( static_cast<uint8>(m_lstPVAttachments.size() - 1));
 
 }
 

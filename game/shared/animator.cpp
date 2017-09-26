@@ -110,7 +110,7 @@ AniTracker CAnimator::AddAniTracker(const char* szWeightset)
 	if (!szWeightset) return eAniTrackerInvalid;
 
 	// Pick an arbitrary animation tracker ID (FIXTRACKER)
-	m_aAniTrackers[m_cAniTrackers].m_AnimTracker = m_cAniTrackers;
+	m_aAniTrackers[m_cAniTrackers].m_AnimTracker = static_cast<ANIMTRACKERID>(m_cAniTrackers);
     if ( LT_OK != g_pModelLT->AddTracker(m_hObject, m_aAniTrackers[m_cAniTrackers].m_AnimTracker) )
 	{
         _ASSERT(LTFALSE);

@@ -165,6 +165,7 @@ LTBOOL CSmokeFX::Update()
 		// What is the range of colors?
 
         LTFLOAT fRange = m_vColor2.x - m_vColor1.x;
+        static_cast<void>(fRange);
 
 
 		// Determine how many particles to add...

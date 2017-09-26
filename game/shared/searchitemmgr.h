@@ -109,8 +109,8 @@ public:
     LTBOOL      Init(const char* szAttributeFile=SI_DEFAULT_FILE);
 	void		Term();
 
-	uint8		GetNumItems() {return m_ItemArray.size();}
-	uint8		GetNumSets() {return m_SetArray.size();}
+	uint8		GetNumItems() {return static_cast<uint8>(m_ItemArray.size());}
+	uint8		GetNumSets() {return static_cast<uint8>(m_SetArray.size());}
 
 	LTBOOL		IsValidItem(uint8 nID) {return nID < m_ItemArray.size();}
 	LTBOOL		IsValidSet(uint8 nID) {return nID < m_SetArray.size();}

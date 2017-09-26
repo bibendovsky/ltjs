@@ -112,7 +112,7 @@ class CSFXMgr
 //		vBox2Min - Mininim of box 2
 //		vBox2Max - Maximum of box 2
 //
-static bool BoxesIntersect( const LTVector &vBox1Min, const LTVector &vBox1Max, const LTVector &vBox2Min, const LTVector &vBox2Max )
+inline bool BoxesIntersect( const LTVector &vBox1Min, const LTVector &vBox1Max, const LTVector &vBox2Min, const LTVector &vBox2Max )
 {
 	if(	vBox1Min.x - vBox2Max.x >= 0.0f || vBox1Max.x - vBox2Min.x <= 0.0f ||
 		vBox1Min.y - vBox2Max.y >= 0.0f || vBox1Max.y - vBox2Min.y <= 0.0f ||
@@ -140,7 +140,7 @@ static bool BoxesIntersect( const LTVector &vBox1Min, const LTVector &vBox1Max, 
 //		vPts[8] - OUT:  Points to fill in.
 //		vDims - IN:  dims.
 //
-static void SetupBoxPoints( LTVector *pvPts, const LTVector &vPos, const LTVector &vDims )
+inline void SetupBoxPoints( LTVector *pvPts, const LTVector &vPos, const LTVector &vDims )
 {
 	VEC_SET(pvPts[0], +vDims.x, +vDims.y, +vDims.z);
 	pvPts[0] += vPos;

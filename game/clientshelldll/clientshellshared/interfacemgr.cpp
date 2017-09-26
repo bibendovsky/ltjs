@@ -211,9 +211,9 @@ static LTBOOL HandleDebugKey(int key )
 
 	for( int i = 0; i < g_pClientButeMgr->GetNumDebugKeys(); ++i )
 	{
-		if( g_pClientButeMgr->GetDebugKeyId(i) == key )
+		if( g_pClientButeMgr->GetDebugKeyId(static_cast<uint8>(i)) == key )
 		{
-			if( IsKeyDown( g_pClientButeMgr->GetDebugModifierId(i) ) )
+			if( IsKeyDown( g_pClientButeMgr->GetDebugModifierId(static_cast<uint8>(i)) ) )
 			{
 				iID = i;	
 			}
@@ -227,7 +227,7 @@ static LTBOOL HandleDebugKey(int key )
 	if( iID != -1 )
 	{
 		szVarName[0] = 0;
-		g_pClientButeMgr->GetDebugName(iID,szVarName,256);
+		g_pClientButeMgr->GetDebugName(static_cast<uint8>(iID),szVarName,256);
 
 		if( !szVarName[0] )
 		{
@@ -256,7 +256,7 @@ static LTBOOL HandleDebugKey(int key )
 		LTFLOAT fCurrentLevel = g_pLTClient->GetVarValueFloat(hVar);
 		++fCurrentLevel;
 
-		if( int(fCurrentLevel) >= g_pClientButeMgr->GetNumDebugLevels(iID) )
+		if( int(fCurrentLevel) >= g_pClientButeMgr->GetNumDebugLevels(static_cast<uint8>(iID)) )
 		{
 			fCurrentLevel = 0.0f;
 		}
@@ -268,7 +268,7 @@ static LTBOOL HandleDebugKey(int key )
 		g_pLTClient->CPrint("%s %2f", szVarName, fCurrentLevel );
 
 		szTempStr[0] = 0;
-		g_pClientButeMgr->GetDebugString(iID,uint8(fCurrentLevel), szTempStr, 256);
+		g_pClientButeMgr->GetDebugString(static_cast<uint8>(iID),uint8(fCurrentLevel), szTempStr, 256);
 		if( szTempStr )
 		{
 			g_pLTClient->RunConsoleString( szTempStr );
@@ -279,7 +279,7 @@ static LTBOOL HandleDebugKey(int key )
 
 		// Display message
 		szTempStr[0] = 0;
-		g_pClientButeMgr->GetDebugTitle(iID,uint8(fCurrentLevel), szTempStr, 256);
+		g_pClientButeMgr->GetDebugTitle(static_cast<uint8>(iID),uint8(fCurrentLevel), szTempStr, 256);
 		if( szTempStr[0] )
 		{
 			g_pChatMsgs->AddMessage( szTempStr );
@@ -372,7 +372,7 @@ CInterfaceMgr::CInterfaceMgr()
 	m_bLoadFailed		= LTFALSE;
 	m_bCommandLineJoin = false;
 	m_eLoadFailedScreen = SCREEN_ID_MAIN;
-	m_nLoadFailedMsgId	= -1;
+	m_nLoadFailedMsgId	= static_cast<uint32>(-1);
 
 	m_hGamePausedSurface = LTNULL;
 
@@ -706,7 +706,7 @@ void CInterfaceMgr::OnEnterWorld(LTBOOL bRestoringGame)
 	GetPlayerStats( )->OnEnterWorld(bRestoringGame);
 
 	// Update every HUD element so they display accurate info
-	GetHUDMgr()->QueueUpdate( kHUDAll );
+	GetHUDMgr()->QueueUpdate( static_cast<uint32>(kHUDAll) );
 
 	GetMenuMgr()->EnableMenus();
 //		GetMenu(MENU_ID_MISSION)->Enable(g_pGameClientShell->GetGameType() != eGameTypeDeathmatch);
@@ -1887,6 +1887,9 @@ LTBOOL CInterfaceMgr::OnMessage(uint8 messageID, ILTMessage_Read *pMsg)
 			CLIENT_INFO *pVictim = m_ClientInfo.GetClientByID(nVictim);
 			CLIENT_INFO *pScorer = m_ClientInfo.GetClientByID(nScorer);
 
+            static_cast<void>(pVictim);
+            static_cast<void>(pScorer);
+
             char szTmp[128] = "";
 			if (nVictim == nLocalID)
 			{
@@ -2334,6 +2337,8 @@ LTBOOL CInterfaceMgr::OnEvent(uint32 dwEventID, uint32 dwParam)
 		default :
 		{
             uint32 nStringID = IDS_UNSPECIFIEDERROR;
+            static_cast<void>(nStringID);
+
 			SwitchToScreen(SCREEN_ID_MAIN);
 			//DoMessageBox(nStringID, TH_ALIGN_CENTER);
 		}
@@ -2534,7 +2539,7 @@ LTBOOL CInterfaceMgr::OnCommandOn(int command)
 			command >= COMMAND_ID_CHOOSE_1 &&
 			command <= COMMAND_ID_CHOOSE_6 )
 	{
-		uint8 nChoice = command - COMMAND_ID_CHOOSE_1;
+		uint8 nChoice = static_cast<uint8>(command - COMMAND_ID_CHOOSE_1);
 		g_pDecision->Choose(nChoice);
         return LTTRUE;
 	}
@@ -3121,6 +3126,7 @@ LTBOOL CInterfaceMgr::Draw()
 		// Find out if we're in multiplayer...
 
 		PlayerState ePlayerState = g_pPlayerMgr->GetPlayerState();
+        static_cast<void>(ePlayerState);
 
 		if (GetGameState() == GS_PLAYING || GetGameState() == GS_POPUP)
 		{
@@ -3690,6 +3696,7 @@ LTBOOL CInterfaceMgr::PreSplashScreenState(GameState eCurState)
 	// Play splash screen sound...
 
     uint32 dwFlags = PLAYSOUND_GETHANDLE | PLAYSOUND_CLIENT;
+    static_cast<void>(dwFlags);
 	m_hSplashSound = g_pClientSoundMgr->PlayInterfaceSound(IM_SPLASH_SOUND);
 
 	if (m_hSplashSound)
@@ -5299,7 +5306,7 @@ void CInterfaceMgr::AddInterfaceSFX(CSpecialFX* pSFX, ISFXType eType)
 void CInterfaceMgr::RemoveInterfaceSFX(CSpecialFX* pSFX)
 {
 	SFXArray::iterator iter = m_InterfaceSFX.begin();
-	uint32 index = 0;
+
 	while (iter != m_InterfaceSFX.end() && (*iter) != pSFX)
 	{
 		iter++;
@@ -5555,10 +5562,10 @@ void CInterfaceMgr::UpdateInterfaceSFX()
 		}
 
 		//add the lights
-		for ( ObjectArray::iterator iter = m_InterfaceLights.begin( ); iter !=  m_InterfaceLights.end() && 
-			next < kMaxFX; iter++ )
+		for ( ObjectArray::iterator iter2 = m_InterfaceLights.begin( ); iter2 !=  m_InterfaceLights.end() && 
+			next < kMaxFX; iter2++ )
 		{
-			HOBJECT hObj = *iter;
+			HOBJECT hObj = *iter2;
 			if ( hObj )
 			{
 				objs[next] = hObj;
@@ -5773,6 +5780,7 @@ void CInterfaceMgr::Disconnected(uint32 nDisconnectFlag)
 	// Get the disconnect code.
 	uint32 nDisconnectCode = g_pClientMultiplayerMgr->GetDisconnectCode();
 	const char *pDisconnectMsg = g_pClientMultiplayerMgr->GetDisconnectMsg();
+    static_cast<void>(pDisconnectMsg);
 	uint32 nMsgId = 0;
 	switch (nDisconnectCode)
 	{
@@ -6125,7 +6133,9 @@ bool CInterfaceMgr::IsInGame( )
 			return false;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //

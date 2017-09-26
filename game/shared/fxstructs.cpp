@@ -218,7 +218,7 @@ LTBOOL CScaleFX::Init(CButeMgr & buteMgr, char* aTagName)
     bMultiply       = (LTBOOL) buteMgr.GetInt(aTagName, SCALEFX_MULTIPLY);
     bRotate         = (LTBOOL) buteMgr.GetInt(aTagName, SCALEFX_ROTATE);
     bFaceCamera     = (LTBOOL) buteMgr.GetInt(aTagName, SCALEFX_FACECAMERA);
-    nRotationAxis   = buteMgr.GetInt(aTagName, SCALEFX_ROTAXIS);
+    nRotationAxis   = static_cast<uint8>(buteMgr.GetInt(aTagName, SCALEFX_ROTAXIS));
 	nMenuLayer		= (uint8) buteMgr.GetInt(aTagName, SCALEFX_MENULAYER);
 
 	vInitialScale	= buteMgr.GetVector(aTagName, SCALEFX_INITIALSCALE);

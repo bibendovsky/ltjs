@@ -81,7 +81,7 @@ public:
 	float		TextureDetailSetting()		{ return GetFloatVar("TextureDetail");}
 	float		DynamicLightSetting()		{ return GetFloatVar("DynamicLightSetting");}
     LTBOOL       LightMap()                 { return GetBoolVar("LightMap");}
-    uint8       SpecialFXSetting()          { return GetConsoleInt("PerformanceLevel",1); }
+    uint8       SpecialFXSetting()          { return static_cast<uint8>(GetConsoleInt("PerformanceLevel",1)); }
     LTBOOL       EnvironmentMapping()       { return GetBoolVar("EnvMapEnable"); }
     LTBOOL       ModelFullBrights()         { return GetBoolVar("ModelFullbrite"); }
     LTBOOL       CloudMapLight()            { return GetBoolVar("CloudMapLight"); }

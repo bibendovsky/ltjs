@@ -210,7 +210,7 @@ LTBOOL CSFXMgr::Init(ILTClient *pClientDE)
 
 	for (int i=0; i < DYN_ARRAY_SIZE; i++)
 	{
-		if (!m_dynSFXLists[i].Create(GetDynArrayMaxNum(i))) return LTFALSE;
+		if (!m_dynSFXLists[i].Create(GetDynArrayMaxNum(static_cast<uint8>(i)))) return LTFALSE;
 	}
 
 	return m_cameraSFXList.Create(CAMERA_LIST_SIZE);

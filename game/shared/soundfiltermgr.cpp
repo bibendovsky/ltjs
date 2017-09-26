@@ -91,7 +91,7 @@ LTBOOL CSoundFilterMgr::Init(const char* szAttributeFile)
 
 		if (pFilter && pFilter->Init(m_buteMgr, s_aTagName))
 		{
-			pFilter->nId = nNum;
+			pFilter->nId = static_cast<uint8>(nNum);
 			m_FilterList.AddTail(pFilter);
 		}
 		else

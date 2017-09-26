@@ -45,7 +45,7 @@ extern CGameClientShell* g_pGameClientShell;
 static uint32 FindClosestPowerOf2(uint32 nVal)
 {
 	//our current val, the highest bit possible
-	uint32 nRV = (1 << 31);
+	uint32 nRV = static_cast<uint32>(1) << 31;
 
 	//now repeat until we find a value
 	while(nRV > 0)
@@ -729,6 +729,7 @@ void CPolyGridFX::CreateModelWaves(uint32 nKernalSize, uint32 nBuffer, float fFr
 
 	//find the radius of our polygrid
 	float fPolyRad = m_vDims.Mag();
+    static_cast<void>(fPolyRad);
 
 	//amount to displace for a model
 	float fDisplaceAmount = m_fModelDisplace * fFrameTime;

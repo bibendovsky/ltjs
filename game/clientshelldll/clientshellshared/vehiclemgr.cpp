@@ -1783,7 +1783,6 @@ void CVehicleMgr::CreateVehicleModel()
 			g_pLTClient->SetModelLooping(m_hVehicleModel, LTFALSE);
 
 
-			int iNode = 0;
 			HMODELNODE hCurNode = INVALID_MODEL_NODE;
 			while (g_pLTClient->GetModelLT()->GetNextNode(m_hVehicleModel, hCurNode, hCurNode) == LT_OK)
 			{
@@ -2587,6 +2586,7 @@ void CVehicleMgr::HandleCollision()
 	SURFACE* pSurface = g_pSurfaceMgr->GetSurface(eType);
 
 	LTBOOL bIsWorld = IsMainWorld(m_cLastTouchInfo.m_hObject);
+    static_cast<void>(bIsWorld);
 
 	vNormal.y = 0.0f; // Don't care about this anymore...
 
@@ -2647,7 +2647,9 @@ void CVehicleMgr::HandleCollision()
 	// Add this angle to the yaw...
 
     LTFLOAT fYaw         = g_pPlayerMgr->GetYaw();
+    static_cast<void>(fYaw);
     LTFLOAT fPlayerYaw   = g_pPlayerMgr->GetPlayerYaw();
+    static_cast<void>(fPlayerYaw);
 
 	// Adjust the min impact angle based on our current velocity (the
 	// faster you go the more hitting stuff matters ;)
@@ -2669,12 +2671,12 @@ void CVehicleMgr::HandleCollision()
 		LTVector vPos;
 		g_pLTClient->GetObjectPos(hObj, &vPos);
 
-		LTRotation rRot;
-		g_pLTClient->GetObjectRotation( hObj, &rRot );
+		LTRotation rRot2;
+		g_pLTClient->GetObjectRotation( hObj, &rRot2 );
 
 		// Play the FX closer to the supposed point of impact...
 
-		vPos += (rRot.Forward() * 32.0f);
+		vPos += (rRot2.Forward() * 32.0f);
 
 		// Play an fx based on the surface we hit...
 
@@ -3824,7 +3826,9 @@ bool CVehicleMgr::MoveLocalSolidObject( )
 			break;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //
