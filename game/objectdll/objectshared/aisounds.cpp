@@ -124,5 +124,7 @@ CharacterSoundType GetCharacterSoundType(EnumAISoundType eSound)
 			break;
 	}
 
+#if 0
 	return CST_DIALOG;
+#endif // 0
 }

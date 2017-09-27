@@ -200,7 +200,7 @@ WeaponState CWeapon::UpdateWeapon(WeaponFireInfo & fireInfo, LTBOOL bFire)
 
 	if (bFire)
 	{
-		fireInfo.nSeed = GetRandom(2,255);
+		fireInfo.nSeed = static_cast<uint8>(GetRandom(2,255));
 		// Put in a timestamp since the AI's use this and don't send us a timestamp
 		m_fLastFireTime = g_pLTServer->GetTime();
 		fireInfo.nFireTimestamp = (uint32)(m_fLastFireTime * 1000.0f);
@@ -345,7 +345,7 @@ WeaponState CWeapon::Fire(WeaponFireInfo & info)
 			WeaponPath wp;
 			LTVector vOriginalPath = info.vPath;
 
-			wp.nWeaponId = m_nWeaponId;
+			wp.nWeaponId = static_cast<uint8>(m_nWeaponId);
 			wp.vU		 = vU;
 			wp.vR		 = vR;
 			wp.fPerturbR = info.fPerturbR;
@@ -354,7 +354,7 @@ WeaponState CWeapon::Fire(WeaponFireInfo & info)
 			for (int i=0; i < nVectorsPerShot; i++)
 			{
 				srand(g_nRandomWeaponSeed);
-				g_nRandomWeaponSeed = GetRandom(2, 255);
+				g_nRandomWeaponSeed = static_cast<uint8>(GetRandom(2, 255));
 
 				wp.vPath = vOriginalPath;
 				g_pWeaponMgr->CalculateWeaponPath(wp);
@@ -723,8 +723,6 @@ LTBOOL CWeapon::AddMod( int nMod )
 {
 	MOD const *pM = g_pWeaponMgr->GetMod( nMod );
     if (!pM) return LTFALSE;
-
-    LTBOOL bRet = LTFALSE;
 
 	for (int i=0; i < W_MAX_MODS; i++)
 	{

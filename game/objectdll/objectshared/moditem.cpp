@@ -50,7 +50,7 @@ CMDMGR_END_REGISTER_CLASS( ModItem, PickupItem )
 
 ModItem::ModItem() : PickupItem()
 {
-	m_nModId	= -1;
+	m_nModId	= static_cast<uint8>(-1);
     m_bBounce	= LTFALSE;
 }
 
@@ -124,7 +124,7 @@ bool ModItem::ReadProp(ObjectCreateStruct *pStruct)
 		if( !pMod )
 			return false;
 
-		m_nModId = pMod->nId;
+		m_nModId = static_cast<uint8>(pMod->nId);
 	}
 
 	return true;

@@ -365,7 +365,7 @@ void WorldModel::ReadProps( ObjectCreateStruct *pOCS )
 			{
 				if( !_stricmp( genProp.m_String, c_aBlendModes[i] ))
 				{
-					nBlendMode = i;
+					nBlendMode = static_cast<uint8>(i);
 					break;
 				}
 			}

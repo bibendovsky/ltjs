@@ -36,12 +36,12 @@ CLiteObjectMgr::~CLiteObjectMgr()
 uint32 CLiteObjectMgr::GetSerializeID(GameBaseLite *pObject)
 {
 	if (!pObject)
-		return k_nInvalidSerializeID;
+		return static_cast<uint32>(k_nInvalidSerializeID);
 
 	// Transition objects or keepalive objects can't access liteobjects.  Liteobjects
 	// are only saved in full save games.
 	if( g_pGameServerShell->GetLGFlags( ) == LOAD_TRANSITION || g_pGameServerShell->GetLGFlags( ) == LOAD_NEW_LEVEL)
-		return k_nInvalidSerializeID;
+		return static_cast<uint32>(k_nInvalidSerializeID);
 
 	CleanSerializeIDs();
 

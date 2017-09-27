@@ -367,7 +367,6 @@ uint32 CAIGoalButeMgr::GetGoalSetIndex(const char* szGoalSetName)
 	ASSERT(szGoalSetName[0] != LTNULL);
 
 	uint32 iGoalSet = 0;
-	AIGBM_GoalSet* pGoalSet = LTNULL;
 	AIGOAL_SET_LIST::iterator it;
 	for(it = m_lstGoalSets.begin(); it != m_lstGoalSets.end(); ++it)
 	{
@@ -379,7 +378,7 @@ uint32 CAIGoalButeMgr::GetGoalSetIndex(const char* szGoalSetName)
 		++iGoalSet;
 	}
 
-	return -1;
+	return static_cast<uint32>(-1);
 }
 
 // ----------------------------------------------------------------------- //

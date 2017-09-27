@@ -149,11 +149,11 @@ void AddLensFlareInfoToMessage(LENSFLARE & lensProps, ILTMessage_Write *pMsg)
 {
 	if (!pMsg) return;
 
-    pMsg->Writeuint8(lensProps.bInSkyBox);
-    pMsg->Writeuint8(lensProps.bCreateSprite);
-    pMsg->Writeuint8(lensProps.bSpriteOnly);
-    pMsg->Writeuint8(lensProps.bUseObjectAngle);
-    pMsg->Writeuint8(lensProps.bSpriteAdditive);
+    pMsg->Writeuint8(static_cast<uint8>(lensProps.bInSkyBox));
+    pMsg->Writeuint8(static_cast<uint8>(lensProps.bCreateSprite));
+    pMsg->Writeuint8(static_cast<uint8>(lensProps.bSpriteOnly));
+    pMsg->Writeuint8(static_cast<uint8>(lensProps.bUseObjectAngle));
+    pMsg->Writeuint8(static_cast<uint8>(lensProps.bSpriteAdditive));
     pMsg->Writefloat(lensProps.fSpriteOffset);
     pMsg->Writefloat(lensProps.fMinAngle);
     pMsg->Writefloat(lensProps.fMinSpriteAlpha);
@@ -161,7 +161,7 @@ void AddLensFlareInfoToMessage(LENSFLARE & lensProps, ILTMessage_Write *pMsg)
     pMsg->Writefloat(lensProps.fMinSpriteScale);
     pMsg->Writefloat(lensProps.fMaxSpriteScale);
     pMsg->WriteHString(lensProps.hstrSpriteFile);
-    pMsg->Writeuint8(lensProps.bBlindingFlare);
+    pMsg->Writeuint8(static_cast<uint8>(lensProps.bBlindingFlare));
     pMsg->Writefloat(lensProps.fBlindObjectAngle);
     pMsg->Writefloat(lensProps.fBlindCameraAngle);
     pMsg->Writefloat(lensProps.fMinBlindScale);

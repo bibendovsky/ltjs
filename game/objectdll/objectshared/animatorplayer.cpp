@@ -1200,8 +1200,8 @@ void CAnimatorPlayer::Update()
 					}
 
 					bool bEnabled = (hWeightSet != hNullWeightset);
-					bool bLooping = (g_pModelLT->GetLooping( m_hObject, hAni ) == LT_YES);
-					bool bPlaying = (g_pModelLT->GetPlaying( m_hObject, hAni ) == LT_YES);
+					bool bLooping = (g_pModelLT->GetLooping( m_hObject, static_cast<ANIMTRACKERID>(hAni) ) == LT_YES);
+					bool bPlaying = (g_pModelLT->GetPlaying( m_hObject, static_cast<ANIMTRACKERID>(hAni) ) == LT_YES);
 
 					g_pLTServer->CPrint( "MAIN Tracker Cur Anim: %i Looping: %i Playing: %i Enabled: %i", hAni, bLooping, bPlaying, bEnabled );
 				}
@@ -1219,8 +1219,8 @@ void CAnimatorPlayer::Update()
 					}
 
 					bool bEnabled = (hWeightSet != hNullWeightset);
-					bool bLooping = (g_pModelLT->GetLooping( m_hObject, hAni ) == LT_YES);
-					bool bPlaying = (g_pModelLT->GetPlaying( m_hObject, hAni ) == LT_YES);
+					bool bLooping = (g_pModelLT->GetLooping( m_hObject, static_cast<ANIMTRACKERID>(hAni) ) == LT_YES);
+					bool bPlaying = (g_pModelLT->GetPlaying( m_hObject, static_cast<ANIMTRACKERID>(hAni) ) == LT_YES);
 
 					g_pLTServer->CPrint( "UPPER Tracker Cur Anim: %i Looping: %i Playing: %i Enabled: %i", hAni, bLooping, bPlaying, bEnabled );
 				}
@@ -1238,8 +1238,8 @@ void CAnimatorPlayer::Update()
 					}
 					
 					bool bEnabled = (hWeightSet != hNullWeightset);
-					bool bLooping = (g_pModelLT->GetLooping( m_hObject, hAni ) == LT_YES);
-					bool bPlaying = (g_pModelLT->GetPlaying( m_hObject, hAni ) == LT_YES);
+					bool bLooping = (g_pModelLT->GetLooping( m_hObject, static_cast<ANIMTRACKERID>(hAni) ) == LT_YES);
+					bool bPlaying = (g_pModelLT->GetPlaying( m_hObject, static_cast<ANIMTRACKERID>(hAni) ) == LT_YES);
 
 					g_pLTServer->CPrint( "LOWER Tracker Cur Anim: %i Looping: %i Playing: %i Enabled: %i", hAni, bLooping, bPlaying, bEnabled );
 				}

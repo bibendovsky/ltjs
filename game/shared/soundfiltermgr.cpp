@@ -327,7 +327,7 @@ LTBOOL CSoundFilterMgrPlugin::PopulateStringList(char** aszStrings, uint32* pcSt
 	{
 		_ASSERT(cMaxStrings > (*pcStrings) + 1);
 
-		pSF = g_pSoundFilterMgr->GetFilter(i);
+		pSF = g_pSoundFilterMgr->GetFilter(static_cast<uint8>(i));
 		if (pSF && pSF->szName[0])
 		{
             uint32 dwFilterNameLen = strlen(pSF->szName);

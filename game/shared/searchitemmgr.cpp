@@ -535,7 +535,7 @@ LTBOOL CSearchItemMgrPlugin::PopulateStringList(char** aszStrings, uint32* pcStr
 	{
 		_ASSERT(cMaxStrings > (*pcStrings) + 1);
 
-		pSet = g_pSearchItemMgr->GetSet(i);
+		pSet = g_pSearchItemMgr->GetSet(static_cast<uint8>(i));
 		if (pSet && pSet->szName[0])
 		{
             uint32 dwNameLen = strlen(pSet->szName);

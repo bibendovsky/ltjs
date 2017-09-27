@@ -502,7 +502,7 @@ LTBOOL CDebrisMgrPlugin::PopulateStringList(char** aszStrings, uint32* pcStrings
 	{
 		_ASSERT(cMaxStrings > (*pcStrings) + 1);
 
-		pDebris = g_pDebrisMgr->GetDebris(i);
+		pDebris = g_pDebrisMgr->GetDebris(static_cast<uint8>(i));
 		if (pDebris && pDebris->szName[0])
 		{
             uint32 dwDebrisNameLen = strlen(pDebris->szName);

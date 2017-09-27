@@ -410,7 +410,7 @@ bool PickupItem::OnTrigger(HOBJECT hSender, const CParsedMsg &cMsg)
 			uint32 nTeamId = atoi( cMsg.GetArg( 1 ));
 			if( nTeamId < MAX_TEAMS )
 			{
-				SetTeamId( nTeamId );
+				SetTeamId( static_cast<uint8>(nTeamId) );
 			}
 			else
 			{

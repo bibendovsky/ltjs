@@ -206,7 +206,7 @@ AINode* CAIGoalObstruct::HandleGoalAttractors()
 //----------------------------------------------------------------------------
 AINode* CAIGoalObstruct::FindAndSetupNode(EnumAINodeType kNodeType)
 {
-	AINode* pNode;
+	AINode* pNode = nullptr;
 
 	// Look for a obstruct node that obstructs from the threat.
 	// If one is found, this goal activates.

@@ -169,8 +169,6 @@ bool CServerMissionMgr::SetMissionBasedOnLevel( char const* pszFilename )
 
 int CServerMissionMgr::FindNextCampaignIndex( int nStartingCampaignIndex, int nMissionIndex )
 {
-	int nCampaignIndex = -1;
-
 	// Check inputs.
 	if( nMissionIndex < 0 || nMissionIndex >= g_pMissionButeMgr->GetNumMissions( ))
 		return -1;
@@ -199,12 +197,12 @@ bool CServerMissionMgr::Save( ILTMessage_Write& msg, uint32 dwSaveFlags )
 {
 	msg.WriteString( m_sCampaignFile );
 
-	msg.Writeuint8( m_Campaign.size( ));
+	msg.Writeuint8( static_cast<uint8>(m_Campaign.size( )));
 	for( Campaign::iterator iter = m_Campaign.begin( ); iter != m_Campaign.end( ); iter++ )
 	{
-		msg.Writeuint8( *iter );
+		msg.Writeuint8( static_cast<uint8>(*iter) );
 	}
-	msg.Writeuint8( m_nCurCampaignIndex );
+	msg.Writeuint8( static_cast<uint8>(m_nCurCampaignIndex) );
 
 	msg.Writebool(m_ServerSettings.m_bUseSkills);
 	msg.Writebool(m_ServerSettings.m_bFriendlyFire);

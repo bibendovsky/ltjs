@@ -716,13 +716,13 @@ void CAIButeMgr::SetStimulus(int iStimulus)
     pStimulus->fDistance						= CButeTools::GetValidatedDouble(m_buteMgr, s_aTagName,"Distance");
 	pStimulus->fVerticalRadius					= CButeTools::GetValidatedDouble(m_buteMgr, s_aTagName,"VerticalRadius", 0.f);
     pStimulus->fDuration						= CButeTools::GetValidatedDouble(m_buteMgr, s_aTagName,"Duration");
-    pStimulus->nAlarmLevel						= CButeTools::GetValidatedInt(m_buteMgr, s_aTagName,"AlarmLevel");
+    pStimulus->nAlarmLevel						= static_cast<uint8>(CButeTools::GetValidatedInt(m_buteMgr, s_aTagName,"AlarmLevel"));
 	pStimulus->fStimulationIncreaseRateAlert	= CButeTools::GetValidatedDouble(m_buteMgr, s_aTagName,"StimulationIncreaseRateAlert", 100.f);
 	pStimulus->fStimulationIncreaseRateUnalert	= CButeTools::GetValidatedDouble(m_buteMgr, s_aTagName,"StimulationIncreaseRateUnalert", 100.f);
 	pStimulus->fStimulationDecreaseRateAlert	= CButeTools::GetValidatedDouble(m_buteMgr, s_aTagName,"StimulationDecreaseRateAlert", 100.f);
 	pStimulus->fStimulationDecreaseRateUnalert	= CButeTools::GetValidatedDouble(m_buteMgr, s_aTagName,"StimulationDecreaseRateUnalert", 100.f);
-	pStimulus->nFalseStimulationLimit			= CButeTools::GetValidatedInt(m_buteMgr, s_aTagName,"FalseStimulationLimit", 0);
-	pStimulus->nMaxResponders					= CButeTools::GetValidatedInt(m_buteMgr, s_aTagName,"MaxResponders", 0);
+	pStimulus->nFalseStimulationLimit			= static_cast<uint8>(CButeTools::GetValidatedInt(m_buteMgr, s_aTagName,"FalseStimulationLimit", 0));
+	pStimulus->nMaxResponders					= static_cast<uint8>(CButeTools::GetValidatedInt(m_buteMgr, s_aTagName,"MaxResponders", 0));
 	pStimulus->bIgnoreOldStimulus				= CButeTools::GetValidatedBool(m_buteMgr, s_aTagName,"IgnoreOldStimulus", LTTRUE);
 
 	pStimulus->eFalseStimulusSense = kSense_InvalidType;

@@ -194,7 +194,7 @@ void CAIGoalAbstractUseObject::SetStateUseObject()
 	AIGBM_GoalTemplate* pTemplate = g_pAIGoalButeMgr->GetTemplate( GetGoalType() );
 	AIASSERT(pTemplate->cAttractors > 0, m_pAI->m_hObject, "CAIGoalAbstractUseObject::ActivateGoal: Goal has no attractors.");
 
-	HSTRING hstrCmd;
+	HSTRING hstrCmd = nullptr;
 	for(uint32 iAttractor=0; iAttractor < pTemplate->cAttractors; ++iAttractor)
 	{
 		hstrCmd = pNodeUseObject->GetSmartObjectCommand(pTemplate->aAttractors[iAttractor]);

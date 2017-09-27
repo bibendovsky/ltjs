@@ -865,7 +865,7 @@ bool WorldProperties::OnTrigger(HOBJECT hSender, const CParsedMsg &cMsg)
 		{
 			if( cMsg.GetArgCount() > 1 )
 			{
-				uint8 nTeamId = atoi( cMsg.GetArg( 1 ));
+				uint8 nTeamId = static_cast<uint8>(atoi( cMsg.GetArg( 1 )));
 				if( nTeamId < MAX_TEAMS )
 				{
 					CTeamMgr::Instance( ).WonRound( nTeamId );
@@ -992,6 +992,7 @@ void WorldProperties::Load(ILTMessage_Read *pMsg, uint32 dwLoadFlags)
 void WorldProperties::HandleTransmissionMsg(const CParsedMsg &cMsg)
 {
 	GameType eGameType = g_pGameServerShell->GetGameType();
+    static_cast<void>(eGameType);
 
 	if (cMsg.GetArgCount() > 1)
 	{

@@ -212,7 +212,7 @@ void RadarObject::ReadProps( ObjectCreateStruct *pOCS )
 
 	// Get the Radar Type record...
 
-	RADARTYPE *pType;
+	RADARTYPE *pType = nullptr;
 
 	if( g_pLTServer->GetPropGeneric( "Type", &gProp ) == LT_OK )
 	{
@@ -254,8 +254,8 @@ void RadarObject::ReadProps( ObjectCreateStruct *pOCS )
 					uint32 nTeamId = atoi( &gProp.m_String[ nLen ] );
 					if( nTeamId < MAX_TEAMS )
 					{
-						m_nTeamId = nTeamId;
-						m_ROCS.nTeamId = nTeamId;
+						m_nTeamId = static_cast<uint8>(nTeamId);
+						m_ROCS.nTeamId = static_cast<uint8>(nTeamId);
 					}
 				}
 			}
@@ -353,7 +353,7 @@ bool RadarObject::OnTrigger( HOBJECT hSender, const CParsedMsg &cMsg )
 			uint32 nTeamId = atoi( cMsg.GetArg( 1 ));
 			if( nTeamId < MAX_TEAMS )
 			{
-				SetTeamId( nTeamId );
+				SetTeamId( static_cast<uint8>(nTeamId) );
 			}
 			else
 			{

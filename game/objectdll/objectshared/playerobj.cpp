@@ -859,7 +859,7 @@ CPlayerObj::CPlayerObj()
 
     m_pnOldAmmo             = LTNULL;
 
-    uint8 nNumAmmoTypes = g_pWeaponMgr->GetNumAmmoIds();
+    uint8 nNumAmmoTypes = static_cast<uint8>(g_pWeaponMgr->GetNumAmmoIds());
 
 	if (nNumAmmoTypes > 0)
 	{
@@ -1595,8 +1595,8 @@ void CPlayerObj::PreCreateSpecialFX(CHARCREATESTRUCT& cs)
 	CCharacter::PreCreateSpecialFX(cs);
 
     cs.bIsPlayer	= LTTRUE;
-	cs.nTrackers	= m_Animator.GetNumTrackers();
-	cs.nDimsTracker = m_Animator.GetDimsTracker();
+	cs.nTrackers	= static_cast<uint8>(m_Animator.GetNumTrackers());
+	cs.nDimsTracker = static_cast<uint8>(m_Animator.GetDimsTracker());
 	cs.nClientID	= (uint8) g_pLTServer->GetClientID(GetClient( ));
 
 	cs.SetChatting(m_bChatting);
@@ -1742,7 +1742,7 @@ bool CPlayerObj::HandleTransmissionMessage(const CParsedMsg &cMsg)
 	uint32 nSound = 0;
 
 	// If this is a communication transmission, get the activeplayer's client id and send it down.
-	uint32 nActivePlayerClientId = -1;
+	uint32 nActivePlayerClientId = static_cast<uint32>(-1);
 	if( bActivePlayerComm )
 	{
 		HOBJECT hActivePlayer = g_pGameServerShell->GetActivePlayer( );
@@ -1883,9 +1883,9 @@ bool CPlayerObj::HandleIntelMessage(const CParsedMsg &cMsg)
 	cClientMsg.Writeuint8(MID_INTEL_PICKEDUP);
     cClientMsg.Writeuint32(nTextId);
     cClientMsg.Writeuint8(nPopupId);
-    cClientMsg.Writeuint8(bIsIntel);
-    cClientMsg.Writeuint8(bShow);
-    cClientMsg.Writeuint8(bAdd);
+    cClientMsg.Writeuint8(static_cast<uint8>(bIsIntel));
+    cClientMsg.Writeuint8(static_cast<uint8>(bShow));
+    cClientMsg.Writeuint8(static_cast<uint8>(bAdd));
 	g_pLTServer->SendToClient(cClientMsg.Read(), GetClient( ), MESSAGE_GUARANTEED);
 
 
@@ -3013,7 +3013,7 @@ void CPlayerObj::UpdateClientPhysics()
             cMsg.Writefloat(fViscosity);
             cMsg.Writeuint8((uint8)bHidden);
 			cMsg.WriteObject(hVolumeObject);
-			cMsg.Writeuint8(ePPM);
+			cMsg.Writeuint8(static_cast<uint8>(ePPM));
 		}
 
 		// Set our friction based on the container's values...
@@ -3159,7 +3159,7 @@ void CPlayerObj::WriteVehicleMessage(ILTMessage_Write *pMsg)
 {
 	if (!pMsg) return;
 
-	pMsg->Writeuint8(m_ePPhysicsModel);
+	pMsg->Writeuint8(static_cast<uint8>(m_ePPhysicsModel));
 
 	// Check if we need to send the lure object down.
 	if( m_ePPhysicsModel == PPM_LURE )
@@ -3588,7 +3588,7 @@ void CPlayerObj::FullGearCheat()
 {
 	if (m_damage.IsDead() || !GetClient( )) return;
 
-    uint8 nNumGearTypes = g_pWeaponMgr->GetNumGearIds();
+    uint8 nNumGearTypes = static_cast<uint8>(g_pWeaponMgr->GetNumGearIds());
 
     for (uint8 i=0; i < nNumGearTypes; i++)
 	{
@@ -3616,7 +3616,7 @@ void CPlayerObj::GimmeGunCheat( uint8 nId )
 		return;
 
 	if( m_pPlayerAttachments->AcquireWeapon( nId ))
-		ChangeWeapon( g_pWeaponMgr->GetCommandId( nId ), LTTRUE );
+		ChangeWeapon( static_cast<uint8>(g_pWeaponMgr->GetCommandId( nId )), LTTRUE );
 }
 
 // ----------------------------------------------------------------------- //
@@ -4283,13 +4283,13 @@ void CPlayerObj::AcquireDefaultWeapon()
 	if( nNewWeapon < 0)
 		return;
 
-	ChangeWeapon(nNewWeapon, LTTRUE);
+	ChangeWeapon(static_cast<uint8>(nNewWeapon), LTTRUE);
 
 	// Tell the client this is their default weapon.
 	CAutoMessage cClientMsg;
 	cClientMsg.Writeuint8(MID_PLAYER_INFOCHANGE);
 	cClientMsg.Writeuint8(IC_DEFAULTWEAPON_ID);
-	cClientMsg.Writeuint8(pWeaponData->nId);
+	cClientMsg.Writeuint8(static_cast<uint8>(pWeaponData->nId));
 	cClientMsg.Writeuint8(0);
 	cClientMsg.Writefloat(0.0f);
 	g_pLTServer->SendToClient(cClientMsg.Read( ), GetClient( ), MESSAGE_GUARANTEED);
@@ -4321,7 +4321,7 @@ void CPlayerObj::AcquireWeapon(char* pWeaponName)
 		if (pAmmoData && !pAmmoData->bServerRestricted && m_pPlayerAttachments)
 		{
             m_pPlayerAttachments->ObtainWeapon(pWeaponData->nId, pAmmoData->nId, pAmmoData->nSpawnedAmount, LTTRUE);
-			ChangeWeapon(g_pWeaponMgr->GetCommandId(pWeaponData->nId));
+			ChangeWeapon(static_cast<uint8>(g_pWeaponMgr->GetCommandId(pWeaponData->nId)));
 		}
 	}
 }
@@ -4345,7 +4345,7 @@ void CPlayerObj::AcquireAmmo(char* pAmmoName)
 	{
 		if (pAmmoData && m_pPlayerAttachments)
 		{
-            m_pPlayerAttachments->AcquireAmmo(pAmmoData->nId );
+            m_pPlayerAttachments->AcquireAmmo(static_cast<uint8>(pAmmoData->nId) );
 		}
 	}
 }
@@ -4368,7 +4368,7 @@ void CPlayerObj::AcquireMod(char* pModName)
 	{
 		if (pModData && m_pPlayerAttachments)
 		{
-            m_pPlayerAttachments->AcquireMod(pModData->nId, false);
+            m_pPlayerAttachments->AcquireMod(static_cast<uint8>(pModData->nId), false);
 		}
 	}
 }
@@ -4388,10 +4388,10 @@ void CPlayerObj::ChangeToWeapon(const char* pWeaponName)
 	WEAPON const *pWeaponData = g_pWeaponMgr->GetWeapon(pWeaponName);
 	if (!pWeaponData || !m_pPlayerAttachments) return;
 
-	CWeapon* pWeapon = m_pPlayerAttachments->GetWeapon(pWeaponData->nId);
+	CWeapon* pWeapon = m_pPlayerAttachments->GetWeapon(static_cast<uint8>(pWeaponData->nId));
 	if (pWeapon && pWeapon->Have())
 	{
-		ChangeWeapon(g_pWeaponMgr->GetCommandId(pWeaponData->nId));
+		ChangeWeapon(static_cast<uint8>(g_pWeaponMgr->GetCommandId(pWeaponData->nId)));
 	}
 }
 
@@ -4623,7 +4623,7 @@ void CPlayerObj::ResetInventory(LTBOOL bRemoveGear)
 		CAutoMessage cMsg;
 		cMsg.Writeuint8(MID_PLAYER_INFOCHANGE);
 		cMsg.Writeuint8(IC_RESET_INVENTORY_ID);
-		cMsg.Writeuint8(bRemoveGear);
+		cMsg.Writeuint8(static_cast<uint8>(bRemoveGear));
 		cMsg.Writeuint8(0);
 		cMsg.Writefloat(0.0f);
 		g_pLTServer->SendToClient(cMsg.Read( ), GetClient( ), MESSAGE_GUARANTEED);
@@ -4703,7 +4703,7 @@ void CPlayerObj::ResetModel()
 	uint32 cAttachments = g_pModelButeMgr->GetNumDefaultAttachments( m_eModelId );
 	for( uint32 iAttachment = 0; iAttachment < cAttachments; ++iAttachment )
 	{
-		g_pModelButeMgr->GetDefaultAttachment( m_eModelId, iAttachment, pszAttachmentPos, pszAttachment );
+		g_pModelButeMgr->GetDefaultAttachment( m_eModelId, static_cast<uint8>(iAttachment), pszAttachmentPos, pszAttachment );
 
 		sprintf( szTrigger, "%s %s %s", KEY_ATTACH, pszAttachmentPos, pszAttachment );
 		SendTriggerMsgToObject( this, m_hObject, LTFALSE, szTrigger );
@@ -4742,7 +4742,7 @@ void CPlayerObj::ChangeWeapon(uint8 nCommandId, LTBOOL bAuto, int32 nAmmoId)
 	CAutoMessage cMsg;
 	cMsg.Writeuint8(MID_WEAPON_CHANGE);
 	cMsg.Writeuint8(nCommandId);
-	cMsg.Writeuint8(bAuto);
+	cMsg.Writeuint8(static_cast<uint8>(bAuto));
 	cMsg.Writefloat((LTFLOAT)nAmmoId);
 	g_pLTServer->SendToClient(cMsg.Read( ), GetClient( ), MESSAGE_GUARANTEED);
 }
@@ -4793,7 +4793,7 @@ void CPlayerObj::UpdateInterface(bool bForceUpdate)
 
 	// See if the ammo has changed...
 
-    uint8 nNumAmmoTypes = g_pWeaponMgr->GetNumAmmoIds();
+    uint8 nNumAmmoTypes = static_cast<uint8>(g_pWeaponMgr->GetNumAmmoIds());
 
 	for (int i=0; i < nNumAmmoTypes; i++)
 	{
@@ -4807,7 +4807,7 @@ void CPlayerObj::UpdateInterface(bool bForceUpdate)
 				cMsg.Writeuint8(MID_PLAYER_INFOCHANGE);
 				cMsg.Writeuint8(IC_AMMO_ID);
 				cMsg.Writeuint8(WMGR_INVALID_ID);
-				cMsg.Writeuint8(i);
+				cMsg.Writeuint8(static_cast<uint8>(i));
 				cMsg.Writefloat((LTFLOAT)nAmmo);
 				g_pLTServer->SendToClient(cMsg.Read( ), GetClient( ), MESSAGE_GUARANTEED);
 			}
@@ -5259,6 +5259,7 @@ LTBOOL CPlayerObj::DoActivate(CActivationData* pData)
 	{
 		HSTRING hStr = LTNULL;
 		GameBase *pObj = (GameBase *)g_pLTServer->HandleToObject(pData->m_hTarget);
+        static_cast<void>(pObj);
 			
 		switch (pData->m_nType)
 		{
@@ -5495,7 +5496,7 @@ void CPlayerObj::ProcessDamageMsg(ILTMessage_Read *pMsg)
 		CAutoMessage cDamageMsg;
 		cDamageMsg.Writeuint8(MID_PLAYER_DAMAGE);
 		cDamageMsg.WriteLTVector(vDir);
-		cDamageMsg.Writeuint8(m_damage.GetLastDamageType());
+		cDamageMsg.Writeuint8(static_cast<uint8>(m_damage.GetLastDamageType()));
 		cDamageMsg.Writeuint8((uint8)bTookHealth);
 		g_pLTServer->SendToClient(cDamageMsg.Read(), GetClient( ), MESSAGE_GUARANTEED);
 	}
@@ -5625,6 +5626,7 @@ LTBOOL CPlayerObj::MultiplayerUpdate(ILTMessage_Read *pMsg)
 			{
 				// tell the client they'll switch when they respawn
 				uint8 nClientID = (uint8) g_pLTServer->GetClientID(GetClient( ));
+                static_cast<void>(nClientID);
 				CAutoMessage cMsg;
 				cMsg.Writeuint8(MID_PLAYER_TEAM);
 //				cMsg.Writeuint8(nClientID);
@@ -5645,7 +5647,7 @@ LTBOOL CPlayerObj::MultiplayerUpdate(ILTMessage_Read *pMsg)
 	}
 
 	// Tell the server about the changes we made.
-	ncd.m_ePlayerModelId = m_eModelId;
+	ncd.m_ePlayerModelId = static_cast<uint8>(m_eModelId);
 	g_pLTServer->SetClientData( GetClient( ), ( uint8* )&ncd, sizeof( ncd ));
 
 	g_pGameServerShell->SetUpdateGameServ();
@@ -6704,7 +6706,7 @@ void CPlayerObj::HandleWeaponFireMessage(ILTMessage_Read *pMsg)
 
 		CAutoMessage cSoundMsg;
 		cSoundMsg.Writeuint8(SFX_PLAYERSOUND_ID);
-		cSoundMsg.Writeuint8(bAltFire ? PSI_ALT_FIRE : PSI_FIRE);
+		cSoundMsg.Writeuint8(static_cast<uint8>(bAltFire ? PSI_ALT_FIRE : PSI_FIRE));
         cSoundMsg.Writeuint8(nWeaponId);
         cSoundMsg.Writeuint8(nClientID);
 		cSoundMsg.WriteCompPos(weaponFireInfo.vFirePos);
@@ -6733,6 +6735,7 @@ void CPlayerObj::HandleWeaponSoundMessage(ILTMessage_Read *pMsg)
     uint8 nType     = pMsg->Readuint8();
     uint8 nWeaponId = pMsg->Readuint8();
     uint8 nId       = pMsg->Readuint8();
+    static_cast<void>(nId);
 	LTVector vPos	= pMsg->ReadLTVector();
 
     uint8 nClientID = (uint8) g_pLTServer->GetClientID(GetClient( ));
@@ -7217,7 +7220,7 @@ void CPlayerObj::TransferWeapons(Body *pBody, bool bRemove )
 			  ++i, ++nCommandId )
 		{
 			// get the weapon data 
-			uint8 nWeaponId = g_pWeaponMgr->GetWeaponId(nCommandId);
+			uint8 nWeaponId = static_cast<uint8>(g_pWeaponMgr->GetWeaponId(nCommandId));
 			CWeapon* pWeapon = m_pPlayerAttachments->GetWeapon(nWeaponId);
 
 			//if the player has the weapon...
@@ -7498,7 +7501,9 @@ LTBOOL CPlayerObj::HasDangerousWeapon()
 		return pW->bLooksDangerous;
 	}
 
+#if 0
     return LTTRUE;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //
@@ -7524,7 +7529,9 @@ LTBOOL CPlayerObj::HasMeleeWeapon()
 		return (pW->nAniType == CAnimatorPlayer::eMelee);
 	}
 
+#if 0
     return LTFALSE;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //
@@ -7613,7 +7620,7 @@ void CPlayerObj::SetChatting(LTBOOL bChatting)
 	cMsg.Writeuint8(SFX_CHARACTER_ID);
 	cMsg.WriteObject(m_hObject);
 	cMsg.Writeuint8(CFX_CHAT_MSG);
-	cMsg.Writeuint8(bChatting);
+	cMsg.Writeuint8(static_cast<uint8>(bChatting));
 	g_pLTServer->SendToClient(cMsg.Read(), LTNULL, 0);
 
 	// Update our special fx message so new clients will get the updated
@@ -8339,7 +8346,7 @@ END HACK - for DM testing */
 		int nWeaponId = pMission->aDefaultWeapons[i];
 	
 		// Check if we already have this weapon.
-		CWeapon* pWeapon = m_pPlayerAttachments->GetWeapon( nWeaponId );
+		CWeapon* pWeapon = m_pPlayerAttachments->GetWeapon( static_cast<uint8>(nWeaponId) );
 		if (pWeapon)
 		{
 			continue;
@@ -8361,7 +8368,7 @@ END HACK - for DM testing */
 
 		m_pPlayerAttachments->ObtainWeapon( nWeaponId, pWeaponData->nDefaultAmmoId, 
 			pAmmoData->nSelectionAmount, TRUE );
-		pWeapon = m_pPlayerAttachments->GetWeapon( nWeaponId );
+		pWeapon = m_pPlayerAttachments->GetWeapon( static_cast<uint8>(nWeaponId) );
 		if( !pWeapon )
 		{
 			ASSERT( !"CPlayerObj::AcquireLevelDefaultWeapons: Could not obtain weapon." );
@@ -8376,7 +8383,7 @@ END HACK - for DM testing */
 		int nWeaponId = pLevel->aDefaultWeapons[i];
 
 		// Check if we already have this weapon.
-		CWeapon* pWeapon = m_pPlayerAttachments->GetWeapon( nWeaponId );
+		CWeapon* pWeapon = m_pPlayerAttachments->GetWeapon( static_cast<uint8>(nWeaponId) );
 		if (pWeapon)
 		{
 			continue;
@@ -8398,7 +8405,7 @@ END HACK - for DM testing */
 
 		m_pPlayerAttachments->ObtainWeapon( nWeaponId, pWeaponData->nDefaultAmmoId, 
 			pAmmoData->nSelectionAmount, TRUE );
-		pWeapon = m_pPlayerAttachments->GetWeapon( nWeaponId );
+		pWeapon = m_pPlayerAttachments->GetWeapon( static_cast<uint8>(nWeaponId) );
 		if( !pWeapon )
 		{
 			ASSERT( !"CPlayerObj::AcquireLevelDefaultWeapons: Could not obtain weapon." );
@@ -8411,7 +8418,7 @@ END HACK - for DM testing */
 
 	if (pMission->nSelectedWeapon != ( signed char )WMGR_INVALID_ID && nLevelId == 0)
 	{
-		ChangeWeapon( g_pWeaponMgr->GetCommandId( pMission->nSelectedWeapon ), LTTRUE );
+		ChangeWeapon( static_cast<uint8>(g_pWeaponMgr->GetCommandId( pMission->nSelectedWeapon )), LTTRUE );
 	}
 
 	return true;
@@ -8464,7 +8471,7 @@ bool CPlayerObj::AcquireLevelDefaultMods( int nMissionId, int nLevelId )
 			continue;
 		}
 
-        uint8 nWeaponId = pMod->GetWeaponId();
+        uint8 nWeaponId = static_cast<uint8>(pMod->GetWeaponId());
 		CWeapon* pWeapon = m_pPlayerAttachments->GetWeapon(nWeaponId);
 		if( !pWeapon )
 		{
@@ -8473,10 +8480,10 @@ bool CPlayerObj::AcquireLevelDefaultMods( int nMissionId, int nLevelId )
 		}
 
 		// Don't add the mod again.
-		if( pWeapon->HaveMod( nModId ))
+		if( pWeapon->HaveMod( static_cast<uint8>(nModId) ))
 			continue;
 
-		m_pPlayerAttachments->AcquireMod( nModId, false );
+		m_pPlayerAttachments->AcquireMod( static_cast<uint8>(nModId), false );
 	}
 	
 
@@ -8493,7 +8500,7 @@ bool CPlayerObj::AcquireLevelDefaultMods( int nMissionId, int nLevelId )
 			continue;
 		}
 
-        uint8 nWeaponId = pMod->GetWeaponId();
+        uint8 nWeaponId = static_cast<uint8>(pMod->GetWeaponId());
 		CWeapon* pWeapon = m_pPlayerAttachments->GetWeapon( nWeaponId );
 		if( !pWeapon )
 		{
@@ -8502,10 +8509,10 @@ bool CPlayerObj::AcquireLevelDefaultMods( int nMissionId, int nLevelId )
 		}
 
 		// Don't add the mod again.
-		if( pWeapon->HaveMod( nModId ))
+		if( pWeapon->HaveMod( static_cast<uint8>(nModId) ))
 			continue;
 
-		m_pPlayerAttachments->AcquireMod( nModId, false );
+		m_pPlayerAttachments->AcquireMod( static_cast<uint8>(nModId), false );
 	}
 
 	return true;
@@ -8559,7 +8566,7 @@ bool CPlayerObj::AcquireLevelDefaultAmmo( int nMissionId, int nLevelId )
 		}
 
 	    if( m_pPlayerAttachments->GetAmmoCount( nAmmoId ) <= 0 )
-			m_pPlayerAttachments->AcquireAmmo( nAmmoId );
+			m_pPlayerAttachments->AcquireAmmo( static_cast<uint8>(nAmmoId) );
 	}
 
 	// Add the level specific defaults...
@@ -8576,7 +8583,7 @@ bool CPlayerObj::AcquireLevelDefaultAmmo( int nMissionId, int nLevelId )
 		}
 
 		if( m_pPlayerAttachments->GetAmmoCount( nAmmoId ) <= 0 )
-			m_pPlayerAttachments->AcquireAmmo( nAmmoId );
+			m_pPlayerAttachments->AcquireAmmo( static_cast<uint8>(nAmmoId) );
 	}
 	
 	return true;
@@ -8670,7 +8677,6 @@ static bool IsNameTaken( char const* pszName, CPlayerObj* pSkipPlayer )
 void CPlayerObj::GenerateUniqueName( char const* pszNameBase, char* pszUniqueName, int nUniqueNameSize )
 {
 	CString sUniqueName = pszNameBase;
-	bool bFound = false;
 
 	// If the base name is taken, then generate a new name with a number on the 
 	// end of the base name.
@@ -8975,7 +8981,7 @@ void CPlayerObj::ResetMultiplayerSkills()
 			cMsg.Writeuint8(MID_PLAYER_INFOCHANGE);
 			cMsg.Writeuint8(IC_AMMO_ID);
 			cMsg.Writeuint8(WMGR_INVALID_ID);
-			cMsg.Writeuint8(a);
+			cMsg.Writeuint8(static_cast<uint8>(a));
 			cMsg.Writefloat((LTFLOAT)nCurAmount);
 			g_pLTServer->SendToClient(cMsg.Read( ), GetClient( ), MESSAGE_GUARANTEED);
 

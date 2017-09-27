@@ -395,6 +395,7 @@ void Explosion::AreaDamageObject(HOBJECT hObj)
 
             LTFLOAT fMinRadius  = m_fDamageRadius * MIN_RADIUS_PERCENT;
             LTFLOAT fRange      = m_fDamageRadius - fMinRadius;
+            static_cast<void>(fRange);
 
 			// Scale damage if necessary...
 

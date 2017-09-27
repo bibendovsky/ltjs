@@ -292,7 +292,7 @@ bool DoomsDayPiece::OnCarry( HOBJECT hSender )
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_DOOMSDAY_MESSAGE );
 	cMsg.Writeuint8( nDDAction );
-	cMsg.Writeuint8( GetDoomsDayPieceType() );
+	cMsg.Writeuint8( static_cast<uint8>(GetDoomsDayPieceType()) );
 	cMsg.Writeuint8( pPlayer->GetTeamID() );
 	g_pLTServer->SendToClient( cMsg.Read(), LTNULL, MESSAGE_GUARANTEED );
 
@@ -378,7 +378,7 @@ bool DoomsDayPiece::OnDrop( HOBJECT hSender )
 					CAutoMessage cMsg;
 					cMsg.Writeuint8( MID_DOOMSDAY_MESSAGE );
 					cMsg.Writeuint8( MID_DOOMSDAY_PIECE_PLACED );
-					cMsg.Writeuint8( GetDoomsDayPieceType() );
+					cMsg.Writeuint8( static_cast<uint8>(GetDoomsDayPieceType()) );
 					cMsg.Writeuint8( pPlayer->GetTeamID() );
 					g_pLTServer->SendToClient( cMsg.Read(), LTNULL, MESSAGE_GUARANTEED );
 
@@ -397,7 +397,7 @@ bool DoomsDayPiece::OnDrop( HOBJECT hSender )
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_DOOMSDAY_MESSAGE );
 	cMsg.Writeuint8( MID_DOOMSDAY_PIECE_DROPPED );
-	cMsg.Writeuint8( GetDoomsDayPieceType() );
+	cMsg.Writeuint8( static_cast<uint8>(GetDoomsDayPieceType()) );
 	cMsg.Writeuint8( pPlayer->GetTeamID() );
 	g_pLTServer->SendToClient( cMsg.Read(), LTNULL, MESSAGE_GUARANTEED );
 	
@@ -567,7 +567,7 @@ void DoomsDayPiece::Respawn( )
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_DOOMSDAY_MESSAGE );
 	cMsg.Writeuint8( MID_DOOMSDAY_PIECE_RESPAWNED );
-	cMsg.Writeuint8( GetDoomsDayPieceType() );
+	cMsg.Writeuint8( static_cast<uint8>(GetDoomsDayPieceType()) );
 	g_pLTServer->SendToClient( cMsg.Read(), LTNULL, MESSAGE_GUARANTEED );
 }
 
@@ -578,7 +578,7 @@ void DoomsDayPiece::CreateSFXMessage(bool bCarried, uint8 nTeam)
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8(SFX_DOOMSDAYPIECE_ID);
-	cMsg.Writeuint8(m_nDDPieceType);
+	cMsg.Writeuint8(static_cast<uint8>(m_nDDPieceType));
 	cMsg.Writebool(bCarried);
 	cMsg.Writeuint8(nTeam);
 	cMsg.Writebool( bPlanted );
@@ -589,7 +589,7 @@ void DoomsDayPiece::CreateSFXMessage(bool bCarried, uint8 nTeam)
 	cMsg.Writeuint8(MID_SFX_MESSAGE);
 	cMsg.Writeuint8(SFX_DOOMSDAYPIECE_ID);
 	cMsg.WriteObject(m_hObject);
-	cMsg.Writeuint8(m_nDDPieceType);
+	cMsg.Writeuint8(static_cast<uint8>(m_nDDPieceType));
 	cMsg.Writebool(bCarried);
 	cMsg.Writeuint8(nTeam);
 	cMsg.Writebool( bPlanted );

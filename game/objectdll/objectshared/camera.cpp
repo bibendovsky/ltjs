@@ -405,8 +405,6 @@ bool Camera::OnTrigger(HOBJECT hSender, const CParsedMsg &cMsg)
 	{
 		if( cMsg.GetArgCount() >= 2 )
 		{
-			CameraPoint* pCamPoint = LTNULL;
-
 			HOBJECT hObject;
 			if ( LT_OK == FindNamedObject(cMsg.GetArg(1), hObject) )
 			{

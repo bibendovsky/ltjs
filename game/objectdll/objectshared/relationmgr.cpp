@@ -485,6 +485,7 @@ CObjectRelationMgr* CRelationMgr::GetObjectRelationMgr(const char* const szName)
 	{
 		CObjectRelationMgr* pFound = (*it).second;
 		HOBJECT hObj = pFound->GetOwningHObject();
+        static_cast<void>(hObj);
 		return pFound;
 	}
 }

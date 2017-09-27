@@ -478,7 +478,7 @@ LTBOOL SearchLight::InitialUpdate()
     cMsg.Writefloat(m_fBeamAlpha);
     cMsg.Writefloat(m_fBeamRotTime);
     cMsg.Writefloat(m_fLightRadius);
-    cMsg.Writeuint8(m_bBeamAdditive);
+    cMsg.Writeuint8(static_cast<uint8>(m_bBeamAdditive));
     cMsg.WriteLTVector(m_vLightColor);
 	::AddLensFlareInfoToMessage(m_LensInfo, cMsg);
 	g_pLTServer->SetObjectSFXMessage(m_hObject, cMsg.Read());
@@ -659,7 +659,6 @@ void SearchLight::UpdateRotation()
 		}
 		else
 		{
-			int a = 1;
 		}
 
 		return;

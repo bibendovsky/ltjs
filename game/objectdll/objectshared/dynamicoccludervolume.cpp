@@ -302,7 +302,7 @@ void DynamicOccluderVolume::WriteFXMessage( ILTMessage_Write &cMsg )
 
 	for ( i=0; i < m_nNumRenderGroups; i++)
 	{
-		cMsg.Writeuint8( m_nRenderGroups[i] );
+		cMsg.Writeuint8( static_cast<uint8>(m_nRenderGroups[i]) );
 	}
 }
 

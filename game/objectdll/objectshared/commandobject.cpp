@@ -109,6 +109,7 @@ LTRESULT CCommandObjectPlugin::PreHook_PropChanged( const	char		*szObjName,
 		SAFE_STRCPY( strPropVal, gpPropValue.m_String );
 
 		char *pTime = strtok( strPropVal, "|" );
+        static_cast<void>(pTime);
 		char *pCmd = strtok( LTNULL, "\0" );
 		
 		GenericProp gp;

@@ -227,7 +227,7 @@ void CHHWeaponModel::StringKey(ArgList* pArgList)
 	{
 		if (pArgList->argc > 1 && pArgList->argv[1])
 		{
-            uint8 nWeaponId = m_pParentWeapon->GetId();
+            uint8 nWeaponId = static_cast<uint8>(m_pParentWeapon->GetId());
 			WEAPON const *pWeapon = g_pWeaponMgr->GetWeapon(nWeaponId);
 			if (!pWeapon) return;
 
@@ -287,7 +287,7 @@ void CHHWeaponModel::StringKey(ArgList* pArgList)
 
 		if( ( pArgList->argc > 1 ) && pArgList->argv[ 1 ] )
 		{
-			uint8 nWeaponId = m_pParentWeapon->GetId();
+			uint8 nWeaponId = static_cast<uint8>(m_pParentWeapon->GetId());
 			WEAPON const *pWeapon = g_pWeaponMgr->GetWeapon(nWeaponId);
 			if (!pWeapon) return;
 			
@@ -386,7 +386,7 @@ void CHHWeaponModel::StringKey(ArgList* pArgList)
 																			PLAYSOUND_LOOP | PLAYSOUND_GETHANDLE );
 
 					SetNextUpdate( HHW_SOUND_MAX_DURATION, eControlUpdateOnly );
-					m_nLoopSoundId = nId;
+					m_nLoopSoundId = static_cast<uint8>(nId);
 				}
 				
 			}

@@ -370,7 +370,7 @@ void DebugLineSystem::Update()
 		const int num_lines_left = (lines.end() - nextLineToSend);
 		if( num_lines_left < s_MaxLinesPerMessage )
 		{
-			cMsg.Writeuint16( num_lines_left );
+			cMsg.Writeuint16( static_cast<uint16>(num_lines_left) );
 		}
 		else
 		{
@@ -387,7 +387,7 @@ void DebugLineSystem::Update()
 
 		int num_lines_sent = 0;
 		LTVector system_center(0,0,0);
-		LTFLOAT  system_center_count = 0;
+
 		while( nextLineToSend != lines.end() && num_lines_sent < s_MaxLinesPerMessage)
 		{
 			cMsg.WriteType( *nextLineToSend );

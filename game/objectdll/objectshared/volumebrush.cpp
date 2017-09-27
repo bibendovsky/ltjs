@@ -394,13 +394,13 @@ void VolumeBrush::WriteSFXMsg(ILTMessage_Write *pMsg)
     pMsg->WriteLTVector(m_vLightAdd);
     pMsg->Writeuint8(m_nSoundFilterId);
     pMsg->Writebool(m_bCanPlayMoveSnds);
-	pMsg->Writeuint8(m_eSurfaceOverrideType);
+	pMsg->Writeuint8(static_cast<uint8>(m_eSurfaceOverrideType));
 
 	pMsg->WriteLTVector(GetCurrent());
 	pMsg->Writefloat(GetGravity());
 	pMsg->Writefloat(GetViscosity());
 	pMsg->Writefloat(GetFriction());
-	pMsg->Writeuint8(GetPhysicsModel());
+	pMsg->Writeuint8(static_cast<uint8>(GetPhysicsModel()));
 }
 
 

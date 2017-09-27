@@ -23,7 +23,7 @@ class CPlayerObj;
 
 // Save/Load Macros
 
-#define SAVE_BYTE(variable) pMsg->Writeuint8(variable);
+#define SAVE_BYTE(variable) pMsg->Writeuint8(static_cast<uint8>(variable));
 #define LOAD_BYTE(variable) variable = pMsg->Readuint8();
 #define LOAD_BYTE_CAST(variable, clazz) variable = (clazz)pMsg->Readuint8();
 #define SAVE_WORD(variable) pMsg->Writeuint16(variable);
@@ -36,7 +36,7 @@ class CPlayerObj;
 #define LOAD_BOOL(variable) variable = (pMsg->Readbool() ? LTTRUE : LTFALSE);
 #define SAVE_bool(variable) pMsg->Writebool(variable);
 #define LOAD_bool(variable) variable = pMsg->Readbool();
-#define SAVE_DWORD(variable) pMsg->Writeuint32(variable);
+#define SAVE_DWORD(variable) pMsg->Writeuint32(static_cast<uint32>(variable));
 #define LOAD_DWORD(variable) variable = pMsg->Readuint32();
 #define LOAD_DWORD_CAST(variable, clazz) variable = (clazz)pMsg->Readuint32();
 #define SAVE_QWORD(variable) pMsg->Writeuint64( variable );

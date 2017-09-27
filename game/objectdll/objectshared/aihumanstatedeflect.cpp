@@ -417,6 +417,7 @@ void CAIHumanStateDeflect::SetupDeflection(void)
 	LTFLOAT fAnimLength = GetAnimationContext()->GetAnimationLength( Props );
 
 	LTFLOAT fAnimRate = fAnimLength / m_fMaxDeflectorDuration;
+    static_cast<void>(fAnimRate);
 //	GetAnimationContext()->SetAnimRate( fAnimRate );
 
 	m_pAI->SetDefending( true );

@@ -1575,7 +1575,6 @@ void Prop::HandleAttachmentImpact( CAttachmentPosition *pAttachPos, const LTVect
 
 	// Give it some rotation...
 
-	float fVal	= MATH_PI;
     float fVal2	= MATH_CIRCLE;
 	m_fPitchVel	= GetRandom( -fVal2, fVal2 );
 	m_fYawVel	= GetRandom( -fVal2, fVal2 );

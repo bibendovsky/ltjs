@@ -4610,7 +4610,7 @@ LTBOOL CFXButeMgr::ReadImpactFXProp(char* pPropName, uint8 & nImpactFXId)
 		IMPACTFX* pImpactFX = GetImpactFX(genProp.m_String);
 		if (pImpactFX)
 		{
-			nImpactFXId = pImpactFX->nId;
+			nImpactFXId = static_cast<uint8>(pImpactFX->nId);
 		}
 
         return LTTRUE;

@@ -82,8 +82,6 @@ CWeapons::~CWeapons()
 
 LTBOOL CWeapons::Init(HOBJECT hCharacter, HOBJECT hWeaponModel)
 {
-    LTBOOL bRet = LTFALSE;
-
 	m_hCharacter = hCharacter;
 	m_hWeaponModel = hWeaponModel;
 
@@ -141,7 +139,7 @@ void CWeapons::CreateWeapon(uint8 nWeaponId, uint8 nAmmoId)
 		WEAPON const *pWeaponData = g_pWeaponMgr->GetWeapon(nWeaponId);
 		if (!pWeaponData) return;
 
-		nAmmoId = pWeaponData->nDefaultAmmoId;
+		nAmmoId = static_cast<uint8>(pWeaponData->nDefaultAmmoId);
 	}
 
 	CWeapon* pWeapon = s_bankCWeapon.New();
@@ -195,7 +193,7 @@ void CWeapons::CreateAllWeapons()
 
 	for (int i=0; i <= nNumWeapons; i++)
 	{
-		CreateWeapon(i);
+		CreateWeapon(static_cast<uint8>(i));
 	}
 }
 
@@ -320,7 +318,7 @@ LTBOOL CWeapons::AddWeapon(LPBASECLASS pObject, HOBJECT hSender, ILTMessage_Read
 							cMsg.Writeuint8(MID_PLAYER_INFOCHANGE);
 							cMsg.Writeuint8(IC_WEAPON_PICKUP_ID);
 							cMsg.Writeuint8(WMGR_INVALID_ID);
-							cMsg.Writeuint8(pWeapon->nDefaultAmmoId);
+							cMsg.Writeuint8(static_cast<uint8>(pWeapon->nDefaultAmmoId));
 							cMsg.Writefloat(static_cast<float>(GetAmmoCount(pWeapon->nDefaultAmmoId)));
 							g_pLTServer->SendToClient(cMsg.Read(), hClient, MESSAGE_GUARANTEED);
 						}
@@ -549,7 +547,7 @@ bool CWeapons::AddIsAmmoWeapon(uint8 nAmmoId)
 			// Calling AddWeapon will make sure we actually have the weapon
 			// and that the client is updated correctly.  However, make sure
 			// we don't give us any more ammo, that was already taken care of...
-			AddWeapon(LTNULL, LTNULL, pWeapon->nId, nAmmoId, 0, true);
+			AddWeapon(LTNULL, LTNULL, static_cast<uint8>(pWeapon->nId), nAmmoId, 0, true);
 			return true;
 		}
 	}
@@ -575,7 +573,7 @@ LTBOOL CWeapons::AddMod(LPBASECLASS pObject, HOBJECT hSender, ILTMessage_Read *p
 	MOD const *pMod = g_pWeaponMgr->GetMod(nModId);
 	if( pMod )
 	{
-		uint8 nWeaponId = pMod->GetWeaponId();
+		uint8 nWeaponId = static_cast<uint8>(pMod->GetWeaponId());
 		
 		bool bPickedUp = false;
 
@@ -774,7 +772,7 @@ void CWeapons::ObtainWeapon(uint8 nWeaponId, int nAmmoId,
 				cMsg.Writeuint8(MID_PLAYER_INFOCHANGE);
 				cMsg.Writeuint8(IC_WEAPON_OBTAIN_ID);
                 cMsg.Writeuint8(nWeaponId);
-                cMsg.Writeuint8(nAmmoId);
+                cMsg.Writeuint8(static_cast<uint8>(nAmmoId));
                 cMsg.Writefloat((LTFLOAT)GetAmmoCount(nAmmoId));
 				g_pLTServer->SendToClient(cMsg.Read(), hClient, MESSAGE_GUARANTEED);
 			}
@@ -783,7 +781,7 @@ void CWeapons::ObtainWeapon(uint8 nWeaponId, int nAmmoId,
 
 			if (m_nCurWeapon < 0)
 			{
-				pPlayer->ChangeWeapon(g_pWeaponMgr->GetCommandId(nWeaponId));
+				pPlayer->ChangeWeapon(static_cast<uint8>(g_pWeaponMgr->GetCommandId(nWeaponId)));
 			}
 		}
 	}
@@ -899,7 +897,7 @@ LTBOOL CWeapons::ChangeWeapon(uint8 nNewWeapon)
 
 void CWeapons::DeselectCurWeapon()
 {
-	if (IsValidWeapon(m_nCurWeapon))
+	if (IsValidWeapon(static_cast<uint8>(m_nCurWeapon)))
 	{
 		m_pWeapons[m_nCurWeapon]->Deselect();
 	}
@@ -920,7 +918,7 @@ int CWeapons::GetWeaponAmmoCount(int nWeapon)
 {
 	if (!g_pWeaponMgr || !m_pWeapons || !m_pAmmo) return 0;
 
-	if (IsValidIndex(nWeapon) && m_pWeapons[nWeapon])
+	if (IsValidIndex(static_cast<uint8>(nWeapon)) && m_pWeapons[nWeapon])
 	{
 		return GetAmmoCount(m_pWeapons[nWeapon]->GetAmmoId());
 	}
@@ -1024,7 +1022,7 @@ void CWeapons::Load(ILTMessage_Read *pMsg, uint8 nType)
 
 		if (bLoad)
 		{
-			CreateWeapon(i);
+			CreateWeapon(static_cast<uint8>(i));
 
 			if (m_pWeapons && m_pWeapons[i])
 			{
@@ -1127,7 +1125,7 @@ void CWeapons::HandlePotentialWeaponChange(CPlayerObj* pPlayer, uint8 nWeaponId,
 	if (bChangeWeapon)
 	{
 		int nWeaponCoId = g_pWeaponMgr->GetCommandId(nWeaponId);
-		pPlayer->ChangeWeapon(nWeaponCoId, LTTRUE, nAmmoId);
+		pPlayer->ChangeWeapon(static_cast<uint8>(nWeaponCoId), LTTRUE, nAmmoId);
 	}
 }
 
@@ -1142,7 +1140,7 @@ void CWeapons::HandlePotentialWeaponChange(CPlayerObj* pPlayer, uint8 nWeaponId,
 
 LTBOOL CWeapons::IsBetterWeapon(CPlayerObj* pPlayer, uint8 nWeaponId)
 {
-	return g_pWeaponMgr->IsBetterWeapon( nWeaponId, m_nCurWeapon );
+	return g_pWeaponMgr->IsBetterWeapon( static_cast<uint8>(nWeaponId), static_cast<uint8>(m_nCurWeapon) );
 }
 
 // ----------------------------------------------------------------------- //
@@ -1204,6 +1202,7 @@ void CWeapons::HandleProjectileMessage( HOBJECT hSender, ILTMessage_Read *pMsg )
 			// returned projectils ammo to the owner when caught
 
 			uint8 nWeaponId = pMsg->Readuint8();
+            static_cast<void>(nWeaponId);
 
 			uint8 nAmmoId = pMsg->Readuint8();
 			

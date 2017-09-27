@@ -176,7 +176,7 @@ bool CSkills::HandleRewardMessage(const CParsedMsg &cMsg)
 	CAutoMessage cClientMsg;
 	cClientMsg.Writeuint8(MID_PLAYER_INFOCHANGE);
 	cClientMsg.Writeuint8(IC_SKILLS_ID);
-	cClientMsg.Writeuint8(n);
+	cClientMsg.Writeuint8(static_cast<uint8>(n));
     cClientMsg.Writeuint8(0);
     cClientMsg.Writefloat(0.0f); // (LTFLOAT)pMission->aRewards[n].nVal);
 	g_pLTServer->SendToClient(cClientMsg.Read(), LTNULL, MESSAGE_GUARANTEED);
@@ -205,7 +205,7 @@ void CSkills::GainIntelBonus()
 	CAutoMessage cClientMsg;
 	cClientMsg.Writeuint8(MID_PLAYER_INFOCHANGE);
 	cClientMsg.Writeuint8(IC_SKILLS_ID);
-	cClientMsg.Writeuint8(-1);
+	cClientMsg.Writeuint8(static_cast<uint8>(-1));
     cClientMsg.Writeuint8(1);
     cClientMsg.Writefloat((float)nBonus);
 	g_pLTServer->SendToClient(cClientMsg.Read(), LTNULL, MESSAGE_GUARANTEED);
@@ -228,7 +228,7 @@ void CSkills::UpdateClient()
 
 	for (uint8 i = 0; i < kNumSkills; i++)
 	{
-		cMsg.Writeuint8(m_nLevel[i]);
+		cMsg.Writeuint8(static_cast<uint8>(m_nLevel[i]));
 	}
 
 	CPlayerObj* pPlayerObj = dynamic_cast< CPlayerObj* >( g_pLTServer->HandleToObject( m_hOwner ));
@@ -259,7 +259,7 @@ void CSkills::HandleSkillUpdate(ILTMessage_Read *pMsg)
 	uint8 nSkill = pMsg->Readuint8();
 	if (nSkill >= kNumSkills) return;
 
-	uint8 nTgtLevel = m_nLevel[nSkill] + 1;
+	uint8 nTgtLevel = static_cast<uint8>(m_nLevel[nSkill] + 1);
 	if (nTgtLevel >= kNumSkillLevels) return;
 	
 	uint32 nCost = g_pSkillsButeMgr->GetCostToUpgrade((eSkill)nSkill,(eSkillLevel)nTgtLevel);
@@ -283,7 +283,7 @@ void CSkills::SkillsCheat()
 		CAutoMessage cClientMsg;
 		cClientMsg.Writeuint8(MID_PLAYER_INFOCHANGE);
 		cClientMsg.Writeuint8(IC_SKILLS_ID);
-		cClientMsg.Writeuint8(-1);
+		cClientMsg.Writeuint8(static_cast<uint8>(-1));
 		cClientMsg.Writeuint8(0);
 		cClientMsg.Writefloat(10000.0f); // (LTFLOAT)pMission->aRewards[n].nVal);
 		g_pLTServer->SendToClient(cClientMsg.Read(), LTNULL, MESSAGE_GUARANTEED);
@@ -310,7 +310,7 @@ void CSkills::SkillsCheat()
 	CAutoMessage cClientMsg;
 	cClientMsg.Writeuint8(MID_PLAYER_INFOCHANGE);
 	cClientMsg.Writeuint8(IC_SKILLS_ID);
-	cClientMsg.Writeuint8(-1);
+	cClientMsg.Writeuint8(static_cast<uint8>(-1));
 	cClientMsg.Writeuint8(0);
 	cClientMsg.Writefloat((float)nGain); // (LTFLOAT)pMission->aRewards[n].nVal);
 	g_pLTServer->SendToClient(cClientMsg.Read(), LTNULL, MESSAGE_GUARANTEED);

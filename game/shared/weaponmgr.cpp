@@ -2957,13 +2957,13 @@ LTBOOL CWeaponMgr::ReadWeaponProp(char* pPropName, uint8 & nWeaponId, uint8 & nA
 		WEAPON const *pWeapon = GetWeapon(strtok(genProp.m_String,","));
 		if (pWeapon)
 		{
-			nWeaponId = pWeapon->nId;
+			nWeaponId = static_cast<uint8>(pWeapon->nId);
 		}
 
 		AMMO const *pAmmo = GetAmmo(strtok(NULL,""));
 		if (pAmmo)
 		{
-			nAmmoId = pAmmo->nId;
+			nAmmoId = static_cast<uint8>(pAmmo->nId);
 		}
 		else
 		{
@@ -2971,7 +2971,7 @@ LTBOOL CWeaponMgr::ReadWeaponProp(char* pPropName, uint8 & nWeaponId, uint8 & nA
 
 			if (pWeapon)
 			{
-				nAmmoId = pWeapon->nDefaultAmmoId;
+				nAmmoId = static_cast<uint8>(pWeapon->nDefaultAmmoId);
 			}
 		}
 
@@ -2996,13 +2996,13 @@ void CWeaponMgr::ReadWeapon(char* szString, uint8 & nWeaponId, uint8 & nAmmoId)
 	WEAPON const *pWeapon = GetWeapon(strtok(szString,","));
 	if (pWeapon)
 	{
-		nWeaponId = pWeapon->nId;
+		nWeaponId = static_cast<uint8>(pWeapon->nId);
 	}
 
 	AMMO const *pAmmo = GetAmmo(strtok(NULL,""));
 	if (pAmmo)
 	{
-		nAmmoId = pAmmo->nId;
+		nAmmoId = static_cast<uint8>(pAmmo->nId);
 	}
 	else
 	{
@@ -3010,7 +3010,7 @@ void CWeaponMgr::ReadWeapon(char* szString, uint8 & nWeaponId, uint8 & nAmmoId)
 
 		if (pWeapon)
 		{
-			nAmmoId = pWeapon->nDefaultAmmoId;
+			nAmmoId = static_cast<uint8>(pWeapon->nDefaultAmmoId);
 		}
 	}
 }

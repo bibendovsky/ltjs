@@ -2187,7 +2187,7 @@ VAR_STRUCT* CCommandMgr::GetVar( const char *pName, bool bSilent, uint16 *nId /*
 		if( !_stricmp( m_aVars[iVar].m_szName, pName ))
 		{
 			if( nId )
-				*nId = iVar;
+				*nId = static_cast<uint8>(iVar);
 
 			return &m_aVars[iVar];
 		}

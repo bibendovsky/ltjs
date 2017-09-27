@@ -279,7 +279,6 @@ void CObjectRelationMgr::CommunicateMessage(CCharacter* pSender,
 
 	CTList<CCharacter*>* lstChars	= LTNULL;
     CCharacter** pCur				= LTNULL;
-    CCharacter** pSelected			= LTNULL;
 
 	// For each character, see if we like them.
 

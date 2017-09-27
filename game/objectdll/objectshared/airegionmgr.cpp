@@ -66,8 +66,6 @@ void CAIRegionMgr::Init()
 
 	m_apRegions = debug_newa(AIRegion*, m_cRegions);
 
-	uint32 iRegion = 0;
-
 	// Now we put the Regions into our array
 
 	uint32 nId = 0;

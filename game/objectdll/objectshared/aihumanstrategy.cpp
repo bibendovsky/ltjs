@@ -3718,7 +3718,7 @@ CAIHumanStrategyShoot::CAIHumanStrategyShoot()
 	m_bIgnoreFOV = LTFALSE;
 	m_bShootBlind = LTFALSE;
 	m_hFiringSocket = INVALID_MODEL_SOCKET;
-	m_iAnimRandomSeed = -1;
+	m_iAnimRandomSeed = static_cast<uint32>(-1);
 }
 
 CAIHumanStrategyShoot::~CAIHumanStrategyShoot()

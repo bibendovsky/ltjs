@@ -1145,9 +1145,9 @@ void CProjectile::AddImpact( HOBJECT hObj,
 	fxStruct.vFirePos       = vFirePos;
 	fxStruct.vPos           = vImpactPos + (m_vDir * -1.0f);
 	fxStruct.hObj           = hObj;
-	fxStruct.nWeaponId      = m_pWeaponData->nId;
-	fxStruct.nAmmoId        = m_pAmmoData->nId;
-	fxStruct.nSurfaceType   = eType;
+	fxStruct.nWeaponId      = static_cast<uint8>(m_pWeaponData->nId);
+	fxStruct.nAmmoId        = static_cast<uint8>(m_pAmmoData->nId);
+	fxStruct.nSurfaceType   = static_cast<uint8>(eType);
 	fxStruct.wIgnoreFX      = g_wIgnoreFX;
 	fxStruct.eImpactType    = eImpactType;
 
@@ -1211,8 +1211,8 @@ void CProjectile::AddImpact( HOBJECT hObj,
 			info.hObject    = hObj;
 			info.vFiredPos  = m_vFlashPos;  // Use initial flash pos
 			info.vImpactPos = vImpactPos;
-			info.nWeaponId  = m_pWeaponData->nId;
-			info.nAmmoId    = m_pAmmoData->nId;
+			info.nWeaponId  = static_cast<uint8>(m_pWeaponData->nId);
+			info.nAmmoId    = static_cast<uint8>(m_pAmmoData->nId);
 			info.fTime      = g_pLTServer->GetTime();
 			info.bSilenced  = m_bSilenced;
 			info.eSurface   = eType;
@@ -1322,7 +1322,7 @@ void CProjectile::AddExplosion(const LTVector &vPos, const LTVector &vNormal)
 	if (pExplosion)
 	{
 		// setup the explosion
-		pExplosion->Setup(m_hFiredFrom, m_nAmmoId);
+		pExplosion->Setup(m_hFiredFrom, static_cast<uint8>(m_nAmmoId));
 	}
 }
 
@@ -1347,7 +1347,7 @@ void CProjectile::AddSpecialFX()
 	if (!g_pWeaponMgr) return;
 
 	// If this is a player object, get the client id...
-	uint8 nShooterId = -1; 
+	uint8 nShooterId = static_cast<uint8>(-1);
 	if (IsPlayer(m_hFiredFrom))
 	{
 		CPlayerObj* pPlayer = (CPlayerObj*) g_pLTServer->HandleToObject(m_hFiredFrom);
@@ -1363,9 +1363,9 @@ void CProjectile::AddSpecialFX()
 
 		cMsg.Writeuint8(SFX_PROJECTILE_ID);
 
-		cMsg.Writeuint8(m_pWeaponData->nId);
+		cMsg.Writeuint8(static_cast<uint8>(m_pWeaponData->nId));
 
-		cMsg.Writeuint8(m_pAmmoData->nId);
+		cMsg.Writeuint8(static_cast<uint8>(m_pAmmoData->nId));
 
 		cMsg.Writeuint8(nShooterId);
 
@@ -1415,6 +1415,7 @@ bool DoVectorPolyFilterFn(HPOLY hPoly, void *pUserData)
 	// be removed here?
 	return true;
 
+#if 0
 	// Make sure we hit a surface type we care about...
 	SurfaceType eSurfType = GetSurfaceType(hPoly);
 
@@ -1425,6 +1426,7 @@ bool DoVectorPolyFilterFn(HPOLY hPoly, void *pUserData)
 	}
 
 	return true;
+#endif // 0
 }
 
 
@@ -1703,7 +1705,6 @@ void CProjectile::DoVector()
 
 	qInfo.m_Flags = INTERSECT_OBJECTS | IGNORE_NONSOLID | INTERSECT_HPOLY;
 
-	LTBOOL bHitSomething = LTFALSE;
 	LTBOOL bDone         = LTFALSE;
 
 	int nLoopCount = 0; // No infinite loops thanks.
@@ -2180,7 +2181,7 @@ void CProjectile::ImpactDamageObject(HOBJECT hDamager, HOBJECT hObj)
 
 	damage.hDamager = hDamager;
 	damage.vDir		= m_vDir;
-	damage.nAmmoId	= m_nAmmoId;
+	damage.nAmmoId	= static_cast<uint8>(m_nAmmoId);
 
 	// Do Instant damage...
 

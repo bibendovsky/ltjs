@@ -1186,7 +1186,7 @@ LTBOOL CAIGoalInvestigate::HandleGoalSenseTrigger(AISenseRecord* pSenseRecord)
 		// Update the alarm level with new stimulus.
 		// AI elevates his alarm level as high as an ally's.
 
-		uint32 nAlarmLevel;
+		uint32 nAlarmLevel = 0;
 		if( ( pSenseRecord->eSenseType == kSense_SeeAllyDisturbance ) || 
 			( pSenseRecord->eSenseType == kSense_HearAllyDisturbance ) )
 		{

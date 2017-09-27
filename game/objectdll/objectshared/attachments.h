@@ -480,7 +480,7 @@ class CPlayerAttachments : public CHumanAttachments
 			CAttachmentWeapon* pAttachmentWeapon = GetDefaultAttachmentWeapon();
 			if ( pAttachmentWeapon )
 			{
-				pAttachmentWeapon->GetWeapons()->ChangeWeapon(nWeaponID);
+				pAttachmentWeapon->GetWeapons()->ChangeWeapon(static_cast<uint8>(nWeaponID));
 				SetWeaponAttachmentHiddenState( *pAttachmentWeapon );
 			}
 		}
@@ -491,7 +491,7 @@ class CPlayerAttachments : public CHumanAttachments
 			CAttachmentWeapon* pAttachmentWeapon = GetDefaultAttachmentWeapon();
 			if ( pAttachmentWeapon )
 			{
-				pAttachmentWeapon->GetWeapons()->ObtainWeapon(nWeaponID, nAmmoID, nDefaultAmmo, bNotifyClient);
+				pAttachmentWeapon->GetWeapons()->ObtainWeapon(static_cast<uint8>(nWeaponID), nAmmoID, nDefaultAmmo, bNotifyClient);
 				SetWeaponAttachmentHiddenState( *pAttachmentWeapon );
 			}
 		}

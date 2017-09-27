@@ -824,7 +824,7 @@ bool CAIHuman::HandleCommand(const CParsedMsg &cMsg)
 		cMsg.WriteHString(hstr);
 		cMsg.Writefloat(130.0f);
 		cMsg.Writefloat(fTime);
-		cMsg.Writeuint8(bOn);
+		cMsg.Writeuint8(static_cast<uint8>(bOn));
 		g_pLTServer->SendToClient(cMsg.Read(), LTNULL, MESSAGE_GUARANTEED);
 
         g_pLTServer->FreeString(hstr);
@@ -1042,6 +1042,7 @@ void CAIHuman::KickDoors(HOBJECT hDoor1, HOBJECT hDoor2)
 				g_pPhysicsLT->GetObjectDims(m_hLastDoor[iDoor], &vDims);
 	
 				LTFLOAT fWidth = (vDims.x > vDims.z) ? vDims.x : vDims.z;
+                static_cast<void>(fWidth);
 
 				CPlayerObj* pPlayer = (CPlayerObj*)GetTarget()->GetCharacter();
 				pPlayer->PushCharacter( vPos, 96.f, 0.f, 1.f, 1000.f );	
@@ -1381,7 +1382,7 @@ void CAIHuman::PreUpdate()
 			uint32 cAttachments = g_pModelButeMgr->GetNumDefaultAttachments( m_eModelId );
 			for( uint32 iAttachment = 0; iAttachment < cAttachments; ++iAttachment )
 		{
-				g_pModelButeMgr->GetDefaultAttachment( m_eModelId, iAttachment, pszAttachmentPos, pszAttachment );
+				g_pModelButeMgr->GetDefaultAttachment( m_eModelId, static_cast<uint8>(iAttachment), pszAttachmentPos, pszAttachment );
 
 				sprintf( szTrigger, "%s %s %s", KEY_ATTACH, pszAttachmentPos, pszAttachment );
 				SendTriggerMsgToObject( this, m_hObject, LTFALSE, szTrigger );
@@ -2178,7 +2179,6 @@ void CAIHuman::SpawnHolsteredItems()
 	// The tilda '~' indicates that this holster string was created from within
 	// the code, and should be cleared after drawing a weapon.
 
-	uint32 iStartHolster = 0;
 	if( szHolsterString[0] == '~' )
 	{
 		pszHolsterString++;

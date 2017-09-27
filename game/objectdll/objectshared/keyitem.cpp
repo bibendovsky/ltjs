@@ -178,7 +178,7 @@ KeyItem::KeyItem() : Prop ()
 	m_bStartHidden		= LTFALSE;
 	m_bFirstUpdate		= LTTRUE;
 	m_bSkipUpdate		= LTFALSE;
-	m_nKeyId			= -1;
+	m_nKeyId			= static_cast<uint16>(-1);
 
 	for( uint32 i =0; i < KEY_MAX_CONTROLOBJS; ++i )
 	{

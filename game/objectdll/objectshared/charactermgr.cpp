@@ -420,7 +420,6 @@ void CCharacterMgr::RemoveDeathScene(CDeathScene *pDeathScene)
 
 		ppCur = s_aDeathLists[iList]->GetItem(TLIT_FIRST);
 
-        HOBJECT hObj = LTNULL;
 		while (ppCur)
 		{
 			pCur = *ppCur;
@@ -458,7 +457,6 @@ CDeathScene* CCharacterMgr::GetDeathScene(HOBJECT hBodyObject)
 
 		pCur = s_aDeathLists[iList]->GetItem(TLIT_FIRST);
 
-        HOBJECT hObj = LTNULL;
 		while (pCur)
 		{
 			pDeathScene = *pCur;

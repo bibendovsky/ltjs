@@ -323,9 +323,9 @@ void Lock::HandleGadgetMsg(HOBJECT hSender, const CParsedMsg &cMsg)
 		fxStruct.vFirePos		= vHisPos;
 		fxStruct.vPos			= vPos + vDir;
 		fxStruct.hObj			= m_hObject;
-		fxStruct.nWeaponId		= pWeapon->nId;
-		fxStruct.nAmmoId		= pAmmo->nId;
-		fxStruct.nSurfaceType	= pSurf->eType;
+		fxStruct.nWeaponId		= static_cast<uint8>(pWeapon->nId);
+		fxStruct.nAmmoId		= static_cast<uint8>(pAmmo->nId);
+		fxStruct.nSurfaceType	= static_cast<uint8>(pSurf->eType);
 
 		// This should be a player object, get the client id...
 

@@ -213,14 +213,14 @@ void AIRegion::Save(ILTMessage_Write *pMsg)
 	SAVE_VECTOR(m_vExtentsMax);
 
 	// Permission sets
-	pMsg->Writeuint8(m_bPSets[0]);
-	pMsg->Writeuint8(m_bPSets[1]);
-	pMsg->Writeuint8(m_bPSets[2]);
-	pMsg->Writeuint8(m_bPSets[3]);
-	pMsg->Writeuint8(m_bPSets[4]);
-	pMsg->Writeuint8(m_bPSets[5]);
-	pMsg->Writeuint8(m_bPSets[6]);
-	pMsg->Writeuint8(m_bPSets[7]);
+	pMsg->Writeuint8(static_cast<uint8>(m_bPSets[0]));
+	pMsg->Writeuint8(static_cast<uint8>(m_bPSets[1]));
+	pMsg->Writeuint8(static_cast<uint8>(m_bPSets[2]));
+	pMsg->Writeuint8(static_cast<uint8>(m_bPSets[3]));
+	pMsg->Writeuint8(static_cast<uint8>(m_bPSets[4]));
+	pMsg->Writeuint8(static_cast<uint8>(m_bPSets[5]));
+	pMsg->Writeuint8(static_cast<uint8>(m_bPSets[6]));
+	pMsg->Writeuint8(static_cast<uint8>(m_bPSets[7]));
 }
 
 // ----------------------------------------------------------------------- //

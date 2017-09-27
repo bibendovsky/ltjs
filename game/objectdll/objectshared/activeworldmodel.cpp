@@ -411,7 +411,7 @@ void ActiveWorldModel::ReadProps( ObjectCreateStruct *pOCS )
 			{
 				if( !_stricmp( GenProp.m_String, c_aWaveTypes[i] ) )
 				{
-					m_nWaveform = i;
+					m_nWaveform = static_cast<uint8>(i);
 					break;
 				}
 			}	

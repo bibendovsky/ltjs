@@ -53,6 +53,7 @@ static CBankedList<CTransitionAggregate> s_bankCTransAggs;
 static LTBOOL ValidateMsgVisibleSolid( ILTPreInterface *pInterface, ConParse &cpMsgParams )
 {
 	char *pBoolValue = cpMsgParams.m_Args[1];
+    static_cast<void>(pBoolValue);
 
 	if( (!_stricmp(cpMsgParams.m_Args[1], "1")) ||
 		(!_stricmp(cpMsgParams.m_Args[1], "TRUE")) ||

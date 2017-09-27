@@ -309,6 +309,7 @@ uint32 Body::EngineMessageFn(uint32 messageID, void *pData, LTFLOAT fData)
 		case MID_TOUCHNOTIFY:
 		{
 			HOBJECT hObject = (HOBJECT)pData;
+            static_cast<void>(hObject);
 
 			if ( m_pState )
 			{
@@ -1498,7 +1499,7 @@ void Body::HandleDamage(const DamageStruct& damage)
 	cMsg.Writeuint8(SFX_BODY_ID);
 	cMsg.WriteObject(m_hObject);
 	cMsg.Writeuint8(BFX_DAMAGEFX_MSG);
-	cMsg.Writeuint8(damage.eType);
+	cMsg.Writeuint8(static_cast<uint8>(damage.eType));
 	g_pLTServer->SendToClient(cMsg.Read(), LTNULL, MESSAGE_GUARANTEED);
 }
 

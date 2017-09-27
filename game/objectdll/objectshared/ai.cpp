@@ -252,7 +252,7 @@ static LTBOOL ValidateMsgGoalPrefix( ILTPreInterface *pInterface, ConParse &cpMs
 	if( !g_pAIGoalButeMgr )
 		return LTTRUE;
 
-	uint8 len = strlen(GOAL_CMD_PREFIX);
+	uint8 len = static_cast<uint8>(strlen(GOAL_CMD_PREFIX));
 
 	// Check to see if this is a goal prefix command and verrify the goal...
 
@@ -262,6 +262,7 @@ static LTBOOL ValidateMsgGoalPrefix( ILTPreInterface *pInterface, ConParse &cpMs
 		LTStrCpy( szMsg, cpMsgParams.m_Args[0], ARRAY_LEN( szMsg ));
 
 		const char* pPrefix = strtok( szMsg, "_" );
+        static_cast<void>(pPrefix);
 		const char* pGoal = strtok( NULL, " " );
 
 		if( !pGoal )
@@ -1454,7 +1455,7 @@ void CAI::InitialUpdate()
 			uint8 nSkins = g_pModelButeMgr->GetNumAltBodySkins( m_eModelId );
 			if( nSkins > 0 )
 			{
-				const char *pSkin = g_pModelButeMgr->GetAltBodySkin( m_eModelId, GetRandom( 0, nSkins - 1 ));
+				const char *pSkin = g_pModelButeMgr->GetAltBodySkin( m_eModelId, static_cast<uint8>(GetRandom( 0, nSkins - 1 )));
 				if( pSkin )
 				{
 					SAFE_STRCPY( createstruct.m_SkinNames[BODY_SKIN_INDEX], pSkin );
@@ -1491,7 +1492,7 @@ void CAI::InitialUpdate()
 			uint8 nSkins = g_pModelButeMgr->GetNumAltHeadSkins( m_eModelId );
 			if( nSkins > 0 )
 			{
-				const char *pSkin = g_pModelButeMgr->GetAltHeadSkin( m_eModelId, GetRandom( 0, nSkins - 1 ));
+				const char *pSkin = g_pModelButeMgr->GetAltHeadSkin( m_eModelId, static_cast<uint8>(GetRandom( 0, nSkins - 1 )));
 				if( pSkin )
 				{
 					SAFE_STRCPY( createstruct.m_SkinNames[HEAD_SKIN_INDEX], pSkin );
@@ -4091,7 +4092,7 @@ LTBOOL CAI::IsObjectPositionVisible(ObjectFilterFn ofn, PolyFilterFn pfn, const 
 	vDirNorm.Normalize();
 
     LTFLOAT fNoFOVDistanceSqr = g_pAIButeMgr->GetSenses()->fNoFOVDistanceSqr;
-    LTFLOAT fDp;
+    LTFLOAT fDp = 0.0F;
 
 
 	// Make sure it is in our FOV
@@ -4223,7 +4224,7 @@ LTBOOL CAI::IsPositionVisible(ObjectFilterFn ofn, PolyFilterFn pfn, const LTVect
 	vDirNorm.Normalize();
 
     LTFLOAT fNoFOVDistanceSqr = g_pAIButeMgr->GetSenses()->fNoFOVDistanceSqr;
-    LTFLOAT fDp;
+    LTFLOAT fDp = 0.0F;
 
 	// Make sure it is in our FOV
 

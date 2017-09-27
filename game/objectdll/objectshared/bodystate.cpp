@@ -596,6 +596,7 @@ void CBodyStateLedge::Update()
 	else if ( m_eState == eLeaning )
 	{
         HMODELANIM hAni = g_pLTServer->GetModelAnimation(m_pBody->m_hObject);
+        static_cast<void>(hAni);
         if ( g_pLTServer->GetModelPlaybackState(m_pBody->m_hObject) & MS_PLAYDONE )
 		{
 			// If the start ani ends before we're done, do the falling ani.
@@ -797,6 +798,7 @@ void CBodyStateLadder::Update()
 	else if ( m_eState == eLeaning )
 	{
         HMODELANIM hAni = g_pLTServer->GetModelAnimation(m_pBody->m_hObject);
+        static_cast<void>(hAni);
         if ( g_pLTServer->GetModelPlaybackState(m_pBody->m_hObject) & MS_PLAYDONE )
 		{
 			// If the start ani ends before we're done, do the falling ani.

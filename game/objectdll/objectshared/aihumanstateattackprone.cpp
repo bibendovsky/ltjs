@@ -106,7 +106,9 @@ void CAIHumanStateAttackProne::Update()
 	}
 
 	HOBJECT hTarget = GetAI()->GetTarget()->GetObject();
+    static_cast<void>(hTarget);
 	HOBJECT hAI = GetAI()->m_hObject;
+    static_cast<void>(hAI);
 
 	// Ensure that node tracking is disabled.
 

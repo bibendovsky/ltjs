@@ -966,7 +966,7 @@ bool CCharacter::OnTrigger(HOBJECT hSender, const CParsedMsg &cMsg)
 	}
 	else if ( cMsg.GetArg(0) == s_cTok_Gadget )
 	{
-		HandleGadget(atoi(cMsg.GetArg(1)));
+		HandleGadget(static_cast<uint8>(atoi(cMsg.GetArg(1))));
         return true;
 	}
 	else if ( cMsg.GetArg(0) == s_cTok_CanDamage )
@@ -1052,7 +1052,7 @@ void CCharacter::ResetCrosshair( )
 	cMsg.Writeuint8(SFX_CHARACTER_ID);
 	cMsg.WriteObject(m_hObject);
 	cMsg.Writeuint8(CFX_CROSSHAIR_MSG);
-	cMsg.Writeuint8(m_ccCrosshair);
+	cMsg.Writeuint8(static_cast<uint8>(m_ccCrosshair));
 	g_pLTServer->SendToClient(cMsg.Read(), LTNULL, MESSAGE_GUARANTEED);
 
 	CreateSpecialFX();
@@ -2590,10 +2590,11 @@ void CCharacter::SetDeathAnimation()
 	m_eDeathType = CD_NORMAL;
 
 	LTFLOAT fDeathDamage = m_damage.GetDeathDamage();
+    static_cast<void>(fDeathDamage);
 	LTFLOAT fMaxHitPts   = m_damage.GetMaxHitPoints();
+    static_cast<void>(fMaxHitPts);
 
 	m_eDeathDamageType = m_damage.GetDeathType();
-    LTBOOL bGibDeath   = LTFALSE;
 
 	// Virtual GetAlternateDeathAnimation gives AIs a chance to choose their
 	// own death animation.
@@ -2945,7 +2946,7 @@ void CCharacter::PlayDialogSound(const char* pSound, CharacterSoundType eType)
 		cMsg.Writefloat(m_fSoundRadius);
 		m_nUniqueDialogueId++;
 		cMsg.Writeuint8( m_nUniqueDialogueId );
-		cMsg.Writeuint8( eType );
+		cMsg.Writeuint8( static_cast<uint8>(eType) );
 		g_pLTServer->SendToClient(cMsg.Read(), LTNULL, MESSAGE_GUARANTEED);
 
 		g_pLTServer->FreeString(hStr);
@@ -2966,7 +2967,7 @@ void CCharacter::PlayDialogSound(const char* pSound, CharacterSoundType eType)
 		cMsg.Writefloat(m_fSoundRadius);
 		m_nUniqueDialogueId++;
 		cMsg.Writeuint8( m_nUniqueDialogueId );
-		cMsg.Writeuint8( eType );
+		cMsg.Writeuint8( static_cast<uint8>(eType) );
 		g_pLTServer->SendToClient(cMsg.Read(), LTNULL, MESSAGE_GUARANTEED);
 
 		g_pLTServer->FreeString(hStr);
@@ -2987,7 +2988,7 @@ void CCharacter::PlayDialogSound(const char* pSound, CharacterSoundType eType)
 		cMsg.Writefloat(m_fSoundRadius);
 		m_nUniqueDialogueId++;
 		cMsg.Writeuint8( m_nUniqueDialogueId );
-		cMsg.Writeuint8( eType );
+		cMsg.Writeuint8( static_cast<uint8>(eType) );
 		g_pLTServer->SendToClient(cMsg.Read(), LTNULL, MESSAGE_GUARANTEED);
 
 		g_pLTServer->FreeString(hStr);

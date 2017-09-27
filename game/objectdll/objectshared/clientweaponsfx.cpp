@@ -90,7 +90,7 @@ void CreateClientWeaponFX(CLIENTWEAPONFX & theStruct)
 
 	if (IsCharacter(theStruct.hObj))
 	{
-		theStruct.nSurfaceType = GetSurfaceType(theStruct.hObj);
+		theStruct.nSurfaceType = static_cast<uint8>(GetSurfaceType(theStruct.hObj));
 	}
 
 
@@ -108,7 +108,7 @@ void CreateClientWeaponFX(CLIENTWEAPONFX & theStruct)
     cMsg.WriteLTVector(theStruct.vFirePos);
     cMsg.WriteLTVector(theStruct.vPos);
     cMsg.WriteLTVector(theStruct.vSurfaceNormal);
-    cMsg.Writeuint8(theStruct.eImpactType);
+    cMsg.Writeuint8(static_cast<uint8>(theStruct.eImpactType));
 	g_pLTServer->SendSFXMessage(cMsg.Read(), theStruct.vPos, 0);
 }
 

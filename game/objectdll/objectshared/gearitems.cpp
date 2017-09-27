@@ -51,7 +51,7 @@ CMDMGR_END_REGISTER_CLASS( GearItem, PickupItem )
 
 GearItem::GearItem() : PickupItem()
 {
-	m_nGearId = -1;
+	m_nGearId = static_cast<uint8>(-1);
     m_bBounce = LTFALSE;
 }
 
@@ -127,7 +127,7 @@ bool GearItem::ReadProp(ObjectCreateStruct *pStruct)
 			if( pGear->bServerRestricted )
 				return false;
 
-			m_nGearId = pGear->nId;
+			m_nGearId = static_cast<uint8>(pGear->nId);
 		}
 	}
 
