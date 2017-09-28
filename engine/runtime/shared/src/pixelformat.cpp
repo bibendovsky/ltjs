@@ -531,7 +531,7 @@ LTRESULT Convert1Pass(FormatMgr *pFormatMgr, const FMConvertRequest *pRequest, C
 	uint32 yCount, xCount;
 	PFormat *pSrcFormat;
 	C converter;
-	uint32 u32TransColor;
+	uint32 u32TransColor = 0;
 	if (pTransColor) { u32TransColor = RGBA_MAKE(pTransColor->r,pTransColor->g,pTransColor->b,pTransColor->a); }
 
 	converter.Init(pFormatMgr, pRequest);
@@ -587,7 +587,7 @@ LTRESULT Convert2Pass(FormatMgr *pFormatMgr, const FMConvertRequest *pRequest, S
 	PFormat *pSrcFormat;
 	S srcConvert;
 	D destConvert;
-	uint32 tempPixel,u32TransColor;
+	uint32 tempPixel,u32TransColor = 0;
 	if (pTransColor) { u32TransColor = RGBA_MAKE(pTransColor->r,pTransColor->g,pTransColor->b,pTransColor->a); }
 
 	srcConvert.Init(pFormatMgr, pRequest);

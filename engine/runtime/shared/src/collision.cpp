@@ -809,7 +809,9 @@ static bool ClipBoxIntoTree2
 		}
 	}
 
+#if 0
 	return true;
+#endif // 0
 }
 
 
@@ -2097,7 +2099,9 @@ static bool SolidBoxBSPIntersect
 		}
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 
@@ -2154,7 +2158,9 @@ static bool SimpleBoxBSPIntersect
 		}
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 

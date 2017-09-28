@@ -1268,7 +1268,7 @@ LPBASECLASS CServerMgr::EZCreateObject(CClassData *pClass, ObjectCreateStruct *p
 	// We're done with the OCS now
 	m_pCurOCS = pOldOCS;
 
-	LTRESULT nAddObjectResult;
+	LTRESULT nAddObjectResult = LT_OK;
 
 	if (nPreCreateResult)
 	{
@@ -1477,7 +1477,7 @@ LTRESULT CServerMgr::UncacheModelFile( Model *pModel )
 	pModel->m_Flags &= ~MODELFLAG_CACHED ;
 	pModel->Release();
 	// tell the client(s)
-	SendFileIOMessage(FT_MODEL,SMSG_UNLOAD ,pModel->m_FileID);
+	SendFileIOMessage(FT_MODEL,SMSG_UNLOAD ,static_cast<uint16>(pModel->m_FileID));
 	return LT_OK;
 }
 
@@ -1577,7 +1577,7 @@ LTRESULT CServerMgr::LoadModel(const char* pFilename,
 
 			Either way the file id has to be fixed and this does it.
 			*/
-			uint16 old_fileid = pModel->m_FileID;
+			uint16 old_fileid = static_cast<uint16>(pModel->m_FileID);
 		
 			// try to fix the error...
 			if (server_filemgr->AddUsedFile(pModel->GetFilename(), 0, &pUsedFile) == 0)

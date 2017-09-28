@@ -759,8 +759,10 @@ int df_FindNext(HLTFileTree *hTree, const char *pDirName, LTFindInfo *pInfo)
 
 		return 1;
 	}
-	
+
+#if 0
 	return 0;
+#endif // 0
 }
 
 

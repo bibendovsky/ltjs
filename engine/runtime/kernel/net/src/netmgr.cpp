@@ -509,7 +509,7 @@ void ParseMsg(const CPacket_Read &cPacket, uint32 nFlags, uint32 nTravelDir, CBa
 
 	char aMsgBuff[8192];
 
-	ParsePacket(cPacket, true, aMsgBuff, sizeof(aMsgBuff), nTravelDir);
+	ParsePacket(cPacket, true, aMsgBuff, sizeof(aMsgBuff), static_cast<uint8>(nTravelDir));
 
 	// & 1 == show unclassified packets..
 	bool bPrint = true;

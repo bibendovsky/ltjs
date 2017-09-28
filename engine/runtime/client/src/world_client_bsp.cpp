@@ -417,6 +417,7 @@ bool CWorldClientBSP::InheritFromServer() {
 	{
         //get the world from the server.
         const WorldData *server_model = world_bsp_server->GetWorldModel(i);
+        static_cast<void>(server_model);
 
         //allocate our world model.
         WorldData *client_model;

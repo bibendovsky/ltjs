@@ -1133,6 +1133,7 @@ void CConsole::Draw() {
 	viewportData.MinZ	= 0;
 	viewportData.MaxZ	= 1.0f;
 	HRESULT hResult = D3D_CALL(PD3DDEVICE->SetViewport(&viewportData));
+    static_cast<void>(hResult);
 
 	// Check the console variables
 	CheckVariables();
@@ -1373,6 +1374,7 @@ void CConsole::DrawSmall(int nLines)
 	viewportData.MinZ	= 0;
 	viewportData.MaxZ	= 1.0f;
 	HRESULT hResult = D3D_CALL(PD3DDEVICE->SetViewport(&viewportData));
+    static_cast<void>(hResult);
 
 	// Grab the current filter states.
 	bool bValidFilterStates = true;

@@ -357,7 +357,7 @@ void CD3DDrawPrim::SetCamera(LPDIRECT3DDEVICE9 pDevice)
 	}
 	else 
 	{
-		if (0 != PrevViewport.X || 0 != PrevViewport.Y || g_ScreenWidth != PrevViewport.Width || g_ScreenHeight != PrevViewport.Height) 
+		if (0 != PrevViewport.X || 0 != PrevViewport.Y || g_ScreenWidth != static_cast<int32>(PrevViewport.Width) || g_ScreenHeight != static_cast<int32>(PrevViewport.Height)) 
 		{
 			D3DVIEWPORT9 vp;
 			vp.MinZ = MinZ; 

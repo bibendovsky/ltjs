@@ -230,7 +230,7 @@ CSoundMgr::CSoundMgr()
 
 	m_FilterData.bUseFilter = false;
 	m_FilterData.pSoundFilter = NULL;
-	m_FilterData.uiFilterType = NULL_FILTER;
+	m_FilterData.uiFilterType = static_cast<uint32>(NULL_FILTER);
 
     memset(&m_PrimaryBufferWaveFormat, 0, sizeof(m_PrimaryBufferWaveFormat));
 }
@@ -2989,7 +2989,7 @@ LTRESULT CSoundMgr::SetSoundFilter(const char *pFilter)
 		strcmp( pFilter, "Reverb Filter" ) )
 	{
 		m_FilterData.bUseFilter = false;
-		m_FilterData.uiFilterType = NULL_FILTER;
+		m_FilterData.uiFilterType = static_cast<uint32>(NULL_FILTER);
         RETURN_ERROR(1, CSoundMgr::SetSoundFilterParam, LT_NOTFOUND);
 	}
 	else

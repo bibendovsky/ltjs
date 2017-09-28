@@ -856,9 +856,6 @@ CServerEvent* CreateServerEvent(int type)
     memset(pRet, 0, sizeof(*pRet));
     dl_InitList(&pRet->m_ClientStructNodeList);
 
-    // Add the events to the client structs.
-    uint16 curEvent = 0;
-    
     LTLink *pListHead = &g_pServerMgr->m_Clients.m_Head;
     for (LTLink *pCur = pListHead->m_pNext; pCur != pListHead; pCur = pCur->m_pNext)
     {

@@ -76,9 +76,6 @@ bool CompressLMData(uint8 *pData,
 	//number of bytes in the input buffer
 	uint32 nBufferLen = width * height * 3;
 
-	//flag indicating if we are in a run
-	bool bInRun = FALSE;
-
 	//the span, whether it be run, or raw data
 	uint32 nSpanLen = 0;
 

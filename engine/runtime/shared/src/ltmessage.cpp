@@ -16,7 +16,7 @@ define_holder(ICompress, g_pCompressor);
 void CLTMessage_Write::WriteMessage(const ILTMessage_Read *pMsg)
 {
 	const CLTMessage_Read *pRead = reinterpret_cast<const CLTMessage_Read *>(pMsg);
-	m_cPacket.Writeuint16(pRead->Size());
+	m_cPacket.Writeuint16(static_cast<uint16>(pRead->Size()));
 	m_cPacket.WritePacket(pRead->GetPacket());
 }
 

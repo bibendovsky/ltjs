@@ -394,8 +394,9 @@ LTRESULT ILTModel::GetSocketTransform(HOBJECT hObj,
 	else
 		return LT_ERROR ;
 
-
+#if 0
     return LT_OK;
+#endif // 0
 }
 
 LTRESULT ILTModel::UpdateMainTracker(HOBJECT pObj, float fUpdateDelta)
@@ -581,7 +582,6 @@ LTRESULT ILTModel::SetCurAnim(HOBJECT hModel, ANIMTRACKERID TrackerID,
 	LTAnimTracker* pTracker = pModel->GetTracker(TrackerID);
     CHECK_PARAMS2(pTracker);
 
-	bool bAnimationSet = false;
 	if(!trk_SetCurAnim(pTracker, hAnim, true))
 		return LT_NOTFOUND;
 
@@ -899,8 +899,9 @@ LTRESULT ILTModel::GetNumModelOBBs( HOBJECT hObj, uint32 & num_obbs )
 	num_obbs = pInst->NumCollisionObjects ();
 
     return dResult;
+#else
+    return LT_ERROR;
 #endif
-return LT_ERROR ;
 }
 	
 LTRESULT ILTModel::GetModelOBBCopy( HOBJECT hObj, ModelOBB *model_obbs  )
@@ -915,9 +916,9 @@ LTRESULT ILTModel::GetModelOBBCopy( HOBJECT hObj, ModelOBB *model_obbs  )
 
 	pInst->GetCollisionObjects( model_obbs );
 	return dResult ;
-#endif
+#else
 	return LT_ERROR;
-	
+#endif
 }
 
 LTRESULT ILTModel::UpdateModelOBB( HOBJECT hObj, ModelOBB *model_obbs ) 
@@ -933,8 +934,9 @@ LTRESULT ILTModel::UpdateModelOBB( HOBJECT hObj, ModelOBB *model_obbs )
 
 	pInst->UpdateCollisionObjects( model_obbs );
 	return dResult ;
+#else
+    return LT_ERROR;
 #endif
-	return LT_ERROR ;
 }
 
 

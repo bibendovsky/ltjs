@@ -1406,7 +1406,7 @@ STDMETHODIMP CLTDMLoader::GetObject(
 	HRESULT hr = E_NOTIMPL;
 
     EnterCriticalSection(&m_CriticalSection);
-    IDirectMusicObject * pIObject;
+    IDirectMusicObject * pIObject = nullptr;
     // At this point, the loader should check with all the objects it already
     // has loaded. It should look for file name, object guid, and name.
     // In this case, we are being cheap and looking for only the object

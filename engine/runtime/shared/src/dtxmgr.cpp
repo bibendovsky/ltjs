@@ -283,9 +283,9 @@ LTRESULT dtx_Create(ILTStream *pStream, TextureData **ppOut, uint32& nBaseWidth,
 		pRet->m_Header.m_Extra[2] = iBppBefore;	// Restore the Bpps (because we might have asked for a different one)...
 
 	//restore the width, height, and mipmaps
-	pRet->m_Header.m_BaseWidth  = nTexWidth;
-	pRet->m_Header.m_BaseHeight = nTexHeight;
-	pRet->m_Header.m_nMipmaps	= nNumMips;
+	pRet->m_Header.m_BaseWidth  = static_cast<uint16>(nTexWidth);
+	pRet->m_Header.m_BaseHeight = static_cast<uint16>(nTexHeight);
+	pRet->m_Header.m_nMipmaps	= static_cast<uint16>(nNumMips);
 
 	// Alloc a tmp buffer to read in the source image...
 	uint8* pTmpBuffer = NULL; 
@@ -316,14 +316,14 @@ LTRESULT dtx_Create(ILTStream *pStream, TextureData **ppOut, uint32& nBaseWidth,
 			bool bSkipImageData = true;
 
 			uint8* pTmpBufferPtr = pTmpBuffer;
-			TextureMipData *pMip = NULL;
+			TextureMipData *pMip2 = NULL;
 			uint8* pMipData		 = NULL;
 
 			//see if we want to actually read in this mipmap
 			if(iMipmap >= nMipOffset)
 			{
-				pMip			= &pRet->m_Mips[iMipmap - nMipOffset];
-				pMipData		= pMip->m_Data;
+				pMip2			= &pRet->m_Mips[iMipmap - nMipOffset];
+				pMipData		= pMip2->m_Data;
 				bSkipImageData	= false;
 			}
 

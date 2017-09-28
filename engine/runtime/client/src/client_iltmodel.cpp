@@ -183,7 +183,7 @@ LTRESULT CLTModelClient::SetCurAnim(HOBJECT hModel, ANIMTRACKERID TrackerID, HMO
 // loads a model, its kept by the client mgr, but its not installed.
 LTRESULT CLTModelClient::CacheModelDB( const char *filename, HMODELDB & hModelDB )
 {	
-	LTRESULT dResult ;
+	LTRESULT dResult = LT_ERROR;
 	hModelDB = 0;
 	
 	if( filename )
@@ -204,7 +204,7 @@ LTRESULT CLTModelClient::UncacheModelDB( HMODELDB &hModelDB )
 	// find the model in client mgr that matches the file ident .
 	if( hModelDB )
 	{
-		Model *pModel = g_ModelMgr.Find( hModelDB );
+		Model *pModel = g_ModelMgr.Find( static_cast<uint16>(hModelDB) );
 		if( pModel )
 		{
 			g_pClientMgr->UncacheModelFile( pModel );
@@ -237,7 +237,7 @@ LTRESULT CLTModelClient::IsModelDBLoaded( HMODELDB hModelDB)
 {
 	if( hModelDB )
 	{
-		if( g_ModelMgr.Find( hModelDB ) != NULL )
+		if( g_ModelMgr.Find( static_cast<uint16>(hModelDB) ) != NULL )
 		{
 			return LTTRUE ;
 		}

@@ -356,7 +356,7 @@ static bool DoObjectsIntersect
 )
 {
 	WorldModelInstance *pWorldModel;
-	LTObject *pOther;
+	LTObject *pOther = nullptr;
 	LTVector *pOtherMinBox, *pOtherMaxBox;
 
 	if (!DoBoxesIntersect(*pObj1MinBox,  *pObj1MaxBox, *pObj2MinBox, *pObj2MaxBox, boxTolerance))
@@ -1245,6 +1245,7 @@ static void GrowDim(MoveState *pState, int32 nDim, float &newDim)
 	// Get original position...
 	LTVector vNewPos = pObj->GetPos();
 	float fOldPos = vNewPos[nDim];
+    static_cast<void>(fOldPos);
 
 	// Move the object in negative dir...
 	vNewPos[nDim] -= fDiff;

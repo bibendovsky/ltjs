@@ -50,9 +50,9 @@ void DefStdlithFree(void *ptr)
 
 void dm_HeapCompact()
 {
-	HANDLE hHeap;
+	HANDLE hHeap = GetProcessHeap();
 
-	if(hHeap = GetProcessHeap())
+	if(hHeap)
 	{
 		HeapCompact(hHeap, 0);
 	}

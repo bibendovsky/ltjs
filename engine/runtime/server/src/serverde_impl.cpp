@@ -799,6 +799,7 @@ uint32 CLTServer::GetModelPlaybackState(HOBJECT hObj)
 {
 	uint32 state = 0;
 	LTRESULT dResult = ilt_model_server->GetPlaybackState(hObj, MAIN_TRACKER, state);
+    static_cast<void>(dResult);
 	return state;
 }
 
@@ -1352,7 +1353,7 @@ LTRESULT CLTServer::GetTextureEffectVarID(const char *pName, uint32 nStage, uint
 	char* pszCurr = pszFullName;
 	while(*pszCurr)
 	{
-		*pszCurr = tolower(*pszCurr);
+		*pszCurr = static_cast<char>(tolower(*pszCurr));
 		pszCurr++;
 	}
 
@@ -2413,7 +2414,7 @@ LTRESULT si_RemoveAttachment(HATTACHMENT hAttachment)
 	{
 		SetObjectChangeFlags(pParent, CF_ATTACHMENTS);
 		// Tell the child to send an update
-		LTObject *pChild = sm_FindObject(nChildID);
+		LTObject *pChild = sm_FindObject(static_cast<uint16>(nChildID));
 		if (pChild)
 		{
 			SetObjectChangeFlags(pChild, CF_POSITION | CF_ROTATION);

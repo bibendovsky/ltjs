@@ -227,12 +227,12 @@ static LTRESULT ReadAnimInfo(CClientShell *pShell,
 
 		if (cPacket.Readbool())
 		{
-			nAnimIndex = cPacket.ReadBits(MODELINFO_ANIMINDEX_LONG);
+			nAnimIndex = static_cast<uint16>(cPacket.ReadBits(MODELINFO_ANIMINDEX_LONG));
 			bPlaying = cPacket.Readbool();
 		}
 		else
 		{
-			nAnimIndex = cPacket.ReadBits(MODELINFO_ANIMINDEX_SHORT);
+			nAnimIndex = static_cast<uint16>(cPacket.ReadBits(MODELINFO_ANIMINDEX_SHORT));
 			bPlaying = true;
 		}
 		bLooping = cPacket.Readbool();
@@ -298,8 +298,9 @@ static LTRESULT ReadAnimInfo(CClientShell *pShell,
 			if(bDirty)
 			{
 				//handle updating the information with the info sent from the server (includes animation, etc)
-				LTRESULT dResult = SwitchModelAnim(	pShell, pInst, pTracker, nAnimIndex, bLooping, bPlaying, nAnimTime,  
+				LTRESULT dResult2 = SwitchModelAnim(	pShell, pInst, pTracker, nAnimIndex, bLooping, bPlaying, nAnimTime,  
 													fAnimRate, bAllowTransition, bAllowReset);
+                static_cast<void>(dResult2);
 			}
 
 			if (dResult != LT_OK) 
@@ -417,9 +418,9 @@ static LTRESULT UnpackObjectChange( CClientShell *pShell,
         }
 
 		// Reinitialize its 'extra data' stuff.
-		LTRESULT dResult = so_ExtraInit(pObject, &objectSetup, false);
-		if( LT_OK != dResult )
-			return dResult;
+		LTRESULT dResult2 = so_ExtraInit(pObject, &objectSetup, false);
+		if( LT_OK != dResult2 )
+			return dResult2;
     }
 
     if (changeFlags & (CF_MODELINFO|CF_FORCEMODELINFO)) 
@@ -951,7 +952,7 @@ inline LTRESULT ReadSoundSubPacket(CClientShell *pShell, CPacket_Read &cPacket, 
     CSoundInstance *pSoundInst;
     LTRecord *pRecord;
     FileRef fileRef;
-    float fOffsetTime;
+    float fOffsetTime = 0.0F;
     PlaySoundInfo playSoundInfo;
     LTVector vPos;
     
@@ -1218,7 +1219,7 @@ static LTRESULT OnUnguaranteedUpdatePacket(CClientShell *pShell, CPacket_Read &c
     while (!cPacket.EOP())
 	{
 		id = cPacket.Readuint16();
-        flags = cPacket.ReadBits(UUF_FLAGCOUNT);
+        flags = static_cast<uint8>(cPacket.ReadBits(UUF_FLAGCOUNT));
 
         if (id == ID_TIMESTAMP) 
 		{

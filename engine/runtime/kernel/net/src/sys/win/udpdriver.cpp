@@ -420,13 +420,13 @@ CUDPConn::EIncomingPacketResult CUDPConn::HandleUDP(CPacket_Read &cPacket)
 
 			if (bOOACK)
 			{
-				CFrameQueue::iterator iCurFrame = m_cFrameHistory.begin();
-				for (; iCurFrame != m_cFrameHistory.end(); ++iCurFrame)
+				CFrameQueue::iterator iCurFrame2 = m_cFrameHistory.begin();
+				for (; iCurFrame2 != m_cFrameHistory.end(); ++iCurFrame2)
 				{
-					if (iCurFrame->m_bReceivedOO)
+					if (iCurFrame2->m_bReceivedOO)
 						continue;
 					// NAK the first packet, since it was skipped
-					iCurFrame->m_nLastSent = LTMIN(iCurFrame->m_nLastSent, timeGetTime() - LTMAX((uint32)m_fCurPing, k_nHeartbeatDelay));
+					iCurFrame2->m_nLastSent = LTMIN(iCurFrame2->m_nLastSent, timeGetTime() - LTMAX((uint32)m_fCurPing, k_nHeartbeatDelay));
 					m_bACKPending = true;
 					break;
 				}
@@ -1066,7 +1066,7 @@ void CUDPConn::SendDisconnectMessage( EDisconnectReason eDisconnectReason )
 
 	cDisconnect.Writebool(true); // UDP message
 	cDisconnect.WriteBits(k_nUDPCommand_Disconnect, k_nUDPCommandBits); // Disconnect
-	cDisconnect.Writeuint8( eDisconnectReason );
+	cDisconnect.Writeuint8( static_cast<uint8>(eDisconnectReason) );
 	
 	// No guaranteed data
 	// No unguaranteed data
@@ -1244,6 +1244,7 @@ CPacket_Read CUDPConn::GetPacket()
 bool CUDPConn::IsInTrouble()
 {
 	uint32 nCurTime = timeGetTime();
+    static_cast<void>(nCurTime);
 	// Act like everything's OK if we're not waiting for anything from them
 	if (!m_bWaitingForPingResponse)
 		return false;
@@ -2170,7 +2171,7 @@ LTRESULT CUDPDriver::UpdateQuery()
 			--(pQuery->m_nQueriesRemaining);
 
 			CPacket_Write cQuery;
-			cQuery.Writeuint32(UNCONNECTED_DATA_TOKEN);
+			cQuery.Writeuint32(static_cast<uint32>(UNCONNECTED_DATA_TOKEN));
 			cQuery.WriteBits(UNCONNECTED_MSG_QUERY, UNCONNECTED_MSG_BITS);
 			cQuery.WriteType(m_pNetMgr->m_guidApp);
 			
@@ -2617,7 +2618,7 @@ void CUDPDriver::HandleUnconnectedData(CPacket_Read &cPacket, sockaddr_in *pSend
 			m_cCS_GUID.Leave();
 			if (!bValidGUID)
 			{
-				cResponse.Writeuint32(UNCONNECTED_DATA_TOKEN);
+				cResponse.Writeuint32(static_cast<uint32>(UNCONNECTED_DATA_TOKEN));
 				cResponse.WriteBits(UNCONNECTED_MSG_QUERY_RESPONSE, UNCONNECTED_MSG_BITS);
 				cResponse.Writebool(false); // Wrong version
 				SendTo(m_Socket, CPacket_Read(cResponse), pSender);
@@ -2632,12 +2633,12 @@ void CUDPDriver::HandleUnconnectedData(CPacket_Read &cPacket, sockaddr_in *pSend
 			uint32 nQueryNum = cPacket.Readuint8();
 
 			// Build the response.
-			cResponse.Writeuint32(UNCONNECTED_DATA_TOKEN);
+			cResponse.Writeuint32(static_cast<uint32>(UNCONNECTED_DATA_TOKEN));
 			cResponse.WriteBits(UNCONNECTED_MSG_QUERY_RESPONSE, UNCONNECTED_MSG_BITS);
 			cResponse.Writebool(true); // Correct version
 			m_cCS_SessionData.Enter();
 			cResponse.WriteString(m_SessionName);
-			cResponse.Writeuint8(nQueryNum);
+			cResponse.Writeuint8(static_cast<uint8>(nQueryNum));
 			cResponse.Writebool(m_bPassword);
 			cResponse.Writeuint8(m_nGameType);
 			m_cCS_SessionData.Leave();
@@ -2727,7 +2728,7 @@ void CUDPDriver::HandleUnconnectedData(CPacket_Read &cPacket, sockaddr_in *pSend
 
 			// Send a response
 			CPacket_Write cResponse_Write;
-			cResponse_Write.Writeuint32(UNCONNECTED_DATA_TOKEN);
+			cResponse_Write.Writeuint32(static_cast<uint32>(UNCONNECTED_DATA_TOKEN));
 			cResponse_Write.WriteBits(UNCONNECTED_MSG_CONNECT_RESPONSE, UNCONNECTED_MSG_BITS);
 			cResponse_Write.Writebool(bAllow);				
 			if (!bAllow)
@@ -2755,7 +2756,7 @@ void CUDPDriver::HandleUnconnectedData(CPacket_Read &cPacket, sockaddr_in *pSend
 			// Send a response
 			CPacket_Write cResponse;
 
-			cResponse.Writeuint32(UNCONNECTED_DATA_TOKEN);
+			cResponse.Writeuint32(static_cast<uint32>(UNCONNECTED_DATA_TOKEN));
 			cResponse.WriteBits(UNCONNECTED_MSG_PING_RESPONSE, UNCONNECTED_MSG_BITS);
 			cResponse.WriteBits(cPacket.ReadBits(k_nPing_Bits), k_nPing_Bits);
 
@@ -3192,7 +3193,7 @@ LTRESULT CUDPDriver::ReallyJoinSession( bool bOpenNewSocket, sockaddr_in *addr )
 
 	
 	CPacket_Write cConnectionPacket_Write;
-	cConnectionPacket_Write.Writeuint32(UNCONNECTED_DATA_TOKEN);
+	cConnectionPacket_Write.Writeuint32(static_cast<uint32>(UNCONNECTED_DATA_TOKEN));
 	cConnectionPacket_Write.WriteBits(UNCONNECTED_MSG_CONNECT, UNCONNECTED_MSG_BITS);
 	cConnectionPacket_Write.WriteType(m_pNetMgr->m_guidApp);
 	ASSERT(g_CV_BandwidthTargetClient > 8000);
@@ -3519,7 +3520,7 @@ LTRESULT CUDPDriver::SendPing(const char *pAddr, uint16 nPort, uint32 nID)
 
 	// Send the ping
 	CPacket_Write cPing;
-	cPing.Writeuint32(UNCONNECTED_DATA_TOKEN);
+	cPing.Writeuint32(static_cast<uint32>(UNCONNECTED_DATA_TOKEN));
 	cPing.WriteBits(UNCONNECTED_MSG_PING, UNCONNECTED_MSG_BITS);
 	cPing.WriteBits(nID, k_nPing_Bits);
 

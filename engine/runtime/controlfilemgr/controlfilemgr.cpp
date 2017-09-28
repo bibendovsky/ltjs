@@ -472,7 +472,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 	while (!FileEOF())
 	{
 		// get char from file
-		cVal = FileGetChar();	
+		cVal = static_cast<char>(FileGetChar());
 
 		// check for end of file
 		if (FileEOF()) break;
@@ -489,7 +489,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 			while (!FileEOF())
 			{
 				if (cVal == m_cEndOfLine) break;
-				cVal = FileGetChar();
+				cVal = static_cast<char>(FileGetChar());
 			}
 			continue;
 		}
@@ -504,7 +504,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 			int nCount = 0;
 			while (!FileEOF())
 			{
-				cVal = FileGetChar();
+				cVal = static_cast<char>(FileGetChar());
 				if (strchr(m_sWhiteSpace,cVal) != NULL) break;
 				if (cVal == m_cEndOfLine) break;
 				if (FileEOF()) break;
@@ -519,7 +519,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 			// skip whitespace
 			while (!FileEOF())
 			{
-				cVal = FileGetChar();
+				cVal = static_cast<char>(FileGetChar());
 				if (strchr(m_sWhiteSpace, cVal) == NULL) break;
 				if (cVal == m_cEndOfLine) break;
 			}
@@ -528,7 +528,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 			nCount = 0;
 			while (!FileEOF())
 			{
-				cVal = FileGetChar();
+				cVal = static_cast<char>(FileGetChar());
 				if (strchr(m_sWhiteSpace,cVal) != NULL) break;
 				if (cVal == m_cEndOfLine) break;
 				if (FileEOF()) break;
@@ -642,7 +642,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 			while (!FileEOF())
 			{
 				if (cVal == m_cEndOfLine) break;
-				cVal = FileGetChar();
+				cVal = static_cast<char>(FileGetChar());
 			}
 			continue;
 
@@ -654,7 +654,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 			while (!FileEOF())
 			{
 				if (cVal == m_cEndOfLine) break;
-				cVal = FileGetChar();
+				cVal = static_cast<char>(FileGetChar());
 			}
 			continue;
 		}
@@ -668,7 +668,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 			int nCount = 0;
 			while (!FileEOF())
 			{
-				cVal = FileGetChar();
+				cVal = static_cast<char>(FileGetChar());
 				if (cVal == m_cSectionEnd) break;
 				if (cVal == m_cEndOfLine) break;
 				if (FileEOF()) break;
@@ -709,7 +709,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 					nKeyNameCount++;
 				}
 				if (FileEOF()) break;
-				cVal = FileGetChar();
+				cVal = static_cast<char>(FileGetChar());
 				if (cVal == m_cEndOfLine) break;
 				if (strchr(m_sWhiteSpace,cVal) != NULL) break;
 			}
@@ -726,7 +726,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 			while (!FileEOF())
 			{
 				// get char from file
-				cVal = FileGetChar();	
+				cVal = static_cast<char>(FileGetChar());
 
 				// check for end of file
 				if (FileEOF()) break;
@@ -743,7 +743,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 					while (!FileEOF())
 					{
 						if (cVal == '\n') break;
-						cVal = FileGetChar();
+						cVal = static_cast<char>(FileGetChar());
 					}
 					break;
 				}
@@ -760,7 +760,7 @@ BOOL CControlFileMgr::ProcessFile(const char* sFileName)
 						nWordLenCount++;
 					}
 					if (FileEOF()) break;
-					cVal = FileGetChar();
+					cVal = static_cast<char>(FileGetChar());
 					if (cVal == m_cEndOfLine) break;
 					if (strchr(m_sWhiteSpace,cVal) != NULL) break;
 				}

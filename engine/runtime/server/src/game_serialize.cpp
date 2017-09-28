@@ -511,7 +511,7 @@ static void sm_SaveObjectData(LTObject *pObj, ILTStream *pStream, uint32 dwParam
 		ModelInstance * pInst = pObj->ToModel();
 
 		//now save out the animation trackers on the model...
-		uint8 nNumTrackers = pInst->GetNumAnimTrackers();
+		uint8 nNumTrackers = static_cast<uint8>(pInst->GetNumAnimTrackers());
 		GS_STREAM_WRITE(nNumTrackers);
 
 		//ok, now save each and every tracker

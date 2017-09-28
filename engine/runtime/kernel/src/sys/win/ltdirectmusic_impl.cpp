@@ -485,26 +485,26 @@ void CLTDirectMusicMgr::HandleSegmentNotification_SegEnd( DMUS_NOTIFICATION_PMSG
 	else
 	{
 		// search for a secondary segment that matches this segment pointer for this segment
-		CSegmentState* pFindSegState = m_lstSecondarySegmentsPlaying.Find(pDMSegState);
+		CSegmentState* pFindSegState2 = m_lstSecondarySegmentsPlaying.Find(pDMSegState);
 
 		// if we found our secondary segment
-		if (pFindSegState != LTNULL)
+		if (pFindSegState2 != LTNULL)
 		{
 			// clean up the segment state
-			m_lstSecondarySegmentsPlaying.CleanupSegmentState(this, pFindSegState);
+			m_lstSecondarySegmentsPlaying.CleanupSegmentState(this, pFindSegState2);
 		}
 
 		// if we didn't find it
 		else
 		{
 			// search for a motif segment that matches this segment pointer for this segment
-			CSegmentState* pFindSegState = m_lstMotifsPlaying.Find(pDMSegState);
+			CSegmentState* pFindSegState3 = m_lstMotifsPlaying.Find(pDMSegState);
 
 			// if we found our motif segment
-			if (pFindSegState != LTNULL)
+			if (pFindSegState3 != LTNULL)
 			{
 				// clean up the motif segment state
-				m_lstMotifsPlaying.CleanupSegmentState(this, pFindSegState);
+				m_lstMotifsPlaying.CleanupSegmentState(this, pFindSegState3);
 			}
 		}	
 	}
@@ -2661,8 +2661,9 @@ bool CLTDirectMusicMgr::ReadMotifs(CControlFileMgr& controlFile)
 					if ( hr == S_OK )
 					{
 						// Get the IDirectMusicSegment8 interface
-						HRESULT hr = pDMSeg->QueryInterface(IID_IDirectMusicSegment8,
+						HRESULT hr2 = pDMSeg->QueryInterface(IID_IDirectMusicSegment8,
 							(void**)&pDMSeg8);
+                        static_cast<void>(hr2);
 					}
 
 					// make sure we got a segment

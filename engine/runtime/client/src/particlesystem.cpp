@@ -131,6 +131,7 @@ static void ps_HandleParticleCollisions(LTParticleSystem *pSystem, LTFLOAT t)
 
 	//radius of the particle system squared
 	float		fRadSqr = fRad * fRad;
+    static_cast<void>(fRadSqr);
 
 	//the radius of the object being tested
 	float		fObjRad;

@@ -171,7 +171,7 @@ static DWORD ConvertAddress ( DWORD dwAddr , LPTSTR szOutBuff )
     return ( pCurrPos - szOutBuff ) ;
 }
 
-
+#if 0
 // [KLS 4/5/02] Turn off optimizations on DoStackTrace.  This is necessary because there is 
 // a compiler optimization bug that causes the szString passed in to be filled with garbage 
 // if this function is called from a debug version of the game code but was compiled into a
@@ -179,6 +179,7 @@ static DWORD ConvertAddress ( DWORD dwAddr , LPTSTR szOutBuff )
 // inside the fuction for the bit of code that is having "issues"...
 #pragma optimize("", off)
 #pragma optimize("q", off)
+#endif // 0
 
 void DoStackTrace ( LPTSTR szString  ,
                     DWORD  dwSize    ,
@@ -288,9 +289,11 @@ void DoStackTrace ( LPTSTR szString  ,
     }
 }
 
+#if 0
 // [KLS 4/5/02] Make sure we turn optimizations back on! ;)
 #pragma optimize("", on)
 #pragma optimize("q", on)
+#endif // 0
 
 #else
 

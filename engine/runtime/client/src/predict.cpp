@@ -110,6 +110,7 @@ void pd_OnObjectMove(CClientShell *pShell, LTObject *pObject, LTVector *pNewPos,
 
 	// Remember the last update we got from the server
 	LTFLOAT fUpdateDelta = pShell->m_ClientGameTime - pData->m_fLastUpdatePosTime;
+    static_cast<void>(fUpdateDelta);
 
 	pData->m_fLastUpdatePosTime = pShell->m_ClientGameTime;
 	pData->m_LastUpdatePosServer = *pNewPos;

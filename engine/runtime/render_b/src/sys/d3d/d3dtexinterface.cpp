@@ -175,7 +175,7 @@ LTRESULT CSysTexInterface::CreateTextureFromData(HTEXTURE &hTexture, ETextureTyp
 	TextureData* pTextureData			= (TextureData*)hTexture->m_pEngineData;
 	pTextureData->m_PFormat				= TheFormat;
 	pTextureData->m_Flags				= TextureFlags;
-	pTextureData->m_Header.m_Extra[2]	= TheFormat.GetType();
+	pTextureData->m_Header.m_Extra[2]	= static_cast<uint8>(TheFormat.GetType());
 	pTextureData->m_Header.m_IFlags		= TextureFlags;
 	pTextureData->m_pSharedTexture		= hTexture;
 
@@ -208,7 +208,9 @@ LTRESULT CSysTexInterface::CreateTextureFromData(HTEXTURE &hTexture, ETextureTyp
 		return LT_ERROR; 
 	} 
 
+#if 0
 	return LT_ERROR;
+#endif // 0
 }
 
 LTRESULT CSysTexInterface::GetTextureData(const HTEXTURE hTexture, const uint8* &pData, uint32 &nPitch, uint32& nWidth, uint32& nHeight, ETextureType& eType) 
@@ -319,7 +321,7 @@ uint32 CSysTexInterface::AddRefTextureHandle(const HTEXTURE hTexture)
 	if (!pTexture) return false;
 
 	uint32 nNewRefCount = pTexture->GetRefCount() + 1;
-	pTexture->SetRefCount(nNewRefCount);
+	pTexture->SetRefCount(static_cast<uint16>(nNewRefCount));
 
 	return nNewRefCount;
 }

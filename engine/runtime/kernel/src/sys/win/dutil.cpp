@@ -27,7 +27,9 @@ int du_UpperStrcmp(const char *pStr1, const char *pStr2)
 		++pStr2;
 	}
 
+#if 0
 	return 0;
+#endif // 0
 }
 
 

@@ -2331,12 +2331,12 @@ static bool input_StartDeviceTrack( InputMgr *pMgr, uint32 nDevices, uint32 nBuf
 			pDevice->m_pTrackObjects = LTNULL;
 			break;
 		}
-		for( uint32 i = 0; i < nObjects; i++ )
+		for( uint32 i2 = 0; i2 < nObjects; i2++ )
 		{
-			pObjectDataFormats[i].pguid = &pDevice->m_pTrackObjects[i].guidType;
-			pObjectDataFormats[i].dwOfs = i << 2;
-			pObjectDataFormats[i].dwType = pDevice->m_pTrackObjects[i].dwType;
-			pObjectDataFormats[i].dwFlags = 0;
+			pObjectDataFormats[i2].pguid = &pDevice->m_pTrackObjects[i2].guidType;
+			pObjectDataFormats[i2].dwOfs = i2 << 2;
+			pObjectDataFormats[i2].dwType = pDevice->m_pTrackObjects[i2].dwType;
+			pObjectDataFormats[i2].dwFlags = 0;
 		}
 
 		// set the format for the device
@@ -2528,7 +2528,7 @@ static bool input_EndDeviceTrack()
 static BOOL CALLBACK DeviceObjectListProc ( LPCDIDEVICEOBJECTINSTANCE pObj, LPVOID pvRef )
 {
 	HRESULT hResult;
-	DIPROPRANGE dipr;
+    auto dipr = DIPROPRANGE{};
 
 	DeviceObject*** pppList = (DeviceObject***) pvRef;
 
@@ -2660,7 +2660,9 @@ static DeviceObject* input_GetDeviceObjects (uint32 nDeviceFlags)
 		}
 	}
 
+#if 0
 	return pList;
+#endif // 0
 }
 
 static void input_FreeDeviceObjects (DeviceObject* pObjectList)

@@ -887,7 +887,7 @@ void ExpandObjectIdList(SentList *pSentList)
 	memcpy(pNewIDs, pSentList->m_ObjectIDs, sizeof(uint16) * pSentList->m_nObjectIDs);
 	dfree(pSentList->m_ObjectIDs);
 	pSentList->m_ObjectIDs = pNewIDs;
-	pSentList->m_AllocatedSize = nNewSize;
+	pSentList->m_AllocatedSize = static_cast<uint16>(nNewSize);
 }
 
 

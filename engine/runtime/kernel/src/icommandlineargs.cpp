@@ -52,10 +52,10 @@ private:
     char *all_arguments;
 
     //the number of arguments
-    uint32 argc;
+    uint32 argc_;
 
     //array of pointers to the arguments.
-    char **argv;
+    char **argv_;
 };
 
 //register our implementation
@@ -71,24 +71,24 @@ define_interface(ICommandLineArgsCommonImp, ICommandLineArgs);
 ICommandLineArgsCommonImp::ICommandLineArgsCommonImp() {
     //initialize our members
     all_arguments = NULL;
-    argc = 0;
-    argv = NULL;
+    argc_ = 0;
+    argv_ = NULL;
 }
 
 ICommandLineArgsCommonImp::~ICommandLineArgsCommonImp() {
     //delete our buffers and arrays
     delc(all_arguments);
-    delca(argv);
+    delca(argv_);
 
     //we have no arguments.
-    argc = 0;
+    argc_ = 0;
 }
 
 void ICommandLineArgsCommonImp::Init(int32 argc, char **argv) {
     //delete old data
     if (all_arguments) delc(all_arguments);
-    if (this->argv)    delca(this->argv);
-    this->argc = 0;
+    if (argv_)    delca(argv_);
+    argc_ = 0;
 
     //check parameters
     if (argv == NULL) return;
@@ -108,36 +108,36 @@ void ICommandLineArgsCommonImp::Init(int32 argc, char **argv) {
     LT_MEM_TRACK_ALLOC(all_arguments = new char[total_length],LT_MEM_TYPE_MISC);
 
     //allocate our argv
-    LT_MEM_TRACK_ALLOC(this->argv = new char *[argc],LT_MEM_TYPE_MISC);
+    LT_MEM_TRACK_ALLOC(argv_ = new char *[argc],LT_MEM_TYPE_MISC);
 
     //copy the arguments in and set our pointers.
     char *cur_pos = &all_arguments[0];
     for (i = 0; i < argc; i++) {
         //set the argv pointer
-        this->argv[i] = cur_pos;
+        argv_[i] = cur_pos;
 
         //copy the argument.
-        strcpy(this->argv[i], argv[i]);
+        strcpy(argv_[i], argv[i]);
 
         //advance the cur_pos pointer
         cur_pos += strlen(argv[i]) + 1;
     }
 
     //save the number of arguments.
-    this->argc = argc;
+    argc_ = argc;
 }
 
 uint32 ICommandLineArgsCommonImp::Argc() {
     //return the number of arguments we have
-    return argc;
+    return argc_;
 }
 
 const char *ICommandLineArgsCommonImp::Argv(uint32 index) {
     //check index
-    if (index >= argc) return NULL;
+    if (index >= argc_) return NULL;
 
     //return the argument
-    return argv[index];
+    return argv_[index];
 }
 
 const char *ICommandLineArgsCommonImp::FindArgDash(const char *name) {
@@ -155,18 +155,18 @@ const char *ICommandLineArgsCommonImp::FindArg(const char *name) {
     IFBREAKNULL(name == NULL);
 
     //search through the arguments we have
-    for (uint32 i = 0; i < argc; i++) {
+    for (uint32 i = 0; i < argc_; i++) {
         //check if this is the argument we are looking for.
-        if (CHelpers::UpperStrcmp(name, argv[i])) {
+        if (CHelpers::UpperStrcmp(name, argv_[i])) {
             //this is the argument we are looking for.
             //check if there is an argument after this
-            if (i + 1 >= argc) {
+            if (i + 1 >= argc_) {
                 //no more arguments, return empty string.
                 return "";
             }
 
             //return the next argument.
-            return argv[i + 1];
+            return argv_[i + 1];
         }
     }
 
