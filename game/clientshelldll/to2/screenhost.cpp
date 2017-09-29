@@ -119,32 +119,32 @@ LTBOOL CScreenHost::Build()
 
 
 	m_pName = AddColumnCtrl(CMD_EDIT_NAME, IDS_HELP_SESSION_NAME);
-	m_pName->AddColumn(LoadTempString(IDS_HOST_NAME), kColumn0);
-	m_pName->AddColumn("<host name>", kColumn1, LTTRUE);
+	m_pName->AddColumn(LoadTempString(IDS_HOST_NAME), static_cast<uint16>(kColumn0));
+	m_pName->AddColumn("<host name>", static_cast<uint16>(kColumn1), LTTRUE);
 
 	m_pLoadCtrl = AddTextItem(IDS_LOADGAME,	CMD_LOAD_GAME, IDS_HELP_LOAD);
 
 	m_pCampaign = AddColumnCtrl(CMD_CHOOSE_CAMPAIGN, IDS_HELP_CAMPAIGN_NAME);
-	m_pCampaign->AddColumn(LoadTempString(IDS_HOST_CAMPAIGN), kColumn0);
-	m_pCampaign->AddColumn("<mission name>", kColumn1, LTTRUE);
+	m_pCampaign->AddColumn(LoadTempString(IDS_HOST_CAMPAIGN), static_cast<uint16>(kColumn0));
+	m_pCampaign->AddColumn("<mission name>", static_cast<uint16>(kColumn1), LTTRUE);
 
 	m_pPassToggle = AddToggle(IDS_USE_PASSWORD,IDS_HELP_PASSWORD,kColumn0,&m_bUsePassword);
 	m_pPassToggle->NotifyOnChange(CMD_TOGGLE_PASS,this);
 
 	m_pPassword = AddColumnCtrl(CMD_EDIT_PASS, IDS_HELP_ENTER_PASSWORD);
-	m_pPassword->AddColumn(LoadTempString(IDS_PASSWORD), kColumn0);
-	m_pPassword->AddColumn("<password>", kColumn1, LTTRUE);
+	m_pPassword->AddColumn(LoadTempString(IDS_PASSWORD), static_cast<uint16>(kColumn0));
+	m_pPassword->AddColumn("<password>", static_cast<uint16>(kColumn1), LTTRUE);
 
 	m_pScmdPassToggle = AddToggle(IDS_ALLOW_SCMD_COMMANDS,IDS_HELP_ALLOWSCMD,kColumn0,&m_bAllowScmdCommands);
 	m_pScmdPassToggle->NotifyOnChange(CMD_TOGGLE_SCMDPASS,this);
 
 	m_pScmdPassword = AddColumnCtrl(CMD_EDIT_SCMDPASS, IDS_HELP_ENTER_SCMDPASSWORD);
-	m_pScmdPassword->AddColumn(LoadTempString(IDS_SCMDPASSWORD), kColumn0);
-	m_pScmdPassword->AddColumn("<password>", kColumn1, LTTRUE);
+	m_pScmdPassword->AddColumn(LoadTempString(IDS_SCMDPASSWORD), static_cast<uint16>(kColumn0));
+	m_pScmdPassword->AddColumn("<password>", static_cast<uint16>(kColumn1), LTTRUE);
 
 	m_pPort = AddColumnCtrl(CMD_EDIT_PORT, IDS_HELP_ENTER_PORT);
-	m_pPort->AddColumn(LoadTempString(IDS_PORT), kColumn0);
-	m_pPort->AddColumn("<port>", kColumn1, LTTRUE);
+	m_pPort->AddColumn(LoadTempString(IDS_PORT), static_cast<uint16>(kColumn0));
+	m_pPort->AddColumn("<port>", static_cast<uint16>(kColumn1), LTTRUE);
 
 	m_pBandwidthCycle = AddCycle(IDS_BANDWIDTH_CYCLE,IDS_HELP_BANDWIDTH_CYCLE,kColumn0,&m_nBandwidth);
 	m_pBandwidthCycle->AddString(LoadTempString(IDS_56K));
@@ -156,8 +156,8 @@ LTBOOL CScreenHost::Build()
 	m_pBandwidthCycle->AddString(LoadTempString(IDS_CUSTOM));
 
 	m_pBandwidth = AddColumnCtrl(CMD_EDIT_BANDWIDTH, IDS_HELP_BANDWIDTH_EDIT);
-	m_pBandwidth->AddColumn(LoadTempString(IDS_BANDWIDTH_EDIT), kColumn0);
-	m_pBandwidth->AddColumn("<bandwidth>", kColumn1, LTTRUE);
+	m_pBandwidth->AddColumn(LoadTempString(IDS_BANDWIDTH_EDIT), static_cast<uint16>(kColumn0));
+	m_pBandwidth->AddColumn("<bandwidth>", static_cast<uint16>(kColumn1), LTTRUE);
 
 
 	AddTextItem(IDS_OPTIONS, CMD_OPTIONS, IDS_HELP_HOST_OPTIONS);
@@ -577,7 +577,7 @@ void CScreenHost::HandleCallback(uint32 dwParam1, uint32 dwParam2)
 		{
 			char *pszBandwidth = (char *)dwParam1;
 			uint32 nBandwidth = (uint32)atoi(pszBandwidth);
-			if ( IsValidBandwidth(nBandwidth) )
+			if ( IsValidBandwidth(static_cast<uint16>(nBandwidth)) )
 			{
 				m_sBandwidth = pszBandwidth;
 				m_sBandwidth = m_sBandwidth.Left( kMaxBandwidthStrLen );
@@ -723,6 +723,7 @@ void CScreenHost::SaveOptions()
 void CScreenHost::CreateDefaultCampaign()
 {
 	CUserProfile *pProfile = g_pProfileMgr->GetCurrentProfile();
+    static_cast<void>(pProfile);
 	std::string sFN = GetCampaignDir( g_pProfileMgr->GetCurrentProfileName( ), g_pGameClientShell->GetGameType() );
 
 

@@ -600,7 +600,9 @@ void CTO2PlayerStats::UpdateAmmo(uint8 nWeaponId, uint8 nAmmoId,
 	AMMO const *pAmmo = g_pWeaponMgr->GetAmmo(nAmmoId);
 
     LTBOOL bInfiniteAmmo	= pWeapon ? pWeapon->bInfiniteAmmo : LTFALSE;
+    static_cast<void>(bInfiniteAmmo);
 	LTBOOL bDefaultAmmo		= pWeapon ? pWeapon->nDefaultAmmoId == nAmmoId : LTFALSE;
+    static_cast<void>(bDefaultAmmo);
 	int nEquipWeapon = WMGR_INVALID_ID;
 
 	if (pAmmo )//&& (!bInfiniteAmmo || !bDefaultAmmo) )
@@ -628,25 +630,25 @@ void CTO2PlayerStats::UpdateAmmo(uint8 nWeaponId, uint8 nAmmoId,
 
 					if ( nWeapon != WMGR_INVALID_ID && m_pbHaveWeapon[nWeapon] )
 					{
-						WEAPON const *pWeapon = g_pWeaponMgr->GetWeapon(nWeapon);
+						WEAPON const *pWeapon2 = g_pWeaponMgr->GetWeapon(nWeapon);
 
-						if ( !pWeapon->bInfiniteAmmo )
+						if ( !pWeapon2->bInfiniteAmmo )
 						{
-							for ( int32 iAmmo = 0 ; iAmmo < pWeapon->nNumAmmoIds ; iAmmo++ )
+							for ( int32 iAmmo = 0 ; iAmmo < pWeapon2->nNumAmmoIds ; iAmmo++ )
 							{
-								if (pWeapon->aAmmoIds[iAmmo] == WMGR_INVALID_ID) 
+								if (pWeapon2->aAmmoIds[iAmmo] == WMGR_INVALID_ID) 
 									continue;
-								if ( (nWeaponBest == WMGR_INVALID_ID) && (pWeapon->aAmmoIds[iAmmo] == nAmmoId) )
+								if ( (nWeaponBest == WMGR_INVALID_ID) && (pWeapon2->aAmmoIds[iAmmo] == nAmmoId) )
 								{
 									nWeaponBest = nWeapon;
 								}
 
-								AMMO const *pAmmo = g_pWeaponMgr->GetAmmo(pWeapon->aAmmoIds[iAmmo]);
+								AMMO const *pAmmo2 = g_pWeaponMgr->GetAmmo(pWeapon2->aAmmoIds[iAmmo]);
 
-								if ( pAmmo->eType == GADGET )
+								if ( pAmmo2->eType == GADGET )
 								{
 								}
-								else if ( m_pnAmmo[pWeapon->aAmmoIds[iAmmo]] > 0 )
+								else if ( m_pnAmmo[pWeapon2->aAmmoIds[iAmmo]] > 0 )
 								{
 									//g_pLTClient->CPrint("%s has %d rounds of %s", pWeapon->szName, m_pnAmmo[pWeapon->aAmmoTypes[iAmmo]], pAmmo->szName);
 									bOutOfAmmo = LTFALSE;
@@ -725,7 +727,7 @@ void CTO2PlayerStats::UpdateAmmo(uint8 nWeaponId, uint8 nAmmoId,
 
 	if ( nEquipWeapon != WMGR_INVALID_ID )  /*** BL 12/08/2000 Added to change equip weapon when you are out of ammo and pick up a weapon ******/
 	{
-		g_pPlayerMgr->ChangeWeapon( nEquipWeapon, nAmmoId );
+		g_pPlayerMgr->ChangeWeapon( static_cast<uint8>(nEquipWeapon), nAmmoId );
 	}  /*** BL 12/08/2000 End changes ******/
 
 	if (m_nCurrentAmmo == nAmmoId)
@@ -749,6 +751,8 @@ void CTO2PlayerStats::UpdateGear(uint8 nGearId)
 	if (g_pWeaponMgr->IsValidGearId(nGearId))
 	{
         LTBOOL bHadAirSupply = HaveAirSupply();
+        static_cast<void>(bHadAirSupply);
+
 		if (m_pbHaveGear)
 		{
             m_pbHaveGear[nGearId] = LTTRUE;
@@ -1312,7 +1316,7 @@ uint8 CTO2PlayerStats::GetMod(ModType eType, const WEAPON* pW/*=LTNULL*/)
 	{
 		for (int i=0; i < pWpn->nNumModIds; i++)
 		{
-			if (HaveMod(pWpn->aModIds[i]))
+			if (HaveMod(static_cast<uint8>(pWpn->aModIds[i])))
 			{
 				MOD const *pMod = g_pWeaponMgr->GetMod(pWpn->aModIds[i]);
 
@@ -1323,7 +1327,7 @@ uint8 CTO2PlayerStats::GetMod(ModType eType, const WEAPON* pW/*=LTNULL*/)
 					if (pMod->nPriority > nPriority)
 					{
 						nPriority = pMod->nPriority;
-						nModId = pWpn->aModIds[i];
+						nModId = static_cast<uint8>(pWpn->aModIds[i]);
 					}
 				}
 			}
@@ -1745,7 +1749,7 @@ uint32  CTO2PlayerStats::GetCostToUpgrade(eSkill skill)
 	if (nTgtLevel < kNumSkills)
 		return g_pSkillsButeMgr->GetCostToUpgrade(skill,(eSkillLevel)nTgtLevel);
 	else
-		return -1;
+		return static_cast<uint32>(-1);
 }
 
 

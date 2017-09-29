@@ -91,7 +91,7 @@ LTBOOL CScreenPerformance::Build()
 	LTIntPt pos = LTIntPt(rect.left-8,rect.top-8);
 
 	CLTGUIFrame *pFrame = debug_new(CLTGUIFrame);
-	pFrame->Create(hFrame,nWidth,nHeight,LTTRUE);
+	pFrame->Create(hFrame,static_cast<uint16>(nWidth),static_cast<uint16>(nHeight),LTTRUE);
 	pFrame->SetBasePos(pos);
 	pFrame->SetBorder(2,m_SelectedColor);
 	AddControl(pFrame);
@@ -139,7 +139,7 @@ LTBOOL CScreenPerformance::Build()
 	pos = LTIntPt(rect.left-8,rect.top-8);
 
 	m_pDisplayFrame = debug_new(CLTGUIFrame);
-	m_pDisplayFrame->Create(hFrame,nWidth,nHeight,LTTRUE);
+	m_pDisplayFrame->Create(hFrame,static_cast<uint16>(nWidth),static_cast<uint16>(nHeight),LTTRUE);
 	m_pDisplayFrame->SetBasePos(pos);
 	m_pDisplayFrame->Show(LTFALSE);
 	m_pDisplayFrame->SetBorder(2,m_SelectedColor);
@@ -154,79 +154,79 @@ LTBOOL CScreenPerformance::Build()
 
 	int listGap = g_pLayoutMgr->GetScreenCustomInt((eScreenID)m_nScreenID,"DisplayColumn");
 	nWidth = (rect.right - rect.left) - 32;
-	m_pDisplay = AddList(LTIntPt(rect.left,rect.top),rect.bottom - rect.top, LTTRUE, nWidth);
+	m_pDisplay = AddList(LTIntPt(rect.left,rect.top),static_cast<uint16>(rect.bottom - rect.top), LTTRUE, static_cast<uint16>(nWidth));
 	if (m_pDisplay)
 	{
 		m_pDisplay->SetIndent(LTIntPt(8,8));
 		m_pDisplay->Show(LTFALSE);
 		m_pDisplay->SetItemSpacing(nListSpacing);
 
-		CLTGUICycleCtrl *pCtrl = NULL;
+		CLTGUICycleCtrl *pCtrl2 = NULL;
 
-		pCtrl = CreateCycle(IDS_DYNAMICLIGHTS, IDS_HELP_DYNAMICLIGHTS,listGap,&m_sCfg.nSettings[kPerform_DynamicLight]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pDisplay->AddControl(pCtrl);	
+		pCtrl2 = CreateCycle(IDS_DYNAMICLIGHTS, IDS_HELP_DYNAMICLIGHTS,listGap,&m_sCfg.nSettings[kPerform_DynamicLight]);
+		pCtrl2->AddString(szOff);
+		pCtrl2->AddString(szOn);
+		pCtrl2->SetFont(NULL,nListFontSize);
+		m_pDisplay->AddControl(pCtrl2);	
 
-		pCtrl = CreateCycle(IDS_SHADOWS, IDS_HELP_SHADOWS,listGap,&m_sCfg.nSettings[kPerform_ShadowDetail]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(LoadTempString(IDS_LOW));
-		pCtrl->AddString(LoadTempString(IDS_MEDIUM));
-		pCtrl->AddString(LoadTempString(IDS_HIGH));
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pDisplay->AddControl(pCtrl);
+		pCtrl2 = CreateCycle(IDS_SHADOWS, IDS_HELP_SHADOWS,listGap,&m_sCfg.nSettings[kPerform_ShadowDetail]);
+		pCtrl2->AddString(szOff);
+		pCtrl2->AddString(LoadTempString(IDS_LOW));
+		pCtrl2->AddString(LoadTempString(IDS_MEDIUM));
+		pCtrl2->AddString(LoadTempString(IDS_HIGH));
+		pCtrl2->SetFont(NULL,nListFontSize);
+		m_pDisplay->AddControl(pCtrl2);
 
-		pCtrl = CreateCycle(IDS_POLYGRIDBUMP, IDS_HELP_POLYGRIDBUMP,listGap,&m_sCfg.nSettings[kPerform_PolyGridBumpmap]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pDisplay->AddControl(pCtrl);	
+		pCtrl2 = CreateCycle(IDS_POLYGRIDBUMP, IDS_HELP_POLYGRIDBUMP,listGap,&m_sCfg.nSettings[kPerform_PolyGridBumpmap]);
+		pCtrl2->AddString(szOff);
+		pCtrl2->AddString(szOn);
+		pCtrl2->SetFont(NULL,nListFontSize);
+		m_pDisplay->AddControl(pCtrl2);	
 		
-		pCtrl = CreateCycle(IDS_POLYGRIDFRES, IDS_HELP_POLYGRIDFRES,listGap,&m_sCfg.nSettings[kPerform_PolyGridFresnel]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pDisplay->AddControl(pCtrl);	
+		pCtrl2 = CreateCycle(IDS_POLYGRIDFRES, IDS_HELP_POLYGRIDFRES,listGap,&m_sCfg.nSettings[kPerform_PolyGridFresnel]);
+		pCtrl2->AddString(szOff);
+		pCtrl2->AddString(szOn);
+		pCtrl2->SetFont(NULL,nListFontSize);
+		m_pDisplay->AddControl(pCtrl2);	
 		
-		pCtrl = CreateCycle(IDS_BUMPMAP, IDS_HELP_BUMPMAP,listGap,&m_sCfg.nSettings[kPerform_EnvironmentBumpMapping]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pDisplay->AddControl(pCtrl);	
+		pCtrl2 = CreateCycle(IDS_BUMPMAP, IDS_HELP_BUMPMAP,listGap,&m_sCfg.nSettings[kPerform_EnvironmentBumpMapping]);
+		pCtrl2->AddString(szOff);
+		pCtrl2->AddString(szOn);
+		pCtrl2->SetFont(NULL,nListFontSize);
+		m_pDisplay->AddControl(pCtrl2);	
 
-		pCtrl = CreateCycle(IDS_ANISOTROPIC, IDS_HELP_ANISOTROPIC,listGap,&m_sCfg.nSettings[kPerform_AnisotropicFiltering]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pDisplay->AddControl(pCtrl);	
+		pCtrl2 = CreateCycle(IDS_ANISOTROPIC, IDS_HELP_ANISOTROPIC,listGap,&m_sCfg.nSettings[kPerform_AnisotropicFiltering]);
+		pCtrl2->AddString(szOff);
+		pCtrl2->AddString(szOn);
+		pCtrl2->SetFont(NULL,nListFontSize);
+		m_pDisplay->AddControl(pCtrl2);	
 		
-		pCtrl = CreateCycle(IDS_TRILINEAR, IDS_HELP_TRILINEAR ,listGap,&m_sCfg.nSettings[kPerform_TrilinearFiltering]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pDisplay->AddControl(pCtrl);	
+		pCtrl2 = CreateCycle(IDS_TRILINEAR, IDS_HELP_TRILINEAR ,listGap,&m_sCfg.nSettings[kPerform_TrilinearFiltering]);
+		pCtrl2->AddString(szOff);
+		pCtrl2->AddString(szOn);
+		pCtrl2->SetFont(NULL,nListFontSize);
+		m_pDisplay->AddControl(pCtrl2);	
 		
-		pCtrl = CreateCycle(IDS_ENVIRONMENT_MAP, IDS_HELP_ENVIRONMENT_MAP,listGap,&m_sCfg.nSettings[kPerform_EnvironmentMapping]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pDisplay->AddControl(pCtrl);	
+		pCtrl2 = CreateCycle(IDS_ENVIRONMENT_MAP, IDS_HELP_ENVIRONMENT_MAP,listGap,&m_sCfg.nSettings[kPerform_EnvironmentMapping]);
+		pCtrl2->AddString(szOff);
+		pCtrl2->AddString(szOn);
+		pCtrl2->SetFont(NULL,nListFontSize);
+		m_pDisplay->AddControl(pCtrl2);	
 
-		pCtrl = CreateCycle(IDS_DETAILTEXTURES, IDS_HELP_DETAILTEXTURES,listGap,&m_sCfg.nSettings[kPerform_DetailTextures]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pDisplay->AddControl(pCtrl);	
+		pCtrl2 = CreateCycle(IDS_DETAILTEXTURES, IDS_HELP_DETAILTEXTURES,listGap,&m_sCfg.nSettings[kPerform_DetailTextures]);
+		pCtrl2->AddString(szOff);
+		pCtrl2->AddString(szOn);
+		pCtrl2->SetFont(NULL,nListFontSize);
+		m_pDisplay->AddControl(pCtrl2);	
 
-		pCtrl = CreateCycle(IDS_TRIPLE_BUFF, IDS_HELP_TRIPLE_BUFF,listGap, &m_nTripleBuffer);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pDisplay->AddControl(pCtrl);	
+		pCtrl2 = CreateCycle(IDS_TRIPLE_BUFF, IDS_HELP_TRIPLE_BUFF,listGap, &m_nTripleBuffer);
+		pCtrl2->AddString(szOff);
+		pCtrl2->AddString(szOn);
+		pCtrl2->SetFont(NULL,nListFontSize);
+		m_pDisplay->AddControl(pCtrl2);	
 
 		uint32 dwAdvancedOptions = g_pInterfaceMgr->GetAdvancedOptions();
-		pCtrl->Enable( (dwAdvancedOptions & AO_TRIPLEBUFFER) );
+		pCtrl2->Enable( (dwAdvancedOptions & AO_TRIPLEBUFFER) );
 
 	}
 
@@ -238,7 +238,7 @@ LTBOOL CScreenPerformance::Build()
 	pos = LTIntPt(rect.left-8,rect.top-8);
 
 	m_pSFXFrame = debug_new(CLTGUIFrame);
-	m_pSFXFrame->Create(hFrame,nWidth,nHeight,LTTRUE);
+	m_pSFXFrame->Create(hFrame,static_cast<uint16>(nWidth),static_cast<uint16>(nHeight),LTTRUE);
 	m_pSFXFrame->SetBasePos(pos);
 	m_pSFXFrame->Show(LTFALSE);
 	m_pSFXFrame->SetBorder(2,m_SelectedColor);
@@ -253,39 +253,39 @@ LTBOOL CScreenPerformance::Build()
 	
 	listGap = g_pLayoutMgr->GetScreenCustomInt((eScreenID)m_nScreenID,"SFXColumn");
 	nWidth = (rect.right - rect.left) - 32;
-	m_pSFX = AddList(LTIntPt(rect.left,rect.top),rect.bottom - rect.top, LTTRUE, nWidth);
+	m_pSFX = AddList(LTIntPt(rect.left,rect.top),static_cast<uint16>(rect.bottom - rect.top), LTTRUE, static_cast<uint16>(nWidth));
 	if (m_pSFX)
 	{
 		m_pSFX->SetIndent(LTIntPt(8,8));
 		m_pSFX->Show(LTFALSE);
 		m_pSFX->SetItemSpacing(nListSpacing);
 
-		CLTGUICycleCtrl *pCtrl = CreateCycle(IDS_TRACERS, IDS_HELP_TRACERS, listGap, &m_sCfg.nSettings[kPerform_Tracers]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pSFX->AddControl(pCtrl);
+		CLTGUICycleCtrl *pCtrl3 = CreateCycle(IDS_TRACERS, IDS_HELP_TRACERS, listGap, &m_sCfg.nSettings[kPerform_Tracers]);
+		pCtrl3->AddString(szOff);
+		pCtrl3->AddString(szOn);
+		pCtrl3->SetFont(NULL,nListFontSize);
+		m_pSFX->AddControl(pCtrl3);
 
-		pCtrl = CreateCycle(IDS_SHELLCASINGS, IDS_HELP_SHELLCASINGS, listGap, &m_sCfg.nSettings[kPerform_ShellCasings]);
-		pCtrl->AddString(szOff);
-		pCtrl->AddString(szOn);
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pSFX->AddControl(pCtrl);
+		pCtrl3 = CreateCycle(IDS_SHELLCASINGS, IDS_HELP_SHELLCASINGS, listGap, &m_sCfg.nSettings[kPerform_ShellCasings]);
+		pCtrl3->AddString(szOff);
+		pCtrl3->AddString(szOn);
+		pCtrl3->SetFont(NULL,nListFontSize);
+		m_pSFX->AddControl(pCtrl3);
 
-		pCtrl = CreateCycle(IDS_ENV_DETAIL, IDS_HELP_ENV_DETAIL, listGap, &m_sCfg.nSettings[kPerform_EnvironmentalDetail]);
-		pCtrl->AddString(LoadTempString(IDS_OFF));
-		pCtrl->AddString(LoadTempString(IDS_LOW));
-		pCtrl->AddString(LoadTempString(IDS_MEDIUM));
-		pCtrl->AddString(LoadTempString(IDS_HIGH));
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pSFX->AddControl(pCtrl);
+		pCtrl3 = CreateCycle(IDS_ENV_DETAIL, IDS_HELP_ENV_DETAIL, listGap, &m_sCfg.nSettings[kPerform_EnvironmentalDetail]);
+		pCtrl3->AddString(LoadTempString(IDS_OFF));
+		pCtrl3->AddString(LoadTempString(IDS_LOW));
+		pCtrl3->AddString(LoadTempString(IDS_MEDIUM));
+		pCtrl3->AddString(LoadTempString(IDS_HIGH));
+		pCtrl3->SetFont(NULL,nListFontSize);
+		m_pSFX->AddControl(pCtrl3);
 
-		pCtrl = CreateCycle(IDS_FX_DETAIL, IDS_HELP_FX_DETAIL, listGap, &m_sCfg.nSettings[kPerform_FXDetail]);
-		pCtrl->AddString(LoadTempString(IDS_LOW));
-		pCtrl->AddString(LoadTempString(IDS_MEDIUM));
-		pCtrl->AddString(LoadTempString(IDS_HIGH));
-		pCtrl->SetFont(NULL,nListFontSize);
-		m_pSFX->AddControl(pCtrl);
+		pCtrl3 = CreateCycle(IDS_FX_DETAIL, IDS_HELP_FX_DETAIL, listGap, &m_sCfg.nSettings[kPerform_FXDetail]);
+		pCtrl3->AddString(LoadTempString(IDS_LOW));
+		pCtrl3->AddString(LoadTempString(IDS_MEDIUM));
+		pCtrl3->AddString(LoadTempString(IDS_HIGH));
+		pCtrl3->SetFont(NULL,nListFontSize);
+		m_pSFX->AddControl(pCtrl3);
 
 	}
 
@@ -308,7 +308,7 @@ LTBOOL CScreenPerformance::Build()
 	g_pLayoutMgr->GetScreenCustomString((eScreenID)m_nScreenID,"DialogFrame",szBack,sizeof(szBack));
 
 	m_pDlg = debug_new(CLTGUIWindow);
-	m_pDlg->Create(g_pInterfaceResMgr->GetTexture(szBack), kDlgWd, kDlgHt);
+	m_pDlg->Create(g_pInterfaceResMgr->GetTexture(szBack), static_cast<uint16>(kDlgWd), static_cast<uint16>(kDlgHt));
 	m_pDlg->SetBasePos(dlgPos);
 
 	LTIntPt tmp(60,8);
@@ -348,7 +348,7 @@ LTBOOL CScreenPerformance::Build()
 	tmp.x = nXOffset;
 	tmp.y += (pCtrl->GetBaseHeight() + 10);
 	m_pRecommendation = CreateTextItem(FormatTempString(IDS_PERFORMANCE_RECOMMEND_LOWER), LTNULL, LTNULL, kDefaultPos, LTTRUE);
-	m_pRecommendation->SetFixedWidth(kDlgWd - (2*nXOffset));
+	m_pRecommendation->SetFixedWidth(static_cast<uint16>(kDlgWd - (2*nXOffset)));
 	m_pDlg->AddControl(m_pRecommendation, tmp);
 
 #endif // _SHOW_PERFORMACE_FRAMERATE_
@@ -521,7 +521,7 @@ void    CScreenPerformance::OnFocus(LTBOOL bFocus)
 
 		pProfile->SetPerformance();
 
-		m_nOverall = g_pPerformanceMgr->GetPerformanceCfg(true);
+		m_nOverall = static_cast<uint8>(g_pPerformanceMgr->GetPerformanceCfg(true));
 		m_pResolution->Show(m_nOverall < 3 && m_nOverall != g_pPerformanceMgr->GetPerformanceCfg(false));
 		g_bSettingOverall = LTTRUE;
 		m_sCfg = pProfile->m_sPerformance;
@@ -654,8 +654,8 @@ LTBOOL CScreenPerformance::OnLeft()
 		--nOverall;
 		if (nOverall < 0)
 			nOverall = kNumCfg-1;
-		m_pPerformance->SetSelIndex(nOverall);
-		m_nOverall = nOverall;
+		m_pPerformance->SetSelIndex(static_cast<uint8>(nOverall));
+		m_nOverall = static_cast<uint8>(nOverall);
 		if (m_nOverall != kNumCfg)
 		{
 			g_pPerformanceMgr->SetPerformanceCfg(m_nOverall);
@@ -672,7 +672,7 @@ LTBOOL CScreenPerformance::OnLeft()
 		UpdateData(LTTRUE);
 
 		g_pPerformanceMgr->SetPerformanceOptions(&m_sCfg);
-		m_nOverall = g_pPerformanceMgr->GetPerformanceCfg(true);
+		m_nOverall = static_cast<uint8>(g_pPerformanceMgr->GetPerformanceCfg(true));
 		m_pResolution->Show(m_nOverall < 3 && m_nOverall != g_pPerformanceMgr->GetPerformanceCfg(false));
 
 		UpdateData(LTFALSE);
@@ -689,8 +689,8 @@ LTBOOL CScreenPerformance::OnRight()
 		++nOverall;
 		if (nOverall > kNumCfg-1)
 			nOverall = 0;
-		m_pPerformance->SetSelIndex(nOverall);
-		m_nOverall = nOverall;
+		m_pPerformance->SetSelIndex(static_cast<uint8>(nOverall));
+		m_nOverall = static_cast<uint8>(nOverall);
 		if (m_nOverall != kNumCfg)
 		{
 			g_pPerformanceMgr->SetPerformanceCfg(m_nOverall);
@@ -707,7 +707,7 @@ LTBOOL CScreenPerformance::OnRight()
 		UpdateData(LTTRUE);
 
 		g_pPerformanceMgr->SetPerformanceOptions(&m_sCfg);
-		m_nOverall = g_pPerformanceMgr->GetPerformanceCfg(true);
+		m_nOverall = static_cast<uint8>(g_pPerformanceMgr->GetPerformanceCfg(true));
 		m_pResolution->Show(m_nOverall < 3 && m_nOverall != g_pPerformanceMgr->GetPerformanceCfg(false));
 		UpdateData(LTFALSE);
 	}
@@ -751,7 +751,7 @@ LTBOOL CScreenPerformance::OnLButtonUp(int x, int y)
 			UpdateData(LTTRUE);
 
 			g_pPerformanceMgr->SetPerformanceOptions(&m_sCfg);
-			m_nOverall = g_pPerformanceMgr->GetPerformanceCfg(true);
+			m_nOverall = static_cast<uint8>(g_pPerformanceMgr->GetPerformanceCfg(true));
 			m_pResolution->Show(m_nOverall < 3 && m_nOverall != g_pPerformanceMgr->GetPerformanceCfg(false));
 			UpdateData(LTFALSE);
 		}
@@ -796,7 +796,7 @@ LTBOOL CScreenPerformance::OnRButtonUp(int x, int y)
 			UpdateData(LTTRUE);
 
 			g_pPerformanceMgr->SetPerformanceOptions(&m_sCfg);
-			m_nOverall = g_pPerformanceMgr->GetPerformanceCfg(true);
+			m_nOverall = static_cast<uint8>(g_pPerformanceMgr->GetPerformanceCfg(true));
 			m_pResolution->Show(m_nOverall < 3 && m_nOverall != g_pPerformanceMgr->GetPerformanceCfg(false));
 			UpdateData(LTFALSE);
 		}

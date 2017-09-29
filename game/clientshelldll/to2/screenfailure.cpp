@@ -78,7 +78,7 @@ LTBOOL CScreenFailure::Build()
 	if (m_pString)
 	{
 		m_pString->SetFont(NULL,stringSize);
-		m_pString->SetFixedWidth(stringRect.right - stringRect.left);
+		m_pString->SetFixedWidth(static_cast<uint16>(stringRect.right - stringRect.left));
 		CUIFormattedPolyString *pStr = m_pString->GetString();
 		if (pStr)
 		{

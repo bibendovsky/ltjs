@@ -63,6 +63,7 @@ void CHUDRespawnBar::UpdateLayout()
 {
 
 	int nCurrentLayout = GetConsoleInt("HUDLayout",0);
+    static_cast<void>(nCurrentLayout);
 
 	m_MeterBasePos.y	= g_pLayoutMgr->GetInt(s_aTagName,"BarPosY");
 	m_nMeterHeight		= g_pLayoutMgr->GetInt(s_aTagName,"BarHeight");
@@ -223,6 +224,7 @@ void CHUDRespawn::Update()
 void CHUDRespawn::UpdateLayout()
 {
 	int nCurrentLayout = GetConsoleInt("HUDLayout",0);
+    static_cast<void>(nCurrentLayout);
 
 	int pos = g_pLayoutMgr->GetInt(s_aTagName,"TextPosY");
 	if (pos > 0)

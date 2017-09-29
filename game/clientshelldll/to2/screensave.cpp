@@ -188,8 +188,6 @@ void CScreenSave::BuildSavedLevelList()
 		{
 			char strSaveGameSetting[256] = {0};
 
-			int mission = -1;
-			int level = -1;
 			struct tm* pTimeDate = LTNULL;
 			char strTime[128] = "";
 
@@ -218,7 +216,7 @@ void CScreenSave::BuildSavedLevelList()
 
 
 			char *pWorld = LTNULL;
-			char *pTime = LTNULL;
+
 			if ( szSaveTitle[0] )
 			{
 				pWorld = szSaveTitle;
@@ -233,20 +231,20 @@ void CScreenSave::BuildSavedLevelList()
 
 			if (pWorld)
 			{
-				CLTGUIColumnCtrl* pCtrl = AddColumnCtrl(CMD_CUSTOM+1+i, IDS_HELP_SAVEGAME);
-				pCtrl->SetFont(LTNULL,kSmallFontSize);
-				pCtrl->SetParam1( m_controlArray.size() - 1);
+				CLTGUIColumnCtrl* pCtrl2 = AddColumnCtrl(CMD_CUSTOM+1+i, IDS_HELP_SAVEGAME);
+				pCtrl2->SetFont(LTNULL,static_cast<uint8>(kSmallFontSize));
+				pCtrl2->SetParam1( m_controlArray.size() - 1);
 
 				// This is a spacer
-				pCtrl->AddColumn("", kIndent, LTTRUE);
+				pCtrl2->AddColumn("", static_cast<uint16>(kIndent), LTTRUE);
 
 				// The world name column
-				pCtrl->AddColumn(pWorld, kNameWidth);
+				pCtrl2->AddColumn(pWorld, static_cast<uint16>(kNameWidth));
 
 				if (strlen(strTime))
 				{
 					// The column that contains the date/time
-					pCtrl->AddColumn(strTime, kTimeWidth);
+					pCtrl2->AddColumn(strTime, static_cast<uint16>(kTimeWidth));
 				}
 			}
 
@@ -261,20 +259,20 @@ void CScreenSave::BuildSavedLevelList()
 
 	if (nFirstEmpty >= 0)
 	{
-		CLTGUIColumnCtrl* pCtrl = AddColumnCtrl(CMD_CUSTOM+1+nFirstEmpty, IDS_HELP_SAVEGAME);
-		pCtrl->SetFont(LTNULL,kSmallFontSize);
-		pCtrl->SetParam1( m_controlArray.size() - 1);
+		CLTGUIColumnCtrl* pCtrl3 = AddColumnCtrl(CMD_CUSTOM+1+nFirstEmpty, IDS_HELP_SAVEGAME);
+		pCtrl3->SetFont(LTNULL,static_cast<uint8>(kSmallFontSize));
+		pCtrl3->SetParam1( m_controlArray.size() - 1);
 		// This is a spacer
-		pCtrl->AddColumn("", kIndent, LTTRUE);
+		pCtrl3->AddColumn("", static_cast<uint16>(kIndent), LTTRUE);
 
 		// The world name column
 		char szTmp[64];
 		FormatString(IDS_EMPTY,szTmp,sizeof(szTmp));
-		pCtrl->AddColumn(szTmp, kNameWidth);
+		pCtrl3->AddColumn(szTmp, static_cast<uint16>(kNameWidth));
 
 
 		// The column that contains the date/time
-		pCtrl->AddColumn("", kTimeWidth);
+		pCtrl3->AddColumn("", static_cast<uint16>(kTimeWidth));
 	}
 
 }
@@ -346,7 +344,7 @@ void CScreenSave::NameSaveGame(uint32 slot, int index)
 	}
 	
 
-	g_pColCtrl = (CLTGUIColumnCtrl*)GetControl(index);
+	g_pColCtrl = (CLTGUIColumnCtrl*)GetControl(static_cast<uint16>(index));
 	if (!g_pColCtrl)
 		return;
 	LTIntPt pos = g_pColCtrl->GetPos();

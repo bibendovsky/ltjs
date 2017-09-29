@@ -42,10 +42,15 @@ LTBOOL CScreenOptions::Build()
 	CreateTitle(IDS_TITLE_OPTIONS);
 
 	CLTGUITextCtrl* pDisplay = AddTextItem(IDS_DISPLAY, CMD_DISPLAY, IDS_HELP_DISPLAY);
+    static_cast<void>(pDisplay);
 	CLTGUITextCtrl* pSound = AddTextItem(IDS_SOUND, CMD_AUDIO, IDS_HELP_SOUND);
+    static_cast<void>(pSound);
 	CLTGUITextCtrl* pControls = AddTextItem(IDS_CONTROLS, CMD_CONTROLS, IDS_HELP_CONTROLS);
+    static_cast<void>(pControls);
 	CLTGUITextCtrl* pGame = AddTextItem(IDS_GAME_OPTIONS, CMD_GAME, IDS_HELP_GAME_OPTIONS);
+    static_cast<void>(pGame);
 	CLTGUITextCtrl* pPerf = AddTextItem(IDS_PERFORMANCE, CMD_PERFORMANCE, IDS_HELP_PERFORMANCE);
+    static_cast<void>(pPerf);
 
 	// Make sure to call the base class
 	if (! CBaseScreen::Build()) return LTFALSE;

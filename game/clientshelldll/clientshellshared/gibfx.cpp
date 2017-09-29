@@ -269,8 +269,9 @@ LTBOOL CGibFX::Update()
 	{
 		if (m_ActiveEmitters[i])
 		{
-            LTBOOL bBounced = LTFALSE;
-			if (bBounced = UpdateEmitter(&m_Emitters[i]))
+            LTBOOL bBounced = UpdateEmitter(&m_Emitters[i]);
+
+			if (bBounced)
 			{
 				HandleBounce(i);
 			}

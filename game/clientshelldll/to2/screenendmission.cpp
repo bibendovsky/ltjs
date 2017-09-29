@@ -58,7 +58,7 @@ LTBOOL CScreenEndMission::Build()
 	m_pMission = AddTextItem(" ",LTNULL,LTNULL,kDefaultPos,LTTRUE);
 	m_nextPos.y += 8;
 
-	m_pList = AddList(m_nextPos,(GetPageBottom() - m_nextPos.y));
+	m_pList = AddList(m_nextPos,static_cast<uint16>(GetPageBottom() - m_nextPos.y));
 
 	m_pAccuracy = CreateTextItem(" ",LTNULL,LTNULL,kDefaultPos,LTTRUE);
 	m_pAccuracy->SetFont(NULL,statSize);

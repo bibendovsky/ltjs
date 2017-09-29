@@ -1797,7 +1797,9 @@ void CMoveMgr::UpdatePlayerAnimation()
     uint32 modelAnim(0), curModelAnim(0), curFlags(0);
 	HRESULT result(LT_OK);
 
-	if (!(hClientObj = g_pLTClient->GetClientObject())) return;
+    hClientObj = g_pLTClient->GetClientObject();
+
+	if (!hClientObj) return;
 
 	// Make sure our solid object is on the same animation.
 	
@@ -2056,9 +2058,9 @@ LTFLOAT CMoveMgr::GetVelMagnitude()
 
 void CMoveMgr::SetClientObjNonsolid()
 {
-	HOBJECT hObj;
+	HOBJECT hObj = g_pLTClient->GetClientObject();
 
-	if(hObj = g_pLTClient->GetClientObject())
+	if(hObj)
 	{
 		g_pCommonLT->SetObjectFlags(hObj, OFT_Flags, FLAG_CLIENTNONSOLID, FLAG_CLIENTNONSOLID);
 	}

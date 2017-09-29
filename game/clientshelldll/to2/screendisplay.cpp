@@ -164,7 +164,7 @@ LTBOOL CScreenDisplay::Build()
 	g_pLayoutMgr->GetScreenCustomString(SCREEN_ID_DISPLAY,"FrameTexture",szFrame,sizeof(szFrame));
 	HTEXTURE hFrame = g_pInterfaceResMgr->GetTexture(szFrame);
 	CLTGUIFrame *pFrame = debug_new(CLTGUIFrame);
-	pFrame->Create(hFrame,nWd,nHt+8,LTTRUE);
+	pFrame->Create(hFrame,static_cast<uint16>(nWd),static_cast<uint16>(nHt+8),LTTRUE);
 	pFrame->SetBasePos(pos);
 	pFrame->SetBorder(2,m_SelectedColor);
 	AddControl(pFrame);
@@ -280,7 +280,7 @@ void CScreenDisplay::SetupResolutionCtrl()
 		m_pResolutionCtrl->AddString(FormatTempString(IDS_DMODE_RESOLUTION, dwWidth, dwHeight, dwBitDepth));
 	}
 
-	m_pResolutionCtrl->SetSelIndex(nNewRes);
+	m_pResolutionCtrl->SetSelIndex(static_cast<uint8>(nNewRes));
 
 }
 // Build the array of renderers
@@ -459,7 +459,7 @@ void CScreenDisplay::OnFocus(LTBOOL bFocus)
 				SetupResolutionCtrl();
 
 				// Set the resolution index
-				m_pResolutionCtrl->SetSelIndex(i);
+				m_pResolutionCtrl->SetSelIndex(static_cast<uint8>(i));
 			}
 		}
 			
@@ -533,7 +533,7 @@ void CScreenDisplay::SetCurrentCtrlResolution(ScreenDisplayResolution resolution
 			resolution.m_dwHeight == searchRes.m_dwHeight &&
 			resolution.m_dwBitDepth == searchRes.m_dwBitDepth)
 		{
-			m_pResolutionCtrl->SetSelIndex(i);
+			m_pResolutionCtrl->SetSelIndex(static_cast<uint8>(i));
 			return;
 		}
 	}
@@ -549,7 +549,7 @@ void CScreenDisplay::SetCurrentCtrlResolution(ScreenDisplayResolution resolution
 		{
 			if (i > 0)
 			{
-				m_pResolutionCtrl->SetSelIndex(i-1);
+				m_pResolutionCtrl->SetSelIndex(static_cast<uint8>(i-1));
 			}
 			else
 			{

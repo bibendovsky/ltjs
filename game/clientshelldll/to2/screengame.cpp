@@ -70,7 +70,7 @@ LTBOOL CScreenGame::Build()
 	g_pLayoutMgr->GetScreenCustomString(SCREEN_ID_GAME,"FrameTexture",szFrame,sizeof(szFrame));
 	HTEXTURE hFrame = g_pInterfaceResMgr->GetTexture(szFrame);
 	CLTGUIFrame *pFrame = debug_new(CLTGUIFrame);
-	pFrame->Create(hFrame,nWd,nHt+8,LTTRUE);
+	pFrame->Create(hFrame,static_cast<uint16>(nWd),static_cast<uint16>(nHt+8),LTTRUE);
 	pFrame->SetBasePos(pos);
 	pFrame->SetBorder(2,m_SelectedColor);
 	AddControl(pFrame);
@@ -90,6 +90,7 @@ LTBOOL CScreenGame::Build()
 	if (pProfile && !g_pVersionMgr->IsLowViolence())
 	{
 		CLTGUIToggle *pGore = AddToggle(IDS_DISPLAY_GORE,IDS_HELP_GORE,kGap,&m_bGore);
+        static_cast<void>(pGore);
 	}
 
 	char szYes[16];

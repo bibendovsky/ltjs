@@ -134,23 +134,23 @@ LTBOOL CScreenConfigure::Build()
 	m_nEqualsWidth = g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_CONFIGURE,"EqualsWidth");
 	m_nCommandWidth = g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_CONFIGURE,"CommandWidth");
 	m_ListRect = g_pLayoutMgr->GetScreenCustomRect(SCREEN_ID_CONFIGURE,"ListRect");
-	m_nListFontSize = g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_CONFIGURE,"ListFontSize");
+	m_nListFontSize = static_cast<uint8>(g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_CONFIGURE,"ListFontSize"));
 
 
 	int nWidth = GetPageRight() - GetPageLeft();
 	LTIntPt topPos = g_pLayoutMgr->GetScreenCustomPoint(SCREEN_ID_CONFIGURE,"MoveControlPos");
 
 	CLTGUITextCtrl *pCtrl = AddTextItem(IDS_MOVE_CONTROLS,CMD_MOVE_COM,LTNULL,topPos);
-	pCtrl->SetFixedWidth(nWidth);
+	pCtrl->SetFixedWidth(static_cast<uint16>(nWidth));
 
 	pCtrl = AddTextItem(IDS_INV_CONTROLS,CMD_INV_COM,LTNULL);
-	pCtrl->SetFixedWidth(nWidth);
+	pCtrl->SetFixedWidth(static_cast<uint16>(nWidth));
 
 	pCtrl = AddTextItem(IDS_VIEW_CONTROLS,CMD_VIEW_COM,LTNULL);
-	pCtrl->SetFixedWidth(nWidth);
+	pCtrl->SetFixedWidth(static_cast<uint16>(nWidth));
 
 	pCtrl = AddTextItem(IDS_MISC_CONTROLS,CMD_MISC_COM,LTNULL);
-	pCtrl->SetFixedWidth(nWidth);
+	pCtrl->SetFixedWidth(static_cast<uint16>(nWidth));
 
 	
 	LTIntPt pos(m_ListRect.left,m_ListRect.top);
@@ -161,14 +161,14 @@ LTBOOL CScreenConfigure::Build()
 	g_pLayoutMgr->GetScreenCustomString(SCREEN_ID_CONFIGURE,"FrameTexture",szFrame,sizeof(szFrame));
 	HTEXTURE hFrame = g_pInterfaceResMgr->GetTexture(szFrame);
 	m_pFrame = debug_new(CLTGUIFrame);
-	m_pFrame->Create(hFrame,nWd,nHt+8,LTTRUE);
+	m_pFrame->Create(hFrame,static_cast<uint16>(nWd),static_cast<uint16>(nHt+8),LTTRUE);
 	m_pFrame->SetBasePos(pos);
 	AddControl(m_pFrame);
 
 
 	for (int nType = 0; nType < kNumCommandTypes; nType++)
 	{
-		m_pList[nType] = AddList(pos,nHt);
+		m_pList[nType] = AddList(pos,static_cast<uint16>(nHt));
 		m_pList[nType]->SetFrameWidth(2);
 		m_pList[nType]->SetIndent(LTIntPt(4,4));
 		m_pList[nType]->Show(LTFALSE);
@@ -249,14 +249,14 @@ void CScreenConfigure::InitControlList()
 			// The "action" column
 			char szTmp[64];
 			FormatString(pData->nStringID,szTmp,sizeof(szTmp));
-			pCtrl->AddColumn(szTmp, m_nActionWidth);
+			pCtrl->AddColumn(szTmp, static_cast<uint16>(m_nActionWidth));
 
 			// The equals column.  Changes from "" to "=" when the user is binding the key
-			pCtrl->AddColumn(" ", m_nEqualsWidth);
+			pCtrl->AddColumn(" ", static_cast<uint16>(m_nEqualsWidth));
 
 			// The column that contains the key which is assigned to the control!
 			FormatString(IDS_CONTROL_UNASSIGNED,szTmp,sizeof(szTmp));
-			pCtrl->AddColumn(szTmp, m_nCommandWidth);
+			pCtrl->AddColumn(szTmp, static_cast<uint16>(m_nCommandWidth));
 
 			pCtrl->SetParam1(i);
 
@@ -274,7 +274,7 @@ void CScreenConfigure::UpdateControlList()
 	{
 		int nHt = m_ListRect.bottom - m_ListRect.top;
 
-		m_pList[nType]->SetHeight(nHt);
+		m_pList[nType]->SetHeight(static_cast<uint16>(nHt));
 
 		for (int i = 0; i < m_pList[nType]->GetNumControls(); i ++)
 		{
@@ -291,7 +291,7 @@ void CScreenConfigure::UpdateControlList()
 void CScreenConfigure::SetControlText(int nType, int nIndex)
 {
 
-	CLTGUICtrl *pCtrl = m_pList[nType]->GetControl(nIndex+1);
+	CLTGUICtrl *pCtrl = m_pList[nType]->GetControl(static_cast<uint16>(nIndex+1));
 	if (pCtrl) 
 	{
 		SetControlText(pCtrl);
@@ -393,7 +393,7 @@ void CScreenConfigure::SetControlText(CLTGUICtrl *pCtrl)
 
 int CScreenConfigure::GetCommand(int nType, int nIndex)
 {
-	CLTGUIColumnCtrl *pCtrl = (CLTGUIColumnCtrl *) (m_pList[nType]->GetControl(nIndex+1));
+	CLTGUIColumnCtrl *pCtrl = (CLTGUIColumnCtrl *) (m_pList[nType]->GetControl(static_cast<uint16>(nIndex+1)));
 	if (!pCtrl) 
 	{
 		_ASSERT(0);
@@ -641,6 +641,7 @@ LTBOOL CScreenConfigure::SetCurrentSelection (DeviceInput* pInput)
 	CLTGUIColumnCtrl *pCtrl=(CLTGUIColumnCtrl *)m_pList[m_nType]->GetSelectedControl();
 	int nCommand=pCtrl->GetParam1();
 	int nIndex=m_pList[m_nType]->GetSelectedIndex()-1;
+    static_cast<void>(nIndex);
 
 	if (pInput->m_DeviceType == DEVICETYPE_JOYSTICK)
 	{
@@ -860,6 +861,7 @@ LTBOOL CScreenConfigure::CheckMouseWheel (DeviceInput* pInput)
 	CLTGUIColumnCtrl *pCtrl=(CLTGUIColumnCtrl *)m_pList[m_nType]->GetSelectedControl();
 	int nCommand=pCtrl->GetParam1();
 	uint16 diCode = pInput->m_ControlCode;
+    static_cast<void>(diCode);
 	
 	if (bWheelUp)
 		strcpy(szCommand, "#U");
@@ -888,7 +890,7 @@ void CScreenConfigure::AdjustControlFrame()
 	}
 
 
-	uint16 nWd = m_nActionWidth + m_nEqualsWidth + m_nCommandWidth;
+	uint16 nWd = static_cast<uint16>(m_nActionWidth + m_nEqualsWidth + m_nCommandWidth);
 	m_pFrame->Show(LTTRUE);
 
 	m_pList[m_nType]->CalculatePositions();
@@ -900,7 +902,7 @@ void CScreenConfigure::AdjustControlFrame()
 	{
 		LTIntPt pos = pCtrl->GetBasePos();
 		
-		uint16 nHt = (pos.y - listpos.y) + pCtrl->GetBaseHeight() + 4;
+		uint16 nHt = static_cast<uint16>((pos.y - listpos.y) + pCtrl->GetBaseHeight() + 4);
 
 		m_pFrame->SetSize(nWd+8,nHt);
 		m_pList[m_nType]->SetHeight(nHt);

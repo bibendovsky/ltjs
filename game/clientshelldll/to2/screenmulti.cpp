@@ -137,7 +137,7 @@ LTBOOL CScreenMulti::Build()
 	CUIFont* pFont = g_pInterfaceResMgr->GetFont(nFont);
 
 	m_pSysFrame = debug_new(CLTGUIFrame);
-	m_pSysFrame->Create(hFrame,size.x+16,size.y,LTTRUE);
+	m_pSysFrame->Create(hFrame,static_cast<uint16>(size.x+16),static_cast<uint16>(size.y),LTTRUE);
 	m_pSysFrame->SetBasePos(pos);
 	AddControl(m_pSysFrame);
 
@@ -160,7 +160,7 @@ LTBOOL CScreenMulti::Build()
 	size.y = (rect.bottom - rect.top);
 
 	m_pGameFrame = debug_new(CLTGUIFrame);
-	m_pGameFrame->Create(hFrame,size.x+16,size.y,LTTRUE);
+	m_pGameFrame->Create(hFrame,static_cast<uint16>(size.x+16),static_cast<uint16>(size.y),LTTRUE);
 	m_pGameFrame->SetBasePos(pos);
 	AddControl(m_pGameFrame);
 
@@ -454,7 +454,7 @@ void CScreenMulti::ChangeCDKey()
 	mb.eType = LTMB_EDIT;
 	mb.pFn = EditCDKeyCallBack;
 	mb.pString = m_sCurCDKey.c_str();
-	mb.nMaxChars = kMaxCDKeyLength;
+	mb.nMaxChars = static_cast<uint16>(kMaxCDKeyLength);
 	g_pInterfaceMgr->ShowMessageBox(IDS_CDKEY_ENTER,&mb);
 }
 
@@ -838,7 +838,7 @@ void CScreenMulti::CreateDMMissionFile()
 
 	// Get a list of world names and sort them alphabetically
 
-	uint8 nNumPaths = g_pClientButeMgr->GetNumMultiWorldPaths();
+	uint8 nNumPaths = static_cast<uint8>(g_pClientButeMgr->GetNumMultiWorldPaths());
 
 	char pathBuf[128];
 	FileEntry** pFilesArray = debug_newa(FileEntry*, nNumPaths);
@@ -848,7 +848,7 @@ void CScreenMulti::CreateDMMissionFile()
 		for (int i=0; i < nNumPaths; ++i)
 		{
 			pathBuf[0] = '\0';
-			g_pClientButeMgr->GetWorldPath(i, pathBuf, ARRAY_LEN(pathBuf),LTFALSE);
+			g_pClientButeMgr->GetWorldPath(static_cast<uint8>(i), pathBuf, ARRAY_LEN(pathBuf),LTFALSE);
 
 			if (pathBuf[0])
 			{
@@ -870,7 +870,7 @@ void CScreenMulti::CreateDMMissionFile()
 	for (int i=0; i < nNumPaths; ++i)
 	{
 		pathBuf[0] = '\0';
-		g_pClientButeMgr->GetWorldPath(i, pathBuf, ARRAY_LEN(pathBuf),LTFALSE);
+		g_pClientButeMgr->GetWorldPath(static_cast<uint8>(i), pathBuf, ARRAY_LEN(pathBuf),LTFALSE);
 
 		if (pathBuf[0] && pFilesArray[i])
 		{
@@ -1166,7 +1166,7 @@ void CScreenMulti::CreateDDMissionFile()
 
 	// Get a list of world names and sort them alphabetically
 
-	uint8 nNumPaths = g_pClientButeMgr->GetNumMultiWorldPaths();
+	uint8 nNumPaths = static_cast<uint8>(g_pClientButeMgr->GetNumMultiWorldPaths());
 
 	char pathBuf[128];
 	FileEntry** pFilesArray = debug_newa(FileEntry*, nNumPaths);
@@ -1176,7 +1176,7 @@ void CScreenMulti::CreateDDMissionFile()
 		for (int i=0; i < nNumPaths; ++i)
 		{
 			pathBuf[0] = '\0';
-			g_pClientButeMgr->GetWorldPath(i, pathBuf, ARRAY_LEN(pathBuf),LTFALSE);
+			g_pClientButeMgr->GetWorldPath(static_cast<uint8>(i), pathBuf, ARRAY_LEN(pathBuf),LTFALSE);
 
 			if (pathBuf[0])
 			{
@@ -1198,7 +1198,7 @@ void CScreenMulti::CreateDDMissionFile()
 	for (int i=0; i < nNumPaths; ++i)
 	{
 		pathBuf[0] = '\0';
-		g_pClientButeMgr->GetWorldPath(i, pathBuf, ARRAY_LEN(pathBuf),LTFALSE);
+		g_pClientButeMgr->GetWorldPath(static_cast<uint8>(i), pathBuf, ARRAY_LEN(pathBuf),LTFALSE);
 
 		if (pathBuf[0] && pFilesArray[i])
 		{

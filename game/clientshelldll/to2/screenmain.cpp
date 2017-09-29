@@ -67,8 +67,11 @@ LTBOOL CScreenMain::Build()
 	m_pResume->Enable(LTFALSE);
 
 	CLTGUITextCtrl* pMP = AddTextItem(IDS_MULTIPLAYER, CMD_MULTI_PLAYER, IDS_HELP_MULTIPLAYER);
+    static_cast<void>(pMP);
 	CLTGUITextCtrl* pMPLan = AddTextItem(IDS_MULTIPLAYER_LAN, CMD_MULTI_PLAYER_LAN, IDS_HELP_MULTIPLAYER_LAN);
+    static_cast<void>(pMPLan);
 	CLTGUITextCtrl* pOptions = AddTextItem(IDS_OPTIONS, CMD_OPTIONS, IDS_HELP_OPTIONS);
+    static_cast<void>(pOptions);
 	CLTGUITextCtrl* pCtrl = AddTextItem(IDS_PROFILE, CMD_PROFILE, IDS_HELP_PROFILE);
 
 #ifdef _TO2DEMO
@@ -89,14 +92,14 @@ LTBOOL CScreenMain::Build()
 	LTIntPt pos = LTIntPt(rect.left,rect.top);
 
 	m_pGameTypeFrame = debug_new(CLTGUIFrame);
-	m_pGameTypeFrame->Create(hFrame,nWidth,nHeight,LTTRUE);
+	m_pGameTypeFrame->Create(hFrame,static_cast<uint16>(nWidth),static_cast<uint16>(nHeight),LTTRUE);
 	m_pGameTypeFrame->SetBasePos(pos);
 	m_pGameTypeFrame->Show(LTFALSE);
 	AddControl(m_pGameTypeFrame);
 
 
 	nWidth -= 16;
-	m_pGameType = AddList(pos,nHeight, LTTRUE, nWidth);
+	m_pGameType = AddList(pos,static_cast<uint16>(nHeight), LTTRUE, static_cast<uint16>(nWidth));
 	if (m_pGameType)
 	{
 		m_pGameType->SetIndent(LTIntPt(8,8));
@@ -104,17 +107,17 @@ LTBOOL CScreenMain::Build()
 		m_pGameType->Show(LTFALSE);
 
 
-		CLTGUITextCtrl *pCtrl = CreateTextItem(IDS_COOPERATIVE,	CMD_COOP, 0);
-		m_pGameType->AddControl(pCtrl);
+		CLTGUITextCtrl *pCtrl2 = CreateTextItem(IDS_COOPERATIVE,	CMD_COOP, 0);
+		m_pGameType->AddControl(pCtrl2);
 
-		pCtrl = CreateTextItem(IDS_DEATHMATCH, CMD_DM, 0);
-		m_pGameType->AddControl(pCtrl);
+		pCtrl2 = CreateTextItem(IDS_DEATHMATCH, CMD_DM, 0);
+		m_pGameType->AddControl(pCtrl2);
 
-		pCtrl = CreateTextItem(IDS_TEAMDEATHMATCH, CMD_TEAM_DM, 0);
-		m_pGameType->AddControl(pCtrl);
+		pCtrl2 = CreateTextItem(IDS_TEAMDEATHMATCH, CMD_TEAM_DM, 0);
+		m_pGameType->AddControl(pCtrl2);
 
-		pCtrl = CreateTextItem(IDS_DOOMSDAY, CMD_DOOM, 0);
-		m_pGameType->AddControl(pCtrl);
+		pCtrl2 = CreateTextItem(IDS_DOOMSDAY, CMD_DOOM, 0);
+		m_pGameType->AddControl(pCtrl2);
 	}
 
 
@@ -170,7 +173,7 @@ void CScreenMain::OnFocus(LTBOOL bFocus)
 		g_pInterfaceMgr->AbortScreenFade();
 
 
-		SetSelection(-1);
+		SetSelection(static_cast<uint16>(-1));
 
 		// Always assume sp save/load when in the main screen.  This is so the 
 		// "continue game" and "quick load" assumes sp.

@@ -85,8 +85,8 @@ LTBOOL CScreenPlayerTeam::Build()
 		uint8 nB = (uint8)vCol.z;
 		nTeamColors[nTeam]=  SET_ARGB(0xB0,nR,nG,nB);
 
-		uint16 nWidth = rTeam[nTeam].right - rTeam[nTeam].left;
-		uint16 nHeight = rTeam[nTeam].bottom - rTeam[nTeam].top;
+		uint16 nWidth = static_cast<uint16>(rTeam[nTeam].right - rTeam[nTeam].left);
+		uint16 nHeight = static_cast<uint16>(rTeam[nTeam].bottom - rTeam[nTeam].top);
 
 		LTIntPt pos(rTeam[nTeam].left,rTeam[nTeam].top);
 		m_pFrame[nTeam] = debug_new(CLTGUIFrame);
@@ -102,7 +102,7 @@ LTBOOL CScreenPlayerTeam::Build()
 	m_pTeams[0] = AddTextItem( "<team 0>", CMD_TEAM1, IDS_HELP_CHOOSE_TEAM_1, pos);
 	pos.y += 22;
 	
-	uint16 nHeight = (rTeam[0].bottom-pos.y) - 8;
+	uint16 nHeight = static_cast<uint16>((rTeam[0].bottom-pos.y) - 8);
 	m_pPlayers[0] = AddList(pos,nHeight, LTTRUE, nListWidth);
 	if (m_pPlayers[0])
 	{
@@ -116,7 +116,7 @@ LTBOOL CScreenPlayerTeam::Build()
 	m_pTeams[1] = AddTextItem( "<team 0>", CMD_TEAM2, IDS_HELP_CHOOSE_TEAM_2, pos);
 	pos.y += 22;
 	
-	nHeight = (rTeam[1].bottom - pos.y) - 8;
+	nHeight = static_cast<uint16>((rTeam[1].bottom - pos.y) - 8);
 	m_pPlayers[1] = AddList(pos,nHeight, LTTRUE, nListWidth);
 	if (m_pPlayers[1])
 	{
@@ -537,7 +537,7 @@ LTBOOL CScreenPlayerTeam::OnMouseMove(int x, int y)
 	}
 	else
 	{
-		SelectTeam(-1);
+		SelectTeam(static_cast<uint8>(-1));
 		return CBaseScreen::OnMouseMove(x,y);
 	}
 
@@ -555,7 +555,7 @@ LTBOOL CScreenPlayerTeam::OnUp()
 		else  if (GetSelectedControl() == m_pTeams[1])
 			SelectTeam(1);
 		else
-			SelectTeam(-1);
+			SelectTeam(static_cast<uint8>(-1));
 	}
 	return bHandled;
 }
@@ -570,7 +570,7 @@ LTBOOL CScreenPlayerTeam::OnDown()
 		else  if (GetSelectedControl() == m_pTeams[1])
 			SelectTeam(1);
 		else
-			SelectTeam(-1);
+			SelectTeam(static_cast<uint8>(-1));
 	}
 	return bHandled;
 }
@@ -600,7 +600,7 @@ LTBOOL CScreenPlayerTeam::OnLButtonDown(int x, int y)
 		return m_pTeams[1]->OnLButtonDown(x,y);
 	}
 
-	SelectTeam(-1);
+	SelectTeam(static_cast<uint8>(-1));
 	return CBaseScreen::OnLButtonDown( x, y);
 }
 

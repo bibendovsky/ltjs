@@ -73,8 +73,8 @@ LTBOOL CScreenTeam::Build()
 	int kArrow = g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_TEAM,"ArrowWidth");
 
 	m_pName = AddColumnCtrl(CMD_EDIT_NAME, IDS_HELP_TEAM_NAME);
-	m_pName->AddColumn(LoadTempString(IDS_TEAM_NAME), kColumn0);
-	m_pName->AddColumn("<Team name>", kColumn1, LTTRUE);
+	m_pName->AddColumn(LoadTempString(IDS_TEAM_NAME), static_cast<uint16>(kColumn0));
+	m_pName->AddColumn("<Team name>", static_cast<uint16>(kColumn1), LTTRUE);
 
 	m_pModel = AddTextItem(IDS_TEAM_MODEL, LTNULL, IDS_HELP_TEAM_MODEL);
 
@@ -269,6 +269,7 @@ LTBOOL	CScreenTeam::OnRight()
 LTBOOL CScreenTeam::OnLButtonUp(int x, int y)
 {
 	CLTGUICtrl *pCtrl = GetSelectedControl();
+    static_cast<void>(pCtrl);
 	return CBaseScreen::OnLButtonUp(x,y);
 }
 
@@ -277,6 +278,7 @@ LTBOOL CScreenTeam::OnLButtonUp(int x, int y)
 LTBOOL CScreenTeam::OnRButtonUp(int x, int y)
 {
 	CLTGUICtrl *pCtrl = GetSelectedControl();
+    static_cast<void>(pCtrl);
 	return CBaseScreen::OnRButtonUp(x,y);
 }
 

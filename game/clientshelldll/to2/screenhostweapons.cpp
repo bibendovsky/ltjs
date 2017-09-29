@@ -77,7 +77,7 @@ LTBOOL CScreenHostWeapons::Build()
 	int nListHeight = (rcAvailRect.bottom - rcAvailRect.top);
 	int nListWidth = (rcAvailRect.right - rcAvailRect.left) - 32;
 
-	m_pAvailItems = AddList(LTIntPt(rcAvailRect.left,rcAvailRect.top),nListHeight,LTTRUE,nListWidth);
+	m_pAvailItems = AddList(LTIntPt(rcAvailRect.left,rcAvailRect.top),static_cast<uint16>(nListHeight),LTTRUE,static_cast<uint16>(nListWidth));
 	m_pAvailItems->SetIndent(LTIntPt(5,5));
 	m_pAvailItems->SetFrameWidth(2);
 	m_pAvailItems->Enable(LTFALSE);
@@ -86,7 +86,7 @@ LTBOOL CScreenHostWeapons::Build()
 	nListHeight = (rcSelRect.bottom - rcSelRect.top);
 	nListWidth = (rcSelRect.right - rcSelRect.left) - 32;
 
-	m_pSelItems = AddList(LTIntPt(rcSelRect.left,rcSelRect.top),nListHeight,LTTRUE,nListWidth);
+	m_pSelItems = AddList(LTIntPt(rcSelRect.left,rcSelRect.top),static_cast<uint16>(nListHeight),LTTRUE,static_cast<uint16>(nListWidth));
 	m_pSelItems->SetIndent(LTIntPt(5,5));
 	m_pSelItems->SetFrameWidth(2);
 	m_pSelItems->Enable(LTFALSE);
@@ -159,7 +159,7 @@ uint32 CScreenHostWeapons::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 d
 						int nIndex = m_pAvailItems->GetSelectedIndex();
 						if (nIndex >= 0)
 						{
-							m_pAvailItems->RemoveControl(nIndex);
+							m_pAvailItems->RemoveControl(static_cast<uint16>(nIndex));
 						}
 						
 
@@ -175,7 +175,7 @@ uint32 CScreenHostWeapons::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 d
 			{
 				for (int i = 0; i < m_pAvailItems->GetNumControls(); i++)
 				{
-					CLTGUITextCtrl *pCtrl = (CLTGUITextCtrl *)m_pAvailItems->GetControl(i);
+					CLTGUITextCtrl *pCtrl = (CLTGUITextCtrl *)m_pAvailItems->GetControl(static_cast<uint16>(i));
 					if (pCtrl)
 					{
 						AddItemToList(pCtrl->GetParam1(),true,(eItemTypes)pCtrl->GetParam2());
@@ -205,7 +205,7 @@ uint32 CScreenHostWeapons::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 d
 					int nIndex = m_pSelItems->GetSelectedIndex();
 					if (nIndex >= 0)
 					{
-						m_pSelItems->RemoveControl(nIndex);
+						m_pSelItems->RemoveControl(static_cast<uint16>(nIndex));
 					}
 
 				}
@@ -219,7 +219,7 @@ uint32 CScreenHostWeapons::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 d
 			{
 				for (int i = 0; i < m_pSelItems->GetNumControls(); i++)
 				{
-					CLTGUITextCtrl *pCtrl = (CLTGUITextCtrl *)m_pSelItems->GetControl(i);
+					CLTGUITextCtrl *pCtrl = (CLTGUITextCtrl *)m_pSelItems->GetControl(static_cast<uint16>(i));
 					if (pCtrl)
 					{
 						AddItemToList(pCtrl->GetParam1(),false,(eItemTypes)pCtrl->GetParam2());
@@ -282,11 +282,11 @@ LTBOOL CScreenHostWeapons::FillAvailList()
 	CUserProfile *pProfile = g_pProfileMgr->GetCurrentProfile();
 
 	// get first and last weapon indices
-	uint8 nFirstWeaponCommandId = g_pWeaponMgr->GetFirstWeaponCommandId();
-	uint8 nLastWeaponCommandId = g_pWeaponMgr->GetLastWeaponCommandId();
+	uint8 nFirstWeaponCommandId = static_cast<uint8>(g_pWeaponMgr->GetFirstWeaponCommandId());
+	uint8 nLastWeaponCommandId = static_cast<uint8>(g_pWeaponMgr->GetLastWeaponCommandId());
 	for (uint8 nWpnCommandId = nFirstWeaponCommandId; nWpnCommandId <= nLastWeaponCommandId; nWpnCommandId++)
 	{
-		uint8 nWpn = g_pWeaponMgr->GetWeaponId( nWpnCommandId);
+		uint8 nWpn = static_cast<uint8>(g_pWeaponMgr->GetWeaponId( nWpnCommandId));
 		WEAPON const *pWeapon = g_pWeaponMgr->GetWeapon( nWpn );
 		if (pWeapon && pWeapon->bCanServerRestrict)
 		{
@@ -398,7 +398,7 @@ void CScreenHostWeapons::SaveItemList()
 
 	for (int n = 0; n < m_pSelItems->GetNumControls(); n++)
 	{
-		CLTGUITextCtrl *pCtrl = (CLTGUITextCtrl *)m_pSelItems->GetControl(n);
+		CLTGUITextCtrl *pCtrl = (CLTGUITextCtrl *)m_pSelItems->GetControl(static_cast<uint16>(n));
 		if (pCtrl)
 		{
 			switch (pCtrl->GetParam2())

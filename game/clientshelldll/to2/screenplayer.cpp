@@ -85,8 +85,8 @@ LTBOOL CScreenPlayer::Build()
 	int kArrow = g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_PLAYER,"ArrowWidth");
 
 	m_pName = AddColumnCtrl(CMD_EDIT_NAME, IDS_HELP_PLAYER_NAME);
-	m_pName->AddColumn(LoadTempString(IDS_PLAYER_NAME), kColumn0);
-	m_pName->AddColumn("<player name>", kColumn1, LTTRUE);
+	m_pName->AddColumn(LoadTempString(IDS_PLAYER_NAME), static_cast<uint16>(kColumn0));
+	m_pName->AddColumn("<player name>", static_cast<uint16>(kColumn1), LTTRUE);
 
 	m_pModel = AddTextItem(IDS_PLAYER_MODEL, LTNULL, IDS_HELP_PLAYER_MODEL);
 
@@ -102,8 +102,8 @@ LTBOOL CScreenPlayer::Build()
 	m_pBandwidthCycle->AddString(LoadTempString(IDS_CUSTOM));
 
 	m_pBandwidth = AddColumnCtrl(CMD_EDIT_BANDWIDTH, IDS_HELP_BANDWIDTH_EDIT);
-	m_pBandwidth->AddColumn(LoadTempString(IDS_BANDWIDTH_EDIT), kColumn0);
-	m_pBandwidth->AddColumn("<bandwidth>", kColumn1, LTTRUE);
+	m_pBandwidth->AddColumn(LoadTempString(IDS_BANDWIDTH_EDIT), static_cast<uint16>(kColumn0));
+	m_pBandwidth->AddColumn("<bandwidth>", static_cast<uint16>(kColumn1), LTTRUE);
 
 	LTIntPt arrowPos = m_pModel->GetBasePos();
 	arrowPos.x += kColumn0;
@@ -269,7 +269,7 @@ void CScreenPlayer::OnFocus(LTBOOL bFocus)
 				ModelId id = g_pModelButeMgr->GetCPModel(n);
 				g_pILTModelClient->UncacheModelDB(g_pModelButeMgr->GetModelFilename(id));
 			}
-			pProfile->m_nCPPlayerModel = m_nCurrentModel;
+			pProfile->m_nCPPlayerModel = static_cast<uint8>(m_nCurrentModel);
 			break;
 		case eGameTypeDeathmatch:
 			for (n = 0; n < g_pModelButeMgr->GetNumDMModels(); n++)
@@ -277,7 +277,7 @@ void CScreenPlayer::OnFocus(LTBOOL bFocus)
 				ModelId id = g_pModelButeMgr->GetDMModel(n);
 				g_pILTModelClient->UncacheModelDB(g_pModelButeMgr->GetModelFilename(id));
 			}
-			pProfile->m_nDMPlayerModel = m_nCurrentModel;
+			pProfile->m_nDMPlayerModel = static_cast<uint8>(m_nCurrentModel);
 			break;
 		};
 
@@ -569,7 +569,7 @@ void CScreenPlayer::HandleCallback(uint32 dwParam1, uint32 dwParam2)
 		{
 			char *pszBandwidth = (char *)dwParam1;
 			uint32 nBandwidth = (uint32)atoi(pszBandwidth);
-			if ( IsValidBandwidth(nBandwidth) )
+			if ( IsValidBandwidth(static_cast<uint16>(nBandwidth)) )
 			{
 				m_sBandwidth = pszBandwidth;
 				m_sBandwidth = m_sBandwidth.Left( kMaxBandwidthStrLen );

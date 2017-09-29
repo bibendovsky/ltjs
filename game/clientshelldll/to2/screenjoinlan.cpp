@@ -76,20 +76,20 @@ LTBOOL CScreenJoinLAN::Build()
 	char szTmp[64];
 	m_pPort = AddColumnCtrl(CMD_EDIT_PORT, IDS_HELP_ENTER_PORT);
 	FormatString(IDS_PORT,szTmp,sizeof(szTmp));
-	m_pPort->AddColumn(szTmp, kColumnWidth);
-	m_pPort->AddColumn("27888", kColumnWidth, LTTRUE);
+	m_pPort->AddColumn(szTmp, static_cast<uint16>(kColumnWidth));
+	m_pPort->AddColumn("27888", static_cast<uint16>(kColumnWidth), LTTRUE);
 	SAFE_STRCPY(m_szPort,"27888");
 
 
 	LTIntPt pos = g_pLayoutMgr->GetScreenCustomPoint(SCREEN_ID_JOIN_LAN,"ListPos");
 	CLTGUIColumnCtrl* pCtrl = AddColumnCtrl(LTNULL, LTNULL, pos, LTTRUE);
-	pCtrl->AddColumn("Lock", kLockWidth);
-	pCtrl->AddColumn(LoadTempString(IDS_SERVER_NAME), kColumnWidth);
-	pCtrl->AddColumn(LoadTempString(IDS_SERVER_ADDRESS), kAddressWidth);
+	pCtrl->AddColumn("Lock", static_cast<uint16>(kLockWidth));
+	pCtrl->AddColumn(LoadTempString(IDS_SERVER_NAME), static_cast<uint16>(kColumnWidth));
+	pCtrl->AddColumn(LoadTempString(IDS_SERVER_ADDRESS), static_cast<uint16>(kAddressWidth));
 	pCtrl->Enable(LTFALSE);
 
-	uint16 height = GetPageBottom() - m_nextPos.y;
-	m_pServers = AddList(m_nextPos,height,LTTRUE,kColumnWidth+kAddressWidth+kLockWidth);
+	uint16 height = static_cast<uint16>(GetPageBottom() - m_nextPos.y);
+	m_pServers = AddList(m_nextPos,height,LTTRUE,static_cast<uint16>(kColumnWidth+kAddressWidth+kLockWidth));
 	m_pServers->SetScrollWrap(LTFALSE);
 	m_pServers->SetFrameWidth(1);
 	m_pServers->SetColors(m_NonSelectedColor,m_NonSelectedColor,m_NonSelectedColor);
@@ -283,15 +283,15 @@ LTBOOL CScreenJoinLAN::InitSessions()
 					g_pLTClient->RemoveInternetDriver();
 				return LTFALSE;
 			}
-			pCtrl->SetFont(LTNULL,kListFontSize);
+			pCtrl->SetFont(LTNULL,static_cast<uint8>(kListFontSize));
 
 			if (pSession->m_bHasPassword)
-				pCtrl->AddColumn("x", kLockWidth);
+				pCtrl->AddColumn("x", static_cast<uint16>(kLockWidth));
 			else
-				pCtrl->AddColumn(" ", kLockWidth);
+				pCtrl->AddColumn(" ", static_cast<uint16>(kLockWidth));
 
 			// Do the name
-			pCtrl->AddColumn(pSession->m_sName, kColumnWidth);
+			pCtrl->AddColumn(pSession->m_sName, static_cast<uint16>(kColumnWidth));
 			pCtrl->SetParam1((uint32)pos);
 			pCtrl->SetParam2((uint32)pSession->m_bHasPassword);
 
@@ -304,7 +304,7 @@ LTBOOL CScreenJoinLAN::InitSessions()
 */			
 			
 			// Do the address
-			pCtrl->AddColumn((LPCTSTR)csString, kAddressWidth);
+			pCtrl->AddColumn((LPCTSTR)csString, static_cast<uint16>(kAddressWidth));
 			m_pServers->AddControl(pCtrl);
 
 
@@ -431,7 +431,7 @@ void CScreenJoinLAN::FindServers()
 		if (m_lstSessions.GetSize() == 0)
 		{
 			CLTGUITextCtrl *pCtrl = CreateTextItem(IDS_NO_SERVERS, LTNULL, LTNULL, kDefaultPos, LTTRUE);
-			pCtrl->SetFont(LTNULL,kListFontSize);
+			pCtrl->SetFont(LTNULL,static_cast<uint8>(kListFontSize));
 			m_pServers->AddControl(pCtrl);
 		}
 		g_pLTClient->ClearInput();

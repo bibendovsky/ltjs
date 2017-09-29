@@ -4536,11 +4536,13 @@ void CPlayerMgr::Teleport(const LTVector & vPos)
 
 void CPlayerMgr::UpdateServerPlayerModel()
 {
-	HOBJECT hClientObj, hRealObj;
+    auto hClientObj = g_pLTClient->GetClientObject();
 
-    if (!(hClientObj = g_pLTClient->GetClientObject())) return;
+    if (!hClientObj) return;
 
-	if (!(hRealObj = m_pMoveMgr->GetObject())) return;
+    auto hRealObj = m_pMoveMgr->GetObject();
+
+	if (!hRealObj) return;
 
     LTVector myPos;
 	g_pLTClient->GetObjectPos(hRealObj, &myPos);
