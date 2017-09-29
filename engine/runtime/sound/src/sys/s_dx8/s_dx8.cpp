@@ -222,7 +222,7 @@ BOOL WaveFile::Open (LPSTR pszFilename, uint32 nFilePos)
 		m_mmr = mmioDescend (m_hmmio, &m_mmckiFmt, &m_mmckiRiff, MMIO_FINDCHUNK);
 	}
 
-	PCMWAVEFORMAT pcmwf;
+    auto pcmwf = PCMWAVEFORMAT{};
 	if( m_mmr == MMSYSERR_NOERROR )
 	{
 		// Read the format chunk into temporary structure
@@ -385,7 +385,8 @@ UINT WaveFile::Read (BYTE * pbDest, UINT cbSize)
     DOUT ("WaveFile::Read\n\r");
 
     // Use direct buffer access for reads to maximize performance
-    if (m_mmr = mmioGetInfo (m_hmmio, &mmioinfo, 0))
+    m_mmr = mmioGetInfo (m_hmmio, &mmioinfo, 0);
+    if (m_mmr)
     {
         goto READ_ERROR;
     }
@@ -403,7 +404,9 @@ UINT WaveFile::Read (BYTE * pbDest, UINT cbSize)
 		// Advance buffer if necessary
 		if (mmioinfo.pchNext == mmioinfo.pchEndRead)
 	    {
-		    if (m_mmr = mmioAdvance (m_hmmio, &mmioinfo, MMIO_READ))
+            m_mmr = mmioAdvance (m_hmmio, &mmioinfo, MMIO_READ);
+
+		    if (m_mmr)
 			{
 				goto READ_ERROR;
 	        }
@@ -443,7 +446,9 @@ UINT WaveFile::Read (BYTE * pbDest, UINT cbSize)
 
 
     // End direct buffer access
-    if (m_mmr = mmioSetInfo (m_hmmio, &mmioinfo, 0))
+    m_mmr = mmioSetInfo (m_hmmio, &mmioinfo, 0);
+
+    if (m_mmr)
     {
         goto READ_ERROR;
     }
@@ -486,7 +491,7 @@ UINT WaveFile::ReadCompressed( BYTE* pbDest, UINT cbSize, BYTE* pCompressedBuffe
 	UINT uiReadSize = 0;
 	UINT uiDecompressedBytesOutput = 0;
 	UINT uiDecompressedSize = 0;
-	UINT uiTotalDecompressedBytes = 0, uiCompressedBytes = 0;
+	UINT uiTotalDecompressedBytes = 0;
     MMIOINFO mmioinfo;
     UINT cb;
 
@@ -500,7 +505,8 @@ UINT WaveFile::ReadCompressed( BYTE* pbDest, UINT cbSize, BYTE* pCompressedBuffe
 	pCurOutputPtr = pbDest;
 
     // Use direct buffer access for reads to maximize performance
-    if (m_mmr = mmioGetInfo (m_hmmio, &mmioinfo, 0))
+    m_mmr = mmioGetInfo (m_hmmio, &mmioinfo, 0);
+    if (m_mmr)
     {
         goto READ_ERROR;
     }
@@ -563,7 +569,9 @@ UINT WaveFile::ReadCompressed( BYTE* pbDest, UINT cbSize, BYTE* pCompressedBuffe
 		    // Advance buffer if necessary
 			if (mmioinfo.pchNext == mmioinfo.pchEndRead)
 	        {
-		        if (m_mmr = mmioAdvance (m_hmmio, &mmioinfo, MMIO_READ))
+                m_mmr = mmioAdvance (m_hmmio, &mmioinfo, MMIO_READ);
+
+		        if (m_mmr)
 			    {
 				    goto READ_ERROR;
 	            }
@@ -659,7 +667,9 @@ UINT WaveFile::ReadCompressed( BYTE* pbDest, UINT cbSize, BYTE* pCompressedBuffe
 	}
 
     // End direct buffer access
-    if (m_mmr = mmioSetInfo (m_hmmio, &mmioinfo, 0))
+    m_mmr = mmioSetInfo (m_hmmio, &mmioinfo, 0);
+
+    if (m_mmr)
     {
         goto READ_ERROR;
     }
@@ -692,7 +702,9 @@ UINT WaveFile::SeekFromStartCompressed( uint32 nBytes )
 	m_nRemainderBytes = 0;
 
     // Use direct buffer access for reads to maximize performance
-    if (m_mmr = mmioGetInfo (m_hmmio, &mmioinfo, 0))
+    m_mmr = mmioGetInfo (m_hmmio, &mmioinfo, 0);
+
+    if (m_mmr)
 		return 0;
 
 	if ( m_mmckiData.cksize == 0 )
@@ -725,7 +737,9 @@ UINT WaveFile::SeekFromStartCompressed( uint32 nBytes )
 		// Advance buffer if necessary
 		if (mmioinfo.pchNext == mmioinfo.pchEndRead)
 	    {
-		    if (m_mmr = mmioAdvance (m_hmmio, &mmioinfo, MMIO_READ))
+            m_mmr = mmioAdvance (m_hmmio, &mmioinfo, MMIO_READ);
+
+		    if (m_mmr)
 			{
 				return 0;
 	        }
@@ -748,7 +762,9 @@ UINT WaveFile::SeekFromStartCompressed( uint32 nBytes )
 	}
 
     // End direct buffer access
-    if (m_mmr = mmioSetInfo (m_hmmio, &mmioinfo, 0))
+    m_mmr = mmioSetInfo (m_hmmio, &mmioinfo, 0);
+
+    if (m_mmr)
     {
         return 0;
     }
@@ -1438,8 +1454,9 @@ bool CSample::IsPlaying( )
 		return false;
 
 	DWORD dwStatus;
-	HRESULT hResult;
-	if( hResult = m_pDSBuffer->GetStatus( &dwStatus ) != DS_OK )
+	HRESULT hResult = m_pDSBuffer->GetStatus( &dwStatus );
+
+	if( hResult != DS_OK )
 		return false;
 
 	if( ( dwStatus & DSBSTATUS_PLAYING ) == DSBSTATUS_PLAYING )
@@ -1477,8 +1494,9 @@ BOOL CSample::GetCurrentPosition( DWORD* pdwPlayPos, DWORD* pdwWritePos )
 	if( m_pDSBuffer == NULL )
 		return FALSE;
 
-	HRESULT hResult;
-	if( hResult = m_pDSBuffer->GetCurrentPosition( pdwPlayPos, pdwWritePos ) != DS_OK )
+	HRESULT hResult = m_pDSBuffer->GetCurrentPosition( pdwPlayPos, pdwWritePos );
+
+	if( hResult != DS_OK )
 		return FALSE;
 
 	return TRUE;
@@ -1489,8 +1507,9 @@ BOOL CSample::SetCurrentPosition( DWORD dwStartOffset )
 	if( m_pDSBuffer == NULL )
 		return FALSE;
 
-	HRESULT hResult;
-	if( hResult = m_pDSBuffer->SetCurrentPosition( dwStartOffset ) != DS_OK )
+	HRESULT hResult = m_pDSBuffer->SetCurrentPosition( dwStartOffset );
+
+	if( hResult != DS_OK )
 		return FALSE;
 
 	// Set the last play pos to zero, because doing this on a playing sound
@@ -1505,14 +1524,17 @@ BOOL CSample::Play( )
 	if( m_pDSBuffer == NULL )
 		return FALSE;
 
-	HRESULT hResult;
-	if( hResult = m_pDSBuffer->Play( 0, 0, m_dwPlayFlags ) != DS_OK )
+	HRESULT hResult = m_pDSBuffer->Play( 0, 0, m_dwPlayFlags );
+
+	if( hResult != DS_OK )
 	{
 		if( hResult == DSERR_BUFFERLOST )
 		{
 			Restore( );
 
-			if( hResult = m_pDSBuffer->Play( 0, 0, m_dwPlayFlags ) != DS_OK )
+            hResult = m_pDSBuffer->Play( 0, 0, m_dwPlayFlags );
+
+			if( hResult != DS_OK )
 				return FALSE;
 
 			return TRUE;
@@ -1528,9 +1550,9 @@ BOOL CSample::Stop( bool bReset )
 	if( m_pDSBuffer == NULL )
 		return FALSE;
 
-	HRESULT hResult;
+	HRESULT hResult = m_pDSBuffer->Stop( );
 
-	if( hResult = m_pDSBuffer->Stop( ) != DS_OK )
+	if( hResult != DS_OK )
 	{
 		return FALSE;
 	}
@@ -1538,7 +1560,9 @@ BOOL CSample::Stop( bool bReset )
 	if( bReset )
 	{
 		m_nLastPlayPos = 0;
-		if( hResult = m_pDSBuffer->SetCurrentPosition( 0 ) != DS_OK )
+        hResult = m_pDSBuffer->SetCurrentPosition( 0 );
+
+		if( hResult != DS_OK )
 			return FALSE;
 	}
 
@@ -1551,18 +1575,22 @@ BOOL CSample::Lock( DWORD dwStartOffset, DWORD dwLockAmount, void** ppChunk1, DW
 	if( m_pDSBuffer == NULL )
 		return FALSE;
 
-	HRESULT hResult;
-	if( hResult = m_pDSBuffer->Lock( dwStartOffset, dwLockAmount, ppChunk1, pdwChunkSize1, ppChunk2,
-		pdwChunkSize2, dwFlags ) != DS_OK )
+	HRESULT hResult = m_pDSBuffer->Lock( dwStartOffset, dwLockAmount, ppChunk1, pdwChunkSize1, ppChunk2,
+		pdwChunkSize2, dwFlags );
+
+	if( hResult != DS_OK )
 	{
 		if( hResult == DSERR_BUFFERLOST )
 		{
 			Restore( );
 
-			if( hResult = m_pDSBuffer->Lock( dwStartOffset, dwLockAmount, ppChunk1, pdwChunkSize1, ppChunk2,
-				pdwChunkSize2, dwFlags ) != DS_OK )
+            hResult = m_pDSBuffer->Lock( dwStartOffset, dwLockAmount, ppChunk1, pdwChunkSize1, ppChunk2,
+				pdwChunkSize2, dwFlags );
+
+			if( hResult != DS_OK )
 			{
 				char* pcDSError = ConvertDSErrorToString( hResult );
+                static_cast<void>(pcDSError);
 				return FALSE;
 			}
 
@@ -1570,6 +1598,7 @@ BOOL CSample::Lock( DWORD dwStartOffset, DWORD dwLockAmount, void** ppChunk1, DW
         }
 
 		char* pcDSError = ConvertDSErrorToString( hResult );
+        static_cast<void>(pcDSError);
         return FALSE;
     }
 
@@ -1698,6 +1727,7 @@ void C3DSample::SetPosition( LTVector& pos )
 	}
 */
 	HRESULT hr = m_pDS3DBuffer->SetPosition( pos.x, pos.y, pos.z, DS3D_DEFERRED );
+    static_cast<void>(hr);
 }
 
 void C3DSample::SetVelocity( LTVector& vel )
@@ -1813,7 +1843,6 @@ void CStream::HandleUpdate( CDx8SoundSys* pSoundSys )
     VOID*   pDSLockedBuffer2 = NULL;
     DWORD   dwDSLockedBufferSize;
     DWORD   dwDSLockedBufferSize2;
-	uint32 uiBytesRead = 0;
 
 	// see if it's time for an update
     if( FAILED( hr = m_pDSBuffer->GetCurrentPosition( &dwCurrentPlayPos, &dwCurrentWritePos ) ) )
@@ -2954,9 +2983,14 @@ S32	CDx8SoundSys::Startup( void )
   	}
 
 	// allocate memory for compression, decompression buffers
-	if ( ! (m_pCompressedBuffer = (BYTE*) MemAllocLock( sizeof(BYTE) * STR_BUFFER_SIZE )) )
+    m_pCompressedBuffer = (BYTE*) MemAllocLock( sizeof(BYTE) * STR_BUFFER_SIZE );
+
+	if ( !m_pCompressedBuffer )
 		return LS_ERROR;
-	if ( ! (m_pDecompressedBuffer = (BYTE*) MemAllocLock( sizeof(BYTE) * STR_BUFFER_SIZE )) )
+
+    m_pDecompressedBuffer = (BYTE*) MemAllocLock( sizeof(BYTE) * STR_BUFFER_SIZE );
+
+	if ( !m_pDecompressedBuffer )
 		return LS_ERROR;
 
 	// set up stuff for looping samples, very few samples may loop, but we will allow all to, if necessary
@@ -3156,7 +3190,7 @@ S32	CDx8SoundSys::GetDigitalMasterVolume( LHDIGDRIVER hDig )
 
 	long lDSMasterVolume = 0;
 	m_hResult = pDSPrimaryBuffer->GetVolume( &lDSMasterVolume );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 
 	S32 siMasterVolume;
 	CONVERT_LOG_VOL_TO_LIN_VOL( lDSMasterVolume, siMasterVolume );
@@ -3205,7 +3239,8 @@ bool CDx8SoundSys::SetEAX20Filter( bool bEnable, LTSOUNDFILTERDATA* pFilterData 
 		EAXLISTENERPROPERTIES props;
 		props.lRoom = -10000;
 		m_hResult = m_pKSPropertySet->Set(DSPROPSETID_EAX_ListenerProperties, DSPROPERTY_EAXLISTENER_ROOM, NULL, 0, (void*)&props.lRoom, sizeof(FLOAT));
-		char* m_pcLastError = LastError( );
+		m_pcLastError = LastError( );
+
 		if ( m_hResult != DS_OK )
 		{
 			return false;
@@ -3240,7 +3275,7 @@ bool CDx8SoundSys::SetEAX20Filter( bool bEnable, LTSOUNDFILTERDATA* pFilterData 
 		// Get the current settings...
 		unsigned long uPropSize;
 		m_hResult = m_pKSPropertySet->Get(DSPROPSETID_EAX_ListenerProperties, DSPROPERTY_EAXLISTENER_ALLPARAMETERS, NULL, 0, (void*)&props, sizeof(EAXLISTENERPROPERTIES), &uPropSize);
-		char* m_pcLastError = LastError( );
+		m_pcLastError = LastError( );
 		if ( m_hResult != DS_OK )
 		{
 			return false;
@@ -3343,7 +3378,7 @@ bool CDx8SoundSys::SetEAX20BufferSettings( LH3DSAMPLE h3DSample, LTSOUNDFILTERDA
 
 	LPKSPROPERTYSET pKSPropertySet = NULL;
   	m_hResult = pSample->m_pDSBuffer->QueryInterface(IID_IKsPropertySet, (LPVOID *)&pKSPropertySet);
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 	if ( m_hResult != DS_OK )
 		return false;
 
@@ -3352,7 +3387,7 @@ bool CDx8SoundSys::SetEAX20BufferSettings( LH3DSAMPLE h3DSample, LTSOUNDFILTERDA
 		// set the direct attenuation, this is implemented when we actually allocate a sound.
 		soundProps.lDirect = pLTReverb->lDirect;
 		m_hResult = pKSPropertySet->Set(DSPROPSETID_EAX_BufferProperties, DSPROPERTY_EAXBUFFER_DIRECT, NULL, 0, (void*)&soundProps.lDirect, sizeof(unsigned long));
-		char* m_pcLastError = LastError( );
+		m_pcLastError = LastError( );
 		if ( m_hResult != DS_OK )
 			return false;
 
@@ -3695,7 +3730,7 @@ void CDx8SoundSys::Stop3DSample( LH3DSAMPLE hS )
 
 	// stop any sample notification
 	SetSampleNotify( &p3DSample->m_sample, false );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 // start playback at beginning position
@@ -3710,7 +3745,7 @@ void CDx8SoundSys::Start3DSample( LH3DSAMPLE hS )
 	m_hResult = p3DSample->m_sample.Stop( true );
 	m_hResult = p3DSample->m_sample.Play( );
 	p3DSample->m_status = LS_PLAYING;
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 // continue playback from current position
@@ -3724,7 +3759,7 @@ void CDx8SoundSys::Resume3DSample( LH3DSAMPLE hS )
 
 	p3DSample->m_sample.Play( );
 	p3DSample->m_status = LS_PLAYING;
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 // terminate playback and reset position
@@ -3743,7 +3778,7 @@ void CDx8SoundSys::End3DSample( LH3DSAMPLE hS )
 	p3DSample->m_status = LS_DONE;
 
 	SetSampleNotify( &p3DSample->m_sample, false );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 
@@ -3816,7 +3851,7 @@ S32	CDx8SoundSys::Init3DSampleFromFile( LH3DSAMPLE hS, void* pFile_image, S32 si
 	if( pWaveFormatEx->wFormatTag != WAVE_FORMAT_PCM )
 	{
 		MMRESULT mmResult = 0;
-		uint32 uiNumSampleBytes;
+		uint32 uiNumSampleBytes = 0;
 
 		WAVEFORMATEX pcmWaveFormat;
 		memset( &pcmWaveFormat, 0, sizeof( WAVEFORMATEX ) );
@@ -3978,7 +4013,7 @@ S32	CDx8SoundSys::Get3DSampleVolume( LH3DSAMPLE hS )
 
 	long lDSVolume = 0;
 	m_hResult = pSample->m_pDSBuffer->GetVolume( &lDSVolume );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 
 	S32 siVolume;
 	CONVERT_LOG_VOL_TO_LIN_VOL( lDSVolume, siVolume );
@@ -4234,7 +4269,7 @@ void CDx8SoundSys::StopSample( LHSAMPLE hS )
 	m_hResult = pSample->Stop( true );
 
 	SetSampleNotify( pSample, false );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 // start playback at beginning position
@@ -4250,7 +4285,7 @@ void CDx8SoundSys::StartSample( LHSAMPLE hS )
 
 	m_hResult = pSample->Stop( true );
 	m_hResult = pSample->Play( );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 // continue playback from current position
@@ -4265,7 +4300,7 @@ void CDx8SoundSys::ResumeSample( LHSAMPLE hS )
 	pSample->Restore( );
 
 	m_hResult = pSample->Play( );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 // terminate playback and reset position
@@ -4281,7 +4316,7 @@ void CDx8SoundSys::EndSample( LHSAMPLE hS )
 	m_hResult = pSample->Stop( true );
 
 	SetSampleNotify( pSample, false );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 void CDx8SoundSys::SetSampleVolume( LHSAMPLE hS, S32 siVolume )
@@ -4319,7 +4354,7 @@ S32	CDx8SoundSys::GetSampleVolume( LHSAMPLE hS )
 
 	long lDSVolume = 0;
 	m_hResult = pSample->m_pDSBuffer->GetVolume( &lDSVolume );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 
 	S32 siVolume;
 	CONVERT_LOG_VOL_TO_LIN_VOL( lDSVolume, siVolume );
@@ -4402,7 +4437,7 @@ void CDx8SoundSys::SetSamplePan( LHSAMPLE hS, S32 siPan )
 	long lDSPan = ConvertLinPanToLogPan( siPan );
 
 	m_hResult = pSample->m_pDSBuffer->SetPan( lDSPan );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 S32	CDx8SoundSys::GetSamplePan( LHSAMPLE hS )
@@ -4417,7 +4452,7 @@ S32	CDx8SoundSys::GetSamplePan( LHSAMPLE hS )
 
 	long lDSPan = 0;
 	m_hResult = pSample->m_pDSBuffer->GetPan( &lDSPan );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 
 	S32 siPan = ConvertLogPanToLinPan( lDSPan );
 
@@ -4520,7 +4555,7 @@ S32	CDx8SoundSys::InitSampleFromFile( LHSAMPLE hS, void* pFile_image, S32 siBloc
 	if( pWaveFormatEx->wFormatTag != WAVE_FORMAT_PCM )
 	{
 		MMRESULT mmResult = 0;
-		uint32 uiNumSampleBytes;
+		uint32 uiNumSampleBytes = 0;
 
 		WAVEFORMATEX pcmWaveFormat;
 		memset( &pcmWaveFormat, 0, sizeof( WAVEFORMATEX ) );
@@ -4704,7 +4739,7 @@ void CDx8SoundSys::SetSampleMsPosition( LHSAMPLE hS, S32 siMilliseconds )
 	uint32 uiByteOffset = MulDiv( pSample->m_waveFormat.nAvgBytesPerSec, siMilliseconds, 1000 );
 	uiByteOffset -= uiByteOffset % pSample->m_waveFormat.nBlockAlign;
 	m_hResult = pSample->SetCurrentPosition( uiByteOffset );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 S32	CDx8SoundSys::GetSampleUserData( LHSAMPLE hS, U32 uiIndex )
@@ -4841,7 +4876,7 @@ LHSTREAM CDx8SoundSys::OpenStream( char* sFilename, uint32 nFilePos, LHDIGDRIVER
 	}
 
 	// Use the new streaming functions.
-	LHSTREAM hStream = OpenStream(&streamBufferParams, pWaveFile, i);
+	LHSTREAM hStream = OpenStream(&streamBufferParams, pWaveFile, static_cast<uint8>(i));
 
 	if( !hStream )
 	{
@@ -4884,7 +4919,7 @@ void CDx8SoundSys::SetStreamMsPosition( LHSTREAM hStream, S32 siMilliseconds )
 		pStream->m_pWaveFile->GetDuration( ));
 	uiByteOffset -= uiByteOffset % pStream->m_waveFormat.nBlockAlign;
 	m_hResult = pStream->SetCurrentPosition( uiByteOffset );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 void CDx8SoundSys::SetStreamUserData( LHSTREAM hS, U32 uiIndex, S32 siValue)
@@ -4906,8 +4941,6 @@ S32	CDx8SoundSys::GetStreamUserData( LHSTREAM hS, U32 uiIndex)
 LHSTREAM CDx8SoundSys::OpenStream( streamBufferParams_t* pStreamBufferParams, WaveFile* pWaveFile, uint8 nEventNum )
 {
 	LHSTREAM hStream = NULL;
-    VOID*   pDSLockedBuffer      = NULL; // Pointer to locked buffer memory
-    DWORD   dwDSLockedBufferSize = 0;    // Size of the locked DirectSound buffer
 
 	//OutputDebugString("NEW [CDx8SoundSys::OpenStream]\n");
 	if( pStreamBufferParams == NULL )
@@ -5072,7 +5105,7 @@ void CDx8SoundSys::SetStreamPan( LHSTREAM hStream, sint32 siPan )
 	long lDSPan = ConvertLinPanToLogPan( siPan );
 
 	m_hResult = pStream->m_pDSBuffer->SetPan( lDSPan );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 }
 
 sint32 CDx8SoundSys::GetStreamVolume( LHSTREAM hStream )
@@ -5086,7 +5119,7 @@ sint32 CDx8SoundSys::GetStreamVolume( LHSTREAM hStream )
 
 	long lDSVolume = 0;
 	m_hResult = pStream->m_pDSBuffer->GetVolume( &lDSVolume );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 
 	S32 siVolume;
 	CONVERT_LOG_VOL_TO_LIN_VOL( lDSVolume, siVolume );
@@ -5105,7 +5138,7 @@ sint32 CDx8SoundSys::GetStreamPan( LHSTREAM hStream )
 
 	long lDSPan = 0;
 	m_hResult = pStream->m_pDSBuffer->GetPan( &lDSPan );
-	char* m_pcLastError = LastError( );
+	m_pcLastError = LastError( );
 
 	S32 siPan = ConvertLogPanToLinPan( lDSPan );
 
