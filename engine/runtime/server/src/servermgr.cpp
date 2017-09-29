@@ -1104,7 +1104,7 @@ bool CServerMgr::Update(int32 updateFlags, uint32 nCurTimeMS)
 
 	while (s_serverSleepSecs >= 0.0f )
 	{
-		float timeStart ;
+		float timeStart = 0.0F;
 		if (g_LockServerFPS)
 			timeStart = time_GetTime();
 

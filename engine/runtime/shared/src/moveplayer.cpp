@@ -1134,7 +1134,7 @@ void CPlayerMover::CollideWithAABB(const LTVector &vAABBCenter, const LTVector &
 
 		for(int i=0;bIntersect && i<3;i++)
 		{
-			if(i!=nWhichPlane)
+			if(static_cast<uint32>(i)!=nWhichPlane)
 			{
 				vCoord[i] = vStart[i] + MaxT[nWhichPlane] * vOffset[i];
 				if(vCoord[i] < MinB[i] || vCoord[i] > MaxB[i])	
