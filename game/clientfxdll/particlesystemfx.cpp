@@ -943,11 +943,11 @@ void CParticleSystemFX::UpdateParticles( LTFLOAT tmFrame )
 			SetupRotationAroundPoint( mObjTransform, rObjRot, vObjPos ); 
 		}
 		
-		LTParticle* pNext = NULL;
-		for(pLTParticle = pHead; pLTParticle != pTail; pLTParticle = pNext)
+		LTParticle* pNext2 = NULL;
+		for(pLTParticle = pHead; pLTParticle != pTail; pLTParticle = pNext2)
 		{
 			//save the next particle in case it gets removed
-			pNext = pLTParticle->m_pNext;
+			pNext2 = pLTParticle->m_pNext;
 
 			//make sure that this particle is set to bounce
 			if(!(pLTParticle->m_nUserData & (BOUNCE_FLAG | SPLAT_FLAG)))

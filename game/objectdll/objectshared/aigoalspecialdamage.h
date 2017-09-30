@@ -15,8 +15,8 @@
 #include "aigoalabstractsearch.h"
 #include "animationmgr.h"
 
-enum DamageType;
-enum EnumAIStimulusID;
+enum DamageType : int;
+enum EnumAIStimulusID : int;
 
 class CAIGoalSpecialDamage : public CAIGoalAbstractSearch
 {

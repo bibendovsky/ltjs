@@ -138,13 +138,13 @@ CLTGUIColumnCtrl* CScreenLoad::BuildSaveControls( char const* pszIniKey, uint32 
 		return NULL;
 
 	CLTGUIColumnCtrl* pColCtrl = CreateColumnCtrl(nCommandId, nControlHelpStringId);
-	pColCtrl->SetFont(LTNULL,kSmallFontSize);
+	pColCtrl->SetFont(LTNULL,static_cast<uint8>(kSmallFontSize));
 
 	// The world name column
-	pColCtrl->AddColumn(saveGameData.szUserName, kNameWidth);
+	pColCtrl->AddColumn(saveGameData.szUserName, static_cast<uint16>(kNameWidth));
 
 	// The column that contains the date/time
-	pColCtrl->AddColumn(saveGameData.szTime, kTimeWidth);
+	pColCtrl->AddColumn(saveGameData.szTime, static_cast<uint16>(kTimeWidth));
 
 	return pColCtrl;
 		
@@ -176,8 +176,8 @@ void CScreenLoad::BuildSavedLevelLists()
 
 	LTIntPt pos = m_nextPos;
 	pos.x += kIndent;
-	uint16 nHeight = (GetPageBottom() - pos.y);
-	uint16 nWidth = (GetPageRight() - pos.x) - 32;
+	uint16 nHeight = static_cast<uint16>(GetPageBottom() - pos.y);
+	uint16 nWidth = static_cast<uint16>((GetPageRight() - pos.x) - 32);
 	CLTGUIListCtrl *pList = AddList(pos,nHeight,true,nWidth);
 	pList->SetFrameWidth(2);
 	pList->SetColors(m_NonSelectedColor,m_NonSelectedColor,m_NonSelectedColor);

@@ -317,6 +317,7 @@ LTBOOL CFireFX::Update()
     if (!psfxMgr || !m_pClientDE || !m_hServerObject) return LTFALSE;
 
     LTFLOAT fTime = m_pClientDE->GetTime();
+    static_cast<void>(fTime);
 
 	// Check to see if we should go away...
 
@@ -376,8 +377,8 @@ LTBOOL CFireFX::Update()
 
 	if (m_cs.bCreateSparks && GetRandom(1, 10) == 1)
 	{
-		CSFXMgr* psfxMgr = g_pGameClientShell->GetSFXMgr();
-        if (!psfxMgr) return LTFALSE;
+		CSFXMgr* psfxMgr2 = g_pGameClientShell->GetSFXMgr();
+        if (!psfxMgr2) return LTFALSE;
 
 		RANDOMSPARKSCREATESTRUCT sparks;
 		sparks.hServerObj = m_hServerObject;
@@ -389,7 +390,7 @@ LTBOOL CFireFX::Update()
 		sparks.vMinVelAdjust.Init(1, 3, 1);
 		sparks.vMaxVelAdjust.Init(1, 6, 1);
 		sparks.vDir	= vDir * fVel;
-		sparks.nSparks = GetRandom(1, 5);
+		sparks.nSparks = static_cast<uint8>(GetRandom(1, 5));
 		sparks.fDuration = m_fSizeAdjust * GetRandom(1.0f, 2.0f);
         sparks.bRelToCameraPos = LTTRUE;
 		sparks.fInnerCamRadius = FFX_INNER_CAM_RADIUS;
@@ -397,7 +398,7 @@ LTBOOL CFireFX::Update()
 		sparks.fRadius = 300.0f * m_fSizeAdjust;
 		sparks.fRadius = sparks.fRadius < 100.0f ? 100.0f : (sparks.fRadius > 500.0f ? 500.0f : sparks.fRadius);
 
-		psfxMgr->CreateSFX(SFX_RANDOMSPARKS_ID, &sparks);
+		psfxMgr2->CreateSFX(SFX_RANDOMSPARKS_ID, &sparks);
 	}
 
     return LTTRUE;

@@ -56,6 +56,7 @@ set_target_properties(
     ${LTJS_TARGET}
     PROPERTIES
         OUTPUT_NAME object
+        PREFIX ""
         SUFFIX .lto
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_TO2_BIN_DIR}
 )
@@ -73,6 +74,7 @@ target_link_libraries(
     ltjs_lib_object
     ltjs_lib_bute_mgr
     ltjs_lib_std_lith
+    ltjs_lib_client_shell
     ltjs_lib_crypt_mgr
     ltjs_lib_reg_mgr
     ltjs_lib_mfc_stub

@@ -10,6 +10,8 @@
 //
 //-------------------------------------------------------------------
 
+#include <string>
+
 #include "bdefs.h"
 #include "dtxmgr.h"
 #include "sysstreamsim.h"
@@ -314,7 +316,7 @@ bool CUIVectorFont::Init(
 	int i;
 	for( i = asciiStart; i <= asciiEnd; i++ )
 	{
-		szChars[i - asciiStart] = i;
+		szChars[i - asciiStart] = static_cast<char>(i);
 	}
 	szChars[i - asciiStart] = 0;
 
@@ -698,6 +700,7 @@ static void WritePixelDataTGA( uint8* pPixelData, SIZE& sizeTexture, char const*
 	int nPixelDataPitch = WIDTHBYTES( 16, sizeTexture.cx );
 	int nBitmapPitch = WIDTHBYTES( 16, sizeTexture.cx );
 
+    static_cast<void>(nBitmapPitch);
 
 	// Save the bitmap.
 	FILE* fp = fopen( pszFilename, "wb");
@@ -912,6 +915,8 @@ bool CUIVectorFont::CreateFontTextureAndTable( InstalledFontFace& installedFontF
 	BITMAPINFO bmi;
 	int nBufferSize = 0;
 
+    static_cast<void>(nBufferSize);
+
 	// This will hold the size of the texture used for rendering.
 	SIZE sizeTexture;
 
@@ -921,6 +926,8 @@ bool CUIVectorFont::CreateFontTextureAndTable( InstalledFontFace& installedFontF
 
 	// This will hold the GDI font metrics.
 	TEXTMETRIC textMetric;
+
+    ZeroMemory(&textMetric, sizeof(TEXTMETRIC));
 
 	if( bOk )
 	{
@@ -967,7 +974,7 @@ bool CUIVectorFont::CreateFontTextureAndTable( InstalledFontFace& installedFontF
 		GetTextExtentPoint32( hDC, " ", 1, &sizeTextExtent );
 		m_DefaultCharScreenWidth 	= static_cast<uint8>(sizeTextExtent.cx);
 		m_DefaultCharScreenHeight 	= static_cast<uint8>(sizeTextExtent.cy);
-		m_DefaultVerticalSpacing	= ( uint32 )((( float )m_DefaultCharScreenHeight / 4.0f ) + 0.5f );
+		m_DefaultVerticalSpacing	= static_cast<uint8>(( uint32 )((( float )m_DefaultCharScreenHeight / 4.0f ) + 0.5f ));
 
 		// Get the average info on the characters.  The width isn't used
 		// for proportional fonts, so using an average is ok.
@@ -1071,10 +1078,10 @@ bool CUIVectorFont::CreateFontTextureAndTable( InstalledFontFace& installedFontF
 
 			// Fill in the font character map if we have one.
 			if( m_pFontMap )
-				m_pFontMap[( uint8 )nChar ] = nGlyph;
+				m_pFontMap[( uint8 )nChar ] = static_cast<uint8>(nGlyph);
 
 			// Char width.
-			m_pFontTable[ nGlyph * 3 ]  = nCharWidthWithSpacing;
+			m_pFontTable[ nGlyph * 3 ]  = static_cast<uint16>(nCharWidthWithSpacing);
 
 			// X Offset.
 			m_pFontTable[ nGlyph * 3 + 1] = ( uint16 )sizeOffset.x;
@@ -1141,7 +1148,7 @@ bool CUIVectorFont::CreateFontTextureAndTable( InstalledFontFace& installedFontF
 				// Fill in the font character map if we have one.
 				if( m_pFontMap )
 				{
-					m_pFontMap[( uint8 )nChar ] = nGlyph;
+					m_pFontMap[( uint8 )nChar ] = static_cast<uint8>(nGlyph);
 				}
 
 				// Char width.
@@ -1158,12 +1165,12 @@ bool CUIVectorFont::CreateFontTextureAndTable( InstalledFontFace& installedFontF
 
 				uint8 * pPixel = pPixelData + ( y * nPixelDataPitch ) + ( x * 2);
 
-				uint16* pData = ( uint16* )pPixel;
-				uint16* pPixelDataEnd = ( uint16* )( pPixelData + nPixelDataSize );
+				uint16* pData2 = ( uint16* )pPixel;
+				uint16* pPixelDataEnd2 = ( uint16* )( pPixelData + nPixelDataSize );
 
-				if ( pData < pPixelDataEnd )
+				if ( pData2 < pPixelDataEnd2 )
 				{
-						*pData = 0x00F0;    // Set green pixel ( pixel format is ARGB ) 
+						*pData2 = 0x00F0;    // Set green pixel ( pixel format is ARGB ) 
 				}
 
 			}	

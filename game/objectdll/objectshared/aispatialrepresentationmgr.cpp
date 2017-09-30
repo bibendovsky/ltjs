@@ -416,7 +416,7 @@ LTBOOL CAISpatialRepresentationMgr::FindDangerScatterPosition(AISpatialRepresent
 	// Decide which, if any, of the valid corners, is best for us to use (ie, don't run through the danger radius to get there)
 
 	LTFLOAT fMinimumDistanceSqr = (LTFLOAT)INT_MAX;
-	uint32 iCornerBest = -1;
+	uint32 iCornerBest = static_cast<uint32>(-1);
 
 	{for ( uint iCorner = 0 ; iCorner < 4 ; iCorner++ )
 	{

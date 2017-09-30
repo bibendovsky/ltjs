@@ -272,7 +272,7 @@ CUI_RESULTTYPE	CUIPolyString_Impl::SetText(const char* buf)
 		return CUIR_INVALID_POLYSTRING;
 	}
 
-	m_Length = strlen(buf);
+	m_Length = static_cast<uint16>(strlen(buf));
 	
 	// allocate the characters if they don't exist or the buffer
 	// ain't big enough
@@ -484,7 +484,7 @@ CUI_RESULTTYPE CUIPolyString_Impl::ApplyFont(
 	// are we applying to all of the string or only part?
   	len = m_Length;
 	if (num == 0) num = (uint16)len;
-	num = (index + num > len) ? (len) : (index+num);
+	num = static_cast<int16>((index + num > len) ? (len) : (index+num));
 	
 	str      = m_pChars + index;
 	pArray	 = m_pPolys;	

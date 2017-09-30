@@ -66,7 +66,7 @@ LTBOOL CScreenCrosshair::Build()
 	g_pLayoutMgr->GetScreenCustomString(SCREEN_ID_CROSSHAIR,"FrameTexture",szFrame,sizeof(szFrame));
 	HTEXTURE hFrame = g_pInterfaceResMgr->GetTexture(szFrame);
 	CLTGUIFrame *pFrame = debug_new(CLTGUIFrame);
-	pFrame->Create(hFrame,nWd,nHt+8,LTTRUE);
+	pFrame->Create(hFrame,static_cast<uint16>(nWd),static_cast<uint16>(nHt+8),LTTRUE);
 	pFrame->SetBasePos(pos);
 	pFrame->SetBorder(2,m_SelectedColor);
 	AddControl(pFrame);
@@ -84,6 +84,7 @@ LTBOOL CScreenCrosshair::Build()
 	pSlider->SetSliderIncrement(16);
 
 	CLTGUIToggle* pToggle = AddToggle(IDS_CH_DYNAMIC, IDS_HELP_CH_DYNAMIC, kGap, &m_bDynamic );
+    static_cast<void>(pToggle);
 
 	m_pStyle = AddCycle(IDS_CH_STYLE,IDS_HELP_CH_STYLE,kGap,&m_nStyle);
 	char szTmp[kMaxStringBuffer];

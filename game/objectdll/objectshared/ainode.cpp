@@ -1202,7 +1202,7 @@ AINodeUseObject::AINodeUseObject()
 	m_eFirstSound	= kAIS_None;
 	m_eFidgetSound	= kAIS_None;
 	m_eSmartObjectState = kState_SmartObjectDefault;
-	m_nSmartObjectID = -1;
+	m_nSmartObjectID = static_cast<uint32>(-1);
 	m_bOneWay = LTFALSE;
 }
 

@@ -215,7 +215,7 @@ void CAnimationContext::Init(uint32 cAnimationInstances, uint32 cTransitionInsta
 	m_bPlayTransition = LTTRUE;
 
 	m_iCachedAnimation = 0;
-	m_iRandomSeed = -1;
+	m_iRandomSeed = static_cast<uint32>(-1);
 }
 
 void CAnimationContext::Term()
@@ -774,7 +774,7 @@ void CAnimationContext::Update()
 		break;
 	}
 
-	m_iRandomSeed = -1;
+	m_iRandomSeed = static_cast<uint32>(-1);
 	m_Props.Clear();
 }
 
@@ -802,7 +802,9 @@ void CAnimationContext::SetSpecial(const char* szName)
 void CAnimationContext::SetSpecial(const CAnimationProps& Props)
 {
 	const CAnimation& Animation = m_pAnimationMgr->FindAnimation( Props, &m_iCachedAnimation, &m_iRandomSeed, LTTRUE, m_hObject );
-	VerifyAnimation( m_hObject, Animation.GetName(), &(CAnimationProps)Props );
+
+    auto props = Props;
+	VerifyAnimation( m_hObject, Animation.GetName(), &props );
 
 	AITRACE(AIShowAnimation, ( m_hObject, "Setting special anim %s\n", Animation.GetName() ) );
 
@@ -981,13 +983,13 @@ CAnimationMgr* CAnimationMgrList::GetAnimationMgr(const char* szAnimationMgrPath
 // Make a case-insensitive hash key from first 4 letters.
 uint32 CAnimationMgrList::MakePropHashKey(const char* szKey)
 {
-	uint8 len = strlen(szKey);
+	uint8 len = static_cast<uint8>(strlen(szKey));
 	char key[4];
 	for(uint8 i=0; i<4; ++i)
 	{
 		if(i < len)
 		{
-			key[i] = tolower(szKey[i]);
+			key[i] = static_cast<char>(tolower(szKey[i]));
 		}
 		else key[i] = 0;
 	}
@@ -1255,7 +1257,7 @@ LTRESULT CAnimationMgr::ResetAnimationContext( CAnimationContext *pAnimationCont
 		return LT_ERROR ;
 	uint32 last_hash = 0;
 	uint32 cur_hash ;
-	HMODELANIM hCachedAni;
+	HMODELANIM hCachedAni = 0;
 
 	// setup the aninimation tables again.
 	// check for already filled entries and redundancies to save on calling getanimationinstance

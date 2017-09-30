@@ -217,7 +217,7 @@ void CSDTitan_RequestEntry_Validate_Version::Reset()
 
 void CSDTitan_RequestEntry_Validate_Version::OnCompletion()
 {
-	if (m_pActiveOp == m_pGetDirOp)
+	if (m_pActiveOp.get() == m_pGetDirOp.get())
 	{
 		if (m_pActiveOp->GetStatus() == WS_Success)
 		{
@@ -317,7 +317,7 @@ void CSDTitan_RequestEntry_Validate_CDKey::OnCompletion()
 {
 	if (m_pActiveOp->GetStatus() == WS_Success)
 	{
-		if (m_pActiveOp == m_pGetDirOp)
+		if (m_pActiveOp.get() == m_pGetDirOp.get())
 		{
 			AuthContextPtr pAuthContext = GetDir()->GetAuthContext();
 			pAuthContext->AddAddressesFromDir(m_pGetDirOp->GetDirEntityList());
@@ -391,7 +391,7 @@ void CSDTitan_RequestEntry_Publish_Server::Reset()
 
 void CSDTitan_RequestEntry_Publish_Server::OnCompletion()
 {
-	if ((m_pActiveOp->GetStatus() != WS_Success) && (m_pActiveOp == m_pAddServiceOp))
+	if ((m_pActiveOp->GetStatus() != WS_Success) && (m_pActiveOp.get() == m_pAddServiceOp.get()))
 	{
 		// Remove the entry if it's already in there
 		m_pRemoveServiceOp = new RemoveServiceOp(GetDir()->GetDirServerList());
@@ -406,7 +406,7 @@ void CSDTitan_RequestEntry_Publish_Server::OnCompletion()
 		CancelCompletion();
 		return;
 	}
-	else if ((m_pActiveOp->GetStatus() == WS_Success) && (m_pActiveOp == m_pRemoveServiceOp))
+	else if ((m_pActiveOp->GetStatus() == WS_Success) && (m_pActiveOp.get() == m_pRemoveServiceOp.get()))
 	{
 		// Re-add the entry
 		m_pActiveOp = m_pAddServiceOp;
@@ -2116,7 +2116,11 @@ IServerDirectory::ERequestResult CServerDirectory_Titan::BlockOnCompletion(uint3
 	return eResult;
 }
 
+#ifdef __MINGW32__
+unsigned long __attribute__((stdcall)) CServerDirectory_Titan::StartRenderThread_Bootstrap(void *pParam)
+#else
 unsigned long _stdcall CServerDirectory_Titan::StartRenderThread_Bootstrap(void *pParam)
+#endif
 {
 	CServerDirectory_Titan *pDirectory = reinterpret_cast<CServerDirectory_Titan *>(pParam);
 	return (unsigned long)pDirectory->StartRenderThread_Run();

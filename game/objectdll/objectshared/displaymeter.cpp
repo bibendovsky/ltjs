@@ -419,7 +419,7 @@ void DisplayMeter::HandleMinus(uint8 val)
 		return;
 	}
 
-	m_nValue = newValue;
+	m_nValue = static_cast<uint8>(newValue);
 
 	// Send message to clients telling them about the DisplayMeter...
 	UpdateClients();

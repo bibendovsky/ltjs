@@ -240,7 +240,7 @@ void CLaserBeam::Update(LTVector &vBeamStartPos, const LTRotation* pRDirRot,
     pls.bAdditive           = LTTRUE;
     pls.bAlignFlat          = b3rdPerson ? LTFALSE : LTTRUE;
 	pls.nWidthStyle			= PLWS_CONSTANT;
-	pls.nNumSegments		= (int)g_cvarLaserBeamNumSegments.GetFloat();
+	pls.nNumSegments		= static_cast<uint8>((int)g_cvarLaserBeamNumSegments.GetFloat());
 
 	if (m_LightBeam.HasBeenDrawn())
 	{

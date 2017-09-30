@@ -52,6 +52,7 @@ void BuildModelNodeOrientation(const CModelNode& Node, const LTVector& vDefaultU
 	LTVector vUp;
 
 	float fDot = vOther.Dot(vRight);
+    static_cast<void>(fDot);
 
 	if(fabs(vOther.Dot(vRight)) > 0.95f)
 	{
@@ -650,6 +651,7 @@ bool CRagDoll::ApplyConstraints(float fNewFrameTime)
 	}
 
 	float fFrictionScale = m_fFrictionConstant * fNewFrameTime / (m_fPrevFrameDelta * m_nNumIterations);
+    static_cast<void>(fFrictionScale);
 	
 	//run through the specified number of times and apply constraints
 	for(uint32 nIteration = 0; nIteration < m_nNumIterations; nIteration++)

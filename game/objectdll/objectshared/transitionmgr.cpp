@@ -492,7 +492,6 @@ LTBOOL CTransitionMgr::SaveNonTransitionObjects( char const *pSaveLevelFile )
 
 	// Add active objects to the list...
 
-	int i = 0;
     HOBJECT hObj = g_pLTServer->GetNextObject( LTNULL );
 	while( hObj )
 	{

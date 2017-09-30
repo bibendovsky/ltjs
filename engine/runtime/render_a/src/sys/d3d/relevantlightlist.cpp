@@ -97,7 +97,7 @@ uint32 CRelevantLightList::GetNumLights() const
 //clip this to the largest amount that D3D can handle
 void CRelevantLightList::SetMaxLights(uint32 nMaxLights)
 {
-	m_nMaxLights = LTMIN(nMaxLights, MAX_LIGHTS_SUPPORTED_BY_D3D);
+	m_nMaxLights = static_cast<uint16>(LTMIN(nMaxLights, MAX_LIGHTS_SUPPORTED_BY_D3D));
 
 	//make sure that we don't have any lights beyond that
 	m_nNumLights = LTMIN(m_nNumLights, m_nMaxLights);

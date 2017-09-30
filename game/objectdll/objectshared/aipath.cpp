@@ -25,7 +25,7 @@ CAIPathWaypoint::CAIPathWaypoint()
 	m_pObject2 = LTNULL;
 	m_eVolumeGate = eVolumeGateInvalid;
 	m_nWaypointID = 0;
-	m_iControlPoint = -1;
+	m_iControlPoint = static_cast<uint32>(-1);
 	m_bCalculateCurve = LTFALSE;
 	m_eProp = kAP_None;
 }

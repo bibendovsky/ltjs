@@ -19,7 +19,7 @@
 #endif
  
 #if AIDATA_TYPE_AS_ENUM
-	#define ADD_AIDATA_TYPE(label) kAIData_##label##,
+	#define ADD_AIDATA_TYPE(label) kAIData_##label,
 #elif AIDATA_TYPE_AS_STRING
 	#define ADD_AIDATA_TYPE(label) #label,
 #else

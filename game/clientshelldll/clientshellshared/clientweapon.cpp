@@ -47,27 +47,27 @@ namespace
 
 	// model animation names
 	// I wish they could be const, but the engine's interface isn't
-	char *ns_szSelectAnimationName = "Select";
-	char *ns_szDeselectAnimationName = "Deselect";
-	char *ns_szReloadAnimationName = "Reload";
+	const char *ns_szSelectAnimationName = "Select";
+    const char *ns_szDeselectAnimationName = "Deselect";
+    const char *ns_szReloadAnimationName = "Reload";
 
-	char *ns_szAltSelectAnimationName = "AltSelect";
-	char *ns_szAltDeselectAnimationName = "AltDeselect";
-	char *ns_szAltDeselect2AnimationName = "AltDeselect2";
-	char *ns_szAltReloadAnimationName = "AltReload";
+    const char *ns_szAltSelectAnimationName = "AltSelect";
+    const char *ns_szAltDeselectAnimationName = "AltDeselect";
+    const char *ns_szAltDeselect2AnimationName = "AltDeselect2";
+    const char *ns_szAltReloadAnimationName = "AltReload";
 
-	char *ns_szPreFireAnimationName = "PreFire";
-	char *ns_szPostFireAnimationName = "PostFire";
+    const char *ns_szPreFireAnimationName = "PreFire";
+    const char *ns_szPostFireAnimationName = "PostFire";
 
-	char *ns_szIdleAnimationBasename = "Idle_";
+    const char *ns_szIdleAnimationBasename = "Idle_";
 
-	char *ns_szFireAnimationName = "Fire";
-	char *ns_szFireAnimationBasename = "Fire";
+    const char *ns_szFireAnimationName = "Fire";
+    const char *ns_szFireAnimationBasename = "Fire";
 
-	char *ns_szAltIdleAnimationBasename = "AltIdle_";
+    const char *ns_szAltIdleAnimationBasename = "AltIdle_";
 
-	char *ns_szAltFireAnimationName = "AltFire";
-	char *ns_szAltFireAnimationBasename = "AltFire";
+    const char *ns_szAltFireAnimationName = "AltFire";
+    const char *ns_szAltFireAnimationBasename = "AltFire";
 
 	// If -1.0f, the anmiation rates will be unchanged,
 	// else they will run at the specified speed.
@@ -364,10 +364,10 @@ bool CClientWeapon::OnModelKey( HLOCALOBJ hObj, ArgList* pArgList )
 				ASSERT( LT_OK == ltResult );
 
 				// write the sound to play
-				cMsg.Writeuint8( nId );
+				cMsg.Writeuint8( static_cast<uint8>(nId) );
 
 				// write the weapon's id
-				cMsg.Writeuint8( m_nWeaponId );
+				cMsg.Writeuint8( static_cast<uint8>(m_nWeaponId) );
 
 				// write the client's id
 				cMsg.Writeuint8( static_cast< uint8 >( dwId ) );
@@ -412,7 +412,7 @@ bool CClientWeapon::OnModelKey( HLOCALOBJ hObj, ArgList* pArgList )
 				CAutoMessage cMsg;
 				cMsg.Writeuint8( MID_WEAPON_SOUND_LOOP );
 				cMsg.Writeuint8( PSI_INVALID );
-				cMsg.Writeuint8( m_nWeaponId );
+				cMsg.Writeuint8( static_cast<uint8>(m_nWeaponId) );
 				g_pLTClient->SendToServer( cMsg.Read(), MESSAGE_GUARANTEED );
 			
 				return true;
@@ -469,14 +469,14 @@ bool CClientWeapon::OnModelKey( HLOCALOBJ hObj, ArgList* pArgList )
 																	  PLAYSOUND_LOOP | PLAYSOUND_GETHANDLE | PLAYSOUND_REVERB,
 																	  SMGR_DEFAULT_VOLUME, 1.0f, WEAPONS_SOUND_CLASS );
 
-					m_nLoopSoundId = nId;
+					m_nLoopSoundId = static_cast<uint8>(nId);
 
 					// Send message to server so all clients can start loop sound...
 
 					CAutoMessage cMsg;
 					cMsg.Writeuint8( MID_WEAPON_SOUND_LOOP );
-					cMsg.Writeuint8( nId );
-					cMsg.Writeuint8( m_nWeaponId );
+					cMsg.Writeuint8( static_cast<uint8>(nId) );
+					cMsg.Writeuint8( static_cast<uint8>(m_nWeaponId) );
 					g_pLTClient->SendToServer( cMsg.Read(), MESSAGE_GUARANTEED );
 				}
 				
@@ -634,7 +634,7 @@ bool CClientWeapon::OnModelKey( HLOCALOBJ hObj, ArgList* pArgList )
 				if(pArgList->argc >= i+3)
 				{
 					nRS = (atoi)(pArgList->argv[i+1]);
-					SetObjectRenderStyle(m_hObject,nRS,pArgList->argv[i+2]);
+					SetObjectRenderStyle(m_hObject,static_cast<uint8>(nRS),pArgList->argv[i+2]);
 				}
 				else
 				{
@@ -661,8 +661,8 @@ bool CClientWeapon::OnModelKey( HLOCALOBJ hObj, ArgList* pArgList )
 		if (g_pPlayerMgr->IsFirstPerson())
 		{
 			SHELLCREATESTRUCT sc;
-			sc.nWeaponId	= m_nWeaponId;
-			sc.nAmmoId		= m_nAmmoId;
+			sc.nWeaponId	= static_cast<uint8>(m_nWeaponId);
+			sc.nAmmoId		= static_cast<uint8>(m_nAmmoId);
 			sc.b3rdPerson	= LTFALSE;
 
 			GetModelRot(&sc.rRot);
@@ -670,10 +670,10 @@ bool CClientWeapon::OnModelKey( HLOCALOBJ hObj, ArgList* pArgList )
 
 			// Add on the player's velocity...
 
-			HOBJECT hObj = g_pPlayerMgr->GetMoveMgr()->GetObject();
-			if (hObj)
+			HOBJECT hObj2 = g_pPlayerMgr->GetMoveMgr()->GetObject();
+			if (hObj2)
 			{
-				g_pPhysicsLT->GetVelocity(hObj, &sc.vStartVel);
+				g_pPhysicsLT->GetVelocity(hObj2, &sc.vStartVel);
 			}
 
 			g_pGameClientShell->GetSFXMgr()->CreateSFX(SFX_SHELLCASING_ID, &sc);
@@ -740,7 +740,7 @@ bool CClientWeapon::OnModelKey( HLOCALOBJ hObj, ArgList* pArgList )
 		{
 			nPVAttachment = atoi( pArgList->argv[ i ] );
 
-			g_pPVAttachmentMgr->ShowPVAttachment( nPVAttachment, false );
+			g_pPVAttachmentMgr->ShowPVAttachment( static_cast<uint8>(nPVAttachment), false );
 
 			++i;
 		}
@@ -758,7 +758,7 @@ bool CClientWeapon::OnModelKey( HLOCALOBJ hObj, ArgList* pArgList )
 		{
 			nPVAttachment = atoi( pArgList->argv[ i ] );
 
-			g_pPVAttachmentMgr->ShowPVAttachment( nPVAttachment, true );
+			g_pPVAttachmentMgr->ShowPVAttachment( static_cast<uint8>(nPVAttachment), true );
 
 			++i;
 		}
@@ -1134,7 +1134,7 @@ WeaponState CClientWeapon::Update( bool bFire, FireType eFireType /*=FT_NORMAL_F
 	if ( m_bAutoSwitchEnabled && m_bAutoSwitch )
 	{
 		// We only auto-switch if we are out of ammo...
-		if (g_pPlayerStats->GetAmmoCount(m_nAmmoId) <= 0)
+		if (g_pPlayerStats->GetAmmoCount(static_cast<uint8>(m_nAmmoId)) <= 0)
 		{
 			// Tell the client weapon mgr to switch to a different weapon...
 			eState = W_AUTO_SWITCH;
@@ -1239,8 +1239,8 @@ void CClientWeapon::ChangeAmmoImmediate( uint8 nNewAmmoId, int nAmmoAmount /*=-1
 	else
 	{
 		// Update the hud to reflect the new ammo amount...
-		g_pPlayerStats->UpdateAmmo( m_nWeaponId, m_nAmmoId, nAmmoAmount );
-		g_pPlayerStats->UpdatePlayerWeapon( m_nWeaponId, m_nAmmoId );
+		g_pPlayerStats->UpdateAmmo( static_cast<uint8>(m_nWeaponId), static_cast<uint8>(m_nAmmoId), nAmmoAmount );
+		g_pPlayerStats->UpdatePlayerWeapon( static_cast<uint8>(m_nWeaponId), static_cast<uint8>(m_nAmmoId) );
 	}
 }
 
@@ -1263,7 +1263,7 @@ void CClientWeapon::ReloadClip( bool bPlayReload /*=true*/,
 	if ( W_DESELECT == GetState() ) return;
 
 	// get all the ammo the player possesses
-	int nAmmoCount = g_pPlayerStats->GetAmmoCount( m_nAmmoId );
+	int nAmmoCount = g_pPlayerStats->GetAmmoCount( static_cast<uint8>(m_nAmmoId) );
 
 	// Get an intermediate amount of ammo.  If the nNewAmmo has
 	// been specified, use that value.  Otherwise use the total
@@ -1282,12 +1282,12 @@ void CClientWeapon::ReloadClip( bool bPlayReload /*=true*/,
 	// how much ammo you have.  If you specify an amount that is
 	// more or less, it will consider this the new amount of
 	// ammo that you have on you and adjust things accordingly.
-	g_pPlayerStats->UpdateAmmo( m_nWeaponId, m_nAmmoId, nAmmo );
+	g_pPlayerStats->UpdateAmmo( static_cast<uint8>(m_nWeaponId), static_cast<uint8>(m_nAmmoId), nAmmo );
 
 
 	// This will set the player stats to the specified weapon and 
 	// ammo id.  In this case, use the current ones.
-	g_pPlayerStats->UpdatePlayerWeapon( m_nWeaponId, m_nAmmoId );
+	g_pPlayerStats->UpdatePlayerWeapon( static_cast<uint8>(m_nWeaponId), static_cast<uint8>(m_nAmmoId) );
 
 	// Make sure we can reload the clip...
 	if ( !bForce )
@@ -1327,7 +1327,7 @@ void CClientWeapon::ReloadClip( bool bPlayReload /*=true*/,
 
 			CAutoMessage cMsg;
 			cMsg.Writeuint8( MID_WEAPON_RELOAD );
-			cMsg.Writeuint8( m_nAmmoId ); // We maybe switching ammo
+			cMsg.Writeuint8( static_cast<uint8>(m_nAmmoId) ); // We maybe switching ammo
 			g_pLTClient->SendToServer( cMsg.Read(), MESSAGE_GUARANTEED );
 		}
 		
@@ -1371,7 +1371,7 @@ void CClientWeapon::DecrementAmmo()
 	}
 	else
 	{
-		nAmmo = g_pPlayerStats->GetAmmoCount( m_nAmmoId );
+		nAmmo = g_pPlayerStats->GetAmmoCount( static_cast<uint8>(m_nAmmoId) );
 	}
 
 	int nShotsPerClip = m_pWeapon->nShotsPerClip;
@@ -1392,7 +1392,7 @@ void CClientWeapon::DecrementAmmo()
 
 			// Update our stats.  This will ensure that our stats are always
 			// accurate (even in multiplayer)...
-			g_pPlayerStats->UpdateAmmo( m_nWeaponId, m_nAmmoId, nAmmo, LTFALSE, LTFALSE );
+			g_pPlayerStats->UpdateAmmo( static_cast<uint8>(m_nWeaponId), static_cast<uint8>(m_nAmmoId), nAmmo, LTFALSE, LTFALSE );
 		}
 	}
 
@@ -1625,6 +1625,7 @@ void CClientWeapon::SetVisible( bool bVis /*=true*/ )
 
 	// Hide/Show weapon model...
 	LTRESULT ltResult = g_pCommonLT->SetObjectFlags( m_hObject, OFT_Flags, dwVisibleFlag, FLAG_VISIBLE );
+    static_cast<void>(ltResult);
 
 	// Always hide the flash (it will be shown when needed)...
 	if( m_MuzzleFlashFX.IsValid() )
@@ -1682,7 +1683,7 @@ void CClientWeapon::CreateSilencer()
 	        static_cast< ModType >( g_pPlayerStats->GetSilencer(m_pWeapon) ) );
 	if ( !pMod ||
 	     !pMod->szSocket[ 0 ] ||
-	     !g_pPlayerStats->HaveMod( pMod->nId ) )
+	     !g_pPlayerStats->HaveMod( static_cast<uint8>(pMod->nId) ) )
 	{
 		if ( m_hSilencerModel )
 		{
@@ -1830,7 +1831,7 @@ void CClientWeapon::CreateScope()
 	        static_cast< ModType >( g_pPlayerStats->GetScope(m_pWeapon) ) );
 	if ( !pMod ||
 	     !pMod->szSocket[ 0 ] ||
-	     !g_pPlayerStats->HaveMod( pMod->nId ) )
+	     !g_pPlayerStats->HaveMod( static_cast<uint8>(pMod->nId) ) )
 	{
 		if ( m_hScopeModel )
 		{
@@ -2374,7 +2375,7 @@ bool CClientWeapon::HasAmmo() const
 		for ( int i = 0; i < m_pWeapon->nNumAmmoIds; ++i )
 		{
 			ASSERT( 0 != g_pPlayerStats );
-			if ( 0 < g_pPlayerStats->GetAmmoCount( m_pWeapon->aAmmoIds[ i ] ) )
+			if ( 0 < g_pPlayerStats->GetAmmoCount( static_cast<uint8>(m_pWeapon->aAmmoIds[ i ]) ) )
 			{
 				// we have ammo
 				return true;
@@ -2475,7 +2476,7 @@ uint8 CClientWeapon::GetNextAvailableAmmo( uint8 nGivenAmmoId )
 	// If the given type is invalid, use the current ammo ID
 	if ( !g_pWeaponMgr->IsValidAmmoId( nGivenAmmoId ) )
 	{
-		nCurrAmmoId = m_nAmmoId;
+		nCurrAmmoId = static_cast<uint8>(m_nAmmoId);
 	}
 	else
 	{
@@ -2518,7 +2519,7 @@ uint8 CClientWeapon::GetNextAvailableAmmo( uint8 nGivenAmmoId )
 
 		// get the ammo count
 		ASSERT( 0 != g_pPlayerStats );
-		nAmmoCount = g_pPlayerStats->GetAmmoCount( m_pWeapon->aAmmoIds[ nCurAmmoIndex ] );
+		nAmmoCount = g_pPlayerStats->GetAmmoCount( static_cast<uint8>(m_pWeapon->aAmmoIds[ nCurAmmoIndex ]) );
 		if (0 < nAmmoCount )
 		{
 			nNewAmmoId = m_pWeapon->aAmmoIds[ nCurAmmoIndex ];
@@ -2526,7 +2527,7 @@ uint8 CClientWeapon::GetNextAvailableAmmo( uint8 nGivenAmmoId )
 		}
 	}
 
-	return nNewAmmoId;
+	return static_cast<uint8>(nNewAmmoId);
 }
 
 
@@ -2555,7 +2556,7 @@ bool CClientWeapon::GetBestAvailableAmmoId( int *nAmmoId ) const
 	// go through all the ammo ids
 	for ( int i = 0; i < m_pWeapon->nNumAmmoIds; ++i )
 	{
-		if ( 0 < g_pPlayerStats->GetAmmoCount( m_pWeapon->aAmmoIds[ i ] ) )
+		if ( 0 < g_pPlayerStats->GetAmmoCount( static_cast<uint8>(m_pWeapon->aAmmoIds[ i ]) ) )
 		{
 			// we do have this ammo
 
@@ -2652,7 +2653,7 @@ void CClientWeapon::Save( ILTMessage_Write *pMsg )
 	if( !pMsg ) return;
 
 	pMsg->Writebool( m_bFirstSelection );
-	pMsg->Writeuint8( m_nAmmoId );
+	pMsg->Writeuint8( static_cast<uint8>(m_nAmmoId) );
 	pMsg->Writeint32( m_nAmmoInClip );
 }
 
@@ -2774,7 +2775,7 @@ WeaponState CClientWeapon::UpdateAmmoFromFire( bool bDecrementAmmo /*= true*/)
 	else
 	{
 		// current amount of ammo
-		nAmmo = g_pPlayerStats->GetAmmoCount( m_nAmmoId );
+		nAmmo = g_pPlayerStats->GetAmmoCount( static_cast<uint8>(m_nAmmoId) );
 	}
 
 	// If this weapon uses ammo, make sure we have ammo...
@@ -3385,10 +3386,10 @@ bool CClientWeapon::PlayReloadAnimation()
 		m_nAmmoInClip = m_nNewAmmoInClip;
 
 		// Update the player's stats...
-		int nAmmo = g_pPlayerStats->GetAmmoCount( m_nAmmoId );
+		int nAmmo = g_pPlayerStats->GetAmmoCount( static_cast<uint8>(m_nAmmoId) );
 
-		g_pPlayerStats->UpdateAmmo( m_nWeaponId, m_nAmmoId, nAmmo );
-		g_pPlayerStats->UpdatePlayerWeapon( m_nWeaponId, m_nAmmoId );
+		g_pPlayerStats->UpdateAmmo( static_cast<uint8>(m_nWeaponId), static_cast<uint8>(m_nAmmoId), nAmmo );
+		g_pPlayerStats->UpdatePlayerWeapon( static_cast<uint8>(m_nWeaponId), static_cast<uint8>(m_nAmmoId) );
 
 		return false;
 	}
@@ -3645,7 +3646,7 @@ bool CClientWeapon::PlayFireAnimation( bool bResetAni )
 			// is true and we have ammo (i.e., they are holding down the fire key).  
 			// Else, if we have a post-fire ani, play it...
 		
-			if ( bResetAni && g_pPlayerStats->GetAmmoCount(m_nAmmoId) > 0 )
+			if ( bResetAni && g_pPlayerStats->GetAmmoCount(static_cast<uint8>(m_nAmmoId)) > 0 )
 			{
 				PlayAnimation( dwFireAni, true, fRate );
 				return true;
@@ -3661,7 +3662,7 @@ bool CClientWeapon::PlayFireAnimation( bool bResetAni )
 			// We just finished playing the post-fire ani, start the cycle again if bResetAni
 			// is true and we have ammo (i.e., they are holding down the fire key).  
 			
-			if( bResetAni && g_pPlayerStats->GetAmmoCount(m_nAmmoId) > 0  )
+			if( bResetAni && g_pPlayerStats->GetAmmoCount(static_cast<uint8>(m_nAmmoId)) > 0  )
 			{
 				if( bHasPreFireAni )
 				{
@@ -4643,7 +4644,7 @@ void CClientWeapon::Fire( bool bFire )
 
 	// Create a client-side projectile for every vector...
 	WeaponPath wp;
-	wp.nWeaponId  = m_nWeaponId;
+	wp.nWeaponId  = static_cast<uint8>(m_nWeaponId);
 	wp.vU         = vU;
 	wp.vR         = vR;
 	wp.fPerturbR  = fPerturb;
@@ -4707,7 +4708,7 @@ void CClientWeapon::SendFireMessage( bool bFire,
 
 	// Calculate a random seed...(srand uses this value so it can't be 1, since
 	// that has a special meaning for srand)
-	uint8 nRandomSeed = GetRandom( 2, 255 );
+	uint8 nRandomSeed = static_cast<uint8>(GetRandom( 2, 255 ));
 
 	CAutoMessage cMsg;
 	LTRESULT msgResult;
@@ -4719,10 +4720,10 @@ void CClientWeapon::SendFireMessage( bool bFire,
 	cMsg.Writeuint8( GetFireMessageType() );
 
 	// ID of the weapon that is firing
-	cMsg.Writeuint8( m_nWeaponId );
+	cMsg.Writeuint8( static_cast<uint8>(m_nWeaponId) );
 
 	// ID of the ammo that is firing
-	cMsg.Writeuint8( m_nAmmoId );
+	cMsg.Writeuint8( static_cast<uint8>(m_nAmmoId) );
 
 	// muzzle flash position
 	cMsg.WriteLTVector( m_vFlashPos );
@@ -5236,15 +5237,15 @@ void CClientWeapon::HandleVectorImpact( LTVector const &vPath, IntersectQuery *q
 		if ( g_pLTClient->IntersectSegment( qInfo, iInfo ) )
 		{
 			// Get the surface type (check the poly first)...
-			SurfaceType eType = GetSurfaceType( iInfo->m_hPoly );
-			if ( ST_UNKNOWN == eType )
+			SurfaceType eType2 = GetSurfaceType( iInfo->m_hPoly );
+			if ( ST_UNKNOWN == eType2 )
 			{
-				eType = GetSurfaceType( iInfo->m_hObject );
+				eType2 = GetSurfaceType( iInfo->m_hObject );
 			}
 
 			AddImpact( iInfo->m_hObject, iInfo->m_Point,
 			           iInfo->m_Plane.m_Normal, vPath,
-			           eType );
+			           eType2 );
 		}
 	}
 }
@@ -5483,7 +5484,7 @@ void CClientWeapon::SpecialShowPieces( bool bShow /*= true*/, bool bForce /*= fa
 	// If we're out of ammo, keep hidden...
 	if ( bShow && !bForce )
 	{
-		if ( g_pPlayerStats && ( g_pPlayerStats->GetAmmoCount(m_nAmmoId) < 1 ) )
+		if ( g_pPlayerStats && ( g_pPlayerStats->GetAmmoCount(static_cast<uint8>(m_nAmmoId)) < 1 ) )
 		{
 			bShow = false; // Hide the necessary pieces...
 		}
@@ -5497,7 +5498,7 @@ void CClientWeapon::SpecialShowPieces( bool bShow /*= true*/, bool bForce /*= fa
 	for( int i = 0; i < m_pWeapon->blrHiddenPieceNames.GetNumItems(); ++i )
 	{
 		// Do a const cast the ButeListReader's return value to work with the non-const engine.
-		if( LT_OK == pModelLT->GetPiece( m_hObject, const_cast< char * >( m_pWeapon->blrHiddenPieceNames.GetItem(i) ), hPiece ) )
+		if( LT_OK == pModelLT->GetPiece( m_hObject, const_cast< char * >( m_pWeapon->blrHiddenPieceNames.GetItem(static_cast<uint8>(i)) ), hPiece ) )
 		{
 			pModelLT->SetPieceHideStatus( m_hObject, hPiece, !bShow );
 		}
@@ -5629,7 +5630,7 @@ void CClientWeapon::AddImpact( HLOCALOBJ hObj, LTVector const &vImpactPoint,
 	}
 
 	::AddLocalImpactFX( hObj, m_vFlashPos, vImpactPoint, vNormal, eType,
-	                    vPath, m_nWeaponId, m_nAmmoId, m_wIgnoreFX );
+	                    vPath, static_cast<uint8>(m_nWeaponId), static_cast<uint8>(m_nAmmoId), m_wIgnoreFX );
 
 	// If we do multiple calls to AddLocalImpact, make sure we only do some
 	// effects once :)
@@ -5800,7 +5801,7 @@ void CClientWeapon::SetPaused( bool bPaused )
 		CAutoMessage cMsg;
 		cMsg.Writeuint8( MID_WEAPON_SOUND_LOOP );
 		cMsg.Writeuint8( PSI_INVALID );
-		cMsg.Writeuint8( m_nWeaponId );
+		cMsg.Writeuint8( static_cast<uint8>(m_nWeaponId) );
 		g_pLTClient->SendToServer( cMsg.Read(), MESSAGE_GUARANTEED );
 	}
 }

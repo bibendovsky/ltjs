@@ -182,6 +182,7 @@ void CLightTable::AddLightGroupSamples(LTVector aSamples[], const TVector3<int32
 	for (; iCurLG != m_aLightGroups.end(); ++iCurLG)
 	{
 		const SLightGroup &cLG = *iCurLG;
+        static_cast<void>(cLG);
 
 		// If we hit a black light, we're at the end of the active lightgroups
 		if (iCurLG->IsBlack())

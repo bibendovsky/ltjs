@@ -36,29 +36,29 @@ class CClientButeMgr : public CGameButeMgr
 		int			GetNumCheatAttributes() const { return m_nNumCheatAttributes; }
         void		GetCheat(uint8 nCheatNum, char *pBuf, uint16 nBufLen);
 
-		float		GetReverbAttributeFloat(char* pAttribute);
+		float		GetReverbAttributeFloat(const char* pAttribute);
 
-		int			GetCameraAttributeInt(char* pAttribute);
-		float		GetCameraAttributeFloat(char* pAttribute);
-		void		GetCameraAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen);
+		int			GetCameraAttributeInt(const char* pAttribute);
+		float		GetCameraAttributeFloat(const char* pAttribute);
+		void		GetCameraAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen);
 
-		int			GetGameAttributeInt(char* pAttribute);
-		float		GetGameAttributeFloat(char* pAttribute);
-		void		GetGameAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen);
+		int			GetGameAttributeInt(const char* pAttribute);
+		float		GetGameAttributeFloat(const char* pAttribute);
+		void		GetGameAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen);
 
-		float		GetWeatherAttributeFloat(char* pAttribute);
-		void		GetWeatherAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen);
+		float		GetWeatherAttributeFloat(const char* pAttribute);
+		void		GetWeatherAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen);
 
-		float		GetSpecialFXAttributeFloat(char* pAttribute);
-		void		GetSpecialFXAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen);
+		float		GetSpecialFXAttributeFloat(const char* pAttribute);
+		void		GetSpecialFXAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen);
 
-		float		GetBreathFXAttributeFloat(char* pAttribute);
-		int			GetBreathFXAttributeInt(char* pAttribute);
-		void		GetBreathFXAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen);
-        LTVector     GetBreathFXAttributeVector(char* pAttribute);
+		float		GetBreathFXAttributeFloat(const char* pAttribute);
+		int			GetBreathFXAttributeInt(const char* pAttribute);
+		void		GetBreathFXAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen);
+        LTVector     GetBreathFXAttributeVector(const char* pAttribute);
 
-		void		GetInterfaceAttributeString(char* pAttribute, char *pBuf, uint16 nBufLen);
-		float		GetInterfaceAttributeFloat(char* pAttribute, float fDef);
+		void		GetInterfaceAttributeString(const char* pAttribute, char *pBuf, uint16 nBufLen);
+		float		GetInterfaceAttributeFloat(const char* pAttribute, float fDef);
 
 		int			GetNumSingleWorldPaths()	const { return m_nNumSingleWorldPaths; }
 		int			GetNumMultiWorldPaths()	const { return m_nNumMultiWorldPaths; }

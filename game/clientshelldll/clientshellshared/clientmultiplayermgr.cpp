@@ -623,7 +623,7 @@ bool ClientMultiplayerMgr::HandleMsgHandshake( ILTMessage_Read & msg )
 			CAutoMessage cResponse;
 			cResponse.Writeuint8(MID_HANDSHAKE);
 			cResponse.Writeuint8(MID_HANDSHAKE_HELLO);
-		    cResponse.Writeuint16(GAME_HANDSHAKE_VER);
+		    cResponse.Writeuint16(static_cast<uint16>(GAME_HANDSHAKE_VER));
 			// Send them our secret key
 #ifdef SOURCE_RELEASE
 			cResponse.Writeuint32( GAME_HANDSHAKE_PASSWORD );
@@ -693,6 +693,7 @@ bool ClientMultiplayerMgr::HandleMsgHandshake( ILTMessage_Read & msg )
 			HMODULE hClientShell;
 			g_pLTClient->GetEngineHook("cshell_hinstance", (void**)&hClientShell);
 			DWORD nResult = GetModuleFileName(hClientShell, aClientShellName, sizeof(aClientShellName));
+            static_cast<void>(nResult);
 			uint32 nClientCRC = CRC32::CalcFileCRC(aClientShellName);
 			
 			// Mask that up too
@@ -1120,10 +1121,10 @@ bool ClientMultiplayerMgr::UpdateNetClientData( )
 	switch (g_pGameClientShell->GetGameType())
 	{
 		case eGameTypeCooperative:
-			m_NetClientData.m_ePlayerModelId = g_pModelButeMgr->GetCPModel( pProfile->m_nCPPlayerModel );
+			m_NetClientData.m_ePlayerModelId = static_cast<uint8>(g_pModelButeMgr->GetCPModel( pProfile->m_nCPPlayerModel ));
 			break;
 		case eGameTypeDeathmatch:
-			m_NetClientData.m_ePlayerModelId = g_pModelButeMgr->GetDMModel( pProfile->m_nDMPlayerModel );
+			m_NetClientData.m_ePlayerModelId = static_cast<uint8>(g_pModelButeMgr->GetDMModel( pProfile->m_nDMPlayerModel ));
 			break;
 	};
 

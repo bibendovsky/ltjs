@@ -125,6 +125,7 @@ LTBOOL NoPlayerTrigger::Update()
 
 	HOBJECT hObj;
 	uint32	nPlayersInGame = CPlayerObj::GetNumberPlayersWithClients( );
+    static_cast<void>(nPlayersInGame);
 	bool	bPlayersInTrigger = false;
 
 	ObjectLink *pLink = pObjList->m_pFirstLink;

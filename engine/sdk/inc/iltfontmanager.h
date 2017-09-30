@@ -308,7 +308,7 @@ This function creates a CUIPolyString
 
 Used for: Text and UI. */
 		virtual CUIPolyString*	CreatePolyString(CUIFont* pFont, 
-											     char* pBuffer = NULL,
+											     const char* pBuffer = NULL,
 											     float x = 0.0,
 											     float y = 0.0) = 0;
 
@@ -328,7 +328,7 @@ CUIPolyString, a formatted string understands newlines, word-wrap, justified tex
 
 Used for: Text and UI. */
 		virtual CUIFormattedPolyString*	CreateFormattedPolyString(CUIFont* pFont, 
-											     char* pBuffer = NULL,
+											     const char* pBuffer = NULL,
 											     float x = 0.0,
 											     float y = 0.0,
 												 CUI_ALIGNMENTTYPE alignment = CUI_HALIGN_LEFT) = 0;

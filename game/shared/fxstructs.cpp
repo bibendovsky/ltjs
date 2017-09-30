@@ -111,7 +111,7 @@ static char s_aTagName[30];
 //
 // ----------------------------------------------------------------------- //
 
-LTBOOL BuildScaleFXList(ScaleFXList & list, CButeMgr & buteMgr, char* pTagBase)
+LTBOOL BuildScaleFXList(ScaleFXList & list, CButeMgr & buteMgr, const char* pTagBase)
 {
     if (!pTagBase) return LTFALSE;
 
@@ -218,7 +218,7 @@ LTBOOL CScaleFX::Init(CButeMgr & buteMgr, char* aTagName)
     bMultiply       = (LTBOOL) buteMgr.GetInt(aTagName, SCALEFX_MULTIPLY);
     bRotate         = (LTBOOL) buteMgr.GetInt(aTagName, SCALEFX_ROTATE);
     bFaceCamera     = (LTBOOL) buteMgr.GetInt(aTagName, SCALEFX_FACECAMERA);
-    nRotationAxis   = buteMgr.GetInt(aTagName, SCALEFX_ROTAXIS);
+    nRotationAxis   = static_cast<uint8>(buteMgr.GetInt(aTagName, SCALEFX_ROTAXIS));
 	nMenuLayer		= (uint8) buteMgr.GetInt(aTagName, SCALEFX_MENULAYER);
 
 	vInitialScale	= buteMgr.GetVector(aTagName, SCALEFX_INITIALSCALE);
@@ -304,7 +304,7 @@ void CScaleFX::Cache()
 // ----------------------------------------------------------------------- //
 
 LTBOOL BuildPShowerFXList(PShowerFXList & list, CButeMgr & buteMgr,
-						 char* pTagBase)
+						 const char* pTagBase)
 {
     if (!pTagBase) return LTFALSE;
 
@@ -442,7 +442,7 @@ void CPShowerFX::Cache()
 // ----------------------------------------------------------------------- //
 
 LTBOOL BuildPolyDebrisFXList(PolyDebrisFXList & list, CButeMgr & buteMgr,
-							char* pTagBase)
+							const char* pTagBase)
 {
     if (!pTagBase) return LTFALSE;
 

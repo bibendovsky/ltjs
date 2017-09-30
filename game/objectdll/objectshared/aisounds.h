@@ -12,7 +12,7 @@ class CAI;
 //
 // ENUM: Types of AI sounds.
 //
-enum EnumAISoundType
+enum EnumAISoundType : int
 {
 	kAIS_InvalidType = -1,
 

@@ -82,7 +82,7 @@ BEGIN_CLASS( GadgetTarget )
 	ADD_REALPROP_FLAG( MaxTime, 0.0f, 0 )
 	ADD_STRINGPROP_FLAG( Command, "", PF_NOTIFYCHANGE )
 	ADD_STRINGPROP_FLAG( PowerOffCommand, "", PF_NOTIFYCHANGE )
-    ADD_BOOLPROP_FLAG( StartOn, LTTRUE, 0, )
+    ADD_BOOLPROP_FLAG( StartOn, LTTRUE, 0 )
 	ADD_STRINGPROP_FLAG( Team, "NoTeam", PF_STATICLIST )
 
 END_CLASS_DEFAULT_FLAGS_PLUGIN( GadgetTarget, Prop, NULL, NULL, 0, CGadgetTargetPlugin )
@@ -256,7 +256,7 @@ GadgetTarget::GadgetTarget( )
 	m_bOn					( LTTRUE ),
 	m_bRestoreFlagsOnLoad	( LTFALSE ),
 	m_eLightPos				( eLightPos1 ),
-	m_nGTID					( GTMGR_INVALID_ID ),
+	m_nGTID					( static_cast<uint32>(GTMGR_INVALID_ID) ),
 	m_nTeamID				( INVALID_TEAM )
 {
 	m_hAttachedModel.SetReceiver( *this );
@@ -556,7 +556,7 @@ LTBOOL GadgetTarget::ReadProp( ObjectCreateStruct *pStruct )
 					sprintf( szTeam, "Team%i", i );
 					if( !_stricmp( gProp.m_String, szTeam ))
 					{
-						m_nTeamID = i;
+						m_nTeamID = static_cast<uint8>(i);
 					}
 				}
 			}
@@ -760,7 +760,7 @@ bool GadgetTarget::OnTrigger(HOBJECT hSender, const CParsedMsg &cMsg)
 			uint32 nTeamId = atoi( cMsg.GetArg( 1 ));
 			if( nTeamId < MAX_TEAMS )
 			{
-				m_nTeamID = nTeamId;
+				m_nTeamID = static_cast<uint8>(nTeamId);
 			}
 			else
 			{
@@ -984,7 +984,7 @@ void GadgetTarget::CreateSpecialFX( bool bUpdateClients )
 	{
 		CAutoMessage cMsg;
 		cMsg.Writeuint8(SFX_GADGETTARGET_ID);
-		cMsg.Writeuint8(m_pGTInfo->m_eTargetType);
+		cMsg.Writeuint8(static_cast<uint8>(m_pGTInfo->m_eTargetType));
 		cMsg.Writebool(!!m_bOn);
 		cMsg.Writebool(!!m_bOn);
 		cMsg.Writeuint8( m_nTeamID );
@@ -997,7 +997,7 @@ void GadgetTarget::CreateSpecialFX( bool bUpdateClients )
 		cMsg.Writeuint8(MID_SFX_MESSAGE);
 		cMsg.Writeuint8(SFX_GADGETTARGET_ID);
 		cMsg.WriteObject(m_hObject);
-		cMsg.Writeuint8(m_pGTInfo->m_eTargetType);
+		cMsg.Writeuint8(static_cast<uint8>(m_pGTInfo->m_eTargetType));
 		cMsg.Writebool(!!m_bOn);
 		cMsg.Writebool(!!m_bOn);
 		cMsg.Writeuint8( m_nTeamID );
@@ -1047,7 +1047,7 @@ void GadgetTarget::SetupDisablingState( HOBJECT hSender )
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_GADGETTARGET );
 	cMsg.WriteObject( m_hObject );
-	cMsg.Writeuint8( m_pGTInfo->m_eTargetType );
+	cMsg.Writeuint8( static_cast<uint8>(m_pGTInfo->m_eTargetType) );
 	cMsg.Writefloat( m_fTotalTime );
 	cMsg.Writefloat( m_fDisableTime );
 	cMsg.Writeuint32( m_dwCodeID );

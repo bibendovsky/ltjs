@@ -38,7 +38,7 @@ namespace
 
 CWeaponChooser::CWeaponChooser()
 {
-	m_nWeapon = -1;
+	m_nWeapon = static_cast<uint8>(-1);
 	m_nClass = 0;
     m_bIsOpen = false;
 }
@@ -70,13 +70,13 @@ bool CWeaponChooser::Open(uint8 nClass)
 		return false;
 
 	if (!m_bIsOpen)
-		m_nWeapon = pClientWeapon->GetWeaponId();
+		m_nWeapon = static_cast<uint8>(pClientWeapon->GetWeaponId());
 
 	uint8 nWeapon = pClientWeaponMgr->GetNextWeaponId( m_nWeapon, nClass );
 	if (!g_pWeaponMgr->IsValidWeaponId(nWeapon) && g_pWeaponMgr->GetWeaponClass(m_nWeapon) != nClass )
 	{
 		if (!m_bIsOpen)
-			m_nWeapon = -1;
+			m_nWeapon = static_cast<uint8>(-1);
 		g_pHUDMgr->QueueUpdate(kHUDChooser);
 		return false;
 	}
@@ -165,7 +165,7 @@ void CWeaponChooser::Update()
 		{
 			if (m_AutoSwitchTimer.Stopped())
 			{
-				NextWeapon(-1);
+				NextWeapon(static_cast<uint8>(-1));
 				m_AutoSwitchTimer.Start(g_vtChooserAutoSwitchFreq.GetFloat());
 			}
 		}
@@ -199,7 +199,7 @@ void CWeaponChooser::Update()
 
 CAmmoChooser::CAmmoChooser()
 {
-	m_nAmmo = -1;
+	m_nAmmo = static_cast<uint8>(-1);
     m_bIsOpen = false;
 	
 }
@@ -235,11 +235,11 @@ bool CAmmoChooser::Open()
         return true;
 
 
-	m_nAmmo = pClientWeapon->GetAmmoId();
+	m_nAmmo = static_cast<uint8>(pClientWeapon->GetAmmoId());
 
 	if (m_nAmmo == pClientWeapon->GetNextAvailableAmmo())
 	{
-		m_nAmmo = -1;
+		m_nAmmo = static_cast<uint8>(-1);
         m_bIsOpen = false;
         return false;
 	}

@@ -14,7 +14,7 @@
 //              
 //----------------------------------------------------------------------------
 
-#ifndef __RELATIONCHANGEOBSERVER_H__
+#ifndef __RELATIONCHANGEOBSERVER_H
 #define __RELATIONCHANGEOBSERVER_H
 
 #if _MSC_VER >= 1000

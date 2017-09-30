@@ -149,7 +149,7 @@ inline LTBOOL CWeapons::IsValidAmmoId(int nAmmoId)
 inline CWeapon* CWeapons::GetCurWeapon()
 {
     CWeapon* pRet = LTNULL;
-	if (IsValidWeapon(m_nCurWeapon))
+	if (IsValidWeapon(static_cast<uint8>(m_nCurWeapon)))
 	{
 		pRet = m_pWeapons[m_nCurWeapon];
 	}

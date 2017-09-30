@@ -17,10 +17,10 @@
 
 // Forward declarations.
 class AINodeUseObject;
-enum  EnumAISoundType;
-enum  EnumAIStimulusID;
-enum  EnumAITargetMatchID;
-enum  EnumAIStimulusType;
+enum  EnumAISoundType : int;
+enum  EnumAIStimulusID : int;
+enum  EnumAITargetMatchID : int;
+enum  EnumAIStimulusType : int;
 
 typedef std::multimap< EnumAITargetMatchID, EnumAISenseType > AI_INVESTIGATION_MEMORY_MAP;
 

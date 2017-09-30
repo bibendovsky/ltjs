@@ -176,6 +176,7 @@ LTBOOL CLightningFX::Setup()
     LTVector vDir = (m_cs.lfx.vEndPos - m_cs.lfx.vStartPos);
 	float fDist  = vDir.Mag();
 	float fTotalDist = fDist;
+    static_cast<void>(fTotalDist);
 
 	vDir.Normalize();
 

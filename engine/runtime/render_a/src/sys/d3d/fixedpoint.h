@@ -7,6 +7,7 @@
 
 inline int RoundFloatToInt(float f)
 {
+#if 0
 	int nResult;
 
 	__asm
@@ -15,6 +16,9 @@ inline int RoundFloatToInt(float f)
 		fistp nResult
 	}
 	return nResult;
+#else
+    return static_cast<int>(f);
+#endif
 }
 
 typedef long fixed28_4;

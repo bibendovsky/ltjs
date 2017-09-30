@@ -700,7 +700,7 @@ LTBOOL CWeaponMgr::Init(const char* szAttributeFile)
 		m_nNumClasses = 1;
 		m_pClasses = debug_newa(uint8, 1);
 		if (!m_pClasses) return LTFALSE;
-		m_pClasses[0] = m_nLastPlayerWeapon;
+		m_pClasses[0] = static_cast<uint8>(m_nLastPlayerWeapon);
 	}
 
 
@@ -733,7 +733,7 @@ LTBOOL CWeaponMgr::Init(const char* szAttributeFile)
 					pWeapon = GetWeapon(szWeaponName);
 					if (pWeapon)
 					{
-						m_pWeaponPriorities[i] = pWeapon->nId;
+						m_pWeaponPriorities[i] = static_cast<uint8>(pWeapon->nId);
 					}
 				}
 			}
@@ -1552,16 +1552,27 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 
 	// Use the members as the default value incase the attribute doesn't exist...
 
+    CAVector tmp_vector;
 	nNameId					= buteMgr.GetInt( aTagName, WMGR_WEAPON_NAMEID, nNameId );
 	nDescriptionId          = buteMgr.GetInt( aTagName, WMGR_WEAPON_DESCRIPTIONID, nDescriptionId );
 	nIsAmmoNoPickupId		= buteMgr.GetInt( aTagName, WMGR_WEAPON_ISAMMONOPICKUPID, nIsAmmoNoPickupId );
 	nClientWeaponType       = buteMgr.GetInt( aTagName, WMGR_WEAPON_CLIENT_WEAPON_TYPE, nClientWeaponType );
 	nAniType                = buteMgr.GetInt( aTagName, WMGR_WEAPON_ANITYPE, nAniType );
-	vPos                    = buteMgr.GetVector( aTagName, WMGR_WEAPON_POS, CAVector( VEC_EXPAND(vPos) ));
-	vMuzzlePos              = buteMgr.GetVector( aTagName, WMGR_WEAPON_MUZZLEPOS, CAVector( VEC_EXPAND(vMuzzlePos) ));
-	vBreachOffset           = buteMgr.GetVector( aTagName, WMGR_WEAPON_BREACHOFFSET, CAVector( VEC_EXPAND(vBreachOffset) ));
-	vHHScale                = buteMgr.GetVector( aTagName, WMGR_WEAPON_HHSCALE, CAVector( VEC_EXPAND(vHHScale) ));
-	vRecoil                 = buteMgr.GetVector( aTagName, WMGR_WEAPON_RECOIL, CAVector( VEC_EXPAND(vRecoil) ));
+
+    tmp_vector = CAVector(VEC_EXPAND(vPos));
+	vPos                    = buteMgr.GetVector( aTagName, WMGR_WEAPON_POS, tmp_vector);
+
+    tmp_vector = CAVector(VEC_EXPAND(vMuzzlePos));
+	vMuzzlePos              = buteMgr.GetVector( aTagName, WMGR_WEAPON_MUZZLEPOS, tmp_vector);
+
+    tmp_vector = CAVector(VEC_EXPAND(vBreachOffset));
+	vBreachOffset           = buteMgr.GetVector( aTagName, WMGR_WEAPON_BREACHOFFSET, tmp_vector);
+
+    tmp_vector = CAVector(VEC_EXPAND(vHHScale));
+	vHHScale                = buteMgr.GetVector( aTagName, WMGR_WEAPON_HHSCALE, tmp_vector);
+
+    tmp_vector = CAVector(VEC_EXPAND(vRecoil));
+	vRecoil                 = buteMgr.GetVector( aTagName, WMGR_WEAPON_RECOIL, tmp_vector);
 
 	// The name is only set in the Init so we cannot override it!
 	// DO NOT list name here.
@@ -1649,10 +1660,10 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 
 		char szStr[WMGR_MAX_NAME_LENGTH] = {0};
 		int n = 0;
-		for( int i = 0; i < nNumAmmoIds; ++i )
+		for( int i2 = 0; i2 < nNumAmmoIds; ++i2 )
 		{
-			aAmmoIds[i] = WMGR_INVALID_ID;
-			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_AMMONAME, i );
+			aAmmoIds[i2] = WMGR_INVALID_ID;
+			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_AMMONAME, i2 );
 
 			buteMgr.GetString(aTagName, s_aAttName, szStr, sizeof(szStr));
 			if (szStr[0])
@@ -1676,9 +1687,9 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 		if (n < nNumAmmoIds)
 		{
 			int		*tmpAmmoIds = debug_newa( int, n );
-			for (int i = 0; i < n; ++i)
+			for (int i3 = 0; i3 < n; ++i3)
 			{
-				tmpAmmoIds[i] = aAmmoIds[i];
+				tmpAmmoIds[i3] = aAmmoIds[i3];
 			}
 
 			debug_deletea( aAmmoIds );
@@ -1716,10 +1727,10 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 
 		char szStr[WMGR_MAX_NAME_LENGTH] = {0};
 		int n = 0;
-		for( int i = 0; i < nNumModIds; ++i )
+		for( int i4 = 0; i4 < nNumModIds; ++i4 )
 		{
-			aModIds[i] = WMGR_INVALID_ID;
-			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_MODNAME, i );
+			aModIds[i4] = WMGR_INVALID_ID;
+			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_MODNAME, i4 );
 
 			buteMgr.GetString(aTagName, s_aAttName, szStr, sizeof(szStr));
 			if (szStr[0])
@@ -1743,9 +1754,9 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 		if (n < nNumModIds)
 		{
 			int		*tmpModIds = debug_newa( int, n );
-			for (int i = 0; i < n; ++i)
+			for (int i5 = 0; i5 < n; ++i5)
 			{
-				tmpModIds[i] = aModIds[i];
+				tmpModIds[i5] = aModIds[i5];
 			}
 
 			debug_deletea( aModIds );
@@ -1780,10 +1791,10 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 		
 
 		char szStr[WMGR_MAX_NAME_LENGTH] = {0};
-		for( int i = 0; i < nNumPVFXTypes; ++i )
+		for( int i6 = 0; i6 < nNumPVFXTypes; ++i6 )
 		{
-			aPVFXTypes[i] = WMGR_INVALID_ID;
-			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_PVFXNAME, i );
+			aPVFXTypes[i6] = WMGR_INVALID_ID;
+			sprintf( s_aAttName, "%s%d", WMGR_WEAPON_PVFXNAME, i6 );
 
 			buteMgr.GetString(aTagName, s_aAttName, szStr, sizeof(szStr));
 			if (szStr[0])
@@ -1791,7 +1802,7 @@ void WEAPON::InitMembers( CButeMgr &buteMgr, char *aTagName )
 				PVFX* pPVFX = g_pFXButeMgr->GetPVFX(szStr);
 				if (pPVFX)
 				{
-					aPVFXTypes[i] = pPVFX->nId;
+					aPVFXTypes[i6] = pPVFX->nId;
 				}
 			}
 		}
@@ -1871,7 +1882,7 @@ LTBOOL WEAPON::Init(CButeMgr & buteMgr, char* aTagName)
 	else
 	{
 		szLongName = debug_newa( char, 1);
-		szLongName[0] = NULL;
+		szLongName[0] = '\0';
 	}
 
 	pTok = strtok(NULL,"@");
@@ -2276,7 +2287,6 @@ void AMMO::InitMembers( CButeMgr &buteMgr, char *aTagName )
 	GetStringIfExist( buteMgr, aTagName, WMGR_AMMO_ICON, &szIcon, WMGR_MAX_FILE_PATH );
 
 
-	int nId = 0;
 	char szStr[128] = "";
 	buteMgr.GetString(aTagName, WMGR_AMMO_IMPACTFX, "", szStr, sizeof(szStr));
 	if( buteMgr.Success( ))
@@ -2411,7 +2421,7 @@ LTBOOL AMMO::Init(CButeMgr & buteMgr, char* aTagName)
 	else
 	{
 		szLongName = debug_newa( char, 1);
-		szLongName[0] = NULL;
+		szLongName[0] = '\0';
 	}
 
 	pTok = strtok(NULL,"@");
@@ -2621,7 +2631,10 @@ void MOD::InitMembers( CButeMgr &buteMgr, char *aTagName )
 	nPriority			= buteMgr.GetInt( aTagName, WMGR_MOD_PRIORITY, nPriority );
     bIntegrated         = (LTBOOL) buteMgr.GetInt( aTagName, WMGR_MOD_INTEGRATED, bIntegrated );
 	fScreenTintTime		= (LTFLOAT) buteMgr.GetDouble( aTagName, WMGR_MOD_TINT_TIME, fScreenTintTime );
-	vScreenTintColor	= buteMgr.GetVector( aTagName, WMGR_MOD_TINT_COLOR, CAVector( VEC_EXPAND(vScreenTintColor) ));
+
+    CAVector tmp_vector(VEC_EXPAND(vScreenTintColor));
+	vScreenTintColor	= buteMgr.GetVector( aTagName, WMGR_MOD_TINT_COLOR, tmp_vector);
+
 	fPowerupScale		= (LTFLOAT) buteMgr.GetDouble( aTagName, WMGR_MOD_POWERUPSCALE, fPowerupScale );
 	nAISilencedFireSndRadius = buteMgr.GetInt( aTagName, WMGR_MOD_SILENCESND_RADIUS, nAISilencedFireSndRadius );
 
@@ -2842,7 +2855,8 @@ void GEAR::InitMembers( CButeMgr &buteMgr, char *aTagName )
 	fProtection			= (fProtection < 0.0f ? 0.0f : (fProtection > 1.0f ? 1.0f : fProtection));
 	fStealth			= (fStealth < 0.0f ? 0.0f : (fStealth > 1.0f ? 1.0f : fStealth));
 
-	vScreenTintColor	= buteMgr.GetVector( aTagName, WMGR_GEAR_TINT_COLOR, CAVector( VEC_EXPAND( vScreenTintColor ) ));
+    CAVector tmp_vector(VEC_EXPAND(vScreenTintColor));
+	vScreenTintColor	= buteMgr.GetVector( aTagName, WMGR_GEAR_TINT_COLOR, tmp_vector);
 
 
 	// The name is only set in the Init so we cannot override it!
@@ -2943,13 +2957,13 @@ LTBOOL CWeaponMgr::ReadWeaponProp(char* pPropName, uint8 & nWeaponId, uint8 & nA
 		WEAPON const *pWeapon = GetWeapon(strtok(genProp.m_String,","));
 		if (pWeapon)
 		{
-			nWeaponId = pWeapon->nId;
+			nWeaponId = static_cast<uint8>(pWeapon->nId);
 		}
 
 		AMMO const *pAmmo = GetAmmo(strtok(NULL,""));
 		if (pAmmo)
 		{
-			nAmmoId = pAmmo->nId;
+			nAmmoId = static_cast<uint8>(pAmmo->nId);
 		}
 		else
 		{
@@ -2957,7 +2971,7 @@ LTBOOL CWeaponMgr::ReadWeaponProp(char* pPropName, uint8 & nWeaponId, uint8 & nA
 
 			if (pWeapon)
 			{
-				nAmmoId = pWeapon->nDefaultAmmoId;
+				nAmmoId = static_cast<uint8>(pWeapon->nDefaultAmmoId);
 			}
 		}
 
@@ -2982,13 +2996,13 @@ void CWeaponMgr::ReadWeapon(char* szString, uint8 & nWeaponId, uint8 & nAmmoId)
 	WEAPON const *pWeapon = GetWeapon(strtok(szString,","));
 	if (pWeapon)
 	{
-		nWeaponId = pWeapon->nId;
+		nWeaponId = static_cast<uint8>(pWeapon->nId);
 	}
 
 	AMMO const *pAmmo = GetAmmo(strtok(NULL,""));
 	if (pAmmo)
 	{
-		nAmmoId = pAmmo->nId;
+		nAmmoId = static_cast<uint8>(pAmmo->nId);
 	}
 	else
 	{
@@ -2996,7 +3010,7 @@ void CWeaponMgr::ReadWeapon(char* szString, uint8 & nWeaponId, uint8 & nAmmoId)
 
 		if (pWeapon)
 		{
-			nAmmoId = pWeapon->nDefaultAmmoId;
+			nAmmoId = static_cast<uint8>(pWeapon->nDefaultAmmoId);
 		}
 	}
 }

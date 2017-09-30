@@ -143,8 +143,8 @@ public:
 	void					SetTextureInfo(uint32 nWidth, uint32 nHeight, const PFormat& Format)
 	{
 		SetFlags(GetFlags() | ST_VALIDTEXTUREINFO);
-		m_nWidth	= nWidth;
-		m_nHeight	= nHeight;
+		m_nWidth	= static_cast<uint16>(nWidth);
+		m_nHeight	= static_cast<uint16>(nHeight);
 		m_Format	= Format;
 	}
 

@@ -127,10 +127,10 @@ public:
 	}
 
 
-	T* operator->() const { return mObject; }
-	operator T*() const { return mObject; }
+	T* operator->() const { return ConstSmartPtr<T>::mObject; }
+	operator T*() const { return ConstSmartPtr<T>::mObject; }
 
-	T* get() const { return mObject; }
+	T* get() const { return ConstSmartPtr<T>::mObject; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -14,11 +14,7 @@
 #include "butemgr.h"
 
 #pragma warning( disable : 4786 )
-#if _MSC_VER >= 1900
 #include <unordered_map>
-#else
-#include <hash_map>
-#endif
 
 
 void GBM_DisplayError(const char* szMsg);
@@ -30,45 +26,7 @@ void GBM_DisplayError(const char* szMsg);
 //
 // ----------------------------------------------------------------------- //
 
-#if _MSC_VER == 1300
-
-typedef std::hash_map< const char *, int, ButeMgrHashCompare > IndexTable;
-
-#elif _MSC_VER > 1300 && _MSC_VER < 1900
-
-typedef stdext::hash_map< const char *, int, ButeMgrHashCompare > IndexTable;
-
-#elif _MSC_VER >= 1900
-
 typedef std::unordered_map< const char *, int, ButeMgrHashCompare, ButeMgrHashCompare > IndexTable;
-
-#else
-
-struct eqstr_nocase
-{
-  bool operator()(const char* s1, const char* s2) const
-  {
-	return stricmp(s1, s2) == 0;
-  }
-};
-
-struct GBM_hash_str_nocase
-{
-	// Copied for stl-port's std::hash<const char*>.
-	// Added tolower function on the string.
-	unsigned long operator()(const char* str) const
-	{
-	  unsigned long hash = 0;
-	  for ( ; *str; ++str)
-		  hash = 5*hash + tolower(*str);
-
-	  return hash;
-	}
-};
-
-typedef std::hash_map<const char *,int, GBM_hash_str_nocase, eqstr_nocase> IndexTable;
-
-#endif // VC7
 
 
 

@@ -28,7 +28,7 @@ LTBOOL CSubMenu::Init(HTEXTURE hFrame,HTEXTURE hFrameTip, LTIntPt size)
 	m_hFrame = hFrame;
 	m_hFrameTip = hFrameTip;
 
-	if (!Create(NULL,size.x,size.y)) 
+	if (!Create(NULL,static_cast<uint16>(size.x),static_cast<uint16>(size.y))) 
 		return LTFALSE;
 
 	SetupQuadUVs(m_Poly[0], hFrame, 0.0f, 0.0f, 1.0f, 1.0f);
@@ -177,7 +177,7 @@ LTBOOL CBaseMenu::Init()
 	m_NonSelectedColor	= g_pLayoutMgr->GetMenuNonSelectedColor(m_MenuID);
 	m_DisabledColor		= g_pLayoutMgr->GetMenuDisabledColor(m_MenuID);
 
-	if (!Create(NULL,s_Size.x,s_Size.y)) return LTFALSE;
+	if (!Create(NULL,static_cast<uint16>(s_Size.x),static_cast<uint16>(s_Size.y))) return LTFALSE;
 
 	SetupQuadUVs(m_Poly[0], s_Frame, 0.0f,0.0f,1.0f,1.0f);
 	SetupQuadUVs(m_Poly[1], s_FrameTip, 0.0f,0.0f,1.0f,1.0f);
@@ -206,12 +206,12 @@ LTBOOL CBaseMenu::Init()
 	pos.y += (m_Title.GetHeight() + 4);
 	m_Title.SetScale(g_pInterfaceResMgr->GetXRatio());
 
-	m_List.Create(s_Size.y - pos.y);
-	uint16 nOffset = (s_Size.x-m_Indent.x*2)-16;
+	m_List.Create(static_cast<uint16>(s_Size.y - pos.y));
+	uint16 nOffset = static_cast<uint16>((s_Size.x-m_Indent.x*2)-16);
 	m_List.UseArrows(nOffset ,1.0f,s_Up,s_UpH,s_Down,s_DownH);
 	CLTGUIWindow::AddControl(&m_List,pos);
 
-	m_Resume.Create(LoadTempString(IDS_RESUME),MC_CLOSE,NULL,pFont,m_TitleFontSize,this);
+	m_Resume.Create(LoadTempString(IDS_RESUME),MC_CLOSE,0,pFont,m_TitleFontSize,this);
 
 	pos.x = s_Size.x - m_Indent.x - m_Resume.GetWidth();
 	pos.y = 12;
@@ -252,9 +252,9 @@ void CBaseMenu::OnFocus(LTBOOL bFocus)
 			SetScale(g_pInterfaceResMgr->GetXRatio());
 		}
 
-		SetSize(s_Size.x,s_Size.y);
+		SetSize(static_cast<uint16>(s_Size.x),static_cast<uint16>(s_Size.y));
 
-		SetSelection(GetIndex(&m_List));
+		SetSelection(static_cast<uint16>(GetIndex(&m_List)));
 	}
 }
 
@@ -292,16 +292,16 @@ uint16 CBaseMenu::AddControl (int stringID, uint32 commandID, LTBOOL bStatic)
 	return AddControl(LoadTempString(stringID),commandID,bStatic);
 }
 
-uint16 CBaseMenu::AddControl (char *pString, uint32 commandID, LTBOOL bStatic)
+uint16 CBaseMenu::AddControl (const char *pString, uint32 commandID, LTBOOL bStatic)
 {
 	CUIFont* pFont = g_pInterfaceResMgr->GetFont(m_FontFace);
-	if (!pFont) return -1;
+	if (!pFont) return static_cast<uint16>(-1);
 
 	CLTGUITextCtrl* pCtrl=debug_new(CLTGUITextCtrl);
     if (!pCtrl->Create(pString, commandID, LTNULL, pFont, m_FontSize, this))
 	{
 		debug_delete(pCtrl);
-        return -1;
+        return static_cast<uint16>(-1);
 	}
 
 	pCtrl->SetBasePos(m_nextPos);

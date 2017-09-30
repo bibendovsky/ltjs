@@ -395,7 +395,7 @@ ELoadWorldStatus WorldBsp::Load(ILTStream *pStream, bool bUsePlaneTypes)
 
 	//make sure we aren't truncating anything
 	assert((nDWordWorldInfoFlags & 0xFFFF0000) == 0);
-	m_WorldInfoFlags = nDWordWorldInfoFlags;
+	m_WorldInfoFlags = static_cast<uint16>(nDWordWorldInfoFlags);
 
     pStream->ReadString(m_WorldName, MAX_WORLDNAME_LEN);
 

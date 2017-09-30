@@ -273,8 +273,6 @@ void CDestructibleModel::SetSurfaceType()
 
 			qInfo.m_Flags = INTERSECT_OBJECTS | IGNORE_NONSOLID | INTERSECT_HPOLY;
 
-			SurfaceType eType = ST_UNKNOWN;
-
 			if (g_pLTServer->IntersectSegment(&qInfo, &iInfo))
 			{
 				if (iInfo.m_hObject == m_hObject)

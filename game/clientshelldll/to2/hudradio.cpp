@@ -183,7 +183,7 @@ void CHUDRadio::UpdateLayout()
 
 		m_Offset = g_pLayoutMgr->GetPoint(pTag,"TextOffset");
 		offset = m_Offset;
-		nTextWidth = (m_nWidth - 2 * offset.x) - nHeaderWidth;
+		nTextWidth = static_cast<uint16>((m_nWidth - 2 * offset.x) - nHeaderWidth);
 
 		LTVector vCol = g_pLayoutMgr->GetVector(pTag,"TextColor");
 		uint8 nR = (uint8)vCol.x;
@@ -206,7 +206,7 @@ void CHUDRadio::UpdateLayout()
 
 		m_Offset = LTIntPt(8,8);
 		offset = m_Offset;		
-		nTextWidth = (m_nWidth - 2 * offset.x) - nHeaderWidth;
+		nTextWidth = static_cast<uint16>((m_nWidth - 2 * offset.x) - nHeaderWidth);
 
 	}
 
@@ -245,7 +245,7 @@ void CHUDRadio::UpdateLayout()
 
 	m_Dlg.SetBasePos(m_BasePos);
 
-	m_Dlg.SetSize(m_nWidth,(offset.y+m_Offset.y));
+	m_Dlg.SetSize(m_nWidth,static_cast<uint16>(offset.y+m_Offset.y));
 
 	m_Dlg.SetScale(g_pInterfaceResMgr->GetXRatio());
 }

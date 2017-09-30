@@ -96,6 +96,8 @@ CTextureScriptInstance* CTextureScriptMgr::GetInstance(const char* pszGroupName)
 	Ref.m_pFilename			= pszFileName;
 	FileIdentifier* pIdent	= g_pIClientFileMgr->GetFileIdentifier(&Ref, TYPECODE_UNKNOWN);
 
+    static_cast<void>(pIdent);
+
 	//open up the stream
 	ILTStream* pStream = g_pIClientFileMgr->OpenFile(&Ref);
 

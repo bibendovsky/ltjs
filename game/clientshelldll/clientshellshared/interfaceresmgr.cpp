@@ -256,10 +256,10 @@ void CInterfaceResMgr::DrawMessage(const char *pString, uint8 nFontSize)
 		nHeight = (int)fh;
 	}
 
-	uint16 nDlgWidth = nWidth + 2*kIndent;
+	uint16 nDlgWidth = static_cast<uint16>(nWidth + 2*kIndent);
 	if (nDlgWidth < kMinWidth)
 		nDlgWidth = kMinWidth;
-	uint16 nDlgHeight = nHeight + 2*kIndent;
+	uint16 nDlgHeight = static_cast<uint16>(nHeight + 2*kIndent);
 
 	LTIntPt offset;
 

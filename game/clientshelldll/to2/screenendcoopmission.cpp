@@ -54,25 +54,25 @@ LTBOOL CScreenEndCoopMission::Build()
 {
 	CreateTitle(IDS_TITLE_ENDMISSION);
 
-	uint8 statSize = (uint8)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_END_MISSION,"StatSize");
-	if (!statSize) statSize = 12;
+	uint8 statSize2 = (uint8)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_END_MISSION,"StatSize");
+	if (!statSize2) statSize2 = 12;
 
-	uint16 NameWidth = (uint16)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_END_MISSION,"NameWidth");
-	if (!NameWidth) NameWidth = 150;
+	uint16 NameWidth2 = (uint16)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_END_MISSION,"NameWidth");
+	if (!NameWidth2) NameWidth2 = 150;
 
-	uint16 AccuracyWidth = (uint16)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_END_MISSION,"AccuracyWidth");
-	if (!AccuracyWidth) AccuracyWidth = 100;
+	uint16 AccuracyWidth2 = (uint16)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_END_MISSION,"AccuracyWidth");
+	if (!AccuracyWidth2) AccuracyWidth2 = 100;
 
-	uint16 KillsWidth = (uint16)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_END_MISSION,"KillsWidth");
-	if (!KillsWidth) KillsWidth = 75;
+	uint16 KillsWidth2 = (uint16)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_END_MISSION,"KillsWidth");
+	if (!KillsWidth2) KillsWidth2 = 75;
 
-	uint16 DeathsWidth = (uint16)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_END_MISSION,"DeathsWidth");
-	if (!DeathsWidth) DeathsWidth = 75;
+	uint16 DeathsWidth2 = (uint16)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_END_MISSION,"DeathsWidth");
+	if (!DeathsWidth2) DeathsWidth2 = 75;
 
 	m_pMission = AddTextItem(" ",LTNULL,LTNULL,kDefaultPos,LTTRUE);
 	m_nextPos.y += 8;
 
-	m_pList = AddList(m_nextPos,(GetPageBottom() - m_nextPos.y));
+	m_pList = AddList(m_nextPos,static_cast<uint16>(GetPageBottom() - m_nextPos.y));
 
 	LTIntPt pos(GetPageLeft(),GetPageBottom());
 	m_pContinue = AddTextItem(LoadTempString(IDS_PRESS_ANY_KEY),NULL,NULL,pos,LTTRUE);
@@ -133,12 +133,12 @@ void CScreenEndCoopMission::OnFocus(LTBOOL bFocus)
 		char szTmp[64];
 		while (pInfo)
 		{
-			CLTGUIColumnCtrl *pCtrl=CreateColumnCtrl(NULL,NULL,kDefaultPos,LTTRUE);
-			pCtrl->SetFont(LTNULL,statSize);
+			CLTGUIColumnCtrl *pCtrl2=CreateColumnCtrl(NULL,NULL,kDefaultPos,LTTRUE);
+			pCtrl2->SetFont(LTNULL,statSize);
 
-			m_pList->AddControl(pCtrl);
+			m_pList->AddControl(pCtrl2);
 
-			pCtrl->AddColumn(pInfo->sName.c_str(), NameWidth);
+			pCtrl2->AddColumn(pInfo->sName.c_str(), NameWidth);
 
 		
 			const MissionStats *pStats = NULL;
@@ -147,7 +147,7 @@ void CScreenEndCoopMission::OnFocus(LTBOOL bFocus)
 			if (pInfo->nID == nLocalID)
 			{
 				pStats = g_pPlayerStats->GetMissionStats();
-				pCtrl->SetColors(m_SelectedColor,m_SelectedColor,m_SelectedColor);
+				pCtrl2->SetColors(m_SelectedColor,m_SelectedColor,m_SelectedColor);
 			}
 			else
 			{
@@ -160,21 +160,21 @@ void CScreenEndCoopMission::OnFocus(LTBOOL bFocus)
 				if (pStats->dwNumShotsFired)
 				{
 					float fAccuracy = 100.0f * (float)pStats->dwNumHits / (float) pStats->dwNumShotsFired;
-					sprintf(szTmp,"%0.1f%",fAccuracy);
+					sprintf(szTmp,"%0.1f%%",fAccuracy);
 				}
 				else
 				{
 					strcpy(szTmp," - ");
 				}
 
-				pCtrl->AddColumn(szTmp, AccuracyWidth);
+				pCtrl2->AddColumn(szTmp, AccuracyWidth);
 			
 
 				sprintf(szTmp,"%d", pStats->dwNumEnemyKills);
-				pCtrl->AddColumn(szTmp, KillsWidth);
+				pCtrl2->AddColumn(szTmp, KillsWidth);
 
 				sprintf(szTmp,"%d", pStats->dwNumTimesKilled);
-				pCtrl->AddColumn(szTmp, DeathsWidth);
+				pCtrl2->AddColumn(szTmp, DeathsWidth);
 
 					
 			}

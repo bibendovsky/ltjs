@@ -1053,6 +1053,7 @@ uint32 CLTClient::GetModelPlaybackState(HLOCALOBJ hObj)
 {
 	uint32 state = 0;
 	LTRESULT dResult = ilt_model_client->GetPlaybackState(hObj, MAIN_TRACKER, state);
+    static_cast<void>(dResult);
 	return state;
 }
 
@@ -1475,7 +1476,7 @@ LTRESULT CLTClient::GetTextureEffectVarID(const char *pName, uint32 nStage, uint
 	char* pszCurr = pszFullName;
 	while(*pszCurr)
 	{
-		*pszCurr = tolower(*pszCurr);
+		*pszCurr = static_cast<char>(tolower(*pszCurr));
 		pszCurr++;
 	}
 
@@ -1601,7 +1602,7 @@ LTRESULT CLTClient::SetObjectRenderGroup(HOBJECT hObj, uint32 nGroup)
 	if(!hObj || (nGroup >= MAX_OBJECT_RENDER_GROUPS))
 		return LT_INVALIDPARAMS;
 
-	((LTObject*)hObj)->m_nRenderGroup = nGroup;
+	((LTObject*)hObj)->m_nRenderGroup = static_cast<uint8>(nGroup);
 
 	return LT_OK;
 }
@@ -2607,9 +2608,13 @@ LTRESULT ci_Get3DCameraPt(HLOCALOBJ hCamera, int sx, int sy, LTVector *pOut)
 	float yAngle = pObject->m_yFov * 0.5f;
 
 	float sinX = ltsinf(xAngle);
+    static_cast<void>(sinX);
 	float cosX = ltcosf(xAngle);
+    static_cast<void>(cosX);
 	float sinY = ltsinf(yAngle);
+    static_cast<void>(sinY);
 	float cosY = ltcosf(yAngle);
+    static_cast<void>(cosY);
 
 	// Find what x coordinate each angle intercepts the y=1 plane at.
 	// A 45 degree angle intercepts at x=1.

@@ -275,7 +275,7 @@ void CAIGoalMgr::Init(CAI* pAI)
 
 	m_iGoalSet			= 0;
 	m_fGoalSetTime		= 0.f;
-	m_iQueuedGoalSet	= -1;
+	m_iQueuedGoalSet	= static_cast<uint32>(-1);
 
 	m_bKillDialogue		= LTFALSE;
 }
@@ -862,7 +862,7 @@ void CAIGoalMgr::UpdateGoals()
 	if( m_iQueuedGoalSet != -1 )
 	{
 		SetGoalSet( m_iQueuedGoalSet, LTTRUE );
-		m_iQueuedGoalSet = -1;
+		m_iQueuedGoalSet = static_cast<uint32>(-1);
 	}
 
 	// Kick off a queued goalscript.
@@ -1209,7 +1209,7 @@ void CAIGoalMgr::HandleGoalSenseTriggers(AISenseRecord* pSenseRecord)
 	if( m_iQueuedGoalSet != -1 )
 	{
 		SetGoalSet( m_iQueuedGoalSet, LTTRUE );
-		m_iQueuedGoalSet = -1;
+		m_iQueuedGoalSet = static_cast<uint32>(-1);
 	}
 
 	// Kick off a queued goalscript.
@@ -1353,7 +1353,7 @@ bool CAIGoalMgr::HandleCommand(const CParsedMsg &cMsg)
 	static CParsedMsg::CToken s_cTok_RemoveGoal(GOAL_CMD_REMOVEGOAL);
 	static CParsedMsg::CToken s_cTok_GoalScript(GOAL_CMD_GOALSCRIPT);
 
-	uint8 len = strlen(GOAL_CMD_PREFIX);
+	uint8 len = static_cast<uint8>(strlen(GOAL_CMD_PREFIX));
 
 	if( _strnicmp( cMsg.GetArg(0), GOAL_CMD_PREFIX, len ) == 0 )
 	{

@@ -200,16 +200,16 @@ bool LTEffectInclude::PushPath(const char* szPath)
 		int nTempLen = strlen(szTempBuf);
 		szTempBuf[nTempLen - 1] = '\0';
 		nTempLen = strlen(szTempBuf);
-		for(int i = (nTempLen - 1); i >= 0; --i)
+		for(int j = (nTempLen - 1); j >= 0; --j)
 		{
-			if( (szTempBuf[i] == '\\') || (szTempBuf[i] == '/') )
+			if( (szTempBuf[j] == '\\') || (szTempBuf[j] == '/') )
 			{				
 				--nNumBackSteps;
 				if(nNumBackSteps <= 0)
 				{
 					break;
 				}
-				szTempBuf[i] = '\0';
+				szTempBuf[j] = '\0';
 
 				if(g_CV_Effect_DebugEffectIncludes)
 				{
@@ -218,7 +218,7 @@ bool LTEffectInclude::PushPath(const char* szPath)
 			}
 			else
 			{
-				szTempBuf[i] = '\0';
+				szTempBuf[j] = '\0';
 			}
 		}
 

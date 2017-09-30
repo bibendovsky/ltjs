@@ -37,8 +37,8 @@ define_holder(ILTTexInterface, pTexInterface);
 
 
 // EXTERNS...
-extern uint32 g_ScreenWidth;
-extern uint32 g_ScreenHeight;
+extern int32 g_ScreenWidth;
+extern int32 g_ScreenHeight;
 
 // Note : This is an evil hack so we can get access to the most recent near/farz
 extern ViewParams g_ViewParams;
@@ -357,7 +357,7 @@ void CD3DDrawPrim::SetCamera(LPDIRECT3DDEVICE9 pDevice)
 	}
 	else 
 	{
-		if (0 != PrevViewport.X || 0 != PrevViewport.Y || g_ScreenWidth != PrevViewport.Width || g_ScreenHeight != PrevViewport.Height) 
+		if (0 != PrevViewport.X || 0 != PrevViewport.Y || g_ScreenWidth != static_cast<int32>(PrevViewport.Width) || g_ScreenHeight != static_cast<int32>(PrevViewport.Height)) 
 		{
 			D3DVIEWPORT9 vp;
 			vp.MinZ = MinZ; 

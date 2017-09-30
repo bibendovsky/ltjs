@@ -498,7 +498,9 @@ bool CModelShadowShader::IsExcluded(ERenderShader eShaderID) const
 		break;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 //called to set up the shadow information
@@ -545,6 +547,8 @@ void CModelShadowShader::SetShadowInfo(	const ViewParams& Params,			//the view p
 	//the distance to the near clip plane
 	float fNearClip = (pInfo->m_vProjectionCenter - pInfo->m_vLightOrigin).Mag();
 	float fFarClip  = (fNearClip + m_fProjDist);
+
+    static_cast<void>(fFarClip);
 
 	//create our matrix that will scale the dot products to the appropriate UV coordinates
 	float fSizeX = pInfo->m_fSizeX;
@@ -693,7 +697,7 @@ bool CModelShadowShader::Bind()
 
 	//note that the first color MUST be white. This will cause the shadow not
 	//to appear between the model and the light
-	pCurTexel[0] = D3DRGBA(1.0f, 1.0f, 1.0f, 1.0f);
+	pCurTexel[0] = static_cast<uint32>(D3DRGBA(1.0f, 1.0f, 1.0f, 1.0f));
 	for (uint32 nZLoop = 1; nZLoop < m_nFadeTextureX; ++nZLoop)
 	{
 		float fValue = (float)(nZLoop - 1) / (m_nFadeTextureX - 2);

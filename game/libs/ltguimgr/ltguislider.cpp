@@ -86,8 +86,8 @@ LTBOOL CLTGUISlider::Create ( const char *pText, uint32 nHelpID, CUIFont *pFont,
 	uint32 w,h;
 	g_pTexInterface->GetTextureDims(m_hBar,w,h);
 
-	m_nArrowWidth = w / 2;
-	m_nArrowHeight = h / 2;
+	m_nArrowWidth = static_cast<uint16>(w / 2);
+	m_nArrowHeight = static_cast<uint16>(h / 2);
 
 
 	SetHelpID(nHelpID);
@@ -479,9 +479,9 @@ void CLTGUISlider::ScaleBar()
 
 	if (m_pNumbers)
 	{
-		float x = (float)(m_rcBar.right + m_nHeight + 4);
-		float y = (float)m_pos.y;
-		m_pNumbers->SetPosition(x,y);
+		float x2 = (float)(m_rcBar.right + m_nHeight + 4);
+		float y2 = (float)m_pos.y;
+		m_pNumbers->SetPosition(x2,y2);
 	}
 
 

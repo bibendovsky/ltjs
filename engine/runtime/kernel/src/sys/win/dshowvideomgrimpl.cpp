@@ -10,6 +10,7 @@
 //
 // *********************************************************************** //
 
+
 #include "bdefs.h"
 #include "clientmgr.h"
 #include "interface_helpers.h"
@@ -19,6 +20,10 @@
 #include "dshowvideomgrimpl.h"
 
 #include "../../../../libs/mfcstub/mfcs_macros.h"
+
+
+#ifdef LTJS_USE_DIRECTSHOW
+
 
 //----------------------------------------------------------------------------
 //
@@ -1207,3 +1212,6 @@ void RemoveFromROT(void)
 }
 
 #endif
+
+
+#endif // LTJS_USE_DIRECTSHOW

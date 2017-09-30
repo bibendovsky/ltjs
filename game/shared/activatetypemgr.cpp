@@ -138,7 +138,7 @@ LTBOOL CActivateTypeMgr::Init( const char *szAttributeFile /* = ATMGR_DEFAULT_FI
 		{
 			// Set the ID and add it to the list...
 			
-			pActivateType->nId = nNum;
+			pActivateType->nId = static_cast<uint8>(nNum);
 			m_ActivateTypeList.AddTail( pActivateType );
 		}
 		else
@@ -219,12 +219,12 @@ ACTIVATETYPE *CActivateTypeMgr::GetActivateType( const char *pName )
 // ----------------------------------------------------------------------- //
 
 ACTIVATETYPE::ACTIVATETYPE()
-:	nId				( ATMGR_INVALID_ID ),
+:	nId				( static_cast<uint8>(ATMGR_INVALID_ID) ),
 	szName			( LTNULL )
 {
 	for( int i = 0; i < eMaxStates; ++i )
 	{
-		dwStateID[i] = ATMGR_INVALID_ID;
+		dwStateID[i] = static_cast<uint32>(ATMGR_INVALID_ID);
 	}
 }
 
@@ -377,7 +377,7 @@ bool CActivateTypeMgrPlugin::PopulateStringList( char** aszStrings,
 
 CActivateTypeHandler::CActivateTypeHandler()
 :	m_pBase		( LTNULL ),
-	m_nId		( ATMGR_INVALID_ID ),
+	m_nId		( static_cast<uint8>(ATMGR_INVALID_ID) ),
 	m_bDisabled	( false ),
 	m_eState	( ACTIVATETYPE::eOn )
 {
@@ -503,7 +503,7 @@ void CActivateTypeHandler::WriteActivateTypeMsg( ILTMessage_Write *pMsg )
 
 	pMsg->Writeuint8( m_nId );
 	pMsg->Writebool( m_bDisabled );
-	pMsg->Writeuint8( m_eState );
+	pMsg->Writeuint8( static_cast<uint8>(m_eState) );
 }
 
 // ----------------------------------------------------------------------- //
@@ -581,7 +581,7 @@ void CActivateTypeHandler::SetState( ACTIVATETYPE::State eState, bool bSendToCli
 		cMsg.Writeuint8( SFX_ACTIVATEOBJECT_ID );
 		cMsg.WriteObject( m_pBase->m_hObject );
 		cMsg.Writeuint8( ACTIVATEFX_STATE);
-		cMsg.Writeuint8( m_eState );
+		cMsg.Writeuint8( static_cast<uint8>(m_eState) );
 		g_pLTServer->SendToClient( cMsg.Read(), hClient, MESSAGE_GUARANTEED );
 
 		// And then all of the inherited objects...
@@ -594,7 +594,7 @@ void CActivateTypeHandler::SetState( ACTIVATETYPE::State eState, bool bSendToCli
 			cMsg.Writeuint8( SFX_ACTIVATEOBJECT_ID );
 			cMsg.WriteObject( (*iter) );
 			cMsg.Writeuint8( ACTIVATEFX_STATE );
-			cMsg.Writeuint8( m_eState );
+			cMsg.Writeuint8( static_cast<uint8>(m_eState) );
 			g_pLTServer->SendToClient( cMsg.Read(), hClient, MESSAGE_GUARANTEED );
 		}
 	}
@@ -629,7 +629,7 @@ void CActivateTypeHandler::OnLinkBroken( LTObjRefNotifier *pRef, HOBJECT hObj )
 
 				CAutoMessage cMsg;
 				cMsg.Writeuint8( SFX_ACTIVATEOBJECT_ID );
-				cMsg.Writeuint8( ATMGR_INVALID_ID );
+				cMsg.Writeuint8( static_cast<uint8>(ATMGR_INVALID_ID) );
 				cMsg.Writebool( true );
 				cMsg.Writeuint8( ACTIVATETYPE::eOff );
 				g_pLTServer->SetObjectSFXMessage( (*iter), cMsg.Read() );
@@ -715,7 +715,7 @@ void CActivateTypeHandler::DisownObject( HOBJECT hObj )
 
 			CAutoMessage cMsg;
 			cMsg.Writeuint8( SFX_ACTIVATEOBJECT_ID );
-			cMsg.Writeuint8( ATMGR_INVALID_ID );
+			cMsg.Writeuint8( static_cast<uint8>(ATMGR_INVALID_ID) );
 			cMsg.Writebool( true );
 			cMsg.Writeuint8( ACTIVATETYPE::eOff );
 			g_pLTServer->SetObjectSFXMessage( hObj, cMsg.Read() );

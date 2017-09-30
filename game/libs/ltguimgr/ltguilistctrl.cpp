@@ -462,7 +462,7 @@ uint16 CLTGUIListCtrl::AddControl ( CLTGUICtrl *pControl )
 	}
 
 	m_bNeedsRecalculation = LTTRUE;
-	return m_controlArray.size()-1;
+	return static_cast<uint16>(m_controlArray.size()-1);
 }
 
 // Remove a control
@@ -548,6 +548,7 @@ uint16 CLTGUIListCtrl::SetSelection( uint16 nIndex )
 	}
 
 	int nOldIndex=m_nCurrentIndex;
+    static_cast<void>(nOldIndex);
 
 	if (m_nCurrentIndex < m_controlArray.size() )
 	{
@@ -595,7 +596,7 @@ uint16 CLTGUIListCtrl::SetSelection( uint16 nIndex )
 
 		} while (nBottom > nTop);
 
-		m_nFirstShown = (i+1);
+		m_nFirstShown = static_cast<uint16>(i+1);
 
 		m_bNeedsRecalculation = LTTRUE;
 	}
@@ -633,7 +634,7 @@ void CLTGUIListCtrl::CalculatePositions()
 		m_controlArray[i]->SetBasePos(pos);
 
 		//check the control's width
-		w = m_controlArray[i]->GetWidth() + nSpace;
+		w = static_cast<uint16>(m_controlArray[i]->GetWidth() + nSpace);
 		if (w > m_nWidth)
 			m_nWidth = w;
 
@@ -668,7 +669,7 @@ void CLTGUIListCtrl::CalculatePositions()
 
 	if (m_nLastShown > m_controlArray.size())
 	{
-		m_nLastShown = m_controlArray.size()-1;
+		m_nLastShown = static_cast<uint16>(m_controlArray.size()-1);
 	}
 
 	float frameW = ((float)m_nFrameWidth * m_fScale);
@@ -747,7 +748,7 @@ CLTGUICtrl *CLTGUIListCtrl::GetControlUnderPoint(int xPos, int yPos, uint16 *pnI
 		// Check to see if the click is in the bounding box for the control
 		if (m_controlArray[i]->IsOnMe(xPos,yPos))
 		{
-			*pnIndex=i;
+			*pnIndex= static_cast<uint16>(i);
 
 			return m_controlArray[i];
 		}
@@ -760,7 +761,7 @@ uint16 CLTGUIListCtrl::NextSelection()
 {
 	uint16 select = m_nCurrentIndex;
 	if (select == kNoSelection)
-		select = m_controlArray.size();
+		select = static_cast<uint16>(m_controlArray.size());
 	uint16 oldSelect = select;
 	
 	CLTGUICtrl* pCtrl = LTNULL;	
@@ -773,7 +774,7 @@ uint16 CLTGUIListCtrl::NextSelection()
 				select = 0;
 			else
 			{
-				select = m_controlArray.size() - 1;
+				select = static_cast<uint16>(m_controlArray.size() - 1);
 				oldSelect = select;
 			}
 
@@ -804,7 +805,7 @@ uint16 CLTGUIListCtrl::PreviousSelection()
 		if (select == 0)
 		{
 			if (m_bScrollWrap)
-				select = m_controlArray.size()-1;
+				select = static_cast<uint16>(m_controlArray.size()-1);
 			else
 			{
 				select = 0;
@@ -833,17 +834,17 @@ void CLTGUIListCtrl::SetBasePos ( LTIntPt pos )
 
 	if (m_pUp)
 	{
-		LTIntPt pos = m_basePos;
-		pos.x += m_nArrowOffset;
-		m_pUp->SetBasePos(pos);
+		LTIntPt pos2 = m_basePos;
+		pos2.x += m_nArrowOffset;
+		m_pUp->SetBasePos(pos2);
 	}
 
 	if (m_pDown)
 	{
-		LTIntPt pos = m_basePos;
-		pos.x += m_nArrowOffset;
-		pos.y += (m_nHeight - m_pDown->GetBaseHeight() );
-		m_pDown->SetBasePos(pos);
+		LTIntPt pos3 = m_basePos;
+		pos3.x += m_nArrowOffset;
+		pos3.y += (m_nHeight - m_pDown->GetBaseHeight() );
+		m_pDown->SetBasePos(pos3);
 	}
 }
 

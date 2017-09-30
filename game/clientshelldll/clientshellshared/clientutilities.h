@@ -17,6 +17,7 @@
 #include "iltclient.h"
 #include "commonutilities.h"
 #include "soundmgr.h"
+#include "clientservershared.h"
 
 #define DEG2RAD(x)		(((x)*MATH_PI)/180.0f)
 #define RAD2DEG(x)		(((x)*180.0f)/MATH_PI)
@@ -59,7 +60,7 @@ void	WriteConsoleFloat(char const* sKey, LTFLOAT fValue);
 void StartTimingCounter();
 void EndTimingCounter(char *msg, ...);
 
-inline LTBOOL GetAttachmentSocketTransform(HOBJECT hObj, char* pSocketName,
+inline LTBOOL GetAttachmentSocketTransform(HOBJECT hObj, const char* pSocketName,
                                           LTVector & vPos, LTRotation & rRot)
 {
     if (!hObj || !pSocketName) return LTFALSE;

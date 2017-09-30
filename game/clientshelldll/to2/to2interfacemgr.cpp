@@ -75,7 +75,7 @@ LTBOOL CTO2InterfaceMgr::OnCommandOn(int command)
 		if (command >= COMMAND_ID_CHOOSE_1 &&
 			command <= COMMAND_ID_CHOOSE_6 )
 		{
-			uint8 nChoice = command - COMMAND_ID_CHOOSE_1;
+			uint8 nChoice = static_cast<uint8>(command - COMMAND_ID_CHOOSE_1);
 			g_pRadio->Choose(nChoice);
 			return LTTRUE;
 		} 

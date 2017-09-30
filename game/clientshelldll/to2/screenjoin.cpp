@@ -220,8 +220,8 @@ LTBOOL CScreenJoin::Build()
 	// server list -----------------------------------------------
 	pos.x = serverRect.left;
 	pos.y += headerFontSize + 4;
-	uint16 height = serverRect.bottom - pos.y;
-	m_pServerListCtrl = AddList(pos,height,LTTRUE,totalwidth);
+	uint16 height = static_cast<uint16>(serverRect.bottom - pos.y);
+	m_pServerListCtrl = AddList(pos,height,LTTRUE,static_cast<uint16>(totalwidth));
 	m_pServerListCtrl->SetScrollWrap(LTFALSE);
 	m_pServerListCtrl->SetFrameWidth(2);
 	m_pServerListCtrl->SetColors(m_NonSelectedColor,m_NonSelectedColor,m_DisabledColor);
@@ -313,8 +313,8 @@ LTBOOL CScreenJoin::Build()
 	uint16  optionHeight = (uint16)g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_JOIN,"OptionsHeight");
 	pos.x = detailsRect.left;
 	pos.y = detailsRect.top;
-	uint16 nDetailsWidth = detailsRect.right-detailsRect.left;
-	uint16 nDetailsHeight = detailsRect.bottom-detailsRect.top;
+	uint16 nDetailsWidth = static_cast<uint16>(detailsRect.right-detailsRect.left);
+	uint16 nDetailsHeight = static_cast<uint16>(detailsRect.bottom-detailsRect.top);
 
 	m_pDetails = debug_new(CLTGUIWindow);
 	g_pLayoutMgr->GetScreenCustomString(SCREEN_ID_JOIN,"DetailsFrame",szBack,sizeof(szBack));
@@ -641,7 +641,7 @@ void CScreenJoin::ReadCurServerList()
 			iCurServer->m_nPing = cRead->Readuint16();
 		}
 		else			
-			iCurServer->m_nPing = -1;
+			iCurServer->m_nPing = static_cast<uint16>(-1);
 
 		// Ok, this one's valid
 		iCurServer->m_sAddress = *iCurPeer;
@@ -668,43 +668,44 @@ void CScreenJoin::DisplayCurServerList()
 		// Create a control
 		CLTGUIColumnCtrl* pCtrl = CreateColumnCtrl(CMD_DETAILS, IDS_HELP_JOIN);
 		// Do the name
-		pCtrl->AddColumn(iCurServer->m_sName.c_str(), kColumnWidth_ServerName,LTTRUE);
+		pCtrl->AddColumn(iCurServer->m_sName.c_str(), static_cast<uint16>(kColumnWidth_ServerName),LTTRUE);
 
 		// Do the mod...
 
-		sprintf( aTempBuffer, "%s", iCurServer->m_sModName );
-		pCtrl->AddColumn( aTempBuffer, kColumnWidth_Mod );
+		sprintf( aTempBuffer, "%s", iCurServer->m_sModName.c_str() );
+		pCtrl->AddColumn( aTempBuffer, static_cast<uint16>(kColumnWidth_Mod) );
 
 		// Do the ping
 		sprintf(aTempBuffer, "%d", iCurServer->m_nPing);
-		pCtrl->AddColumn(aTempBuffer, kColumnWidth_Ping);
+		pCtrl->AddColumn(aTempBuffer, static_cast<uint16>(kColumnWidth_Ping));
 
 		// Do the number of players
 		sprintf(aTempBuffer, "%d/%d", iCurServer->m_nNumPlayers, iCurServer->m_nMaxPlayers);
-		pCtrl->AddColumn(aTempBuffer, kColumnWidth_Players);
+		pCtrl->AddColumn(aTempBuffer, static_cast<uint16>(kColumnWidth_Players));
 
 
 		if (iCurServer->m_bUsePassword)
 		{
-			pCtrl->AddColumn("x", kColumnWidth_Lock);
+			pCtrl->AddColumn("x", static_cast<uint16>(kColumnWidth_Lock));
 		}
 		else
 		{
-			pCtrl->AddColumn(" ", kColumnWidth_Lock);
+			pCtrl->AddColumn(" ", static_cast<uint16>(kColumnWidth_Lock));
 		}
 
 
 		// Do the map
-		pCtrl->AddColumn(iCurServer->m_sMission.c_str(), kColumnWidth_Mission,LTTRUE);
+		pCtrl->AddColumn(iCurServer->m_sMission.c_str(), static_cast<uint16>(kColumnWidth_Mission),LTTRUE);
 
 		// Remember where we came from
-		uint16 nServerIndex = (uint32)(iCurServer - m_cServerList.begin());
+		uint16 nServerIndex = static_cast<uint16>(iCurServer - m_cServerList.begin());
 		pCtrl->SetParam1(nServerIndex);
 
 		// Add the server
 		uint16 nCtrlIndex = m_pServerListCtrl->AddControl(pCtrl);
+        nServerIndex = static_cast<uint16>(m_nSelectedServer);
 
-		if (nServerIndex = m_nSelectedServer)
+		if (nServerIndex)
 			nSelected = nCtrlIndex;
 
 	}
@@ -747,7 +748,7 @@ void CScreenJoin::ReadDetails()
 
 	m_pJoin->Enable(LTTRUE);
 	m_pDetails->Show(LTTRUE);
-	m_pDetails->SetSelection(m_pDetails->GetIndex(m_pJoin));
+	m_pDetails->SetSelection(static_cast<uint16>(m_pDetails->GetIndex(m_pJoin)));
 	SetCapture(m_pDetails);
 
 }
@@ -1071,6 +1072,7 @@ void CScreenJoin::Update_State_Startup()
 		case IServerDirectory::eStatus_Error : 
 		{
 			IServerDirectory::ERequest eErrorRequest = pServerDir->GetLastErrorRequest();
+            static_cast<void>(eErrorRequest);
 
 			// Whoops, something went wrong.
 			// Drop out of this screen with an error
@@ -1340,6 +1342,7 @@ void CScreenJoin::ReadDMDetails(std::string& sOptions,CLTMsgRef_Read& cRead)
 {
 	char aStringBuffer[256];
 	bool bSkills = cRead->Readbool();
+    static_cast<void>(bSkills);
 /*
 	sprintf(aStringBuffer,"%s: ",LoadTempString(IDS_USE_SKILLS));
 	sOptions += aStringBuffer;
@@ -1360,7 +1363,9 @@ void CScreenJoin::ReadDMDetails(std::string& sOptions,CLTMsgRef_Read& cRead)
 
 	//ignore diff for DM
 	uint8 nDiff = cRead->Readuint8();
+    static_cast<void>(nDiff);
 	float fPlayerDiff = cRead->Readfloat();
+    static_cast<void>(fPlayerDiff);
 
 	//read player list
 	bool bPlayerToRead = cRead->Readbool();
@@ -1373,11 +1378,11 @@ void CScreenJoin::ReadDMDetails(std::string& sOptions,CLTMsgRef_Read& cRead)
 		// Create a control
 		CLTGUIColumnCtrl* pCtrl = CreateColumnCtrl(0,0,kDefaultPos,LTTRUE);
 		// Do the name
-		pCtrl->AddColumn(aStringBuffer, kColumnWidth_PlayerName,LTTRUE);
+		pCtrl->AddColumn(aStringBuffer, static_cast<uint16>(kColumnWidth_PlayerName),LTTRUE);
 
 		// Do the ping
 		sprintf(aStringBuffer, "%d", nPing);
-		pCtrl->AddColumn(aStringBuffer, kColumnWidth_Ping);
+		pCtrl->AddColumn(aStringBuffer, static_cast<uint16>(kColumnWidth_Ping));
 
 		m_pPlayerListCtrl->AddControl(pCtrl);
 	}
@@ -1455,11 +1460,11 @@ void CScreenJoin::ReadCoopDetails(std::string& sOptions,CLTMsgRef_Read& cRead)
 		// Create a control
 		CLTGUIColumnCtrl* pCtrl = CreateColumnCtrl(0,0,kDefaultPos,LTTRUE);
 		// Do the name
-		pCtrl->AddColumn(aStringBuffer, kColumnWidth_PlayerName,LTTRUE);
+		pCtrl->AddColumn(aStringBuffer, static_cast<uint16>(kColumnWidth_PlayerName),LTTRUE);
 
 		// Do the ping
 		sprintf(aStringBuffer, "%d", nPing);
-		pCtrl->AddColumn(aStringBuffer, kColumnWidth_Ping);
+		pCtrl->AddColumn(aStringBuffer, static_cast<uint16>(kColumnWidth_Ping));
 
 		m_pPlayerListCtrl->AddControl(pCtrl);
 

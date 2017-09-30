@@ -366,7 +366,7 @@ LTBOOL CAIPathMgr::FindRandomPosition(CAI* pAI, AIVolume* pVolume, const LTVecto
 	// Randomize neighbors.
 
 	uint8 iRand;
-	uint8 nNeighbors = pVolume->GetNumNeighbors();
+	uint8 nNeighbors = static_cast<uint8>(pVolume->GetNumNeighbors());
 	AIVolumeNeighbor* apNeighbors[CAISpatialRepresentationMgr::kMaxNeighbors];
     uint8 iNeighbor=0;
 	for( iNeighbor=0; iNeighbor < pVolume->GetNumNeighbors(); ++iNeighbor )
@@ -377,7 +377,7 @@ LTBOOL CAIPathMgr::FindRandomPosition(CAI* pAI, AIVolume* pVolume, const LTVecto
 	uint8 cBlanks, iSpot;
 	for( iNeighbor=0; iNeighbor < pVolume->GetNumNeighbors(); ++iNeighbor )
 	{
-		iRand = GetRandom( 0, nNeighbors - 1 );
+		iRand = static_cast<uint8>(GetRandom( 0, nNeighbors - 1 ));
 		cBlanks = 0;
 
 		for( iSpot=0; iSpot < pVolume->GetNumNeighbors(); ++iSpot )
@@ -1000,7 +1000,7 @@ void CAIPathMgr::BuildPath(CAI* pAI, CAIPath* pPath, AIVolume* pVolume, const LT
 	AIVolume* pPrevVolume = LTNULL;
 	AIVolume* pNextVolume;
 	AIVolumeNeighbor* pVolumeNeighbor;
-	AIVolumeNeighbor* pLastVolumeNeighbor;
+	AIVolumeNeighbor* pLastVolumeNeighbor = nullptr;
 	LTVector vEntryPoint;
 	VolumeGate eVolumeGate;
 
@@ -1982,7 +1982,7 @@ LTBOOL CAIPathMgr::IntersectConnectionEdges(INTERSECT_CONNECTION_STRUCT* pics,
 			// Point may be above, below, or inside the connection.
 			// Record which z edge is crossed, if any.
 
-			LTFLOAT z;
+			LTFLOAT z = 0.0F;
 			if( pics->vPointCur.z <= fMin )
 			{
 				z = fMin;
@@ -2108,7 +2108,7 @@ LTBOOL CAIPathMgr::IntersectConnectionEdges(INTERSECT_CONNECTION_STRUCT* pics,
 			// Point may be left, right, or inside the connection.
 			// Record which x edge is crossed, if any.
 
-			LTFLOAT x;
+			LTFLOAT x = 0.0F;
 			if( pics->vPointCur.x <= fMin )
 			{
 				x = fMin;

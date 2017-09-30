@@ -72,7 +72,7 @@ struct SoundFiles
 
 struct SoundBute
 {
-	SoundBute::SoundBute()
+	SoundBute()
 		:	m_fInnerRad		( 0.0f ),
 			m_fOuterRad		( 0.0f ),
 			m_fPitch		( 0.0f ),

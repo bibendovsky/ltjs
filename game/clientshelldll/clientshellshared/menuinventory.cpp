@@ -100,7 +100,7 @@ LTBOOL CMenuInventory::Init()
 		nDescFont = m_FontSize;
 	m_Description.Create("description",LTNULL,LTNULL,pFont,nDescFont,LTNULL);
 	m_Description.SetColors(m_NonSelectedColor,m_NonSelectedColor,m_NonSelectedColor);
-	m_Description.SetFixedWidth( size.x - (m_Indent.x * 2));
+	m_Description.SetFixedWidth( static_cast<uint16>(size.x - (m_Indent.x * 2)));
 	m_Description.Enable(LTFALSE);
 	m_Popup.AddControl(&m_Description,offset);
 
@@ -110,7 +110,7 @@ LTBOOL CMenuInventory::Init()
 
 	offset.y += nAmmoOffset;
 
-	m_Ammo.Create( (size.y - offset.y) - 8);
+	m_Ammo.Create( static_cast<uint16>((size.y - offset.y) - 8));
 	m_Popup.AddControl(&m_Ammo,offset);
 
 	int nPopupPos = g_pLayoutMgr->GetMenuCustomInt(m_MenuID,"PopupPos");
@@ -119,7 +119,7 @@ LTBOOL CMenuInventory::Init()
 
 	uint8 nHelpFont = (uint8)g_pLayoutMgr->GetMenuCustomInt(m_MenuID,"HelpFontSize");
 	offset = g_pLayoutMgr->GetMenuCustomPoint(m_MenuID,"HelpOffset");
-	uint16 nWidth = 600 - 2* offset.x;
+	uint16 nWidth = static_cast<uint16>(600 - 2* offset.x);
 	if (!nHelpFont)
 		nHelpFont = m_FontSize;
 	m_AmmoDesc.Create("description",LTNULL,LTNULL,pFont,nHelpFont,LTNULL);
@@ -165,7 +165,7 @@ uint32 CMenuInventory::OnCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2
 			uint8 index = 0;
 			for (uint8 i = 0; i < pWeapon->nNumAmmoIds; i++)
 			{
-				uint8 nAmmoID = pWeapon->aAmmoIds[i];
+				uint8 nAmmoID = static_cast<uint8>(pWeapon->aAmmoIds[i]);
 				if (g_pPlayerStats->GetAmmoCount(nAmmoID))
 				{
 					AMMO const *pAmmo = g_pWeaponMgr->GetAmmo(nAmmoID);
@@ -208,7 +208,7 @@ uint32 CMenuInventory::OnCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2
 
 			UpdateAmmoText(true);
 
-			m_Popup.SetSelection(m_Popup.GetIndex(&m_Ammo));
+			m_Popup.SetSelection(static_cast<uint16>(m_Popup.GetIndex(&m_Ammo)));
 
 			g_pInterfaceMgr->GetMenuMgr()->ShowSubMenu(&m_Popup);
 			nWeaponID = nID;
@@ -252,7 +252,7 @@ void CMenuInventory::OnFocus(LTBOOL bFocus)
 
 		for (int nCmd = nFirstWeaponCommandId; nCmd <= nLastWeaponCommandId; nCmd++)
 		{
-			uint8 nWpn = g_pWeaponMgr->GetWeaponId(nCmd);
+			uint8 nWpn = static_cast<uint8>(g_pWeaponMgr->GetWeaponId(nCmd));
 			if (g_pPlayerStats->HaveWeapon(nWpn))
 			{
 				WEAPON const *pWeapon = g_pWeaponMgr->GetWeapon(nWpn);
@@ -300,7 +300,7 @@ void CMenuInventory::OnFocus(LTBOOL bFocus)
 			m_Popup.SetScale(g_pInterfaceResMgr->GetXRatio());
 		}
 
-		SetSelection(GetIndex(&m_List));
+		SetSelection(static_cast<uint16>(GetIndex(&m_List)));
 
 		m_List.SetSelection(nSel);
 	}

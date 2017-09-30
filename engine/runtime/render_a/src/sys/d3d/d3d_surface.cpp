@@ -181,6 +181,7 @@ void d3d_BlitFromScreen(BlitRequest* pRequest)
 
 	// Copy away!
 	HRESULT hResult = PD3DDEVICE->UpdateSurface(pBackBuffer,&srcRect,pRSurface->m_pSurface,&destPt);
+    static_cast<void>(hResult);
 
 	if (pBackBuffer)																{ pBackBuffer->Release(); pBackBuffer = NULL; }
 
@@ -475,9 +476,9 @@ void d3d_MakeScreenShotTGA(const char *pFilename, uint32 nWidth, uint32 nHeight)
 	fwrite(&nWord, sizeof(nWord), 1, fp);
 
 	//now the image dimensions
-	nWord = nWidth;
+	nWord = static_cast<uint16>(nWidth);
 	fwrite(&nWord, sizeof(nWord), 1, fp);
-	nWord = nHeight;
+	nWord = static_cast<uint16>(nHeight);
 	fwrite(&nWord, sizeof(nWord), 1, fp);
 
 	//now the pixel depth
@@ -553,15 +554,15 @@ void d3d_MakeCubicEnvMap(const char* pszPrefix, uint32 nSize, const SceneDesc& I
 {
 	//first off, we need to make sure that the screen is large enough to accomodate our environment
 	//map
-	if((g_ScreenWidth < nSize) || (g_ScreenHeight < nSize))
+	if((static_cast<uint32>(g_ScreenWidth) < nSize) || (static_cast<uint32>(g_ScreenHeight) < nSize))
 	{
 		dsi_ConsolePrint("MakeEnvMap: The screen must be at least %d pixels in both directions", nSize);
 		return;
 	}
 
 	//ok, so the screen can take it, so let us begin setting up all 6 images
-	uint32 nOldScreenWidth = g_ScreenWidth;
-	uint32 nOldScreenHeight = g_ScreenHeight;
+	int32 nOldScreenWidth = g_ScreenWidth;
+	int32 nOldScreenHeight = g_ScreenHeight;
 
 	//first off, override our screen dimensions to fit those of the cubic environment map
 	g_ScreenWidth = nSize;
@@ -646,7 +647,8 @@ void d3d_SwapBuffers(uint flags)
 	}
 	else 
 	{
-		HRESULT hResult = PD3DDEVICE->Present(NULL,NULL,NULL,NULL); 
+		HRESULT hResult = PD3DDEVICE->Present(NULL,NULL,NULL,NULL);
+        static_cast<void>(hResult);
 	}
 
 	// prevent frame buffering

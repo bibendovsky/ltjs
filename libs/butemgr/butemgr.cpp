@@ -110,16 +110,8 @@ public:
         int m_tokenMinor;
     };
 
-	// Used to define map of strings to CSymTabItems.
-#if _MSC_VER == 1300
-	typedef std::hash_map< char const*, CReservedWord, ButeMgrHashCompare > ReservedWordMap;
-#elif _MSC_VER > 1300 && _MSC_VER < 1900 // NET 2003
-	typedef stdext::hash_map< char const*, CReservedWord, ButeMgrHashCompare > ReservedWordMap;
-#elif _MSC_VER >= 1900  // VC 14.0
+    // Used to define map of strings to CSymTabItems.
     typedef std::unordered_map< char const*, CReservedWord, ButeMgrHashCompare, ButeMgrHashCompare > ReservedWordMap;
-#else
-	typedef std::hash_map< char const*, CReservedWord, hash_str_nocase, equal_str_nocase > ReservedWordMap;
-#endif // NEXT2002
 
     CReservedWords()
     {
@@ -508,7 +500,7 @@ void CButeMgr::ConsumeChar()
 	else
 		m_bLineCounterFlag = false;
 
-    m_currentChar = c;
+    m_currentChar = static_cast<unsigned char>(c);
 	m_checksum += c;
 }
 
@@ -549,8 +541,8 @@ void CButeMgr::LookupCodes(short State, unsigned char currentChar)
 		CReservedWords::CReservedWord const* p = s_reservedWords.Lookup(m_szTokenString);
 		if (p)
 		{
-			m_token = p->m_token;
-			m_tokenMinor = p->m_tokenMinor;
+			m_token = static_cast<short>(p->m_token);
+			m_tokenMinor = static_cast<short>(p->m_tokenMinor);
 		}
 	}
 }
@@ -612,7 +604,10 @@ bool CButeMgr::ScanTok()
 				return true;
         }
     }
+
+#if 0
 	return true;
+#endif // 0
 }
 
 
@@ -625,7 +620,7 @@ void CButeMgr::DisplayMessage(const char* szMsg, ...)
 	va_start(v, szMsg);
 	char aMsgBuffer[2048];
 	_vsnprintf(aMsgBuffer, sizeof(aMsgBuffer), szMsg, v);
-	m_sErrorString.Format("ButeMgr (%s, %d):  %s", m_sAttributeFilename, m_lineNumber, aMsgBuffer);
+	m_sErrorString.Format("ButeMgr (%s, %d):  %s", static_cast<LPCTSTR>(m_sAttributeFilename), m_lineNumber, aMsgBuffer);
 
 //	TRACE("%s\n", (m_sErrorString.GetBuffer(0)));
 	if (m_pDisplayFunc)
@@ -728,7 +723,7 @@ bool CButeMgr::Statement()
 		case CastByteTok:
 			if (!Match(PosIntegerTok))
 				return false;
-			byteValue = atoi(m_szTokenString);
+			byteValue = static_cast<BYTE>(atoi(m_szTokenString));
 			if (!m_pSaveData)
 			{
 				if (!bDuplicate)
@@ -930,7 +925,10 @@ bool CButeMgr::StatementList()
 		else if (m_token != IdTok)
 			return false;
 	}
+
+#if 0
 	return true;
+#endif // 0
 }
 
 
@@ -964,11 +962,7 @@ bool CButeMgr::Tag()
 
 bool CButeMgr::AuxTabItemsSave( char const* pszAttName, CSymTabItem& theItem, void* pContext )
 {
-#if _MSC_VER >= 1300
 	std::ofstream* pSaveData = (std::ofstream*)pContext;
-#else
-	ofstream* pSaveData = (ofstream*)pContext;
-#endif // VC7
 
 	*pSaveData << "\r\n" << pszAttName << " = ";
 
@@ -1023,11 +1017,7 @@ bool CButeMgr::AuxTabItemsSave( char const* pszAttName, CSymTabItem& theItem, vo
 
 bool CButeMgr::NewTabsSave( const char* pszTagName, TableOfItems& theTabOfItems, void* pContext )
 {
-#if _MSC_VER >= 1300
 	std::ofstream* pSaveData = (std::ofstream*)pContext;
-#else
-	ofstream* pSaveData = (ofstream*)pContext;
-#endif // VC7
 
 	*pSaveData << "\r\n\r\n" << "[" << pszTagName << "]";
 
@@ -1080,154 +1070,108 @@ bool CButeMgr::TagList()
 	return true;
 }
 
-
-
-
-
-bool CButeMgr::Save(const char* szNewFileName)
+bool CButeMgr::Save(
+    const char* szNewFileName)
 {
-	Reset();
+    Reset();
 
-	if (m_sAttributeFilename.IsEmpty() && !szNewFileName)
-		return false;
+    if (m_sAttributeFilename.IsEmpty() && !szNewFileName)
+        return false;
 
-	m_bPutChar = true;
+    m_bPutChar = true;
 
-	char buf[4096];
+    char buf[4096];
 
-	if ( m_sAttributeFilename.GetBuffer() == NULL )
-		m_sAttributeFilename = "";
+    if (m_sAttributeFilename.GetBuffer() == NULL)
+        m_sAttributeFilename = "";
 
-#if _MSC_VER >= 1300
-	std::ifstream is(m_sAttributeFilename, std::ios_base::binary);
-#else
-	ifstream is(m_sAttributeFilename, ios::nocreate | ios::binary);
-#endif // VC7
+    std::ifstream is(m_sAttributeFilename, std::ios_base::binary);
 
-	long nFileLength=0;
-	if (is.is_open())
-	{
-#if _MSC_VER >= 1300
-		is.seekg(0, std::ios_base::end);
-#else
-		is.seekg(0, ios::end);
-#endif // VC7
-		nFileLength = is.tellg();
-	}
+    long nFileLength = 0;
+    if (is.is_open()) {
+        is.seekg(0, std::ios_base::end);
+        nFileLength = static_cast<long>(is.tellg());
+    }
 
- 	if (nFileLength==0)
- 		nFileLength = 1;
+    if (nFileLength == 0)
+        nFileLength = 1;
 
-	is.clear();
-	is.seekg(0);
+    is.clear();
+    is.seekg(0);
 
-	// Create the buffer.
-	char *pssBuf = new char[nFileLength];
-	pssBuf[0] = '\0';
+    // Create the buffer.
+    char *pssBuf = new char[nFileLength];
+    pssBuf[0] = '\0';
 
-#if _MSC_VER >= 1300
-	std::strstream ss(pssBuf, nFileLength, std::ios_base::in | std::ios_base::out);
-#else
-	strstream ss(pssBuf, nFileLength, ios::in | ios::out);
-#endif // VC7
+    std::stringstream ss;
 
-	if (m_bCrypt)
-	{
-		m_cryptMgr.Decrypt(is, ss);
-#if _MSC_VER >= 1300
-		m_pSaveData = new std::iostream(new std::strstreambuf(nFileLength));
-#else
-		m_pSaveData = new iostream(new strstreambuf(nFileLength));
-#endif // VC7
-	}
-	else
-	{
-		if (is.is_open())
-		{
-			while (!is.eof())
-			{
-				is.read(buf, 4096);
-				ss.write(buf, is.gcount());
-			}
-		}
+    if (m_bCrypt) {
+        m_cryptMgr.Decrypt(is, ss);
+        m_pSaveData = new std::stringstream();
+    } else {
+        if (is.is_open()) {
+            while (!is.eof()) {
+                is.read(buf, 4096);
+                ss.write(buf, is.gcount());
+            }
+        }
 
-		is.close();
+        is.close();
 
-		if (szNewFileName)
-#if _MSC_VER >= 1300
-			m_pSaveData = new std::fstream(szNewFileName, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-#else
-			m_pSaveData = new fstream(szNewFileName, ios::binary | ios::in | ios::out | ios::trunc);
-#endif // VC7
-		else
-#if _MSC_VER >= 1300
-			m_pSaveData = new std::fstream(m_sAttributeFilename, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-#else
-			m_pSaveData = new fstream(m_sAttributeFilename, ios::binary | ios::in | ios::out | ios::trunc);
-#endif // VC7
+        if (szNewFileName)
+            m_pSaveData = new std::fstream(szNewFileName, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+        else
+            m_pSaveData = new std::fstream(m_sAttributeFilename, std::ios_base::binary | std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+    }
 
-	}
+    if (m_pSaveData->fail()) {
+        delete m_pSaveData;
+        m_pSaveData = NULL;
 
-	if( m_pSaveData->fail( ))
-	{
-		delete m_pSaveData;
-		m_pSaveData = NULL;
+        // Delete the buffer.
+        delete[] pssBuf;
+        pssBuf = NULL;
 
-		// Delete the buffer.
-		delete [] pssBuf;
-		pssBuf = NULL;
+        m_bPutChar = false;
 
-		m_bPutChar = false;
+        return false;
+    }
 
-		return false;
-	}
-
-#if _MSC_VER >= 1300
     m_pSaveData->flags(m_pSaveData->flags() | std::ios_base::showpoint | std::ios_base::fixed);
-#else
-    m_pSaveData->flags(m_pSaveData->flags() | ios::showpoint | ios::fixed);
-#endif // VC7
 
-	ss.clear();
-	m_pData = &ss;
+    ss.clear();
+    m_pData = &ss;
 
-	TagList();
+    TagList();
 
-	// add new tag items
-	TraverseTableOfTags( m_newTagTab, NewTabsSave, m_pSaveData );
+    // add new tag items
+    TraverseTableOfTags(m_newTagTab, NewTabsSave, m_pSaveData);
 
-	m_pSaveData->clear();
-	if (m_bCrypt)
-	{
-		if (szNewFileName)
-#if _MSC_VER >= 1300
-			m_cryptMgr.Encrypt(*m_pSaveData, std::ofstream(szNewFileName, std::ios_base::binary));
-#else
-			m_cryptMgr.Encrypt(*m_pSaveData, ofstream(szNewFileName, ios::binary));
-#endif // VC7
-		else
-#if _MSC_VER >= 1300
-			m_cryptMgr.Encrypt(*m_pSaveData, std::ofstream(m_sAttributeFilename, std::ios_base::binary));
-#else
-			m_cryptMgr.Encrypt(*m_pSaveData, ofstream(m_sAttributeFilename, ios::binary));
-#endif // VC7
-	}
+    m_pSaveData->clear();
+    if (m_bCrypt) {
+        auto file_name = (
+            szNewFileName ?
+            szNewFileName :
+            static_cast<const char*>(m_sAttributeFilename));
 
-	// Delete the buffer.
-	delete [] pssBuf;
-	pssBuf = NULL;
+        std::ofstream stream(file_name, std::ios_base::binary);
 
-	if (m_bCrypt)
-		delete m_pSaveData->rdbuf();
-	delete m_pSaveData;
-	m_pSaveData = NULL;
+        m_cryptMgr.Encrypt(*m_pSaveData, stream);
+    }
 
-	m_bPutChar = false;
+    // Delete the buffer.
+    delete[] pssBuf;
+    pssBuf = NULL;
 
-	return true;
+    if (m_bCrypt)
+        delete m_pSaveData->rdbuf();
+    delete m_pSaveData;
+    m_pSaveData = NULL;
+
+    m_bPutChar = false;
+
+    return true;
 }
-
-
 
 bool CButeMgr::Exist(const char* szTagName, const char* szAttName)
 {
@@ -1653,8 +1597,8 @@ CButeMgr::CSymTabItem* CButeMgr::GetSymTabItem( const char* pszTagName, const ch
 int CButeMgr::GetInt(const char* szTagName, const char* szAttName, int defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == IntType)
 			return (pItem->data.i);
@@ -1701,8 +1645,8 @@ void CButeMgr::SetInt(const char* szTagName, const char* szAttName, int val)
 DWORD CButeMgr::GetDword(const char* szTagName, const char* szAttName, DWORD defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		switch (pItem->SymType)
 		{
@@ -1752,8 +1696,8 @@ void CButeMgr::SetDword(const char* szTagName, const char* szAttName, DWORD val)
 BYTE CButeMgr::GetByte(const char* szTagName, const char* szAttName, BYTE defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		switch (pItem->SymType)
 		{
@@ -1803,8 +1747,8 @@ void CButeMgr::SetByte(const char* szTagName, const char* szAttName, BYTE val)
 bool CButeMgr::GetBool(const char* szTagName, const char* szAttName, bool defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		switch (pItem->SymType)
 		{
@@ -1859,8 +1803,8 @@ void CButeMgr::SetBool(const char* szTagName, const char* szAttName, bool val)
 float CButeMgr::GetFloat(const char* szTagName, const char* szAttName, float defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		switch (pItem->SymType)
 		{
@@ -1913,8 +1857,8 @@ void CButeMgr::SetFloat(const char* szTagName, const char* szAttName, float val)
 double CButeMgr::GetDouble(const char* szTagName, const char* szAttName, double defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		switch (pItem->SymType)
 		{
@@ -1966,8 +1910,8 @@ void CButeMgr::SetDouble(const char* szTagName, const char* szAttName, double va
 const char *CButeMgr::GetString(const char* szTagName, const char* szAttName, const char *defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == StringType)
 			return *(pItem->data.s);
@@ -2041,8 +1985,8 @@ void CButeMgr::SetString(const char* szTagName, const char* szAttName, const cha
 CRect& CButeMgr::GetRect(const char* szTagName, const char* szAttName, CRect& defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == RectType)
 			return *(pItem->data.r);
@@ -2090,8 +2034,8 @@ void CButeMgr::SetRect(const char* szTagName, const char* szAttName, const CRect
 CPoint& CButeMgr::GetPoint(const char* szTagName, const char* szAttName, CPoint& defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == PointType)
 			return *(pItem->data.point);
@@ -2139,8 +2083,8 @@ void CButeMgr::SetPoint(const char* szTagName, const char* szAttName, const CPoi
 CAVector& CButeMgr::GetVector(const char* szTagName, const char* szAttName, CAVector& defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == VectorType)
 			return *(pItem->data.v);
@@ -2189,8 +2133,8 @@ void CButeMgr::SetVector(const char* szTagName, const char* szAttName, const CAV
 CARange& CButeMgr::GetRange(const char* szTagName, const char* szAttName, CARange& defVal)
 {
 	m_bSuccess = true;
-	CSymTabItem* pItem;
-	if (pItem = FindSymTabItem(szTagName, szAttName))
+	CSymTabItem* pItem = FindSymTabItem(szTagName, szAttName);
+	if (pItem)
 	{
 		if (pItem->SymType == RangeType)
 			return *(pItem->data.range);

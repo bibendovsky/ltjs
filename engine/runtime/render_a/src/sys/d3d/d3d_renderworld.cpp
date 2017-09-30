@@ -135,7 +135,7 @@ bool CD3D_RenderWorld::Load(ILTStream *pStream)
 
 	// Load the worldmodels
 	uint32 nNumWorldModels;
-	*pStream >> (uint32)nNumWorldModels;
+	*pStream >> nNumWorldModels;
 
 	m_aWorldModels.clear();
 

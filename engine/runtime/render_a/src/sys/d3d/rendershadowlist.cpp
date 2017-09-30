@@ -476,6 +476,8 @@ static void RenderModelShadow( ModelInstance* pInstance, const LTVector& vModelP
 	//	Fetch model draw model parameters
 	Model* pModel				= pInstance->GetModelDB();
 
+    static_cast<void>(pModel);
+
 	float fDistLightToModel = (vLightPos - vModelPos).Mag();
 
 	// Set the view matrix from the point of view of the light source...
@@ -687,7 +689,7 @@ void CRenderShadowList::QueueShadows(ModelInstance* pInstance, const CRelevantLi
 	//tween information
 	LTVector vTweenPos;
 	LTVector vTweenColor;
-	bool	 bTweenOrtho;
+	bool	 bTweenOrtho = false;
 
 	//determine if we can support perspective
 	bool bPerspective = (!!g_CV_ModelShadow_Proj_Perspective.m_Val) && CModelShadowShader::GetSingleton()->CanSupportPerspective();

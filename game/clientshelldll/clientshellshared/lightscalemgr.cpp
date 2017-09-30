@@ -53,8 +53,6 @@ void CLightScaleMgr::SetLightScale() const
 {
 	//look for effects in the order in which they are declared
 	LTVector vTintColor(1.0f, 1.0f, 1.0f);
-	
-	bool bAnyEnabled = false;
 
 	for(uint32 nCurrType = 0; nCurrType < eNumLightScaleTypes; nCurrType++)
 	{

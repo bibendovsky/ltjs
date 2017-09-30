@@ -76,7 +76,7 @@ void CHUDDecision::Hide()
 	CAutoMessage cMsg;
 	cMsg.Writeuint8(MID_DECISION);
 	cMsg.WriteObject(m_hObject);
-	cMsg.Writeuint8(-1);
+	cMsg.Writeuint8(static_cast<uint8>(-1));
 	g_pLTClient->SendToServer(cMsg.Read(), MESSAGE_GUARANTEED);
 
 	m_hObject = LTNULL;
@@ -164,7 +164,7 @@ void CHUDDecision::Show(ILTMessage_Read *pMsg)
 
 		}
 
-		m_Dlg.SetSize(m_nWidth,(offset.y+m_Offset.y));
+		m_Dlg.SetSize(m_nWidth,static_cast<uint16>(offset.y+m_Offset.y));
 		m_Dlg.SetScale(m_fScale);
 
 		if (!m_bVisible)
@@ -219,7 +219,7 @@ void CHUDDecision::SetScale(float fScale)
 void CHUDDecision::UpdateLayout()
 {
 
-	char *pTag = "DecisionWindow";
+    const char *pTag = "DecisionWindow";
 	m_BasePos = g_pLayoutMgr->GetPoint(pTag,"Pos");
 
 	uint8 nFont = (uint8)g_pLayoutMgr->GetInt(pTag,"Font");
@@ -233,7 +233,7 @@ void CHUDDecision::UpdateLayout()
 	m_Offset = g_pLayoutMgr->GetPoint(pTag,"TextOffset");
 	LTIntPt offset = m_Offset;
 
-	uint16 nTextWidth = (m_nWidth - 2 * offset.x) - nHeaderWidth;
+	uint16 nTextWidth = static_cast<uint16>((m_nWidth - 2 * offset.x) - nHeaderWidth);
 	LTVector vCol = g_pLayoutMgr->GetVector(pTag,"TextColor");
 	uint8 nR = (uint8)vCol.x;
 	uint8 nG = (uint8)vCol.y;
@@ -275,7 +275,7 @@ void CHUDDecision::UpdateLayout()
 
 	m_Dlg.SetBasePos(m_BasePos);
 
-	m_Dlg.SetSize(m_nWidth,(offset.y+m_Offset.y));
+	m_Dlg.SetSize(m_nWidth,static_cast<uint16>(offset.y+m_Offset.y));
 
 	m_Dlg.SetScale(g_pInterfaceResMgr->GetXRatio());
 }

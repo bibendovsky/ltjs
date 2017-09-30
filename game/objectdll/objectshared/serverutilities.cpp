@@ -460,7 +460,6 @@ void SendMixedTriggerMsgToObject(LPBASECLASS pSender, HOBJECT hObj, HSTRING hMsg
 
 	ParseTriggerMsg(g_pLTServer->GetStringData(hMsg), aszMsgs, &cMsgs);
 
-	LTBOOL bReturn = LTTRUE;
     for ( uint32 iMsg = 0 ; iMsg < cMsgs ; iMsg++ )
 	{
 		SendTriggerMsgToObject(pSender, hObj, LTFALSE, aszMsgs[iMsg]);
@@ -474,7 +473,6 @@ void SendMixedTriggerMsgToObject(LPBASECLASS pSender, HOBJECT hObj, LTBOOL bBogu
 
 	ParseTriggerMsg(pStr, aszMsgs, &cMsgs);
 
-	LTBOOL bReturn = LTTRUE;
     for ( uint32 iMsg = 0 ; iMsg < cMsgs ; iMsg++ )
 	{
 		SendTriggerMsgToObject(pSender, hObj, LTFALSE, aszMsgs[iMsg]);
@@ -1061,7 +1059,7 @@ uint8 TeamStringToTeamId( char const* pszTeamString )
 		}
 	}
 
-	return nTeamId;
+	return static_cast<uint8>(nTeamId);
 }
 
 
@@ -1334,7 +1332,7 @@ LTRESULT SendEmptyClientMsg(uint32 nMsgID, HCLIENT hClient, uint32 nFlags)
 
 	CAutoMessage cMsg;
 
-	cMsg.Writeuint8(nMsgID);
+	cMsg.Writeuint8(static_cast<uint8>(nMsgID));
 
 	nResult = g_pLTServer->SendToClient(cMsg.Read(), hClient, nFlags);
 

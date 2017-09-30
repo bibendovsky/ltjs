@@ -137,7 +137,7 @@ LTBOOL CTriggerTypeMgr::Init( const char *szAttributeFile /* = TTMGR_DEFAULT_FIL
 		{
 			// Set the ID and add it to the list...
 			
-			pTriggerType->nId = nNum;
+			pTriggerType->nId = static_cast<uint8>(nNum);
 			m_TriggerTypeList.AddTail( pTriggerType );
 		}
 		else
@@ -218,7 +218,7 @@ TRIGGERTYPE *CTriggerTypeMgr::GetTriggerType( const char *pName )
 // ----------------------------------------------------------------------- //
 
 TRIGGERTYPE::TRIGGERTYPE( )
-:	nId		( TTMGR_INVALID_ID ),
+:	nId		( static_cast<uint8>(TTMGR_INVALID_ID) ),
 	szName	( LTNULL ),
 	szIcon	( LTNULL )
 {

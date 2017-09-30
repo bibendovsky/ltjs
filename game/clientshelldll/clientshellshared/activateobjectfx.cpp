@@ -31,7 +31,7 @@ CActivateObjectHandler::ActivateObjList CActivateObjectHandler::m_lstActivateObj
 
 CActivateObjectHandler::CActivateObjectHandler()
 :	m_hObject	( LTNULL ),
-	m_nId		( ATMGR_INVALID_ID ),
+	m_nId		( static_cast<uint8>(ATMGR_INVALID_ID) ),
 	m_bDisabled	( false ),
 	m_eState	( ACTIVATETYPE::eOn )
 {

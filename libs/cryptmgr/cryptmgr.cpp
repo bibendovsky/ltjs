@@ -31,11 +31,7 @@ void CCryptMgr::SetKey(const char* key)
 
 
 
-#if _MSC_VER >= 1300
 void CCryptMgr::Encrypt(std::istream& is, std::ostream& os)
-#else
-void CCryptMgr::Encrypt(istream& is, ostream& os)
-#endif // VC7
 {
 	int n = 0;
 	char buf[8];
@@ -44,7 +40,7 @@ void CCryptMgr::Encrypt(istream& is, ostream& os)
 	{
 		memset(buf, 0, 8);
 		is.read(buf, 8);
-		n = is.gcount();
+		n = static_cast<int>(is.gcount());
 		Blowfish_encipher((UWORD_32bits*)buf, (UWORD_32bits*)&buf[4]);
 		os.write(buf, 8);
 	}
@@ -53,11 +49,7 @@ void CCryptMgr::Encrypt(istream& is, ostream& os)
 
 
 
-#if _MSC_VER >= 1300
 void CCryptMgr::Decrypt(std::istream& is, std::ostream& os)
-#else
-void CCryptMgr::Decrypt(istream& is, ostream& os)
-#endif // VC7
 {
 	int n = 0;
 	char buf[8];
@@ -68,7 +60,7 @@ void CCryptMgr::Decrypt(istream& is, ostream& os)
 	while (!is.eof())
 	{
 		is.read(buf, 8);
-		n = is.gcount();
+		n = static_cast<int>(is.gcount());
 		if (n == 1)
 			n = (int)buf[0];
 		if (!bFirstTime)

@@ -39,12 +39,12 @@ void CHARCREATESTRUCT::Write(ILTMessage_Write *pMsg)
 	pMsg->Writebool(bIsCinematicAI);
 	pMsg->Writebool(bIsPlayer != LTFALSE);
 	pMsg->Writeuint8(byFXFlags);
-    pMsg->Writeuint8(eModelId);
+    pMsg->Writeuint8(static_cast<uint8>(eModelId));
     pMsg->Writeuint8(nTrackers);
     pMsg->Writeuint8(nDimsTracker);
     pMsg->Writefloat(fStealthPercent);
     pMsg->Writeuint8(nClientID);
-    pMsg->Writeuint8(eCrosshairCharacterClass);
+    pMsg->Writeuint8(static_cast<uint8>(eCrosshairCharacterClass));
 	pMsg->Writeuint64(nDamageFlags);
 	pMsg->Writefloat(fPitch);
 
@@ -153,12 +153,12 @@ void BODYCREATESTRUCT::Write(ILTMessage_Write *pMsg)
 
     SFXCREATESTRUCT::Write(pMsg);
 
-    pMsg->Writeuint8(eModelId);
-	pMsg->Writeuint8(eBodyState);
+    pMsg->Writeuint8(static_cast<uint8>(eModelId));
+	pMsg->Writeuint8(static_cast<uint8>(eBodyState));
 	pMsg->Writeuint8(nClientId);
 	pMsg->Writebool(bCanBeCarried);
 	pMsg->Writebool(bCanBeRevived);
-	pMsg->Writeuint8(eDeathDamageType);
+	pMsg->Writeuint8(static_cast<uint8>(eDeathDamageType));
 	pMsg->Writebool(bPermanentBody);
 	pMsg->Writebool(bHitBoxUpdated);
 	pMsg->Writebool(bCanBeSearched);
@@ -706,7 +706,7 @@ void PVCREATESTRUCT::Write(ILTMessage_Write *pMsg)
 
     SFXCREATESTRUCT::Write(pMsg);
 
-	pMsg->Writeuint8(ePhysicsModel);
+	pMsg->Writeuint8(static_cast<uint8>(ePhysicsModel));
 }
 
 // ----------------------------------------------------------------------- //

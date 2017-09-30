@@ -29,7 +29,7 @@ struct PROJECTILECREATESTRUCT : public SFXCREATESTRUCT
 
 inline PROJECTILECREATESTRUCT::PROJECTILECREATESTRUCT()
 {
-	nShooterId	= -1;
+	nShooterId	= static_cast<uint8>(-1);
 	nWeaponId	= WMGR_INVALID_ID;
 	nAmmoId		= WMGR_INVALID_ID;
     bLocal      = LTFALSE;
@@ -52,7 +52,7 @@ class CProjectileFX : public CSpecialFX
             m_hLight        = LTNULL;
             m_hFlyingSound  = LTNULL;
 
-			m_nShooterId	= -1;
+			m_nShooterId	= static_cast<uint8>(-1);
             m_bLocal        = LTFALSE;
 
 			m_fStartTime	= 0.0f;

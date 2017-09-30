@@ -230,7 +230,7 @@ CSoundMgr::CSoundMgr()
 
 	m_FilterData.bUseFilter = false;
 	m_FilterData.pSoundFilter = NULL;
-	m_FilterData.uiFilterType = NULL_FILTER;
+	m_FilterData.uiFilterType = static_cast<uint32>(NULL_FILTER);
 
     memset(&m_PrimaryBufferWaveFormat, 0, sizeof(m_PrimaryBufferWaveFormat));
 }
@@ -1525,7 +1525,7 @@ LTRESULT CSoundMgr::Update()
                 !(pSoundInstance->GetPlaySoundFlags() & PLAYSOUND_LOOP) && 
                 pSoundInstance->GetHSoundDE() != (HLTSOUND)INVALID_OBJECTID)
             {
-                cNewSoundUpdatePacket.Writeuint16((uint16)pSoundInstance->GetHSoundDE());
+                cNewSoundUpdatePacket.Writeuint16(static_cast<uint16>(reinterpret_cast<size_t>(pSoundInstance->GetHSoundDE())));
             }
         }
     }
@@ -2989,7 +2989,7 @@ LTRESULT CSoundMgr::SetSoundFilter(const char *pFilter)
 		strcmp( pFilter, "Reverb Filter" ) )
 	{
 		m_FilterData.bUseFilter = false;
-		m_FilterData.uiFilterType = NULL_FILTER;
+		m_FilterData.uiFilterType = static_cast<uint32>(NULL_FILTER);
         RETURN_ERROR(1, CSoundMgr::SetSoundFilterParam, LT_NOTFOUND);
 	}
 	else

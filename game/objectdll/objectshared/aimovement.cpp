@@ -1181,7 +1181,7 @@ void CAIMovement::SetupJump( EnumAnimMovement eMovementType )
 	// Figure out how long it takes to fly to the dest.
 	
 	LTFLOAT fDist;
-	LTFLOAT fJumpTime;
+	LTFLOAT fJumpTime = 0.0F;
 
 	switch( eMovementType )
 	{

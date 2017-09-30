@@ -131,7 +131,7 @@ void GetConsoleString(char const* sKey, char* sDest, char const* sDefault)
 char*  GetConsoleTempString(char const* sKey, char const* sDefault)
 {
 	static char szTmp[256];
-	szTmp[0] = NULL;
+	szTmp[0] = '\0';
     if (g_pLTClient)
 	{
         HCONSOLEVAR hVar = g_pLTClient->GetConsoleVar(( char* )sKey);
@@ -357,7 +357,7 @@ LTRESULT SendEmptyServerMsg(uint32 nMsgID, uint32 nFlags)
 
 	CAutoMessage cMsg;
 
-	cMsg.Writeuint8(nMsgID);
+	cMsg.Writeuint8(static_cast<uint8>(nMsgID));
 
 	nResult = g_pLTClient->SendToServer(cMsg.Read(), nFlags);
 
@@ -406,6 +406,7 @@ void LoadString(int messageCode, char *outBuf, int outBufLen)
     if (hModule)
     {
 		uint32 nBytes = LoadString(hModule, messageCode, (char*)outBuf, outBufLen);
+        static_cast<void>(nBytes);
     }
 }
 
@@ -450,6 +451,7 @@ char* LoadTempString(int messageCode)
     if (hModule)
     {
 		uint32 nBytes = LoadString(hModule, messageCode, s_szStringBuffer, sizeof(s_szStringBuffer));
+        static_cast<void>(nBytes);
     }
 
 	return s_szStringBuffer;

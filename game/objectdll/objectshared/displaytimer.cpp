@@ -250,7 +250,7 @@ void DisplayTimer::ReadProp(ObjectCreateStruct *)
 					uint32 nTeamId = atoi( &genProp.m_String[ nLen ] );
 					if( nTeamId < MAX_TEAMS )
 					{
-						m_nTeamId = nTeamId;
+						m_nTeamId = static_cast<uint8>(nTeamId);
 					}
 				}
 			}
@@ -362,7 +362,7 @@ bool DisplayTimer::OnTrigger(HOBJECT hSender, const CParsedMsg &cMsg)
 			uint32 nTeamId = atoi( cMsg.GetArg( 1 ));
 			if( nTeamId < MAX_TEAMS )
 			{
-				m_nTeamId = nTeamId;
+				m_nTeamId = static_cast<uint8>(nTeamId);
 			}
 			else
 			{

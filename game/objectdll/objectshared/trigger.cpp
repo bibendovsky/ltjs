@@ -1179,7 +1179,7 @@ void Trigger::SendLockedMsg()
 	cMsg.Writeuint8( SFX_TRIGGER_ID );
 	cMsg.WriteObject( m_hObject );
 	cMsg.Writeuint8( TRIGFX_LOCKED_MSG );
-	cMsg.Writeuint8( m_bLocked );
+	cMsg.Writeuint8( static_cast<uint8>(m_bLocked) );
 	g_pLTServer->SendToClient( cMsg.Read(), LTNULL, MESSAGE_GUARANTEED );
 
 	CreateSpecialFX();

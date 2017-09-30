@@ -19,7 +19,7 @@
 #endif
  
 #if AINODE_TYPE_AS_ENUM
-	#define ADD_AINODE_TYPE(label) kNode_##label##,
+	#define ADD_AINODE_TYPE(label) kNode_##label,
 #elif AINODE_TYPE_AS_STRING
 	#define ADD_AINODE_TYPE(label) #label,
 #else

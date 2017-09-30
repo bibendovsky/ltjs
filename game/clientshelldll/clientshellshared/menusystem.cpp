@@ -248,7 +248,7 @@ void CMenuSystem::OnFocus(LTBOOL bFocus)
 			SetScale(g_pInterfaceResMgr->GetXRatio());
 		}
 
-		SetSelection(GetIndex(&m_List));
+		SetSelection(static_cast<uint16>(GetIndex(&m_List)));
 		m_List.ClearSelection();
 		m_List.NextSelection();
 	}

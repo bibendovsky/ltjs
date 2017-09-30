@@ -229,7 +229,7 @@ LTBOOL GameStartPoint::ReadProp(ObjectCreateStruct *pData)
 					sprintf( szTeam, "Team%i", i );
 					if( !_stricmp( genProp.m_String, szTeam ))
 					{
-						m_nTeamID = i;
+						m_nTeamID = static_cast<uint8>(i);
 					}
 				}
 			}
@@ -282,7 +282,7 @@ bool GameStartPoint::OnTrigger( HOBJECT hSender, const CParsedMsg &cMsg )
 			uint32 nTeamId = atoi( cMsg.GetArg( 1 ));
 			if( nTeamId < MAX_TEAMS )
 			{
-				m_nTeamID = nTeamId;
+				m_nTeamID = static_cast<uint8>(nTeamId);
 			}
 			else
 			{

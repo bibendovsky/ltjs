@@ -56,7 +56,7 @@ class CSoundFilterMgr : public CGameButeMgr
 		void			Term();
 
         SOUNDFILTER*    GetFilter(uint8 nId);
-		SOUNDFILTER*	GetFilter(char* pName);
+		SOUNDFILTER*	GetFilter(const char* pName);
 
 		int				GetNumFilters() const { return m_FilterList.GetLength(); }
 

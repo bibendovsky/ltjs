@@ -130,7 +130,7 @@ void CAIGoalSpecialDamage::ActivateGoal()
 
 	LTBOOL bLoopingSound = LTFALSE;
 	m_bProgressiveDamage = LTFALSE;
-	EnumAISoundType	eSound;
+	EnumAISoundType	eSound = kAIS_InvalidType;
 	AIGBM_SmartObjectTemplate* pSmartObject = LTNULL;
 	switch( m_eDamageType )
 	{

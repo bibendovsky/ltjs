@@ -102,7 +102,7 @@ LTBOOL CScreenProfile::Build()
 	g_pLayoutMgr->GetScreenCustomString((eScreenID)m_nScreenID,"DialogFrame",szBack,sizeof(szBack));
 
 	m_pDlg = debug_new(CLTGUIWindow);
-	m_pDlg->Create(g_pInterfaceResMgr->GetTexture(szBack),kDlgHt,kDlgWd);
+	m_pDlg->Create(g_pInterfaceResMgr->GetTexture(szBack),static_cast<uint16>(kDlgHt),static_cast<uint16>(kDlgWd));
 
 	LTIntPt tmp(8,8);
 	CUIFont *pFont = g_pInterfaceResMgr->GetFont(nDlgFont);
@@ -116,13 +116,13 @@ LTBOOL CScreenProfile::Build()
 	
 	// Make a list controller
 	m_pListCtrl = debug_new(CLTGUIListCtrl);
-    if (m_pListCtrl->Create(kDlgHt-64))
+    if (m_pListCtrl->Create(static_cast<uint16>(kDlgHt-64)))
 	{
 		HTEXTURE hUp = g_pInterfaceResMgr->GetTexture("interface\\menu\\sprtex\\arrowup.dtx");
 		HTEXTURE hUpH = g_pInterfaceResMgr->GetTexture("interface\\menu\\sprtex\\arrowup_h.dtx");
 		HTEXTURE hDown = g_pInterfaceResMgr->GetTexture("interface\\menu\\sprtex\\arrowdn.dtx");
 		HTEXTURE hDownH = g_pInterfaceResMgr->GetTexture("interface\\menu\\sprtex\\arrowdn_h.dtx");
-		m_pListCtrl->UseArrows(kDlgWd-48,1.0f,hUp,hUpH,hDown,hDownH);
+		m_pListCtrl->UseArrows(static_cast<uint16>(kDlgWd-48),1.0f,hUp,hUpH,hDown,hDownH);
 		m_pListCtrl->SetIndent(LTIntPt(4,4));
 		m_pListCtrl->SetFrameWidth(2);
 		m_pListCtrl->SetColors(m_SelectedColor,m_NonSelectedColor,m_DisabledColor);

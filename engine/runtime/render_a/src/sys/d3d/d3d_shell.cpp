@@ -53,7 +53,9 @@ void CD3D_Shell::Reset()
 void CD3D_Shell::FreeAll()
 {
 	if (m_pD3D) {
-		uint32 iRefCnt = m_pD3D->Release(); } // assert(iRefCnt==0);
+		uint32 iRefCnt = m_pD3D->Release();
+        static_cast<void>(iRefCnt);
+    } // assert(iRefCnt==0);
 
 	Reset();
 }

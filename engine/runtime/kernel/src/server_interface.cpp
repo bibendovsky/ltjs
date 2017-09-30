@@ -154,7 +154,9 @@ LTRESULT CLTServerInterface::GetConsoleVar(char *pName, HCONSOLEVAR *hVar, char 
         RETURN_ERROR(1, ServerInterface::GetConsoleVar, LT_NOTINITIALIZED);
     }
 
-    if (pVar = cc_FindConsoleVar(console_state->State(), pName))
+    pVar = cc_FindConsoleVar(console_state->State(), pName);
+
+    if (pVar)
     {
         *hVar = (HCONSOLEVAR)pVar;
         return LT_OK;
@@ -163,7 +165,9 @@ LTRESULT CLTServerInterface::GetConsoleVar(char *pName, HCONSOLEVAR *hVar, char 
     {
         sprintf(temp, "%s \"%s\"", pName, pDefaultVal);
         cc_HandleCommand2(console_state->State(), temp, CC_NOCOMMANDS);
-        if (pVar = cc_FindConsoleVar(console_state->State(), pName))
+        pVar = cc_FindConsoleVar(console_state->State(), pName);
+
+        if (pVar)
         {
             *hVar = (HCONSOLEVAR)pVar;
             return LT_FINISHED;

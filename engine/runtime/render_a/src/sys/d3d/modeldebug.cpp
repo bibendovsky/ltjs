@@ -355,7 +355,7 @@ void NModelDebug::DrawModelVertexNormals(ModelInstance* pInstance)
 								int nBytesToTangent = 0;
 								bool bBinormal = false;
 								int nBytesToBinormal = 0;
-								for(int n = 0; n < nElements; ++n)
+								for(UINT n = 0; n < nElements; ++n)
 								{
 									if(element[n].Usage == D3DDECLUSAGE_NORMAL)
 									{
@@ -400,7 +400,7 @@ void NModelDebug::DrawModelVertexNormals(ModelInstance* pInstance)
 									float fBinormal[3];
 
 									//++nVertexSize
-									for(int i = 0; i < nVertCount; ++i)
+									for(uint32 i = 0; i < nVertCount; ++i)
 									{					
 										memcpy((void*)fVerts, &pVertexData[(i * nVertexSize)], sizeof(float) * 3);
 										memcpy((void*)fNorms, &pVertexData[(i * nVertexSize) + nBytesToNormal], sizeof(float) * 3);
@@ -608,6 +608,8 @@ static inline void draw_obb( const LTMatrix &mat, const LTVector &size )
 	LTVector vmin(-.5f,-.5f,-.5f),vmax(.5f,.5f,.5f) ;
 	LTVector vminres, vmaxres, tmpa,tmpb ;
 	uint32  color = 0x00ff00ff ; // green
+
+    static_cast<void>(color);
 
 	vmin = vmin * size ; vmax = vmax * size ;
 

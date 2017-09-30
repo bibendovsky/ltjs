@@ -523,8 +523,12 @@ void CAttachments::CreateWeaponAttachment(CAttachmentPosition *pAttachmentPositi
 	// Attach it
 
 	HATTACHMENT hAttachment;
+    LTVector zero_vector(0, 0, 0);
+    LTRotation zero_rotation;
+
     LTRESULT dRes = g_pLTServer->CreateAttachment(m_hObject, pModel->m_hObject, (char*)pAttachmentPosition->GetName(),
-												 &LTVector(0,0,0), &LTRotation(), &hAttachment);
+												 &zero_vector, &zero_rotation, &hAttachment);
+    static_cast<void>(dRes);
 
 	((CAttachmentWeapon*)pAttachment)->Init(m_hObject, pModel->m_hObject, -1, nWeaponID, nAmmoID);
 
@@ -558,6 +562,7 @@ void CAttachments::CreateObjectAttachment(CAttachmentPosition *pAttachmentPositi
 	// Get the attachment skin, model, and class names
 
 	int nAttachmentType = g_pAttachButeMgr->GetAttachmentType(nAttachmentID);
+    static_cast<void>(nAttachmentType);
 
 	char szClass[128];
 	szClass[0] = '\0';
@@ -597,7 +602,12 @@ void CAttachments::CreateObjectAttachment(CAttachmentPosition *pAttachmentPositi
 	// Attach it
 
 	HATTACHMENT hAttachment;
-    LTRESULT dRes = g_pLTServer->CreateAttachment(m_hObject, pModel->m_hObject, (char*)pAttachmentPosition->GetName(), &LTVector(0,0,0), &LTRotation(), &hAttachment);
+    LTVector zero_vector(0, 0, 0);
+    LTRotation zero_rotation;
+
+    LTRESULT dRes = g_pLTServer->CreateAttachment(m_hObject, pModel->m_hObject, (char*)pAttachmentPosition->GetName(), &zero_vector, &zero_rotation, &hAttachment);
+
+    static_cast<void>(dRes);
 
 	// Notify the attachment that it is being attached.
 	SendTriggerMsgToObject(g_pLTServer->HandleToObject(m_hObject), pModel->m_hObject, LTFALSE, KEY_ATTACH);
@@ -632,6 +642,7 @@ void CAttachments::CreatePropAttachment(CAttachmentPosition *pAttachmentPosition
 	// Get the attachment skin, model, and class names
 
 	int nAttachmentType = g_pAttachButeMgr->GetAttachmentType(nAttachmentID);
+    static_cast<void>(nAttachmentType);
 
 	char szModel[MAX_CS_FILENAME_LEN];
 	char szSkin[MAX_CS_FILENAME_LEN];
@@ -671,8 +682,10 @@ void CAttachments::CreatePropAttachment(CAttachmentPosition *pAttachmentPosition
 	// Attach it
 
 	HATTACHMENT hAttachment;
+    LTVector zero_vector(0, 0, 0);
+
     LTRESULT dRes = g_pLTServer->CreateAttachment(m_hObject, pModel->m_hObject, (char*)pAttachmentPosition->GetName(),
-											   &LTVector(0,0,0), &rRot, &hAttachment);
+											   &zero_vector, &rRot, &hAttachment);
 
 	if ( dRes != LT_OK ) 
 	{
@@ -731,9 +744,11 @@ void CAttachments::ReInit(HOBJECT hNewObj)
 				}
 
 				// Attach the model to us...
+                LTVector zero_vector(0, 0, 0);
+                LTRotation zero_rotation;
 
                 g_pLTServer->CreateAttachment(m_hObject, hModel, (char*)pCurPos->GetName(),
-					&LTVector(0,0,0), &LTRotation(), &hAttachment);
+					&zero_vector, &zero_rotation, &hAttachment);
 
 				// Notify the attachment that it is being attached.
 				SendTriggerMsgToObject(g_pLTServer->HandleToObject(m_hObject), hModel, LTFALSE, KEY_ATTACH);
@@ -1100,8 +1115,10 @@ void CAttachments::RemoveAndRecreateAttachments()
 				g_pLTServer->RemoveAttachment( hAttachment );
 
 				// Reattach
-				
-				if( LT_OK != g_pLTServer->CreateAttachment( m_hObject, pAttachment->GetModel(), pAttachPos->GetName(), &LTVector(0,0,0), &LTRotation(), &hAttachment ))
+                LTVector zero_vector(0, 0, 0);
+                LTRotation zero_rotation;
+
+				if( LT_OK != g_pLTServer->CreateAttachment( m_hObject, pAttachment->GetModel(), pAttachPos->GetName(), &zero_vector, &zero_rotation, &hAttachment ))
 				{
 					UBER_ASSERT1( 0, "CAttachments::RemoveAndRecreateAttachments: Unable to reattach attachment at position '%s'", pAttachPos->GetName() );
 					continue;
@@ -1289,7 +1306,7 @@ void CPlayerAttachments::HandleCheatFullAmmo()
 	{
 		CWeapons* pWeapons = GetDefaultAttachmentWeapon()->GetWeapons();
 
-        uint8 nNumAmmoTypes = g_pWeaponMgr->GetNumAmmoIds();
+        uint8 nNumAmmoTypes = static_cast<uint8>(g_pWeaponMgr->GetNumAmmoIds());
 
 		for (int i=0; i < nNumAmmoTypes; i++)
 		{
@@ -1322,7 +1339,7 @@ void CPlayerAttachments::HandleCheatFullWeapon()
 		{
 			if (g_pWeaponMgr->IsPlayerWeapon(iWeapon))
 			{
-				pWeapons->ObtainWeapon(iWeapon, AMMO_DEFAULT_ID, 10000, LTTRUE);
+				pWeapons->ObtainWeapon(static_cast<uint8>(iWeapon), AMMO_DEFAULT_ID, 10000, LTTRUE);
 /*
 				// get the weapon data structure
 				WEAPON const *pWeaponData;
@@ -1366,7 +1383,7 @@ void CPlayerAttachments::HandleCheatFullMods()
 			{
 				for ( int iModNum = 0 ; iModNum < pWeaponData->nNumModIds ; iModNum++ )
 				{
-					pWeapons->ObtainMod(iWeapon, pWeaponData->aModIds[iModNum], true);
+					pWeapons->ObtainMod(static_cast<uint8>(iWeapon), static_cast<uint8>(pWeaponData->aModIds[iModNum]), true);
 				}
 			}
 		}
@@ -1425,7 +1442,7 @@ bool CPlayerAttachments::AcquireMod( uint8 nId , bool bDisplayMsg/* = true*/)
 				{
 					if( pWeaponData->aModIds[iModNum] == nId )
 					{
-						pWeapons->ObtainMod( iWeapon, nId, true, bDisplayMsg );
+						pWeapons->ObtainMod( static_cast<uint8>(iWeapon), nId, true, bDisplayMsg );
 						bRet = true;
 					}
 				}
@@ -1805,8 +1822,8 @@ void CAttachmentWeapon::Init(HOBJECT hObj, HOBJECT hWeaponModel, int nAttachment
 	CAttachment::Init(hObj, hWeaponModel, nAttachmentID);
 
 	m_Weapons.Init(hObj, hWeaponModel);
-	m_Weapons.ObtainWeapon(nWeaponID);
-	m_Weapons.ChangeWeapon(nWeaponID);
+	m_Weapons.ObtainWeapon(static_cast<uint8>(nWeaponID));
+	m_Weapons.ChangeWeapon(static_cast<uint8>(nWeaponID));
 	m_Weapons.GetCurWeapon()->SetAmmoId(nAmmoID);
 
     // g_pCommonLT->SetObjectFlags(m_hModel, OFT_User, USRFLG_SPY_VISION, USRFLG_SPY_VISION);
@@ -1933,7 +1950,7 @@ void CAttachmentWeapon::Load(ILTMessage_Read *pMsg)
 	if( nCurWeaponId >= 0 )
 	{
 		m_Weapons.DeselectCurWeapon();	// Deselect so we'll change to it
-		m_Weapons.ChangeWeapon(nCurWeaponId);
+		m_Weapons.ChangeWeapon(static_cast<uint8>(nCurWeaponId));
 	}
 }
 

@@ -45,7 +45,7 @@ void CStringHolder::SetAllocSize( uint16 size )
 
 char *CStringHolder::AddString( const char *pString, LTBOOL bFindFirst )
 {
-	uint16	len = strlen(pString);
+	const auto len = static_cast<uint16>(strlen(pString));
 	return AddString( pString, bFindFirst, len );
 }
 
@@ -130,7 +130,7 @@ char *CStringHolder::FindString( const char *pString )
 		i=0;
 		while( i < pBank->m_StringSize )
 		{
-			len = strlen( &pBaseString[i] );
+			len = static_cast<uint16>(strlen( &pBaseString[i] ));
 			if( strcmp(pString, &pBaseString[i]) == 0 )
 				return &pBaseString[i];
 	

@@ -38,12 +38,12 @@ public:
 
     LTBOOL       Init (ILTClient* pClientDE, CGameClientShell* pClientShell);
 
-    LTBOOL       GetBoolVar(char *pVar);
-    void        SetBoolVar(char *pVar, LTBOOL bVal);
-    uint8       GetByteVar(char *pVar);
-    void        SetByteVar(char *pVar, uint8 nVal);
-	float		GetFloatVar(char *pVar);
-	void		SetFloatVar(char *pVar, float fVal);
+    LTBOOL       GetBoolVar(const char *pVar);
+    void        SetBoolVar(const char *pVar, LTBOOL bVal);
+    uint8       GetByteVar(const char *pVar);
+    void        SetByteVar(const char *pVar, uint8 nVal);
+	float		GetFloatVar(const char *pVar);
+	void		SetFloatVar(const char *pVar, float fVal);
 
 	// misc access functions
 
@@ -81,7 +81,7 @@ public:
 	float		TextureDetailSetting()		{ return GetFloatVar("TextureDetail");}
 	float		DynamicLightSetting()		{ return GetFloatVar("DynamicLightSetting");}
     LTBOOL       LightMap()                 { return GetBoolVar("LightMap");}
-    uint8       SpecialFXSetting()          { return GetConsoleInt("PerformanceLevel",1); }
+    uint8       SpecialFXSetting()          { return static_cast<uint8>(GetConsoleInt("PerformanceLevel",1)); }
     LTBOOL       EnvironmentMapping()       { return GetBoolVar("EnvMapEnable"); }
     LTBOOL       ModelFullBrights()         { return GetBoolVar("ModelFullbrite"); }
     LTBOOL       CloudMapLight()            { return GetBoolVar("CloudMapLight"); }
@@ -112,7 +112,7 @@ private:
 
 };
 
-inline LTBOOL    CGameSettings::GetBoolVar(char *pVar)
+inline LTBOOL    CGameSettings::GetBoolVar(const char *pVar)
 {
 	m_hTmpVar = m_pClientDE->GetConsoleVar(pVar);
 	if (m_hTmpVar)
@@ -122,13 +122,13 @@ inline LTBOOL    CGameSettings::GetBoolVar(char *pVar)
 };
 
 
-inline  void    CGameSettings::SetBoolVar(char *pVar, LTBOOL bVal)
+inline  void    CGameSettings::SetBoolVar(const char *pVar, LTBOOL bVal)
 {
 	sprintf (m_tmpStr, "+%s %d", pVar, bVal ? 1 : 0);
 	m_pClientDE->RunConsoleString (m_tmpStr);
 };
 
-inline  uint8   CGameSettings::GetByteVar(char *pVar)
+inline  uint8   CGameSettings::GetByteVar(const char *pVar)
 {
 	m_hTmpVar = m_pClientDE->GetConsoleVar(pVar);
 	if (m_hTmpVar)
@@ -137,14 +137,14 @@ inline  uint8   CGameSettings::GetByteVar(char *pVar)
 		return 0;
 };
 
-inline  void    CGameSettings::SetByteVar(char *pVar, uint8 nVal)
+inline  void    CGameSettings::SetByteVar(const char *pVar, uint8 nVal)
 {
 	sprintf (m_tmpStr, "+%s %d", pVar, nVal);
 	m_pClientDE->RunConsoleString (m_tmpStr);
 }
 
 
-inline	float	CGameSettings::GetFloatVar(char *pVar)
+inline	float	CGameSettings::GetFloatVar(const char *pVar)
 {
 	m_hTmpVar = m_pClientDE->GetConsoleVar(pVar);
 	if (m_hTmpVar)
@@ -152,7 +152,7 @@ inline	float	CGameSettings::GetFloatVar(char *pVar)
 	else
 		return 0.0f;
 };
-inline	void	CGameSettings::SetFloatVar(char *pVar, float fVal)
+inline	void	CGameSettings::SetFloatVar(const char *pVar, float fVal)
 {
 	sprintf (m_tmpStr, "+%s %f", pVar, fVal);
 	m_pClientDE->RunConsoleString (m_tmpStr);

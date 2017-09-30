@@ -364,7 +364,7 @@ void CTargetMgr::Update()
 			}
 			else
 			{
-				m_szDebugString[0] = NULL;
+				m_szDebugString[0] = '\0';
 			}
 
 			// is this a person we can talk to?
@@ -475,7 +475,7 @@ void CTargetMgr::Update()
 					
 					if( dwStringID != (uint32)-1 )
 					{
-						SetTargetStringID( dwStringID );
+						SetTargetStringID( static_cast<uint16>(dwStringID) );
 					}
 
 					return;
@@ -557,7 +557,6 @@ void CTargetMgr::CheckForIntersect(float &fDistAway)
 	m_hTarget = LTNULL;
 	m_ActivationData.Init();
 
-	uint32 dwUsrFlags = 0;
 	const float fMaxDist = 100000.0f;
 
 	// Cast ray from the camera to see if there is an object to activate...
@@ -611,7 +610,7 @@ void CTargetMgr::CheckForIntersect(float &fDistAway)
 				{
 					m_hTarget = IInfo.m_hObject;
 					m_ActivationData.m_hTarget = m_hTarget;
-					m_ActivationData.m_nSurfaceType = eType;
+					m_ActivationData.m_nSurfaceType = static_cast<uint8>(eType);
 				}
 			}
 		}
@@ -910,7 +909,7 @@ void CTargetMgr::SetGadgetTarget( bool bDisabling )
 		break;
 	case eINVALID:
 	default:
-		SetTargetStringID(NULL);
+		SetTargetStringID(0);
 		break;
 	}
 	
@@ -1094,7 +1093,7 @@ bool CTargetMgr::IsTargetInRange()
 void CTargetMgr::ClearTargetInfo()
 {
 	//clear our targeting info
-	SetTargetStringID(NULL);
+	SetTargetStringID(0);
 	m_hTarget = NULL;
 	m_fTargetRange = 10000.0f;
 	m_nTargetTeam = INVALID_TEAM;

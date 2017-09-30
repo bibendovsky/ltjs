@@ -92,7 +92,7 @@ LTBOOL CIntelMgr::Init(const char* szAttributeFile)
 
 		if (pIntel && pIntel->Init(m_buteMgr, s_aTagName))
 		{
-			pIntel->nId = nNum;
+			pIntel->nId = static_cast<uint8>(nNum);
 			m_IntelList.AddTail(pIntel);
 		}
 		else

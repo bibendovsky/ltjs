@@ -32,4 +32,4 @@ class CTO2VersionMgr : public CVersionMgr
 		virtual LTGUID const* GetBuildGuid();
 };
 
-#endif _TO2VERSIONMGR_H_
+#endif // _TO2VERSIONMGR_H_

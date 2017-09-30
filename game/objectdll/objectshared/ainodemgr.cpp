@@ -253,7 +253,7 @@ AINodeTail* CAINodeMgr::FindTailNode(CAI* pAI, const LTVector& vTargetPos, const
 
 	uint32 iTailedNode = GetNodeIndexFromName( pTailedNode );
 	uint32 iTailerNode = GetNodeIndexFromName( pTailerNode );
-	uint32 iTailNode = -1;
+	uint32 iTailNode = static_cast<uint32>(-1);
 
 	// If the tailer is less than the tailed node, the tail is the tailed node minus 1
 
@@ -315,7 +315,7 @@ uint32 CAINodeMgr::GetNodeIndexFromName(AINode* pNode)
 
 	if(!isdigit(*pChar))
 	{
-		return -1;
+		return static_cast<uint32>(-1);
 	}
 
 	while( isdigit(*pChar) )

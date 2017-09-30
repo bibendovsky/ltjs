@@ -136,8 +136,7 @@ void LTMemConsole(int argc, char *argv[])
 #ifndef LTMEMTRACK
 	dsi_ConsolePrint("mem commands not available (tracking in ltmem.h is not turned on in this build)\n");
 	return;
-#endif
-
+#else
 	// if no parameters were passed then display help message and exit
 	if (argc < 1)
 	{
@@ -205,6 +204,7 @@ void LTMemConsole(int argc, char *argv[])
 
 	// if command is unknown display help
 	else LTMemConsoleHelp();
+#endif // !LTMEMTRACK
 }
 
 struct SMemRecord

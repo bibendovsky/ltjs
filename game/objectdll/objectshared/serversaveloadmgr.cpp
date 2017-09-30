@@ -806,7 +806,7 @@ bool CServerSaveLoadMgr::AskClientsForSaveData( SaveDataState eSaveDataState )
 	// Ask the players for their save data.
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SAVE_DATA );
-	cMsg.Writeuint8( m_eSaveDataState );
+	cMsg.Writeuint8( static_cast<uint8>(m_eSaveDataState) );
 	CLTMsgRef_Read cSendMsg = cMsg.Read();
 
 	// Don't just broadcast the list.  That would send messages to clients that aren't fully connected yet.

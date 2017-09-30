@@ -226,7 +226,7 @@ void CScreenPostload::OnFocus(LTBOOL bFocus)
 			//default layout info mission briefing string
 			LTRect rect = g_pLayoutMgr->GetRect(szTagName,"BriefingRect");
 			m_DefaultBriefingPos = LTIntPt(rect.left,rect.top);
-			m_nDefaultBriefingWidth = (rect.right - rect.left);
+			m_nDefaultBriefingWidth = static_cast<uint16>(rect.right - rect.left);
 
 			m_nDefaultBriefingFont = (uint8)g_pLayoutMgr->GetInt(szTagName,"BriefingFont");
 			m_nDefaultBriefingFontSize = (uint8)g_pLayoutMgr->GetInt(szTagName,"BriefingSize");
@@ -241,7 +241,7 @@ void CScreenPostload::OnFocus(LTBOOL bFocus)
 			//default layout info mission help string
 			rect = g_pLayoutMgr->GetRect(szTagName,"HelpRect");
 			m_DefaultHelpPos = LTIntPt(rect.left,rect.top);
-			m_nDefaultHelpWidth = (rect.right - rect.left);
+			m_nDefaultHelpWidth = static_cast<uint16>(rect.right - rect.left);
 
 			m_nDefaultHelpFont = (uint8)g_pLayoutMgr->GetInt(szTagName,"HelpFont");
 			m_nDefaultHelpFontSize = (uint8)g_pLayoutMgr->GetInt(szTagName,"HelpSize");
@@ -365,7 +365,7 @@ void CScreenPostload::OnFocus(LTBOOL bFocus)
 			{
 				LTRect rect = g_pLayoutMgr->GetRect(szTagName,"BriefingRect");
 				BriefingPos = LTIntPt(rect.left,rect.top);
-				BriefingWidth = (rect.right - rect.left);
+				BriefingWidth = static_cast<uint16>(rect.right - rect.left);
 			}
 
 			if (g_pLayoutMgr->HasValue(szTagName,"BriefingFont"))
@@ -418,7 +418,7 @@ void CScreenPostload::OnFocus(LTBOOL bFocus)
 			{
 				LTRect rect = g_pLayoutMgr->GetRect(szTagName,"HelpRect");
 				HelpPos = LTIntPt(rect.left,rect.top);
-				HelpWidth = (rect.right - rect.left);
+				HelpWidth = static_cast<uint16>(rect.right - rect.left);
 			}
 
 			if (g_pLayoutMgr->HasValue(szTagName,"HelpFont"))
@@ -646,6 +646,7 @@ void CScreenPostload::CreateInterfaceSFX()
 		if (strlen(szFXName))
 		{
 			CBaseScaleFX *pSFX = CreateScaleFX(szFXName);
+            static_cast<void>(pSFX);
 		}
 
 		n++;

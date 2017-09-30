@@ -109,7 +109,7 @@ namespace
 	char s_aTagName[30];
 	char s_aAttName[100];
 
-	char *szInternalSkillNames[kNumSkills] =
+	const char *szInternalSkillNames[kNumSkills] =
 	{
 		"Stealth",
 		"Stamina",
@@ -190,7 +190,7 @@ LTBOOL CSkillsButeMgr::Init(const char* szAttributeFile)
 		if (*pId && &pMin)
 		{
 			m_Ranks[m_nNumRanks].nNameId = atoi(pId);
-			m_Ranks[m_nNumRanks].nMinScore = atoi(pMin);
+			m_Ranks[m_nNumRanks].nMinScore = static_cast<uint16>(atoi(pMin));
 		}	
 		m_nNumRanks++;
 		sprintf(s_aAttName, "%s%d", SMGR_RANK_DATA, m_nNumRanks);

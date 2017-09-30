@@ -74,7 +74,7 @@ LTBOOL CPlayerSoundFX::CreateObject(ILTClient *pClientDE)
 		{
 			case PSI_JUMP :
 			{
-				char* pSounds[] = { "Chars\\Snd\\jump1.wav", "Chars\\Snd\\jump2.wav" };
+				const char* pSounds[] = { "Chars\\Snd\\jump1.wav", "Chars\\Snd\\jump2.wav" };
 				g_pClientSoundMgr->PlaySoundFromPos(m_vPos, pSounds[GetRandom(0,1)], 1000.0f,
 					SOUNDPRIORITY_MISC_HIGH);
 			}
@@ -82,7 +82,7 @@ LTBOOL CPlayerSoundFX::CreateObject(ILTClient *pClientDE)
 
 			case PSI_LAND :
 			{
-				char* pSounds[] = { "Chars\\Snd\\player\\landing1.wav", "Chars\\Snd\\player\\landing2.wav" };
+				const char* pSounds[] = { "Chars\\Snd\\player\\landing1.wav", "Chars\\Snd\\player\\landing2.wav" };
 				g_pClientSoundMgr->PlaySoundFromPos(m_vPos, pSounds[GetRandom(0,1)], 1000.0f,
 					SOUNDPRIORITY_MISC_HIGH);
 			}

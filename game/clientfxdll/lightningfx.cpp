@@ -295,6 +295,10 @@ bool CLightningFX::Init(ILTClient *pClientDE, FX_BASEDATA *pBaseData, const CBas
 		HATTRACTOR		hAttractor = INVALID_ATTRACTOR;
 		CAttractor		cAttractor;
 
+        static_cast<void>(hSocket);
+        static_cast<void>(hNode);
+        static_cast<void>(pModelLT);
+
 		// Add any nodes to our attractor list...
 
 		if( GetProps()->m_szNodeAttractors[0] )
@@ -392,6 +396,8 @@ void CLightningFX::EmitBolts( float tmFrameTime )
 		LTransform		lTrans;
 		LTVector		vAttractorPos;
 		ILTModel		*pModelLT = m_pLTClient->GetModelLT();
+
+        static_cast<void>(pModelLT);
 
 		uint32	nActiveBolts = GetRandom( (int)GetProps()->m_nMinNumBolts, (int)GetProps()->m_nMaxNumBolts );
 		uint32	nBolt;
@@ -623,6 +629,9 @@ void CLightningFX::PreRender( float tmFrameTime )
 					
 					vBisector.x = (x1 + x2) / 2.0f;
 					vBisector.y = (y1 + y2) / 2.0f;
+
+                    static_cast<void>(z1);
+                    static_cast<void>(z2);
 				}
 
 				pNode->m_Data.m_vBisector = vBisector;

@@ -3593,7 +3593,7 @@ void CAIHumanStateCheckBody::Update()
 
 	// m_hBody may be a Body or a knocked out AI.
 
-	ILTBaseClass *pChecker;
+	ILTBaseClass *pChecker = nullptr;
 
 	Body* pBody = LTNULL;
 	CAI* pAI = LTNULL;
@@ -9103,6 +9103,7 @@ void CAIHumanStateFollow::HandleHolding()
 	// Get the perfect position of the target
 
 	float f2DDistToTarget = Get2DDistance( GetTargetPosition() );
+    static_cast<void>(f2DDistToTarget);
 
 	// Check to see if this is a hovering AI.  A hovering AI may be drifting -- 
 	// if it is, and if it has stopped, then clear out the destination it was
@@ -9338,7 +9339,7 @@ CAIHumanStateLongJump::CAIHumanStateLongJump()
 	m_eAnimProp2 = kAP_None;
 	m_eAnimProp3 = kAP_None;
 
-	m_iAnimRandomSeed = -1;
+	m_iAnimRandomSeed = static_cast<uint32>(-1);
 
 	m_bFaceDest = LTTRUE;
 

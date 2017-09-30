@@ -304,7 +304,7 @@ void CCommandButeMgr::Pre_Reload( ILTPreInterface *pInterface )
 	if( !Init(szFile) )
 	{
 		pInterface->ShowDebugWindow( LTTRUE );
-		pInterface->CPrint( " ERROR - %s", m_buteMgr.GetErrorString() );
+		pInterface->CPrint( " ERROR - %s", static_cast<LPCTSTR>(m_buteMgr.GetErrorString()) );
 	}
 }
 

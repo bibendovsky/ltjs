@@ -172,6 +172,7 @@ int d3d_Init(RenderStructInit *pInit)
 
 		// First try to find your favorite device. If you can't, pick a default one.
 		uint32 iAdapterID			  = 0;			// D3D's adapter counter number for this adapter...
+        static_cast<void>(iAdapterID);
 		
 		if (*pInit->m_Mode.m_InternalName) 
 			g_D3DShell.FindDevice(pInit->m_Mode.m_InternalName,&pAdapterInfo);

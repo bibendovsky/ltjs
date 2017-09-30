@@ -207,12 +207,12 @@ static void trk_ProcessKey(LTAnimTracker *pTracker, ModelAnim *pAnim, uint32 iFr
 		if(pTracker->m_TimeRef.m_Cur.m_Time <= (uint32)pNextPosition->m_Time)
 		{
 			pTracker->m_TimeRef.m_Prev.m_iFrame = (uint16)iFrame;
-			pTracker->m_TimeRef.m_Cur.m_iFrame = pNextPosition - pAnim->m_KeyFrames.GetArray();
+			pTracker->m_TimeRef.m_Cur.m_iFrame = static_cast<uint16>(pNextPosition - pAnim->m_KeyFrames.GetArray());
 		}
 		else
 		{
 			pTracker->m_TimeRef.m_Prev.m_iFrame = pTracker->m_TimeRef.m_Cur.m_iFrame = 
-				pNextPosition - pAnim->m_KeyFrames.GetArray();
+				static_cast<uint16>(pNextPosition - pAnim->m_KeyFrames.GetArray());
 		}
 	}
 	else
@@ -370,7 +370,7 @@ void trk_ScanToKeyFrame(LTAnimTracker *pTracker, uint32 msDelta, bool bProcessKe
 		}
 		else
 		{
-			pTracker->m_InterpolationMS += msDelta;
+			pTracker->m_InterpolationMS += static_cast<uint16>(msDelta);
 			// if we are done with interp, switch to next anim, move on.
 			if(pTracker->m_InterpolationMS > pCurAnim->m_InterpolationMS)
 			{
@@ -404,6 +404,7 @@ void trk_ScanToKeyFrame(LTAnimTracker *pTracker, uint32 msDelta, bool bProcessKe
 
 	// Update anim time.
 	uint32 startTime	= pTracker->m_TimeRef.m_Cur.m_Time;
+    static_cast<void>(startTime);
 	uint32 iEndKey		= pCurAnim->m_KeyFrames.GetSize() - 1;
 
 	// Find the final time where we end up.
@@ -461,8 +462,8 @@ void trk_ScanToKeyFrame(LTAnimTracker *pTracker, uint32 msDelta, bool bProcessKe
 			//prevent overflow
 			else
 			{
-				pTracker->m_TimeRef.m_Prev.m_iFrame = iEndKey;
-				pTracker->m_TimeRef.m_Cur.m_iFrame  = iEndKey;
+				pTracker->m_TimeRef.m_Prev.m_iFrame = static_cast<uint16>(iEndKey);
+				pTracker->m_TimeRef.m_Cur.m_iFrame  = static_cast<uint16>(iEndKey);
 			}
 		}
 		// Otherwise, set the previous frame to our current keyframe.

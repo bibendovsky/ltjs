@@ -412,7 +412,7 @@ void Bombable::SetupDisabledState( LTBOOL bDestroyed )
 	{
 		g_pCommonLT->SetObjectFlags( m_hObject, OFT_User, USRFLG_CAN_ACTIVATE, m_dwGadgetUsrFlgs | USRFLG_CAN_ACTIVATE );
 
-		UpdateSFXMsg(m_pGTInfo->m_eTargetType, false);
+		UpdateSFXMsg(static_cast<uint8>(m_pGTInfo->m_eTargetType), false);
 	}
 
 	// Start the countdown...
@@ -557,7 +557,7 @@ void Bombable::SetupDefusedState( )
 	m_bDisabled = LTFALSE;
 	m_bDisableRequested = LTFALSE;
 
-	UpdateSFXMsg(m_pGTInfo->m_eTargetType, true);
+	UpdateSFXMsg(static_cast<uint8>(m_pGTInfo->m_eTargetType), true);
 
 	// Play the disabled sound...
 
@@ -742,7 +742,7 @@ void Bombable::OnLinkBroken( LTObjRefNotifier *pRef, HOBJECT hObj )
 	{
 		// pickup is gone player can now plant a new bomb
 		g_pCommonLT->SetObjectFlags( m_hObject, OFT_User, m_dwGadgetUsrFlgs, m_dwGadgetUsrFlgs  | USRFLG_CAN_ACTIVATE );
-		UpdateSFXMsg(m_pGTInfo->m_eTargetType, true);
+		UpdateSFXMsg(static_cast<uint8>(m_pGTInfo->m_eTargetType), true);
 
 		//show target 'cause there is no pick up and no attachment
 		g_pCommonLT->SetObjectFlags( m_hObject, OFT_Flags, FLAG_VISIBLE, FLAG_VISIBLE | FLAG_FORCECLIENTUPDATE );

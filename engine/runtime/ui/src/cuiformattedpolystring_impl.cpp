@@ -222,7 +222,7 @@ CUI_RESULTTYPE	CUIFormattedPolyString_Impl::SetText(const char* pBuf)
 		return CUIR_INVALID_POLYSTRING;
 	}
 
-	m_Length = strlen(pBuf);
+	m_Length = static_cast<uint16>(strlen(pBuf));
 	
 	// allocate the characters if they don't exist or the buffer
 	// ain't big enough
@@ -311,7 +311,10 @@ void CUIFormattedPolyString_Impl::Parse()
 
 	float sh, cth, ctw;
 	float storedw = m_CharScreenWidth;
-	
+
+    static_cast<void>(pFont);
+    static_cast<void>(storedw);
+
 	sh = m_CharScreenHeight;
 
 	cth = m_pFont->GetCharTexHeight();
@@ -367,6 +370,7 @@ void CUIFormattedPolyString_Impl::Parse()
 		}
 
 		char* pStr = &m_pChars[i];
+        static_cast<void>(pStr);
 
 		// get the width of the character's texture
 		m_pLetters[i*2] = cidx;
@@ -407,7 +411,7 @@ void CUIFormattedPolyString_Impl::Parse()
 		if (bNoDraw) {
 			if (!bWhitespace) { // we hit whitespace after a letter
 				bWhitespace = true;
-				m_pWords[m_WordCount * 3 + 1] = i-1;	
+				m_pWords[m_WordCount * 3 + 1] = static_cast<uint16>(i-1);
 				m_WordCount++;
 				if (m_WordCount >= MAX_POLYSTRING_WORDS-1) {
 					ASSERT(0);
@@ -439,7 +443,7 @@ void CUIFormattedPolyString_Impl::Parse()
             if (old_wordcount == m_WordCount) {
                 // insert an artificial word break!
                 bWhitespace = true;
-                m_pWords[m_WordCount * 3 + 1] = i-1;    
+                m_pWords[m_WordCount * 3 + 1] = static_cast<uint16>(i-1);
                 i--;
                 m_WordCount++;
 				if (m_WordCount >= MAX_POLYSTRING_WORDS-1) {
@@ -492,7 +496,7 @@ void CUIFormattedPolyString_Impl::Parse()
 		if (bClamp) break;
 	}
 
-	m_pWords[m_WordCount * 3 + 1] = i-1;
+	m_pWords[m_WordCount * 3 + 1] = static_cast<uint16>(i-1);
 	m_WordCount++;
 
 	// last (or only) line
@@ -510,7 +514,7 @@ void CUIFormattedPolyString_Impl::Parse()
 			w += m_pLetters[p*2+1] + bd + sp + ( em > 0 ? em : 0);
 		}
 
-		m_pWords[i*3+2] = w;
+		m_pWords[i*3+2] = static_cast<uint16>(w);
 	}
 }
 
@@ -535,6 +539,9 @@ void CUIFormattedPolyString_Impl::ApplyXYZ()
 
 	uint8*	pFontMap   = m_pFont->GetFontMap();
 	uint16*	pFontTable = m_pFont->GetFontTable(); 
+
+    static_cast<void>(pFontMap);
+    static_cast<void>(pFontTable);
 
 	// see which FX to apply
 	if (m_Flags & CUI_FONT_BOLD)	bd = m_Bold;
@@ -667,6 +674,8 @@ void CUIFormattedPolyString_Impl::ApplyFont()
 	HTEXTURE	pFontTex	= m_pFont->GetTexture();
 	uint16*		pFontTable	= m_pFont->GetFontTable();
 	uint8*		pFontMap	= m_pFont->GetFontMap();
+
+    static_cast<void>(pFontMap);
 
 	pTexInterface->GetTextureDims(pFontTex, texw, texh);
   	

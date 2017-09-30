@@ -238,7 +238,7 @@ void PlayerLure::InitialUpdate( )
 	cMsg.Writeuint8( SFX_PLAYERLURE_ID );
 	// This is our unique id.
 	cMsg.Writeuint32( m_nPlayerLureId );
-	cMsg.Writeuint8( m_eCameraFreedom );
+	cMsg.Writeuint8( static_cast<uint8>(m_eCameraFreedom) );
 	BYTE nFlags = 0;
 	if( m_bAllowWeapon )
 		nFlags |= ePlayerLureFlagsAllowWeapon;

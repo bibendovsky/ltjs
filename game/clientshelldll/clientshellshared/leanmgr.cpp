@@ -375,7 +375,7 @@ void CLeanMgr::UpdateLean( )
 			CAutoMessage cMsg;
 			cMsg.Writeuint8( MID_PLAYER_CLIENTMSG );
 			cMsg.Writeuint8( CP_PLAYER_LEAN );
-			cMsg.Writeuint8( m_kLeanDir == kLean_Left ? PL_LEFT : PL_RIGHT );
+			cMsg.Writeuint8( static_cast<uint8>(m_kLeanDir == kLean_Left ? PL_LEFT : PL_RIGHT) );
 			cMsg.WriteLTVector( vPos );
 			g_pLTClient->SendToServer( cMsg.Read(), MESSAGE_GUARANTEED );
 		}
@@ -477,6 +477,8 @@ bool CLeanMgr::CalcAngle( float &fAngle, float fInitial, float fTarget, eLeanDir
 	fTarget *= (float)kDir;
 
 	float	fLastAngle = fAngle;
+    static_cast<void>(fLastAngle);
+
 	bool	bRet		= false;	// Are we at the target angle?
 
 	if( fPercent > 1.0f ) 

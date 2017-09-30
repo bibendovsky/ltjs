@@ -61,7 +61,11 @@ static LTMatrix GetCameraTransform(HOBJECT hCamera)
 
     LTMatrix mTran, mRot, mFull;
 
-	mRot.SetBasisVectors((LTVector*)&rRot.Right(), (LTVector*)&rRot.Up(), (LTVector*)&rRot.Forward());
+    auto right_vector = rRot.Right();
+    auto up_vector = rRot.Up();
+    auto forward_vector = rRot.Forward();
+
+	mRot.SetBasisVectors(&right_vector, &up_vector, &forward_vector);
 	MatTranspose3x3(&mRot);
 
 	Mat_Identity(&mTran);
@@ -537,6 +541,7 @@ LTBOOL CPolyLineFX::Draw(ILTDrawPrim   *pDraw)
 	// because this is used for all BasePolyDrawFX objects)...
 
     uint32 dwFlags = (m_Flags & FLAG_REALLYCLOSE) ? FLAG_REALLYCLOSE : 0;
+    static_cast<void>(dwFlags);
 
     LTBOOL bCalculatedNormal = LTFALSE;
 

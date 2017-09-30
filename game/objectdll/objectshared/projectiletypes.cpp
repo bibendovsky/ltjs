@@ -312,7 +312,7 @@ void CGrenade::HandleImpact(HOBJECT hObj)
 			}
 
 			m_hBounceSnd = g_pServerSoundMgr->PlaySoundFromPos(vPos, (char*)GetBounceSound(pSurf),
-				pSurf->fGrenadeSndRadius, SOUNDPRIORITY_MISC_MEDIUM, dwFlags, nVolume);
+				pSurf->fGrenadeSndRadius, SOUNDPRIORITY_MISC_MEDIUM, dwFlags, static_cast<uint8>(nVolume));
 		}
 
 		fDampenPercent = (1.0f - pSurf->fHardness);
@@ -660,7 +660,7 @@ void CLipstickProx::UpdateGrenade()
 
 			g_pServerSoundMgr->PlaySoundFromPos(vPos, m_pClassData->szArmSound,
                 (LTFLOAT)m_pClassData->nArmSndRadius, SOUNDPRIORITY_MISC_MEDIUM,
-				0, nVolume);
+				0, static_cast<uint8>(nVolume));
 		}
 	}
 
@@ -713,7 +713,7 @@ void CLipstickProx::UpdateGrenade()
 
 					g_pServerSoundMgr->PlaySoundFromPos(vPos, m_pClassData->szActivateSound,
                         (LTFLOAT) m_pClassData->nActivateSndRadius,
-						SOUNDPRIORITY_MISC_MEDIUM, 0, nVolume);
+						SOUNDPRIORITY_MISC_MEDIUM, 0, static_cast<uint8>(nVolume));
 				}
 
 				break;
@@ -1291,7 +1291,8 @@ void CCoin::RotateToRest()
 
 		if ( pObj && pObj->m_hObject )
 		{
-			g_pPhysicsLT->SetVelocity(pObj->m_hObject, &LTVector(0,0,0));
+            LTVector zero_vector(0, 0, 0);
+			g_pPhysicsLT->SetVelocity(pObj->m_hObject, &zero_vector);
 		}
 
 		g_pCommonLT->SetObjectFlags(m_hObject, OFT_Flags, 0, FLAG_VISIBLE);
@@ -1306,6 +1307,7 @@ void CCoin::RotateToRest()
 		g_pLTServer->GetObjectPos(m_hObject, &vPosition);
 
         CCharacter* pCharacter = (CCharacter*)g_pLTServer->HandleToObject(m_hFiredFrom);
+        static_cast<void>(pCharacter);
 
 		LTFLOAT fVolume;
 		SURFACE* pSurf = g_pSurfaceMgr->GetSurface(m_eLastHitSurface);
@@ -1434,7 +1436,9 @@ LTBOOL CKitty::Setup(CWeapon const* pWeapon, WeaponFireInfo const& info)
 	BaseClass* pObj = SpawnObject(szSpawn, vPos, rRot);
 	if( pObj && pObj->m_hObject )
 	{
-		g_pPhysicsLT->SetVelocity(pObj->m_hObject, &LTVector(0,0,0));
+        LTVector zero_vector(0, 0, 0);
+
+		g_pPhysicsLT->SetVelocity(pObj->m_hObject, &zero_vector);
 		m_hSpawnedKitty = pObj->m_hObject;
 
 		// Since we now have a duplicate object that can be picked up set the actual kitty invisible...
@@ -1564,7 +1568,7 @@ void CKitty::UpdateKitty( )
 
 			m_hArmSound = g_pServerSoundMgr->PlaySoundFromObject( m_hObject, m_pClassData->pArmSound,
 							(LTFLOAT)m_pClassData->nSoundRadius, SOUNDPRIORITY_MISC_MEDIUM,
-							dwFlags, nVolume );
+							dwFlags, static_cast<uint8>(nVolume) );
 		}
 		
 		// Play armed ClientFX...
@@ -1822,7 +1826,7 @@ void CKitty::CheckActivation( )
 
 				g_pServerSoundMgr->PlaySoundFromPos( vPos, m_pClassData->pActivateSound,
 					(LTFLOAT)m_pClassData->nSoundRadius,
-					SOUNDPRIORITY_MISC_MEDIUM, 0, nVolume);
+					SOUNDPRIORITY_MISC_MEDIUM, 0, static_cast<uint8>(nVolume));
 			}
 
 			// Once activated remove the weapon item pickup and set the actuall kitty visible again...
@@ -2071,7 +2075,9 @@ LTBOOL CBearTrap::Setup( const CWeapon *pWeapon, const WeaponFireInfo &info )
 	BaseClass* pObj = SpawnObject(szSpawn, vPos, rRot);
 	if( pObj && pObj->m_hObject )
 	{
-		g_pPhysicsLT->SetVelocity(pObj->m_hObject, &LTVector(0,0,0));
+        LTVector zero_vector(0, 0, 0);
+
+		g_pPhysicsLT->SetVelocity(pObj->m_hObject, &zero_vector);
 		m_hSpawnedBearTrap = pObj->m_hObject;
 
 
@@ -2549,7 +2555,9 @@ void CBanana::RotateToRest()
 			HOBJECT hFilter[] = { m_hObject, m_hFiredFrom, LTNULL	};
 			MoveObjectToFloor( pObj->m_hObject, hFilter, MoveToFloorFilterFn );
 
-			g_pPhysicsLT->SetVelocity(pObj->m_hObject, &LTVector(0,0,0));
+            LTVector zero_vector(0, 0, 0);
+
+			g_pPhysicsLT->SetVelocity(pObj->m_hObject, &zero_vector);
 			m_hSpawnedBanana = pObj->m_hObject;
 
 			// Reset the model file to the projectile model...
@@ -2584,6 +2592,7 @@ void CBanana::RotateToRest()
 		g_pLTServer->GetObjectPos(m_hObject, &vPosition);
 
         CCharacter* pCharacter = (CCharacter*)g_pLTServer->HandleToObject(m_hFiredFrom);
+        static_cast<void>(pCharacter);
 
 		LTFLOAT fVolume;
 		SURFACE* pSurf = g_pSurfaceMgr->GetSurface(m_eLastHitSurface);
@@ -2775,13 +2784,13 @@ void CProjectileSpawner::HandleImpact( HOBJECT hObj )
 
 			for( int i = 0; i < m_pClassData->blrObjectProps.GetNumItems(); ++i )
 			{
-				if( (strlen( szSpawn ) + strlen( m_pClassData->blrObjectProps.GetItem(i) ) + 1) > 512 )
+				if( (strlen( szSpawn ) + strlen( m_pClassData->blrObjectProps.GetItem(static_cast<uint8>(i)) ) + 1) > 512 )
 				{
 					ASSERT( LTFALSE && "Spawn string is larger than 512 chars" );
 					break;
 				}
 
-				strcat( szSpawn, m_pClassData->blrObjectProps.GetItem(i) );
+				strcat( szSpawn, m_pClassData->blrObjectProps.GetItem(static_cast<uint8>(i)) );
 				strcat( szSpawn, ";" );
 			}
 			

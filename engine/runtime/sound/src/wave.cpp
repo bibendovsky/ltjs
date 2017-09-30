@@ -154,19 +154,19 @@ static LTBOOL ReadChunk( ILTStream &inStream, uint32 dwType, uint32 dwLength, ui
 		case s_tagRIFF:
 		case s_tagLIST:
 		{
-			uint32 dwForm;
+			uint32 dwForm2;
 
-			inStream.Read( &dwForm, sizeof( uint32 ));
+			inStream.Read( &dwForm2, sizeof( uint32 ));
 
 			// Run through the tags.
 			while( inStream.GetPos( ) < dwEnd )
 			{
-				uint32 dwLength;
-				uint32 dwType;
+				uint32 dwLength2;
+				uint32 dwType2;
 
-				inStream.Read( &dwType, sizeof( uint32 ));
-				inStream.Read( &dwLength, sizeof( uint32 ));
-				if( !ReadChunk( inStream, dwType, dwLength, dwForm, waveHeader ))
+				inStream.Read( &dwType2, sizeof( uint32 ));
+				inStream.Read( &dwLength2, sizeof( uint32 ));
+				if( !ReadChunk( inStream, dwType2, dwLength2, dwForm2, waveHeader ))
 					break;
 			}
 
@@ -248,13 +248,13 @@ static LTBOOL WriteChunk( SSBufStream &inStream, ILTStream &outStream, uint32 dw
 			// Run through the tags.
 			while( inStream.ILTStream::GetPos( ) < dwEnd )
 			{
-				uint32 dwLength;
-				uint32 dwType;
+				uint32 dwLength2;
+				uint32 dwType2;
 
-				inStream.Read( &dwType, sizeof( uint32 ));
-				inStream.Read( &dwLength, sizeof( uint32 ));
+				inStream.Read( &dwType2, sizeof( uint32 ));
+				inStream.Read( &dwLength2, sizeof( uint32 ));
 				
-				if( !WriteChunk( inStream, outStream, dwType, dwLength, dwForm, waveHeader ))
+				if( !WriteChunk( inStream, outStream, dwType2, dwLength2, dwForm, waveHeader ))
 					break;
 			}
 

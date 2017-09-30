@@ -76,6 +76,9 @@ void CRenderShader_Lightmap::TranslateVertices(SVertex_Lightmap *pOut, const SRB
 	SVertex_Lightmap *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
+
 	while (pCurOut != pEndOut)
 	{
 		pCurOut->m_vPos = pCurIn->m_vPos;
@@ -482,6 +485,9 @@ void CRenderShader_Lightmap_Texture::TranslateVertices(SVertex_Lightmap_Texture 
 	SVertex_Lightmap_Texture *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
+
 	while (pCurOut != pEndOut)
 	{
 		pCurOut->m_vPos = pCurIn->m_vPos;
@@ -761,6 +767,8 @@ void CRenderShader_Lightmap_Texture_Detail::TranslateVertices(SVertex_Lightmap_T
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
 
+    static_cast<void>(pEndIn);
+
 	// Set up a texture transform to get the detail texture coords
 	float aTexMat[2][2];
 
@@ -997,6 +1005,9 @@ void CRenderShader_Lightmap_Texture_EnvMap::TranslateVertices(SVertex_Lightmap_T
 	SVertex_Lightmap_Texture_EnvMap *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
+
 	while (pCurOut != pEndOut)
 	{
 		pCurOut->m_vPos = pCurIn->m_vPos;
@@ -1246,6 +1257,8 @@ void CRenderShader_Lightmap_Texture_EnvBumpMap::TranslateVertices(SVertex_Lightm
 	SVertex_Lightmap_Texture_EnvBumpMap *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
 
 	// Set up a texture transform to get the detail texture coords
 	float aTexMat[2][2];
@@ -1529,6 +1542,8 @@ void CRenderShader_Lightmap_Texture_DualTexture::TranslateVertices(SVertex_Light
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
 
+    static_cast<void>(pEndIn);
+
 	while (pCurOut != pEndOut)
 	{
 		pCurOut->m_vPos = pCurIn->m_vPos;
@@ -1751,6 +1766,8 @@ void CRenderShader_Lightmap_Texture_DOT3BumpMap::TranslateVertices(SVertex_Light
 	SVertex_Lightmap_Texture_DOT3BumpMap *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
 
 	while (pCurOut != pEndOut)
 	{
@@ -2042,6 +2059,8 @@ void CRenderShader_Lightmap_Texture_DOT3EnvBumpMap::TranslateVertices(SVertex_Li
 
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
 
 	// Set up a texture transform to get the detail texture coords
 	float aTexMat[2][2];

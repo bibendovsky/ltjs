@@ -330,7 +330,7 @@ LTRESULT CGameServerShell::OnServerInitialized()
 	// IMPORTANT: reseeding the random number generator should not happen all the time
 	// as it can lead to GetRandom() not acting as random as you might think.
 	
-	srand(time(NULL));
+	srand(static_cast<unsigned int>(time(NULL)));
 
 	return LT_OK;
 }
@@ -516,10 +516,11 @@ void CGameServerShell::OnAddClient(HCLIENT hClient)
 
 	cMsg.Reset( );
 	cMsg.Writeuint8( MID_SWITCHINGWORLDSSTATE );
-	cMsg.Writeuint8( m_eSwitchingWorldsState );
+	cMsg.Writeuint8( static_cast<uint8>(m_eSwitchingWorldsState) );
 	g_pLTServer->SendToClient( cMsg.Read(), hClient, MESSAGE_GUARANTEED);
 
 	uint32 dwClientId = g_pLTServer->GetClientID( hClient );
+    static_cast<void>(dwClientId);
 
 		
 	if( IsTeamGameType() )
@@ -1135,7 +1136,9 @@ void CGameServerShell::ProcessHandshake(HCLIENT hClient, ILTMessage_Read *pMsg)
 			// CRC the modelbutes.txt
 			static uint32 nModelButesCRC = CRC32::CalcRezFileCRC( g_pModelButeMgr->GetAttributeFile( ));
 			uint32 nModelButesMaskedCRC = nModelButesCRC ^ nXORMask;
+            static_cast<void>(nModelButesMaskedCRC);
 			uint32 nClientModelButesCRC = pMsg->Readuint32();
+            static_cast<void>(nClientModelButesCRC);
 #ifndef _DEBUG
 			if( nClientModelButesCRC !=  nModelButesMaskedCRC )
 			{
@@ -1148,7 +1151,9 @@ void CGameServerShell::ProcessHandshake(HCLIENT hClient, ILTMessage_Read *pMsg)
 			// CRC the surface.txt
 			static uint32 nSurfaceCRC = CRC32::CalcRezFileCRC( g_pSurfaceMgr->GetAttributeFile( ));
 			uint32 nSurfaceMaskedCRC = nSurfaceCRC ^ nXORMask;
+            static_cast<void>(nSurfaceMaskedCRC);
 			uint32 nClientSurfaceCRC = pMsg->Readuint32();
+            static_cast<void>(nClientSurfaceCRC);
 #ifndef _DEBUG
 			if( nClientSurfaceCRC !=  nSurfaceMaskedCRC )
 			{
@@ -1161,7 +1166,9 @@ void CGameServerShell::ProcessHandshake(HCLIENT hClient, ILTMessage_Read *pMsg)
 			// CRC the damagefx.txt
 			static uint32 nDamageFxCRC = CRC32::CalcRezFileCRC( "attributes\\damagefx.txt" );
 			uint32 nDamageFxMaskedCRC = nDamageFxCRC ^ nXORMask;
+            static_cast<void>(nDamageFxMaskedCRC);
 			uint32 nClientDamageFxCRC = pMsg->Readuint32();
+            static_cast<void>(nClientDamageFxCRC);
 #ifndef _DEBUG
 			if( nClientDamageFxCRC !=  nDamageFxMaskedCRC )
 			{
@@ -1889,6 +1896,7 @@ void CGameServerShell::HandlePlayerGhostMessage (HCLIENT hSender, ILTMessage_Rea
 		g_pLTServer->CPrint( szMsg );
 	}
 	uint32 clientID = g_pLTServer->GetClientID(hSender);
+    static_cast<void>(clientID);
 
 	// now send the string to all clients on the same team
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -2748,7 +2756,7 @@ void CGameServerShell::CheatGimmeGun( CPlayerObj *pPlayer, uint32 nData )
 	if( !pPlayer )
 		return;
 
-	pPlayer->GimmeGunCheat( nData );
+	pPlayer->GimmeGunCheat( static_cast<uint8>(nData) );
 }
 
 // ----------------------------------------------------------------------- //
@@ -2764,7 +2772,7 @@ void CGameServerShell::CheatGimmeMod( CPlayerObj *pPlayer, uint32 nData )
 	if( !pPlayer )
 		return;
 
-	pPlayer->GimmeModCheat( nData );
+	pPlayer->GimmeModCheat( static_cast<uint8>(nData) );
 }
 
 // ----------------------------------------------------------------------- //
@@ -2780,7 +2788,7 @@ void CGameServerShell::CheatGimmeGear( CPlayerObj *pPlayer, uint32 nData )
 	if( !pPlayer )
 		return;
 
-	pPlayer->GimmeGearCheat( nData );
+	pPlayer->GimmeGearCheat( static_cast<uint8>(nData) );
 }
 
 // ----------------------------------------------------------------------- //
@@ -2796,7 +2804,7 @@ void CGameServerShell::CheatGimmeAmmo( CPlayerObj *pPlayer, uint32 nData )
 	if( !pPlayer )
 		return;
 
-	pPlayer->GimmeAmmoCheat( nData );
+	pPlayer->GimmeAmmoCheat( static_cast<uint8>(nData) );
 }
 
 // ----------------------------------------------------------------------- //
@@ -3086,7 +3094,7 @@ void CGameServerShell::RespawnPlayer(CPlayerObj* pPlayer, HCLIENT hClient)
 		CAutoMessage cMsg;
 		cMsg.Writeuint8(MID_HANDSHAKE);
 		cMsg.Writeuint8(MID_HANDSHAKE_HELLO);
-		cMsg.Writeuint16(GAME_HANDSHAKE_VER);
+		cMsg.Writeuint16(static_cast<uint16>(GAME_HANDSHAKE_VER));
 		g_pLTServer->SendToClient(cMsg.Read(), hClient, MESSAGE_GUARANTEED);
 	}
 	else
@@ -3111,8 +3119,6 @@ void CGameServerShell::HandleCheatRemoveAI(uint32 nData)
     HCLASS  hClass = g_pLTServer->GetClass("CAI");
 
 	// Remove all the ai objects...
-
-    LTBOOL bRemove = LTFALSE;
 
     HOBJECT hRemoveObj = LTNULL;
 	while (hObj)
@@ -3309,7 +3315,7 @@ void CGameServerShell::SetSwitchingWorldsState( SwitchingWorldsState eSwitchingW
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SWITCHINGWORLDSSTATE );
-	cMsg.Writeuint8( eSwitchingWorldsState );
+	cMsg.Writeuint8( static_cast<uint8>(eSwitchingWorldsState) );
 	g_pLTServer->SendToClient( cMsg.Read(), NULL, MESSAGE_GUARANTEED);
 }
 
@@ -3600,7 +3606,7 @@ void CGameServerShell::Update(LTFLOAT timeElapsed)
 		CAutoMessage cMsg;
 		cMsg.Writeuint8(MID_PLAYER_MESSAGE);
 		cMsg.WriteString(fullMsg);
-		cMsg.Writeuint32(-1);
+		cMsg.Writeuint32(static_cast<uint32>(-1));
 		cMsg.Writeuint8(INVALID_TEAM);
 		g_pLTServer->SendToClient(cMsg.Read(), LTNULL, MESSAGE_GUARANTEED);
 
@@ -4220,7 +4226,7 @@ bool CGameServerShell::OnServerShellInit( )
 	char const* pszFirstMission = NULL;
 
 	Campaign& campaign = g_pServerMissionMgr->GetCampaign( );
-	cLevelsMsg.Writeuint8( campaign.size( ));
+	cLevelsMsg.Writeuint8( static_cast<uint8>(campaign.size( )));
 	char fname[_MAX_FNAME] = "";
 	for( Campaign::iterator iter = campaign.begin( ); iter != campaign.end( ); iter++ )
 	{
@@ -4500,6 +4506,7 @@ void CGameServerShell::HandlePerformanceMessage (HCLIENT hSender, ILTMessage_Rea
 	
 	
 	uint8 nEnvironmentalDetail = pMsg->Readuint8();
+    static_cast<void>(nEnvironmentalDetail);
 
 	m_bPreCacheAssets = pMsg->Readbool();
 }
@@ -4530,7 +4537,7 @@ void CGameServerShell::Save(ILTMessage_Write *pMsg, uint32 dwSaveFlags)
 	m_pObjectTemplates->Save( pMsg );
 
 	//save difficulty
-	pMsg->Writeuint8(m_eDifficulty);
+	pMsg->Writeuint8(static_cast<uint8>(m_eDifficulty));
 
 	//save min music mood.
 	SAVE_DWORD(m_eMinMusicMood);
@@ -4657,7 +4664,7 @@ TimeRamp* CGameServerShell::GetTimeRamp(uint32 i)
 void CGameServerShell::ShowMultiplayerSummary()
 {
 	m_bShowMultiplayerSummary = LTTRUE;
-	int endString = 0;
+
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		CPlayerObj* pPlayer = GetPlayerFromClientList(m_aClients[i]);
@@ -4762,6 +4769,7 @@ uint32 CGameServerShell::GetPlayerPing(CPlayerObj* pPlayer)
 	if (!hClient) return(0);
 
 	uint32 clientID = g_pLTServer->GetClientID(hClient);
+    static_cast<void>(clientID);
 	g_pLTServer->GetClientPing(hClient, ping);
 
 	return((uint16)(ping + 0.5f));
@@ -4936,7 +4944,7 @@ void CGameServerShell::ServerAppAddClient( HCLIENT hClient )
 	// Write out the player information.
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( SERVERAPP_ADDCLIENT );
-	cMsg.Writeuint16( g_pLTServer->GetClientID( hClient ));
+	cMsg.Writeuint16( static_cast<uint16>(g_pLTServer->GetClientID( hClient )));
 
 	// Send to the server app.
 	CLTMsgRef_Read msgRefRead = cMsg.Read( );
@@ -4956,7 +4964,7 @@ void CGameServerShell::ServerAppRemoveClient( HCLIENT hClient )
 	// Write out the player information.
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( SERVERAPP_REMOVECLIENT );
-	cMsg.Writeuint16( g_pLTServer->GetClientID( hClient ));
+	cMsg.Writeuint16( static_cast<uint16>(g_pLTServer->GetClientID( hClient )));
 
 	// Send to the server app.
 	CLTMsgRef_Read msgRefRead = cMsg.Read( );
@@ -4990,11 +4998,11 @@ void CGameServerShell::ServerAppShellUpdate( )
 		if( !hClient )
 			continue;
 
-		cMsg.Writeuint16( g_pLTServer->GetClientID( hClient ));
+		cMsg.Writeuint16( static_cast<uint16>(g_pLTServer->GetClientID( hClient )));
 		cMsg.WriteString( pPlayer->GetNetUniqueName( ));
-		cMsg.Writeint16( pPlayer->GetPlayerScore()->GetFrags( ));
-		cMsg.Writeint16( pPlayer->GetPlayerScore()->GetTags( ));
-		cMsg.Writeint16( pPlayer->GetPlayerScore()->GetScore( ));
+		cMsg.Writeint16( static_cast<int16>(pPlayer->GetPlayerScore()->GetFrags( )));
+		cMsg.Writeint16( static_cast<int16>(pPlayer->GetPlayerScore()->GetTags( )));
+		cMsg.Writeint16( static_cast<int16>(pPlayer->GetPlayerScore()->GetScore( )));
 	}
 
 	// Signal end of player list.
@@ -5035,7 +5043,7 @@ void CGameServerShell::ServerAppPostStartWorld( )
 {
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( SERVERAPP_POSTLOADWORLD );
-	cMsg.Writeuint16(( int )g_pServerMissionMgr->GetCurrentCampaignIndex( ));
+	cMsg.Writeuint16(static_cast<uint16>(g_pServerMissionMgr->GetCurrentCampaignIndex( )));
 
 	char fname[_MAX_FNAME] = "";
 	_splitpath( GetCurLevel( ), NULL, NULL, fname, NULL );

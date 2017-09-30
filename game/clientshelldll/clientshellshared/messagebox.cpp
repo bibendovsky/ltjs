@@ -207,10 +207,10 @@ void CMessageBox::Show(const char *pString, MBCreate* pCreate, uint8 nFontSize, 
 		nHeight = (int)(fh/fScale);
 	}
 
-	uint16 nDlgWidth = nWidth + 2*kIndent;
+	uint16 nDlgWidth = static_cast<uint16>(nWidth + 2*kIndent);
 	if (nDlgWidth < kMinWidth)
 		nDlgWidth = kMinWidth;
-	uint16 nDlgHeight = nHeight + 3*kIndent + m_pOK->GetHeight();
+	uint16 nDlgHeight = static_cast<uint16>(nHeight + 3*kIndent + m_pOK->GetHeight());
 	if (m_eType == LTMB_EDIT)
 	{
 		// need to do this to get accurate sizes, since the width and height of the string 
@@ -283,11 +283,11 @@ void CMessageBox::Show(const char *pString, MBCreate* pCreate, uint8 nFontSize, 
 
 	if (bDefaultReturn)
 	{
-		m_Dlg.SetSelection(m_Dlg.GetIndex(m_pOK));
+		m_Dlg.SetSelection(static_cast<uint16>(m_Dlg.GetIndex(m_pOK)));
 	}
 	else
 	{
-		m_Dlg.SetSelection(m_Dlg.GetIndex(m_pCancel));
+		m_Dlg.SetSelection(static_cast<uint16>(m_Dlg.GetIndex(m_pCancel)));
 	}
 
 	offset.x =  (640 - nDlgWidth) / 2;

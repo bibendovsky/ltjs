@@ -94,7 +94,7 @@ void CD3DSkelMesh::CalcUsedNodes( Model *pModel )
 	CreateUsedNodeList(node_list.size());
 	for( uint32 iNodeCnt =0 ; iNodeCnt < node_list.size() ; iNodeCnt++ )
 	{
-		m_pUsedNodeList[iNodeCnt] = node_list[iNodeCnt];
+		m_pUsedNodeList[iNodeCnt] = static_cast<uint8>(node_list[iNodeCnt]);
 	}
 }
 

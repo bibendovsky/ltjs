@@ -17,7 +17,7 @@
 #include "relationchangeobserver.h"
 
 // Forward declarations.
-enum  EnumAISenseType;
+enum  EnumAISenseType : unsigned int;
 
 
 // For constructor.  warning C4355: 'this' : used in base member initializer list

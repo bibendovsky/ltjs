@@ -258,7 +258,7 @@ bool DoomsDayDevice::OnTrigger( HOBJECT hSender, const CParsedMsg &cMsg )
 			uint32 nTeamId = atoi( cMsg.GetArg( 1 ));
 			if( nTeamId < MAX_TEAMS )
 			{
-				m_nOwningTeamID = nTeamId;
+				m_nOwningTeamID = static_cast<uint8>(nTeamId);
 			}
 			else
 			{
@@ -299,7 +299,7 @@ bool DoomsDayDevice::ReadProp( ObjectCreateStruct* pStruct )
 					uint32 nTeamId = atoi( &genProp.m_String[ nLen ] );
 					if( nTeamId < MAX_TEAMS )
 					{
-						m_nOwningTeamID = nTeamId;
+						m_nOwningTeamID = static_cast<uint8>(nTeamId);
 					}
 				}
 			}
@@ -356,10 +356,14 @@ void DoomsDayDevice::InitialUpdate( )
 			// Attach the target to the base...
 
 			char *pszDoomsday = strtok( szType, "_" );
+            static_cast<void>(pszDoomsday);
 			char *pszSocket = strtok( NULL, "\0" );
 
 			HATTACHMENT hAttachment;
-			g_pLTServer->CreateAttachment( m_hObject, pObj->m_hObject, pszSocket, &LTVector(0,0,0), &LTRotation(), &hAttachment );
+            LTVector zero_vector(0, 0, 0);
+            LTRotation zero_rotation;
+
+			g_pLTServer->CreateAttachment( m_hObject, pObj->m_hObject, pszSocket, &zero_vector, &zero_rotation, &hAttachment );
 	
 		}
 	}
@@ -809,10 +813,14 @@ bool DoomsDayDevice::AddDoomsDayPiece( DoomsDayPiece *pDDPiece, CPlayerObj *pPla
 	LTStrCpy( szPropType, pDDPiece->GetPropTypeName(), ARRAY_LEN( szPropType ));
 	
 	char *pszDoomsday = strtok( szPropType, "_" );
+    static_cast<void>(pszDoomsday);
 	char *pszSocket = strtok( NULL, "\0" );
 
 	HATTACHMENT hAttachment;
-	g_pLTServer->CreateAttachment( m_hObject, pDDPiece->m_hObject, pszSocket, &LTVector(0,0,0), &LTRotation(), &hAttachment );
+    LTVector zero_vector(0, 0, 0);
+    LTRotation zero_rotation;
+
+	g_pLTServer->CreateAttachment( m_hObject, pDDPiece->m_hObject, pszSocket, &zero_vector, &zero_rotation, &hAttachment );
 	
 	// Hide the target object...
 

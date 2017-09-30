@@ -45,13 +45,13 @@ CHUDWpnChooser::~CHUDWpnChooser()
 LTBOOL CHUDWpnChooser::Init()
 {
 	// get first and last weapon indices
-	uint8 nFirstWeaponCommandId = g_pWeaponMgr->GetFirstWeaponCommandId();
-	uint8 nLastWeaponCommandId = g_pWeaponMgr->GetLastWeaponCommandId();
+	uint8 nFirstWeaponCommandId = static_cast<uint8>(g_pWeaponMgr->GetFirstWeaponCommandId());
+	uint8 nLastWeaponCommandId = static_cast<uint8>(g_pWeaponMgr->GetLastWeaponCommandId());
 	uint8 nWeaponCount[kMaxClasses];
 	memset(nWeaponCount,0,sizeof(nWeaponCount));
 	for (uint8 nWpnCommandId = nFirstWeaponCommandId; nWpnCommandId <= nLastWeaponCommandId; nWpnCommandId++)
 	{
-		uint8 nWpn = g_pWeaponMgr->GetWeaponId( nWpnCommandId );
+		uint8 nWpn = static_cast<uint8>(g_pWeaponMgr->GetWeaponId( nWpnCommandId ));
 
 		if (g_pWeaponMgr->IsPlayerWeapon(nWpn))
 		{
@@ -234,43 +234,43 @@ void CHUDWpnChooser::Update()
 		m_hItemIcon[nSlot] = LTNULL;
 		if (g_pPlayerStats->HaveWeapon( m_nWeaponID[m_nClass][i] ))
 		{
-			WEAPON const *pWeapon = g_pWeaponMgr->GetWeapon( m_nWeaponID[m_nClass][i] );
-			if (pWeapon)
+			WEAPON const *pWeapon2 = g_pWeaponMgr->GetWeapon( m_nWeaponID[m_nClass][i] );
+			if (pWeapon2)
 			{
 				std::string icon;
 
 				if (!g_pPlayerMgr->GetClientWeaponMgr()->CanChangeToWeapon(m_nWeaponID[m_nClass][i]))
 				{
-					icon = pWeapon->GetDisabledIcon();
+					icon = pWeapon2->GetDisabledIcon();
 				}
 				else if (m_nWeaponID[m_nClass][i] == nWpn)
 				{
-					icon = pWeapon->GetNormalIcon();
+					icon = pWeapon2->GetNormalIcon();
 				}
 				else
 				{
-					icon = pWeapon->GetUnselectedIcon();
+					icon = pWeapon2->GetUnselectedIcon();
 				}
 				m_hItemIcon[nSlot] = g_pInterfaceResMgr->GetTexture( icon.c_str() );
 
-				uint32 tw,th;
-				g_pTexInterface->GetTextureDims(m_hItemIcon[nSlot],tw,th);
+				uint32 tw2,th2;
+				g_pTexInterface->GetTextureDims(m_hItemIcon[nSlot],tw2,th2);
 
-				float fWidth = (float)tw * ( fHeight / (float)th );
-				float x = (float)m_fColumnXPos[m_nClass] - (fWidth / 2.0f);
+				float fWidth = (float)tw2 * ( fHeight / (float)th2 );
+				float x2 = (float)m_fColumnXPos[m_nClass] - (fWidth / 2.0f);
 
-				g_pDrawPrim->SetXYWH( &m_ItemPoly[nSlot], x, y, fWidth, fHeight );
+				g_pDrawPrim->SetXYWH( &m_ItemPoly[nSlot], x2, y, fWidth, fHeight );
 
 				if (m_nWeaponID[m_nClass][i] == nWpn)
 				{
 					if (m_nClass >= kMaxClasses / 2)
 					{
-						m_pStr->SetPosition(x-2.0f,y+2.0f);
+						m_pStr->SetPosition(x2-2.0f,y+2.0f);
 						m_pStr->SetAlignmentH(CUI_HALIGN_RIGHT);
 					}
 					else
 					{
-						m_pStr->SetPosition(x+fWidth+2.0f,y+2.0f);
+						m_pStr->SetPosition(x2+fWidth+2.0f,y+2.0f);
 						m_pStr->SetAlignmentH(CUI_HALIGN_LEFT);
 					}
 				}
@@ -449,7 +449,7 @@ void CHUDAmmoChooser::Update()
 
 	for (uint8 n = 0; n < pWeapon->nNumAmmoIds && n < kMaxAmmoTypes; n++)
 	{
-		uint8 nAmmoID = pWeapon->aAmmoIds[n];
+		uint8 nAmmoID = static_cast<uint8>(pWeapon->aAmmoIds[n]);
 		if (g_pPlayerStats->GetAmmoCount(nAmmoID) <= 0) continue;
 		AMMO const *pAmmo = g_pWeaponMgr->GetAmmo(nAmmoID);
 		if (!pAmmo) continue;
@@ -468,11 +468,11 @@ void CHUDAmmoChooser::Update()
 		m_hAmmoIcon[nSlot] = g_pInterfaceResMgr->GetTexture( icon.c_str() );
 		if (!m_hAmmoIcon[nSlot]) continue;
 
-		uint32 tw,th;
-		g_pTexInterface->GetTextureDims(m_hAmmoIcon[nSlot],tw,th);
-		float fWidth = (float)tw * ( fHeight / (float)th );
+		uint32 tw2,th2;
+		g_pTexInterface->GetTextureDims(m_hAmmoIcon[nSlot],tw2,th2);
+		float fWidth2 = (float)tw2 * ( fHeight / (float)th2 );
 
-		g_pDrawPrim->SetXYWH( &m_AmmoPoly[nSlot], x-fWidth, y, fWidth, fHeight );
+		g_pDrawPrim->SetXYWH( &m_AmmoPoly[nSlot], x-fWidth2, y, fWidth2, fHeight );
 
 		
 		char szTmp[256] = "";

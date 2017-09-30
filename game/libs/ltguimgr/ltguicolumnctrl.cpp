@@ -71,14 +71,14 @@ uint8 CLTGUIColumnCtrl::AddColumn(const char *pString, uint16 nWidth, LTBOOL bCl
 	if ( !pString )
 	{
         assert(LTFALSE);
-        return -1;
+        return static_cast<uint8>(-1);
 	}
 
 	CLTGUITextCtrl *pCtrl = debug_new(CLTGUITextCtrl);
 	if (!pCtrl->Create(pString,LTNULL,LTNULL,m_pFont,m_nBaseFontSize,LTNULL))
 	{
 		debug_delete(pCtrl);
-		return -1;
+		return static_cast<uint8>(-1);
 	}
 	m_columnArray.push_back(pCtrl);
 
@@ -101,7 +101,7 @@ uint8 CLTGUIColumnCtrl::AddColumn(const char *pString, uint16 nWidth, LTBOOL bCl
 	CalculateSize();
 
 
-    return m_columnArray.size() - 1;
+    return static_cast<uint8>(m_columnArray.size() - 1);
 }
 
 

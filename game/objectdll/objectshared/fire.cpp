@@ -238,12 +238,12 @@ void Fire::InitialUpdate(int nInfo)
     cMsg.Writefloat(m_fLightFreq);
     cMsg.WriteLTVector(m_vLightOffset);
     cMsg.WriteLTVector(m_vLightColor);
-    cMsg.Writeuint8(m_bSmoke);
-    cMsg.Writeuint8(m_bLight);
-    cMsg.Writeuint8(m_bSparks);
-    cMsg.Writeuint8(m_bSound);
-    cMsg.Writeuint8(m_bBlackSmoke);
-    cMsg.Writeuint8(m_bSmokeOnly);
+    cMsg.Writeuint8(static_cast<uint8>(m_bSmoke));
+    cMsg.Writeuint8(static_cast<uint8>(m_bLight));
+    cMsg.Writeuint8(static_cast<uint8>(m_bSparks));
+    cMsg.Writeuint8(static_cast<uint8>(m_bSound));
+    cMsg.Writeuint8(static_cast<uint8>(m_bBlackSmoke));
+    cMsg.Writeuint8(static_cast<uint8>(m_bSmokeOnly));
 	g_pLTServer->SetObjectSFXMessage(m_hObject, cMsg.Read());
 }
 

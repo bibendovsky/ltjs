@@ -136,7 +136,7 @@ LTBOOL CRadarTypeMgr::Init( const char *szAttributeFile )
 		{
 			// Set the ID and add it to the list...
 
-			pRadarType->nId = nNum;
+			pRadarType->nId = static_cast<uint8>(nNum);
 			m_RadarTypeList.AddTail( pRadarType );
 		}
 		else
@@ -220,7 +220,7 @@ RADARTYPE *CRadarTypeMgr::GetRadarType(const char *pName )
 // ----------------------------------------------------------------------- //
 
 RADARTYPE::RADARTYPE()
-:	nId			( RTMGR_INVALID_ID ),
+:	nId			( static_cast<uint8>(RTMGR_INVALID_ID) ),
 	szName		( LTNULL ),
 	szIcon		( LTNULL )
 {

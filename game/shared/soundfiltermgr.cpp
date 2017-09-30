@@ -91,7 +91,7 @@ LTBOOL CSoundFilterMgr::Init(const char* szAttributeFile)
 
 		if (pFilter && pFilter->Init(m_buteMgr, s_aTagName))
 		{
-			pFilter->nId = nNum;
+			pFilter->nId = static_cast<uint8>(nNum);
 			m_FilterList.AddTail(pFilter);
 		}
 		else
@@ -144,7 +144,7 @@ SOUNDFILTER* CSoundFilterMgr::GetFilter(uint8 nId)
 //
 // ----------------------------------------------------------------------- //
 
-SOUNDFILTER* CSoundFilterMgr::GetFilter(char* pName)
+SOUNDFILTER* CSoundFilterMgr::GetFilter(const char* pName)
 {
     if (!pName) return LTNULL;
 
@@ -327,7 +327,7 @@ LTBOOL CSoundFilterMgrPlugin::PopulateStringList(char** aszStrings, uint32* pcSt
 	{
 		_ASSERT(cMaxStrings > (*pcStrings) + 1);
 
-		pSF = g_pSoundFilterMgr->GetFilter(i);
+		pSF = g_pSoundFilterMgr->GetFilter(static_cast<uint8>(i));
 		if (pSF && pSF->szName[0])
 		{
             uint32 dwFilterNameLen = strlen(pSF->szName);

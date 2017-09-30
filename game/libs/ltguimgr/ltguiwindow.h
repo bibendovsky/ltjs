@@ -66,7 +66,7 @@ public:
 	void		RemoveControl ( CLTGUICtrl *pControl, LTBOOL bDelete = LTTRUE );
 	void		RemoveControl ( uint16 nIndex, LTBOOL bDelete = LTTRUE );
 	void		RemoveAll( LTBOOL bDelete = LTTRUE );
-	uint16		GetNumControls ( )							{ return m_controlArray.size(); }
+	uint16		GetNumControls ( )							{ return static_cast<uint16>(m_controlArray.size()); }
 
 	CLTGUICtrl	*GetControl ( uint16 nIndex );
 	int			GetIndex(CLTGUICtrl* pControl);

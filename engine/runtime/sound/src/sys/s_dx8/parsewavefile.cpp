@@ -29,6 +29,7 @@ bool ParseWaveFile( void* pWaveFileBlock, void*& rpWaveFormat, uint32& ruiWaveFo
 			case CHUNK_ID_RIFF:
 			{
 				uint32 uiRiffSize = *( ( uint32* )pucFileBlock );
+                static_cast<void>(uiRiffSize);
 				pucFileBlock += sizeof( uint32 );
 				break;
 			}
@@ -48,6 +49,7 @@ bool ParseWaveFile( void* pWaveFileBlock, void*& rpWaveFormat, uint32& ruiWaveFo
 				pucFileBlock += sizeof( uint32 );
 
 				uint32* puiFactData = ( uint32* )pucFileBlock;
+                static_cast<void>(puiFactData);
 				pucFileBlock += uiFactSize;
 				break;
 			}
@@ -73,6 +75,7 @@ bool ParseWaveFile( void* pWaveFileBlock, void*& rpWaveFormat, uint32& ruiWaveFo
 				pucFileBlock += sizeof( uint32 );
 
 				uint32* pucSkipData = ( uint32* )pucFileBlock;
+                static_cast<void>(pucSkipData);
 				pucFileBlock += uiSkipSize;
 				break;
 			}

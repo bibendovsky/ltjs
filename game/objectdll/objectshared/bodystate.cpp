@@ -67,8 +67,13 @@ void CBodyState::Init(Body* pBody)
 		FLAG_SOLID | FLAG_GRAVITY | 
 		FLAG_GOTHRUWORLD | FLAG_TOUCH_NOTIFY | FLAG_RAYHIT);
 
-    g_pPhysicsLT->SetVelocity(m_pBody->m_hObject, &LTVector(0,0,0));
-    g_pPhysicsLT->SetAcceleration(m_pBody->m_hObject, &LTVector(0,0,0));
+    LTVector zero_vector;
+
+    zero_vector = { 0, 0, 0, };
+    g_pPhysicsLT->SetVelocity(m_pBody->m_hObject, &zero_vector);
+
+    zero_vector = { 0, 0, 0, };
+    g_pPhysicsLT->SetAcceleration(m_pBody->m_hObject, &zero_vector);
 
 	if (!s_RemovePowerups.IsInitted())
 	{
@@ -591,6 +596,7 @@ void CBodyStateLedge::Update()
 	else if ( m_eState == eLeaning )
 	{
         HMODELANIM hAni = g_pLTServer->GetModelAnimation(m_pBody->m_hObject);
+        static_cast<void>(hAni);
         if ( g_pLTServer->GetModelPlaybackState(m_pBody->m_hObject) & MS_PLAYDONE )
 		{
 			// If the start ani ends before we're done, do the falling ani.
@@ -630,7 +636,9 @@ void CBodyStateLedge::Update()
 
 			g_pCommonLT->SetObjectFlags(m_pBody->m_hObject, OFT_Flags, FLAG_GRAVITY, FLAG_GRAVITY | FLAG_GOTHRUWORLD);
 
-			g_pPhysicsLT->SetVelocity(m_pBody->m_hObject, &LTVector(pVolume->GetForward().x*100.0f,-500,pVolume->GetForward().y*100.0f));
+            LTVector velocity(pVolume->GetForward().x*100.0f, -500, pVolume->GetForward().y*100.0f);
+
+			g_pPhysicsLT->SetVelocity(m_pBody->m_hObject, &velocity);
 		}
 	}
 }
@@ -737,8 +745,8 @@ void CBodyStateLadder::Init(Body* pBody)
     m_fTimer = (LTFLOAT)dwLength/1000.0f;
 
 	// Move away from the ladder.
-
-	g_pPhysicsLT->SetVelocity(m_pBody->m_hObject, &LTVector( -pVolume->GetForward().x*10.f, 0.f, -pVolume->GetForward().z*10.f ) );
+    LTVector velocity(-pVolume->GetForward().x*10.f, 0.f, -pVolume->GetForward().z*10.f);
+	g_pPhysicsLT->SetVelocity(m_pBody->m_hObject, &velocity );
 }
 
 void CBodyStateLadder::InitLoad(Body* pBody)
@@ -790,6 +798,7 @@ void CBodyStateLadder::Update()
 	else if ( m_eState == eLeaning )
 	{
         HMODELANIM hAni = g_pLTServer->GetModelAnimation(m_pBody->m_hObject);
+        static_cast<void>(hAni);
         if ( g_pLTServer->GetModelPlaybackState(m_pBody->m_hObject) & MS_PLAYDONE )
 		{
 			// If the start ani ends before we're done, do the falling ani.
@@ -802,7 +811,9 @@ void CBodyStateLadder::Update()
 
 			g_pCommonLT->SetObjectFlags(m_pBody->m_hObject, OFT_Flags, FLAG_GRAVITY, FLAG_GRAVITY | FLAG_GOTHRUWORLD);
 
-			g_pPhysicsLT->SetVelocity(m_pBody->m_hObject, &LTVector( 0.f, -500.f, 0.f ) );
+            LTVector velocity(0.f, -500.f, 0.f);
+
+			g_pPhysicsLT->SetVelocity(m_pBody->m_hObject, &velocity );
 		}
 	}
 }

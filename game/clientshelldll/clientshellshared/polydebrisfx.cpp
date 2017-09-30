@@ -64,9 +64,9 @@ LTBOOL CPolygonDebrisFX::Init(SFXCREATESTRUCT* psfxCreateStruct)
 	debris.vMaxVel			= m_cs.PolyDebrisFX.vMaxVel;
 	debris.fMinLifeTime		= m_cs.PolyDebrisFX.fMinDuration;
 	debris.fMaxLifeTime		= m_cs.PolyDebrisFX.fMaxDuration;
-	debris.nNumDebris		= GetRandom(m_cs.PolyDebrisFX.nMinDebris, m_cs.PolyDebrisFX.nMaxDebris);
-	debris.nMinBounce		= m_cs.PolyDebrisFX.nMinBounce;
-	debris.nMaxBounce		= m_cs.PolyDebrisFX.nMaxBounce;
+	debris.nNumDebris		= static_cast<uint8>(GetRandom(m_cs.PolyDebrisFX.nMinDebris, m_cs.PolyDebrisFX.nMaxDebris));
+	debris.nMinBounce		= static_cast<uint8>(m_cs.PolyDebrisFX.nMinBounce);
+	debris.nMaxBounce		= static_cast<uint8>(m_cs.PolyDebrisFX.nMaxBounce);
 	debris.fGravityScale	= m_cs.PolyDebrisFX.fGravityScale;
 	debris.vMinDOffset		= m_cs.PolyDebrisFX.vMinDOffset;
 	debris.vMaxDOffset		= m_cs.PolyDebrisFX.vMaxDOffset;
@@ -158,7 +158,7 @@ void CPolygonDebrisFX::CreateDebris(int i, const LTVector &vPos)
 	pls.bAdditive			= m_cs.PolyDebrisFX.bAdditive;
 	pls.bMultiply			= m_cs.PolyDebrisFX.bMultiply;
 	pls.bDontFadeAlphaAtEdge= !m_cs.PolyDebrisFX.bAdditive;
-	pls.nWidthStyle			= m_cs.PolyDebrisFX.nStyle > PLWS_CONSTANT ? GetRandom(PLWS_BIG_TO_SMALL, PLWS_CONSTANT) : m_cs.PolyDebrisFX.nStyle;
+	pls.nWidthStyle			= static_cast<uint8>(m_cs.PolyDebrisFX.nStyle > PLWS_CONSTANT ? GetRandom(PLWS_BIG_TO_SMALL, PLWS_CONSTANT) : m_cs.PolyDebrisFX.nStyle);
 	pls.bUseObjectRotation	= !m_cs.PolyDebrisFX.bShowTrail;
 	pls.bNoZ				= m_cs.PolyDebrisFX.bShowTrail;
 	pls.nNumSegments		= 1;

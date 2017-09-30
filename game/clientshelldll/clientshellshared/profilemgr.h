@@ -117,7 +117,7 @@ class CDeviceAxisData
 {
 public:
 	CDeviceAxisData()	{Init("",0,0.0f,0.0f);}
-	void Init(char *sName, uint32 nType, float fRangeLow, float fRangeHigh)
+	void Init(const char *sName, uint32 nType, float fRangeLow, float fRangeHigh)
 		{ SAFE_STRCPY(m_sName,sName); m_nType = nType; m_fRangeLow = fRangeLow; m_fRangeHigh = fRangeHigh; }
 	char	m_sName[INPUTNAME_LEN];
     uint32  m_nType;
@@ -129,7 +129,7 @@ class CDevicePOVData
 {
 public:
 	CDevicePOVData()	{Init("");}
-	void Init(char *sName)	{ SAFE_STRCPY(m_sName,sName); }
+	void Init(const char *sName)	{ SAFE_STRCPY(m_sName,sName); }
 	char	m_sName[INPUTNAME_LEN];
 };
 

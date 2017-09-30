@@ -510,7 +510,7 @@ void CPlayerMgr::Save(ILTMessage_Write *pMsg, SaveDataState eSaveDataState)
 	pMsg->Writebool(m_bLastAllowPlayerMovement != LTFALSE);
 	pMsg->Writebool(m_bWasUsingExternalCamera != LTFALSE);
 	pMsg->Writebool(m_bUsingExternalCamera != LTFALSE);
-	pMsg->Writeuint8(m_ePlayerState);
+	pMsg->Writeuint8(static_cast<uint8>(m_ePlayerState));
 	pMsg->Writeuint8(m_nSoundFilterId);
 	pMsg->Writeuint8(m_nGlobalSoundFilterId);
 
@@ -1015,7 +1015,7 @@ void CPlayerMgr::FirstPlayingUpdate()
 	// Set Initial cheats...
 	if (g_pCheatMgr)
 	{
-        uint8 nNumCheats = g_pClientButeMgr->GetNumCheatAttributes();
+        uint8 nNumCheats = static_cast<uint8>(g_pClientButeMgr->GetNumCheatAttributes());
 		char strCheat[64];
 
         for (uint8 i=0; i < nNumCheats; i++)
@@ -1385,7 +1385,8 @@ void CPlayerMgr::HandleMsgPlayerDamage (ILTMessage_Read *pMsg)
 
 			if( dmgFlag & pDamageFX->m_nDamageFlag || pDamageFX->m_vtTestFX.GetFloat() > 0.0f )
 			{
-				CLIENTFX_CREATESTRUCT fxInit( pDamageFX->m_szTakingHealthFXName, FXFLAG_REALLYCLOSE, LTVector(0,0,0) ); 
+                LTVector zero_vector(0, 0, 0);
+				CLIENTFX_CREATESTRUCT fxInit( pDamageFX->m_szTakingHealthFXName, FXFLAG_REALLYCLOSE, zero_vector ); 
 				g_pClientFXMgr->CreateClientFX( LTNULL, fxInit, LTTRUE );
 			}
 			
@@ -1403,7 +1404,8 @@ void CPlayerMgr::HandleMsgPlayerDamage (ILTMessage_Read *pMsg)
 
 			if( dmgFlag & pDamageFX->m_nDamageFlag || pDamageFX->m_vtTestFX.GetFloat() > 0.0f )
 			{
-				CLIENTFX_CREATESTRUCT fxInit( pDamageFX->m_szTakingArmorFXName, FXFLAG_REALLYCLOSE, LTVector(0,0,0) ); 
+                LTVector zero_vector(0, 0, 0);
+				CLIENTFX_CREATESTRUCT fxInit( pDamageFX->m_szTakingArmorFXName, FXFLAG_REALLYCLOSE, zero_vector ); 
 				g_pClientFXMgr->CreateClientFX( LTNULL, fxInit, LTTRUE );
 			}
 			
@@ -2461,7 +2463,7 @@ void CPlayerMgr::ChangeWeapon(ILTMessage_Read *pMsg)
     float fAmmoId  = pMsg->Readfloat();
 
 
-    uint8 nWeaponId = g_pWeaponMgr->GetWeaponId(nCommandId);
+    uint8 nWeaponId = static_cast<uint8>(g_pWeaponMgr->GetWeaponId(nCommandId));
 	WEAPON const *pWeapon = g_pWeaponMgr->GetWeapon(nWeaponId);
 	if (!pWeapon) return;
 
@@ -2470,7 +2472,7 @@ void CPlayerMgr::ChangeWeapon(ILTMessage_Read *pMsg)
 
 	// See what ammo the weapon should start with...
 
-	uint8 nAmmoId = pWeapon->nDefaultAmmoId;
+	uint8 nAmmoId = static_cast<uint8>(pWeapon->nDefaultAmmoId);
 	if (fAmmoId >= 0)
 	{
 		nAmmoId = (uint8)fAmmoId;
@@ -2579,6 +2581,7 @@ void CPlayerMgr::EndSpyVision()
 void CPlayerMgr::BeginZoom()
 {
 	uint8 nScopeId = g_pPlayerStats->GetScope();
+    static_cast<void>(nScopeId);
 
 	m_bCamera = LTFALSE;
 	uint8 nAmmoId = g_pPlayerStats->GetCurrentAmmo();
@@ -2711,7 +2714,7 @@ void CPlayerMgr::UpdateCameraZoom()
     m_bZooming = LTTRUE;
 
 
-    float fFovXZoomed, fZoomDist;
+    float fFovXZoomed = 0.0F, fZoomDist = 0.0F;
 
 	if (m_bZoomingIn)
 	{
@@ -2807,8 +2810,8 @@ void CPlayerMgr::UpdateCameraZoom()
 		SetCameraFOV(fovX, fovY);
 
 		// Update the lod adjustment for models...
-		float fZoomAmount = (DEG2RAD(g_vtFOVXNormal.GetFloat()) - fovX) / (DEG2RAD(g_vtFOVXNormal.GetFloat()) - DEG2RAD(FOVX_ZOOMED2));
-		float fNewLODOffset = m_fSaveLODScale + (LOD_ZOOMADJUST * fZoomAmount);
+		float fZoomAmount2 = (DEG2RAD(g_vtFOVXNormal.GetFloat()) - fovX) / (DEG2RAD(g_vtFOVXNormal.GetFloat()) - DEG2RAD(FOVX_ZOOMED2));
+		float fNewLODOffset = m_fSaveLODScale + (LOD_ZOOMADJUST * fZoomAmount2);
 
 		sprintf(strConsole, "+ModelLODOffset %f", fNewLODOffset);
         g_pLTClient->RunConsoleString(strConsole);
@@ -2849,7 +2852,7 @@ LTBOOL CPlayerMgr::OnCommandOn(int command)
 	if (g_pWeaponMgr->GetFirstWeaponCommandId() <= command &&
 		command <= g_pWeaponMgr->GetLastWeaponCommandId())
 	{
-		ChangeWeapon( g_pWeaponMgr->GetWeaponId( command ) );
+		ChangeWeapon( static_cast<uint8>(g_pWeaponMgr->GetWeaponId( command )) );
 		return LTTRUE;
 	}
 
@@ -3753,9 +3756,9 @@ void CPlayerMgr::CalculateCameraRotation()
 	}
 	else if (m_fPitch != 0.0f && GetConsoleInt("AutoCenter",0))
 	{
-        float fPitchDelta = (g_pGameClientShell->GetFrameTime() * g_vtLookUpRate.GetFloat());
-		if (m_fPitch > 0.0f) m_fPitch -= Min(fPitchDelta, m_fPitch);
-		if (m_fPitch < 0.0f) m_fPitch += Min(fPitchDelta, -m_fPitch);
+        float fPitchDelta2 = (g_pGameClientShell->GetFrameTime() * g_vtLookUpRate.GetFloat());
+		if (m_fPitch > 0.0f) m_fPitch -= Min(fPitchDelta2, m_fPitch);
+		if (m_fPitch < 0.0f) m_fPitch += Min(fPitchDelta2, -m_fPitch);
 	}
 
     float fMinY = MATH_HALFPI - 0.1f;
@@ -4533,11 +4536,13 @@ void CPlayerMgr::Teleport(const LTVector & vPos)
 
 void CPlayerMgr::UpdateServerPlayerModel()
 {
-	HOBJECT hClientObj, hRealObj;
+    auto hClientObj = g_pLTClient->GetClientObject();
 
-    if (!(hClientObj = g_pLTClient->GetClientObject())) return;
+    if (!hClientObj) return;
 
-	if (!(hRealObj = m_pMoveMgr->GetObject())) return;
+    auto hRealObj = m_pMoveMgr->GetObject();
+
+	if (!hRealObj) return;
 
     LTVector myPos;
 	g_pLTClient->GetObjectPos(hRealObj, &myPos);
@@ -4567,9 +4572,10 @@ void CPlayerMgr::UpdateContainers()
 
     LTVector vScale(1.0f, 1.0f, 1.0f), vLightAdd(0.0f, 0.0f, 0.0f);
 
-    char* pCurSound      = NULL;
+    const char* pCurSound = NULL;
 	uint8 nSoundFilterId = 0;
     uint32 dwUserFlags   = USRFLG_VISIBLE;
+    static_cast<void>(dwUserFlags);
     m_bUseWorldFog       = LTTRUE;
 
 	// We'll update this below...
@@ -5062,10 +5068,10 @@ void CPlayerMgr::UpdateDynamicOccluders(HLOCALOBJ* pContainerArray, uint32 nNumC
 	{
 		uint32 nNum = pDynOccluderList->GetSize();
 
-        uint32 i=0;
-		for (i=0; i < nNum; i++)
+        uint32 i2=0;
+		for (i2=0; i2 < nNum; i2++)
 		{
-			CDynamicOccluderVolumeFX* pFX = (CDynamicOccluderVolumeFX*)(*pDynOccluderList)[i];
+			CDynamicOccluderVolumeFX* pFX = (CDynamicOccluderVolumeFX*)(*pDynOccluderList)[i2];
 			if (!pFX) continue;
 
 			// Check to see if this fx is on the enabled list...
@@ -5518,7 +5524,7 @@ bool CPlayerMgr::UseGadget(DamageType eDamageType)
 	IClientWeaponBase *pClientWeapon = m_pClientWeaponMgr->GetCurrentClientWeapon();
 	uint8 nCurWeapon = WMGR_INVALID_ID;
 	if ( pClientWeapon )
-		nCurWeapon = pClientWeapon->GetWeaponId();
+		nCurWeapon = static_cast<uint8>(pClientWeapon->GetWeaponId());
 
 	//if we found a weapon to use, and we aren't already using it
 	if (nId != WMGR_INVALID_ID && nCurWeapon != nId)
@@ -5547,7 +5553,7 @@ uint8 CPlayerMgr::GetGadgetFromDamageType(DamageType eDamageType)
 		// Check if we have ammo, we may have just run out...
 		if (pClientWeapon->HasAmmo())
 		{
-			nCurWeapon = pClientWeapon->GetWeaponId();
+			nCurWeapon = static_cast<uint8>(pClientWeapon->GetWeaponId());
 		}
 		else
 		{
@@ -5592,7 +5598,7 @@ bool CPlayerMgr::FireOnActivate()
 	IClientWeaponBase *pClientWeapon = m_pClientWeaponMgr->GetCurrentClientWeapon();
 	uint8 nCurWeapon = WMGR_INVALID_ID;
 	if ( pClientWeapon )
-		nCurWeapon = pClientWeapon->GetWeaponId();
+		nCurWeapon = static_cast<uint8>(pClientWeapon->GetWeaponId());
 
 	const WEAPON* pWpnData = g_pWeaponMgr->GetWeapon(nCurWeapon);
 	if (pWpnData)

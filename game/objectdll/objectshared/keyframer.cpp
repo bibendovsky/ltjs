@@ -600,7 +600,7 @@ LTBOOL KeyFramer::CreateKeyList()
 	uint8* curBlindData = blindData;
 
 	// grab the number of keys in the blind data
-	m_nNumKeys = *((uint32*)curBlindData);
+	m_nNumKeys = static_cast<uint16>(*((uint32*)curBlindData));
 	curBlindData += 4;
 
 	for( uint32 i = 0; i < m_nNumKeys; i++ )
@@ -1694,7 +1694,7 @@ LTBOOL KeyFramer::CalcCurPos(LTBOOL & bAtKey)
 
 	const float c_fEpsilon = 0.001f;
 	LTBOOL bUpdateObjects = LTFALSE;
-	float fPos1Time, fPos2Time;
+	float fPos1Time = 0.0F, fPos2Time = 0.0F;
 
 	// See if we should update the objects...
 
@@ -1747,6 +1747,7 @@ LTBOOL KeyFramer::CalcCurPos(LTBOOL & bAtKey)
 		
 				float fSegLength = Bezier_SubSegmentLength( CURVE_PTS( m_pPosition1->keyData, m_pPosition2->keyData), m_fKeyPercent, m_fKeyPercent + fMovePercent );
 				float fActualPercent = (fDistBetweenKeys <= MATH_EPSILON) ? 1.0f : (fSegLength / fDistBetweenKeys);
+                static_cast<void>(fActualPercent);
 			
 				// Adjust the percent for how far we need to move to keep consistent motion
 							
@@ -2298,7 +2299,7 @@ void KeyFramer::Save(ILTMessage_Write *pMsg, uint32 dwSaveFlags)
 
 	// Save the number of objects to be key-framed...
 
-    uint8 nNumInList = m_pObjectList ? m_pObjectList->m_nInList : 0;
+    uint8 nNumInList = static_cast<uint8>(m_pObjectList ? m_pObjectList->m_nInList : 0);
     SAVE_BYTE(nNumInList);
 
 	// Save the offsets and rotations for each object...
@@ -2406,7 +2407,7 @@ void KeyFramer::Load(ILTMessage_Read *pMsg, uint32 dwLoadFlags)
 		uint8* curBlindData = blindData;
 
 		ASSERT( *((uint32*)curBlindData) == m_nNumKeys );	// .dat is probably more recent than save file
-		m_nNumKeys = *((uint32*)curBlindData);
+		m_nNumKeys = static_cast<uint16>(*((uint32*)curBlindData));
 		curBlindData += 4;
 
 		int i;

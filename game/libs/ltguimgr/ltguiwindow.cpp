@@ -24,7 +24,7 @@ CLTGUIWindow::CLTGUIWindow()
 	m_nCurrentIndex		= 0;
 	m_nHeight			= 0;
 	m_nWidth			= 0;
-	m_nMouseDownItemSel	= -1;
+	m_nMouseDownItemSel	= static_cast<uint16>(-1);
 
 
 }
@@ -201,7 +201,7 @@ LTBOOL CLTGUIWindow::OnLButtonDown(int x, int y)
 	else
 	{
 		// This clears the index for what item was selected from a mouse down message
-		m_nMouseDownItemSel=-1;
+		m_nMouseDownItemSel= static_cast<uint16>(-1);
 
         return LTFALSE;
 	}
@@ -228,7 +228,7 @@ LTBOOL CLTGUIWindow::OnLButtonUp(int x, int y)
 	}
 	else
 	{
-		m_nMouseDownItemSel=-1;
+		m_nMouseDownItemSel= static_cast<uint16>(-1);
 	}
     return LTFALSE;
 }
@@ -271,7 +271,7 @@ uint16 CLTGUIWindow::AddControl ( CLTGUICtrl *pControl, LTIntPt offset )
 
 	m_controlArray.push_back(pControl);
 
-	return m_controlArray.size()-1;
+	return static_cast<uint16>(m_controlArray.size()-1);
 }
 
 // Remove a control
@@ -423,7 +423,7 @@ uint16 CLTGUIWindow::NextSelection()
 {
 	uint16 select = m_nCurrentIndex;
 	if (select == kNoSelection)
-		select = m_controlArray.size()-1;
+		select = static_cast<uint16>(m_controlArray.size()-1);
 	uint16 oldSelect = select;
 	
 	CLTGUICtrl* pCtrl = LTNULL;	
@@ -459,7 +459,7 @@ uint16 CLTGUIWindow::PreviousSelection()
 	{
 		if (select == 0)
 		{
-			select = m_controlArray.size()-1;
+			select = static_cast<uint16>(m_controlArray.size()-1);
 		}
 		else
 			select--;
@@ -486,10 +486,10 @@ void CLTGUIWindow::SetBasePos ( LTIntPt pos )
 
 	for (uint16 i = 0; i < m_controlArray.size(); i++)
 	{
-		LTIntPt pos = m_controlArray[i]->GetBasePos();
-		pos.x += offset.x;
-		pos.y += offset.y;
-		m_controlArray[i]->SetBasePos(pos);
+		LTIntPt pos2 = m_controlArray[i]->GetBasePos();
+		pos2.x += offset.x;
+		pos2.y += offset.y;
+		m_controlArray[i]->SetBasePos(pos2);
 	}
 
 }

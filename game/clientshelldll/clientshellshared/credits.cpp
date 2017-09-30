@@ -44,7 +44,7 @@ namespace
 	char*	s_sBuf    = LTNULL;
 }
 
-static char* GetTextBuffer(char* sName);
+static char* GetTextBuffer(const char* sName);
 
 
 // Functions...
@@ -237,19 +237,19 @@ void CCredit::FormatStrings()
 
 	if (offset > 0.0f)
 	{
-		FPStringArray::iterator iter = m_Strings.begin();
-		while (iter != m_Strings.end())
+		FPStringArray::iterator iter2 = m_Strings.begin();
+		while (iter2 != m_Strings.end())
 		{
-			CUIFormattedPolyString* pStr = *iter;
+			CUIFormattedPolyString* pStr = *iter2;
 
-			float x,y;
-			pStr->GetPosition(&x,&y);
+			float x2,y2;
+			pStr->GetPosition(&x2,&y2);
 
-			y -= offset;
+			y2 -= offset;
 
-			pStr->SetPosition(x,y);
+			pStr->SetPosition(x2,y2);
 
-			iter++;
+			iter2++;
 
 		}
 
@@ -458,6 +458,7 @@ LTBOOL CCredit::UpdateFadeIn()
 	uint8 a = (uint8)( 255.0f * m_fAlpha );
 
 	uint32 color = SET_ARGB(a,0xFF,0xFF,0xFF);
+    static_cast<void>(color);
 
 	FPStringArray::iterator iter = m_Strings.begin();
 	while (iter != m_Strings.end())
@@ -550,6 +551,7 @@ LTBOOL CCredit::UpdateFadeOut()
 	uint8 a = (uint8)( 255.0f * m_fAlpha );
 
 	uint32 color = SET_ARGB(a,0xFF,0xFF,0xFF);
+    static_cast<void>(color);
 
 	FPStringArray::iterator iter = m_Strings.begin();
 	while (iter != m_Strings.end())
@@ -874,7 +876,7 @@ void CCredits::AddCredits()
 
 	// Get the credits text buffer...
 
-	char* sName = NULL;
+	const char* sName = NULL;
 
 	switch (GetMode())
 	{
@@ -957,7 +959,7 @@ CCredit* CCredits::GetCredit(uint16 iCredit)
 
 // Functions...
 
-char* GetTextBuffer(char* sName)
+char* GetTextBuffer(const char* sName)
 {
 	//if (s_sBuf)
 	//{

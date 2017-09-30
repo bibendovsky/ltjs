@@ -178,6 +178,7 @@ LTBOOL CBulletTrailFX::Update()
 	// What is the range of colors?
 
     LTFLOAT fRange = m_vColor2.x - m_vColor1.x;
+    static_cast<void>(fRange);
 
 
 	// Fill the distance between the last projectile position, and it's

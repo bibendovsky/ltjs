@@ -23,7 +23,7 @@ struct RADAR_PLAYER_OBJ
 {
 	RADAR_PLAYER_OBJ()
 	{
-		nID = -1;
+		nID = static_cast<uint32>(-1);
 		hObj = NULL;
 		pName = NULL;
 		bDead = false;

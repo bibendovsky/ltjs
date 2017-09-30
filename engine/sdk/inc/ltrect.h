@@ -127,6 +127,7 @@ public:
 		return (T)(m_vMax - m_vMin).Mag();
 	}
 
+#if 0
 	//sorts the points so that max > min
 	void Sort()
 	{
@@ -134,6 +135,7 @@ public:
 		m_vMin.Min(m_vMax);
 		m_vMax.Max(vOldMin);
 	}
+#endif
 
 	//determines if this rectangle is properly sorted
 	bool IsSorted() const

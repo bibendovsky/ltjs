@@ -140,7 +140,9 @@ CUI_RESULTTYPE	CUIProgress_Impl::QueryPoint(int16 x, int16 y)
 		return CUIR_PROGRESS_GREATER;
 	}
 
+#if 0
 	return CUIR_OK;
+#endif // 0
 }
 
 

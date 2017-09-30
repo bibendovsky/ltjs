@@ -195,7 +195,7 @@ void CSkillCtrl::SetSkillLevel(eSkillLevel level)
 		m_Level = (eSkillLevel)(kNumSkillLevels-1);
 
 	eSkillLevel nxt = (eSkillLevel)(m_Level + 1);
-
+    static_cast<void>(nxt);
 }
 
 // Enter was pressed

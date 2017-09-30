@@ -47,10 +47,10 @@ public:
 	void		Term();
 
 	// Returns a handle to a surface from its bitmap filename.
-	HSURFACE	GetSurface(char *lpszSurface);
+	HSURFACE	GetSurface(const char *lpszSurface);
 
 	// Frees a surface.
-	void		FreeSurface(char *lpszSurface);
+	void		FreeSurface(const char *lpszSurface);
 	void		FreeSurface(HSURFACE hSurface);
 
 	void		FreeAllSurfaces();
@@ -60,7 +60,7 @@ protected:
 	void		FreeSurface(int nIndex);
 
 	// Finds a surface index into the surface array.  -1 is returned if it cannot be found
-	int			FindSurfaceIndex(char *lpszSurface);
+	int			FindSurfaceIndex(const char *lpszSurface);
 	int			FindSurfaceIndex(HSURFACE hSurface);
 
 protected:

@@ -64,11 +64,11 @@ class VarTrack
 
 	inline char const* GetStr(char const* pDefault="")
 	{
-		const char *pRet;
-
 		if(m_pClientDE && m_hVar)
 		{
-			if(pRet = m_pClientDE->GetVarValueString(m_hVar))
+            auto pRet = m_pClientDE->GetVarValueString(m_hVar);
+
+			if(pRet)
 				return pRet;
 		}
 		return pDefault;

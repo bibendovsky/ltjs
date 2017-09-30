@@ -59,7 +59,7 @@ void CHUDPaused::Show(LTBOOL bShow)
 
 void CHUDPaused::UpdateLayout()
 {
-	char *pTag = "PausedText";
+    const char *pTag = "PausedText";
 	m_BasePos = g_pLayoutMgr->GetPoint(pTag,"BasePos");
 
 	uint8 nFont = (uint8)g_pLayoutMgr->GetInt(pTag,"Font");

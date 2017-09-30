@@ -70,7 +70,7 @@ uint32 CTextureScriptVarMgr::GetID(const char* pszName, uint32 nStage)
 	char* pszCurr = pszFullName;
 	while(*pszCurr)
 	{
-		*pszCurr = tolower(*pszCurr);
+		*pszCurr = static_cast<char>(tolower(*pszCurr));
 		pszCurr++;
 	}
 

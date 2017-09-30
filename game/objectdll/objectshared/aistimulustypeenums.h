@@ -20,7 +20,7 @@
 #endif
  
 #if STIMULUS_TYPE_AS_ENUM
-	#define ADD_STIMULUS_TYPE(label, val) kStim_##label## = (1 << val),
+	#define ADD_STIMULUS_TYPE(label, val) kStim_##label = (1 << val),
 	#define SET_NUM_STIMULUS_TYPES(val) kStim_Count = val,
 #elif STIMULUS_TYPE_AS_STRING
 	#define ADD_STIMULUS_TYPE(label, val) #label,

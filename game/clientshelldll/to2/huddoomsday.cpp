@@ -150,11 +150,11 @@ void CHUDDoomsday::Update()
 	if (pList)
 	{
 		int nNumDD = pList->GetSize();
-		for (int i=0; i < nNumDD; i++)
+		for (int i2=0; i2 < nNumDD; i2++)
 		{
-			if ((*pList)[i])
+			if ((*pList)[i2])
 			{
-				CDoomsdayPieceFX* pDDP = (CDoomsdayPieceFX*)(*pList)[i];
+				CDoomsdayPieceFX* pDDP = (CDoomsdayPieceFX*)(*pList)[i2];
 				int nIcon = kNumDDIcons;
 
 				// find out which icon matched the piece

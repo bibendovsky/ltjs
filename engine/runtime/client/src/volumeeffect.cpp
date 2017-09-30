@@ -31,8 +31,9 @@ static bool InitDynamicParticles( LTVolumeEffect* pVE, VolumeEffectInfo* pInfo )
 
 		ref.m_FileType = FILE_CLIENTFILE;
 		ref.m_pFilename = pInfo->m_DPTextureName;
-		
-		if( !(pVE->m_DPTexture = g_pClientMgr->AddSharedTexture( &ref )) )
+        pVE->m_DPTexture = g_pClientMgr->AddSharedTexture( &ref );
+
+		if( !pVE->m_DPTexture )
 			return false;
 	}
 

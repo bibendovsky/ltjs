@@ -24,7 +24,7 @@ LINKTO_MODULE( VolumeBrush );
 
 class CSoundFilterMgrPlugin;
 class CSurfaceMgrPlugin;
-enum SurfaceType;
+enum SurfaceType : int;
 
 class VolumeBrush : public GameBase
 {

@@ -536,4 +536,4 @@ private:
 CSoundMgr *GetClientILTSoundMgrImpl();
 
 
-#endif __SOUNDMGR_H__
+#endif // __SOUNDMGR_H__

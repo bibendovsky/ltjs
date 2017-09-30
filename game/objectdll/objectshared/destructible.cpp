@@ -94,7 +94,7 @@ LTBOOL DamageStruct::DoDamage(LPBASECLASS pDamager, HOBJECT hVictim, HOBJECT hCo
 	cMsg.WriteLTVector(vDir);
 	cMsg.Writefloat(fDuration);
 	cMsg.Writefloat(fDamage);
-	cMsg.Writeuint8(eType);
+	cMsg.Writeuint8(static_cast<uint8>(eType));
 	cMsg.WriteObject(hDamager);
 	cMsg.WriteObject(hContainer);
 	cMsg.Writeuint8(nAmmoId);
@@ -648,6 +648,7 @@ void CDestructible::AddProgressiveDamage(DamageStruct & damage)
 	
 	HOBJECT hDamager	= damage.hDamager;
     LPBASECLASS pObject = g_pLTServer->HandleToObject(m_hObject);
+    static_cast<void>(pObject);
 
 	// No since adding progressive damage if we are already dead...
 
@@ -1787,7 +1788,7 @@ void CDestructible::HandleCrush(LPBASECLASS pObject, HOBJECT hSender)
 
 	return;
 
-
+#if 0
     LTFLOAT fMyMass, fHisMass;
     g_pPhysicsLT->GetMass(m_hObject, &fMyMass);
     g_pPhysicsLT->GetMass(hSender, &fHisMass);
@@ -1809,6 +1810,7 @@ void CDestructible::HandleCrush(LPBASECLASS pObject, HOBJECT hSender)
 	damage.hDamager = hSender;
 
 	damage.DoDamage(pObject, pObject->m_hObject);
+#endif // 0
 }
 
 
@@ -1828,7 +1830,7 @@ void CDestructible::HandleTouch(LPBASECLASS pObject, HOBJECT hSender, LTFLOAT fF
 
 	return;
 
-
+#if 0
     LTFLOAT fMyMass, fHisMass;
     g_pPhysicsLT->GetMass(pObject->m_hObject, &fMyMass);
     g_pPhysicsLT->GetMass(hSender, &fHisMass);
@@ -1908,6 +1910,7 @@ void CDestructible::HandleTouch(LPBASECLASS pObject, HOBJECT hSender, LTFLOAT fF
 	damage.vDir		= vDir;
 
 	damage.DoDamage(pObject, pObject->m_hObject);
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //
@@ -1921,8 +1924,6 @@ void CDestructible::HandleTouch(LPBASECLASS pObject, HOBJECT hSender, LTFLOAT fF
 LTBOOL CDestructible::DebugDamageOn()
 {
     if (!m_hObject) return LTFALSE;
-
-    LTBOOL bRet = LTFALSE;
 
     HCONVAR hVar  = g_pLTServer->GetGameConVar("SetDamage");
     const char* pVal = g_pLTServer->GetVarValueString(hVar);

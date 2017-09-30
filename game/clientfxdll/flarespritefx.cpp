@@ -324,8 +324,8 @@ bool CFlareSpriteFX::Update( float tmCur )
 					LTFLOAT	fBlindScaleRange = GetProps()->m_fBlindMaxScale - fScale;
 					fScale = fScale + ( fMultiplier * fBlindScaleRange );
 
-                    LTVector scale(fScale, fScale, fScale);
-					m_pLTClient->SetObjectScale( m_hObject,	&scale);
+                    LTVector scale2(fScale, fScale, fScale);
+					m_pLTClient->SetObjectScale( m_hObject,	&scale2);
 					
 					m_pLTClient->Common()->SetObjectFlags( m_hObject, OFT_Flags, FLAG_SPRITE_NOZ, FLAG_SPRITEBIAS | FLAG_SPRITE_NOZ);
 				}

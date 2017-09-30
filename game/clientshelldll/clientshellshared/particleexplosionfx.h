@@ -41,7 +41,7 @@ struct PESCREATESTRUCT : public BPSCREATESTRUCT
     LTBOOL       bCreateDebris;
     LTBOOL       bRotateDebris;
     LTBOOL       bIgnoreWind;
-	char*		pFilename;
+    const char* pFilename;
 };
 
 inline PESCREATESTRUCT::PESCREATESTRUCT()

@@ -19,7 +19,7 @@
 #endif
  
 #if ANIM_MOVEMENT_AS_ENUM
-	#define ADD_ANIM_MOVEMENT(label) kAM_##label##,
+	#define ADD_ANIM_MOVEMENT(label) kAM_##label,
 #elif ANIM_MOVEMENT_AS_STRING
 	#define ADD_ANIM_MOVEMENT(label) #label,
 #else

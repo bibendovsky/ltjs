@@ -114,7 +114,7 @@ bool CD3DRenderStyle::Load_LTBData(ILTStream* pFileStream)
 		pFileStream->Read(&iRenderPasses,sizeof(iRenderPasses));
 		assert(iRenderPasses <= 4);
 
-		for (uint32 i = 0; i < iRenderPasses; ++i)
+		for (uint32 j = 0; j < iRenderPasses; ++j)
 		{
 			RenderPassOp RenderPass;
 			uint8 iHasRSD3DRP;
@@ -138,7 +138,7 @@ bool CD3DRenderStyle::Load_LTBData(ILTStream* pFileStream)
 				pFileStream->Read(&D3DRenderPass.bUsePixelShader, sizeof(D3DRenderPass.bUsePixelShader));
 				pFileStream->Read(&D3DRenderPass.PixelShaderID, sizeof(D3DRenderPass.PixelShaderID));
 
-				if (!SetRenderPass_D3DOptions(i, &D3DRenderPass))
+				if (!SetRenderPass_D3DOptions(j, &D3DRenderPass))
 				{
 					return false;
 				}

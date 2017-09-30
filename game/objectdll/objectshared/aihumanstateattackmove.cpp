@@ -118,6 +118,7 @@ void CAIHumanStateAttackMove::Update()
 
 	HOBJECT hTarget = GetAI()->GetTarget()->GetObject();
 	HOBJECT hAI = GetAI()->m_hObject;
+    static_cast<void>(hAI);
 
 	// Head and Torso tracking.
 	

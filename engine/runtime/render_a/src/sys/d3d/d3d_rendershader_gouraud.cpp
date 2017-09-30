@@ -58,6 +58,9 @@ void CRenderShader_Gouraud::TranslateVertices(SVertex_Gouraud *pOut, const SRBVe
 	SVertex_Gouraud *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
+
 	while (pCurOut != pEndOut)
 	{
 		pCurOut->m_vPos = pCurIn->m_vPos;
@@ -215,6 +218,9 @@ void CRenderShader_Gouraud_Texture::TranslateVertices(SVertex_Gouraud_Texture *p
 	SVertex_Gouraud_Texture *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
+
 	while (pCurOut != pEndOut)
 	{
 		pCurOut->m_vPos = pCurIn->m_vPos;
@@ -518,6 +524,8 @@ void CRenderShader_Gouraud_Detail::TranslateVertices(SVertex_Gouraud_Detail *pOu
 	SVertex_Gouraud_Detail *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
 
 	// Set up a texture transform to get the detail texture coords
 	float aTexMat[2][2];
@@ -918,6 +926,9 @@ void CRenderShader_Gouraud_EnvMap::TranslateVertices(SVertex_Gouraud_EnvMap *pOu
 	SVertex_Gouraud_EnvMap *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
+
 	while (pCurOut != pEndOut)
 	{
 		pCurOut->m_vPos = pCurIn->m_vPos;
@@ -1290,6 +1301,8 @@ void CRenderShader_Gouraud_EnvBumpMap::TranslateVertices(SVertex_Gouraud_EnvBump
 
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
 
 	// Set up a texture transform to get the detail texture coords
 	float aTexMat[2][2];
@@ -1726,6 +1739,8 @@ void CRenderShader_Gouraud_DualTexture::TranslateVertices(SVertex_Gouraud_DualTe
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
 
+    static_cast<void>(pEndIn);
+
 	while (pCurOut != pEndOut)
 	{
 		pCurOut->m_vPos = pCurIn->m_vPos;
@@ -2058,6 +2073,8 @@ void CRenderShader_Gouraud_DOT3BumpMap::TranslateVertices(SVertex_Gouraud_DOT3Bu
 	SVertex_Gouraud_DOT3BumpMap *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
 
 	while (pCurOut != pEndOut)
 	{
@@ -2470,6 +2487,8 @@ void CRenderShader_Gouraud_DOT3EnvBumpMap::TranslateVertices(SVertex_Gouraud_DOT
 
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
 
 	// Set up a texture transform to get the detail texture coords
 	float aTexMat[2][2];
@@ -2916,8 +2935,8 @@ bool CRenderShader_Gouraud_Effect::ValidateShader(const CRBSection &cSection)
 				if(pEffect)
 				{
 					D3DXHANDLE hTechnique;
-					HRESULT hr = pEffect->FindNextValidTechnique(NULL, &hTechnique);
-					if(FAILED(hr))
+					HRESULT hr2 = pEffect->FindNextValidTechnique(NULL, &hTechnique);
+					if(FAILED(hr2))
 					{						
 						bPassed = false;
 					}
@@ -2949,6 +2968,9 @@ void CRenderShader_Gouraud_Effect::TranslateVertices(SVertex_Gouraud_Effect *pOu
 	SVertex_Gouraud_Effect *pEndOut = &pCurOut[nCount];
 	const SRBVertex *pCurIn = pIn;
 	const SRBVertex *pEndIn = &pCurIn[nCount];
+
+    static_cast<void>(pEndIn);
+
 	while (pCurOut != pEndOut)
 	{
 		pCurOut->m_vPos = pCurIn->m_vPos;

@@ -16,16 +16,10 @@
 #include "debugline.h"
 #include "msgids.h"
 #include "ltobjref.h"
-#if _MSC_VER >= 1300
-#	include "objecttemplatemgr.h"
-#endif // VC7
+#include "objecttemplatemgr.h"
 
 #pragma warning( disable : 4786 )
-#ifdef _MSC_VER >= 1900
 #include <unordered_map>
-#else
-#include <hash_map>
-#endif
 #include <string>
 
 LINKFROM_MODULE( DebugLineSystem );
@@ -127,13 +121,7 @@ namespace LineSystem
 			  pLineSystem(0) {}
 	};
 
-#if _MSC_VER >= 1300 && _MSC_VER < 1900
-	typedef std::hash_map< std::string, SystemEntry, ObjectTemplateMgrHashCompare > SystemMap;
-#elif _MSC_VER >= 1900
-    typedef std::unordered_map< std::string, SystemEntry, ObjectTemplateMgrHashCompare, ObjectTemplateMgrHashCompare > SystemMap;
-#else
-	typedef std::hash_map< std::string, SystemEntry > SystemMap;
-#endif // VC7
+	typedef std::unordered_map< std::string, SystemEntry, ObjectTemplateMgrHashCompare, ObjectTemplateMgrHashCompare > SystemMap;
 
 	SystemMap g_systems;
 
@@ -382,7 +370,7 @@ void DebugLineSystem::Update()
 		const int num_lines_left = (lines.end() - nextLineToSend);
 		if( num_lines_left < s_MaxLinesPerMessage )
 		{
-			cMsg.Writeuint16( num_lines_left );
+			cMsg.Writeuint16( static_cast<uint16>(num_lines_left) );
 		}
 		else
 		{
@@ -399,7 +387,7 @@ void DebugLineSystem::Update()
 
 		int num_lines_sent = 0;
 		LTVector system_center(0,0,0);
-		LTFLOAT  system_center_count = 0;
+
 		while( nextLineToSend != lines.end() && num_lines_sent < s_MaxLinesPerMessage)
 		{
 			cMsg.WriteType( *nextLineToSend );

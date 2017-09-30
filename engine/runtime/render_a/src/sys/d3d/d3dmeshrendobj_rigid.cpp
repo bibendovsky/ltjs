@@ -32,7 +32,7 @@ CD3DRigidMesh::~CD3DRigidMesh()
 void CD3DRigidMesh::CalcUsedNodes( Model *pModel )
 {
 	CreateUsedNodeList(1);
-	m_pUsedNodeList[0] = m_iBoneEffector;
+	m_pUsedNodeList[0] = static_cast<uint8>(m_iBoneEffector);
 
 }
 void CD3DRigidMesh::Reset()

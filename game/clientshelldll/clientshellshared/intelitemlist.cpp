@@ -28,7 +28,7 @@ void CIntelItemList::Clear()
 
 uint16 CIntelItemList::GetIndex(uint32 id)
 {
-    return ( Find(id) - m_IntelArray.begin() );
+    return static_cast<uint16>( Find(id) - m_IntelArray.begin() );
 }
 
 IntelArray::iterator CIntelItemList::Find(uint32 id)
@@ -72,7 +72,7 @@ LTBOOL CIntelItemList::Remove(uint32 id)
 void CIntelItemList::Save(ILTMessage_Write *pMsg)
 {
 	if (!pMsg) return;
-	pMsg->Writeuint16(m_IntelArray.size());
+	pMsg->Writeuint16(static_cast<uint16>(m_IntelArray.size()));
 
 	IntelArray::iterator iter = m_IntelArray.begin();
 	while (iter != m_IntelArray.end())

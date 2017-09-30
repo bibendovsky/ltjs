@@ -356,7 +356,7 @@ LTRESULT CLTModelServer::UncacheModelDB( HMODELDB &hModelDB )
 	if( hModelDB )
 	{
 		// find the model 
-		Model *pModel = g_ModelMgr.Find( hModelDB );
+		Model *pModel = g_ModelMgr.Find( static_cast<uint16>(hModelDB) );
 		if( pModel )
 		{
 			hModelDB = 0;
@@ -372,7 +372,7 @@ LTRESULT CLTModelServer::IsModelDBLoaded( HMODELDB hModelDB)
 {
 	if( hModelDB )
 	{
-		if( g_ModelMgr.Find( hModelDB ) != NULL )
+		if( g_ModelMgr.Find( static_cast<uint16>(hModelDB) ) != NULL )
 			return LTTRUE ;
 	}
 
@@ -392,14 +392,14 @@ LTRESULT CLTModelServer::AddChildModelDB( HOBJECT hModel, HMODELDB hModelDB )
 	// convert modeldb handle into an actual model
 	if( hModelDB )
 	{
-		pModelDB = g_ModelMgr.Find( hModelDB );
+		pModelDB = g_ModelMgr.Find( static_cast<uint16>(hModelDB) );
 
 		if( pModelDB != NULL ) 
 		{
 			pModelInstance->AddChildModelDB( pModelDB );
 			{
-			uint16 parent_id = pModelInstance->GetModelDB()->m_FileID;
-			g_pServerMgr->SendChangeChildModel( parent_id, hModelDB );
+			uint16 parent_id = static_cast<uint16>(pModelInstance->GetModelDB()->m_FileID);
+			g_pServerMgr->SendChangeChildModel( parent_id, static_cast<uint16>(hModelDB) );
 			return LT_OK;
 			}
 		}

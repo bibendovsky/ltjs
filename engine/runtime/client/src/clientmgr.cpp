@@ -1740,7 +1740,7 @@ void CClientMgr::LogTextureMemory(const char* pszFilename)
 			continue;
 
 		//get the name of the texture
-		const char* pszFilename = (pTexture->m_pFile) ? pTexture->m_pFile->m_Filename : "User Texture";
+		const char* pszFilename2 = (pTexture->m_pFile) ? pTexture->m_pFile->m_Filename : "User Texture";
 
 		//determine if this has been loaded yet
 		bool bLoaded = (pTexture->m_pEngineData != NULL);
@@ -1761,7 +1761,7 @@ void CClientMgr::LogTextureMemory(const char* pszFilename)
 		}
 
 		//now write out our data
-		fprintf(fp, "%s, %s, %d, %d, %d, %d\n", pszFilename, bLoaded ? "Yes" : "No", nMemoryUsage / 1024,
+		fprintf(fp, "%s, %s, %d, %d, %d, %d\n", pszFilename2, bLoaded ? "Yes" : "No", nMemoryUsage / 1024,
 												 nWidth, nHeight, nNumMips);
 	}
 

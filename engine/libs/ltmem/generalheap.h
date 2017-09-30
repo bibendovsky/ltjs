@@ -501,6 +501,7 @@ GENERALHEAPINLINE void CGeneralHeap::Free(void* free)
 	// get the pointer to the header for this memory and the previous and next headers
 	CGeneralHeapHeader* pHeader = (CGeneralHeapHeader*)((uint32)free - GENERALHEAPHEADERSIZE);
 	CGeneralHeapHeader* pPrevHeader = pHeader->GetPrevMemBlock();
+    static_cast<void>(pPrevHeader);
 	CGeneralHeapHeader* pNextHeader = pHeader->GetNextMemBlock();
 
 #ifdef GENERALHEAPFILLMEMORY
@@ -608,6 +609,7 @@ GENERALHEAPINLINE bool CGeneralHeap::InHeap(void* mem)
 GENERALHEAPINLINE void CGeneralHeap::DumpHeap()
 {
 	CGeneralHeapHeader* p = m_pHeapStart;
+    static_cast<void>(p);
 /*
 	printf("Heap dump :\n");
 
@@ -667,6 +669,8 @@ GENERALHEAPINLINE bool CGeneralHeap::ValidMemory(void* mem)
 GENERALHEAPINLINE void CGeneralHeap::DumpMemInfo(void* mem)
 {
 	CGeneralHeapHeader* p = (CGeneralHeapHeader*)((uint32)mem - GENERALHEAPHEADERSIZE);
+    static_cast<void>(p);
+
 /*	
 	printf("%08x : ", (uint32)p);
 	printf("next = %08x prev = %08x data = %08x\n", (uint32)p->GetNextMemBlock(), (uint32)p->GetPrevMemBlock(), (uint32)p+GENERALHEAPHEADERSIZE);

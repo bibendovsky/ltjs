@@ -192,6 +192,7 @@ void CTO2GameServerShell::Update(LTFLOAT timeElapsed)
 			{
 				
 				IServerDirectory::ERequest eErrorRequest = GetServerDir()->GetLastErrorRequest();
+                static_cast<void>(eErrorRequest);
 				status = GetServerDir()->GetLastRequestResultString();
 				GetServerDir()->ProcessRequestList();
 			}
@@ -229,8 +230,8 @@ void CTO2GameServerShell::Update(LTFLOAT timeElapsed)
 		// Update the summary info
 		cMsg.WriteString(g_pVersionMgr->GetBuild());
 		cMsg.WriteString( fname );
-		cMsg.Writeuint8(GetNumPlayers());
-		cMsg.Writeuint8(nMax);
+		cMsg.Writeuint8(static_cast<uint8>(GetNumPlayers()));
+		cMsg.Writeuint8(static_cast<uint8>(nMax));
 		cMsg.Writebool(m_ServerGameOptions.m_bUsePassword);
 		cMsg.Writeuint8((uint8)GetGameType());
 		cMsg.WriteString( m_ServerGameOptions.m_sModName.c_str() );
@@ -251,7 +252,7 @@ void CTO2GameServerShell::Update(LTFLOAT timeElapsed)
 			//has player info
 			cMsg.Writebool(true);
 			cMsg.WriteString(pPlayer->GetNetUniqueName());
-			cMsg.Writeuint16( Min( GetPlayerPing(pPlayer), ( uint32 )65535 ));
+			cMsg.Writeuint16(static_cast<uint16>(Min( GetPlayerPing(pPlayer), ( uint32 )65535 )));
 			pPlayer = GetNextNetPlayer();
 		};
 
@@ -276,8 +277,8 @@ void CTO2GameServerShell::Update(LTFLOAT timeElapsed)
 		PeerInfo_Service_Titan peerInfo;
 		peerInfo.m_sHostName = GetHostName( );
 		peerInfo.m_sCurWorld = fname; 
-		peerInfo.m_nCurNumPlayers = GetNumPlayers( );
-		peerInfo.m_nMaxNumPlayers = nMax;
+		peerInfo.m_nCurNumPlayers = static_cast<uint8>(GetNumPlayers( ));
+		peerInfo.m_nMaxNumPlayers = static_cast<uint8>(nMax);
 		peerInfo.m_bUsePassword = m_ServerGameOptions.m_bUsePassword;
 		peerInfo.m_sGameType = GameTypeToString( GetGameType( ));
 		peerInfo.m_nScoreLimit = sms.m_nScoreLimit;

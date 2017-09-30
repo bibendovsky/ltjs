@@ -123,7 +123,7 @@ bool CClientWeaponMgr::Init()
 	      ++i, ++nCommandId )
 	{
 		// get the weapon data struct
-		uint8 nWeaponId = g_pWeaponMgr->GetWeaponId(nCommandId);
+		uint8 nWeaponId = static_cast<uint8>(g_pWeaponMgr->GetWeaponId(nCommandId));
 		WEAPON const *pWeapon = g_pWeaponMgr->GetWeapon( nWeaponId );
 		if( !pWeapon )
 		{
@@ -366,7 +366,7 @@ void CClientWeaponMgr::Load( ILTMessage_Read *pMsg )
 		IndexToWeaponId( m_iCurrentWeapon );
 
 	// Just pass the requested ammo since it will be valid or WMGR_INVALID_ID.
-	ChangeWeapon( nChangeToWeaponId, m_nRequestedAmmoId, -1, false );
+	ChangeWeapon( static_cast<uint8>(nChangeToWeaponId), static_cast<uint8>(m_nRequestedAmmoId), -1, false );
 
 	//set this after changing weapons
 	m_nLastWeaponId = pMsg->Readuint8( );
@@ -399,11 +399,11 @@ void CClientWeaponMgr::Save( ILTMessage_Write *pMsg )
 	ASSERT( 0 != pMsg );
 
 	// holster information
-	pMsg->Writeuint8( m_nHolsterWeaponId );
+	pMsg->Writeuint8( static_cast<uint8>(m_nHolsterWeaponId) );
 
 	// requst info
-	pMsg->Writeuint8( m_nRequestedWeaponId );
-	pMsg->Writeuint8( m_nRequestedAmmoId );
+	pMsg->Writeuint8( static_cast<uint8>(m_nRequestedWeaponId) );
+	pMsg->Writeuint8( static_cast<uint8>(m_nRequestedAmmoId) );
 
 	pMsg->Writeint32( m_nMaxWeapons );
 
@@ -415,12 +415,12 @@ void CClientWeaponMgr::Save( ILTMessage_Write *pMsg )
 		}
 	}
 
-	pMsg->Writeuint8( m_nDefaultWeaponId );
+	pMsg->Writeuint8( static_cast<uint8>(m_nDefaultWeaponId) );
 	pMsg->Writebool( m_bWeaponsVisible );
 	pMsg->Writebool( m_bWeaponsEnabled );
 	pMsg->Writebool( m_bWeaponsPaused );
-	pMsg->Writeuint8( m_iCurrentWeapon );
-	pMsg->Writeuint8( m_nLastWeaponId );
+	pMsg->Writeuint8( static_cast<uint8>(m_iCurrentWeapon) );
+	pMsg->Writeuint8( static_cast<uint8>(m_nLastWeaponId) );
 }
 
 
@@ -466,7 +466,7 @@ WeaponState CClientWeaponMgr::Update( LTRotation const &rRot, LTVector const &vP
 		if ( WMGR_INVALID_ID != m_nRequestedWeaponId )
 		{
 			// select the requested weapon
-			ChangeWeapon( m_nRequestedWeaponId, m_nRequestedAmmoId, -1, false );
+			ChangeWeapon( static_cast<uint8>(m_nRequestedWeaponId), static_cast<uint8>(m_nRequestedAmmoId), -1, false );
 
 			m_nRequestedWeaponId = WMGR_INVALID_ID;
 			m_nRequestedAmmoId = WMGR_INVALID_ID;
@@ -519,7 +519,7 @@ uint8 CClientWeaponMgr::GetCurrentWeaponId() const
 	// we should always have a current weapon
 	ASSERT( CWM_WEAPON_INDEX_IS_VALID( m_iCurrentWeapon ) );
 
-	return m_pCurrentWeapon->GetWeaponId();
+	return static_cast<uint8>(m_pCurrentWeapon->GetWeaponId());
 }
 
 
@@ -551,7 +551,7 @@ uint8 CClientWeaponMgr::GetSequentialWeaponId( uint8 nWeapon, uint8 nClass, bool
 		if ( CWM_NO_WEAPON == m_iCurrentWeapon )
 		{
 			// no current weapon, get the first weapon id
-			nWeapon = g_pWeaponMgr->GetWeaponId( g_pWeaponMgr->GetFirstWeaponCommandId() );
+			nWeapon = static_cast<uint8>(g_pWeaponMgr->GetWeaponId( g_pWeaponMgr->GetFirstWeaponCommandId() ));
 		}
 		else
 		{
@@ -582,7 +582,7 @@ uint8 CClientWeaponMgr::GetSequentialWeaponId( uint8 nWeapon, uint8 nClass, bool
 	// check every weapon until we wrap around to where we started
 	while ( iCur != iStart && ( CWM_NO_WEAPON == iFound ))
 	{
-		uint8 nWeaponId = m_apClientWeapon[ iCur ]->GetWeaponId();
+		uint8 nWeaponId = static_cast<uint8>(m_apClientWeapon[ iCur ]->GetWeaponId());
 		uint8 nWeaponClass = g_pWeaponMgr->GetWeaponClass(nWeaponId);
 
 		if ( ( g_pPlayerStats->HaveWeapon( nWeaponId ) ) &&  // have the weapon
@@ -625,7 +625,7 @@ uint8 CClientWeaponMgr::GetSequentialWeaponId( uint8 nWeapon, uint8 nClass, bool
 
 	if ( CWM_NO_WEAPON != iFound )
 	{
-		return m_apClientWeapon[ iFound ]->GetWeaponId();
+		return static_cast<uint8>(m_apClientWeapon[ iFound ]->GetWeaponId());
 	}
 	else
 	{
@@ -660,8 +660,8 @@ bool CClientWeaponMgr::ChangeWeapon( uint8 nWeaponId,
 	{
 		// If there is a current weapon, determine if we
 		// have to switch the weapon, the ammo, or both.
-		uint8 nCurrentWeaponId = m_pCurrentWeapon->GetWeaponId();
-		uint8 nCurrentAmmoId = m_pCurrentWeapon->GetAmmoId();
+		uint8 nCurrentWeaponId = static_cast<uint8>(m_pCurrentWeapon->GetWeaponId());
+		uint8 nCurrentAmmoId = static_cast<uint8>(m_pCurrentWeapon->GetAmmoId());
 		
 		// Do we need to change the weapon?
 		if ( nWeaponId == nCurrentWeaponId )
@@ -712,7 +712,7 @@ bool CClientWeaponMgr::ChangeWeapon( uint8 nWeaponId,
 			// that the weapon actually has ammo associated with this id...If not,
 			// change to the best available ammo id...
 
-			if( g_pPlayerStats->GetAmmoCount( nNewAmmoId ) <= 0 )
+			if( g_pPlayerStats->GetAmmoCount( static_cast<uint8>(nNewAmmoId) ) <= 0 )
 			{
 				m_apClientWeapon[ iNewWeapon ]->GetBestAvailableAmmoId( &nNewAmmoId );
 			}
@@ -726,7 +726,7 @@ bool CClientWeaponMgr::ChangeWeapon( uint8 nWeaponId,
 	// get the amount of ammo
 	if ( -1 == nAmmoAmount )
 	{
-		nNewAmmoAmount = g_pPlayerStats->GetAmmoCount( nNewAmmoId );
+		nNewAmmoAmount = g_pPlayerStats->GetAmmoCount( static_cast<uint8>(nNewAmmoId) );
 	}
 	else
 	{
@@ -782,14 +782,14 @@ bool CClientWeaponMgr::ChangeWeapon( uint8 nWeaponId,
 			m_pCurrentWeapon->Select();
 
 			// instantly switch to the new ammo
-			m_pCurrentWeapon->ChangeAmmoImmediate( nNewAmmoId , nNewAmmoAmount );
+			m_pCurrentWeapon->ChangeAmmoImmediate( static_cast<uint8>(nNewAmmoId) , static_cast<uint8>(nNewAmmoAmount) );
 		}
 	}
 	else if ( bChangeAmmo )
 	{
 		// don't need to change the weapon, but we do
 		// need to change the ammo
-		m_pCurrentWeapon->ChangeAmmoWithReload( nNewAmmoId );
+		m_pCurrentWeapon->ChangeAmmoWithReload( static_cast<uint8>(nNewAmmoId) );
 	}
 
 
@@ -798,7 +798,7 @@ bool CClientWeaponMgr::ChangeWeapon( uint8 nWeaponId,
 
 	//jrg- 9/2/02 - this is getting called both when we start switching and when we finish switching
 	//		PlayerMgr is using this to track if we're in mid switch
-	g_pPlayerMgr->HandleWeaponChanged(nWeaponId, nNewAmmoId, (!bChangeWeapon || bSwitchInstantly));
+	g_pPlayerMgr->HandleWeaponChanged(nWeaponId, static_cast<uint8>(nNewAmmoId), (!bChangeWeapon || bSwitchInstantly));
 
 
 	return true;
@@ -895,14 +895,14 @@ void CClientWeaponMgr::ToggleHolster( bool bPlayDeselect )
 		if ( m_nDefaultWeaponId == m_pCurrentWeapon->GetWeaponId() )
 		{
 			// the current weapon is the default, get out the holstered weapon
-			ChangeWeapon( m_nHolsterWeaponId, WMGR_INVALID_ID, -1, bPlayDeselect );
+			ChangeWeapon( static_cast<uint8>(m_nHolsterWeaponId), WMGR_INVALID_ID, -1, bPlayDeselect );
 			m_nHolsterWeaponId = WMGR_INVALID_ID;
 		}
 		else
 		{
 			// put the current weapon away and switch to the default
 			m_nHolsterWeaponId = m_pCurrentWeapon->GetWeaponId();
-			ChangeWeapon( m_nDefaultWeaponId, WMGR_INVALID_ID, -1, bPlayDeselect );
+			ChangeWeapon( static_cast<uint8>(m_nDefaultWeaponId), WMGR_INVALID_ID, -1, bPlayDeselect );
 		}
 	}
 }
@@ -919,7 +919,7 @@ void CClientWeaponMgr::LastWeapon()
 {
 	if (!WeaponsEnabled()) return;
 
-	ChangeWeapon( m_nLastWeaponId, WMGR_INVALID_ID, -1, true );
+	ChangeWeapon( static_cast<uint8>(m_nLastWeaponId), WMGR_INVALID_ID, -1, true );
 }
 	
 
@@ -1077,7 +1077,7 @@ void CClientWeaponMgr::PauseWeapons( bool bPause )
 
 void CClientWeaponMgr::DeselectCallback( int nWeaponId )
 {
-	ASSERT( CWM_WEAPON_INDEX_IS_VALID( WeaponIdToIndex( nWeaponId ) ) );
+	ASSERT( CWM_WEAPON_INDEX_IS_VALID( WeaponIdToIndex( static_cast<uint8>(nWeaponId) ) ) );
 	ASSERT( m_pCurrentWeapon && (m_pCurrentWeapon->GetWeaponId() == nWeaponId) );
 
 	// set the current weapon index to NO_WEAPON and 
@@ -1108,7 +1108,7 @@ void CClientWeaponMgr::AutoSelectWeapon()
 
 		if (WMGR_INVALID_ID != nNewAmmoId)
 		{
-			m_pCurrentWeapon->ChangeAmmoWithReload( nNewAmmoId );
+			m_pCurrentWeapon->ChangeAmmoWithReload( static_cast<uint8>(nNewAmmoId) );
 			return;
 		}
 
@@ -1150,7 +1150,7 @@ void CClientWeaponMgr::ChangeToNextRealWeapon()
 		uint8 nWeaponId = nWeaponPriorities[i];
 		if (WMGR_INVALID_ID != nWeaponId)
 		{
-			uint8 iCur = WeaponIdToIndex(nWeaponId);
+			uint8 iCur = static_cast<uint8>(WeaponIdToIndex(nWeaponId));
 
 			if (CWM_NO_WEAPON != iCur)
 			{
@@ -1221,7 +1221,7 @@ uint8 CClientWeaponMgr::IndexToWeaponId( int iIndex ) const
 
 	ASSERT( CWM_WEAPON_INDEX_IS_VALID( iIndex ) );
 
-	return m_apClientWeapon[ iIndex ]->GetWeaponId();
+	return static_cast<uint8>(m_apClientWeapon[ iIndex ]->GetWeaponId());
 }
 
 

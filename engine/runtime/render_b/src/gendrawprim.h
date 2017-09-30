@@ -42,7 +42,7 @@ class CGenDrawPrim : public ILTDrawPrim
             m_eCullMode			= DRAWPRIM_CULL_NONE;
 			m_bFogEnable		= false;
 			m_bReallyClose		= false;
-			m_nEffectShaderID   = -1;
+			m_nEffectShaderID   = static_cast<uint32>(-1);
         }
 
         // Sets the current camera to use (viewport, field of view etc)

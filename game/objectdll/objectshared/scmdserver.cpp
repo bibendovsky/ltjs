@@ -329,8 +329,8 @@ bool ScmdServer_Impl::SendStatusMessage( HCLIENT hClient, ScmdCommand eScmdComma
 	// Tell the client it worked.
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SCMD );
-	cMsg.Writeuint8( eScmdCommand );
-	cMsg.Writeuint8( eScmdCommandStatus );
+	cMsg.Writeuint8( static_cast<uint8>(eScmdCommand) );
+	cMsg.Writeuint8( static_cast<uint8>(eScmdCommandStatus) );
 	SendMessage( hClient, *cMsg );
 
 	return true;
@@ -616,7 +616,7 @@ bool ScmdServer_Impl::HandleListMissions( HCLIENT hClient, ILTMessage_Read& msg 
 	Campaign& campaign = g_pServerMissionMgr->GetCampaign( );
 
 	// Write out the number of entries.
-	cMsg.Writeuint8( campaign.size( ));
+	cMsg.Writeuint8( static_cast<uint8>(campaign.size( )));
 
 	// Write out all the missions.
 	char fname[_MAX_FNAME] = "";
@@ -933,7 +933,7 @@ bool ScmdServer_Impl::HandleListBans( HCLIENT hClient, ILTMessage_Read& msg )
 
 	// Tell client about all the bans.
 	BanIPMgr::BanList const& banList = BanIPMgr::Instance( ).GetBanList( );
-	cMsg.Writeuint16( banList.size( ));
+	cMsg.Writeuint16( static_cast<uint16>(banList.size( )));
 	for( BanIPMgr::BanList::const_iterator iter = banList.begin( ); iter != banList.end( ); iter++ )
 	{
 		BanIPMgr::ClientIP const& clientIP = *iter;
@@ -1008,7 +1008,7 @@ bool ScmdServer_Impl::HandleListGameOptions( HCLIENT hClient, ILTMessage_Read& m
 	cMsg.Writeuint8( kScmdCommandListGameOptions );
 	cMsg.Writeuint8( kScmdCommandStatusOk );
 
-	cMsg.Writeuint8( g_pGameServerShell->GetGameType( ));
+	cMsg.Writeuint8( static_cast<uint8>(g_pGameServerShell->GetGameType( )));
 
 	switch( g_pGameServerShell->GetGameType( ))
 	{

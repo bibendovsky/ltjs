@@ -1523,7 +1523,7 @@ void CVehicleMgr::SetPhysicsModel(PlayerPhysicsModel eModel, LTBOOL bDoPreSet)
 //
 // ----------------------------------------------------------------------- //
 
-void CVehicleMgr::PlayVehicleAni(char* pAniName, LTBOOL bReset, LTBOOL bLoop)
+void CVehicleMgr::PlayVehicleAni(const char* pAniName, LTBOOL bReset, LTBOOL bLoop)
 {
 	if (!m_hVehicleModel || !pAniName) return;
 
@@ -1557,7 +1557,7 @@ void CVehicleMgr::PlayVehicleAni(char* pAniName, LTBOOL bReset, LTBOOL bLoop)
 //
 // ----------------------------------------------------------------------- //
 
-LTBOOL CVehicleMgr::IsCurVehicleAni(char* pAniName, LTBOOL & bIsDone)
+LTBOOL CVehicleMgr::IsCurVehicleAni(const char* pAniName, LTBOOL & bIsDone)
 {
 	if (!m_hVehicleModel || !pAniName) return LTFALSE;
 
@@ -1639,7 +1639,7 @@ void CVehicleMgr::SetPlayerLurePhysicsModel()
 		{
 			KillAllVehicleSounds();
 
-			char* pSound = GetAccelSnd();
+			const char* pSound = GetAccelSnd();
 
 			if (pSound)
 			{
@@ -1783,7 +1783,6 @@ void CVehicleMgr::CreateVehicleModel()
 			g_pLTClient->SetModelLooping(m_hVehicleModel, LTFALSE);
 
 
-			int iNode = 0;
 			HMODELNODE hCurNode = INVALID_MODEL_NODE;
 			while (g_pLTClient->GetModelLT()->GetNextNode(m_hVehicleModel, hCurNode, hCurNode) == LT_OK)
 			{
@@ -2141,7 +2140,7 @@ void CVehicleMgr::UpdateVehicleSounds()
 
 			if (!m_hBrakeSnd)
 			{
-				char* pSound = GetBrakeSnd();
+				const char* pSound = GetBrakeSnd();
 
 				if (pSound)
 				{
@@ -2170,7 +2169,7 @@ void CVehicleMgr::UpdateVehicleSounds()
 		}
 		else if (!m_hVehicleDecelSnd)
 		{
-			char* pSound = GetDecelSnd();
+			const char* pSound = GetDecelSnd();
 
 			if (pSound)
 			{
@@ -2187,7 +2186,7 @@ void CVehicleMgr::UpdateVehicleSounds()
 		{
 			KillAllVehicleSounds();
 
-			char* pSound = GetAccelSnd();
+			const char* pSound = GetAccelSnd();
 
 			if (pSound)
 			{
@@ -2220,7 +2219,7 @@ void CVehicleMgr::UpdateVehicleSounds()
 			{
 				KillAllVehicleSounds(LTNULL);
 
-				char* pSound = GetIdleSnd();
+				const char* pSound = GetIdleSnd();
 
 				if (pSound)
 				{
@@ -2248,7 +2247,7 @@ void CVehicleMgr::UpdateVehicleSounds()
 //
 // ----------------------------------------------------------------------- //
 
-char* CVehicleMgr::GetIdleSnd()
+const char* CVehicleMgr::GetIdleSnd()
 {
 	switch (m_ePPhysicsModel)
 	{
@@ -2275,7 +2274,7 @@ char* CVehicleMgr::GetIdleSnd()
 //
 // ----------------------------------------------------------------------- //
 
-char* CVehicleMgr::GetAccelSnd()
+const char* CVehicleMgr::GetAccelSnd()
 {
 	switch (m_ePPhysicsModel)
 	{
@@ -2303,7 +2302,7 @@ char* CVehicleMgr::GetAccelSnd()
 //
 // ----------------------------------------------------------------------- //
 
-char* CVehicleMgr::GetDecelSnd()
+const char* CVehicleMgr::GetDecelSnd()
 {
  	switch (m_ePPhysicsModel)
 	{
@@ -2330,7 +2329,7 @@ char* CVehicleMgr::GetDecelSnd()
 //
 // ----------------------------------------------------------------------- //
 
-char* CVehicleMgr::GetBrakeSnd()
+const char* CVehicleMgr::GetBrakeSnd()
 {
 	switch (m_ePPhysicsModel)
 	{
@@ -2357,7 +2356,7 @@ char* CVehicleMgr::GetBrakeSnd()
 //
 // ----------------------------------------------------------------------- //
 
-char* CVehicleMgr::GetImpactSnd(LTFLOAT fCurVelocityPercent, SURFACE* pSurface)
+const char* CVehicleMgr::GetImpactSnd(LTFLOAT fCurVelocityPercent, SURFACE* pSurface)
 {
 	if (!pSurface) return LTNULL;
 
@@ -2587,6 +2586,7 @@ void CVehicleMgr::HandleCollision()
 	SURFACE* pSurface = g_pSurfaceMgr->GetSurface(eType);
 
 	LTBOOL bIsWorld = IsMainWorld(m_cLastTouchInfo.m_hObject);
+    static_cast<void>(bIsWorld);
 
 	vNormal.y = 0.0f; // Don't care about this anymore...
 
@@ -2647,7 +2647,9 @@ void CVehicleMgr::HandleCollision()
 	// Add this angle to the yaw...
 
     LTFLOAT fYaw         = g_pPlayerMgr->GetYaw();
+    static_cast<void>(fYaw);
     LTFLOAT fPlayerYaw   = g_pPlayerMgr->GetPlayerYaw();
+    static_cast<void>(fPlayerYaw);
 
 	// Adjust the min impact angle based on our current velocity (the
 	// faster you go the more hitting stuff matters ;)
@@ -2669,12 +2671,12 @@ void CVehicleMgr::HandleCollision()
 		LTVector vPos;
 		g_pLTClient->GetObjectPos(hObj, &vPos);
 
-		LTRotation rRot;
-		g_pLTClient->GetObjectRotation( hObj, &rRot );
+		LTRotation rRot2;
+		g_pLTClient->GetObjectRotation( hObj, &rRot2 );
 
 		// Play the FX closer to the supposed point of impact...
 
-		vPos += (rRot.Forward() * 32.0f);
+		vPos += (rRot2.Forward() * 32.0f);
 
 		// Play an fx based on the surface we hit...
 
@@ -2762,7 +2764,7 @@ void CVehicleMgr::HandleCollision()
 
 		if (pSurface && !m_hVehicleImpactSnd)
 		{
-			char* pSound = GetImpactSnd(fVelPercent, pSurface);
+			const char* pSound = GetImpactSnd(fVelPercent, pSurface);
 			if (pSound)
 			{
 				uint32 dwFlags = PLAYSOUND_GETHANDLE | PLAYSOUND_CLIENT;
@@ -3266,7 +3268,8 @@ void CVehicleMgr::CalculateLureVehicleRotation(LTVector & vPlayerPYR,
 	float fAmount;
 	float fPitchPercent;
 	float fRollPercent;
-	GetContouringInfo( vPlayerF, rRot.Up( ), fAmount, fPitchPercent, fRollPercent );
+    auto up_vector = rRot.Up();
+	GetContouringInfo( vPlayerF, up_vector, fAmount, fPitchPercent, fRollPercent );
 
 	vPYR.z = fAmount * fRollPercent;
 
@@ -3823,7 +3826,9 @@ bool CVehicleMgr::MoveLocalSolidObject( )
 			break;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //

@@ -592,7 +592,7 @@ void PolyGrid::SetupModifiers()
 			m_nActiveModifiers |= (1 << nCurrMod);
 
 		//copy over the data
-		m_nNumAccelPoints[nCurrMod]		= pMod->m_nNumAccelPoints;
+		m_nNumAccelPoints[nCurrMod]		= static_cast<uint16>(pMod->m_nNumAccelPoints);
 		m_fAccelAmount[nCurrMod]		= pMod->m_fAccelAmount;
 
 		//save the rectangle

@@ -25,7 +25,7 @@ class CObjectRelationMgr;
 class RelationData;
 class RelationSet;
 class CAIStimulusRecord;
-enum  EnumAISenseType;
+enum  EnumAISenseType : unsigned int;
 
 LINKTO_MODULE( Scanner );
 

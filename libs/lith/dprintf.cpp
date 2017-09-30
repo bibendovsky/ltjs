@@ -99,20 +99,7 @@ enum dprintfOutputType {
   DPRINTF_PRN
 };
 
-#ifdef _CONSOLE
 unsigned short *dprintfmonoscreen;   // pointer to B000
-#else
-#ifdef _LINUX
-unsigned short *dprintfmonoscreen;   // pointer to B000
-#else
-#ifndef __FLATMODEL__
-unsigned short far *dprintfmonoscreen;   // pointer to B000
-#else
-unsigned short *dprintfmonoscreen;   // pointer to B000
-#endif
-#endif
-#endif
-
 unsigned int dbprintfcurrentLine = 0;  // current line
 unsigned int dprintfcurrentChar = 0;   // current char
 dprintfOutputType dprintfOutType = DPRINTF_UNKNOWN;
@@ -202,6 +189,7 @@ void dprintfExcludeRegions::Scan(char *Str) {
 
 dprintfExcludeRegions dprintfExReg;
 
+#if 0
 #ifndef __WATCOM__
 #ifndef _WINDOWS
 #ifndef _CONSOLE
@@ -447,6 +435,7 @@ void dpSerComPutStr (char *Str) {
 #endif
 #endif
 #endif
+#endif
 
 /********************************  MONOCHROME ROUTINES *****************************/
 
@@ -484,20 +473,7 @@ void dprintfmonoclrscr( void )
     dprintfcurrentChar = 0;
 }
 
-#ifdef _CONSOLE
 void dprintfmonoprint(char *message )
-#else
-#ifdef _LINUX
-void dprintfmonoprint(char *message )
-#else
-#ifndef __FLATMODEL__
-void dprintfmonoprint(char far *message )
-#else
-void dprintfmonoprint(char *message )
-#endif
-#endif
-#endif
-
 {
 //  This function will display a string on the
 //  secondary monitor and generate a CR/LF if
@@ -506,6 +482,7 @@ void dprintfmonoprint(char *message )
 //  around.  Scrolling is also supported once line
 //  25 is written to.
 
+#if 0
 #ifndef _CONSOLE
 #ifndef _WINDOWS
 #ifndef _LINUX
@@ -547,13 +524,16 @@ void dprintfmonoprint(char *message )
 #else
   printf(message);
 #endif
+#else
+    ::printf(message);
+#endif
 }
 
 
 /********************************  GENERAL ROUTINES *****************************/
 
 void dprintfdoprint (char *Str) {
-
+#if 0
 #ifdef _CONSOLE
 #ifdef _DEBUG
 	printf(Str);
@@ -602,6 +582,9 @@ void dprintfdoprint (char *Str) {
   }
 #endif
 #endif
+#endif
+#else
+    ::printf(Str);
 #endif
 }
 #endif
@@ -831,6 +814,8 @@ dprintfinittype::dprintfinittype () {
       dprintffile = fopen ("DPRINTF.OUT","w");
       fclose (dprintffile);
       break;
+
+#if 0
 #ifndef __WATCOM__
 #ifndef _WINDOWS
 #ifndef _CONSOLE
@@ -841,6 +826,7 @@ dprintfinittype::dprintfinittype () {
     case DPRINTF_COM2 :
       dprintfPortHandle = dpSerComOpen (SerComUARTType8250,SerComCompTypeAT,0x2f8,3,9600,8,0,1,128,128);
       break;
+#endif
 #endif
 #endif
 #endif
@@ -869,6 +855,8 @@ dprintfinittype::~dprintfinittype () {
     case DPRINTF_PRN :
       fclose (dprintffile);
       break;
+
+#if 0
 #ifndef __WATCOM__
 #ifndef _WINDOWS
 #ifndef _CONSOLE
@@ -887,7 +875,7 @@ dprintfinittype::~dprintfinittype () {
 #endif
 #endif
 #endif
-
+#endif
   }
 }
 #endif

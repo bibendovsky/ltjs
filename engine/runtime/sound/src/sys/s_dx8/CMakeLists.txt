@@ -38,6 +38,7 @@ set_target_properties(
     ${LTJS_TARGET}
     PROPERTIES
         OUTPUT_NAME snddrv
+        PREFIX ""
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
 
@@ -59,6 +60,16 @@ if (MSVC)
         ${CMAKE_CURRENT_SOURCE_DIR}/eaxguid.lib
         winmm
         msacm32
+    )
+endif ()
+
+if (MINGW)
+    set(
+        PLIBS
+        ${CMAKE_CURRENT_SOURCE_DIR}/eaxguid.lib
+        dxguid
+        msacm32
+        winmm
     )
 endif ()
 

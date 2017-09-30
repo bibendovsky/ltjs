@@ -104,11 +104,7 @@ void CRelationMgr::Save(ILTMessage_Write *pMsg)
 	SAVE_INT( m_listCollectives.size() );
 	std::for_each( m_listCollectives.begin(),
 		m_listCollectives.end(),
-#if _MSC_VER >= 1900
         std::bind2nd(std::mem_fun(&CCollectiveRelationMgr::Save), pMsg));
-#else
-		std::bind2nd( std::mem_fun1(&CCollectiveRelationMgr::Save), pMsg ));
-#endif
 }
 void CRelationMgr::Load(ILTMessage_Read *pMsg)
 {
@@ -489,6 +485,7 @@ CObjectRelationMgr* CRelationMgr::GetObjectRelationMgr(const char* const szName)
 	{
 		CObjectRelationMgr* pFound = (*it).second;
 		HOBJECT hObj = pFound->GetOwningHObject();
+        static_cast<void>(hObj);
 		return pFound;
 	}
 }

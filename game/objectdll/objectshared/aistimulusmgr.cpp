@@ -554,7 +554,7 @@ EnumAIStimulusID CAIStimulusMgr::_RegisterStimulus(CAIStimulusRecord* pAIStimulu
 	pAIStimulusRecord->m_eStimulusID = (EnumAIStimulusID)( m_nNextStimulusID++ );
 
 	// Stimuli records are sorted by AIAlarmLevel.
-	m_stmStimuliMap.insert( AISTIMULUS_MAP::value_type( nAlarmLevel, pAIStimulusRecord ) );
+	m_stmStimuliMap.insert( AISTIMULUS_MAP::value_type( static_cast<uint8>(nAlarmLevel), pAIStimulusRecord ) );
 
 	return pAIStimulusRecord->m_eStimulusID;
 }
@@ -972,7 +972,7 @@ uint32 CAIStimulusMgr::GetNumResponders(EnumAIStimulusID eStimulusID)
 	}
 
 	AIASSERT(0, LTNULL, "CAIStimulusMgr::GetNumResponders: Could not find stimulus.");
-	return -1;
+	return static_cast<uint32>(-1);
 }
 
 // ----------------------------------------------------------------------- //

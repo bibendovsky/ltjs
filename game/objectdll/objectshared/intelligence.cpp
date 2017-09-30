@@ -530,6 +530,7 @@ void Intelligence::DoActivate(HOBJECT hSender)
 
 	// Increment the player's intelligence count...
 	INTEL* pIntel = g_pIntelMgr->GetIntel(m_nIntelId);
+    static_cast<void>(pIntel);
 
 	HCLIENT hClient = pPlayer->GetClient();
 	if (hClient)
@@ -538,9 +539,9 @@ void Intelligence::DoActivate(HOBJECT hSender)
 		cMsg.Writeuint8(MID_INTEL_PICKEDUP);
         cMsg.Writeuint32(m_nTextId);
         cMsg.Writeuint8(m_nPopupId);
-        cMsg.Writeuint8(m_bIsIntel);
-        cMsg.Writeuint8(m_bShowPopup);
-        cMsg.Writeuint8(m_bAddToList);
+        cMsg.Writeuint8(static_cast<uint8>(m_bIsIntel));
+        cMsg.Writeuint8(static_cast<uint8>(m_bShowPopup));
+        cMsg.Writeuint8(static_cast<uint8>(m_bAddToList));
 		g_pLTServer->SendToClient(cMsg.Read(), hClient, MESSAGE_GUARANTEED);
 	}
 

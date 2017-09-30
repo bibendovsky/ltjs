@@ -312,7 +312,7 @@ void d3d_Clear(LTRect *pRect, uint32 flags, LTRGBColor& ClearColor)
 
 	// Not sure if D3D checks if you're just clearing the whole screen but just in case..
 	if (!pRect || (pRect->left == 0 && pRect->top == 0 && 
-		pRect->right == (int)g_ScreenWidth && pRect->bottom == (int)g_ScreenHeight)) 
+		pRect->right == g_ScreenWidth && pRect->bottom == (int)g_ScreenHeight)) 
 	{
 
 		pClearRect = NULL;

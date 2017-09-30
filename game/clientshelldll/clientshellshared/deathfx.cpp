@@ -131,7 +131,7 @@ void CDeathFX::CreateHumanDeathFX()
 	gib.fFadeTime		= 7.0f;
 	gib.nGibFlags		= 0;
     gib.bRotate         = LTTRUE;
-	gib.nCode			= m_eCode;
+	gib.nCode			= static_cast<uint8>(m_eCode);
 	gib.eModelId		= m_eModelId;
     gib.bSubGibs        = LTTRUE;
     gib.bBloodSplats    = LTTRUE;
@@ -171,7 +171,7 @@ void CDeathFX::CreateVehicleDeathFX()
 	gib.nGibFlags		= 0;
     gib.bRotate         = LTTRUE;
 	gib.eModelId		= m_eModelId;
-	gib.nCode			= m_eCode;
+	gib.nCode			= static_cast<uint8>(m_eCode);
     gib.bSubGibs        = LTTRUE;
 
 	SetupGibTypes(gib);
@@ -210,7 +210,7 @@ void CDeathFX::SetupGibTypes(GIBCREATESTRUCT & gib)
 
 		case 1:	// Head, arm(s), and leg(s)...
 		{
-			gib.nNumGibs = GetRandom(3, 5);
+			gib.nNumGibs = static_cast<uint8>(GetRandom(3, 5));
 			gib.eGibTypes[0] = GT_HEAD;
 			gib.eGibTypes[1] = GetRandom(0,1) == 0 ? GT_LEFT_ARM : GT_RIGHT_ARM;
 			gib.eGibTypes[2] = GetRandom(0,1) == 0 ? GT_LEFT_LEG : GT_RIGHT_LEG;
@@ -233,7 +233,7 @@ void CDeathFX::SetupGibTypes(GIBCREATESTRUCT & gib)
 
 		case 2:  // Upper body, randomly a leg or two...
 		{
-			gib.nNumGibs = GetRandom(1, 3);
+			gib.nNumGibs = static_cast<uint8>(GetRandom(1, 3));
 			gib.eGibTypes[0] = GT_UPPER_BODY;
 
 			if (gib.nNumGibs == 2)  // Add a leg
@@ -250,7 +250,7 @@ void CDeathFX::SetupGibTypes(GIBCREATESTRUCT & gib)
 
 		case 3:	// Lower body, randomly a head, an arm or two...
 		{
-			gib.nNumGibs = GetRandom(1, 4);
+			gib.nNumGibs = static_cast<uint8>(GetRandom(1, 4));
 			gib.eGibTypes[0] = GT_LOWER_BODY;
 
 			if (gib.nNumGibs == 2)

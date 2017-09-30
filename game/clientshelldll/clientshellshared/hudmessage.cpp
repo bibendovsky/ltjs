@@ -308,14 +308,14 @@ void CHUDMessage::SetScale(float fScale)
 		uint16 nTextWidth = (uint16)(m_fScale * (float)m_nFixedWidth - ((float)m_imageSize.x + m_fImageGap));
 		m_pText->SetWrapWidth(nTextWidth);
 
-		m_nWidth = m_imageSize.x + (uint16)( m_fImageGap + m_pText->GetWidth());
+		m_nWidth = static_cast<uint16>(m_imageSize.x + (uint16)( m_fImageGap + m_pText->GetWidth()));
 		m_nHeight = Max((uint16)m_imageSize.y,(uint16)m_pText->GetHeight());
 
 	}
 	else
 	{
-		m_nWidth = m_imageSize.x;
-		m_nHeight = m_imageSize.y;
+		m_nWidth = static_cast<uint16>(m_imageSize.x);
+		m_nHeight = static_cast<uint16>(m_imageSize.y);
 	}
 	JustifyPoly();
 

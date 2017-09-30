@@ -9,10 +9,13 @@
 #include "de_world.h"
 #include "collision.h"
 
+#include <cmath>
 #include <stack>
 
+#if 0
 #ifdef _WIN32
 #define isnan _isnan
+#endif
 #endif
 
 
@@ -58,6 +61,7 @@ void CPlayerMover::ChangeDims(const LTVector &vDims)
 bool CPlayerMover::ShouldCollideWithObject(const LTObject *pObj) const
 {
 	uint32 nObjFlags = pObj->m_Flags;
+    static_cast<void>(nObjFlags);
 
 	// Stop hittin' yourself!
 	if (pObj == m_pPlayer)
@@ -897,6 +901,7 @@ void CPlayerMover::CollideWithWorldModel_Poly(const WorldPoly *pPoly, const LTVe
 			if (fEdgeDist > GetPlaneProjection(vEdgeNormal))
 				return;
 			float fPrevEarlyIntersect = fEarliestIntersect;
+            static_cast<void>(fPrevEarlyIntersect);
 			// Check for an intersection with the edge
 			bool bEdgeIntersect = CWWM_Poly_CalcEdgeIntersect(cPolyPlane, vPrevPt, vEdge, vStart, vOffset, &fEarliestIntersect, &cIntersectPlane);
 #if 0
@@ -1129,7 +1134,7 @@ void CPlayerMover::CollideWithAABB(const LTVector &vAABBCenter, const LTVector &
 
 		for(int i=0;bIntersect && i<3;i++)
 		{
-			if(i!=nWhichPlane)
+			if(static_cast<uint32>(i)!=nWhichPlane)
 			{
 				vCoord[i] = vStart[i] + MaxT[nWhichPlane] * vOffset[i];
 				if(vCoord[i] < MinB[i] || vCoord[i] > MaxB[i])	
@@ -1605,8 +1610,8 @@ void CPlayerMover::StairStep(const LTVector &vStart, const LTVector &vEnd, LTVec
 		float fSlopeMovement = 2.0f * m_fPlayerStepHeight * (1.0f - sCollide.m_cPlane.m_Normal.y * sCollide.m_cPlane.m_Normal.y) + 0.1f;
 		float fMoveForward = LTMAX(m_fPlayerStepMoveDistance, fSlopeMovement);
 		Collide(vHighStart, vHighSlideDest + vMovementDir.Unit() * fMoveForward, &sCollide);
-		bool bSteepAngle = (sCollide.m_pObjectNode ? (sCollide.m_pObjectNode->GetPlane()->m_Normal.y < k_fSteepAngle) : (sCollide.m_cPlane.m_Normal.y < k_fSteepAngle));
-		if (sCollide.m_bCollision && bSteepAngle)
+		bool bSteepAngle2 = (sCollide.m_pObjectNode ? (sCollide.m_pObjectNode->GetPlane()->m_Normal.y < k_fSteepAngle) : (sCollide.m_cPlane.m_Normal.y < k_fSteepAngle));
+		if (sCollide.m_bCollision && bSteepAngle2)
 		{
 			// Nope, not a step..
 			*pResult = vLowDest;
@@ -1782,7 +1787,7 @@ void CPlayerMover::MoveTo(const LTVector &vEnd, LTVector *pResult)
 	}
 
 	// Guard against NAN bugs making it out of this routine
-	if (isnan(pResult->x) || isnan(pResult->y) || isnan(pResult->z))
+	if (std::isnan(pResult->x) || std::isnan(pResult->y) || std::isnan(pResult->z))
 	{
 		ASSERT(!"Invalid result encountered in player movement");
 		*pResult = vOrigin;

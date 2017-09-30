@@ -44,7 +44,7 @@ LTBOOL CScreenJoystick::Build()
 	CreateTitle(IDS_TITLE_JOYSTICK);
 	
 	kGap = g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_JOYSTICK,"ColumnWidth");
-	uint8 nLarge = g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_JOYSTICK,"HeaderFontSize");
+	uint8 nLarge = static_cast<uint8>(g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_JOYSTICK,"HeaderFontSize"));
 
 	
 	CLTGUICycleCtrl *pCtrl = AddCycle(IDS_JOYSTICK_AXIS, NULL, kGap, NULL, kDefaultPos, LTTRUE );
@@ -57,24 +57,24 @@ LTBOOL CScreenJoystick::Build()
 		CDeviceAxisData *pAxisData = g_pProfileMgr->GetAxisData(axis);
 		if (!pAxisData || !strlen(pAxisData->m_sName)) continue;
 
-		CLTGUICycleCtrl *pCtrl = AddCycle(pAxisData->m_sName, IDS_HELP_AXIS, kGap, &m_nAxis[axis] );
-		pCtrl->SetParam1(axis);
-		pCtrl->AddString(LoadTempString(IDS_JOYSTICK_AXISNONE));
+		CLTGUICycleCtrl *pCtrl2 = AddCycle(pAxisData->m_sName, IDS_HELP_AXIS, kGap, &m_nAxis[axis] );
+		pCtrl2->SetParam1(axis);
+		pCtrl2->AddString(LoadTempString(IDS_JOYSTICK_AXISNONE));
 
 		switch (pAxisData->m_nType)
 		{
 			case CONTROLTYPE_XAXIS:
 			case CONTROLTYPE_RXAXIS:
 			case CONTROLTYPE_ZAXIS:
-				pCtrl->AddString(LoadTempString(IDS_JOYSTICK_TURN));
-				pCtrl->AddString(LoadTempString(IDS_JOYSTICK_STRAFE));
+				pCtrl2->AddString(LoadTempString(IDS_JOYSTICK_TURN));
+				pCtrl2->AddString(LoadTempString(IDS_JOYSTICK_STRAFE));
 				break;
 			case CONTROLTYPE_YAXIS:
 			case CONTROLTYPE_RYAXIS:
 			case CONTROLTYPE_RZAXIS:
-				pCtrl->AddString(LoadTempString(IDS_JOYSTICK_LOOK));
-				pCtrl->AddString(LoadTempString(IDS_JOYSTICK_MOVE));
-				pCtrl->AddString(LoadTempString(IDS_JOYSTICK_INVERT));
+				pCtrl2->AddString(LoadTempString(IDS_JOYSTICK_LOOK));
+				pCtrl2->AddString(LoadTempString(IDS_JOYSTICK_MOVE));
+				pCtrl2->AddString(LoadTempString(IDS_JOYSTICK_INVERT));
 				break;
 		}
 
@@ -86,12 +86,12 @@ LTBOOL CScreenJoystick::Build()
 		CDevicePOVData *pPOVData = g_pProfileMgr->GetPOVData(POV);
 		if (!pPOVData || !strlen(pPOVData->m_sName)) continue;
 
-		CLTGUICycleCtrl *pCtrl = AddCycle(pPOVData->m_sName, IDS_HELP_POV, kGap, &m_nPOV[POV] );
-		pCtrl->SetParam1(POV);
-		pCtrl->AddString(LoadTempString(IDS_JOYSTICK_AXISNONE));
+		CLTGUICycleCtrl *pCtrl3 = AddCycle(pPOVData->m_sName, IDS_HELP_POV, kGap, &m_nPOV[POV] );
+		pCtrl3->SetParam1(POV);
+		pCtrl3->AddString(LoadTempString(IDS_JOYSTICK_AXISNONE));
 
-		pCtrl->AddString(LoadTempString(IDS_POV_LOOK));
-		pCtrl->AddString(LoadTempString(IDS_POV_MOVE));
+		pCtrl3->AddString(LoadTempString(IDS_POV_LOOK));
+		pCtrl3->AddString(LoadTempString(IDS_POV_MOVE));
 	}
 
 

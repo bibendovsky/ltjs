@@ -138,9 +138,9 @@ LTRESULT	CSoundInstance::Init( CSoundBuffer &soundBuffer, PlaySoundInfo &playSou
 	else
 	{ 
  		m_hSound = ( HLTSOUND )playSoundInfo.m_hSound;
-		g_pClientMgr->AddToObjectMap((uint16)playSoundInfo.m_hSound );
-		g_pClientMgr->m_ObjectMap[( uint16 )playSoundInfo.m_hSound].m_nRecordType = RECORDTYPE_SOUND;
-		g_pClientMgr->m_ObjectMap[( uint16 )playSoundInfo.m_hSound].m_pRecordData = this;
+		g_pClientMgr->AddToObjectMap(static_cast<uint16>(reinterpret_cast<size_t>(playSoundInfo.m_hSound)) );
+		g_pClientMgr->m_ObjectMap[static_cast<uint16>(reinterpret_cast<size_t>(playSoundInfo.m_hSound))].m_nRecordType = RECORDTYPE_SOUND;
+		g_pClientMgr->m_ObjectMap[static_cast<uint16>(reinterpret_cast<size_t>(playSoundInfo.m_hSound))].m_pRecordData = this;
 	}
 
 	// Set this so the game can use it...
@@ -241,9 +241,9 @@ void CSoundInstance::Term( )
 LTRESULT CSoundInstance::DisconnectFromServer( )
 {
 	// If this is a server sound, then remove it from the id list...
-	if(( uint16 )m_hSound != INVALID_OBJECTID && !( m_dwPlaySoundFlags & PLAYSOUND_CLIENT ))
+	if(static_cast<uint16>(reinterpret_cast<size_t>(m_hSound)) != INVALID_OBJECTID && !( m_dwPlaySoundFlags & PLAYSOUND_CLIENT ))
 	{
-		g_pClientMgr->ClearObjectMapEntry((uint16)m_hSound);
+		g_pClientMgr->ClearObjectMapEntry(static_cast<uint16>(reinterpret_cast<size_t>(m_hSound)));
 		m_hSound = ( HLTSOUND )INVALID_OBJECTID;
 	}
 
@@ -1228,8 +1228,8 @@ LTRESULT CAmbientSoundInstance::UpdateOutput( uint32 dwFrameTime )
 		}
 		else if ( m_h3DSample )
 		{
-			float fScale;
-			LTVector vTemp;
+			float fScale2;
+			LTVector vTemp2;
 			
 			fDist = m_vPosition.Dist(GetClientILTSoundMgrImpl()->GetListenerPosition( ));
 			
@@ -1245,26 +1245,26 @@ LTRESULT CAmbientSoundInstance::UpdateOutput( uint32 dwFrameTime )
 			
 			// Find volume scale based on distance...
 			if( fDistSqrd <= fMinDistSqrd )
-				fScale = 1.0;
+				fScale2 = 1.0;
 			else if( fDistSqrd >= fMaxDistSqrd )
-				fScale = 0.0;
+				fScale2 = 0.0;
 			else
 			{
 				// These calculations fall off from 1.0 at mindist to 0 at maxdist and have a 1/x curve...
 				fDist = ( float )sqrt( fDistSqrd );
-				fScale = 1.0f - (( fDist - m_fInnerRadius ) / ( m_fOuterRadius - m_fInnerRadius ));
+				fScale2 = 1.0f - (( fDist - m_fInnerRadius ) / ( m_fOuterRadius - m_fInnerRadius ));
 			}
 
-			GetSoundSys()->Get3DPosition( m_h3DSample, &vTemp.x, &vTemp.y, &vTemp.z );
-			if( vTemp.DistSqr( vPosition ) > 0.5f )
+			GetSoundSys()->Get3DPosition( m_h3DSample, &vTemp2.x, &vTemp2.y, &vTemp2.z );
+			if( vTemp2.DistSqr( vPosition ) > 0.5f )
 				GetSoundSys()->Set3DPosition( m_h3DSample, vPosition.x, vPosition.y, vPosition.z );
 
 			// set the volume of the sound so we can avoid DirectSound's exponential volume curve
-			uint32 nVolume = ( uint32 )( m_nVolume * fScale );
+			uint32 nVolume = ( uint32 )( m_nVolume * fScale2 );
 			nVolume = LTMIN( nVolume, 100 );
 			if( nVolume != m_nCurRawVolume )
 			{
-				SetVolume( nVolume );
+				SetVolume( static_cast<uint16>(nVolume) );
 			}
 		}
 	}
@@ -1398,7 +1398,7 @@ LTRESULT C3DSoundInstance::UpdateOutput( uint32 dwFrameTime )
 //				if( nVolume != ( uint32 )GetSoundSys()->GetSampleVolume( m_hSample ))
 				if( nVolume != m_nCurRawVolume )
 				{
-					SetVolume( nVolume );
+					SetVolume( static_cast<uint16>(nVolume) );
 				}
 			}
 			else
@@ -1406,7 +1406,7 @@ LTRESULT C3DSoundInstance::UpdateOutput( uint32 dwFrameTime )
 //				if( nVolume != ( uint32 )GetSoundSys()->GetStreamVolume( m_hStream ))
 				if( nVolume != m_nCurRawVolume)
 				{
-					SetVolume( nVolume );
+					SetVolume( static_cast<uint16>(nVolume) );
 				}
 			}
 
@@ -1476,7 +1476,7 @@ LTRESULT C3DSoundInstance::UpdateOutput( uint32 dwFrameTime )
 //			if( nVolume != ( uint32 )GetSoundSys()->Get3DSampleVolume( m_h3DSample ))
 			if( nVolume != m_nCurRawVolume )
 			{
-				SetVolume( nVolume );
+				SetVolume( static_cast<uint16>(nVolume) );
 			}
 		}
 	}

@@ -467,7 +467,9 @@ static LTRESULT cis_DoDrawSurfaceToSurface(HSURFACE hDest, HSURFACE hSrc,
 	}
 
 	bOk = false;
-	if(pSrcData = (uint8*)cis_LockSurface(pSrc, srcPitch))
+    pSrcData = (uint8*)cis_LockSurface(pSrc, srcPitch);
+
+	if(pSrcData)
 	{
 		if(pSrc == pDest)
 		{
@@ -476,7 +478,9 @@ static LTRESULT cis_DoDrawSurfaceToSurface(HSURFACE hDest, HSURFACE hSrc,
 		}
 		else
 		{
-			if(pDestData = (uint8*)cis_LockSurface(pDest, destPitch, true))
+            pDestData = (uint8*)cis_LockSurface(pDest, destPitch, true);
+
+			if(pDestData)
 			{
 				if(fn(false, pSrcData, pDestData, srcPitch, destPitch, &srcRect, &destRect) == LT_OK)
 					bOk = true;
@@ -1303,7 +1307,7 @@ static LTRESULT cis_FreeHeightmap(uint8* pData)
 }
 
 
-static HSURFACE cis_CreateSurfaceFromBitmap(char *pBitmapName)
+static HSURFACE cis_CreateSurfaceFromBitmap(const char *pBitmapName)
 {
 	LoadedBitmap bitmap;
 	HSURFACE hRet;
@@ -1662,7 +1666,7 @@ static LTRESULT cis_SetSurfaceAlpha(HSURFACE hSurface, float alpha)
 }
 
 
-static LTRESULT cis_GetEngineHook(char *pName, void **pData)
+static LTRESULT cis_GetEngineHook(const char *pName, void **pData)
 {
 	if(stricmp(pName, "hwnd") == 0)
 	{

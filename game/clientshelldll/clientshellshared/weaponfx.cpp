@@ -408,14 +408,14 @@ LTBOOL CWeaponFX::CreateObject(ILTClient* pClientDE)
 
 	if (IsLiquid(m_eCode))
 	{
-		m_wImpactFX	= m_pAmmo->pUWImpactFX ? m_pAmmo->pUWImpactFX->nFlags : 0;
+		m_wImpactFX	= static_cast<uint16>(m_pAmmo->pUWImpactFX ? m_pAmmo->pUWImpactFX->nFlags : 0);
 	}
 	else
 	{
-		m_wImpactFX	= m_pAmmo->pImpactFX ? m_pAmmo->pImpactFX->nFlags : 0;
+		m_wImpactFX	= static_cast<uint16>(m_pAmmo->pImpactFX ? m_pAmmo->pImpactFX->nFlags : 0);
 	}
 
-	m_wFireFX = m_pAmmo->pFireFX ? m_pAmmo->pFireFX->nFlags : 0;
+	m_wFireFX = static_cast<uint16>(m_pAmmo->pFireFX ? m_pAmmo->pFireFX->nFlags : 0);
 
 	// Assume alt-fire, silenced, and tracer...these will be cleared by
 	// IgnoreFX if not used...
@@ -776,8 +776,8 @@ void CWeaponFX::CreateMark(const LTVector &vPos, const LTVector &vNorm, const LT
 	mark.m_Rotation.Rotate(vNorm, GetRandom(0.0f, MATH_CIRCLE));
 
 	mark.m_fScale		= pImpactFX->fMarkScale;
-	mark.nAmmoId		= m_nAmmoId;
-	mark.nSurfaceType   = eType;
+	mark.nAmmoId		= static_cast<uint8>(m_nAmmoId);
+	mark.nSurfaceType   = static_cast<uint8>(eType);
 
 	psfxMgr->CreateSFX(SFX_MARK_ID, &mark);
 }
@@ -1174,8 +1174,8 @@ void CWeaponFX::CreateShell()
 	SHELLCREATESTRUCT sc;
 	sc.rRot			= m_rDirRot;
 	sc.vStartPos	= CalcBreachPos(m_vFirePos);
-	sc.nWeaponId	= m_nWeaponId;
-	sc.nAmmoId		= m_nAmmoId;
+	sc.nWeaponId	= static_cast<uint8>(m_nWeaponId);
+	sc.nAmmoId		= static_cast<uint8>(m_nAmmoId);
     sc.b3rdPerson	= LTTRUE;
 
 
@@ -1238,7 +1238,7 @@ void CWeaponFX::CreateBloodSplatFX()
 
 	for (int i=0; i < nNumSplats; i++)
 	{
-		LTVector vDir = m_vDir;
+		LTVector vDir2 = m_vDir;
 
 		// Perturb direction after first splat...
 
@@ -1249,11 +1249,11 @@ void CWeaponFX::CreateBloodSplatFX()
 			float fRPerturb = (GetRandom(-fPerturb, fPerturb))/1000.0f;
 			float fUPerturb = (GetRandom(-fPerturb, fPerturb))/1000.0f;
 
-			vDir += (vR * fRPerturb);
-			vDir += (vU * fUPerturb);
+			vDir2 += (vR * fRPerturb);
+			vDir2 += (vU * fUPerturb);
 		}
 
-		iQuery.m_To			= vDir * fRange + m_vPos;
+		iQuery.m_To			= vDir2 * fRange + m_vPos;
 		iQuery.m_Flags		= IGNORE_NONSOLID | INTERSECT_HPOLY | INTERSECT_OBJECTS;
 		iQuery.m_FilterFn	= BloodSplatFilterFn;
 		iQuery.m_pUserData	= NULL;
@@ -1288,7 +1288,7 @@ void CWeaponFX::CreateBloodSplatFX()
 
 				sc.rRot.Rotate(iInfo.m_Plane.m_Normal, GetRandom(0.0f, MATH_CIRCLE));
 
-				LTVector vTemp = vDir * -2.0f;
+				LTVector vTemp = vDir2 * -2.0f;
 				sc.vPos = iInfo.m_Point + vTemp;  // Off the wall a bit
 				sc.vVel.Init(0.0f, 0.0f, 0.0f);
 
@@ -1315,7 +1315,7 @@ void CWeaponFX::CreateBloodSplatFX()
 				sc.bMultiply		= LTTRUE;
 				sc.bPausable		= LTTRUE;
 
-				char* pBloodFiles[] =
+				const char* pBloodFiles[] =
 				{
 					"FX\\Test\\Blood\\Spr\\BloodL1.spr",
 					"FX\\Test\\Blood\\Spr\\BloodL2.spr",

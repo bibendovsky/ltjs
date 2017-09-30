@@ -16,8 +16,19 @@
 #ifndef __UBER_ASSERT_H__
 #define __UBER_ASSERT_H__
 
+#include <cassert>
+
+
 #ifdef _DEBUG
 
+#ifdef __MINGW32__
+    #define UBER_ASSERT( exp, desc ) (assert(exp))
+    #define UBER_ASSERT1( exp, desc, d1 ) (assert(exp))
+    #define UBER_ASSERT2( exp, desc, d1, d2 ) (assert(exp))
+    #define UBER_ASSERT3( exp, desc, d1, d2, d3 ) (assert(exp))
+    #define UBER_ASSERT4( exp, desc, d1, d2, d3, d4 ) (assert(exp))
+    #define UBER_ASSERT5( exp, desc, d1, d2, d3, d4, d5 ) (assert(exp))
+#else
 	extern bool UberAssert( long nLine, char const* szFile, char const* szExp, char const* szDesc, ... );
 
 	#define UBER_ASSERT( exp, description ) \
@@ -65,6 +76,7 @@
 				_asm { int 3 } \
 			} \
 		}   
+#endif
 
 #else	// ndef _DEBUG
 

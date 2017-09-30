@@ -216,6 +216,7 @@ void CDIDebugText::Render()
 {
 	if (!m_pPolyString && m_Font) {
 		uint32 i32Color = RGBA_MAKE(m_DPVert.rgba.r,m_DPVert.rgba.g,m_DPVert.rgba.b,m_DPVert.rgba.a);
+        static_cast<void>(i32Color);
 		//m_Font->SetColor(i32Color);
 		LT_MEM_TRACK_ALLOC(m_pPolyString = new CUIPolyString(m_Font, m_Text, m_DPVert.x, m_DPVert.y),LT_MEM_TYPE_MISC);
 	}

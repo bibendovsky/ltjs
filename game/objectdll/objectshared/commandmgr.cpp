@@ -381,7 +381,7 @@ const int c_nNumValidCmds = sizeof(s_ValidCmds)/sizeof(s_ValidCmds[0]);
 // Operator methods
 ///////////////////////////////////
 
-eExpressionVal CheckExpression( ConParse &cpExpression );
+static eExpressionVal CheckExpression( ConParse &cpExpression );
 
 static LTBOOL Op_Int_equals( void *arg1, void *arg2 )
 {
@@ -1988,7 +1988,7 @@ LTBOOL CCommandMgr::ProcessListCommands(ConParse & parse, int nCmdIndex)
 //
 // ----------------------------------------------------------------------- //
 
-void CCommandMgr::DevPrint(char *msg, ...)
+void CCommandMgr::DevPrint(const char *msg, ...)
 {
 #define _DEV_BUILD
 #ifdef _DEV_BUILD
@@ -2187,7 +2187,7 @@ VAR_STRUCT* CCommandMgr::GetVar( const char *pName, bool bSilent, uint16 *nId /*
 		if( !_stricmp( m_aVars[iVar].m_szName, pName ))
 		{
 			if( nId )
-				*nId = iVar;
+				*nId = static_cast<uint8>(iVar);
 
 			return &m_aVars[iVar];
 		}

@@ -112,7 +112,7 @@ class CDStreamOpenQueueList : public CLTBaseList
 {
 public:
     // version of all the base functions that set our number of items counter
-    CDStreamOpenQueueList() { m_nNumItems = 0; CLTBaseList::CLTBaseList(); };
+    CDStreamOpenQueueList() { m_nNumItems = 0; };
     void Insert(CBaseListItem* pItem) { m_nNumItems++; CLTBaseList::Insert(pItem); };         
     void InsertFirst(CBaseListItem* pItem) { m_nNumItems++; CLTBaseList::InsertFirst(pItem); };                               
     void InsertLast(CBaseListItem* pItem) { m_nNumItems++; CLTBaseList::InsertLast(pItem); };

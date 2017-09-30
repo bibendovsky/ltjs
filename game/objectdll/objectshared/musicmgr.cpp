@@ -52,7 +52,7 @@ CMusicMgr::CMusicMgr()
 		m_afEventChances[iEvent] = 1.0f;
 	}
 
-	m_iRestoreMusicIntensity = -1;
+	m_iRestoreMusicIntensity = static_cast<uint32>(-1);
 
 	m_eLastMood = eMoodInvalid;
 

@@ -79,14 +79,14 @@ LTBOOL CScreenSingle::Build()
 	LTIntPt pos = LTIntPt(rect.left,rect.top);
 
 	m_pDiffFrame = debug_new(CLTGUIFrame);
-	m_pDiffFrame->Create(hFrame,nWidth,nHeight,LTTRUE);
+	m_pDiffFrame->Create(hFrame,static_cast<uint16>(nWidth),static_cast<uint16>(nHeight),LTTRUE);
 	m_pDiffFrame->SetBasePos(pos);
 	m_pDiffFrame->Show(LTFALSE);
 	AddControl(m_pDiffFrame);
 
 
 	nWidth -= 16;
-	m_pDiff = AddList(pos,nHeight, LTTRUE, nWidth);
+	m_pDiff = AddList(pos,static_cast<uint16>(nHeight), LTTRUE, static_cast<uint16>(nWidth));
 	if (m_pDiff)
 	{
 		m_pDiff->SetIndent(LTIntPt(8,8));
@@ -114,14 +114,14 @@ LTBOOL CScreenSingle::Build()
 	pos = LTIntPt(rect.left,rect.top);
 
 	m_pChapterFrame = debug_new(CLTGUIFrame);
-	m_pChapterFrame->Create(hFrame,nWidth,nHeight,LTTRUE);
+	m_pChapterFrame->Create(hFrame,static_cast<uint16>(nWidth),static_cast<uint16>(nHeight),LTTRUE);
 	m_pChapterFrame->SetBasePos(pos);
 	m_pChapterFrame->Show(LTFALSE);
 	AddControl(m_pChapterFrame);
 
 
 	nWidth -= 16;
-	m_pChapter = AddList(pos,nHeight, LTTRUE, nWidth);
+	m_pChapter = AddList(pos,static_cast<uint16>(nHeight), LTTRUE, static_cast<uint16>(nWidth));
 	if (m_pChapter)
 	{
 		m_pChapter->SetIndent(LTIntPt(8,8));
@@ -140,13 +140,13 @@ LTBOOL CScreenSingle::Build()
 	pos = LTIntPt(rect.left,rect.top);
 
 	m_pCustomFrame = debug_new(CLTGUIFrame);
-	m_pCustomFrame->Create(hFrame,nWidth,nHeight,LTTRUE);
+	m_pCustomFrame->Create(hFrame,static_cast<uint16>(nWidth),static_cast<uint16>(nHeight),LTTRUE);
 	m_pCustomFrame->SetBasePos(pos);
 	m_pCustomFrame->Show(LTFALSE);
 	AddControl(m_pCustomFrame);
 
 	nWidth -= 16;
-	m_pCustom = AddList(pos,nHeight, LTTRUE, nWidth);
+	m_pCustom = AddList(pos,static_cast<uint16>(nHeight), LTTRUE, static_cast<uint16>(nWidth));
 	if (m_pCustom)
 	{
 		m_pCustom->SetIndent(LTIntPt(8,8));
@@ -253,7 +253,7 @@ uint32 CScreenSingle::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 dwPara
 
 
 			SetSelection(GetIndex(m_pDiff));
-			m_pDiff->SetSelection(g_pGameClientShell->GetDifficulty());
+			m_pDiff->SetSelection(static_cast<uint16>(g_pGameClientShell->GetDifficulty()));
 			UpdateHelpText();
 
 			break;
@@ -434,7 +434,7 @@ void CScreenSingle::BuildCustomLevelsList(int nWidth)
 
 	// Get a list of world names and sort them alphabetically
 
-    uint8 nNumPaths = g_pClientButeMgr->GetNumSingleWorldPaths();
+    uint8 nNumPaths = static_cast<uint8>(g_pClientButeMgr->GetNumSingleWorldPaths());
 
     char pathBuf[128];
 	FileEntry** pFilesArray = debug_newa(FileEntry*, nNumPaths);
@@ -444,7 +444,7 @@ void CScreenSingle::BuildCustomLevelsList(int nWidth)
 		for (int i=0; i < nNumPaths; ++i)
 		{
 			pathBuf[0] = '\0';
-			g_pClientButeMgr->GetWorldPath(i, pathBuf, ARRAY_LEN(pathBuf));
+			g_pClientButeMgr->GetWorldPath(static_cast<uint8>(i), pathBuf, ARRAY_LEN(pathBuf));
 
 			if (pathBuf[0])
 			{
@@ -464,7 +464,7 @@ void CScreenSingle::BuildCustomLevelsList(int nWidth)
 	for (int i=0; i < nNumPaths; ++i)
 	{
 		pathBuf[0] = '\0';
-		g_pClientButeMgr->GetWorldPath(i, pathBuf, ARRAY_LEN(pathBuf));
+		g_pClientButeMgr->GetWorldPath(static_cast<uint8>(i), pathBuf, ARRAY_LEN(pathBuf));
 
 		if (pathBuf[0] && pFilesArray[i])
 		{
@@ -485,7 +485,7 @@ void CScreenSingle::BuildCustomLevelsList(int nWidth)
 	{
 		pItem = CreateTextItem((char *)iter->c_str(), CMD_CUSTOM+index, IDS_HELP_CUSTOMLEVEL);
 		pItem->SetFont(LTNULL, nListFontSize);
-		pItem->SetFixedWidth(nWidth,LTTRUE);
+		pItem->SetFixedWidth(static_cast<uint16>(nWidth),LTTRUE);
 
 		m_pCustom->AddControl(pItem);
 		++index;
@@ -540,7 +540,7 @@ void CScreenSingle::BuildChapterList()
 
 		pItem = CreateTextItem(pMission->nNameId, CMD_CUSTOM+1000+i, pMission->nDescId);
 		pItem->SetFont(LTNULL, nListFontSize);
-		pItem->SetFixedWidth(nWidth,LTTRUE);
+		pItem->SetFixedWidth(static_cast<uint16>(nWidth),LTTRUE);
 
 		m_pChapter->AddControl(pItem);
 		

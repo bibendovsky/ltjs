@@ -23,7 +23,7 @@
 #endif
  
 #if STATE_TYPE_AS_ENUM
-	#define ADD_STATE_TYPE(aitype,label) kState_##aitype##label##,
+	#define ADD_STATE_TYPE(aitype,label) kState_##aitype##label,
 	#define ADD_STATE_HUMAN(label) ADD_STATE_TYPE(Human,label)
 	#define ADD_STATE_BODY(label) ADD_STATE_TYPE(Body,label)
 	#define ADD_STATE_PROP(label) ADD_STATE_TYPE(Prop,label)
@@ -35,13 +35,13 @@
 	#define ADD_STATE_PROP(label) ADD_STATE_TYPE(Prop,label)
 	#define ADD_STATE_SMARTOBJ(label) ADD_STATE_TYPE(SmartObject,label)
 #elif STATE_TYPE_AS_SWITCH_HUMAN
-	#define ADD_STATE_TYPE(aitype,label) case kState_##aitype##label##: extern CAIClassAbstract* AIFactoryCreateCAI##aitype##State##label##(); return (CAI##aitype##State*)AIFactoryCreateCAI##aitype##State##label##();
+	#define ADD_STATE_TYPE(aitype,label) case kState_##aitype##label: extern CAIClassAbstract* AIFactoryCreateCAI##aitype##State##label(); return (CAI##aitype##State*)AIFactoryCreateCAI##aitype##State##label();
 	#define ADD_STATE_HUMAN(label) ADD_STATE_TYPE(Human,label)
 	#define ADD_STATE_BODY(label)
 	#define ADD_STATE_PROP(label)
 	#define ADD_STATE_SMARTOBJ(label)
 #elif STATE_TYPE_AS_SWITCH_BODY
-	#define ADD_STATE_TYPE(aitype,label) case kState_##aitype##label##: extern CAIClassAbstract* AIFactoryCreateC##aitype##State##label##(); return (C##aitype##State*)AIFactoryCreateC##aitype##State##label##();
+	#define ADD_STATE_TYPE(aitype,label) case kState_##aitype##label: extern CAIClassAbstract* AIFactoryCreateC##aitype##State##label(); return (C##aitype##State*)AIFactoryCreateC##aitype##State##label();
 	#define ADD_STATE_HUMAN(label)
 	#define ADD_STATE_BODY(label) ADD_STATE_TYPE(Body,label)
 	#define ADD_STATE_PROP(label)

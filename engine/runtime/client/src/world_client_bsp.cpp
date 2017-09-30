@@ -62,12 +62,12 @@ private:
 bool CClientLightGroup::Load(ILTStream *pStream)
 {
 	uint16 nLength;
-	*pStream >> (uint16)nLength;
+	*pStream >> nLength;
 	m_nID = 0;
 	for (; nLength; --nLength)
 	{
 		uint8 nNextChar;
-		*pStream >> (uint8)nNextChar;
+		*pStream >> nNextChar;
 		m_nID *= 31;
 		m_nID += (uint32)nNextChar;
 	}
@@ -371,7 +371,7 @@ bool CWorldClientBSP::LoadRenderData(ILTStream *pStream)
 	world_bsp_shared->LightTable().ClearLightGroups();
 
 	uint32 nNumLightGroups;
-	*pStream >> (uint32)nNumLightGroups;
+	*pStream >> nNumLightGroups;
 	LT_MEM_TRACK_ALLOC(m_aLightGroups.reserve(nNumLightGroups), LT_MEM_TYPE_WORLD);
 	CClientLightGroup LightGroup;
 	for (; nNumLightGroups; --nNumLightGroups)
@@ -417,6 +417,7 @@ bool CWorldClientBSP::InheritFromServer() {
 	{
         //get the world from the server.
         const WorldData *server_model = world_bsp_server->GetWorldModel(i);
+        static_cast<void>(server_model);
 
         //allocate our world model.
         WorldData *client_model;

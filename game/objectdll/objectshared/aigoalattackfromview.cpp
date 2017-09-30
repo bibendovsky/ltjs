@@ -94,6 +94,7 @@ void CAIGoalAttackFromView::SetStateAttack()
 	if( m_pAI->GetState()->GetStateType() != kState_HumanAttackFromView )
 	{
 		AIGBM_GoalTemplate* pTemplate = g_pAIGoalButeMgr->GetTemplate( GetGoalType() );
+        static_cast<void>(pTemplate);
 
 		m_pAI->SetState( kState_HumanAttackFromView );
 

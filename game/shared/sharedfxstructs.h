@@ -444,9 +444,9 @@ inline TRIGGERCREATESTRUCT::TRIGGERCREATESTRUCT()
 	fHUDAlwaysOnDist	( -1.0f ),
 	bLocked				( false ),
 	vDims				( 0.0f, 0.0f, 0.0f ),
-	nTriggerTypeId		( -1 ),
-	nPlayerInsideID		( -1 ),
-	nPlayerOutsideID	( -1 )
+	nTriggerTypeId		( static_cast<uint8>(-1) ),
+	nPlayerInsideID		( static_cast<uint32>(-1) ),
+	nPlayerOutsideID	( static_cast<uint32>(-1) )
 {
 
 }
@@ -473,7 +473,7 @@ struct RADAROBJCREATESTRUCT : public SFXCREATESTRUCT
 
 inline RADAROBJCREATESTRUCT::RADAROBJCREATESTRUCT()
 :	SFXCREATESTRUCT		( ),
-	nRadarTypeId		( -1 ),
+	nRadarTypeId		( static_cast<uint8>(-1) ),
 	bOn					( true )
 {
 	nTeamId = INVALID_TEAM;

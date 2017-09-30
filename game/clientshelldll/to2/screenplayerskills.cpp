@@ -177,7 +177,7 @@ void CScreenPlayerSkills::OnFocus(LTBOOL bFocus)
 
 		for (int i = 0; i < kNumSkills; i++)
 		{
-			pProfile->m_nPlayerSkills[i] = m_nLevels[i];
+			pProfile->m_nPlayerSkills[i] = static_cast<uint8>(m_nLevels[i]);
 		}
 
 		pProfile->Save();

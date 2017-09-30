@@ -21,7 +21,7 @@
 // TODO: May want to convert CharacterAlignment to Jeffs macro expansion?
 enum CharacterAlignment { LIKE=0, TOLERATE, HATE, UNDETERMINED, INVALID };
 enum CharacterSide { CS_ENEMY = 0, CS_FRIEND, CS_NEUTRAL };
-enum CharacterClass   	{ UNKNOWN=0, GOOD, BAD, NEUTRAL };
+enum CharacterClass : int { UNKNOWN=0, GOOD, BAD, NEUTRAL };
 
 class RelationData;
 class RelationSet;

@@ -1045,7 +1045,7 @@ ChildInfo* Model::AddChildModel(Model *pChild,
 		if(!VerifyChildModelTree(pChild, pErrNode))
 		{
 			LTSNPrintF(pErrStr, nErrStrLen, "Node trees differ at node %s.", pErrNode->GetName());
-			return false;
+			return nullptr;
 		}
 	}
 

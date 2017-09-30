@@ -1113,7 +1113,9 @@ void CConsole::BorderedRectangle(uint32 fillColor, uint32 borderColor, LTRect re
 
 }
 
-extern uint32	g_ScreenWidth, g_ScreenHeight;
+extern int32 g_ScreenWidth;
+extern int32 g_ScreenHeight;
+
 void CConsole::Draw() {
 #ifndef DE_HEADLESS_CLIENT
 	//	if ((!m_pFontBitmapData) || (!m_pStruct)) return;
@@ -1131,6 +1133,7 @@ void CConsole::Draw() {
 	viewportData.MinZ	= 0;
 	viewportData.MaxZ	= 1.0f;
 	HRESULT hResult = D3D_CALL(PD3DDEVICE->SetViewport(&viewportData));
+    static_cast<void>(hResult);
 
 	// Check the console variables
 	CheckVariables();
@@ -1371,6 +1374,7 @@ void CConsole::DrawSmall(int nLines)
 	viewportData.MinZ	= 0;
 	viewportData.MaxZ	= 1.0f;
 	HRESULT hResult = D3D_CALL(PD3DDEVICE->SetViewport(&viewportData));
+    static_cast<void>(hResult);
 
 	// Grab the current filter states.
 	bool bValidFilterStates = true;

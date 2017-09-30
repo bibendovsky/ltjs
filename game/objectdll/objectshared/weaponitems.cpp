@@ -174,7 +174,7 @@ bool WeaponItem::ReadProp(ObjectCreateStruct *pStruct)
 			pWeapon = g_pWeaponMgr->GetWeapon(m_nWeaponId);
 			if (pWeapon)
 			{
-				m_nAmmoId = pWeapon->nDefaultAmmoId;
+				m_nAmmoId = static_cast<uint8>(pWeapon->nDefaultAmmoId);
 			}
 		}
 	}
@@ -208,7 +208,7 @@ bool WeaponItem::ReadProp(ObjectCreateStruct *pStruct)
 		AMMO const *pAmmo = g_pWeaponMgr->GetAmmo(genProp.m_String);
 		if (pAmmo)
 		{
-			m_nAmmoId = pAmmo->nId;
+			m_nAmmoId = static_cast<uint8>(pAmmo->nId);
 		}
 	}
 
@@ -233,7 +233,7 @@ bool WeaponItem::ReadProp(ObjectCreateStruct *pStruct)
 			return false;
 
 		// Default isn't restricted.  We'll just use that.
-		m_nAmmoId = pWeapon->nDefaultAmmoId;
+		m_nAmmoId = static_cast<uint8>(pWeapon->nDefaultAmmoId);
 	}
 
 	return true;

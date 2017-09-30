@@ -56,12 +56,12 @@ LTBOOL CMenuKeys::Init()
 	pFont = g_pInterfaceResMgr->GetFont(m_FontFace);
 	m_Description.Create("description",MC_POPUP,LTNULL,pFont,m_FontSize,this);
 	m_Description.SetColors(m_NonSelectedColor,m_NonSelectedColor,m_NonSelectedColor);
-	m_Description.SetFixedWidth( s_Size.x - (m_Indent.x * 2));
+	m_Description.SetFixedWidth( static_cast<uint16>(s_Size.x - (m_Indent.x * 2)));
 	m_Description.Enable(LTTRUE);
 	m_Popup.AddControl(&m_Description,offset);
 	offset.y += 64;
 
-	m_Popup.SetSelection(m_Popup.GetIndex(&m_Description));
+	m_Popup.SetSelection(static_cast<uint16>(m_Popup.GetIndex(&m_Description)));
 	m_Popup.SetBasePos(LTIntPt(320,160));
 
 	g_pInterfaceMgr->GetMenuMgr()->RegisterCommand(COMMAND_ID_KEYS,MENU_ID_KEYS);
@@ -162,7 +162,7 @@ void CMenuKeys::OnFocus(LTBOOL bFocus)
 			m_Popup.SetScale(g_pInterfaceResMgr->GetXRatio());
 		}
 
-		SetSelection(GetIndex(&m_List));
+		SetSelection(static_cast<uint16>(GetIndex(&m_List)));
 
 	}
 }

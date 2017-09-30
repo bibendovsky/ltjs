@@ -50,7 +50,7 @@ public:
 	void			RemoveAll();					// Remove all strings
 
 	// Return the number of strings
-	uint8			GetNumStrings()						{ return m_stringArray.size(); }
+	uint8			GetNumStrings()						{ return static_cast<uint8>(m_stringArray.size()); }
 
 	// Sets/Get the currently selected index
 	uint8			GetSelIndex()						{ return m_nSelIndex; }

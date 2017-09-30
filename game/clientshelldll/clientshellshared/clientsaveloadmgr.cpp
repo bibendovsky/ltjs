@@ -176,7 +176,7 @@ bool CClientSaveLoadMgr::SaveGameSlot( uint32 nSlot, char const* pszSaveName )
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SAVE_GAME );
-	cMsg.Writeuint8( nSlot );
+	cMsg.Writeuint8( static_cast<uint8>(nSlot) );
 	cMsg.WriteString( pszSaveName );
     g_pLTClient->SendToServer( cMsg.Read(), MESSAGE_GUARANTEED );
 
@@ -202,7 +202,7 @@ bool CClientSaveLoadMgr::LoadGameSlot( uint32 nSlot )
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_LOAD_GAME );
 	cMsg.Writeuint8( kLoadGameTypeSlot );
-	cMsg.Writeuint8( nSlot );
+	cMsg.Writeuint8( static_cast<uint8>(nSlot) );
 	g_pLTClient->SendToServer( cMsg.Read(), MESSAGE_GUARANTEED );
 
 	return true;

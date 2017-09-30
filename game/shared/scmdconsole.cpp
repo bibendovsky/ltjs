@@ -753,7 +753,7 @@ bool ScmdConsole_Impl::SendMessage( ScmdCommand eScmdCommand )
 {
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SCMD );
-	cMsg.Writeuint8( eScmdCommand );
+	cMsg.Writeuint8( static_cast<uint8>(eScmdCommand) );
 	GetScmdConsoleDriver( ).SendToServer( *cMsg.Read( ));
 
 	return true;
@@ -881,7 +881,7 @@ bool ScmdConsoleCommandHandler_Login::Send( char const* pszCommand )
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SCMD );
-	cMsg.Writeuint8( CommandId( ));
+	cMsg.Writeuint8( static_cast<uint8>(CommandId( )));
 	uint32 nHashedPassword = str_Hash( pszCommand );
 	cMsg.Writeuint32( nHashedPassword );
 	ScmdConsole::Instance( ).GetScmdConsoleDriver( ).SendToServer( *cMsg.Read( ));
@@ -931,7 +931,9 @@ bool ScmdConsoleCommandHandler_Login::Receive( ScmdCommandStatus eScmdCommandSta
 		break;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //
@@ -962,7 +964,9 @@ bool ScmdConsoleCommandHandler_Logout::Receive( ScmdCommandStatus eScmdCommandSt
 		break;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 
@@ -1065,7 +1069,9 @@ bool ScmdConsoleCommandHandler_ListClients::Receive( ScmdCommandStatus eScmdComm
 		break;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 
@@ -1120,7 +1126,9 @@ bool ScmdConsoleCommandHandler_ListMissions::Receive( ScmdCommandStatus eScmdCom
 		break;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //
@@ -1146,7 +1154,7 @@ bool ScmdConsoleCommandHandler_SetMission::Send( char const* pszCommand )
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SCMD );
-	cMsg.Writeuint8( CommandId( ));
+	cMsg.Writeuint8( static_cast<uint8>(CommandId( )));
 	cMsg.Writeuint8( nMissionIndex );
 	ScmdConsole::Instance( ).GetScmdConsoleDriver( ).SendToServer( *cMsg.Read( ));
 
@@ -1173,7 +1181,7 @@ bool ScmdConsoleCommandHandler_BootName::Send( char const* pszCommand )
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SCMD );
-	cMsg.Writeuint8( CommandId( ));
+	cMsg.Writeuint8( static_cast<uint8>(CommandId( )));
 	cMsg.WriteString( pszCommand );
 	ScmdConsole::Instance( ).GetScmdConsoleDriver( ).SendToServer( *cMsg.Read( ));
 
@@ -1203,7 +1211,7 @@ bool ScmdConsoleCommandHandler_BootId::Send( char const* pszCommand )
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SCMD );
-	cMsg.Writeuint8( CommandId( ));
+	cMsg.Writeuint8( static_cast<uint8>(CommandId( )));
 	cMsg.Writeuint16( nClientId );
 	ScmdConsole::Instance( ).GetScmdConsoleDriver( ).SendToServer( *cMsg.Read( ));
 
@@ -1230,7 +1238,7 @@ bool ScmdConsoleCommandHandler_AddBan::Send( char const* pszCommand )
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SCMD );
-	cMsg.Writeuint8( CommandId( ));
+	cMsg.Writeuint8( static_cast<uint8>(CommandId( )));
 	cMsg.WriteString( pszCommand );
 	ScmdConsole::Instance( ).GetScmdConsoleDriver( ).SendToServer( *cMsg.Read( ));
 
@@ -1261,7 +1269,7 @@ bool ScmdConsoleCommandHandler_RemoveBan::Send( char const* pszCommand )
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SCMD );
-	cMsg.Writeuint8( CommandId( ));
+	cMsg.Writeuint8( static_cast<uint8>(CommandId( )));
 	cMsg.Writeuint8( nBanId );
 	ScmdConsole::Instance( ).GetScmdConsoleDriver( ).SendToServer( *cMsg.Read( ));
 
@@ -1319,7 +1327,9 @@ bool ScmdConsoleCommandHandler_ListBans::Receive( ScmdCommandStatus eScmdCommand
 		break;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //
@@ -1345,7 +1355,7 @@ bool ScmdConsoleCommandHandler_BanClient::Send( char const* pszCommand )
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SCMD );
-	cMsg.Writeuint8( CommandId( ));
+	cMsg.Writeuint8( static_cast<uint8>(CommandId( )));
 	cMsg.Writeuint16( nClientId );
 	ScmdConsole::Instance( ).GetScmdConsoleDriver( ).SendToServer( *cMsg.Read( ));
 
@@ -1474,7 +1484,9 @@ bool ScmdConsoleCommandHandler_ListGameOptions::Receive( ScmdCommandStatus eScmd
 		break;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //
@@ -1513,7 +1525,7 @@ bool ScmdConsoleCommandHandler_SetGameOption::Send( char const* pszCommand )
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_SCMD );
-	cMsg.Writeuint8( CommandId( ));
+	cMsg.Writeuint8( static_cast<uint8>(CommandId( )));
 	cMsg.Writeuint8( nGameOption );
 	cMsg.WriteString( szVal );
 	ScmdConsole::Instance( ).GetScmdConsoleDriver( ).SendToServer( *cMsg.Read( ));

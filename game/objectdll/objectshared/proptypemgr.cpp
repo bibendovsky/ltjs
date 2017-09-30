@@ -235,7 +235,7 @@ PROP_DISTURB::PROP_DISTURB()
 	nHitAlarmLevel		= 0;
 	fHitSoundRadius		= 0.0f;
 
-	nPropTypeId			= -1;
+	nPropTypeId			= static_cast<uint32>(-1);
 }
 
 PROP_DISTURB::~PROP_DISTURB()

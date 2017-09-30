@@ -2350,7 +2350,8 @@ LTBOOL FIREFX::Init(CButeMgr & buteMgr, char* aTagName)
 	szFXName		= GetString( buteMgr, aTagName, FXBMGR_FIREFX_FXNAME, FXBMGR_MAX_NAME_LENGTH );
 	szBeamFXName	= GetString( buteMgr, aTagName, FXBMGR_FIREFX_BEAMFXNAME, FXBMGR_MAX_NAME_LENGTH );
 
-	vShellScale = buteMgr.GetVector(aTagName, FXBMGR_FIREFX_SHELLSCALE, CAVector( 1.0f, 1.0f, 1.0f ));
+    CAVector one_vector(1.0f, 1.0f, 1.0f);
+	vShellScale = buteMgr.GetVector(aTagName, FXBMGR_FIREFX_SHELLSCALE, one_vector);
 
 	nFlags = 0;
 
@@ -4216,7 +4217,7 @@ CSpecialFX* CFXButeMgr::CreateScaleFX(CScaleFX* pScaleFX, const LTVector &vPos,
 	scale.fDelayTime		= pScaleFX->fDelayTime;
 	scale.bAdditive			= pScaleFX->bAdditive;
 	scale.bMultiply			= pScaleFX->bMultiply;
-	scale.nType				= (pScaleFX->eType == SCALEFX_MODEL) ? OT_MODEL : OT_SPRITE;
+	scale.nType				= static_cast<uint8>((pScaleFX->eType == SCALEFX_MODEL) ? OT_MODEL : OT_SPRITE);
     scale.bUseUserColors    = LTTRUE;
 	scale.bFaceCamera		= pScaleFX->bFaceCamera;
 	scale.nRotationAxis		= pScaleFX->nRotationAxis;
@@ -4267,7 +4268,7 @@ CSpecialFX* CFXButeMgr::CreatePShowerFX(CPShowerFX* pPShowerFX, const LTVector &
 	ps.vColor1			= pPShowerFX->vColor1;
 	ps.vColor2			= pPShowerFX->vColor2;
 	ps.pTexture			= pPShowerFX->szTexture;
-	ps.nParticles		= GetRandom(pPShowerFX->nMinParticles, pPShowerFX->nMaxParticles);
+	ps.nParticles		= static_cast<uint8>(GetRandom(pPShowerFX->nMinParticles, pPShowerFX->nMaxParticles));
 	ps.fDuration		= GetRandom(pPShowerFX->fMinDuration, pPShowerFX->fMaxDuration);
 	ps.fEmissionRadius	= pPShowerFX->fEmissionRadius;
 	ps.fRadius			= pPShowerFX->fRadius;
@@ -4396,7 +4397,7 @@ CSpecialFX* CFXButeMgr::CreatePExplFX(PEXPLFX* pPExplFX, const LTRotation &rSurf
 	PESCREATESTRUCT pe;
     pe.rSurfaceRot = rSurfaceRot;
 
-	pe.nSurfaceType		= eSurfaceType;
+	pe.nSurfaceType		= static_cast<uint8>(eSurfaceType);
 	pe.vPos				= vPos + pPExplFX->vPosOffset;
 	pe.bCreateDebris	= pPExplFX->bCreateDebris;
 	pe.bRotateDebris	= pPExplFX->bRotateDebris;
@@ -4412,9 +4413,9 @@ CSpecialFX* CFXButeMgr::CreatePExplFX(PEXPLFX* pPExplFX, const LTRotation &rSurf
 	pe.fOffsetTime		= pPExplFX->fOffsetTime;
 	pe.fRadius			= pPExplFX->fRadius;
 	pe.fGravity			= pPExplFX->fGravity;
-	pe.nNumPerPuff		= pPExplFX->nNumPerPuff;
-	pe.nNumEmitters		= pPExplFX->nNumEmitters;
-	pe.nNumSteps		= pPExplFX->nNumSteps;
+	pe.nNumPerPuff		= static_cast<uint8>(pPExplFX->nNumPerPuff);
+	pe.nNumEmitters		= static_cast<uint8>(pPExplFX->nNumEmitters);
+	pe.nNumSteps		= static_cast<uint8>(pPExplFX->nNumSteps);
 	pe.pFilename		= pPExplFX->szFile;
 	pe.bAdditive		= pPExplFX->bAdditive;
 	pe.bMultiply		= pPExplFX->bMultiply;
@@ -4609,7 +4610,7 @@ LTBOOL CFXButeMgr::ReadImpactFXProp(char* pPropName, uint8 & nImpactFXId)
 		IMPACTFX* pImpactFX = GetImpactFX(genProp.m_String);
 		if (pImpactFX)
 		{
-			nImpactFXId = pImpactFX->nId;
+			nImpactFXId = static_cast<uint8>(pImpactFX->nId);
 		}
 
         return LTTRUE;

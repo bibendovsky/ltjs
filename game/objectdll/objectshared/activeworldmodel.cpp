@@ -411,7 +411,7 @@ void ActiveWorldModel::ReadProps( ObjectCreateStruct *pOCS )
 			{
 				if( !_stricmp( GenProp.m_String, c_aWaveTypes[i] ) )
 				{
-					m_nWaveform = i;
+					m_nWaveform = static_cast<uint8>(i);
 					break;
 				}
 			}	
@@ -1348,8 +1348,10 @@ void ActiveWorldModel::SetPowerOn( )
 
 			LTVector	vTestPos1, vTestPos2;
 			LTRotation	rTestRot;
+            LTVector zero_vector;
 
-			CalculateNewPosRot( vTestPos1, rTestRot, LTVector(0,0,0), m_fPowerOnTime, cf100Percent );
+            zero_vector = { 0, 0, 0, };
+			CalculateNewPosRot( vTestPos1, rTestRot, zero_vector, m_fPowerOnTime, cf100Percent );
 
 			// Calculate the AWM's position if it rotated in opposite direction...
 
@@ -1357,7 +1359,8 @@ void ActiveWorldModel::SetPowerOn( )
 			m_fYaw		= m_vInitOnAngles.y == 0.0f ? 0.0f : m_vInitOnAngles.y > 0.0f ? -1 : 1;
 			m_fRoll		= m_vInitOnAngles.z == 0.0f ? 0.0f : m_vInitOnAngles.y > 0.0f ? -1 : 1;
 
-			CalculateNewPosRot( vTestPos2, rTestRot, LTVector(0,0,0), m_fPowerOnTime, cf100Percent );
+            zero_vector = { 0, 0, 0, };
+			CalculateNewPosRot( vTestPos2, rTestRot, zero_vector, m_fPowerOnTime, cf100Percent );
 
 			// Restore the real angles...
 

@@ -365,7 +365,7 @@ void WorldModel::ReadProps( ObjectCreateStruct *pOCS )
 			{
 				if( !_stricmp( genProp.m_String, c_aBlendModes[i] ))
 				{
-					nBlendMode = i;
+					nBlendMode = static_cast<uint8>(i);
 					break;
 				}
 			}
@@ -1280,7 +1280,8 @@ bool WorldModel::CreateServerMark(CLIENTWEAPONFX & theStruct)
 		// Since this mark is already attached to us, remove the attachment
 		DetachObject( pMoveMark->m_hObject );
 
-		if( !AttachServerMark( *pMoveMark, (CLIENTWEAPONFX)theStruct))
+        auto fx = theStruct;
+		if( !AttachServerMark( *pMoveMark, fx))
 		{
 			g_pLTServer->RemoveObject( pMoveMark->m_hObject );
 			RemoveMarkFromList( pMoveMark->m_hObject );
@@ -1330,7 +1331,8 @@ bool WorldModel::CreateServerMark(CLIENTWEAPONFX & theStruct)
         g_pLTServer->ScaleObject(pMark->m_hObject, &vScale);
 	}
 
-	if( !AttachServerMark( *pMark, (CLIENTWEAPONFX)theStruct))
+    auto fx = theStruct;
+	if( !AttachServerMark( *pMark, fx))
 	{
 		g_pLTServer->RemoveObject( pMark->m_hObject );
 		pMark = NULL;

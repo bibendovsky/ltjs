@@ -77,7 +77,7 @@ LTBOOL CProjectileFX::Init(SFXCREATESTRUCT* psfxCreateStruct)
 	}
 
 	m_pProjectileFX = pAmmo->pProjectileFX;
-	m_nFX = m_pProjectileFX->nFlags;
+	m_nFX = static_cast<uint8>(m_pProjectileFX->nFlags);
 
 	ASSERT( 0 != m_pProjectileFX );
 	// the fx associated with this projectile fx
@@ -377,7 +377,7 @@ void CProjectileFX::CreateSmokeTrail(const LTVector & vPos, const LTRotation & r
 	PTCREATESTRUCT pt;
 
 	pt.hServerObj = m_hServerObject;
-	pt.nType	  = m_pProjectileFX->nSmokeTrailType;
+	pt.nType	  = static_cast<uint8>(m_pProjectileFX->nSmokeTrailType);
 
 	m_pSmokeTrail = GetParticleTrailBank()->New();
 	if (!m_pSmokeTrail) return;
@@ -414,7 +414,8 @@ void CProjectileFX::CreateFlare(const LTVector & vPos, const LTRotation & rRot)
 	if (!m_hFlare) return;
 
     LTFLOAT fScale = m_pProjectileFX->fFlareScale;
-	m_pClientDE->SetObjectScale(m_hFlare, &LTVector(fScale, fScale, 1.0f));
+    LTVector scale_vector(fScale, fScale, 1.0f);
+	m_pClientDE->SetObjectScale(m_hFlare, &scale_vector);
 }
 
 

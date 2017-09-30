@@ -468,6 +468,7 @@ void CUserProfile::LoadControls()
 	for (a = 0; a < g_pProfileMgr->GetNumPOV(); a++)
 	{
 		CDevicePOVData *pPOVData = g_pProfileMgr->GetPOVData(a);
+        static_cast<void>(pPOVData);
 		char szPOV[8] = "";
 		sprintf(szPOV,"POV%d",a);
 		m_nPOV[a] = (uint8)m_buteMgr.GetInt(s_aTagName,szPOV,0);
@@ -567,11 +568,11 @@ void CUserProfile::LoadGameOptions()
 {
 	strcpy(s_aTagName,"Game");
 
-	m_nDifficulty = m_buteMgr.GetInt(s_aTagName,"Difficulty",2);
+	m_nDifficulty = static_cast<uint8>(m_buteMgr.GetInt(s_aTagName,"Difficulty",2));
     m_nSubtitles  = (uint8)m_buteMgr.GetInt(s_aTagName,"Subtitles",0);
     m_bGore = (!g_pVersionMgr->IsLowViolence() && (m_buteMgr.GetInt(s_aTagName,"Gore",0) > 0));
 	m_bAlwaysRun = (LTBOOL)m_buteMgr.GetInt(s_aTagName,"AlwaysRun",1);
-	m_nLayout = m_buteMgr.GetInt(s_aTagName,"HUDLayout",0);
+	m_nLayout = static_cast<uint8>(m_buteMgr.GetInt(s_aTagName,"HUDLayout",0));
 	m_nHeadBob = m_buteMgr.GetInt(s_aTagName,"HeadBob",0);
 	m_nWeaponSway = m_buteMgr.GetInt(s_aTagName,"WeaponSway",0);
 	m_nMsgDur = m_buteMgr.GetInt(s_aTagName,"MessageDur",0);
@@ -580,11 +581,11 @@ void CUserProfile::LoadGameOptions()
 	m_bVehicleContour = (LTBOOL)m_buteMgr.GetInt(s_aTagName,"VehicleContour",1);
 
 	m_bCrosshair = (LTBOOL)m_buteMgr.GetInt(s_aTagName,"UseCrosshair",1);
-	m_CrosshairR = (uint32)m_buteMgr.GetInt(s_aTagName,"CrosshairRed",0x1F);
-	m_CrosshairG = (uint32)m_buteMgr.GetInt(s_aTagName,"CrosshairGreen",0xFF);
-	m_CrosshairB = (uint32)m_buteMgr.GetInt(s_aTagName,"CrosshairBlue",0xFF);
+	m_CrosshairR = static_cast<uint8>((uint32)m_buteMgr.GetInt(s_aTagName,"CrosshairRed",0x1F));
+	m_CrosshairG = static_cast<uint8>((uint32)m_buteMgr.GetInt(s_aTagName,"CrosshairGreen",0xFF));
+	m_CrosshairB = static_cast<uint8>((uint32)m_buteMgr.GetInt(s_aTagName,"CrosshairBlue",0xFF));
 	m_CrosshairA = (uint8)m_buteMgr.GetInt(s_aTagName,"CrosshairAlpha",0xBF);
-	m_nStyle = m_buteMgr.GetInt(s_aTagName,"CrosshairStyle",0);
+	m_nStyle = static_cast<uint8>(m_buteMgr.GetInt(s_aTagName,"CrosshairStyle",0));
     m_bDynamic = m_buteMgr.GetInt(s_aTagName,"CrosshairDynamic",1);
 	
 	m_bSPRadar = m_buteMgr.GetBool( s_aTagName, "SPRadar", true );
@@ -1012,7 +1013,7 @@ void CUserProfile::ApplySound()
 
 void CUserProfile::ImplementSoundVolume()
 {
-	((ILTClientSoundMgr*)g_pLTClient->SoundMgr())->SetVolume(m_nSoundVolume);
+	((ILTClientSoundMgr*)g_pLTClient->SoundMgr())->SetVolume(static_cast<uint16>(m_nSoundVolume));
 
 	// set up the sound volume classes for the game
 	((ILTClientSoundMgr*)g_pLTClient->SoundMgr())->SetSoundClassMultiplier( WEAPONS_SOUND_CLASS, m_fWeaponsSoundMultiplier );
@@ -1119,7 +1120,7 @@ void CUserProfile::ApplyPerformance(bool bForceDisplay)
 	//other settings affected by performance
 	//if we are going to force the display resolution to match out overall performance level,
 	// we should ignore the current resolution when determining what our level is.
-	uint8 nOverall = g_pPerformanceMgr->GetPerformanceCfg(bForceDisplay);
+	uint8 nOverall = static_cast<uint8>(g_pPerformanceMgr->GetPerformanceCfg(bForceDisplay));
 	SetSound();
 	SetDisplay();
 
@@ -1456,12 +1457,12 @@ void CUserProfile::SetMultiplayer()
 void CUserProfile::SetGameOptions()
 {
 	m_bGore = !g_pVersionMgr->IsLowViolence() && (LTBOOL)GetConsoleInt("Gore",0);
-	m_nDifficulty = g_pGameClientShell->GetDifficulty();
-	m_nSubtitles = GetConsoleInt("Subtitles",0);
+	m_nDifficulty = static_cast<uint8>(g_pGameClientShell->GetDifficulty());
+	m_nSubtitles = static_cast<uint8>(GetConsoleInt("Subtitles",0));
 
 	m_bAlwaysRun = (LTBOOL)g_pMoveMgr->RunLock();
 
-	m_nLayout = GetConsoleInt("HUDLayout",0);
+	m_nLayout = static_cast<uint8>(GetConsoleInt("HUDLayout",0));
 
 	m_nHeadBob = (int)(10.0f * GetConsoleFloat("HeadBob",1.0f));
 	m_nWeaponSway = (int)(10.0f * GetConsoleFloat("WeaponSway",1.0f));
@@ -1476,12 +1477,12 @@ void CUserProfile::SetCrosshair()
 {
 	m_bCrosshair = g_pInterfaceMgr->IsCrosshairEnabled();
 
-	m_CrosshairR = GetConsoleInt("CrosshairRed",0x1F);
-	m_CrosshairG = GetConsoleInt("CrosshairGreen",0xFF);
-	m_CrosshairB = GetConsoleInt("CrosshairBlue",0xFF);
-	m_CrosshairA = GetConsoleInt("CrosshairAlpha",0xBF);
+	m_CrosshairR = static_cast<uint8>(GetConsoleInt("CrosshairRed",0x1F));
+	m_CrosshairG = static_cast<uint8>(GetConsoleInt("CrosshairGreen",0xFF));
+	m_CrosshairB = static_cast<uint8>(GetConsoleInt("CrosshairBlue",0xFF));
+	m_CrosshairA = static_cast<uint8>(GetConsoleInt("CrosshairAlpha",0xBF));
 
-	m_nStyle = GetConsoleInt("CrosshairStyle",0);
+	m_nStyle = static_cast<uint8>(GetConsoleInt("CrosshairStyle",0));
 	m_bDynamic = GetConsoleInt("CrosshairDynamic",1);
 }
 
@@ -1888,7 +1889,6 @@ void CProfileMgr::SetDeviceData()
 
 	DeviceObject* pObjects = g_pLTClient->GetDeviceObjects(devices[2]);
 	DeviceObject* pObj = pObjects;
-    LTBOOL bFoundIt = LTFALSE;
 
 	// loop through all joystick objects and store the axis ones with our devicename the m_aDeviceData array
 	while ((pObj != NULL) && (m_nNumDeviceAxis < kMaxDeviceAxis))

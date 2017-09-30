@@ -19,8 +19,8 @@
 
 // Forward declarations.
 class CAIButeMgr;
-enum  EnumAISenseType;
-enum  EnumAIStimulusType;
+enum  EnumAISenseType : unsigned int;
+enum  EnumAIStimulusType : int;
 
 
 // Globals/statics

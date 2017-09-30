@@ -253,6 +253,7 @@ LTBOOL AIGeometry::Inside2dLoose(const LTVector& vPos,
 	}
 
 	LTFLOAT fThreshholdSqr = fThreshhold*fThreshhold;
+    static_cast<void>(fThreshholdSqr);
 
 	for ( uint32 iNeighbor = 0 ; iNeighbor < nNeighborCount; iNeighbor++ )
 	{
@@ -1830,6 +1831,7 @@ LTBOOL AIVolumeJumpUp::IsValidForPath( CAI* pAI, AIVolume* pVolumePrev )
 	// context of the path being built.
 
 	AIVolume* pVolumeNext = GetNextVolume();
+    static_cast<void>(pVolumeNext);
 
 	return IsValidForPath( pAI, pVolumePrev, GetNextVolume() );
 }
@@ -2276,7 +2278,7 @@ LTBOOL AIVolumeJunction::GetAction(CAI* pAI, uint8* pmskActionVolumes, AIVolume*
 			fTotalChance = 0.f;
 
 			lstVolumeActions[iVolumeActionRecord].pVolume = pVolume->m_pVolume;
-			lstVolumeActions[iVolumeActionRecord].iVolume = iVolume;
+			lstVolumeActions[iVolumeActionRecord].iVolume = static_cast<uint8>(iVolume);
 
 			// Look for valid actions for this volume.
 

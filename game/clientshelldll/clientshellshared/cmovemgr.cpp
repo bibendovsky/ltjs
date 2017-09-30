@@ -1051,9 +1051,9 @@ void CMoveMgr::HandleFallLand(LTFLOAT fDistFell)
 
 			if (bPlaySound)
 			{
-				char* pNormalSounds[] = { "Chars\\Snd\\player\\landing1.wav", "Chars\\Snd\\player\\landing2.wav" };
-				char* pVehicleSounds[] = { "Snd\\vehicle\\snowmobile\\landing1.wav", "Snd\\vehicle\\snowmobile\\landing2.wav" };
-				char** pSounds = (m_pVehicleMgr->IsVehiclePhysics() ? pVehicleSounds : pNormalSounds);
+				const char* pNormalSounds[] = { "Chars\\Snd\\player\\landing1.wav", "Chars\\Snd\\player\\landing2.wav" };
+				const char* pVehicleSounds[] = { "Snd\\vehicle\\snowmobile\\landing1.wav", "Snd\\vehicle\\snowmobile\\landing2.wav" };
+				const char** pSounds = (m_pVehicleMgr->IsVehiclePhysics() ? pVehicleSounds : pNormalSounds);
 				
 				g_pClientSoundMgr->PlaySoundLocal(pSounds[GetRandom(0,1)], SOUNDPRIORITY_PLAYER_HIGH);
 			}
@@ -1065,15 +1065,15 @@ void CMoveMgr::HandleFallLand(LTFLOAT fDistFell)
 
 		if (m_pVehicleMgr->IsVehiclePhysics())
 		{
-			CameraDelta delta;
+			CameraDelta delta2;
 
-			delta.PosY.fVar		= 0.1f;
-			delta.PosY.fTime1	= 0.2f;
-			delta.PosY.fTime2	= 0.5f;
-			delta.PosY.eWave1	= Wave_SlowOff;
-			delta.PosY.eWave2	= Wave_SlowOff;
+			delta2.PosY.fVar		= 0.1f;
+			delta2.PosY.fTime1	= 0.2f;
+			delta2.PosY.fTime2	= 0.5f;
+			delta2.PosY.eWave1	= Wave_SlowOff;
+			delta2.PosY.eWave2	= Wave_SlowOff;
 
-			m_pVehicleMgr->GetModelOffsetMgr()->AddDelta(delta);
+			m_pVehicleMgr->GetModelOffsetMgr()->AddDelta(delta2);
 		}
 	}
 }
@@ -1164,6 +1164,7 @@ void CMoveMgr::UpdateSound()
 void CMoveMgr::UpdateNormalMotion()
 {
     LTFLOAT fTime = g_pLTClient->GetTime();
+    static_cast<void>(fTime);
 
 	// Zero out the acceleration to start with.
 
@@ -1670,7 +1671,7 @@ void CMoveMgr::UpdateStartMotion(LTBOOL bForce)
 
 	if (bForce)
 	{
-        uint8 nStatus = m_bJumped ? MS_JUMPED : MS_LANDED;
+        uint8 nStatus = static_cast<uint8>(m_bJumped ? MS_JUMPED : MS_LANDED);
 		CAutoMessage cMsg;
 		cMsg.Writeuint8(MID_PLAYER_CLIENTMSG);
 		cMsg.Writeuint8(CP_MOTION_STATUS);
@@ -1689,7 +1690,7 @@ void CMoveMgr::UpdateStartMotion(LTBOOL bForce)
 
 			if (bPlaySound)
 			{
-				char* pSounds[] = { "Chars\\Snd\\jump1.wav", "Chars\\Snd\\jump2.wav" };
+				const char* pSounds[] = { "Chars\\Snd\\jump1.wav", "Chars\\Snd\\jump2.wav" };
 				g_pClientSoundMgr->PlaySoundLocal(pSounds[GetRandom(0,1)], SOUNDPRIORITY_PLAYER_HIGH);
 			}
 		}
@@ -1796,7 +1797,9 @@ void CMoveMgr::UpdatePlayerAnimation()
     uint32 modelAnim(0), curModelAnim(0), curFlags(0);
 	HRESULT result(LT_OK);
 
-	if (!(hClientObj = g_pLTClient->GetClientObject())) return;
+    hClientObj = g_pLTClient->GetClientObject();
+
+	if (!hClientObj) return;
 
 	// Make sure our solid object is on the same animation.
 	
@@ -1805,7 +1808,7 @@ void CMoveMgr::UpdatePlayerAnimation()
 	// Make sure we are playing the animation corresponding to the dims...
 	if (m_pCharFX)
 	{
-		HRESULT result = g_pModelLT->GetCurAnim(m_pCharFX->GetServerObj(), m_pCharFX->m_cs.nDimsTracker, modelAnim);
+		result = g_pModelLT->GetCurAnim(m_pCharFX->GetServerObj(), m_pCharFX->m_cs.nDimsTracker, modelAnim);
 		//ASSERT(result == LT_OK);
 	}
 
@@ -2055,9 +2058,9 @@ LTFLOAT CMoveMgr::GetVelMagnitude()
 
 void CMoveMgr::SetClientObjNonsolid()
 {
-	HOBJECT hObj;
+	HOBJECT hObj = g_pLTClient->GetClientObject();
 
-	if(hObj = g_pLTClient->GetClientObject())
+	if(hObj)
 	{
 		g_pCommonLT->SetObjectFlags(hObj, OFT_Flags, FLAG_CLIENTNONSOLID, FLAG_CLIENTNONSOLID);
 	}

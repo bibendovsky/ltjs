@@ -239,7 +239,7 @@ void CGadgetTargetMgr::Term( )
 // ----------------------------------------------------------------------- //
 
 GADGETTARGET::GADGETTARGET()
-:	nId					( GTMGR_INVALID_ID ),
+:	nId					( static_cast<uint32>(GTMGR_INVALID_ID) ),
 	szName				( LTNULL ),
 	szFileName			( LTNULL ),
 	szDebrisType		( LTNULL ),

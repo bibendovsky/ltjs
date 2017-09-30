@@ -59,7 +59,7 @@ LTBOOL CGibFX::Init(SFXCREATESTRUCT* psfxCreateStruct)
 		m_eGibTypes[i] = pGib->eGibTypes[i];
 	}
 
-	m_nNumRandomGibs = GetRandom(3, 6);
+	m_nNumRandomGibs = static_cast<uint8>(GetRandom(3, 6));
 	m_nNumGibs += m_nNumRandomGibs;
 	if (m_nNumGibs > MAX_GIB) m_nNumGibs = MAX_GIB;
 
@@ -154,7 +154,7 @@ LTBOOL CGibFX::CreateObject(ILTClient *pClientDE)
 		m_pGibTrail[i] = CreateGibTrail(m_hGib[i]);
 
         m_ActiveEmitters[i] = LTTRUE;
-		m_BounceCount[i]	 = GetRandom(2, 5);
+		m_BounceCount[i]	 = static_cast<uint8>(GetRandom(2, 5));
 
 		VEC_SET(vVel, GetRandom(vVelMin.x, vVelMax.x),
 					  50.0f + GetRandom(vVelMin.y, vVelMax.y),
@@ -269,8 +269,9 @@ LTBOOL CGibFX::Update()
 	{
 		if (m_ActiveEmitters[i])
 		{
-            LTBOOL bBounced = LTFALSE;
-			if (bBounced = UpdateEmitter(&m_Emitters[i]))
+            LTBOOL bBounced = UpdateEmitter(&m_Emitters[i]);
+
+			if (bBounced)
 			{
 				HandleBounce(i);
 			}
@@ -659,7 +660,7 @@ void CGibFX::HandleBounce(int nIndex)
 		sc.fFinalAlpha		= 0.0f;
 		sc.nType			= OT_SPRITE;
 
-		char* pBloodFiles[] =
+		const char* pBloodFiles[] =
 		{
 			"Sprites\\BloodSplat1.spr",
 			"Sprites\\BloodSplat2.spr",
@@ -723,7 +724,7 @@ void CGibFX::CreateLingeringSmoke(int nIndex)
 
 	SMCREATESTRUCT sm;
 
-	char* pTexture = "Sprites\\SmokeTest.spr";
+	const char* pTexture = "Sprites\\SmokeTest.spr";
 
 	VEC_SET(sm.vColor1, 100.0f, 100.0f, 100.0f);
 	VEC_SET(sm.vColor2, 125.0f, 125.0f, 125.0f);
@@ -788,8 +789,10 @@ void CGibFX::CreateMiniBloodExplosion(int nIndex)
     uint8 nDetailLevel = pSettings->SpecialFXSetting();
 	if (nDetailLevel == RS_LOW) return;
 
-	char* szBlood[2] = { "SpecialFX\\ParticleTextures\\Blood_1.dtx",
-					     "SpecialFX\\ParticleTextures\\Blood_2.dtx" };
+    const char* szBlood[2] = {
+        "SpecialFX\\ParticleTextures\\Blood_1.dtx",
+        "SpecialFX\\ParticleTextures\\Blood_2.dtx",
+    };
 
 	PARTICLESHOWERCREATESTRUCT ps;
 
@@ -854,7 +857,7 @@ void CGibFX::CreateBloodSpray()
 	sc.fFinalAlpha		= 0.0f;
 	sc.nType			= OT_SPRITE;
 
-	char* pBloodFiles[] =
+	const char* pBloodFiles[] =
 	{
 		"Sprites\\BloodSplat1.spr",
 		"Sprites\\BloodSplat2.spr",

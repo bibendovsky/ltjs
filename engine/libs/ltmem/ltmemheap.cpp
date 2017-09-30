@@ -69,7 +69,9 @@ void LTMemHeapInit()
 	}
 
 	// if we are using the general heap
-	if (g_nGeneralHeapSize > 0)
+    constexpr auto can_use_general_heap = (g_nGeneralHeapSize > 0);
+
+	if (can_use_general_heap)
 	{
 		// initialize the general heap
 		g_GeneralHeap.Init(g_nGeneralHeapSize, g_nGeneralHeapGrowSize, g_nGeneralHeapAlign);
@@ -144,7 +146,9 @@ void LTMemHeapFree(void* pMem)
 	}
 
 	// if we get here then memory was not in the simple heap so check the general heap
-	if (g_nGeneralHeapSize > 0)
+    constexpr auto can_use_general_heap = (g_nGeneralHeapSize > 0);
+
+	if (can_use_general_heap)
 	{
 		if (g_GeneralHeap.InHeap(pMem))
 		{

@@ -146,7 +146,7 @@ LTBOOL CTracerFX::Update()
         pls.bAdditive               = LTTRUE;
         pls.bNoZ                    = LTTRUE;
 		pls.nWidthStyle				= PLWS_CONSTANT;
-		pls.nNumSegments			= (int)g_cvarTracerSegments.GetFloat();
+		pls.nNumSegments			= static_cast<uint8>((int)g_cvarTracerSegments.GetFloat());
         pls.bAlignUp                = LTTRUE;
 
 		if (!m_Tracer.Init(&pls) || !m_Tracer.CreateObject(m_pClientDE))

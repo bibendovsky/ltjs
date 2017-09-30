@@ -114,7 +114,7 @@ LTBOOL CDebrisMgr::Init(const char* szAttributeFile)
 
 		if (pDebris && pDebris->Init(m_buteMgr, s_aTagName))
 		{
-			pDebris->nId = nNum;
+			pDebris->nId = static_cast<uint8>(nNum);
 			m_DebrisList.AddTail(pDebris);
 		}
 		else
@@ -502,7 +502,7 @@ LTBOOL CDebrisMgrPlugin::PopulateStringList(char** aszStrings, uint32* pcStrings
 	{
 		_ASSERT(cMaxStrings > (*pcStrings) + 1);
 
-		pDebris = g_pDebrisMgr->GetDebris(i);
+		pDebris = g_pDebrisMgr->GetDebris(static_cast<uint8>(i));
 		if (pDebris && pDebris->szName[0])
 		{
             uint32 dwDebrisNameLen = strlen(pDebris->szName);

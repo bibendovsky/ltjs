@@ -76,7 +76,7 @@ LTBOOL CScreenHostLevels::Build()
 	int nListHeight = (rcAvailRect.bottom - rcAvailRect.top);
 	nAvailWidth = (rcAvailRect.right - rcAvailRect.left);
 
-	m_pAvailMissions = AddList(LTIntPt(rcAvailRect.left,rcAvailRect.top),nListHeight,LTTRUE,nAvailWidth);
+	m_pAvailMissions = AddList(LTIntPt(rcAvailRect.left,rcAvailRect.top),static_cast<uint16>(nListHeight),LTTRUE,static_cast<uint16>(nAvailWidth));
 	m_pAvailMissions->SetIndent(LTIntPt(5,5));
 	m_pAvailMissions->SetFrameWidth(2);
 	m_pAvailMissions->Enable(LTFALSE);
@@ -85,13 +85,13 @@ LTBOOL CScreenHostLevels::Build()
 	nListHeight = (rcSelRect.bottom - rcSelRect.top);
 	nSelWidth = (rcSelRect.right - rcSelRect.left);
 
-	m_pSelMissions = AddList(LTIntPt(rcSelRect.left,rcSelRect.top),nListHeight,LTTRUE,nSelWidth);
+	m_pSelMissions = AddList(LTIntPt(rcSelRect.left,rcSelRect.top),static_cast<uint16>(nListHeight),LTTRUE,static_cast<uint16>(nSelWidth));
 	m_pSelMissions->SetIndent(LTIntPt(5,5));
 	m_pSelMissions->SetFrameWidth(2);
 	m_pSelMissions->Enable(LTFALSE);
 
 	m_nextPos.y += nListHeight;
-	uint16 nListWidth = nSelWidth-16;
+	uint16 nListWidth = static_cast<uint16>(nSelWidth-16);
 	m_pLoopToggle = AddToggle(IDS_LOOP_MISSIONS,IDS_HELP_LOOP_MISSIONS,nListWidth,&m_bLoopMissions);
 	m_pLoopToggle->SetOnString(LoadTempString(IDS_YES));
 	m_pLoopToggle->SetOffString(LoadTempString(IDS_NO));
@@ -177,7 +177,7 @@ uint32 CScreenHostLevels::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 dw
 				for (int i = 0; i < m_pAvailMissions->GetNumControls() && (m_pSelMissions->GetNumControls() < MAX_GAME_LEVELS); i++)
 				{
 					char sMission[256] = "";
-					CLTGUITextCtrl *pCtrl = (CLTGUITextCtrl *)m_pAvailMissions->GetControl(i);
+					CLTGUITextCtrl *pCtrl = (CLTGUITextCtrl *)m_pAvailMissions->GetControl(static_cast<uint16>(i));
 					if (pCtrl)
 					{
 						AddMissionToList(pCtrl->GetParam1());
@@ -203,7 +203,7 @@ uint32 CScreenHostLevels::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 dw
 				int nIndex = m_pSelMissions->GetSelectedIndex();
 				if (nIndex >= 0)
 				{
-					m_pSelMissions->RemoveControl(nIndex);
+					m_pSelMissions->RemoveControl(static_cast<uint16>(nIndex));
 				}
 				UpdateButtons();
 			}
@@ -310,7 +310,7 @@ LTBOOL CScreenHostLevels::FillAvailList()
 			}
 			pCtrl->SetFont(LTNULL,nListFontSize);
 			pCtrl->SetParam1(nMission);
-			pCtrl->SetFixedWidth(nAvailWidth,LTTRUE);
+			pCtrl->SetFixedWidth(static_cast<uint16>(nAvailWidth),LTTRUE);
 			m_pAvailMissions->AddControl(pCtrl);
 		}
 	}
@@ -405,7 +405,7 @@ void CScreenHostLevels::SaveMissionList()
 
 	for (int n = 0; n < m_pSelMissions->GetNumControls(); n++)
 	{
-		CLTGUITextCtrl *pCtrl = (CLTGUITextCtrl *)m_pSelMissions->GetControl(n);
+		CLTGUITextCtrl *pCtrl = (CLTGUITextCtrl *)m_pSelMissions->GetControl(static_cast<uint16>(n));
 		if (pCtrl)
 		{
 			sprintf(szString,"Mission%d",n);
@@ -462,7 +462,7 @@ void CScreenHostLevels::AddMissionToList(int nMissionId)
 		}
 		pCtrl->SetFont(LTNULL,nListFontSize);
 		pCtrl->SetParam1(nMissionId);
-		pCtrl->SetFixedWidth(nSelWidth,LTTRUE);
+		pCtrl->SetFixedWidth(static_cast<uint16>(nSelWidth),LTTRUE);
 		m_pSelMissions->AddControl(pCtrl);
 		
 	}

@@ -41,6 +41,7 @@ define_holder_to_instance(ILTModel, model, Server);
 LTRESULT se_ChangeSpriteFile(LTObject *pObject, const char* pszFile)
 {
 	SpriteInstance *pSpriteInstance = (SpriteInstance*)pObject;
+    static_cast<void>(pSpriteInstance);
 
 	if(server_filemgr->AddUsedFile(pszFile, 0, &pObject->sd->m_pFile) == 0)
 	{

@@ -365,7 +365,7 @@ LTBOOL CKeyMgrPlugin::PopulateStringList(char** aszStrings, uint32* pcStrings,
 	{
 		_ASSERT(cMaxStrings > (*pcStrings) + 1);
 
-		pKey = g_pKeyMgr->GetKey(i);
+		pKey = g_pKeyMgr->GetKey(static_cast<uint16>(i));
 		if (pKey && pKey->szName[0])
 		{
             uint32 dwImpactFXNameLen = strlen(pKey->szName);

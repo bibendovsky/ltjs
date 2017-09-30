@@ -47,7 +47,7 @@ CInterfaceMgr*  g_pInterfaceMgr = LTNULL;
 #define MAX_INTERFACE_LIGHTS	5
 #define INVALID_ANI			((HMODELANIM)-1)
 
-static enum MovieOrderEnum 
+enum MovieOrderEnum 
 {
 	eSierra,
 	eFox,
@@ -142,7 +142,11 @@ static LTMatrix GetCameraTransform(HOBJECT hCamera)
 
     LTMatrix mTran, mRot, mFull;
 
-	mRot.SetBasisVectors((LTVector*)&rRot.Right(), (LTVector*)&rRot.Up(), (LTVector*)&rRot.Forward());
+    auto right_vector = rRot.Right();
+    auto up_vector = rRot.Up();
+    auto forward_vector = rRot.Forward();
+
+	mRot.SetBasisVectors(&right_vector, &up_vector, &forward_vector);
 	MatTranspose3x3(&mRot);
 
 	Mat_Identity(&mTran);
@@ -207,9 +211,9 @@ static LTBOOL HandleDebugKey(int key )
 
 	for( int i = 0; i < g_pClientButeMgr->GetNumDebugKeys(); ++i )
 	{
-		if( g_pClientButeMgr->GetDebugKeyId(i) == key )
+		if( g_pClientButeMgr->GetDebugKeyId(static_cast<uint8>(i)) == key )
 		{
-			if( IsKeyDown( g_pClientButeMgr->GetDebugModifierId(i) ) )
+			if( IsKeyDown( g_pClientButeMgr->GetDebugModifierId(static_cast<uint8>(i)) ) )
 			{
 				iID = i;	
 			}
@@ -223,7 +227,7 @@ static LTBOOL HandleDebugKey(int key )
 	if( iID != -1 )
 	{
 		szVarName[0] = 0;
-		g_pClientButeMgr->GetDebugName(iID,szVarName,256);
+		g_pClientButeMgr->GetDebugName(static_cast<uint8>(iID),szVarName,256);
 
 		if( !szVarName[0] )
 		{
@@ -252,7 +256,7 @@ static LTBOOL HandleDebugKey(int key )
 		LTFLOAT fCurrentLevel = g_pLTClient->GetVarValueFloat(hVar);
 		++fCurrentLevel;
 
-		if( int(fCurrentLevel) >= g_pClientButeMgr->GetNumDebugLevels(iID) )
+		if( int(fCurrentLevel) >= g_pClientButeMgr->GetNumDebugLevels(static_cast<uint8>(iID)) )
 		{
 			fCurrentLevel = 0.0f;
 		}
@@ -264,7 +268,7 @@ static LTBOOL HandleDebugKey(int key )
 		g_pLTClient->CPrint("%s %2f", szVarName, fCurrentLevel );
 
 		szTempStr[0] = 0;
-		g_pClientButeMgr->GetDebugString(iID,uint8(fCurrentLevel), szTempStr, 256);
+		g_pClientButeMgr->GetDebugString(static_cast<uint8>(iID),uint8(fCurrentLevel), szTempStr, 256);
 		if( szTempStr )
 		{
 			g_pLTClient->RunConsoleString( szTempStr );
@@ -275,7 +279,7 @@ static LTBOOL HandleDebugKey(int key )
 
 		// Display message
 		szTempStr[0] = 0;
-		g_pClientButeMgr->GetDebugTitle(iID,uint8(fCurrentLevel), szTempStr, 256);
+		g_pClientButeMgr->GetDebugTitle(static_cast<uint8>(iID),uint8(fCurrentLevel), szTempStr, 256);
 		if( szTempStr[0] )
 		{
 			g_pChatMsgs->AddMessage( szTempStr );
@@ -368,7 +372,7 @@ CInterfaceMgr::CInterfaceMgr()
 	m_bLoadFailed		= LTFALSE;
 	m_bCommandLineJoin = false;
 	m_eLoadFailedScreen = SCREEN_ID_MAIN;
-	m_nLoadFailedMsgId	= -1;
+	m_nLoadFailedMsgId	= static_cast<uint32>(-1);
 
 	m_hGamePausedSurface = LTNULL;
 
@@ -702,7 +706,7 @@ void CInterfaceMgr::OnEnterWorld(LTBOOL bRestoringGame)
 	GetPlayerStats( )->OnEnterWorld(bRestoringGame);
 
 	// Update every HUD element so they display accurate info
-	GetHUDMgr()->QueueUpdate( kHUDAll );
+	GetHUDMgr()->QueueUpdate( static_cast<uint32>(kHUDAll) );
 
 	GetMenuMgr()->EnableMenus();
 //		GetMenu(MENU_ID_MISSION)->Enable(g_pGameClientShell->GetGameType() != eGameTypeDeathmatch);
@@ -1595,9 +1599,9 @@ LTBOOL CInterfaceMgr::OnMessage(uint8 messageID, ILTMessage_Read *pMsg)
 			}
 			else
 			{
-				CLIENT_INFO *pClient;
+				CLIENT_INFO *pClient = m_ClientInfo.GetClientByID(nID);
 
-				if(pClient = m_ClientInfo.GetClientByID(nID))
+				if(pClient)
 					pClient->sStats.ReadData(pMsg);
 
 			}
@@ -1611,9 +1615,9 @@ LTBOOL CInterfaceMgr::OnMessage(uint8 messageID, ILTMessage_Read *pMsg)
 		case MID_PLAYER_SCORE :
 		{
             uint32 nID = pMsg->Readuint32();
-			CLIENT_INFO *pClient;
+			CLIENT_INFO *pClient = m_ClientInfo.GetClientByID(nID);
 
-			if(pClient = m_ClientInfo.GetClientByID(nID))
+			if(pClient)
 			{
 				pClient->sScore.ReadData(pMsg);
 				m_ClientInfo.UpdateClientSort(pClient);
@@ -1859,7 +1863,9 @@ LTBOOL CInterfaceMgr::OnMessage(uint8 messageID, ILTMessage_Read *pMsg)
 					break;
 
                 ping = pMsg->Readuint16();
-				if(pClient = m_ClientInfo.GetClientByID(id,false))
+                pClient = m_ClientInfo.GetClientByID(id,false);
+
+				if(pClient)
 					pClient->nPing = ping;
 			}
 
@@ -1882,6 +1888,9 @@ LTBOOL CInterfaceMgr::OnMessage(uint8 messageID, ILTMessage_Read *pMsg)
 
 			CLIENT_INFO *pVictim = m_ClientInfo.GetClientByID(nVictim);
 			CLIENT_INFO *pScorer = m_ClientInfo.GetClientByID(nScorer);
+
+            static_cast<void>(pVictim);
+            static_cast<void>(pScorer);
 
             char szTmp[128] = "";
 			if (nVictim == nLocalID)
@@ -2330,6 +2339,8 @@ LTBOOL CInterfaceMgr::OnEvent(uint32 dwEventID, uint32 dwParam)
 		default :
 		{
             uint32 nStringID = IDS_UNSPECIFIEDERROR;
+            static_cast<void>(nStringID);
+
 			SwitchToScreen(SCREEN_ID_MAIN);
 			//DoMessageBox(nStringID, TH_ALIGN_CENTER);
 		}
@@ -2530,7 +2541,7 @@ LTBOOL CInterfaceMgr::OnCommandOn(int command)
 			command >= COMMAND_ID_CHOOSE_1 &&
 			command <= COMMAND_ID_CHOOSE_6 )
 	{
-		uint8 nChoice = command - COMMAND_ID_CHOOSE_1;
+		uint8 nChoice = static_cast<uint8>(command - COMMAND_ID_CHOOSE_1);
 		g_pDecision->Choose(nChoice);
         return LTTRUE;
 	}
@@ -3117,6 +3128,7 @@ LTBOOL CInterfaceMgr::Draw()
 		// Find out if we're in multiplayer...
 
 		PlayerState ePlayerState = g_pPlayerMgr->GetPlayerState();
+        static_cast<void>(ePlayerState);
 
 		if (GetGameState() == GS_PLAYING || GetGameState() == GS_POPUP)
 		{
@@ -3686,6 +3698,7 @@ LTBOOL CInterfaceMgr::PreSplashScreenState(GameState eCurState)
 	// Play splash screen sound...
 
     uint32 dwFlags = PLAYSOUND_GETHANDLE | PLAYSOUND_CLIENT;
+    static_cast<void>(dwFlags);
 	m_hSplashSound = g_pClientSoundMgr->PlayInterfaceSound(IM_SPLASH_SOUND);
 
 	if (m_hSplashSound)
@@ -5248,7 +5261,7 @@ void CInterfaceMgr::AddInterfaceSFX(CSpecialFX* pSFX, ISFXType eType)
 
 	if (GetObjectType(hObj)== OT_MODEL)
 	{
-		char* pAniName = LTNULL;
+		const char* pAniName = LTNULL;
 		switch (eType)
 		{
 			case IFX_NORMAL :
@@ -5295,7 +5308,7 @@ void CInterfaceMgr::AddInterfaceSFX(CSpecialFX* pSFX, ISFXType eType)
 void CInterfaceMgr::RemoveInterfaceSFX(CSpecialFX* pSFX)
 {
 	SFXArray::iterator iter = m_InterfaceSFX.begin();
-	uint32 index = 0;
+
 	while (iter != m_InterfaceSFX.end() && (*iter) != pSFX)
 	{
 		iter++;
@@ -5551,10 +5564,10 @@ void CInterfaceMgr::UpdateInterfaceSFX()
 		}
 
 		//add the lights
-		for ( ObjectArray::iterator iter = m_InterfaceLights.begin( ); iter !=  m_InterfaceLights.end() && 
-			next < kMaxFX; iter++ )
+		for ( ObjectArray::iterator iter2 = m_InterfaceLights.begin( ); iter2 !=  m_InterfaceLights.end() && 
+			next < kMaxFX; iter2++ )
 		{
-			HOBJECT hObj = *iter;
+			HOBJECT hObj = *iter2;
 			if ( hObj )
 			{
 				objs[next] = hObj;
@@ -5608,28 +5621,28 @@ HLTSOUND CInterfaceMgr::UpdateInterfaceSound()
 	switch (m_eNextSound)
 	{
 		case IS_SELECT:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundSelect(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundSelect(), PLAYSOUND_LOCAL);
 		break;
 		case IS_CHANGE:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundChange(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundChange(), PLAYSOUND_LOCAL);
 		break;
 		case IS_PAGE:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundPageChange(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundPageChange(), PLAYSOUND_LOCAL);
 		break;
 		case IS_UP:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowUp(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowUp(), PLAYSOUND_LOCAL);
 		break;
 		case IS_DOWN:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowDown(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowDown(), PLAYSOUND_LOCAL);
 		break;
 		case IS_LEFT:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowLeft(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowLeft(), PLAYSOUND_LOCAL);
 		break;
 		case IS_RIGHT:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowRight(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundArrowRight(), PLAYSOUND_LOCAL);
 		break;
 		case IS_NO_SELECT:
-			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundUnselectable(), NULL /*PLAYSOUND_GETHANDLE*/);
+			hSnd = g_pClientSoundMgr->PlayInterfaceSound((char*)g_pInterfaceResMgr->GetSoundUnselectable(), PLAYSOUND_LOCAL);
 		break;
 		default :
 		break;
@@ -5664,7 +5677,7 @@ void CInterfaceMgr::NextMovie(bool bEndMovies /*=false*/)
 		m_hMovie = LTNULL;
 	}
 
-	char* pMovie = (bEndMovies ? LTNULL : GetCurrentMovie());
+	const char* pMovie = (bEndMovies ? LTNULL : GetCurrentMovie());
 
 	if (!pMovie || pVideoMgr->StartOnScreenVideo(pMovie, PLAYBACK_FULLSCREEN, m_hMovie) != LT_OK)
 	{
@@ -5685,9 +5698,9 @@ void CInterfaceMgr::NextMovie(bool bEndMovies /*=false*/)
 //
 // --------------------------------------------------------------------------- //
 
-char* CInterfaceMgr::GetCurrentMovie()
+const char* CInterfaceMgr::GetCurrentMovie()
 {
-	char* pMovie = LTNULL;
+	const char* pMovie = LTNULL;
 
 	switch (m_nCurMovie)
 	{
@@ -5769,6 +5782,7 @@ void CInterfaceMgr::Disconnected(uint32 nDisconnectFlag)
 	// Get the disconnect code.
 	uint32 nDisconnectCode = g_pClientMultiplayerMgr->GetDisconnectCode();
 	const char *pDisconnectMsg = g_pClientMultiplayerMgr->GetDisconnectMsg();
+    static_cast<void>(pDisconnectMsg);
 	uint32 nMsgId = 0;
 	switch (nDisconnectCode)
 	{
@@ -6121,7 +6135,9 @@ bool CInterfaceMgr::IsInGame( )
 			return false;
 	}
 
+#if 0
 	return false;
+#endif // 0
 }
 
 // ----------------------------------------------------------------------- //

@@ -531,6 +531,7 @@ void PlayerVehicle::SetRidden(bool bRidden)
 		g_pCommonLT->GetObjectFlags(m_hObject, OFT_Flags, m_dwSavedFlags);
 
 		bool bRH = !!(m_dwSavedFlags & FLAG_RAYHIT);
+        static_cast<void>(bRH);
 
 		// Remove flags that cause the vehicle to go through extensive moveobjects.  It will
 		// reset its own flags under the respawn.
@@ -549,6 +550,7 @@ void PlayerVehicle::SetRidden(bool bRidden)
 		uint32 dwFlags;
 		g_pCommonLT->GetObjectFlags(m_hObject, OFT_Flags, dwFlags);
 		bool bRH = !!(dwFlags & FLAG_RAYHIT);
+        static_cast<void>(bRH);
 
 		// Record the last time this vehicle has been ridden.
 		m_fLastRideTime = g_pLTServer->GetTime( );

@@ -35,8 +35,8 @@ static const char s_szDefaultSkin[]		= "Props\\Skins\\PuAmmoBox.dtx";
 		
  
 #define ADD_AMMO_PROP(num) \
-		ADD_STRINGPROP_FLAG(AmmoType##num##, UNUSED_STRING, PF_STATICLIST)\
-		ADD_LONGINTPROP(AmmoCount##num##, 0)
+		ADD_STRINGPROP_FLAG(AmmoType##num, UNUSED_STRING, PF_STATICLIST)\
+		ADD_LONGINTPROP(AmmoCount##num, 0)
 
 LINKFROM_MODULE( AmmoBox );
 
@@ -165,7 +165,7 @@ bool AmmoBox::ReadProp(ObjectCreateStruct *pStruct)
 					}
 					else
 					{
-						m_nAmmoId[nNumAmmoTypes] = m_nOriginalAmmoId[nNumAmmoTypes] = pAmmo->nId;
+						m_nAmmoId[nNumAmmoTypes] = m_nOriginalAmmoId[nNumAmmoTypes] = static_cast<uint8>(pAmmo->nId);
 					}
 				}
 			}
@@ -251,7 +251,7 @@ void AmmoBox::ObjectTouch(HOBJECT hObject, bool bForcePickup/*=false*/)
 			{
 				CAutoMessage cMsg;
 				cMsg.Writeuint32(MID_AMMOBOX);
-				cMsg.Writeuint8(nValidIds);
+				cMsg.Writeuint8(static_cast<uint8>(nValidIds));
 				for (int i=0; i < AB_MAX_TYPES; i++)
 				{
 					if (m_nAmmoId[i] != WMGR_INVALID_ID && m_nAmmoCount[i] > 0)

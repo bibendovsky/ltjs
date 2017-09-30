@@ -171,7 +171,9 @@ LTBOOL CMarkSFX::CreateObject(ILTClient *pClientDE)
 
 	m_fScale *= fScaleAdjust;
 
-	m_pClientDE->SetObjectScale(m_hObject, &LTVector(m_fScale, m_fScale, m_fScale));
+    LTVector scale_vector(m_fScale, m_fScale, m_fScale);
+
+	m_pClientDE->SetObjectScale(m_hObject, &scale_vector);
 
 	if (g_cvarClipMarks.GetFloat() > 0)
 	{

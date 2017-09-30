@@ -19,7 +19,7 @@
 
 #include "iclientshell.h"
 
-inline char* GetWeaponString(uint8 nWeaponId)
+inline const char* GetWeaponString(uint8 nWeaponId)
 {
     if (!g_pLTClient || !g_pWeaponMgr) return WS_ERROR_STRING;
 
@@ -29,7 +29,7 @@ inline char* GetWeaponString(uint8 nWeaponId)
 	return pWeapon->szShortName;
 }
 
-inline char* GetAmmoString(int nAmmoId)
+inline const char* GetAmmoString(int nAmmoId)
 {
     if (!g_pLTClient || !g_pWeaponMgr) return WS_ERROR_STRING;
 

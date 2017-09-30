@@ -339,11 +339,11 @@ void Lightning::InitialUpdate(int nInfo)
     cMsg.Writeuint8(m_nWidthStyle);
     cMsg.Writeuint8(m_nNumSegments);
 
-    cMsg.Writeuint8(m_bOneTimeOnly);
-    cMsg.Writeuint8(m_bDynamicLight);
-    cMsg.Writeuint8(m_bPlaySound);
-    cMsg.Writeuint8(m_bAdditive);
-    cMsg.Writeuint8(m_bMultiply);
+    cMsg.Writeuint8(static_cast<uint8>(m_bOneTimeOnly));
+    cMsg.Writeuint8(static_cast<uint8>(m_bDynamicLight));
+    cMsg.Writeuint8(static_cast<uint8>(m_bPlaySound));
+    cMsg.Writeuint8(static_cast<uint8>(m_bAdditive));
+    cMsg.Writeuint8(static_cast<uint8>(m_bMultiply));
 
     cMsg.WriteHString(m_hstrTexture);
 

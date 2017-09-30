@@ -27,9 +27,9 @@ class AINodeTail;
 class AINodePatrol;
 class AINodeAssassinate;
 class CAIHumanStrategyToggleLights;
-enum  EnumAISoundType;
-enum  EnumAIStimulusID;
-enum  EnumTrackedNodeGroup;
+enum  EnumAISoundType : int;
+enum  EnumAIStimulusID : int;
+enum  EnumTrackedNodeGroup : int;
 
 class CAIHumanState : public CAIState
 {

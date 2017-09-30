@@ -72,7 +72,7 @@ LTBOOL CTO2PlayerMgr::OnCommandOn(int command)
 			if (g_pPlayerStats->GetCurrentWeapon() == m_nFlashlightID)
 				LastWeapon();
 			else
-				ChangeWeapon(m_nFlashlightID);
+				ChangeWeapon(static_cast<uint8>(m_nFlashlightID));
 		} break;
 	};
 

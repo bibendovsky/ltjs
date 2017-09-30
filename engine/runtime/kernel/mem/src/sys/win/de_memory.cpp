@@ -24,7 +24,12 @@ static uint32 g_nAllocations;
 uint32 g_nTotalAllocations, g_nTotalFrees;
 
 static int g_MemRefCount=0;
+
+#if 0
 static _PNH g_OldNewHandler;
+#else
+static void (*g_OldNewHandler)();
+#endif
 
 // PlayDemo profile info.
 uint32 g_PD_Malloc=0;
@@ -45,27 +50,37 @@ void DefStdlithFree(void *ptr)
 
 void dm_HeapCompact()
 {
-	HANDLE hHeap;
+	HANDLE hHeap = GetProcessHeap();
 
-	if(hHeap = GetProcessHeap())
+	if(hHeap)
 	{
 		HeapCompact(hHeap, 0);
 	}
 }
 
-
+#if 0
 static int dm_NewHandler(size_t size)
 {
 	dsi_OnMemoryFailure();
 	return 0;
 }
+#else
+static void dm_NewHandler()
+{
+    dsi_OnMemoryFailure();
+}
+#endif
 
 
 void dm_Init()
 {
 	if(g_MemRefCount == 0)
 	{
+#if 0
 		g_OldNewHandler = _set_new_handler(dm_NewHandler);
+#else
+        g_OldNewHandler = std::set_new_handler(dm_NewHandler);
+#endif
 
 		g_MemoryUsage = 0;
 		g_nAllocations = 0;
@@ -83,7 +98,11 @@ void dm_Term()
 	if(g_MemRefCount == 0)
 	{
 		// Restore the old new handler.
+#if 0
 		_set_new_handler(g_OldNewHandler);
+#else
+        std::set_new_handler(g_OldNewHandler);
+#endif
 
 		g_MemoryUsage = 0;
 		g_nAllocations = 0;
