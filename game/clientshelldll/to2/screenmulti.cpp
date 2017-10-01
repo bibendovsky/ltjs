@@ -471,6 +471,17 @@ void CScreenMulti::Update()
 
 	IServerDirectory *pServerDir = g_pClientMultiplayerMgr->GetServerDir();
 
+    // <<< BBi
+    if (!pServerDir)
+    {
+        auto mb = MBCreate{};
+        g_pInterfaceMgr->ShowMessageBox("Not implemented.", &mb);
+        Escape();
+
+        return;
+    }
+    // >>> BBi
+
 	char aTempBuffer[256];
 
 	FormatString(IDS_STATUS_STRING,aTempBuffer,sizeof(aTempBuffer),g_pClientMultiplayerMgr->GetServerDir()->GetCurStatusString());

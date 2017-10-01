@@ -13,19 +13,19 @@ include_directories(
 
 set(
     HDRS
-    cserverdir_titan.h
+    #cserverdir_titan.h
     iserverdir.h
-    iserverdir_titan.h
+    #iserverdir_titan.h
     stdafx.h
-    titantest.h
-    winsync.h
+    #titantest.h
+    #winsync.h
 )
 
 set(
     SRCS
     cserverdir_titan.cpp
     stdafx.cpp
-    titantest.cpp
+    #titantest.cpp
 )
 
 add_library(
@@ -57,8 +57,8 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
 
-target_link_libraries(
-    ${LTJS_TARGET}
-    ltjs_lib_won_api
-    ${LIBS}
-)
+#target_link_libraries(
+#    ${LTJS_TARGET}
+#    ltjs_lib_won_api
+#    ${LIBS}
+#)
