@@ -1,37 +1,51 @@
-set(LTJS_TARGET ltjs_lib_client_shell)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lib_client_shell VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options(stdafx.h)
-
-add_definitions(-D_CLIENTBUILD)
-add_definitions(-DMEMTRACK_CLIENT)
-
-if (MSVC)
-    add_compile_options(-GR)
-endif ()
-
 include_directories(
     .
-    ../../clientres/shared
-    ../../shared
+    ../
     ../../../engine/sdk/inc
-    ../../../libs/stdlith
     ../../../libs/butemgr
     ../../../libs/cryptmgr
     ../../../libs/lith
     ../../../libs/mfcstub
-    ../../libs/ltguimgr
     ../../../libs/regmgr
-    ../
+    ../../../libs/stdlith
+    ../../clientres/shared
+    ../../libs/ltguimgr
     ../../libs/serverdir
+    ../../shared
 )
 
 set(
-    HDRS
-    activateobjectfx.h
+    headers
+    ../../../engine/sdk/inc/iltbaseclass.h
+    ../../../engine/sdk/inc/lteulerangles.h
+    ../../../engine/sdk/inc/ltmodule.h
     ../../shared/activatetypemgr.h
     ../../shared/activationdata.h
+    ../../shared/clientservershared.h
+    ../../shared/crc32.h
+    ../../shared/impacttype.h
+    ../../shared/keymgr.h
+    ../../shared/missionbutemgr.h
+    ../../shared/profileutils.h
+    ../../shared/radartypemgr.h
+    ../../shared/saveloadmgr.h
+    ../../shared/scmdconsole.h
+    ../../shared/scmdshared.h
+    ../../shared/searchitemmgr.h
+    ../../shared/sharedmission.h
+    ../../shared/sharedscoring.h
+    ../../shared/teammgr.h
+    ../../shared/trackednodecontext.h
+    ../../shared/triggertypemgr.h
+    ../../shared/uberassert.h
+    ../../shared/wavefn.h
+    ../../shared/winutil.h
+    activateobjectfx.h
     baselinesystemfx.h
     basemenu.h
     baseparticlesystemfx.h
@@ -53,7 +67,6 @@ set(
     clientinfomgr.h
     clientmultiplayermgr.h
     clientsaveloadmgr.h
-    ../../shared/clientservershared.h
     clientsoundmgr.h
     clienttrackednodecontext.h
     clienttrackednodemgr.h
@@ -65,7 +78,6 @@ set(
     clientweaponnone.h
     clientweaponutils.h
     cmovemgr.h
-    ../../shared/crc32.h
     credits.h
     cursormgr.h
     damagefxmgr.h
@@ -106,8 +118,6 @@ set(
     hudscores.h
     hudsubtitles.h
     hudtransmission.h
-    ../../../engine/sdk/inc/iltbaseclass.h
-    ../../shared/impacttype.h
     intelitemlist.h
     interfacemgr.h
     interfaceresmgr.h
@@ -115,7 +125,6 @@ set(
     interfacetimer.h
     ipmgr.h
     jumpvolumefx.h
-    ../../shared/keymgr.h
     laserbeam.h
     lasertriggerfx.h
     layoutmgr.h
@@ -127,8 +136,6 @@ set(
     lightscalemgr.h
     linesystemfx.h
     loadingscreen.h
-    ../../../engine/sdk/inc/lteulerangles.h
-    ../../../engine/sdk/inc/ltmodule.h
     marksfx.h
     menuenum.h
     menuintel.h
@@ -140,7 +147,6 @@ set(
     menusystem.h
     messagebox.h
     minefx.h
-    ../../shared/missionbutemgr.h
     missionmgr.h
     music.h
     muzzleflashfx.h
@@ -173,21 +179,16 @@ set(
     popupmgr.h
     popuptext.h
     profilemgr.h
-    ../../shared/profileutils.h
     projectilefx.h
     pvfxmgr.h
     radarobjectfx.h
-    ../../shared/radartypemgr.h
     ragdoll.h
     ragdollconstraint.h
     ragdollnode.h
     randomsparksfx.h
     resource.h
-    ../../shared/saveloadmgr.h
     scatterfx.h
-    ../../shared/scmdconsole.h
     scmdconsoledriver_cshell.h
-    ../../shared/scmdshared.h
     screencommands.h
     screenenum.h
     screenmgr.h
@@ -196,12 +197,9 @@ set(
     screenspritemgr.h
     screentintmgr.h
     searcher.h
-    ../../shared/searchitemmgr.h
     searchlightfx.h
     sfxmgr.h
     shareddefs.h
-    ../../shared/sharedmission.h
-    ../../shared/sharedscoring.h
     shellcasingfx.h
     skillcontrol.h
     smokefx.h
@@ -216,34 +214,78 @@ set(
     steamfx.h
     systemdependant.h
     targetmgr.h
-    ../../shared/teammgr.h
     texturefxmgr.h
     timedtext.h
     tracerfx.h
-    ../../shared/trackednodecontext.h
     triggerfx.h
-    ../../shared/triggertypemgr.h
-    ../../shared/uberassert.h
     vartrack.h
     vehiclemgr.h
     visionmodemgr.h
     vkdefs.h
     volumebrushfx.h
-    ../../shared/wavefn.h
     weaponchooser.h
     weaponfx.h
     weaponstringdefs.h
     weatherfx.h
-    ../../shared/winutil.h
 )
 
 set(
-    SRCS
-    activateobjectfx.cpp
+    sources
+    ../../../engine/sdk/inc/iltbaseclass.cpp
+    ../../../engine/sdk/inc/lteulerangles.cpp
+    ../../../engine/sdk/inc/ltmodule.cpp
+    ../../../engine/sdk/inc/ltobjref.cpp
+    ../../../engine/sdk/inc/ltquatbase.cpp
     ../../shared/activatetypemgr.cpp
     ../../shared/animator.cpp
     ../../shared/assertmgr.cpp
     ../../shared/attachbutemgr.cpp
+    ../../shared/butelistreader.cpp
+    ../../shared/clientservershared.cpp
+    ../../shared/commonutilities.cpp
+    ../../shared/crc32.cpp
+    ../../shared/damagetypes.cpp
+    ../../shared/debrismgr.cpp
+    ../../shared/debugline.cpp
+    ../../shared/debugnew.cpp
+    ../../shared/fxbutemgr.cpp
+    ../../shared/fxstructs.cpp
+    ../../shared/gamealloc.cpp
+    ../../shared/gamebutemgr.cpp
+    ../../shared/globalmgr.cpp
+    ../../shared/keymgr.cpp
+    ../../shared/missionbutemgr.cpp
+    ../../shared/modelbutemgr.cpp
+    ../../shared/netdefs.cpp
+    ../../shared/parsedmsg.cpp
+    ../../shared/profileutils.cpp
+    ../../shared/radartypemgr.cpp
+    ../../shared/saveloadmgr.cpp
+    ../../shared/scmdconsole.cpp
+    ../../shared/searchitemmgr.cpp
+    ../../shared/sharedfxstructs.cpp
+    ../../shared/sharedmission.cpp
+    ../../shared/sharedscoring.cpp
+    ../../shared/skillsbutemgr.cpp
+    ../../shared/soundbutemgr.cpp
+    ../../shared/soundfiltermgr.cpp
+    ../../shared/soundmgr.cpp
+    ../../shared/stacktrace.cpp
+    ../../shared/surfacefunctions.cpp
+    ../../shared/surfacemgr.cpp
+    ../../shared/teammgr.cpp
+    ../../shared/templatelist.cpp
+    ../../shared/trackednode.cpp
+    ../../shared/trackednodecontext.cpp
+    ../../shared/trackednodecontrolfn.cpp
+    ../../shared/trackednodemgr.cpp
+    ../../shared/triggertypemgr.cpp
+    ../../shared/uberassert.cpp
+    ../../shared/versionmgr.cpp
+    ../../shared/wavefn.cpp
+    ../../shared/weaponmgr.cpp
+    ../../shared/winutil.cpp
+    activateobjectfx.cpp
     baselinesystemfx.cpp
     basemenu.cpp
     baseparticlesystemfx.cpp
@@ -253,7 +295,6 @@ set(
     beamfx.cpp
     bodyfx.cpp
     bullettrailfx.cpp
-    ../../shared/butelistreader.cpp
     cameraoffsetmgr.cpp
     chainedfx.cpp
     characterfx.cpp
@@ -265,7 +306,6 @@ set(
     clientinfomgr.cpp
     clientmultiplayermgr.cpp
     clientsaveloadmgr.cpp
-    ../../shared/clientservershared.cpp
     clientsoundmgr.cpp
     clienttrackednodecontext.cpp
     clienttrackednodemgr.cpp
@@ -274,18 +314,12 @@ set(
     clientweaponmgr.cpp
     clientweaponutils.cpp
     cmovemgr.cpp
-    ../../shared/commonutilities.cpp
-    ../../shared/crc32.cpp
     credits.cpp
     cursormgr.cpp
     damagefxmgr.cpp
-    ../../shared/damagetypes.cpp
     deathfx.cpp
     debrisfx.cpp
-    ../../shared/debrismgr.cpp
-    ../../shared/debugline.cpp
     debuglinefx.cpp
-    ../../shared/debugnew.cpp
     doomsdaypiecefx.cpp
     dynamiclightfx.cpp
     dynamicoccludervolumefx.cpp
@@ -293,17 +327,12 @@ set(
     firefx.cpp
     flashlight.cpp
     fullscreentint.cpp
-    ../../shared/fxbutemgr.cpp
-    ../../shared/fxstructs.cpp
     gadgetdisabler.cpp
     gadgettargetfx.cpp
-    ../../shared/gamealloc.cpp
-    ../../shared/gamebutemgr.cpp
     gameclientshell.cpp
     gamesettings.cpp
     gibfx.cpp
     globalclientmgr.cpp
-    ../../shared/globalmgr.cpp
     headbobmgr.cpp
     hitbox.cpp
     hudbar.cpp
@@ -323,7 +352,6 @@ set(
     hudscores.cpp
     hudsubtitles.cpp
     hudtransmission.cpp
-    ../../../engine/sdk/inc/iltbaseclass.cpp
     intelitemlist.cpp
     interfacemgr.cpp
     interfaceresmgr.cpp
@@ -331,7 +359,6 @@ set(
     interfacetimer.cpp
     ipmgr.cpp
     jumpvolumefx.cpp
-    ../../shared/keymgr.cpp
     laserbeam.cpp
     lasertriggerfx.cpp
     layoutmgr.cpp
@@ -343,10 +370,6 @@ set(
     lightscalemgr.cpp
     linesystemfx.cpp
     loadingscreen.cpp
-    ../../../engine/sdk/inc/lteulerangles.cpp
-    ../../../engine/sdk/inc/ltmodule.cpp
-    ../../../engine/sdk/inc/ltobjref.cpp
-    ../../../engine/sdk/inc/ltquatbase.cpp
     marksfx.cpp
     menuintel.cpp
     menuinventory.cpp
@@ -357,18 +380,14 @@ set(
     menusystem.cpp
     messagebox.cpp
     minefx.cpp
-    ../../shared/missionbutemgr.cpp
     missionmgr.cpp
-    ../../shared/modelbutemgr.cpp
     music.cpp
     muzzleflashfx.cpp
     muzzleflashparticlefx.cpp
-    ../../shared/netdefs.cpp
     nodecontroller.cpp
     nodelinesfx.cpp
     objectivecontrol.cpp
     objspritefx.cpp
-    ../../shared/parsedmsg.cpp
     particleexplosionfx.cpp
     particleshowerfx.cpp
     particlesystemfx.cpp
@@ -390,17 +409,13 @@ set(
     popupmgr.cpp
     popuptext.cpp
     profilemgr.cpp
-    ../../shared/profileutils.cpp
     projectilefx.cpp
     pvfxmgr.cpp
     radarobjectfx.cpp
-    ../../shared/radartypemgr.cpp
     ragdoll.cpp
     ragdollconstraint.cpp
     randomsparksfx.cpp
-    ../../shared/saveloadmgr.cpp
     scatterfx.cpp
-    ../../shared/scmdconsole.cpp
     scmdconsoledriver_cshell.cpp
     screenmgr.cpp
     screenpostload.cpp
@@ -408,53 +423,30 @@ set(
     screenspritemgr.cpp
     screentintmgr.cpp
     searcher.cpp
-    ../../shared/searchitemmgr.cpp
     searchlightfx.cpp
     sfxmgr.cpp
-    ../../shared/sharedfxstructs.cpp
-    ../../shared/sharedmission.cpp
-    ../../shared/sharedscoring.cpp
     shellcasingfx.cpp
     skillcontrol.cpp
-    ../../shared/skillsbutemgr.cpp
     smokefx.cpp
     snowfx.cpp
-    ../../shared/soundbutemgr.cpp
-    ../../shared/soundfiltermgr.cpp
     soundfx.cpp
-    ../../shared/soundmgr.cpp
     sparam.cpp
     specialfxlist.cpp
     sprinklesfx.cpp
-    ../../shared/stacktrace.cpp
     stdafx.cpp
     steamfx.cpp
-    ../../shared/surfacefunctions.cpp
-    ../../shared/surfacemgr.cpp
     targetmgr.cpp
-    ../../shared/teammgr.cpp
-    ../../shared/templatelist.cpp
     texturefxmgr.cpp
     timedtext.cpp
     tracerfx.cpp
-    ../../shared/trackednode.cpp
-    ../../shared/trackednodecontext.cpp
-    ../../shared/trackednodecontrolfn.cpp
-    ../../shared/trackednodemgr.cpp
     transitionfxmgr.cpp
     triggerfx.cpp
-    ../../shared/triggertypemgr.cpp
-    ../../shared/uberassert.cpp
     vehiclemgr.cpp
-    ../../shared/versionmgr.cpp
     visionmodemgr.cpp
     vkdefs.cpp
-    ../../shared/wavefn.cpp
     weaponchooser.cpp
     weaponfx.cpp
-    ../../shared/weaponmgr.cpp
     weatherfx.cpp
-    ../../shared/winutil.cpp
 )
 
 if (MSVC)
@@ -478,7 +470,30 @@ if (MSVC)
 endif ()
 
 add_library(
-    ${LTJS_TARGET} STATIC
-    ${HDRS}
-    ${SRCS}
+    ltjs_lib_client_shell STATIC
+    ${headers}
+    ${sources}
 )
+
+ltjs_add_defaults(ltjs_lib_client_shell stdafx.h)
+
+set_target_properties(
+    ltjs_lib_client_shell
+    PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+)
+
+target_compile_definitions(
+    ltjs_lib_client_shell
+    PRIVATE _CLIENTBUILD
+    PRIVATE MEMTRACK_CLIENT)
+
+if (MSVC)
+    # Enable RTTI
+    target_compile_options(
+        ltjs_lib_client_shell
+        PRIVATE -GR
+    )
+endif ()

@@ -1,35 +1,32 @@
-set(LTJS_TARGET ltjs_game_client_fx)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_game_client_fx VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options(stdafx.h)
-
-add_definitions(-DMEMTRACK_CLIENTFX)
-
 include_directories(
-    ../libs/ltguimgr
-    ../shared
     ../../engine/sdk/inc
-    ../../libs/mfcstub
-    ../../libs/stdlith
     ../../libs/butemgr
     ../../libs/cryptmgr
     ../../libs/lith
+    ../../libs/mfcstub
+    ../../libs/stdlith
+    ../libs/ltguimgr
+    ../shared
 )
 
 set(
-    HDRS
+    headers
     ../shared/bankedlist.h
     ../shared/bankedlist_impl.h
     ../shared/basefx.h
+    ../shared/debugnew.h
+    ../shared/debugnew_impl.h
     bouncychunkfx.h
     camjitterfx.h
     camwobblefx.h
     clientfx.h
     createfx.h
     cycletimer.h
-    ../shared/debugnew.h
-    ../shared/debugnew_impl.h
     dynalightfx.h
     fallingstufffx.h
     flarespritefx.h
@@ -51,7 +48,10 @@ set(
 )
 
 set(
-    SRCS
+    sources
+    ../../engine/sdk/inc/ltmodule.cpp
+    ../../engine/sdk/inc/ltquatbase.cpp
+    ../shared/debugnew.cpp
     basefx.cpp
     bouncychunkfx.cpp
     camjitterfx.cpp
@@ -59,15 +59,12 @@ set(
     clientfx.cpp
     createfx.cpp
     cycletimer.cpp
-    ../shared/debugnew.cpp
     dynalightfx.cpp
     fallingstufffx.cpp
     flarespritefx.cpp
     lightningfx.cpp
     ltbbouncychunkfx.cpp
     ltbmodelfx.cpp
-    ../../engine/sdk/inc/ltmodule.cpp
-    ../../engine/sdk/inc/ltquatbase.cpp
     nullfx.cpp
     particlesystemfx.cpp
     playrandomsoundfx.cpp
@@ -97,24 +94,37 @@ if (MSVC)
 endif ()
 
 add_library(
-    ${LTJS_TARGET} SHARED
-    ${HDRS}
-    ${SRCS}
+    ltjs_game_client_fx SHARED
+    ${headers}
+    ${sources}
 )
 
-if (MSVC)
-    set_target_properties(
-        ${LTJS_TARGET}
-        PROPERTIES
-            LINK_FLAGS /SUBSYSTEM:WINDOWS
-    )
-endif ()
+ltjs_add_defaults(ltjs_game_client_fx stdafx.h)
 
 set_target_properties(
-    ${LTJS_TARGET}
+    ltjs_game_client_fx
+    PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+)
+
+target_compile_definitions(
+    ltjs_game_client_fx
+    PRIVATE MEMTRACK_CLIENTFX)
+
+set_target_properties(
+    ltjs_game_client_fx
     PROPERTIES
         OUTPUT_NAME clientfx
         PREFIX ""
         SUFFIX .fxd
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_GAME_BIN_DIR}
 )
+
+if (MSVC)
+    set_target_properties(
+        ltjs_game_client_fx
+        PROPERTIES
+            LINK_FLAGS /SUBSYSTEM:WINDOWS
+    )
+endif ()

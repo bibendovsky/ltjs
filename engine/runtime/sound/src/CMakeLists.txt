@@ -1,28 +1,31 @@
-set(LTJS_TARGET ltjs_lib_ilt_sound)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lib_ilt_sound VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
-
-ltjs_add_default_options()
-
-# User defines
-add_definitions(-DUSE_ABSTRACT_SOUND_INTERFACES)
 
 include_directories(
     ../../../sdk/inc
 )
 
 set(
-    HDRS
+    headers
     iltsound.h
 )
 
 set(
-    SRCS
+    sources
     iltsound.cpp
 )
 
 add_library(
-    ${LTJS_TARGET} STATIC
-    ${HDRS}
-    ${SRCS}
+    ltjs_lib_ilt_sound STATIC
+    ${headers}
+    ${sources}
+)
+
+ltjs_add_defaults(ltjs_lib_ilt_sound)
+
+target_compile_definitions(
+    ltjs_lib_ilt_sound
+    PRIVATE USE_ABSTRACT_SOUND_INTERFACES
 )

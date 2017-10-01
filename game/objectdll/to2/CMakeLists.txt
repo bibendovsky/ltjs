@@ -1,59 +1,49 @@
-set(LTJS_TARGET ltjs_to2_object)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_to2_object VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options()
-
-add_definitions(-D_SERVERBUILD)
-add_definitions(-DMEMTRACK_SERVER)
-add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-D_NOLFBUILD>)
-add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-DUSE_INTEL_COMPILER>)
-
-if (MSVC)
-    add_compile_options(-GR)
-endif ()
-
 include_directories(
     .
-    ../objectshared
-    ../../shared
     ../../../engine/sdk/inc
-    ../../../libs/stdlith
     ../../../libs/butemgr
     ../../../libs/cryptmgr
     ../../../libs/lith
     ../../../libs/mfcstub
     ../../../libs/regmgr
+    ../../../libs/stdlith
     ../../libs
-    ../../shared/to2
     ../../libs/serverdir
+    ../../shared
+    ../../shared/to2
+    ../objectshared
 )
 
 set(
-    HDRS
-    stdafx.h
-    to2gameservershell.h
+    headers
     ../../shared/to2/to2missionbutemgr.h
     ../../shared/to2/to2versionmgr.h
+    stdafx.h
+    to2gameservershell.h
 )
 
 set(
-    SRCS
+    sources
+    ../../shared/to2/to2missionbutemgr.cpp
+    ../../shared/to2/to2versionmgr.cpp
     globalsinit.cpp
     stdafx.cpp
     to2gameservershell.cpp
-    ../../shared/to2/to2missionbutemgr.cpp
-    ../../shared/to2/to2versionmgr.cpp
 )
 
 add_library(
-    ${LTJS_TARGET} SHARED
-    ${HDRS}
-    ${SRCS}
+    ltjs_to2_object SHARED
+    ${headers}
+    ${sources}
 )
 
 set_target_properties(
-    ${LTJS_TARGET}
+    ltjs_to2_object
     PROPERTIES
         OUTPUT_NAME object
         PREFIX ""
@@ -63,14 +53,14 @@ set_target_properties(
 
 if (MSVC)
     set_target_properties(
-        ${LTJS_TARGET}
+        ltjs_to2_object
         PROPERTIES
             LINK_FLAGS /SUBSYSTEM:WINDOWS
     )
 endif ()
 
 target_link_libraries(
-    ${LTJS_TARGET}
+    ltjs_to2_object
     ltjs_lib_object
     ltjs_lib_bute_mgr
     ltjs_lib_std_lith
@@ -80,3 +70,20 @@ target_link_libraries(
     ltjs_lib_mfc_stub
     ltjs_server_dir
 )
+
+ltjs_add_defaults(ltjs_to2_object)
+
+target_compile_definitions(
+    ltjs_to2_object
+    PRIVATE _SERVERBUILD
+    PRIVATE MEMTRACK_SERVER
+    PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:_NOLFBUILD>
+    PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:USE_INTEL_COMPILER>
+)
+
+if (MSVC)
+    target_compile_options(
+        ltjs_to2_object
+        PRIVATE -GR
+    )
+endif ()

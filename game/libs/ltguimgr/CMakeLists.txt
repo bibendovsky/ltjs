@@ -1,11 +1,7 @@
-set(LTJS_TARGET ltjs_lib_lt_gui_mgr)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lib_lt_gui_mgr VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
-
-ltjs_add_default_options()
-
-add_definitions(-D_LITHTECH2)
-add_definitions(-DLT15_COMPAT)
 
 include_directories(
     ../../../engine/sdk/inc
@@ -13,7 +9,7 @@ include_directories(
 )
 
 set(
-    HDRS
+    headers
     ltguibutton.h
     ltguicolumnctrl.h
     ltguicommandhandler.h
@@ -33,7 +29,7 @@ set(
 )
 
 set(
-    SRCS
+    sources
     ltguibutton.cpp
     ltguicolumnctrl.cpp
     ltguicommandhandler.cpp
@@ -50,7 +46,15 @@ set(
 )
 
 add_library(
-    ${LTJS_TARGET} STATIC
-    ${HDRS}
-    ${SRCS}
+    ltjs_lib_lt_gui_mgr STATIC
+    ${headers}
+    ${sources}
+)
+
+ltjs_add_defaults(ltjs_lib_lt_gui_mgr)
+
+target_compile_definitions(
+    ltjs_lib_lt_gui_mgr
+    PRIVATE _LITHTECH2
+    PRIVATE LT15_COMPAT
 )

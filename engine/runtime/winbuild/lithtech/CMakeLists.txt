@@ -1,285 +1,87 @@
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lith_tech VERSION 0.0.1 LANGUAGES CXX)
+
 set(LTJS_TARGET ltjs_lith_tech)
 
 include(ltjs_common)
 
-ltjs_add_default_options(bdefs.h)
-
-add_definitions(-DDE_LOCAL_SERVERBIND)
-add_definitions(-DDE_CLIENT_COMPILE)
-add_definitions(-DDSNDMGR_NO_MFC)
-add_definitions(-DDIRECTENGINE_COMPILE)
-add_definitions(-D__D3D)
-add_definitions(-D__D3DREND)
-add_definitions(-DMODEL_SUPPORT_ABC)
-add_compile_options($<$<CONFIG:DEBUG>:-DD3D_DEBUG_INFO>)
-
 include_directories(
-    ../../../../directx/include
-    ../../../../libs/stdlith
-    ../../../../libs/lith
-    ../../../libs/rezmgr
-    ../../controlfilemgr
-    ../../crtcompat
-    ../../lithtemplate
     .
-    ../../client/src
-    ../../kernel/mem/src
-    ../../kernel/io/src
-    ../../kernel/src
-    ../../kernel/src/sys/win
-    ../../model/src
-    ../../sound/src
-    ../../server/src
-    ../../shared/src/sys/win
-    ../../shared/src
-    ../../world/src
+    ../../../../directx/include
+    ../../../../libs/lith
+    ../../../../libs/mfcstub
+    ../../../../libs/stdlith
+    ../../../libs/lib_dshow
+    ../../../libs/rezmgr
     ../../../sdk/inc
     ../../../sdk/inc/compat
-    ../../kernel/net/src
-    ../../render_b/src
-    ../../mpm/src
-    ../../comm/src
-    ../../ui/src
-    ../../distrobj/src
-    ../../state_mgr/src
-    ../../physics/src
-    ../../render_a/src/sys/d3d
     ../../../sdk/inc/physics
     ../../../sdk/inc/state_mgr
-    ../../../../libs/mfcstub
-    ../../../libs/lib_dshow
+    ../../client/src
+    ../../comm/src
+    ../../controlfilemgr
+    ../../crtcompat
+    ../../distrobj/src
+    ../../kernel/io/src
+    ../../kernel/mem/src
+    ../../kernel/net/src
+    ../../kernel/src
+    ../../kernel/src/sys/win
+    ../../lithtemplate
+    ../../model/src
+    ../../mpm/src
+    ../../physics/src
+    ../../render_a/src/sys/d3d
+    ../../render_b/src
+    ../../server/src
+    ../../shared/src
+    ../../shared/src/sys/win
+    ../../sound/src
+    ../../state_mgr/src
+    ../../ui/src
+    ../../world/src
 )
 
 set(
-    HDRS
-    ../../controlfilemgr/controlfilemgr.h
-    ../../../sdk/inc/physics/aabb.h
-    ../../../sdk/inc/physics/aabb_tree.h
-    ../../model/src/animtracker.h
-    ../../kernel/src/sys/win/appresource.h
-    ../../shared/src/bdefs.h
-    ../../kernel/src/sys/win/bindmgr.h
-    ../../kernel/src/sys/win/binkvideomgrimpl.h
-    ../../shared/src/build_options.h
-    ../../shared/src/classbind.h
-    ../../server/src/classmgr.h
-    ../../client/src/client_formatmgr.h
-    ../../client/src/client_graphmgr.h
-    ../../client/src/client_ticks.h
-    ../../client/src/clientde_impl.h
-    ../../client/src/clientexception.h
-    ../../shared/src/clienthack.h
-    ../../client/src/clientmgr.h
-    ../../client/src/clientshell.h
-    ../../render_a/src/sys/d3d/clipline.h
-    ../../client/src/cmoveabstract.h
-    ../../shared/src/collision.h
-    ../../../sdk/inc/physics/collision_data.h
-    ../../../sdk/inc/physics/collision_mgr.h
-    ../../../sdk/inc/physics/collision_object.h
-    ../../shared/src/colorops.h
-    ../../render_a/src/sys/d3d/common_draw.h
-    ../../shared/src/compress.h
-    ../../shared/src/concommand.h
-    ../../shared/src/conparse.h
-    ../../client/src/console.h
-    ../../client/src/consolecommands.h
-    ../../../sdk/inc/physics/coordinate_frame.h
-    ../../kernel/src/sys/win/counter.h
-    ../../client/src/customfontfilemgr.h
-    ../../render_a/src/sys/d3d/d3d_convar.h
-    ../../render_a/src/sys/d3d/d3d_device.h
-    ../../render_a/src/sys/d3d/d3d_draw.h
-    ../../render_a/src/sys/d3d/d3d_renderstatemgr.h
-    ../../render_a/src/sys/d3d/d3d_renderstyle.h
-    ../../render_a/src/sys/d3d/d3d_utils.h
-    ../../shared/src/sys/win/d3dddstructs.h
-    ../../render_b/src/sys/d3d/d3ddrawprim.h
-    ../../render_b/src/sys/d3d/d3dtexinterface.h
-    ../../kernel/io/src/sys/win/de_file.h
-    ../../world/src/de_mainworld.h
-    ../../kernel/mem/src/de_memory.h
-    ../../world/src/de_objects.h
-    ../../world/src/de_sprite.h
-    ../../world/src/de_world.h
-    ../../shared/src/debuggeometry.h
-    ../../client/src/debuggraphmgr.h
-    ../../shared/src/dhashtable.h
-    ../../kernel/src/sys/win/dshowvideomgrimpl.h
-    ../../shared/src/sys/win/dstreamopenqueuemgr.h
-    ../../kernel/src/dsys.h
-    ../../kernel/src/sys/win/dsys_interface.h
-    ../../shared/src/dtxmgr.h
-    ../../kernel/src/sys/win/dutil.h
-    ../../client/src/errorlog.h
-    ../../shared/src/findobj.h
-    ../../shared/src/ftbase.h
-    ../../shared/src/ftclient.h
-    ../../shared/src/ftserv.h
-    ../../world/src/fullintersectline.h
-    ../../server/src/game_serialize.h
-    ../../shared/src/gamemath.h
-    ../../render_b/src/gendrawprim.h
-    ../../shared/src/genericprop_setup.h
-    ../../shared/src/genltstream.h
-    ../../shared/src/geometry.h
-    ../../shared/src/geomroutines.h
-    ../../shared/src/impl_common.h
-    ../../kernel/src/sys/win/input.h
-    ../../kernel/src/sys/win/interface_helpers.h
-    ../../server/src/interlink.h
-    ../../world/src/intersect_line.h
-    ../../world/src/light_table.h
-    ../../shared/src/lightmap_compress.h
-    ../../shared/src/lightmap_planes.h
-    ../../shared/src/lightmapdefs.h
-    ../../client/src/linesystem.h
-    ../../kernel/src/sys/win/load_pcx.h
-    ../../world/src/loadstatus.h
-    ../../kernel/net/src/localdriver.h
-    ../../physics/src/lt_collision_mgr.h
-    ../../model/src/ltb.h
-    ../../shared/src/ltbbox.h
-    ../../client/src/ltbenchmark_impl.h
-    ../../kernel/src/sys/win/ltdirectmusic_impl.h
-    ../../kernel/src/sys/win/ltdirectmusiccontrolfile.h
-    ../../kernel/src/sys/win/ltdirectmusicloader.h
-    ../../kernel/src/sys/win/lthread.h
-    ../../client/src/ltinfo_impl.h
-    ../../shared/src/ltmessage.h
-    ../../client/src/ltmessage_client.h
-    ../../server/src/ltmessage_server.h
-    ../../shared/src/ltmutex.h
-    ../../kernel/src/sys/win/ltrendermgr_impl.h
-    ../../client/src/lttexturestring.h
-    ../../kernel/src/sys/win/ltthread.h
-    ../../shared/src/lttimer.h
-    ../../../sdk/inc/physics/math_phys.h
-    ../../../sdk/inc/physics/matrix.h
-    ../../client/src/memorywatch.h
-    ../../shared/src/misctools.h
-    ../../model/src/model.h
-    ../../model/src/model_ops.h
-    ../../model/src/modelallocations.h
-    ../../shared/src/motion.h
-    ../../shared/src/moveobject.h
-    ../../shared/src/moveplayer.h
-    ../../kernel/src/sys/win/musicdriver.h
-    ../../shared/src/musicmgr.h
-    ../../kernel/net/src/netmgr.h
-    ../../shared/src/nexus.h
-    ../../shared/src/objectmgr.h
-    ../../kernel/net/src/packet.h
-    ../../shared/src/packetdefs.h
-    ../../shared/src/parse_world_info.h
-    ../../client/src/particlesystem.h
-    ../../shared/src/pixelformat.h
-    ../../client/src/polygrid.h
-    ../../client/src/predict.h
-    ../../../sdk/inc/physics/quaternion.h
-    ../../shared/src/ratetracker.h
-    ../../shared/src/refobj.h
-    ../../kernel/src/sys/win/render.h
-    ../../shared/src/renderinfostruct.h
-    ../../shared/src/renderobject.h
-    ../../shared/src/sys/win/renderstruct.h
+    headers
     ../../../libs/rezmgr/rezfile.h
     ../../../libs/rezmgr/rezhash.h
     ../../../libs/rezmgr/rezmgr.h
     ../../../libs/rezmgr/reztypes.h
-    ../../../sdk/inc/physics/rigid_body.h
-    ../../server/src/s_client.h
-    ../../server/src/s_concommand.h
-    ../../server/src/s_net.h
-    ../../server/src/s_object.h
-    ../../server/src/server_consolestate.h
-    ../../server/src/server_extradata.h
-    ../../server/src/server_filemgr.h
-    ../../server/src/serverde_impl.h
-    ../../server/src/serverevent.h
-    ../../server/src/serverexception.h
-    ../../server/src/servermgr.h
-    ../../server/src/serverobj.h
-    ../../client/src/setupobject.h
-    ../../server/src/smoveabstract.h
-    ../../kernel/net/src/sys/win/socket.h
-    ../../sound/src/soundbuffer.h
-    ../../sound/src/sounddata.h
-    ../../sound/src/soundinstance.h
-    ../../server/src/soundtrack.h
-    ../../client/src/sprite.h
-    ../../shared/src/stacktrace.h
-    ../../shared/src/staticfifo.h
-    ../../shared/src/stdlterror.h
-    ../../kernel/src/sys/win/streamsim.h
-    ../../kernel/src/sys/win/stringmgr.h
-    ../../shared/src/strtools.h
-    ../../client/src/sysclient.h
-    ../../client/src/sysclientde_impl.h
-    ../../client/src/sysconsole_impl.h
-    ../../kernel/src/syscounter.h
-    ../../shared/src/sysddstructs.h
-    ../../kernel/src/sysdebugging.h
-    ../../render_b/src/sysdrawprim.h
-    ../../kernel/io/src/sysfile.h
-    ../../kernel/src/sysinput.h
-    ../../kernel/src/syslibraryloader.h
-    ../../kernel/src/sysstreamsim.h
-    ../../kernel/src/sys/win/systeminfo.h
-    ../../kernel/src/systhread.h
-    ../../kernel/src/systimer.h
-    ../../kernel/src/sysvideo.h
-    ../../kernel/src/sys/win/text_mgr.h
-    ../../client/src/texturestring.h
-    ../../client/src/texturestringimage.h
-    ../../kernel/src/sys/win/timemgr.h
-    ../../model/src/transformmaker.h
-    ../../../sdk/inc/physics/triangle.h
-    ../../shared/src/varsetter.h
-    ../../../sdk/inc/physics/vector.h
-    ../../shared/src/version_info.h
-    ../../kernel/src/sys/win/version_resource.h
-    ../../kernel/src/sys/win/videomgr.h
-    ../../client/src/volumeeffect.h
-    ../../client/src/watermark.h
-    ../../sound/src/wave.h
-    ../../kernel/src/sys/win/winbind.h
-    ../../client/src/sys/win/winclientde_impl.h
-    ../../client/src/sys/win/winconsole_impl.h
-    ../../shared/src/sys/win/winstdlterror.h
-    ../../shared/src/sys/win/winsync.h
-    ../../world/src/world_tree.h
-    ../../world/src/worldtreehelper.h
     ../../../sdk/inc/cui.h
     ../../../sdk/inc/cuifont.h
     ../../../sdk/inc/cuiformattedpolystring.h
     ../../../sdk/inc/cuimessage.h
     ../../../sdk/inc/cuipolystring.h
-    ../../ui/src/cuipolystring_impl.h
     ../../../sdk/inc/cuitypes.h
     ../../../sdk/inc/iaggregate.h
     ../../../sdk/inc/iclientshell.h
     ../../../sdk/inc/iltbaseclass.h
     ../../../sdk/inc/iltbenchmark.h
     ../../../sdk/inc/iltclient.h
+    ../../../sdk/inc/iltcommon.h
     ../../../sdk/inc/iltcsbase.h
+    ../../../sdk/inc/iltcursor.h
     ../../../sdk/inc/iltdirectmusic.h
     ../../../sdk/inc/iltdrawprim.h
     ../../../sdk/inc/iltfontmanager.h
     ../../../sdk/inc/iltinfo.h
     ../../../sdk/inc/iltmemory.h
     ../../../sdk/inc/iltmessage.h
+    ../../../sdk/inc/iltmodel.h
+    ../../../sdk/inc/iltphysics.h
     ../../../sdk/inc/iltrefcount.h
     ../../../sdk/inc/iltrenderstyles.h
     ../../../sdk/inc/iltserver.h
-    ../../sound/src/iltsound.h
+    ../../../sdk/inc/iltsoundmgr.h
     ../../../sdk/inc/iltspritecontrol.h
     ../../../sdk/inc/iltstream.h
     ../../../sdk/inc/ilttexinterface.h
     ../../../sdk/inc/ilttexturestring.h
+    ../../../sdk/inc/ilttransform.h
+    ../../../sdk/inc/iltvideomgr.h
     ../../../sdk/inc/iltwidgetmanager.h
     ../../../sdk/inc/iservershell.h
-    ../../kernel/src/ithread.h
     ../../../sdk/inc/lithtech.h
     ../../../sdk/inc/ltanimtracker.h
     ../../../sdk/inc/ltassert.h
@@ -302,7 +104,206 @@ set(
     ../../../sdk/inc/ltrotation.h
     ../../../sdk/inc/ltserverobj.h
     ../../../sdk/inc/ltvector.h
+    ../../../sdk/inc/physics/aabb.h
+    ../../../sdk/inc/physics/aabb_tree.h
+    ../../../sdk/inc/physics/collision_data.h
+    ../../../sdk/inc/physics/collision_mgr.h
+    ../../../sdk/inc/physics/collision_object.h
+    ../../../sdk/inc/physics/coordinate_frame.h
+    ../../../sdk/inc/physics/math_phys.h
+    ../../../sdk/inc/physics/matrix.h
+    ../../../sdk/inc/physics/quaternion.h
+    ../../../sdk/inc/physics/rigid_body.h
+    ../../../sdk/inc/physics/triangle.h
+    ../../../sdk/inc/physics/vector.h
     ../../../sdk/inc/server_interface.h
+    ../../client/src/client_filemgr.h
+    ../../client/src/client_formatmgr.h
+    ../../client/src/client_graphmgr.h
+    ../../client/src/client_ticks.h
+    ../../client/src/clientde_impl.h
+    ../../client/src/clientexception.h
+    ../../client/src/clientmgr.h
+    ../../client/src/clientshell.h
+    ../../client/src/cmoveabstract.h
+    ../../client/src/console.h
+    ../../client/src/consolecommands.h
+    ../../client/src/customfontfilemgr.h
+    ../../client/src/debuggraphmgr.h
+    ../../client/src/errorlog.h
+    ../../client/src/linesystem.h
+    ../../client/src/ltbenchmark_impl.h
+    ../../client/src/ltinfo_impl.h
+    ../../client/src/ltmessage_client.h
+    ../../client/src/lttexturestring.h
+    ../../client/src/memorywatch.h
+    ../../client/src/particlesystem.h
+    ../../client/src/polygrid.h
+    ../../client/src/predict.h
+    ../../client/src/setupobject.h
+    ../../client/src/sprite.h
+    ../../client/src/sys/win/winclientde_impl.h
+    ../../client/src/sys/win/winconsole_impl.h
+    ../../client/src/sysclient.h
+    ../../client/src/sysclientde_impl.h
+    ../../client/src/sysconsole_impl.h
+    ../../client/src/texturestring.h
+    ../../client/src/texturestringimage.h
+    ../../client/src/volumeeffect.h
+    ../../client/src/watermark.h
+    ../../controlfilemgr/controlfilemgr.h
+    ../../kernel/io/src/sys/win/de_file.h
+    ../../kernel/io/src/sysfile.h
+    ../../kernel/mem/src/de_memory.h
+    ../../kernel/net/src/localdriver.h
+    ../../kernel/net/src/netmgr.h
+    ../../kernel/net/src/packet.h
+    ../../kernel/net/src/sys/win/socket.h
+    ../../kernel/src/dsys.h
+    ../../kernel/src/icommandlineargs.h
+    ../../kernel/src/ithread.h
+    ../../kernel/src/sys/win/appresource.h
+    ../../kernel/src/sys/win/bindmgr.h
+    ../../kernel/src/sys/win/binkvideomgrimpl.h
+    ../../kernel/src/sys/win/counter.h
+    ../../kernel/src/sys/win/dshowvideomgrimpl.h
+    ../../kernel/src/sys/win/dsys_interface.h
+    ../../kernel/src/sys/win/dutil.h
+    ../../kernel/src/sys/win/input.h
+    ../../kernel/src/sys/win/interface_helpers.h
+    ../../kernel/src/sys/win/load_pcx.h
+    ../../kernel/src/sys/win/ltdirectmusic_impl.h
+    ../../kernel/src/sys/win/ltdirectmusiccontrolfile.h
+    ../../kernel/src/sys/win/ltdirectmusicloader.h
+    ../../kernel/src/sys/win/lthread.h
+    ../../kernel/src/sys/win/ltrendermgr_impl.h
+    ../../kernel/src/sys/win/ltthread.h
+    ../../kernel/src/sys/win/musicdriver.h
+    ../../kernel/src/sys/win/render.h
+    ../../kernel/src/sys/win/streamsim.h
+    ../../kernel/src/sys/win/stringmgr.h
+    ../../kernel/src/sys/win/systeminfo.h
+    ../../kernel/src/sys/win/text_mgr.h
+    ../../kernel/src/sys/win/timemgr.h
+    ../../kernel/src/sys/win/version_resource.h
+    ../../kernel/src/sys/win/videomgr.h
+    ../../kernel/src/sys/win/winbind.h
+    ../../kernel/src/syscounter.h
+    ../../kernel/src/sysdebugging.h
+    ../../kernel/src/sysinput.h
+    ../../kernel/src/syslibraryloader.h
+    ../../kernel/src/sysstreamsim.h
+    ../../kernel/src/systhread.h
+    ../../kernel/src/systimer.h
+    ../../kernel/src/sysvideo.h
+    ../../model/src/animtracker.h
+    ../../model/src/ltb.h
+    ../../model/src/model.h
+    ../../model/src/model_ops.h
+    ../../model/src/modelallocations.h
+    ../../model/src/transformmaker.h
+    ../../physics/src/lt_collision_mgr.h
+    ../../render_a/src/sys/d3d/clipline.h
+    ../../render_a/src/sys/d3d/common_draw.h
+    ../../render_a/src/sys/d3d/d3d_convar.h
+    ../../render_a/src/sys/d3d/d3d_device.h
+    ../../render_a/src/sys/d3d/d3d_draw.h
+    ../../render_a/src/sys/d3d/d3d_renderstatemgr.h
+    ../../render_a/src/sys/d3d/d3d_renderstyle.h
+    ../../render_a/src/sys/d3d/d3d_utils.h
+    ../../render_b/src/gendrawprim.h
+    ../../render_b/src/sys/d3d/d3ddrawprim.h
+    ../../render_b/src/sys/d3d/d3dtexinterface.h
+    ../../render_b/src/sysdrawprim.h
+    ../../server/src/classmgr.h
+    ../../server/src/game_serialize.h
+    ../../server/src/interlink.h
+    ../../server/src/ltmessage_server.h
+    ../../server/src/s_client.h
+    ../../server/src/s_concommand.h
+    ../../server/src/s_net.h
+    ../../server/src/s_object.h
+    ../../server/src/server_consolestate.h
+    ../../server/src/server_extradata.h
+    ../../server/src/server_filemgr.h
+    ../../server/src/serverde_impl.h
+    ../../server/src/serverevent.h
+    ../../server/src/serverexception.h
+    ../../server/src/servermgr.h
+    ../../server/src/serverobj.h
+    ../../server/src/smoveabstract.h
+    ../../server/src/soundtrack.h
+    ../../shared/src/bdefs.h
+    ../../shared/src/build_options.h
+    ../../shared/src/classbind.h
+    ../../shared/src/clienthack.h
+    ../../shared/src/collision.h
+    ../../shared/src/colorops.h
+    ../../shared/src/compress.h
+    ../../shared/src/concommand.h
+    ../../shared/src/conparse.h
+    ../../shared/src/debuggeometry.h
+    ../../shared/src/dhashtable.h
+    ../../shared/src/dtxmgr.h
+    ../../shared/src/findobj.h
+    ../../shared/src/ftbase.h
+    ../../shared/src/ftclient.h
+    ../../shared/src/ftserv.h
+    ../../shared/src/gamemath.h
+    ../../shared/src/genericprop_setup.h
+    ../../shared/src/genltstream.h
+    ../../shared/src/geometry.h
+    ../../shared/src/geomroutines.h
+    ../../shared/src/impl_common.h
+    ../../shared/src/lightmap_compress.h
+    ../../shared/src/lightmap_planes.h
+    ../../shared/src/lightmapdefs.h
+    ../../shared/src/ltbbox.h
+    ../../shared/src/ltmessage.h
+    ../../shared/src/ltmutex.h
+    ../../shared/src/lttimer.h
+    ../../shared/src/misctools.h
+    ../../shared/src/motion.h
+    ../../shared/src/moveobject.h
+    ../../shared/src/moveplayer.h
+    ../../shared/src/musicmgr.h
+    ../../shared/src/nexus.h
+    ../../shared/src/objectmgr.h
+    ../../shared/src/packetdefs.h
+    ../../shared/src/parse_world_info.h
+    ../../shared/src/pixelformat.h
+    ../../shared/src/ratetracker.h
+    ../../shared/src/refobj.h
+    ../../shared/src/renderinfostruct.h
+    ../../shared/src/renderobject.h
+    ../../shared/src/shared_iltcommon.h
+    ../../shared/src/stacktrace.h
+    ../../shared/src/staticfifo.h
+    ../../shared/src/stdlterror.h
+    ../../shared/src/strtools.h
+    ../../shared/src/sys/win/d3dddstructs.h
+    ../../shared/src/sys/win/dstreamopenqueuemgr.h
+    ../../shared/src/sys/win/renderstruct.h
+    ../../shared/src/sys/win/winstdlterror.h
+    ../../shared/src/sys/win/winsync.h
+    ../../shared/src/sysddstructs.h
+    ../../shared/src/varsetter.h
+    ../../shared/src/version_info.h
+    ../../sound/src/iltsound.h
+    ../../sound/src/soundbuffer.h
+    ../../sound/src/sounddata.h
+    ../../sound/src/soundinstance.h
+    ../../sound/src/soundmgr.h
+    ../../sound/src/wave.h
+    ../../ui/src/cuipolystring_impl.h
+    ../../world/src/de_mainworld.h
+    ../../world/src/de_objects.h
+    ../../world/src/de_sprite.h
+    ../../world/src/de_world.h
+    ../../world/src/fullintersectline.h
+    ../../world/src/intersect_line.h
+    ../../world/src/light_table.h
+    ../../world/src/loadstatus.h
     ../../world/src/world_blind_object_data.h
     ../../world/src/world_blocker_data.h
     ../../world/src/world_blocker_math.h
@@ -313,39 +314,23 @@ set(
     ../../world/src/world_server.h
     ../../world/src/world_server_bsp.h
     ../../world/src/world_shared_bsp.h
-    ../../kernel/src/icommandlineargs.h
-    ../../client/src/client_filemgr.h
-    ../../../sdk/inc/iltmodel.h
-    ../../../sdk/inc/iltcommon.h
-    ../../shared/src/shared_iltcommon.h
-    ../../../sdk/inc/iltcursor.h
-    ../../../sdk/inc/iltphysics.h
-    ../../../sdk/inc/ilttransform.h
-    ../../../sdk/inc/iltsoundmgr.h
-    ../../sound/src/soundmgr.h
-    ../../../sdk/inc/iltvideomgr.h
+    ../../world/src/world_tree.h
+    ../../world/src/worldtreehelper.h
 )
 
-if (MSVC)
-    set(
-        LTJS_PSRCS
-        res/client.rc2
-        lithtech.rc
-    )
-endif ()
-
 set(
-    SRCS
-    ../../controlfilemgr/controlfilemgr.cpp
-    ../../model/src/animtracker.cpp
-    ../../shared/src/bdefs.cpp
-    ../../kernel/src/sys/win/bindmgr.cpp
-    ../../kernel/src/sys/win/binkvideomgrimpl.cpp
-    ../../shared/src/classbind.cpp
-    ../../server/src/classmgr.cpp
-    ../../kernel/src/sys/win/client.cpp
+    sources
+    ../../../sdk/inc/lterror.cpp
+    ../../../sdk/inc/ltmodule.cpp
+    ../../../sdk/inc/ltobjref.cpp
+    ../../../sdk/inc/ltquatbase.cpp
+    ../../client/src/client_filemgr.cpp
     ../../client/src/client_formatmgr.cpp
     ../../client/src/client_graphmgr.cpp
+    ../../client/src/client_iltcommon.cpp
+    ../../client/src/client_iltmodel.cpp
+    ../../client/src/client_iltphysics.cpp
+    ../../client/src/client_iltvideomgr.cpp
     ../../client/src/client_ticks.cpp
     ../../client/src/clientde_impl.cpp
     ../../client/src/clientmgr.cpp
@@ -353,96 +338,83 @@ set(
     ../../client/src/cmoveabstract.cpp
     ../../client/src/cnet.cpp
     ../../client/src/cobject.cpp
-    ../../shared/src/collision.cpp
-    ../../shared/src/compress.cpp
-    ../../shared/src/concommand.cpp
-    ../../shared/src/conparse.cpp
     ../../client/src/console.cpp
     ../../client/src/consolecommands.cpp
-    ../../kernel/src/sys/win/counter.cpp
-    ../../client/src/sys/win/customfontfilemgr.cpp
     ../../client/src/cutil.cpp
-    ../../model/src/sys/d3d/d3d_model_load.cpp
-    ../../render_b/src/sys/d3d/d3ddrawprim.cpp
-    ../../render_b/src/sys/d3d/d3dtexinterface.cpp
-    ../../kernel/io/src/sys/win/de_file.cpp
-    ../../world/src/de_mainworld.cpp
-    ../../kernel/mem/src/sys/win/de_memory.cpp
-    ../../world/src/de_nodes.cpp
-    ../../world/src/de_objects.cpp
-    ../../shared/src/debuggeometry.cpp
-    ../../kernel/src/debugging.cpp
     ../../client/src/debuggraphmgr.cpp
-    ../../shared/src/dhashtable.cpp
-    ../../kernel/src/sys/win/dshowvideomgrimpl.cpp
-    ../../shared/src/sys/win/dstreamopenqueuemgr.cpp
-    ../../kernel/src/sys/win/dsys_interface.cpp
-    ../../shared/src/dtxmgr.cpp
-    ../../kernel/src/sys/win/dutil.cpp
-    ../../shared/src/engine_vars.cpp
     ../../client/src/errorlog.cpp
-    ../../shared/src/findobj.cpp
-    ../../shared/src/ftclient.cpp
-    ../../shared/src/ftserv.cpp
-    ../../world/src/fullintersectline.cpp
-    ../../server/src/game_serialize.cpp
-    ../../shared/src/gamemath.cpp
-    ../../shared/src/genericprop_setup.cpp
-    ../../shared/src/genltstream.cpp
-    ../../shared/src/geometry.cpp
-    ../../shared/src/geomroutines.cpp
-    ../../shared/src/impl_common.cpp
+    ../../client/src/linesystem.cpp
+    ../../client/src/ltbenchmark_impl.cpp
+    ../../client/src/ltinfo_impl.cpp
+    ../../client/src/ltmessage_client.cpp
+    ../../client/src/lttexturestring.cpp
+    ../../client/src/memorywatch.cpp
+    ../../client/src/particlesystem.cpp
+    ../../client/src/polygrid.cpp
+    ../../client/src/predict.cpp
+    ../../client/src/setupobject.cpp
+    ../../client/src/shellnet.cpp
+    ../../client/src/shelltransfer.cpp
+    ../../client/src/shellutil.cpp
+    ../../client/src/sprite.cpp
+    ../../client/src/sys/win/customfontfilemgr.cpp
+    ../../client/src/sys/win/texturestringimage.cpp
+    ../../client/src/sys/win/winclientde_impl.cpp
+    ../../client/src/sys/win/winconsole_impl.cpp
+    ../../client/src/texturestring.cpp
+    ../../client/src/volumeeffect.cpp
+    ../../client/src/watermark.cpp
+    ../../client/src/world_client_bsp.cpp
+    ../../controlfilemgr/controlfilemgr.cpp
+    ../../kernel/io/src/sys/win/de_file.cpp
+    ../../kernel/mem/src/ltmemory.cpp
+    ../../kernel/mem/src/sys/win/de_memory.cpp
+    ../../kernel/net/src/localdriver.cpp
+    ../../kernel/net/src/netmgr.cpp
+    ../../kernel/net/src/packet.cpp
+    ../../kernel/net/src/sys/win/udpdriver.cpp
+    ../../kernel/src/debugging.cpp
+    ../../kernel/src/icommandlineargs.cpp
+    ../../kernel/src/sys/win/bindmgr.cpp
+    ../../kernel/src/sys/win/binkvideomgrimpl.cpp
+    ../../kernel/src/sys/win/client.cpp
+    ../../kernel/src/sys/win/counter.cpp
+    ../../kernel/src/sys/win/dshowvideomgrimpl.cpp
+    ../../kernel/src/sys/win/dsys_interface.cpp
+    ../../kernel/src/sys/win/dutil.cpp
     ../../kernel/src/sys/win/input.cpp
     ../../kernel/src/sys/win/inputsim.cpp
     ../../kernel/src/sys/win/interface_helpers.cpp
-    ../../server/src/interlink.cpp
-    ../../world/src/intersect_line.cpp
-    ../../world/src/intersectsweptsphere.cpp
-    ../../shared/src/leech.cpp
-    ../../world/src/light_table.cpp
-    ../../shared/src/lightmap_compress.cpp
-    ../../shared/src/lightmap_planes.cpp
-    ../../client/src/linesystem.cpp
     ../../kernel/src/sys/win/load_pcx.cpp
-    ../../kernel/net/src/localdriver.cpp
-    ../../client/src/ltbenchmark_impl.cpp
+    ../../kernel/src/sys/win/lt_cursor_impl.cpp
     ../../kernel/src/sys/win/ltdirectmusic_impl.cpp
     ../../kernel/src/sys/win/ltdirectmusiccontrolfile.cpp
     ../../kernel/src/sys/win/ltdirectmusicloader.cpp
-    ../../../sdk/inc/lterror.cpp
     ../../kernel/src/sys/win/lthread.cpp
-    ../../client/src/ltinfo_impl.cpp
     ../../kernel/src/sys/win/ltlibraryloader.cpp
-    ../../kernel/mem/src/ltmemory.cpp
-    ../../shared/src/ltmessage.cpp
-    ../../client/src/ltmessage_client.cpp
-    ../../server/src/ltmessage_server.cpp
-    ../../../sdk/inc/ltmodule.cpp
-    ../../../sdk/inc/ltobjref.cpp
-    ../../../sdk/inc/ltquatbase.cpp
     ../../kernel/src/sys/win/ltrendermgr_impl.cpp
-    ../../client/src/lttexturestring.cpp
     ../../kernel/src/sys/win/ltthread.cpp
-    ../../shared/src/lttimer.cpp
-    ../../client/src/memorywatch.cpp
+    ../../kernel/src/sys/win/musicdriver.cpp
+    ../../kernel/src/sys/win/render.cpp
+    ../../kernel/src/sys/win/streamsim.cpp
+    ../../kernel/src/sys/win/stringmgr.cpp
+    ../../kernel/src/sys/win/systeminfo.cpp
+    ../../kernel/src/sys/win/text_mgr.cpp
+    ../../kernel/src/sys/win/timemgr.cpp
+    ../../kernel/src/sys/win/version_resource.cpp
+    ../../kernel/src/sys/win/videomgr.cpp
+    ../../model/src/animtracker.cpp
     ../../model/src/model.cpp
     ../../model/src/model_load.cpp
     ../../model/src/modelallocations.cpp
-    ../../shared/src/motion.cpp
-    ../../shared/src/moveobject.cpp
-    ../../shared/src/moveplayer.cpp
-    ../../kernel/src/sys/win/musicdriver.cpp
-    ../../kernel/net/src/netmgr.cpp
-    ../../shared/src/nexus.cpp
-    ../../shared/src/objectmgr.cpp
-    ../../kernel/net/src/packet.cpp
-    ../../shared/src/parse_world_info.cpp
-    ../../client/src/particlesystem.cpp
-    ../../shared/src/pixelformat.cpp
-    ../../client/src/polygrid.cpp
-    ../../client/src/predict.cpp
-    ../../shared/src/ratetracker.cpp
-    ../../kernel/src/sys/win/render.cpp
+    ../../model/src/sys/d3d/d3d_model_load.cpp
+    ../../model/src/transformmaker.cpp
+    ../../render_b/src/sys/d3d/d3ddrawprim.cpp
+    ../../render_b/src/sys/d3d/d3dtexinterface.cpp
+    ../../server/src/classmgr.cpp
+    ../../server/src/game_serialize.cpp
+    ../../server/src/interlink.cpp
+    ../../server/src/ltmessage_server.cpp
     ../../server/src/s_client.cpp
     ../../server/src/s_concommand.cpp
     ../../server/src/s_intersect.cpp
@@ -451,81 +423,102 @@ set(
     ../../server/src/server_consolestate.cpp
     ../../server/src/server_extradata.cpp
     ../../server/src/server_filemgr.cpp
+    ../../server/src/server_iltcommon.cpp
+    ../../server/src/server_iltmodel.cpp
+    ../../server/src/server_iltphysics.cpp
+    ../../server/src/server_iltsoundmgr.cpp
     ../../server/src/serverde_impl.cpp
     ../../server/src/serverevent.cpp
     ../../server/src/servermgr.cpp
-    ../../client/src/setupobject.cpp
-    ../../client/src/shellnet.cpp
-    ../../client/src/shelltransfer.cpp
-    ../../client/src/shellutil.cpp
     ../../server/src/smoveabstract.cpp
-    ../../sound/src/soundbuffer.cpp
-    ../../sound/src/sounddata.cpp
-    ../../sound/src/soundinstance.cpp
     ../../server/src/soundtrack.cpp
-    ../../client/src/sprite.cpp
+    ../../server/src/world_server_bsp.cpp
+    ../../shared/src/bdefs.cpp
+    ../../shared/src/classbind.cpp
+    ../../shared/src/collision.cpp
+    ../../shared/src/compress.cpp
+    ../../shared/src/concommand.cpp
+    ../../shared/src/conparse.cpp
+    ../../shared/src/debuggeometry.cpp
+    ../../shared/src/dhashtable.cpp
+    ../../shared/src/dtxmgr.cpp
+    ../../shared/src/engine_vars.cpp
+    ../../shared/src/findobj.cpp
+    ../../shared/src/ftclient.cpp
+    ../../shared/src/ftserv.cpp
+    ../../shared/src/gamemath.cpp
+    ../../shared/src/genericprop_setup.cpp
+    ../../shared/src/genltstream.cpp
+    ../../shared/src/geometry.cpp
+    ../../shared/src/geomroutines.cpp
+    ../../shared/src/impl_common.cpp
+    ../../shared/src/interface_linkage.cpp
+    ../../shared/src/leech.cpp
+    ../../shared/src/lightmap_compress.cpp
+    ../../shared/src/lightmap_planes.cpp
+    ../../shared/src/ltmessage.cpp
+    ../../shared/src/lttimer.cpp
+    ../../shared/src/modellt_impl.cpp
+    ../../shared/src/motion.cpp
+    ../../shared/src/moveobject.cpp
+    ../../shared/src/moveplayer.cpp
+    ../../shared/src/nexus.cpp
+    ../../shared/src/objectmgr.cpp
+    ../../shared/src/parse_world_info.cpp
+    ../../shared/src/pixelformat.cpp
+    ../../shared/src/ratetracker.cpp
+    ../../shared/src/shared_iltcommon.cpp
+    ../../shared/src/shared_iltphysics.cpp
     ../../shared/src/spritecontrolimpl.cpp
     ../../shared/src/stacktrace.cpp
     ../../shared/src/stdlterror.cpp
-    ../../kernel/src/sys/win/streamsim.cpp
-    ../../kernel/src/sys/win/stringmgr.cpp
     ../../shared/src/strtools.cpp
-    ../../kernel/src/sys/win/systeminfo.cpp
-    ../../kernel/src/sys/win/text_mgr.cpp
-    ../../client/src/texturestring.cpp
-    ../../client/src/sys/win/texturestringimage.cpp
-    ../../kernel/src/sys/win/timemgr.cpp
-    ../../model/src/transformmaker.cpp
-    ../../kernel/net/src/sys/win/udpdriver.cpp
+    ../../shared/src/sys/win/dstreamopenqueuemgr.cpp
+    ../../shared/src/transformlt_impl.cpp
     ../../shared/src/version_info.cpp
-    ../../kernel/src/sys/win/version_resource.cpp
-    ../../kernel/src/sys/win/videomgr.cpp
-    ../../client/src/volumeeffect.cpp
-    ../../client/src/watermark.cpp
+    ../../sound/src/soundbuffer.cpp
+    ../../sound/src/sounddata.cpp
+    ../../sound/src/soundinstance.cpp
+    ../../sound/src/soundmgr.cpp
     ../../sound/src/wave.cpp
-    ../../client/src/sys/win/winclientde_impl.cpp
-    ../../client/src/sys/win/winconsole_impl.cpp
-    ../../world/src/world_tree.cpp
-    ../../shared/src/interface_linkage.cpp
+    ../../world/src/de_mainworld.cpp
+    ../../world/src/de_nodes.cpp
+    ../../world/src/de_objects.cpp
+    ../../world/src/fullintersectline.cpp
+    ../../world/src/intersect_line.cpp
+    ../../world/src/intersectsweptsphere.cpp
+    ../../world/src/light_table.cpp
     ../../world/src/world_blind_object_data.cpp
     ../../world/src/world_blocker_data.cpp
     ../../world/src/world_blocker_math.cpp
-    ../../client/src/world_client_bsp.cpp
     ../../world/src/world_particle_blocker_data.cpp
-    ../../server/src/world_server_bsp.cpp
     ../../world/src/world_shared_bsp.cpp
-    ../../kernel/src/icommandlineargs.cpp
-    ../../client/src/client_filemgr.cpp
-    ../../client/src/client_iltmodel.cpp
-    ../../shared/src/modellt_impl.cpp
-    ../../server/src/server_iltmodel.cpp
-    ../../client/src/client_iltcommon.cpp
-    ../../server/src/server_iltcommon.cpp
-    ../../shared/src/shared_iltcommon.cpp
-    ../../kernel/src/sys/win/lt_cursor_impl.cpp
-    ../../client/src/client_iltphysics.cpp
-    ../../server/src/server_iltphysics.cpp
-    ../../shared/src/shared_iltphysics.cpp
-    ../../shared/src/transformlt_impl.cpp
-    ../../server/src/server_iltsoundmgr.cpp
-    ../../sound/src/soundmgr.cpp
-    ../../client/src/client_iltvideomgr.cpp
+    ../../world/src/world_tree.cpp
 )
 
 if (MSVC)
+    set(
+        sources
+        ${sources}
+        lithtech.rc
+        res/client.rc2
+    )
+endif ()
+
+if (MSVC)
     set_source_files_properties(
-        ../../controlfilemgr/controlfilemgr.cpp
-        ../../kernel/src/sys/win/client.cpp
-        ../../client/src/client_formatmgr.cpp
-        ../../client/src/clientmgr.cpp
-        ../../shared/src/compress.cpp
-        ../../kernel/src/sys/win/counter.cpp
         ../../../sdk/inc/lterror.cpp
         ../../../sdk/inc/ltmodule.cpp
         ../../../sdk/inc/ltobjref.cpp
         ../../../sdk/inc/ltquatbase.cpp
-        ../../shared/src/interface_linkage.cpp
+        ../../client/src/client_formatmgr.cpp
+        ../../client/src/clientmgr.cpp
+        ../../controlfilemgr/controlfilemgr.cpp
         ../../kernel/src/icommandlineargs.cpp
+        ../../kernel/src/sys/win/client.cpp
+        ../../kernel/src/sys/win/counter.cpp
+        ../../shared/src/compress.cpp
+        ../../shared/src/interface_linkage.cpp
         ../../shared/src/modellt_impl.cpp
         PROPERTIES
             # Precompiled Header (None)
@@ -541,13 +534,27 @@ if (MSVC)
 endif ()
 
 add_executable(
-    ${LTJS_TARGET}
-    ${HDRS}
-    ${SRCS}
+    ltjs_lith_tech
+    ${headers}
+    ${sources}
+)
+
+ltjs_add_defaults(ltjs_lith_tech bdefs.h)
+
+target_compile_definitions(
+    ltjs_lith_tech
+    PRIVATE DE_LOCAL_SERVERBIND
+    PRIVATE DE_CLIENT_COMPILE
+    PRIVATE DSNDMGR_NO_MFC
+    PRIVATE DIRECTENGINE_COMPILE
+    PRIVATE __D3D
+    PRIVATE __D3DREND
+    PRIVATE MODEL_SUPPORT_ABC
+    PRIVATE $<$<CONFIG:DEBUG>:D3D_DEBUG_INFO>
 )
 
 set_target_properties(
-    ${LTJS_TARGET}
+    ltjs_lith_tech
     PROPERTIES
         OUTPUT_NAME lithtech
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
@@ -555,33 +562,31 @@ set_target_properties(
 
 if (MSVC)
     set_target_properties(
-        ${LTJS_TARGET}
+        ltjs_lith_tech
         PROPERTIES
             LINK_FLAGS /SUBSYSTEM:WINDOWS
     )
 
     set(
-        PATH_TO_DX_LIBS
+        path_to_dx_libs
         ${CMAKE_SOURCE_DIR}/directx/lib/x86
     )
-endif ()
 
-if (MSVC)
     set(
-        LIBS
-        ${PATH_TO_DX_LIBS}/ddraw.lib
-        ${PATH_TO_DX_LIBS}/d3dx9.lib
-        ${PATH_TO_DX_LIBS}/d3d9.lib
-        ${PATH_TO_DX_LIBS}/dxguid.lib
-        ${PATH_TO_DX_LIBS}/dinput8.lib
-        ${PATH_TO_DX_LIBS}/dplayx.lib
+        libs
+        ${path_to_dx_libs}/ddraw.lib
+        ${path_to_dx_libs}/d3dx9.lib
+        ${path_to_dx_libs}/d3d9.lib
+        ${path_to_dx_libs}/dxguid.lib
+        ${path_to_dx_libs}/dinput8.lib
+        ${path_to_dx_libs}/dplayx.lib
         winmm
     )
 endif ()
 
-if (MINGW)
+if (NOT MSVC)
     set(
-        LIBS
+        libs
         d3d9
         d3dx9
         dbghelp
@@ -593,7 +598,7 @@ if (MINGW)
 endif ()
 
 target_link_libraries(
-    ${LTJS_TARGET}
+    ltjs_lith_tech
     ltjs_lib_d3d_render
     ltjs_lib_lt_mem
     ltjs_lib_rez_mgr
@@ -602,5 +607,5 @@ target_link_libraries(
     ltjs_lib_lith
     ltjs_lib_ui
     ltjs_lib_info
-    ${LIBS}
+    ${libs}
 )

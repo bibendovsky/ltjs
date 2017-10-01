@@ -1,37 +1,129 @@
-set(LTJS_TARGET ltjs_lib_object)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lib_object VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options(stdafx.h)
-
-add_definitions(-D_SERVERBUILD)
-add_definitions(-D_NO_AI_ASSERT)
-add_definitions(-DMEMTRACK_SERVER)
-add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-D_NOLFBUILD>)
-add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-DUSE_INTEL_COMPILER>)
-
-if (MSVC)
-    add_compile_options(-GR)
-endif ()
-
 include_directories(
     .
-    ../../shared
     ../../../engine/sdk/inc
-    ../../../libs/stdlith
     ../../../libs/butemgr
     ../../../libs/cryptmgr
     ../../../libs/lith
     ../../../libs/mfcstub
     ../../../libs/regmgr
+    ../../../libs/stdlith
     ../../libs
     ../../libs/serverdir
+    ../../shared
 )
 
 set(
-    HDRS
+    headers
+    ../../../engine/sdk/inc/clientheaders.h
+    ../../../engine/sdk/inc/iaggregate.h
+    ../../../engine/sdk/inc/iclientshell.h
+    ../../../engine/sdk/inc/iltclient.h
+    ../../../engine/sdk/inc/iltcommon.h
+    ../../../engine/sdk/inc/iltcsbase.h
+    ../../../engine/sdk/inc/iltcursor.h
+    ../../../engine/sdk/inc/iltdirectmusic.h
+    ../../../engine/sdk/inc/iltmath.h
+    ../../../engine/sdk/inc/iltmessage.h
+    ../../../engine/sdk/inc/iltmodel.h
+    ../../../engine/sdk/inc/iltphysics.h
+    ../../../engine/sdk/inc/iltserver.h
+    ../../../engine/sdk/inc/iltsoundmgr.h
+    ../../../engine/sdk/inc/iltspritecontrol.h
+    ../../../engine/sdk/inc/iltstream.h
+    ../../../engine/sdk/inc/ilttransform.h
+    ../../../engine/sdk/inc/iltvideomgr.h
+    ../../../engine/sdk/inc/iobjectplugin.h
+    ../../../engine/sdk/inc/iservershell.h
+    ../../../engine/sdk/inc/lithtech.h
+    ../../../engine/sdk/inc/ltanimtracker.h
+    ../../../engine/sdk/inc/ltassert.h
+    ../../../engine/sdk/inc/ltbasedefs.h
+    ../../../engine/sdk/inc/ltbasetypes.h
+    ../../../engine/sdk/inc/ltbeziercurve.h
+    ../../../engine/sdk/inc/ltcodes.h
+    ../../../engine/sdk/inc/ltengineobjects.h
+    ../../../engine/sdk/inc/ltlink.h
+    ../../../engine/sdk/inc/ltmatrix.h
+    ../../../engine/sdk/inc/ltobjref.h
+    ../../../engine/sdk/inc/ltplane.h
+    ../../../engine/sdk/inc/ltpvalue.h
+    ../../../engine/sdk/inc/ltquatbase.h
+    ../../../engine/sdk/inc/ltrect.h
+    ../../../engine/sdk/inc/ltrotation.h
+    ../../../engine/sdk/inc/ltserverobj.h
+    ../../../engine/sdk/inc/ltvector.h
+    ../../../engine/sdk/inc/serverheaders.h
     ../../shared/activatetypemgr.h
     ../../shared/activationdata.h
+    ../../shared/animator.h
+    ../../shared/assertmgr.h
+    ../../shared/attachbutemgr.h
+    ../../shared/automessage.h
+    ../../shared/butelistreader.h
+    ../../shared/characteralignment.h
+    ../../shared/cheatdefs.h
+    ../../shared/clientservershared.h
+    ../../shared/commandids.h
+    ../../shared/commonutilities.h
+    ../../shared/containercodes.h
+    ../../shared/crc32.h
+    ../../shared/damagetypes.h
+    ../../shared/damagetypesenum.h
+    ../../shared/debrismgr.h
+    ../../shared/debugline.h
+    ../../shared/debugmgr.h
+    ../../shared/fastheap.h
+    ../../shared/faststack.h
+    ../../shared/fxbutemgr.h
+    ../../shared/fxdefs.h
+    ../../shared/fxflags.h
+    ../../shared/fxstructs.h
+    ../../shared/gadgettargettypes.h
+    ../../shared/gamebutemgr.h
+    ../../shared/gibtypes.h
+    ../../shared/globalmgr.h
+    ../../shared/globals.h
+    ../../shared/hierarchicalbutemgr.h
+    ../../shared/impacttype.h
+    ../../shared/modelbutemgr.h
+    ../../shared/msgids.h
+    ../../shared/netdefs.h
+    ../../shared/parsedmsg.h
+    ../../shared/profileutils.h
+    ../../shared/radartypemgr.h
+    ../../shared/saveloadmgr.h
+    ../../shared/scmdshared.h
+    ../../shared/searchitemmgr.h
+    ../../shared/sfxmsgids.h
+    ../../shared/sharedbasefxstructs.h
+    ../../shared/sharedfxstructs.h
+    ../../shared/sharedmission.h
+    ../../shared/sharedmovement.h
+    ../../shared/sharedscoring.h
+    ../../shared/skillsbutemgr.h
+    ../../shared/soundbutemgr.h
+    ../../shared/soundfiltermgr.h
+    ../../shared/soundmgr.h
+    ../../shared/soundtypes.h
+    ../../shared/surfacefunctions.h
+    ../../shared/surfacemgr.h
+    ../../shared/teammgr.h
+    ../../shared/templatelist.h
+    ../../shared/timer.h
+    ../../shared/trackednode.h
+    ../../shared/trackednodemgr.h
+    ../../shared/triggertypemgr.h
+    ../../shared/uberassert.h
+    ../../shared/versionmgr.h
+    ../../shared/wavefn.h
+    ../../shared/weaponfxtypes.h
+    ../../shared/weaponmgr.h
+    ../../shared/winutil.h
     activeworldmodel.h
     ai.h
     aiassert.h
@@ -169,50 +261,33 @@ set(
     animationpropgroupenums.h
     animationpropstrings.h
     animationstd.h
-    ../../shared/animator.h
     animatorplayer.h
-    ../../shared/assertmgr.h
-    ../../shared/attachbutemgr.h
     attachments.h
-    ../../shared/automessage.h
     banipmgr.h
     body.h
     bodystate.h
     bombable.h
     breakable.h
-    ../../shared/butelistreader.h
     butetools.h
     camera.h
     cdynarray.h
     character.h
-    ../../shared/characteralignment.h
     characterhitbox.h
     charactermgr.h
-    ../../shared/cheatdefs.h
     clientlightfx.h
-    ../../shared/clientservershared.h
     clientsfx.h
     clientweaponsfx.h
     collectiverelationmgr.h
     commandbutemgr.h
-    ../../shared/commandids.h
     commandmgr.h
     commandobject.h
-    ../../shared/commonutilities.h
-    ../../shared/containercodes.h
     controller.h
     coopmissionmgr.h
-    ../../shared/crc32.h
     cvartrack.h
-    ../../shared/damagetypes.h
-    ../../shared/damagetypesenum.h
     deathmatchmissionmgr.h
     deathscene.h
     debrisfuncs.h
-    ../../shared/debrismgr.h
-    ../../shared/debugline.h
     debuglinesystem.h
-    ../../shared/debugmgr.h
     decisionobject.h
     deditcolors.h
     destructible.h
@@ -229,31 +304,18 @@ set(
     eventcounter.h
     exittrigger.h
     explosion.h
-    ../../shared/fastheap.h
-    ../../shared/faststack.h
     fire.h
-    ../../shared/fxbutemgr.h
-    ../../shared/fxdefs.h
-    ../../shared/fxflags.h
-    ../../shared/fxstructs.h
     gadgettarget.h
     gadgettargetmgr.h
-    ../../shared/gadgettargettypes.h
     gamebase.h
     gamebaselite.h
-    ../../shared/gamebutemgr.h
     gameservershell.h
     gamestartpoint.h
     gearitems.h
-    ../../shared/gibtypes.h
-    ../../shared/globalmgr.h
-    ../../shared/globals.h
     globalservermgr.h
     group.h
     hhweaponmodel.h
-    ../../shared/hierarchicalbutemgr.h
     ihitboxuser.h
-    ../../shared/impacttype.h
     intelligence.h
     intelmgr.h
     inventorybutemgr.h
@@ -269,11 +331,8 @@ set(
     liteobjectmgr.h
     lock.h
     mine.h
-    ../../shared/modelbutemgr.h
     moditem.h
-    ../../shared/msgids.h
     musicmgr.h
-    ../../shared/netdefs.h
     nodeline.h
     noplayertrigger.h
     objectivesprite.h
@@ -281,7 +340,6 @@ set(
     objectrelationmgr.h
     objectremover.h
     objecttemplatemgr.h
-    ../../shared/parsedmsg.h
     particlesystem.h
     pickupitem.h
     playerbutes.h
@@ -293,14 +351,12 @@ set(
     point.h
     polygrid.h
     powerarmor.h
-    ../../shared/profileutils.h
     projectile.h
     projectiletypes.h
     prop.h
     proptype.h
     proptypemgr.h
     radarobject.h
-    ../../shared/radartypemgr.h
     randomspawner.h
     relationbutemgr.h
     relationchangeobserver.h
@@ -308,15 +364,12 @@ set(
     rotatingdoor.h
     rotatingswitch.h
     rotatingworldmodel.h
-    ../../shared/saveloadmgr.h
     scalesprite.h
     scanner.h
     scattervolume.h
     scmdserver.h
-    ../../shared/scmdshared.h
     screenshake.h
     searchable.h
-    ../../shared/searchitemmgr.h
     searchlight.h
     searchprop.h
     securitycamera.h
@@ -333,24 +386,13 @@ set(
     servertrackednodemgr.h
     serverutilities.h
     sfxfuncs.h
-    ../../shared/sfxmsgids.h
-    ../../shared/sharedbasefxstructs.h
-    ../../shared/sharedfxstructs.h
-    ../../shared/sharedmission.h
-    ../../shared/sharedmovement.h
-    ../../shared/sharedscoring.h
     singleplayermissionmgr.h
     skills.h
-    ../../shared/skillsbutemgr.h
     slidingdoor.h
     slidingswitch.h
     slidingworldmodel.h
     snowvolume.h
     soundbutefx.h
-    ../../shared/soundbutemgr.h
-    ../../shared/soundfiltermgr.h
-    ../../shared/soundmgr.h
-    ../../shared/soundtypes.h
     sparam.h
     spawner.h
     speaker.h
@@ -359,81 +401,82 @@ set(
     startupcommand.h
     stdafx.h
     steam.h
-    ../../shared/surfacefunctions.h
-    ../../shared/surfacemgr.h
     switch.h
     teamdeathmatchmissionmgr.h
-    ../../shared/teammgr.h
     teleportpoint.h
-    ../../shared/templatelist.h
     texturefx.h
-    ../../shared/timer.h
-    ../../shared/trackednode.h
-    ../../shared/trackednodemgr.h
     transitionaggregate.h
     transitionarea.h
     transitionmgr.h
     trigger.h
-    ../../shared/triggertypemgr.h
-    ../../shared/uberassert.h
-    ../../shared/versionmgr.h
     volumebrush.h
     volumebrushtypes.h
     volumeeffect.h
-    ../../shared/wavefn.h
     weapon.h
-    ../../shared/weaponfxtypes.h
     weaponitems.h
-    ../../shared/weaponmgr.h
     weapons.h
-    ../../shared/winutil.h
     worldmodel.h
     worldmodeldebris.h
     worldproperties.h
-    ../../../engine/sdk/inc/clientheaders.h
-    ../../../engine/sdk/inc/iaggregate.h
-    ../../../engine/sdk/inc/iclientshell.h
-    ../../../engine/sdk/inc/iltclient.h
-    ../../../engine/sdk/inc/iltcommon.h
-    ../../../engine/sdk/inc/iltcsbase.h
-    ../../../engine/sdk/inc/iltcursor.h
-    ../../../engine/sdk/inc/iltdirectmusic.h
-    ../../../engine/sdk/inc/iltmath.h
-    ../../../engine/sdk/inc/iltmessage.h
-    ../../../engine/sdk/inc/iltmodel.h
-    ../../../engine/sdk/inc/iltphysics.h
-    ../../../engine/sdk/inc/iltserver.h
-    ../../../engine/sdk/inc/iltsoundmgr.h
-    ../../../engine/sdk/inc/iltspritecontrol.h
-    ../../../engine/sdk/inc/iltstream.h
-    ../../../engine/sdk/inc/ilttransform.h
-    ../../../engine/sdk/inc/iltvideomgr.h
-    ../../../engine/sdk/inc/iobjectplugin.h
-    ../../../engine/sdk/inc/iservershell.h
-    ../../../engine/sdk/inc/lithtech.h
-    ../../../engine/sdk/inc/ltanimtracker.h
-    ../../../engine/sdk/inc/ltassert.h
-    ../../../engine/sdk/inc/ltbasedefs.h
-    ../../../engine/sdk/inc/ltbasetypes.h
-    ../../../engine/sdk/inc/ltbeziercurve.h
-    ../../../engine/sdk/inc/ltcodes.h
-    ../../../engine/sdk/inc/ltengineobjects.h
-    ../../../engine/sdk/inc/ltlink.h
-    ../../../engine/sdk/inc/ltmatrix.h
-    ../../../engine/sdk/inc/ltobjref.h
-    ../../../engine/sdk/inc/ltplane.h
-    ../../../engine/sdk/inc/ltpvalue.h
-    ../../../engine/sdk/inc/ltquatbase.h
-    ../../../engine/sdk/inc/ltrect.h
-    ../../../engine/sdk/inc/ltrotation.h
-    ../../../engine/sdk/inc/ltserverobj.h
-    ../../../engine/sdk/inc/ltvector.h
-    ../../../engine/sdk/inc/serverheaders.h
 )
 
 set(
-    SRCS
+    sources
+    ../../../engine/sdk/inc/iltbaseclass.cpp
+    ../../../engine/sdk/inc/ltengineobjects.cpp
+    ../../../engine/sdk/inc/ltmodule.cpp
+    ../../../engine/sdk/inc/ltobjref.cpp
+    ../../../engine/sdk/inc/ltquatbase.cpp
     ../../shared/activatetypemgr.cpp
+    ../../shared/animator.cpp
+    ../../shared/assertmgr.cpp
+    ../../shared/attachbutemgr.cpp
+    ../../shared/butelistreader.cpp
+    ../../shared/characteralignment.cpp
+    ../../shared/clientservershared.cpp
+    ../../shared/commonutilities.cpp
+    ../../shared/crc32.cpp
+    ../../shared/damagetypes.cpp
+    ../../shared/debrismgr.cpp
+    ../../shared/debugline.cpp
+    ../../shared/debugnew.cpp
+    ../../shared/fxbutemgr.cpp
+    ../../shared/fxstructs.cpp
+    ../../shared/gamealloc.cpp
+    ../../shared/gamebutemgr.cpp
+    ../../shared/globalmgr.cpp
+    ../../shared/keymgr.cpp
+    ../../shared/missionbutemgr.cpp
+    ../../shared/modelbutemgr.cpp
+    ../../shared/netdefs.cpp
+    ../../shared/parsedmsg.cpp
+    ../../shared/profileutils.cpp
+    ../../shared/radartypemgr.cpp
+    ../../shared/saveloadmgr.cpp
+    ../../shared/searchitemmgr.cpp
+    ../../shared/sharedfxstructs.cpp
+    ../../shared/sharedmission.cpp
+    ../../shared/sharedmovement.cpp
+    ../../shared/sharedscoring.cpp
+    ../../shared/skillsbutemgr.cpp
+    ../../shared/soundbutemgr.cpp
+    ../../shared/soundfiltermgr.cpp
+    ../../shared/soundmgr.cpp
+    ../../shared/stacktrace.cpp
+    ../../shared/surfacefunctions.cpp
+    ../../shared/surfacemgr.cpp
+    ../../shared/teammgr.cpp
+    ../../shared/templatelist.cpp
+    ../../shared/trackednode.cpp
+    ../../shared/trackednodecontext.cpp
+    ../../shared/trackednodecontrolfn.cpp
+    ../../shared/trackednodemgr.cpp
+    ../../shared/triggertypemgr.cpp
+    ../../shared/uberassert.cpp
+    ../../shared/versionmgr.cpp
+    ../../shared/wavefn.cpp
+    ../../shared/weaponmgr.cpp
+    ../../shared/winutil.cpp
     activeworldmodel.cpp
     ai.cpp
     aiassert.cpp
@@ -553,43 +596,31 @@ set(
     animationmgr.cpp
     animationparse.cpp
     animationparser.cpp
-    ../../shared/animator.cpp
     animatorplayer.cpp
-    ../../shared/assertmgr.cpp
-    ../../shared/attachbutemgr.cpp
     attachments.cpp
     banipmgr.cpp
     body.cpp
     bodystate.cpp
     bombable.cpp
     breakable.cpp
-    ../../shared/butelistreader.cpp
     butetools.cpp
     camera.cpp
     character.cpp
-    ../../shared/characteralignment.cpp
     characterhitbox.cpp
     charactermgr.cpp
     clientlightfx.cpp
-    ../../shared/clientservershared.cpp
     clientsfx.cpp
     clientweaponsfx.cpp
     collectiverelationmgr.cpp
     commandbutemgr.cpp
     commandmgr.cpp
     commandobject.cpp
-    ../../shared/commonutilities.cpp
     controller.cpp
     coopmissionmgr.cpp
-    ../../shared/crc32.cpp
-    ../../shared/damagetypes.cpp
     deathmatchmissionmgr.cpp
     deathscene.cpp
     debrisfuncs.cpp
-    ../../shared/debrismgr.cpp
-    ../../shared/debugline.cpp
     debuglinesystem.cpp
-    ../../shared/debugnew.cpp
     decisionobject.cpp
     destructible.cpp
     destructiblemodel.cpp
@@ -607,22 +638,16 @@ set(
     exittrigger.cpp
     explosion.cpp
     fire.cpp
-    ../../shared/fxbutemgr.cpp
-    ../../shared/fxstructs.cpp
     gadgettarget.cpp
     gadgettargetmgr.cpp
-    ../../shared/gamealloc.cpp
     gamebase.cpp
     gamebaselite.cpp
-    ../../shared/gamebutemgr.cpp
     gameservershell.cpp
     gamestartpoint.cpp
     gearitems.cpp
-    ../../shared/globalmgr.cpp
     globalservermgr.cpp
     group.cpp
     hhweaponmodel.cpp
-    ../../../engine/sdk/inc/iltbaseclass.cpp
     intelligence.cpp
     intelmgr.cpp
     inventorybutemgr.cpp
@@ -631,30 +656,21 @@ set(
     keydata.cpp
     keyframer.cpp
     keyitem.cpp
-    ../../shared/keymgr.cpp
     keypad.cpp
     lasertrigger.cpp
     lightgroup.cpp
     lightning.cpp
     liteobjectmgr.cpp
     lock.cpp
-    ../../../engine/sdk/inc/ltengineobjects.cpp
-    ../../../engine/sdk/inc/ltmodule.cpp
-    ../../../engine/sdk/inc/ltobjref.cpp
-    ../../../engine/sdk/inc/ltquatbase.cpp
     mine.cpp
-    ../../shared/missionbutemgr.cpp
-    ../../shared/modelbutemgr.cpp
     moditem.cpp
     musicmgr.cpp
-    ../../shared/netdefs.cpp
     nodeline.cpp
     noplayertrigger.cpp
     objectivesprite.cpp
     objectrelationmgr.cpp
     objectremover.cpp
     objecttemplatemgr.cpp
-    ../../shared/parsedmsg.cpp
     particlesystem.cpp
     pickupitem.cpp
     playerlure.cpp
@@ -666,28 +682,24 @@ set(
     polygrid.cpp
     polygridmodifier.cpp
     powerarmor.cpp
-    ../../shared/profileutils.cpp
     projectile.cpp
     projectiletypes.cpp
     prop.cpp
     proptype.cpp
     proptypemgr.cpp
     radarobject.cpp
-    ../../shared/radartypemgr.cpp
     randomspawner.cpp
     relationbutemgr.cpp
     relationmgr.cpp
     rotatingdoor.cpp
     rotatingswitch.cpp
     rotatingworldmodel.cpp
-    ../../shared/saveloadmgr.cpp
     scalesprite.cpp
     scanner.cpp
     scattervolume.cpp
     scmdserver.cpp
     screenshake.cpp
     searchable.cpp
-    ../../shared/searchitemmgr.cpp
     searchlight.cpp
     searchprop.cpp
     securitycamera.cpp
@@ -703,58 +715,35 @@ set(
     servertrackednodemgr.cpp
     serverutilities.cpp
     sfxfuncs.cpp
-    ../../shared/sharedfxstructs.cpp
-    ../../shared/sharedmission.cpp
-    ../../shared/sharedmovement.cpp
-    ../../shared/sharedscoring.cpp
     singleplayermissionmgr.cpp
     skills.cpp
-    ../../shared/skillsbutemgr.cpp
     slidingdoor.cpp
     slidingswitch.cpp
     slidingworldmodel.cpp
     snowvolume.cpp
     soundbutefx.cpp
-    ../../shared/soundbutemgr.cpp
-    ../../shared/soundfiltermgr.cpp
-    ../../shared/soundmgr.cpp
     sparam.cpp
     spawner.cpp
     speaker.cpp
     spinningworldmodel.cpp
     sprinkles.cpp
-    ../../shared/stacktrace.cpp
     startupcommand.cpp
     stdafx.cpp
     steam.cpp
-    ../../shared/surfacefunctions.cpp
-    ../../shared/surfacemgr.cpp
     switch.cpp
     teamdeathmatchmissionmgr.cpp
-    ../../shared/teammgr.cpp
     teleportpoint.cpp
-    ../../shared/templatelist.cpp
     texturefx.cpp
-    ../../shared/trackednode.cpp
-    ../../shared/trackednodecontext.cpp
-    ../../shared/trackednodecontrolfn.cpp
-    ../../shared/trackednodemgr.cpp
     transitionaggregate.cpp
     transitionarea.cpp
     transitionmgr.cpp
     trigger.cpp
-    ../../shared/triggertypemgr.cpp
-    ../../shared/uberassert.cpp
-    ../../shared/versionmgr.cpp
     volumebrush.cpp
     volumebrushtypes.cpp
     volumeeffect.cpp
-    ../../shared/wavefn.cpp
     weapon.cpp
     weaponitems.cpp
-    ../../shared/weaponmgr.cpp
     weapons.cpp
-    ../../shared/winutil.cpp
     worldmodel.cpp
     worldmodeldebris.cpp
     worldproperties.cpp
@@ -762,13 +751,13 @@ set(
 
 if (MSVC)
     set_source_files_properties(
-        animationlex.cpp
-        animationparse.cpp
         ../../../engine/sdk/inc/iltbaseclass.cpp
         ../../../engine/sdk/inc/ltengineobjects.cpp
         ../../../engine/sdk/inc/ltmodule.cpp
         ../../../engine/sdk/inc/ltobjref.cpp
         ../../../engine/sdk/inc/ltquatbase.cpp
+        animationlex.cpp
+        animationparse.cpp
         PROPERTIES
             # Precompiled Header (None)
             COMPILE_FLAGS -Y-
@@ -783,7 +772,25 @@ if (MSVC)
 endif ()
 
 add_library(
-    ${LTJS_TARGET} STATIC
-    ${HDRS}
-    ${SRCS}
+    ltjs_lib_object STATIC
+    ${headers}
+    ${sources}
 )
+
+ltjs_add_defaults(ltjs_lib_object stdafx.h)
+
+target_compile_definitions(
+    ltjs_lib_object
+    PRIVATE _SERVERBUILD
+    PRIVATE _NO_AI_ASSERT
+    PRIVATE MEMTRACK_SERVER
+    PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:_NOLFBUILD>
+    PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:USE_INTEL_COMPILER>
+)
+
+if (MSVC)
+    target_compile_options(
+        ltjs_lib_object
+        PRIVATE -GR
+    )
+endif ()

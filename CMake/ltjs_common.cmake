@@ -1,113 +1,65 @@
+cmake_minimum_required(VERSION 3.5.1)
+
 ################
 # Common stuff #
 ################
 
-function(ltjs_add_default_options)
-    if (${ARGC} GREATER 1)
-        message(FATAL_ERROR "Too many arguments.")
+function (ltjs_add_defaults)
+    if (NOT ((${ARGC} EQUAL 1) OR (${ARGC} EQUAL 2)))
+        message(FATAL_ERROR "Usage: ltjs_add_defaults <target_name> [<pch_header>]")
     endif ()
 
-    if (${ARGC})
-        string(LENGTH ${ARGV0} LENGTH)
 
-        if (NOT ${LENGTH})
-            message(FATAL_ERROR "Empty PCH file name.")
-        endif ()
-    endif ()
+    set_target_properties(
+        ${ARGV0}
+        PROPERTIES
+        CXX_STANDARD 11
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+    )
 
-    # Defines
-    # =======
-
-    add_definitions(-DNOPS2)
-    add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-D_FINAL>)
-    add_compile_options($<$<CONFIG:DEBUG>:-D_DEBUG>)
+    target_compile_definitions(
+        ${ARGV0}
+        PRIVATE NOPS2
+        PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:_FINAL>
+        PRIVATE $<$<CONFIG:DEBUG>:_DEBUG>
+    )
 
     if (MSVC)
-        add_compile_options($<$<CONFIG:DEBUG>:-D_CRT_SECURE_NO_WARNINGS>)
-        add_compile_options($<$<CONFIG:DEBUG>:-D_ITERATOR_DEBUG_LEVEL=0>)
-
-        # Accept deprecated containers for Visual C++ 14
-        add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS)
+        target_compile_definitions(
+            ${ARGV0}
+            PRIVATE $<$<CONFIG:DEBUG>:_CRT_SECURE_NO_WARNINGS>
+            PRIVATE $<$<CONFIG:DEBUG>:_ITERATOR_DEBUG_LEVEL=0>
+            PRIVATE _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
+        )
     endif ()
-
-
-    # Compiler flags
-    # ==============
-
-    # Common compiler flags
-    # ---------------------
 
     if (MSVC)
-        # Warning Level
-        add_compile_options(-W4)
-
-        # Multi-processor Compilation
-        add_compile_options(-MP)
-
-        # Eliminate Duplicate Strings
-        add_compile_options(-GF)
-
-        # Disable Minimal Rebuild
-        add_compile_options(-Gm-)
-
-        # Disable RTTI
-        add_compile_options(-GR-)
-
-        # Use Precompiled Headers
-        if (${ARGC})
-            add_compile_options(-Yu${ARGV0})
-        else()
-            add_compile_options(-Y-)
-        endif ()
-
-        # No Enhanced Instructions
-        # (Prevents overflow of the x87 FPU stack)
-        add_compile_options(-arch:IA32)
-
-        # Suppress "unreferenced formal parameter" warning
-        add_compile_options(-wd4100)
-
-        # Suppress "The POSIX name for this item is deprecated" warning
-        add_compile_options(-wd4996)
+        target_compile_options(
+            ${ARGV0}
+            # Warning Level
+            PRIVATE -W4
+            # Multi-processor Compilation
+            PRIVATE -MP
+            # No Enhanced Instructions (prevents overflow of the x87 FPU stack)
+            PRIVATE -arch:IA32
+            # Suppress "unreferenced formal parameter" warning
+            PRIVATE -wd4100
+            # Suppress "The POSIX name for this item is deprecated" warning
+            PRIVATE -wd4996
+            # Use Precompiled Headers
+            PRIVATE $<$<EQUAL:${ARGC},1>:-Y->
+            PRIVATE $<$<EQUAL:${ARGC},2>:-Yu${ARGV1}>
+            # Runtime Library (Multi-threaded Debug)
+            PRIVATE $<$<CONFIG:DEBUG>:-MTd>
+        )
     endif ()
 
-    if (NOT MSVC)
-        add_compile_options("-std=c++11")
-        add_compile_options("-Wfatal-errors")
+    if (MINGW)
+        target_compile_options(
+            ${ARGV0}
+            # Warning Level
+            PRIVATE -Wfatal-errors
+        )
     endif ()
-
-    # ---------------------
-    # Debug compile options
-    # ---------------------
-
-    if (MSVC)
-        # Runtime Library (Multi-threaded Debug)
-        add_compile_options($<$<CONFIG:DEBUG>:-MTd>)
-    endif ()
-
-
-    # -----------------------
-    # Release compile options
-    # -----------------------
-
-    if (MSVC)
-        # Runtime Library (Multi-threaded)
-        add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-MT>)
-
-        # Enable Intrinsic Function
-        add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-Oi>)
-
-        # In-line Function Expansion (Only __inline)
-        add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-Ob1>)
-
-        # Favour size or speed (speed)
-        add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-Ot>)
-
-        # Omit Frame Pointers
-        add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-Oy>)
-
-        # Disable Security Check
-        add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-GS->)
-    endif ()
-
-endfunction(ltjs_add_default_options)
+endfunction (ltjs_add_defaults)

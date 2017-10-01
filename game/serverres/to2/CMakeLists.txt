@@ -1,30 +1,35 @@
-set(LTJS_TARGET ltjs_to2_server_res)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_to2_server_res VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options()
+include_directories(
+    ../../../engine/sdk/inc
+)
 
 set(
-    HDRS
+    headers
     serverres.h
 )
 
 set(
-    SRCS
+    sources
     main.cpp
     serverres.rc
 )
 
 add_library(
-    ${LTJS_TARGET} SHARED
-    ${HDRS}
-    ${SRCS}
+    ltjs_to2_server_res SHARED
+    ${headers}
+    ${sources}
 )
 
 set_target_properties(
-    ${LTJS_TARGET}
+    ltjs_to2_server_res
     PROPERTIES
         OUTPUT_NAME sres
         PREFIX ""
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_TO2_BIN_DIR}
 )
+
+ltjs_add_defaults(ltjs_to2_server_res)

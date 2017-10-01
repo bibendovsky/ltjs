@@ -1,21 +1,17 @@
-set(LTJS_TARGET ltjs_lib_bute_mgr)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lib_bute_mgr VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options(stdafx.h)
-
-add_definitions(-D_NOMFC)
-add_definitions(-DWINVER=0x500)
-
 include_directories(
-    ../stdlith
-    ../mfcstub
     ../cryptmgr
     ../lith
+    ../mfcstub
+    ../stdlith
 )
 
 set(
-    HDRS
+    headers
     arange.h
     avector.h
     butemgr.h
@@ -23,7 +19,7 @@ set(
 )
 
 set(
-    SRCS
+    sources
     arange.cpp
     avector.cpp
     butemgr.cpp
@@ -40,7 +36,27 @@ if (MSVC)
 endif ()
 
 add_library(
-    ${LTJS_TARGET} STATIC
-    ${HDRS}
-    ${SRCS}
+    ltjs_lib_bute_mgr STATIC
+    ${headers}
+    ${sources}
 )
+
+ltjs_add_defaults(ltjs_lib_bute_mgr stdafx.h)
+
+set_target_properties(
+    ltjs_lib_bute_mgr
+    PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+)
+
+target_compile_definitions(
+    ltjs_lib_bute_mgr
+    PRIVATE _NOMFC)
+
+if (WIN32)
+    target_compile_definitions(
+        ltjs_lib_bute_mgr
+        PRIVATE WINVER=0x500)
+endif ()

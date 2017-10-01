@@ -1,64 +1,44 @@
-set(LTJS_TARGET ltjs_server_dir)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_server_dir VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options()
-
 include_directories(
-    .
     ../../../engine/sdk/inc
-    ../../libs/wonapi
-    ../../clientres/shared
 )
 
 set(
-    HDRS
-    #cserverdir_titan.h
+    headers
     iserverdir.h
-    #iserverdir_titan.h
     stdafx.h
-    #titantest.h
-    #winsync.h
 )
 
 set(
-    SRCS
+    sources
     cserverdir_titan.cpp
     stdafx.cpp
-    #titantest.cpp
 )
 
 add_library(
-    ${LTJS_TARGET} SHARED
-    ${HDRS}
-    ${SRCS}
+    ltjs_server_dir SHARED
+    ${headers}
+    ${sources}
 )
+
+ltjs_add_defaults(ltjs_server_dir)
 
 if (MSVC)
     set_target_properties(
-        ${LTJS_TARGET}
+        ltjs_server_dir
         PROPERTIES
             LINK_FLAGS /SUBSYSTEM:WINDOWS
     )
 endif ()
 
-if (MINGW)
-    set(
-        LIBS
-        ws2_32
-    )
-endif ()
-
 set_target_properties(
-    ${LTJS_TARGET}
+    ltjs_server_dir
     PROPERTIES
         OUTPUT_NAME serverdir
         PREFIX ""
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
-
-#target_link_libraries(
-#    ${LTJS_TARGET}
-#    ltjs_lib_won_api
-#    ${LIBS}
-#)
