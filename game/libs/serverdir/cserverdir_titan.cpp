@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 
+#ifdef LTJS_HAS_WONAPI
 #include "cserverdir_titan.h"
 
 #include <algorithm>
@@ -16,7 +17,12 @@
 #include "iserverdir_titan.h"
 
 #include <malloc.h>
+#else
+#define SERVERDIR_EXPORTS
+#include "iserverdir.h"
+#endif // LTJS_HAS_WONAPI
 
+#ifdef LTJS_HAS_WONAPI
 ILTCSBase* g_pLTCSBase = NULL;
 ILTClient* g_pLTClient = NULL;
 HMODULE g_hResourceModule = NULL;
@@ -2360,22 +2366,6 @@ void CServerDirectory_Titan::DestroyGameSpySupport( )
 	}
 }
 
-
-
-// Factory for CServerDirectory_Titan objects
-
-SERVERDIR_API IServerDirectory *Factory_Create_IServerDirectory_Titan( bool bClientSide, ILTCSBase& ltCSBase, HMODULE hResourceModule )
-{
-	g_pLTCSBase = &ltCSBase;
-	if( bClientSide )
-	{
-		g_pLTClient = ( ILTClient* )g_pLTCSBase;
-	}
-
-	g_hResourceModule = hResourceModule;
-	return new CServerDirectory_Titan;
-}
-
 const char* GetTempString(int messageCode)
 {
 	static char s_szStringBuffer[256];
@@ -2389,4 +2379,24 @@ const char* GetTempString(int messageCode)
 	uint32 nBytes = LoadString(g_hResourceModule, messageCode, s_szStringBuffer, sizeof(s_szStringBuffer));
 
 	return s_szStringBuffer;
+}
+#endif // LTJS_HAS_WONAPI
+
+
+// Factory for CServerDirectory_Titan objects
+
+SERVERDIR_API IServerDirectory *Factory_Create_IServerDirectory_Titan( bool bClientSide, ILTCSBase& ltCSBase, HMODULE hResourceModule )
+{
+#ifdef LTJS_HAS_WON_API
+	g_pLTCSBase = &ltCSBase;
+	if( bClientSide )
+	{
+		g_pLTClient = ( ILTClient* )g_pLTCSBase;
+	}
+
+	g_hResourceModule = hResourceModule;
+	return new CServerDirectory_Titan;
+#else
+    return nullptr;
+#endif // LTJS_HAS_WON_API
 }
