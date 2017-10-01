@@ -38,9 +38,8 @@ ltjs_add_defaults(ltjs_snd_drv)
 set_target_properties(
     ltjs_snd_drv
     PROPERTIES
-        OUTPUT_NAME snddrv
+        OUTPUT_NAME ltjs_snddrv
         PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
 
 if (MSVC)

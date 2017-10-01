@@ -32,13 +32,12 @@ ltjs_add_defaults(ltjs_to2_client_res)
 set_target_properties(
     ltjs_to2_client_res
     PROPERTIES
-        OUTPUT_NAME cres
+        OUTPUT_NAME ltjs_cres
         PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_TO2_BIN_DIR}
 )
 
 install(
     TARGETS
     ltjs_to2_client_res
-    RUNTIME DESTINATION "./game"
+    RUNTIME DESTINATION "./Game"
 )

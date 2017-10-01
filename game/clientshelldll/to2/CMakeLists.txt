@@ -207,9 +207,8 @@ endif ()
 set_target_properties(
     ltjs_to2_client_shell
     PROPERTIES
-        OUTPUT_NAME cshell
+        OUTPUT_NAME ltjs_cshell
         PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_TO2_BIN_DIR}
 )
 
 if (MSVC)
@@ -248,5 +247,5 @@ target_link_libraries(
 install(
     TARGETS
     ltjs_to2_client_shell
-    RUNTIME DESTINATION "./game"
+    RUNTIME DESTINATION "./Game"
 )

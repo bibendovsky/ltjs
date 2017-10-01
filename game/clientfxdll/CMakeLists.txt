@@ -108,9 +108,8 @@ target_compile_definitions(
 set_target_properties(
     ltjs_game_client_fx
     PROPERTIES
-        OUTPUT_NAME clientfx
+        OUTPUT_NAME ltjs_clientfx
         PREFIX ""
-        SUFFIX .fxd
 )
 
 if (MSVC)
@@ -124,5 +123,5 @@ endif ()
 install(
     TARGETS
     ltjs_game_client_fx
-    RUNTIME DESTINATION "./game"
+    RUNTIME DESTINATION "./Game"
 )

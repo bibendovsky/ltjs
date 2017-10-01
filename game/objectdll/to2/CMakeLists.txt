@@ -62,10 +62,8 @@ endif ()
 set_target_properties(
     ltjs_to2_object
     PROPERTIES
-        OUTPUT_NAME object
+        OUTPUT_NAME ltjs_object
         PREFIX ""
-        SUFFIX .lto
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_TO2_BIN_DIR}
 )
 
 if (MSVC)
@@ -91,5 +89,5 @@ target_link_libraries(
 install(
     TARGETS
     ltjs_to2_object
-    RUNTIME DESTINATION "./game"
+    RUNTIME DESTINATION "./Game"
 )

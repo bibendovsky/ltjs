@@ -554,8 +554,7 @@ target_compile_definitions(
 set_target_properties(
     ltjs_lith_tech
     PROPERTIES
-        OUTPUT_NAME lithtech
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
+        OUTPUT_NAME ltjs_lithtech
 )
 
 if (MSVC)

@@ -38,9 +38,8 @@ endif ()
 set_target_properties(
     ltjs_server_dir
     PROPERTIES
-        OUTPUT_NAME serverdir
+        OUTPUT_NAME ltjs_serverdir
         PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
 
 install(

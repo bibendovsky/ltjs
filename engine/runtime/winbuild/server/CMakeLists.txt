@@ -391,9 +391,8 @@ target_compile_definitions(
 set_target_properties(
     ltjs_server
     PROPERTIES
-        OUTPUT_NAME server
+        OUTPUT_NAME ltjs_server
         PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
 
 if (MSVC)

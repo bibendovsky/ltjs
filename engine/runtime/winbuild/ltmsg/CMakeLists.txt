@@ -25,9 +25,8 @@ ltjs_add_defaults(ltjs_lt_msg)
 set_target_properties(
     ltjs_lt_msg
     PROPERTIES
-        OUTPUT_NAME ltmsg
+        OUTPUT_NAME ltjs_ltmsg
         PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
 
 install(
