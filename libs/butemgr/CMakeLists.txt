@@ -43,6 +43,10 @@ add_library(
 
 ltjs_add_defaults(ltjs_lib_bute_mgr stdafx.h)
 
+target_compile_definitions(
+    ltjs_lib_bute_mgr
+    PRIVATE _NOMFC)
+
 set_target_properties(
     ltjs_lib_bute_mgr
     PROPERTIES
@@ -50,10 +54,6 @@ set_target_properties(
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
 )
-
-target_compile_definitions(
-    ltjs_lib_bute_mgr
-    PRIVATE _NOMFC)
 
 if (WIN32)
     target_compile_definitions(

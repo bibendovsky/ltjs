@@ -477,14 +477,6 @@ add_library(
 
 ltjs_add_defaults(ltjs_lib_client_shell stdafx.h)
 
-set_target_properties(
-    ltjs_lib_client_shell
-    PROPERTIES
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
-)
-
 target_compile_definitions(
     ltjs_lib_client_shell
     PRIVATE _CLIENTBUILD

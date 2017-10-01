@@ -79,3 +79,9 @@ target_link_libraries(
     ltjs_lib_lt_mem
     ${libs}
 )
+
+install(
+    TARGETS
+    ltjs_snd_drv
+    RUNTIME DESTINATION "."
+)

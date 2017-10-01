@@ -101,14 +101,6 @@ add_library(
 
 ltjs_add_defaults(ltjs_game_client_fx stdafx.h)
 
-set_target_properties(
-    ltjs_game_client_fx
-    PROPERTIES
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
-)
-
 target_compile_definitions(
     ltjs_game_client_fx
     PRIVATE MEMTRACK_CLIENTFX)
@@ -128,3 +120,9 @@ if (MSVC)
             LINK_FLAGS /SUBSYSTEM:WINDOWS
     )
 endif ()
+
+install(
+    TARGETS
+    ltjs_game_client_fx
+    RUNTIME DESTINATION "./game"
+)

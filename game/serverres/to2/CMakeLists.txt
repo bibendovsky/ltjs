@@ -24,6 +24,8 @@ add_library(
     ${sources}
 )
 
+ltjs_add_defaults(ltjs_to2_server_res)
+
 set_target_properties(
     ltjs_to2_server_res
     PROPERTIES
@@ -32,4 +34,8 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_TO2_BIN_DIR}
 )
 
-ltjs_add_defaults(ltjs_to2_server_res)
+install(
+    TARGETS
+    ltjs_to2_server_res
+    RUNTIME DESTINATION "./game"
+)

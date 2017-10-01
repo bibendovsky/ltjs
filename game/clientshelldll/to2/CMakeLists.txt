@@ -244,3 +244,9 @@ target_link_libraries(
     ltjs_server_dir
     ${libs}
 )
+
+install(
+    TARGETS
+    ltjs_to2_client_shell
+    RUNTIME DESTINATION "./game"
+)

@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(ltjs_lith_tech VERSION 0.0.1 LANGUAGES CXX)
 
-set(LTJS_TARGET ltjs_lith_tech)
-
 include(ltjs_common)
 
 include_directories(
@@ -608,4 +606,10 @@ target_link_libraries(
     ltjs_lib_ui
     ltjs_lib_info
     ${libs}
+)
+
+install(
+    TARGETS
+    ltjs_lith_tech
+    RUNTIME DESTINATION "."
 )

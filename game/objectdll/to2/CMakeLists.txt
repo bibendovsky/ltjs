@@ -42,6 +42,23 @@ add_library(
     ${sources}
 )
 
+ltjs_add_defaults(ltjs_to2_object)
+
+target_compile_definitions(
+    ltjs_to2_object
+    PRIVATE _SERVERBUILD
+    PRIVATE MEMTRACK_SERVER
+    PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:_NOLFBUILD>
+    PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:USE_INTEL_COMPILER>
+)
+
+if (MSVC)
+    target_compile_options(
+        ltjs_to2_object
+        PRIVATE -GR
+    )
+endif ()
+
 set_target_properties(
     ltjs_to2_object
     PROPERTIES
@@ -71,19 +88,8 @@ target_link_libraries(
     ltjs_server_dir
 )
 
-ltjs_add_defaults(ltjs_to2_object)
-
-target_compile_definitions(
+install(
+    TARGETS
     ltjs_to2_object
-    PRIVATE _SERVERBUILD
-    PRIVATE MEMTRACK_SERVER
-    PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:_NOLFBUILD>
-    PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:USE_INTEL_COMPILER>
+    RUNTIME DESTINATION "./game"
 )
-
-if (MSVC)
-    target_compile_options(
-        ltjs_to2_object
-        PRIVATE -GR
-    )
-endif ()

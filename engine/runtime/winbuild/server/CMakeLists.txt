@@ -434,3 +434,9 @@ target_link_libraries(
     ltjs_lib_info
     ${libs}
 )
+
+install(
+    TARGETS
+    ltjs_server
+    RUNTIME DESTINATION "."
+)

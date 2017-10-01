@@ -42,3 +42,9 @@ set_target_properties(
         PREFIX ""
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
+
+install(
+    TARGETS
+    ltjs_server_dir
+    RUNTIME DESTINATION "."
+)

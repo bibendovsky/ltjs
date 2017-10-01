@@ -36,3 +36,9 @@ set_target_properties(
         PREFIX ""
         RUNTIME_OUTPUT_DIRECTORY ${LTJS_TO2_BIN_DIR}
 )
+
+install(
+    TARGETS
+    ltjs_to2_client_res
+    RUNTIME DESTINATION "./game"
+)
