@@ -1,23 +1,24 @@
-set(LTJS_TARGET ltjs_lib_crypt_mgr)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lib_crypt_mgr VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options()
-
 set(
-    HDRS
+    headers
     blowfish.h
     cryptmgr.h
 )
 
 set(
-    SRCS
+    sources
     blowfish.cpp
     cryptmgr.cpp
 )
 
 add_library(
-    ${LTJS_TARGET} STATIC
-    ${HDRS}
-    ${SRCS}
+    ltjs_lib_crypt_mgr STATIC
+    ${headers}
+    ${sources}
 )
+
+ltjs_add_defaults(ltjs_lib_crypt_mgr)

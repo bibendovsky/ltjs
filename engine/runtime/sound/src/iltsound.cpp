@@ -148,7 +148,7 @@ DECLARE_SOUND_FACTORY( Win32 )
 
 // the enumerator override
 
-#define SOUND_DRIVER_DLL	"SndDrv.dll";
+#define SOUND_DRIVER_DLL	"ltjs_snddrv.dll";
 
 bool CWin32SoundFactory::FillSoundSystems( char* pcSoundSysNames, uint uiMaxStringLen )
 {

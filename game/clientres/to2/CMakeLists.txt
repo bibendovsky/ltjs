@@ -1,8 +1,7 @@
-set(LTJS_TARGET ltjs_to2_client_res)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_to2_client_res VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
-
-ltjs_add_default_options()
 
 include_directories(
     ../shared
@@ -11,27 +10,34 @@ include_directories(
 )
 
 set(
-    HDRS
+    headers
     clientres.h
     ../shared/clientresshared.h
 )
 
 set(
-    SRCS
+    sources
     lang/en/clientres.rc
     main.cpp
 )
 
 add_library(
-    ${LTJS_TARGET} SHARED
-    ${HDRS}
-    ${SRCS}
+    ltjs_to2_client_res SHARED
+    ${headers}
+    ${sources}
 )
 
+ltjs_add_defaults(ltjs_to2_client_res)
+
 set_target_properties(
-    ${LTJS_TARGET}
+    ltjs_to2_client_res
     PROPERTIES
-        OUTPUT_NAME cres
+        OUTPUT_NAME ltjs_cres
         PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_TO2_BIN_DIR}
+)
+
+install(
+    TARGETS
+    ltjs_to2_client_res
+    RUNTIME DESTINATION "./Game"
 )

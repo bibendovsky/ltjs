@@ -114,7 +114,7 @@ LTSysResultString g_StringMap[] = {
 // --------------------------------------------------------------- //
 
 static LTBOOL dsi_LoadResourceModule() {
-    g_hResourceModule = LoadLibrary("ltmsg.dll");
+    g_hResourceModule = LoadLibrary("ltjs_ltmsg.dll");
 
 #if 0
 #ifdef LITHTECH_ESD
@@ -297,16 +297,15 @@ LTRESULT dsi_LoadServerObjects(CClassMgr *pClassMgr)
 {
     char fileName[256];
     int status;
-    char *pDLLName;
 
-    pDLLName = "object.lto";
+    constexpr auto object_file_name = "ltjs_object.dll";
 
     //Copy the object.lto file out of the res so we can run it.
 	bool bFileCopied = false;
-    if (GetOrCopyFile( pDLLName, fileName, sizeof(fileName), bFileCopied) != LT_OK) 
+    if (GetOrCopyFile( object_file_name, fileName, sizeof(fileName), bFileCopied) != LT_OK) 
 	{
-        sm_SetupError(LT_ERRORCOPYINGFILE, pDLLName);
-        RETURN_ERROR_PARAM(1, LoadServerObjects, LT_ERRORCOPYINGFILE, pDLLName);
+        sm_SetupError(LT_ERRORCOPYINGFILE, object_file_name);
+        RETURN_ERROR_PARAM(1, LoadServerObjects, LT_ERRORCOPYINGFILE, object_file_name);
     }
 
     //load the object.lto DLL.
@@ -315,27 +314,29 @@ LTRESULT dsi_LoadServerObjects(CClassMgr *pClassMgr)
 
     //check for errors.
     if (status == CB_CANTFINDMODULE) {
-        sm_SetupError(LT_INVALIDOBJECTDLL, pDLLName);
-        RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLL, pDLLName);
+        sm_SetupError(LT_INVALIDOBJECTDLL, object_file_name);
+        RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLL, object_file_name);
     }
     else if (status == CB_NOTCLASSMODULE) {
-        sm_SetupError(LT_INVALIDOBJECTDLL, pDLLName);
-        RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLL, pDLLName);
+        sm_SetupError(LT_INVALIDOBJECTDLL, object_file_name);
+        RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLL, object_file_name);
     }
     else if (status == CB_VERSIONMISMATCH) {
-        sm_SetupError(LT_INVALIDOBJECTDLLVERSION, pDLLName, version, SERVEROBJ_VERSION);
-        RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLLVERSION, pDLLName);
+        sm_SetupError(LT_INVALIDOBJECTDLLVERSION, object_file_name, version, SERVEROBJ_VERSION);
+        RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLLVERSION, object_file_name);
     }
 
     // Get sres.dll.
+    constexpr auto sres_file_name = "ltjs_sres.dll";
+
 	bFileCopied = false;
-    if ((GetOrCopyFile("sres.dll", fileName, sizeof(fileName),bFileCopied) != LT_OK)
+    if ((GetOrCopyFile(sres_file_name, fileName, sizeof(fileName),bFileCopied) != LT_OK)
         || (bm_BindModule(fileName, bFileCopied, pClassMgr->m_hServerResourceModule) != BIND_NOERROR))
     {
 		cb_UnloadModule( pClassMgr->m_ClassModule );
 
-        sm_SetupError(LT_ERRORCOPYINGFILE, "sres.dll");
-        RETURN_ERROR_PARAM(1, LoadServerObjects, LT_ERRORCOPYINGFILE, "sres.dll");
+        sm_SetupError(LT_ERRORCOPYINGFILE, sres_file_name);
+        RETURN_ERROR_PARAM(1, LoadServerObjects, LT_ERRORCOPYINGFILE, sres_file_name);
     }
 
     //let the dll know it's instance handle.
@@ -512,11 +513,13 @@ LTRESULT dsi_InitClientShellDE()
     g_pClientMgr->m_hShellModule = LTNULL;
 
     // Setup the cshell.dll file.
+    constexpr auto cshell_file_name = "ltjs_cshell.dll";
+
 	bool bFileCopied = false;
-    dResult = GetOrCopyClientFile( "cshell.dll", fileName, sizeof(fileName), bFileCopied );
+    dResult = GetOrCopyClientFile( cshell_file_name, fileName, sizeof(fileName), bFileCopied );
     if (dResult != LT_OK) {
-        g_pClientMgr->SetupError(LT_ERRORCOPYINGFILE, "cshell.dll");
-        RETURN_ERROR_PARAM(1, InitClientShellDE, LT_ERRORCOPYINGFILE, "cshell.dll");
+        g_pClientMgr->SetupError(LT_ERRORCOPYINGFILE, cshell_file_name);
+        RETURN_ERROR_PARAM(1, InitClientShellDE, LT_ERRORCOPYINGFILE, cshell_file_name);
     }
 
     //load the DLL.
@@ -524,27 +527,29 @@ LTRESULT dsi_InitClientShellDE()
 
     //check if it loaded correctly.
     if (status == BIND_CANTFINDMODULE) {
-        g_pClientMgr->SetupError(LT_MISSINGSHELLDLL, "cshell.dll");
+        g_pClientMgr->SetupError(LT_MISSINGSHELLDLL, cshell_file_name);
         RETURN_ERROR(1, InitClientShellDE, LT_MISSINGSHELLDLL);
     }
 
     //check if we now have the IClientShell interface instantiated.
     if (i_client_shell == NULL) {
-        g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, "cshell.dll");
+        g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, cshell_file_name);
         RETURN_ERROR(1, InitClientShellDE, LT_INVALIDSHELLDLL);
     }
 
     //
     // Try to setup cres.dll.
     //
+    constexpr auto cres_file_name = "ltjs_cres.dll";
+
 
     //copy the file out of the res file.
 	bFileCopied = false;
-    dResult = GetOrCopyClientFile( "cres.dll", fileName, sizeof(fileName), bFileCopied );
+    dResult = GetOrCopyClientFile( cres_file_name, fileName, sizeof(fileName), bFileCopied );
     if (dResult != LT_OK) 
 	{
-        g_pClientMgr->SetupError(LT_ERRORCOPYINGFILE, "cres.dll");
-        RETURN_ERROR_PARAM(1, InitClientShellDE, LT_ERRORCOPYINGFILE, "cres.dll");
+        g_pClientMgr->SetupError(LT_ERRORCOPYINGFILE, cres_file_name);
+        RETURN_ERROR_PARAM(1, InitClientShellDE, LT_ERRORCOPYINGFILE, cres_file_name);
     }
 
     //load the DLL.
@@ -556,8 +561,8 @@ LTRESULT dsi_InitClientShellDE()
         bm_UnbindModule(g_pClientMgr->m_hShellModule);
         g_pClientMgr->m_hShellModule = LTNULL;
 
-        g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, "cres.dll");
-        RETURN_ERROR_PARAM(1, InitClientShellDE, LT_INVALIDSHELLDLL, "cres.dll");
+        g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, cres_file_name);
+        RETURN_ERROR_PARAM(1, InitClientShellDE, LT_INVALIDSHELLDLL, cres_file_name);
     }
 
     //let the dll know it's instance handle.

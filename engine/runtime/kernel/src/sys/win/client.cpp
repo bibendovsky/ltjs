@@ -534,7 +534,7 @@ int RunClientApp(HINSTANCE hInstance) {
     status = dsi_Init();
     if (status != 0) {
         if (status == 1) {
-            MessageBox(LTNULL, "Unable to load ltmsg.dll.", "Error", MB_OK);
+            MessageBox(LTNULL, "Unable to load ltjs_ltmsg.dll.", "Error", MB_OK);
             dsi_Term();
             return -1;
         }

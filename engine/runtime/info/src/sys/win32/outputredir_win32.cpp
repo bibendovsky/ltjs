@@ -85,7 +85,7 @@ void COutputRedir::OutputToASSERT()
 
 #ifndef __MINGW32__
 	//_assert(m_pPrintBuffer, __FILE__, __LINE__);
-    _CrtDbgReport(_CRT_ASSERT, NULL, 0, "server.dll", "%s", m_pPrintBuffer);
+    _CrtDbgReport(_CRT_ASSERT, NULL, 0, "ltjs_server.dll", "%s", m_pPrintBuffer);
 #else
 	ASSERT(!m_pPrintBuffer);
 #endif

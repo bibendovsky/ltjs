@@ -1,27 +1,26 @@
-set(LTJS_TARGET ltjs_snd_drv)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_snd_drv VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options()
-
 include_directories(
-    ../../../../../../directx/include
-    ../../../../../sdk/inc
-    ../../../../../../libs/lith
     ../..
-    ../../../../shared/src/sys/win
+    ../../../../../../directx/include
+    ../../../../../../libs/lith
+    ../../../../../sdk/inc
     ../../../../kernel/src
+    ../../../../shared/src/sys/win
 )
 
 set(
-    HDRS
+    headers
     eax.h
     s_dx8.h
     stdafx.h
 )
 
 set(
-    SRCS
+    sources
     ../../../../kernel/src/sys/win/counter.cpp
     parsewavefile.cpp
     s_dx8.cpp
@@ -29,34 +28,35 @@ set(
 )
 
 add_library(
-    ${LTJS_TARGET} SHARED
-    ${HDRS}
-    ${SRCS}
+    ltjs_snd_drv SHARED
+    ${headers}
+    ${sources}
 )
 
+ltjs_add_defaults(ltjs_snd_drv)
+
 set_target_properties(
-    ${LTJS_TARGET}
+    ltjs_snd_drv
     PROPERTIES
-        OUTPUT_NAME snddrv
+        OUTPUT_NAME ltjs_snddrv
         PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
 )
 
 if (MSVC)
     set_target_properties(
-        ${LTJS_TARGET}
+        ltjs_snd_drv
         PROPERTIES
             LINK_FLAGS /SUBSYSTEM:WINDOWS
     )
 
     set(
-        PATH_TO_DX_LIBS
+        path_to_dx_libs
         ${CMAKE_SOURCE_DIR}/directx/lib/x86
     )
 
     set(
-        PLIBS
-        ${PATH_TO_DX_LIBS}/dxguid.lib
+        libs
+        ${path_to_dx_libs}/dxguid.lib
         ${CMAKE_CURRENT_SOURCE_DIR}/eaxguid.lib
         winmm
         msacm32
@@ -65,7 +65,7 @@ endif ()
 
 if (MINGW)
     set(
-        PLIBS
+        libs
         ${CMAKE_CURRENT_SOURCE_DIR}/eaxguid.lib
         dxguid
         msacm32
@@ -74,7 +74,13 @@ if (MINGW)
 endif ()
 
 target_link_libraries(
-    ${LTJS_TARGET}
+    ltjs_snd_drv
     ltjs_lib_lt_mem
-    ${PLIBS}
+    ${libs}
+)
+
+install(
+    TARGETS
+    ltjs_snd_drv
+    RUNTIME DESTINATION "."
 )

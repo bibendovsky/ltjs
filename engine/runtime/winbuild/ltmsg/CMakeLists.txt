@@ -1,30 +1,36 @@
-set(LTJS_TARGET ltjs_lt_msg)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lt_msg VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options()
-
 set(
-    HDRS
+    headers
     resource.h
 )
 
 set(
-    SRCS
+    sources
     init.cpp
     lang/en/ltmsg.rc
 )
 
 add_library(
-    ${LTJS_TARGET} SHARED
-    ${HDRS}
-    ${SRCS}
+    ltjs_lt_msg SHARED
+    ${headers}
+    ${sources}
 )
 
+ltjs_add_defaults(ltjs_lt_msg)
+
 set_target_properties(
-    ${LTJS_TARGET}
+    ltjs_lt_msg
     PROPERTIES
-        OUTPUT_NAME ltmsg
+        OUTPUT_NAME ltjs_ltmsg
         PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_BIN_DIR}
+)
+
+install(
+    TARGETS
+    ltjs_lt_msg
+    RUNTIME DESTINATION "."
 )

@@ -1,8 +1,7 @@
-set(LTJS_TARGET ltjs_lib_lt_mem)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lib_lt_mem VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
-
-ltjs_add_default_options(stdafx.h)
 
 include_directories(
     ../../../libs/stdlith
@@ -13,7 +12,7 @@ include_directories(
 )
 
 set(
-    HDRS
+    headers
     generalheap.h
     generalheapgroup.h
     lilfixedheap.h
@@ -26,7 +25,7 @@ set(
 )
 
 set(
-    SRCS
+    sources
     ltmem.cpp
     ltmemdebug.cpp
     ltmemheap.cpp
@@ -45,7 +44,9 @@ if (MSVC)
 endif ()
 
 add_library(
-    ${LTJS_TARGET} STATIC
-    ${HDRS}
-    ${SRCS}
+    ltjs_lib_lt_mem STATIC
+    ${headers}
+    ${sources}
 )
+
+ltjs_add_defaults(ltjs_lib_lt_mem stdafx.h)

@@ -1,40 +1,36 @@
-set(LTJS_TARGET ltjs_to2_client_shell)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_to2_client_shell VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options(stdafx.h)
-
-add_definitions(-D_CLIENTBUILD)
-add_definitions(-DMEMTRACK_CLIENT)
-add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-D_NOLFBUILD>)
-add_compile_options($<$<NOT:$<CONFIG:DEBUG>>:-DNO_PRAGMA_LIBS>)
-
-if (MSVC)
-    add_compile_options(-GR)
-endif ()
-
 include_directories(
-    ../../shared/to2
     .
-    ../clientshellshared
-    ../../clientres/shared
-    ../../clientres/to2
-    ../../shared
     ../../../engine/sdk/inc
-    ../../../libs/stdlith
     ../../../libs/butemgr
     ../../../libs/cryptmgr
     ../../../libs/lith
     ../../../libs/mfcstub
-    ../../libs/ltguimgr
     ../../../libs/regmgr
-    ../../libs/wonapi
+    ../../../libs/stdlith
+    ../../clientres/shared
+    ../../clientres/to2
+    ../../libs/ltguimgr
     ../../libs/serverdir
+    ../../libs/wonapi
+    ../../shared
+    ../../shared/to2
+    ../clientshellshared
 )
 
 set(
-    HDRS
-    to2clientweaponallocator.h
+    headers
+    ../../../engine/sdk/inc/iltbaseclass.h
+    ../../../engine/sdk/inc/ltmodule.h
+    ../../../engine/sdk/inc/ltobjref.h
+    ../../libs/serverdir/iserverdir.h
+    ../../shared/ltpoly.h
+    ../../shared/to2/to2missionbutemgr.h
+    ../../shared/to2/to2versionmgr.h
     hudair.h
     hudammo.h
     hudcarrying.h
@@ -50,11 +46,6 @@ set(
     hudprogressbar.h
     hudradio.h
     hudrespawn.h
-    ../../../engine/sdk/inc/iltbaseclass.h
-    ../../libs/serverdir/iserverdir.h
-    ../../../engine/sdk/inc/ltmodule.h
-    ../../../engine/sdk/inc/ltobjref.h
-    ../../shared/ltpoly.h
     screenaudio.h
     screenconfigure.h
     screencontrols.h
@@ -91,19 +82,24 @@ set(
     screensingle.h
     screenteam.h
     stdafx.h
+    to2clientweaponallocator.h
     to2gameclientshell.h
     to2hudmgr.h
     to2interfacemgr.h
     to2layoutmgr.h
-    ../../shared/to2/to2missionbutemgr.h
     to2playermgr.h
     to2playerstats.h
     to2screenmgr.h
-    ../../shared/to2/to2versionmgr.h
 )
 
 set(
-    SRCS
+    sources
+    ../../../engine/sdk/inc/iltbaseclass.cpp
+    ../../../engine/sdk/inc/ltmodule.cpp
+    ../../../engine/sdk/inc/ltobjref.cpp
+    ../../../engine/sdk/inc/ltquatbase.cpp
+    ../../shared/to2/to2missionbutemgr.cpp
+    ../../shared/to2/to2versionmgr.cpp
     globalsinit.cpp
     hudair.cpp
     hudammo.cpp
@@ -120,10 +116,6 @@ set(
     hudprogressbar.cpp
     hudradio.cpp
     hudrespawn.cpp
-    ../../../engine/sdk/inc/iltbaseclass.cpp
-    ../../../engine/sdk/inc/ltmodule.cpp
-    ../../../engine/sdk/inc/ltobjref.cpp
-    ../../../engine/sdk/inc/ltquatbase.cpp
     screenaudio.cpp
     screenconfigure.cpp
     screencontrols.cpp
@@ -165,11 +157,9 @@ set(
     to2hudmgr.cpp
     to2interfacemgr.cpp
     to2layoutmgr.cpp
-    ../../shared/to2/to2missionbutemgr.cpp
     to2playermgr.cpp
     to2playerstats.cpp
     to2screenmgr.cpp
-    ../../shared/to2/to2versionmgr.cpp
 )
 
 if (MSVC)
@@ -192,41 +182,57 @@ if (MSVC)
 endif ()
 
 add_library(
-    ${LTJS_TARGET} SHARED
-    ${HDRS}
-    ${SRCS}
+    ltjs_to2_client_shell SHARED
+    ${headers}
+    ${sources}
 )
 
+ltjs_add_defaults(ltjs_to2_client_shell stdafx.h)
+
+target_compile_definitions(
+    ltjs_to2_client_shell
+    PRIVATE _CLIENTBUILD
+    PRIVATE MEMTRACK_CLIENT
+    PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:_NOLFBUILD>
+    PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:NO_PRAGMA_LIBS>
+)
+
+if (MSVC)
+    target_compile_options(
+        ltjs_to2_client_shell
+        PRIVATE -GR
+    )
+endif ()
+
 set_target_properties(
-    ${LTJS_TARGET}
+    ltjs_to2_client_shell
     PROPERTIES
-        OUTPUT_NAME cshell
+        OUTPUT_NAME ltjs_cshell
         PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY ${LTJS_TO2_BIN_DIR}
 )
 
 if (MSVC)
     set_target_properties(
-        ${LTJS_TARGET}
+        ltjs_to2_client_shell
         PROPERTIES
             LINK_FLAGS /SUBSYSTEM:WINDOWS
     )
 
     set(
-        PLIBS
+        libs
         winmm
     )
 endif ()
 
 if (MINGW)
     set(
-        PLIBS
+        libs
         winmm
     )
 endif ()
 
 target_link_libraries(
-    ${LTJS_TARGET}
+    ltjs_to2_client_shell
     ltjs_lib_bute_mgr
     ltjs_lib_client_shell
     ltjs_lib_crypt_mgr
@@ -235,5 +241,11 @@ target_link_libraries(
     ltjs_lib_mfc_stub
     ltjs_lib_std_lith
     ltjs_server_dir
-    ${PLIBS}
+    ${libs}
+)
+
+install(
+    TARGETS
+    ltjs_to2_client_shell
+    RUNTIME DESTINATION "./Game"
 )

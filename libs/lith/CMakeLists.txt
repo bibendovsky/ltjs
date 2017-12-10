@@ -1,11 +1,10 @@
-set(LTJS_TARGET ltjs_lib_lith)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lib_lith VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options()
-
 set(
-    HDRS
+    headers
     basehash.h
     baselist.h
     baselistcounter.h
@@ -21,7 +20,7 @@ set(
 )
 
 set(
-    SRCS
+    sources
     basehash.cpp
     baselist.cpp
     baselistcounter.cpp
@@ -35,7 +34,9 @@ set(
 )
 
 add_library(
-    ${LTJS_TARGET} STATIC
-    ${HDRS}
-    ${SRCS}
+    ltjs_lib_lith STATIC
+    ${headers}
+    ${sources}
 )
+
+ltjs_add_defaults(ltjs_lib_lith)

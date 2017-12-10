@@ -1,56 +1,109 @@
-set(LTJS_TARGET ltjs_lib_d3d_render)
+cmake_minimum_required(VERSION 3.5.1)
+project(ltjs_lib_d3d_render VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
 
-ltjs_add_default_options(precompile.h)
-
-add_definitions(-D__D3DREND)
-add_definitions(-D__D3D)
-add_definitions(-DMODEL_SUPPORT_ABC)
-add_compile_options($<$<CONFIG:DEBUG>:-DD3D_DEBUG_INFO>)
-
 include_directories(
-    ../../../../../../directx/include
-    ../../../../client/src
     .
-    ../../../../kernel/mem/src
-    ../../../../shared/src
-    ../../../../kernel/src
-    ../../../../../sdk/inc
+    ../../../../../../directx/include
     ../../../../../../libs/stdlith
-    ../../../../shared/src/sys/win
-    ../../../../world/src
+    ../../../../../sdk/inc
+    ../../../../../sdk/inc/physics
+    ../../../../client/src
+    ../../../../kernel/io/src
+    ../../../../kernel/mem/src
+    ../../../../kernel/src
+    ../../../../kernel/src/sys/win
+    ../../../../lithtemplate
     ../../../../model/src
     ../../../../model/src/sys/d3d
-    ../../../../kernel/src/sys/win
-    ../../../../kernel/io/src
-    ../../../../lithtemplate
-    ../../../../../sdk/inc/physics
+    ../../../../shared/src
+    ../../../../shared/src/sys/win
+    ../../../../world/src
 )
 
 set(
-    HDRS
+    headers
+    ../../../../../sdk/inc/iclientshell.h
+    ../../../../../sdk/inc/iltbenchmark.h
+    ../../../../../sdk/inc/iltclient.h
+    ../../../../../sdk/inc/iltcommon.h
+    ../../../../../sdk/inc/iltcsbase.h
+    ../../../../../sdk/inc/iltdirectmusic.h
+    ../../../../../sdk/inc/iltdrawprim.h
+    ../../../../../sdk/inc/iltinfo.h
+    ../../../../../sdk/inc/iltmath.h
+    ../../../../../sdk/inc/iltrenderstyles.h
+    ../../../../../sdk/inc/iltsoundmgr.h
+    ../../../../../sdk/inc/iltspritecontrol.h
+    ../../../../../sdk/inc/iltstream.h
+    ../../../../../sdk/inc/ilttexinterface.h
+    ../../../../../sdk/inc/lithtech.h
+    ../../../../../sdk/inc/ltanimtracker.h
+    ../../../../../sdk/inc/ltassert.h
+    ../../../../../sdk/inc/ltbasedefs.h
+    ../../../../../sdk/inc/ltbasetypes.h
+    ../../../../../sdk/inc/ltcodes.h
+    ../../../../../sdk/inc/ltinteger.h
+    ../../../../../sdk/inc/ltlink.h
+    ../../../../../sdk/inc/ltmatrix.h
+    ../../../../../sdk/inc/ltmodule.h
+    ../../../../../sdk/inc/ltplane.h
+    ../../../../../sdk/inc/ltpvalue.h
+    ../../../../../sdk/inc/ltquatbase.h
+    ../../../../../sdk/inc/ltrect.h
+    ../../../../../sdk/inc/ltrenderstyle.h
+    ../../../../../sdk/inc/ltrotation.h
+    ../../../../../sdk/inc/ltvector.h
+    ../../../../client/src/client_formatmgr.h
+    ../../../../kernel/mem/src/de_memory.h
+    ../../../../kernel/src/dsys.h
+    ../../../../kernel/src/sys/win/counter.h
+    ../../../../kernel/src/sys/win/dsys_interface.h
+    ../../../../kernel/src/sys/win/interface_helpers.h
+    ../../../../kernel/src/sys/win/lthread.h
+    ../../../../kernel/src/sys/win/render.h
+    ../../../../kernel/src/syscounter.h
+    ../../../../model/src/animtracker.h
+    ../../../../model/src/ltb.h
+    ../../../../model/src/model.h
+    ../../../../model/src/model_ops.h
+    ../../../../model/src/modelallocations.h
+    ../../../../model/src/transformmaker.h
+    ../../../../shared/src/bdefs.h
+    ../../../../shared/src/colorops.h
+    ../../../../shared/src/conparse.h
+    ../../../../shared/src/debuggeometry.h
+    ../../../../shared/src/dtxmgr.h
+    ../../../../shared/src/gamemath.h
+    ../../../../shared/src/geometry.h
+    ../../../../shared/src/geomroutines.h
+    ../../../../shared/src/lightmap_compress.h
+    ../../../../shared/src/nexus.h
+    ../../../../shared/src/objectmgr.h
+    ../../../../shared/src/pixelformat.h
+    ../../../../shared/src/renderinfostruct.h
+    ../../../../shared/src/renderobject.h
+    ../../../../shared/src/sys/win/d3dddstructs.h
+    ../../../../shared/src/sys/win/renderstruct.h
+    ../../../../shared/src/sysddstructs.h
+    ../../../../shared/src/version_info.h
+    ../../../../world/src/de_mainworld.h
+    ../../../../world/src/de_objects.h
+    ../../../../world/src/de_sprite.h
+    ../../../../world/src/de_world.h
+    ../../../../world/src/fullintersectline.h
+    ../../../../world/src/intersect_line.h
+    ../../../../world/src/light_table.h
+    ../../../../world/src/world_tree.h
+    ../../../../world/src/worldtreehelper.h
     ../shadows/d3dshadowtexture.h
-    iaggregateshader.h
-    modelshadowshader.h
-    texturescriptdefs.h
-    texturescriptevaluator.h
-    texturescriptinstance.h
-    texturescriptinterpreter.h
-    texturescriptmgr.h
-    texturescriptvarmgr.h
     3d_ops.h
     aabb.h
-    ../../../../model/src/animtracker.h
-    ../../../../shared/src/bdefs.h
-    ../../../../client/src/client_formatmgr.h
     clipline.h
-    ../../../../shared/src/colorops.h
     common_draw.h
     common_init.h
     common_stuff.h
-    ../../../../shared/src/conparse.h
-    ../../../../kernel/src/sys/win/counter.h
     d3d_convar.h
     d3d_defs.h
     d3d_device.h
@@ -76,16 +129,9 @@ set(
     d3d_texture.h
     d3d_utils.h
     d3d_viewparams.h
-    ../../../../shared/src/sys/win/d3dddstructs.h
     d3dmeshrendobj_rigid.h
     d3dmeshrendobj_skel.h
     d3dmeshrendobj_vertanim.h
-    ../../../../world/src/de_mainworld.h
-    ../../../../kernel/mem/src/de_memory.h
-    ../../../../world/src/de_objects.h
-    ../../../../world/src/de_sprite.h
-    ../../../../world/src/de_world.h
-    ../../../../shared/src/debuggeometry.h
     devicelightlist.h
     dirtyrect.h
     draw_canvas.h
@@ -93,79 +139,27 @@ set(
     drawobjects.h
     drawsky.h
     drawworldmodel.h
-    ../../../../kernel/src/dsys.h
-    ../../../../kernel/src/sys/win/dsys_interface.h
-    ../../../../shared/src/dtxmgr.h
     fixedpoint.h
-    ../../../../world/src/fullintersectline.h
-    ../../../../shared/src/gamemath.h
-    ../../../../shared/src/geometry.h
-    ../../../../shared/src/geomroutines.h
-    ../../../../../sdk/inc/iclientshell.h
-    ../../../../../sdk/inc/iltbenchmark.h
-    ../../../../../sdk/inc/iltclient.h
-    ../../../../../sdk/inc/iltcommon.h
-    ../../../../../sdk/inc/iltcsbase.h
-    ../../../../../sdk/inc/iltdirectmusic.h
-    ../../../../../sdk/inc/iltdrawprim.h
-    ../../../../../sdk/inc/iltinfo.h
-    ../../../../../sdk/inc/iltmath.h
-    ../../../../../sdk/inc/iltrenderstyles.h
-    ../../../../../sdk/inc/iltsoundmgr.h
-    ../../../../../sdk/inc/iltspritecontrol.h
-    ../../../../../sdk/inc/iltstream.h
-    ../../../../../sdk/inc/ilttexinterface.h
-    ../../../../kernel/src/sys/win/interface_helpers.h
-    ../../../../world/src/intersect_line.h
-    ../../../../world/src/light_table.h
-    ../../../../shared/src/lightmap_compress.h
-    ../../../../../sdk/inc/lithtech.h
-    ../../../../../sdk/inc/ltanimtracker.h
-    ../../../../../sdk/inc/ltassert.h
-    ../../../../model/src/ltb.h
-    ../../../../../sdk/inc/ltbasedefs.h
-    ../../../../../sdk/inc/ltbasetypes.h
-    ../../../../../sdk/inc/ltcodes.h
+    iaggregateshader.h
     lteffectimpl.h
     lteffectinclude.h
     lteffectshadermgr.h
-    ../../../../kernel/src/sys/win/lthread.h
-    ../../../../../sdk/inc/ltinteger.h
-    ../../../../../sdk/inc/ltlink.h
-    ../../../../../sdk/inc/ltmatrix.h
-    ../../../../../sdk/inc/ltmodule.h
     ltpixelshadermgr.h
-    ../../../../../sdk/inc/ltplane.h
-    ../../../../../sdk/inc/ltpvalue.h
-    ../../../../../sdk/inc/ltquatbase.h
-    ../../../../../sdk/inc/ltrect.h
-    ../../../../../sdk/inc/ltrenderstyle.h
-    ../../../../../sdk/inc/ltrotation.h
     ltshaderdevicestateimp.h
-    ../../../../../sdk/inc/ltvector.h
     ltvertexshadermgr.h
     memstats_world.h
-    ../../../../model/src/model.h
-    ../../../../model/src/model_ops.h
-    ../../../../model/src/modelallocations.h
     modeldebug.h
-    ../../../../shared/src/nexus.h
+    modelshadowshader.h
     objectgroupmgr.h
-    ../../../../shared/src/objectmgr.h
-    ../../../../shared/src/pixelformat.h
     polyclip.h
     precompile.h
     relevantlightlist.h
-    ../../../../kernel/src/sys/win/render.h
     rendererconsolevars.h
     rendererframestats.h
-    ../../../../shared/src/renderinfostruct.h
     renderlight.h
     rendermodelinfolist.h
     rendermodelpiecelist.h
-    ../../../../shared/src/renderobject.h
     rendershadowlist.h
-    ../../../../shared/src/sys/win/renderstruct.h
     renderstylelookuptables.h
     renderstylemap.h
     rendertarget.h
@@ -174,18 +168,19 @@ set(
     setupmodel.h
     setuptouchinglights.h
     simd_utilities.h
-    ../../../../kernel/src/syscounter.h
-    ../../../../shared/src/sysddstructs.h
     tagnodes.h
-    ../../../../model/src/transformmaker.h
-    ../../../../shared/src/version_info.h
+    texturescriptdefs.h
+    texturescriptevaluator.h
+    texturescriptinstance.h
+    texturescriptinterpreter.h
+    texturescriptmgr.h
+    texturescriptvarmgr.h
     vertexbuffercontroller.h
-    ../../../../world/src/world_tree.h
-    ../../../../world/src/worldtreehelper.h
 )
 
 set(
-    SRCS
+    sources
+    ../shadows/d3dshadowtexture.cpp
     3d_ops.cpp
     aabb.cpp
     common_draw.cpp
@@ -238,6 +233,7 @@ set(
     ltvertexshadermgr.cpp
     memstats_world.cpp
     modeldebug.cpp
+    modelshadowshader.cpp
     objectgroupmgr.cpp
     precompile.cpp
     relevantlightlist.cpp
@@ -255,13 +251,11 @@ set(
     setupmodel.cpp
     setuptouchinglights.cpp
     tagnodes.cpp
-    vertexbuffercontroller.cpp
-    ../shadows/d3dshadowtexture.cpp
-    modelshadowshader.cpp
     texturescriptinstance.cpp
     texturescriptinterpreter.cpp
     texturescriptmgr.cpp
     texturescriptvarmgr.cpp
+    vertexbuffercontroller.cpp
 )
 
 if (MSVC)
@@ -274,7 +268,17 @@ if (MSVC)
 endif ()
 
 add_library(
-    ${LTJS_TARGET} STATIC
-    ${HDRS}
-    ${SRCS}
+    ltjs_lib_d3d_render STATIC
+    ${headers}
+    ${sources}
+)
+
+ltjs_add_defaults(ltjs_lib_d3d_render precompile.h)
+
+target_compile_definitions(
+    ltjs_lib_d3d_render
+    PRIVATE __D3DREND
+    PRIVATE __D3D
+    PRIVATE MODEL_SUPPORT_ABC
+    PRIVATE $<$<CONFIG:DEBUG>:D3D_DEBUG_INFO>
 )
