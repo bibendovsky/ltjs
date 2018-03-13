@@ -6,6 +6,7 @@ include(ltjs_common)
 include_directories(
     ../..
     ../../../../../../directx/include
+    ../../../../../../libs/bibendovsky_spul_lib/include
     ../../../../../../libs/lith
     ../../../../../sdk/inc
     ../../../../kernel/src
@@ -75,6 +76,7 @@ endif ()
 
 target_link_libraries(
     ltjs_snd_drv
+    bibendovsky_spul_lib
     ltjs_lib_lt_mem
     ${libs}
 )
