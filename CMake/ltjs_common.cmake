@@ -13,7 +13,7 @@ function (ltjs_add_defaults)
     set_target_properties(
         ${ARGV0}
         PROPERTIES
-        CXX_STANDARD 11
+        CXX_STANDARD 14
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
     )
