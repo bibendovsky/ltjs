@@ -1,6 +1,11 @@
 #ifndef __SOUNDBUFFER_H__
 #define __SOUNDBUFFER_H__
 
+
+#include "bibendovsky_spul_wave_format.h"
+#include "bibendovsky_spul_wave_format_tag.h"
+
+
 #ifndef __CLIENT_FILEMGR_H__
 #include "client_filemgr.h"
 #endif
@@ -8,6 +13,10 @@
 #ifndef __WAVE_H__
 #include "wave.h"
 #endif
+
+
+namespace ul = bibendovsky::spul;
+
 
 class CSoundInstance;
 
@@ -57,7 +66,7 @@ public:
 	uint32			GetDuration( ) const
         { return m_dwDuration; } // In milliseconds
 
-	WAVEFORMATEX *	GetWaveFormat( LTBOOL bDelegate = LTTRUE );
+	ul::WaveFormatEx*	GetWaveFormat( LTBOOL bDelegate = LTTRUE );
 
 
 
@@ -67,7 +76,7 @@ public:
 	{ return ( bDelegate && m_pDecompressedSoundBuffer ) ? m_pDecompressedSoundBuffer->m_nSampleType : m_nSampleType; }
 
 	S32				GetPlaybackRate( LTBOOL bDelegate = LTTRUE )
-	{ return GetWaveFormat( bDelegate )->nSamplesPerSec; }
+	{ return GetWaveFormat( bDelegate )->sample_rate_; }
 
 //	===========================================================================
 #ifdef USE_ABSTRACT_SOUND_INTERFACES
@@ -88,7 +97,7 @@ public:
 //	===========================================================================
 
 	LTBOOL			IsCompressed( )
-	{ return ( m_WaveHeader.m_WaveFormat.wFormatTag == WAVE_FORMAT_IMA_ADPCM || m_WaveHeader.m_WaveFormat.wFormatTag == WAVE_FORMAT_MPEGLAYER3 ); }
+	{ return ( m_WaveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::ima_adpcm || m_WaveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::mp3 ); }
 
 	CSoundBuffer *	GetDecompressedSoundBuffer( )
 	{ return m_pDecompressedSoundBuffer; }
@@ -146,7 +155,7 @@ protected:
 
 	LTRESULT			LoadDataFromDecompressed( )	;
 
-	void				CalcSampleType( S32 &sampleType, WAVEFORMATEX &waveFormat );
+	void				CalcSampleType( S32 &sampleType, ul::WaveFormatEx &waveFormat );
 
 protected:
 
@@ -194,7 +203,7 @@ inline float CSoundBuffer::RandomPitchMod( )
 	return GetRandom( -m_WaveHeader.m_lith.m_fPitchMod, m_WaveHeader.m_lith.m_fPitchMod );
 }
 
-inline WAVEFORMATEX *CSoundBuffer::GetWaveFormat( LTBOOL bDelegate )
+inline ul::WaveFormatEx *CSoundBuffer::GetWaveFormat( LTBOOL bDelegate )
 {
     return ( bDelegate && m_pDecompressedSoundBuffer ) ?
         &m_pDecompressedSoundBuffer->m_WaveHeader.m_WaveFormat : &m_WaveHeader.m_WaveFormat;

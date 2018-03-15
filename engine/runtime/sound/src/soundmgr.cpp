@@ -351,17 +351,17 @@ LTRESULT CSoundMgr::Init(InitSoundInfo &soundInit)
 #endif
 
 	// store the primary buffer format
-    m_PrimaryBufferWaveFormat.wFormatTag = WAVE_FORMAT_PCM;
-    m_PrimaryBufferWaveFormat.nChannels = 2;
-    m_PrimaryBufferWaveFormat.nSamplesPerSec = soundInit.m_nSampleRate;
-    m_PrimaryBufferWaveFormat.wBitsPerSample = soundInit.m_nBitsPerSample;
-    m_PrimaryBufferWaveFormat.nBlockAlign = (m_PrimaryBufferWaveFormat.nChannels * m_PrimaryBufferWaveFormat.wBitsPerSample) >> 3;
-    m_PrimaryBufferWaveFormat.nAvgBytesPerSec = m_PrimaryBufferWaveFormat.nSamplesPerSec * m_PrimaryBufferWaveFormat.nBlockAlign;
+    m_PrimaryBufferWaveFormat.tag_ = ul::WaveFormatTag::pcm;
+    m_PrimaryBufferWaveFormat.channel_count_ = 2;
+    m_PrimaryBufferWaveFormat.sample_rate_ = soundInit.m_nSampleRate;
+    m_PrimaryBufferWaveFormat.bit_depth_ = soundInit.m_nBitsPerSample;
+    m_PrimaryBufferWaveFormat.block_align_ = (m_PrimaryBufferWaveFormat.channel_count_ * m_PrimaryBufferWaveFormat.bit_depth_) >> 3;
+    m_PrimaryBufferWaveFormat.avg_bytes_per_sec_ = m_PrimaryBufferWaveFormat.sample_rate_ * m_PrimaryBufferWaveFormat.block_align_;
 
     m_bConvert16to8 = (soundInit.m_dwFlags & INITSOUNDINFOFLAG_CONVERT16TO8) ? true : false;
 
     // Open the wave device
-    if ( g_pSoundSys->WaveOutOpen(&m_hDigDriver, 0, WAVE_MAPPER, ( WAVEFORMAT* )&m_PrimaryBufferWaveFormat) != LS_OK )
+    if ( g_pSoundSys->WaveOutOpen(&m_hDigDriver, 0, WAVE_MAPPER, &m_PrimaryBufferWaveFormat) != LS_OK )
     {
         Term();
         return LT_UNABLETOINITSOUND;

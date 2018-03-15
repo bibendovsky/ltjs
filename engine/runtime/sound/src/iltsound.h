@@ -1,6 +1,10 @@
 #ifndef __ILTSOUND_H__
 #define __ILTSOUND_H__
 
+
+#include "bibendovsky_spul_wave_format.h"
+
+
 #ifndef __LTBASETYPES_H__
 #include "ltbasetypes.h"
 #endif
@@ -8,6 +12,10 @@
 #ifndef __LTBASEDEFS_H__
 #include "ltbasedefs.h"
 #endif
+
+
+namespace ul = bibendovsky::spul;
+
 
 #ifndef NULL
 #define NULL			0x0
@@ -389,7 +397,7 @@ public:
 	virtual char*		LastError( void ) = 0;
 
 	// digital sound driver functions
-	virtual sint32		WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, sint32 siDeviceId, WAVEFORMAT* pWaveFormat ) = 0;
+	virtual sint32		WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, sint32 siDeviceId, ul::WaveFormat* pWaveFormat ) = 0;
 	virtual void		WaveOutClose( LHDIGDRIVER hDriver ) = 0;
 	virtual void		SetDigitalMasterVolume( LHDIGDRIVER hDig, sint32 siMasterVolume ) = 0;
 	virtual sint32		GetDigitalMasterVolume( LHDIGDRIVER hDig ) = 0;
@@ -432,7 +440,7 @@ public:
 	virtual void		Start3DSample( LH3DSAMPLE hS ) = 0;
 	virtual void		Resume3DSample( LH3DSAMPLE hS ) = 0;
 	virtual void		End3DSample( LH3DSAMPLE hS ) = 0;
-	virtual sint32		Init3DSampleFromAddress( LH3DSAMPLE hS, void* pStart, uint32 uiLen, WAVEFORMATEX* pWaveFormat, sint32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData  ) = 0;
+	virtual sint32		Init3DSampleFromAddress( LH3DSAMPLE hS, void* pStart, uint32 uiLen, ul::WaveFormatEx* pWaveFormat, sint32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData  ) = 0;
 	virtual sint32		Init3DSampleFromFile( LH3DSAMPLE hS, void* pFile_image, sint32 siBlock, sint32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData ) = 0;
 	virtual sint32		Get3DSampleVolume( LH3DSAMPLE hS ) = 0;
 	virtual void		Set3DSampleVolume( LH3DSAMPLE hS, sint32 siVolume ) = 0;
@@ -463,7 +471,7 @@ public:
 	virtual void		SetSampleUserData( LHSAMPLE hS, uint32 uiIndex, sint32 siValue ) = 0;
 	virtual void		GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND* ppDS, PTDIRECTSOUNDBUFFER* ppDSB ) = 0;
 	virtual void		SetSampleReverb( LHSAMPLE hS, float fReverb_level, float fReverb_reflect_time, float fReverb_decay_time ) = 0;
-	virtual sint32		InitSampleFromAddress( LHSAMPLE hS, void* pStart, uint32 uiLen, WAVEFORMATEX* pWaveFormat, sint32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData ) = 0;
+	virtual sint32		InitSampleFromAddress( LHSAMPLE hS, void* pStart, uint32 uiLen, ul::WaveFormatEx* pWaveFormat, sint32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData ) = 0;
 	virtual sint32		InitSampleFromFile( LHSAMPLE hS, void* pFile_image, sint32 siBlock, sint32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData ) = 0;
 	virtual void		SetSampleLoopBlock( LHSAMPLE hS, sint32 siLoop_start_offset, sint32 siLoop_end_offset, bool bEnable ) = 0;
 	virtual void		SetSampleLoop( LHSAMPLE hS, bool bLoop ) = 0;

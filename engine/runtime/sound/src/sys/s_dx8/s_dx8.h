@@ -10,9 +10,15 @@
 #include "mmreg.h"
 #include "msacm.h"
 // ---
+
+#include "bibendovsky_spul_wave_format.h"
 #include "iltsound.h"
 
 #include "winsync.h"
+
+
+namespace ul = bibendovsky::spul;
+
 
 enum DS3DAlgo
 {
@@ -88,7 +94,7 @@ public:
 	ACMSTREAMHEADER* GetAcmStreamHeader() { return &m_acmStreamHeader; }
 	void SetSrcBufferSize( unsigned long ulSrcBufferSize ) { m_ulSrcBufferSize = ulSrcBufferSize; }
 
-    WAVEFORMATEX* m_pwfmt;
+    ul::WaveFormatEx* m_pwfmt;
 
   protected:
     HMMIO m_hmmio;
@@ -179,7 +185,7 @@ public:
 	virtual ~CSample( );
 	void Reset( );
 	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, 
-		bool b3DBuffer, WAVEFORMATEX* pWaveFormat = NULL, LTSOUNDFILTERDATA* pFilterData = NULL );
+		bool b3DBuffer, ul::WaveFormatEx* pWaveFormat = NULL, LTSOUNDFILTERDATA* pFilterData = NULL );
 	void Term( );
 	void Restore( );
 	bool Fill( );
@@ -206,7 +212,7 @@ public:
 //	===========================================================================
 
 public:
-	WAVEFORMATEX			m_waveFormat;
+	ul::WaveFormatEx		m_waveFormat;
 	DSBUFFERDESC			m_dsbDesc;
 	LPDIRECTSOUNDBUFFER		m_pDSBuffer;
 	void*					m_pSoundData;
@@ -231,7 +237,7 @@ public:
 	C3DSample( );
 	virtual ~C3DSample( );
 	void Reset( );
-	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, WAVEFORMATEX* pWaveFormat, LTSOUNDFILTERDATA* pFilterData );
+	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, ul::WaveFormatEx* pWaveFormat, LTSOUNDFILTERDATA* pFilterData );
 	void Term( );
 	virtual void SetPosition( LTVector& pos );
 	virtual void SetVelocity( LTVector& vel );
@@ -321,7 +327,7 @@ public:
 	virtual char*		LastError( void );
 
 	// digital sound driver functions
-	virtual S32			WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, S32 siDeviceId, WAVEFORMAT* pWaveFormat );
+	virtual S32			WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, S32 siDeviceId, ul::WaveFormat* pWaveFormat );
 	virtual void		WaveOutClose( LHDIGDRIVER hDriver );
 	virtual void		SetDigitalMasterVolume( LHDIGDRIVER hDig, S32 siMasterVolume );
 	virtual S32			GetDigitalMasterVolume( LHDIGDRIVER hDig );
@@ -365,7 +371,7 @@ public:
 	virtual void		Start3DSample( LH3DSAMPLE hS );
 	virtual void		Resume3DSample( LH3DSAMPLE hS );
 	virtual void		End3DSample( LH3DSAMPLE hS );
-	virtual S32			Init3DSampleFromAddress( LH3DSAMPLE hS, void* pStart, U32 uiLen, WAVEFORMATEX* pWaveFormat, S32 nPitchShift, LTSOUNDFILTERDATA* pFilterData );
+	virtual S32			Init3DSampleFromAddress( LH3DSAMPLE hS, void* pStart, U32 uiLen, ul::WaveFormatEx* pWaveFormat, S32 nPitchShift, LTSOUNDFILTERDATA* pFilterData );
 	virtual S32			Init3DSampleFromFile( LH3DSAMPLE hS, void* pFile_image, S32 siBlock, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
 	virtual S32			Get3DSampleVolume( LH3DSAMPLE hS );
 	virtual void		Set3DSampleVolume( LH3DSAMPLE hS, S32 siVolume );
@@ -396,7 +402,7 @@ public:
 	virtual void		SetSampleUserData( LHSAMPLE hS, U32 uiIndex, S32 siValue );
 	virtual void		GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND* ppDS, PTDIRECTSOUNDBUFFER* ppDSB );
 	virtual void		SetSampleReverb( LHSAMPLE hS, float fReverb_level, float fReverb_reflect_time, float fReverb_decay_time );
-	virtual S32			InitSampleFromAddress( LHSAMPLE hS, void* pStart, U32 uiLen, WAVEFORMATEX* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
+	virtual S32			InitSampleFromAddress( LHSAMPLE hS, void* pStart, U32 uiLen, ul::WaveFormatEx* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
 	virtual S32			InitSampleFromFile( LHSAMPLE hS, void* pFile_image, S32 siBlock, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
 	virtual void		SetSampleLoopBlock( LHSAMPLE hS, S32 siLoop_start_offset, S32 siLoop_end_offset, bool bEnable );
 	virtual void		SetSampleLoop( LHSAMPLE hS, bool bLoop );
@@ -439,7 +445,7 @@ public:
 //	===========================================================================
 //	Incorporation of DSMStrm* required functionality
 public:
-	CSample*			CreateBuffer( WAVEFORMATEX* pWaveFormat, DWORD dwBufferSize, DWORD dwFlags );
+	CSample*			CreateBuffer( ul::WaveFormatEx* pWaveFormat, DWORD dwBufferSize, DWORD dwFlags );
 	void				DestroyBuffer( CSample* pSoundBuffer );
 //	===========================================================================
 
@@ -470,7 +476,7 @@ public:
 	LPDIRECTSOUND8		m_pDirectSound;
 	LPDIRECTSOUNDBUFFER m_pDSPrimaryBuffer;
 	LPKSPROPERTYSET     m_pKSPropertySet;
-	WAVEFORMATEX		m_waveFormat;
+	ul::WaveFormatEx	m_waveFormat;
 	DSCAPS				m_dscaps;
 	HRESULT				m_hResult;
 	char*				m_pcLastError;

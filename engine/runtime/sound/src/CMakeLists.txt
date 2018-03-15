@@ -5,6 +5,7 @@ include(ltjs_common)
 
 include_directories(
     ../../../sdk/inc
+    ../../../../libs/bibendovsky_spul_lib/include
 )
 
 set(

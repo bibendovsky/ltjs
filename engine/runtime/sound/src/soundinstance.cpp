@@ -782,7 +782,7 @@ LTRESULT CSoundInstance::AcquireStream( )
 
 LTRESULT CSoundInstance::StartRendering( )
 {
-	const WAVEFORMATEX *pWaveFormat;
+	const ul::WaveFormatEx *pWaveFormat;
 	uint32 dwCurPos;
 
 	ASSERT( m_hSample || m_h3DSample || m_hStream );

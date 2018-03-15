@@ -41,7 +41,7 @@ LTBOOL CSoundData::Init( UsedFile *pFile, ILTStream *pStream, uint32 dwFileSize 
 		return LTFALSE;
 	}
 
-	m_fDuration = (( float )waveHeader.m_dwDataSize / ( float )waveHeader.m_WaveFormat.nAvgBytesPerSec );
+	m_fDuration = (( float )waveHeader.m_dwDataSize / ( float )waveHeader.m_WaveFormat.avg_bytes_per_sec_ );
 
 	// Inflate it a little so we don't tell the client to stop a sound premuturely due to lag...
 	m_fDuration += 0.1f;

@@ -222,11 +222,11 @@ BOOL WaveFile::Open (LPSTR pszFilename, uint32 nFilePos)
 		m_mmr = mmioDescend (m_hmmio, &m_mmckiFmt, &m_mmckiRiff, MMIO_FINDCHUNK);
 	}
 
-    auto pcmwf = PCMWAVEFORMAT{};
+    auto pcmwf = ul::PcmWaveFormat{};
 	if( m_mmr == MMSYSERR_NOERROR )
 	{
 		// Read the format chunk into temporary structure
-		if (mmioRead (m_hmmio, (CHAR *) &pcmwf, sizeof(PCMWAVEFORMAT)) != sizeof(PCMWAVEFORMAT))
+		if (mmioRead (m_hmmio, (CHAR *) &pcmwf, ul::PcmWaveFormat::packed_size) != ul::PcmWaveFormat::packed_size)
 		{
 			m_mmr = MMIOERR_CANNOTREAD;
 		}
@@ -235,7 +235,7 @@ BOOL WaveFile::Open (LPSTR pszFilename, uint32 nFilePos)
 	if( m_mmr == MMSYSERR_NOERROR )
 	{
 		// If format is not PCM, then there are extra bytes appended to WAVEFORMATEX
-		if (pcmwf.wf.wFormatTag != WAVE_FORMAT_PCM)
+		if (pcmwf.tag_ != ul::WaveFormatTag::pcm)
 		{
 			// Read WORD specifying number of extra bytes
 			if (mmioRead (m_hmmio, (LPSTR) &cbExtra, sizeof (cbExtra)) != sizeof(cbExtra))
@@ -246,7 +246,7 @@ BOOL WaveFile::Open (LPSTR pszFilename, uint32 nFilePos)
 			if( m_mmr == MMSYSERR_NOERROR )
 			{
 				// if it's an .mp3 compressed file, flag it
-				if ( pcmwf.wf.wFormatTag == WAVE_FORMAT_MPEGLAYER3 )
+				if ( pcmwf.tag_ == ul::WaveFormatTag::mp3 )
 					m_bMP3Compressed = TRUE;
 			}
 		}
@@ -255,17 +255,17 @@ BOOL WaveFile::Open (LPSTR pszFilename, uint32 nFilePos)
 	if( m_mmr == MMSYSERR_NOERROR )
 	{
 		// Allocate memory for WAVEFORMATEX structure + extra bytes
-		LT_MEM_TRACK_ALLOC(m_pwfmt = (WAVEFORMATEX *) LTMemAlloc (sizeof(WAVEFORMATEX)+cbExtra),LT_MEM_TYPE_SOUND);
+		LT_MEM_TRACK_ALLOC(m_pwfmt = (ul::WaveFormatEx *) LTMemAlloc (ul::WaveFormatEx::packed_size+cbExtra),LT_MEM_TYPE_SOUND);
 		if (m_pwfmt)
 		{
 			// Copy bytes from temporary format structure
 			memcpy (m_pwfmt, &pcmwf, sizeof(pcmwf));
-			m_pwfmt->cbSize = cbExtra;
+			m_pwfmt->extra_size_ = cbExtra;
 
 			// Read those extra bytes, append to WAVEFORMATEX structure
 			if (cbExtra != 0)
 			{
-				if ( mmioRead (m_hmmio, (LPSTR) ((BYTE *)(m_pwfmt) + sizeof (WAVEFORMATEX)), cbExtra) != cbExtra)
+				if ( mmioRead (m_hmmio, (LPSTR) ((BYTE *)(m_pwfmt) + ul::WaveFormatEx::packed_size), cbExtra) != cbExtra)
 				{
 					// Error reading extra bytes
 					m_mmr = MMIOERR_CANNOTREAD;
@@ -282,8 +282,8 @@ BOOL WaveFile::Open (LPSTR pszFilename, uint32 nFilePos)
 	if( m_mmr == MMSYSERR_NOERROR )
 	{
 		// Init some member data from format chunk
-		m_nBlockAlign = m_pwfmt->nBlockAlign;
-		m_nAvgDataRate = m_pwfmt->nAvgBytesPerSec;
+		m_nBlockAlign = m_pwfmt->block_align_;
+		m_nAvgDataRate = m_pwfmt->avg_bytes_per_sec_;
 
 		// init some decompression related data
 		m_nRemainderBytes = 0;
@@ -794,13 +794,13 @@ BYTE WaveFile::GetSilenceData (void)
     // Silence data depends on format of Wave file
     if (m_pwfmt)
     {
-        if (m_pwfmt->wBitsPerSample == 8)
+        if (m_pwfmt->bit_depth_ == 8)
         {
             // For 8-bit formats (unsigned, 0 to 255)
             // Packed DWORD = 0x80808080;
             bSilenceData = 0x80;
         }
-        else if (m_pwfmt->wBitsPerSample == 16)
+        else if (m_pwfmt->bit_depth_ == 16)
         {
             // For 16-bit formats (signed, -32768 to 32767)
             // Packed DWORD = 0x00000000;
@@ -977,7 +977,7 @@ void CSample::Reset( )
 }
 
 bool CSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples,
-				   bool b3DBuffer, WAVEFORMATEX* pWaveFormat, LTSOUNDFILTERDATA* pFilterData )
+				   bool b3DBuffer, ul::WaveFormatEx* pWaveFormat, LTSOUNDFILTERDATA* pFilterData )
 {
 	bool bUseFilter;
 
@@ -985,17 +985,17 @@ bool CSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples,
 
 	if( pWaveFormat == NULL )
 	{
-		m_waveFormat.nBlockAlign = ( m_waveFormat.nChannels * m_waveFormat.wBitsPerSample ) >> 3;
-		m_waveFormat.nAvgBytesPerSec = m_waveFormat.nSamplesPerSec * m_waveFormat.nBlockAlign;
-		m_dsbDesc.dwBufferBytes = uiNumSamples * m_waveFormat.nBlockAlign;
-		m_dsbDesc.lpwfxFormat = &m_waveFormat;
+		m_waveFormat.block_align_ = ( m_waveFormat.channel_count_ * m_waveFormat.bit_depth_ ) >> 3;
+		m_waveFormat.avg_bytes_per_sec_ = m_waveFormat.sample_rate_ * m_waveFormat.block_align_;
+		m_dsbDesc.dwBufferBytes = uiNumSamples * m_waveFormat.block_align_;
+		m_dsbDesc.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&m_waveFormat);
 	}
 
 	else
 	{
-		memcpy( &m_waveFormat, pWaveFormat, sizeof( WAVEFORMATEX ) );
+		m_waveFormat = *pWaveFormat;
 		m_dsbDesc.dwBufferBytes = uiNumSamples;
-		m_dsbDesc.lpwfxFormat = (WAVEFORMATEX*)&m_waveFormat;
+		m_dsbDesc.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&m_waveFormat);
 	}
 
 	// see if we want filtering
@@ -1662,7 +1662,7 @@ void C3DSample::Reset( )
 	m_status = LS_DONE;
 }
 
-bool C3DSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, WAVEFORMATEX* pWaveFormat, LTSOUNDFILTERDATA* pFilterData )
+bool C3DSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, ul::WaveFormatEx* pWaveFormat, LTSOUNDFILTERDATA* pFilterData )
 {
 	Term( );
 
@@ -1823,7 +1823,7 @@ void CStream::ReadStreamIntoBuffer( CDx8SoundSys* pSoundSys, BYTE* pBuffer, int3
 		if( uiBytesRead < nBufferSize )
 			{
 				// Fill in the rest of the buffer with silence.
-			BYTE nZeroValue = (BYTE)(m_pWaveFile->m_pwfmt->wBitsPerSample == 8 ? 128 : 0 );
+			BYTE nZeroValue = (BYTE)(m_pWaveFile->m_pwfmt->bit_depth_ == 8 ? 128 : 0 );
 			BYTE* pBufferEnd = pBuffer + uiBytesRead;
 			uint32 nBytesToZero = nBufferSize - uiBytesRead;
 			FillMemory( pBufferEnd, nBytesToZero, nZeroValue );
@@ -1958,7 +1958,7 @@ uint32 CStream::FillBuffer( CDx8SoundSys* pSoundSys )
         // Don't repeat the wav file, just fill in silence
         FillMemory( (BYTE*) pDSLockedBuffer + uiBytesRead,
                     dwDSLockedBufferSize - uiBytesRead,
-                    (BYTE)(m_pWaveFile->m_pwfmt->wBitsPerSample == 8 ? 128 : 0 ) );
+                    (BYTE)(m_pWaveFile->m_pwfmt->bit_depth_ == 8 ? 128 : 0 ) );
 		uiBytesRead = dwDSLockedBufferSize;
     }
 
@@ -1983,7 +1983,7 @@ BOOL CStream::SetCurrentPosition( DWORD dwStartOffset )
 	if( m_pDSBuffer == NULL )
 		return FALSE;
 
-	if ( m_pWaveFile->m_pwfmt->wFormatTag == WAVE_FORMAT_MPEGLAYER3 )
+	if ( m_pWaveFile->m_pwfmt->tag_ == ul::WaveFormatTag::mp3 )
 	{
 		m_pWaveFile->SeekFromStartCompressed( dwStartOffset );
 	}
@@ -2118,7 +2118,7 @@ uint32 CDx8SoundSys::Thread_Func()
 //	===========================================================================
 //	Incorporation of DSMStrm* required functionality
 
-CSample* CDx8SoundSys::CreateBuffer( WAVEFORMATEX* pWaveFormat, DWORD dwBufferSize, DWORD dwFlags )
+CSample* CDx8SoundSys::CreateBuffer( ul::WaveFormatEx* pWaveFormat, DWORD dwBufferSize, DWORD dwFlags )
 {
 	CSample* pSample;
 	LT_MEM_TRACK_ALLOC(pSample = new CSample( ),LT_MEM_TYPE_SOUND);
@@ -2158,7 +2158,7 @@ void CDx8SoundSys::Reset( )
 	m_pDSPrimaryBuffer = NULL;
 
 	m_hResult = NULL;
-	memset( &m_waveFormat, 0, sizeof( WAVEFORMATEX ) );
+	m_waveFormat = {};
 	memset( &m_userPrefs, 0, ( MAX_USER_PREF_INDEX + 1 ) * sizeof( S32 ) );
 	m_pStreams = NULL;
 	m_hAcmPCMDriverId = NULL;
@@ -2217,21 +2217,21 @@ static bool QueryEAXSupport( IKsPropertySet& ksPropertySet, U32 uiQuery )
 bool CDx8SoundSys::GetPropertySetForEAX( )
 {
 	// create a dummy buffer to get EAX property set
-	WAVEFORMATEX wave;
-	memset(&wave, 0, sizeof(WAVEFORMATEX));
-    wave.wFormatTag = WAVE_FORMAT_PCM;
-    wave.nChannels = 1;
-    wave.nSamplesPerSec = 22050;
-    wave.wBitsPerSample = 16;
-    wave.nBlockAlign = wave.wBitsPerSample / 8 * wave.nChannels;
-    wave.nAvgBytesPerSec = wave.nSamplesPerSec * wave.nBlockAlign;
+	ul::WaveFormatEx wave;
+	wave = {};
+    wave.tag_ = ul::WaveFormatTag::pcm;
+    wave.channel_count_ = 1;
+    wave.sample_rate_ = 22050;
+    wave.bit_depth_ = 16;
+    wave.block_align_ = wave.bit_depth_ / 8 * wave.channel_count_;
+    wave.avg_bytes_per_sec_ = wave.sample_rate_ * wave.block_align_;
 
 	DSBUFFERDESC dsbdesc;
 	memset(&dsbdesc, 0, sizeof(DSBUFFERDESC));
     dsbdesc.dwSize = sizeof(DSBUFFERDESC);
     dsbdesc.dwFlags = DSBCAPS_STATIC|DSBCAPS_CTRL3D|DSBCAPS_LOCHARDWARE;
     dsbdesc.dwBufferBytes = 64;
-    dsbdesc.lpwfxFormat = &wave;
+    dsbdesc.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&wave);
 
 	// Create a soundbuffer so we can get the propertyset interface.
 	LPDIRECTSOUNDBUFFER lpDSBuffer = NULL;
@@ -2502,7 +2502,7 @@ struct FormatEnumProcData
 {
 	HACMDRIVER	m_hDriver;
 	bool		m_bUseDriver;
-	WAVEFORMATEX m_pcmDestWaveFormat;
+	ul::WaveFormatEx m_pcmDestWaveFormat;
 };
 
 
@@ -2518,7 +2518,7 @@ static BOOL CALLBACK FormatEnumProc(
 
 	// Check if this supports a good enough conversion.  If it can't support it in
 	// realtime, skip it.
-	MMRESULT mmResult = acmStreamOpen( NULL, pProcData->m_hDriver, pafd->pwfx, &pProcData->m_pcmDestWaveFormat, NULL, 0, 0, ACM_STREAMOPENF_QUERY );
+	MMRESULT mmResult = acmStreamOpen( NULL, pProcData->m_hDriver, pafd->pwfx, reinterpret_cast<LPWAVEFORMATEX>(&pProcData->m_pcmDestWaveFormat), NULL, 0, 0, ACM_STREAMOPENF_QUERY );
 	if( mmResult == 0 )
 	{
 		pProcData->m_bUseDriver = true;
@@ -2543,16 +2543,16 @@ static bool HasFormat( HACMDRIVERID hDriverId, WORD nFormatTag )
 
     DWORD dwSize = 0;
     mmr = acmMetrics( NULL, ACM_METRIC_MAX_SIZE_FORMAT, &dwSize );
-    if (dwSize < sizeof(WAVEFORMATEX))
-		dwSize = sizeof(WAVEFORMATEX);
-    WAVEFORMATEX* pwf = ( WAVEFORMATEX* ) new BYTE[dwSize];
+    if (dwSize < ul::WaveFormatEx::packed_size)
+		dwSize = ul::WaveFormatEx::packed_size;
+    auto pwf = reinterpret_cast<ul::WaveFormatEx*>(new BYTE[dwSize]);
     memset(pwf, 0, dwSize);
-    pwf->cbSize = LOWORD(dwSize) - sizeof(WAVEFORMATEX);
-    pwf->wFormatTag = nFormatTag;
+    pwf->extra_size_ = LOWORD(dwSize) - ul::WaveFormatEx::packed_size;
+    pwf->tag_ = static_cast<ul::WaveFormatTag>(nFormatTag);
     ACMFORMATDETAILS fd;
     memset(&fd, 0, sizeof(fd));
     fd.cbStruct = sizeof(fd);
-    fd.pwfx = pwf;
+    fd.pwfx = reinterpret_cast<LPWAVEFORMATEX>(pwf);
     fd.cbwfx = dwSize;
     fd.dwFormatTag = nFormatTag;
 
@@ -2560,16 +2560,16 @@ static bool HasFormat( HACMDRIVERID hDriverId, WORD nFormatTag )
 	formatEnumProcData.m_bUseDriver = false;
 	formatEnumProcData.m_hDriver = hDriver;
 	// Setup the required minimum output capabilities for codec.
-	memset( &formatEnumProcData.m_pcmDestWaveFormat, 0, sizeof( WAVEFORMATEX ) );
-	formatEnumProcData.m_pcmDestWaveFormat.cbSize = sizeof( WAVEFORMATEX );
-	formatEnumProcData.m_pcmDestWaveFormat.wFormatTag = WAVE_FORMAT_PCM;
-	formatEnumProcData.m_pcmDestWaveFormat.nChannels = 2;
-	formatEnumProcData.m_pcmDestWaveFormat.nSamplesPerSec = 22050;
-	formatEnumProcData.m_pcmDestWaveFormat.wBitsPerSample = 16;
-    formatEnumProcData.m_pcmDestWaveFormat.nBlockAlign = (formatEnumProcData.m_pcmDestWaveFormat.nChannels *
-		formatEnumProcData.m_pcmDestWaveFormat.wBitsPerSample) / 8;
-    formatEnumProcData.m_pcmDestWaveFormat.nAvgBytesPerSec = formatEnumProcData.m_pcmDestWaveFormat.nSamplesPerSec
-		* formatEnumProcData.m_pcmDestWaveFormat.nBlockAlign;
+	formatEnumProcData.m_pcmDestWaveFormat = {};
+	formatEnumProcData.m_pcmDestWaveFormat.extra_size_ = ul::WaveFormatEx::packed_size;
+	formatEnumProcData.m_pcmDestWaveFormat.tag_ = ul::WaveFormatTag::pcm;
+	formatEnumProcData.m_pcmDestWaveFormat.channel_count_ = 2;
+	formatEnumProcData.m_pcmDestWaveFormat.sample_rate_ = 22050;
+	formatEnumProcData.m_pcmDestWaveFormat.bit_depth_ = 16;
+    formatEnumProcData.m_pcmDestWaveFormat.block_align_ = (formatEnumProcData.m_pcmDestWaveFormat.channel_count_ *
+		formatEnumProcData.m_pcmDestWaveFormat.bit_depth_) / 8;
+    formatEnumProcData.m_pcmDestWaveFormat.avg_bytes_per_sec_ = formatEnumProcData.m_pcmDestWaveFormat.sample_rate_
+		* formatEnumProcData.m_pcmDestWaveFormat.block_align_;
 
     bool bResult = ( acmFormatEnum( hDriver, &fd, FormatEnumProc, ( DWORD )&formatEnumProcData, ACM_FORMATENUMF_WFORMATTAG ) == 0 );
 	acmDriverClose( hDriver, 0 );
@@ -3085,7 +3085,7 @@ char* CDx8SoundSys::LastError( void )
 #endif	// HANDLE_DS_ERROR
 
 // digital sound driver functions
-S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, S32 siDeviceId, WAVEFORMAT* pWaveFormat )
+S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, S32 siDeviceId, ul::WaveFormat* pWaveFormat )
 {
 
 	WaveOutClose( m_pDSPrimaryBuffer );
@@ -3108,7 +3108,7 @@ S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, S32
 
     // Set primary buffer to desired format.
 
-    m_hResult = m_pDSPrimaryBuffer->SetFormat( ( LPWAVEFORMATEX )pWaveFormat );
+    m_hResult = m_pDSPrimaryBuffer->SetFormat( reinterpret_cast<LPWAVEFORMATEX>(pWaveFormat) );
 	m_pcLastError = LastError( );
 	DS_CHECK
 
@@ -3661,12 +3661,12 @@ LH3DSAMPLE CDx8SoundSys::Allocate3DSampleHandle( LHPROVIDER hLib )
 	LT_MEM_TRACK_ALLOC(p3DSample = new C3DSample,LT_MEM_TYPE_SOUND);
 
     // Set up wave format structure.
-	memcpy( &p3DSample->m_sample.m_waveFormat, &m_waveFormat, sizeof( WAVEFORMATEX ) );
+	p3DSample->m_sample.m_waveFormat = m_waveFormat;
 	// 3d sounds must be mono
 	CSample* pSample = &p3DSample->m_sample;
-	pSample->m_waveFormat.nChannels = 1;
-	pSample->m_waveFormat.nBlockAlign = ( pSample->m_waveFormat.nChannels * pSample->m_waveFormat.wBitsPerSample ) >> 3;
-	pSample->m_waveFormat.nAvgBytesPerSec = pSample->m_waveFormat.nSamplesPerSec * pSample->m_waveFormat.nBlockAlign;
+	pSample->m_waveFormat.channel_count_ = 1;
+	pSample->m_waveFormat.block_align_ = ( pSample->m_waveFormat.channel_count_ * pSample->m_waveFormat.bit_depth_ ) >> 3;
+	pSample->m_waveFormat.avg_bytes_per_sec_ = pSample->m_waveFormat.sample_rate_ * pSample->m_waveFormat.block_align_;
 
 
     // Set up DSBUFFERDESC structure.
@@ -3688,7 +3688,7 @@ LH3DSAMPLE CDx8SoundSys::Allocate3DSampleHandle( LHPROVIDER hLib )
 		p3DSample->m_sample.m_dsbDesc.dwFlags |= DSBCAPS_LOCSOFTWARE;
 
     // Create buffer.
-	p3DSample->Init( m_hResult, m_pDirectSound, m_waveFormat.nSamplesPerSec, &pSample->m_waveFormat, NULL );
+	p3DSample->Init( m_hResult, m_pDirectSound, m_waveFormat.sample_rate_, &pSample->m_waveFormat, NULL );
 
 
 	// Make sure we have our propertyset interface setup.
@@ -3782,7 +3782,7 @@ void CDx8SoundSys::End3DSample( LH3DSAMPLE hS )
 }
 
 
-S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, void* pStart, U32 uiLen, WAVEFORMATEX* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData )
+S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, void* pStart, U32 uiLen, ul::WaveFormatEx* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData )
 {
 //	LOG_WRITE( g_pLogFile, "SetSampleAddress( %x, %x, %d )\n", hS, pStart, uiLen );
 
@@ -3793,11 +3793,11 @@ S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, void* pStart, U32 uiLe
 	CSample* pSample = &p3DSample->m_sample;
 
 	// Modify the pitch.
-	WAVEFORMATEX waveFormat = *pWaveFormat;
-	waveFormat.nSamplesPerSec = siPlaybackRate;
-	waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
+	auto waveFormat = *pWaveFormat;
+	waveFormat.sample_rate_ = siPlaybackRate;
+	waveFormat.avg_bytes_per_sec_ = waveFormat.block_align_ * waveFormat.sample_rate_;
 
-	if ( !p3DSample->Init( m_hResult, m_pDirectSound, uiLen, ( WAVEFORMATEX* )&waveFormat, pFilterData ) )
+	if ( !p3DSample->Init( m_hResult, m_pDirectSound, uiLen, &waveFormat, pFilterData ) )
 		return LTFALSE;
 
 	pSample->m_pSoundData = pStart;
@@ -3841,47 +3841,47 @@ S32	CDx8SoundSys::Init3DSampleFromFile( LH3DSAMPLE hS, void* pFile_image, S32 si
 	// check if we're a PCM format and convert the compressed data
 	// to PCM if not
 
-	WAVEFORMATEX const* pWaveFormatEx = ( WAVEFORMATEX* )pWaveFormat;
+	auto const pWaveFormatEx = ( ul::WaveFormatEx* )pWaveFormat;
 
 	// if we have more than one channel, we fail
 	// 3D sounds can't be stereo
-	if ( pWaveFormatEx->nChannels > 1 )
+	if ( pWaveFormatEx->channel_count_ > 1 )
 		return LTFALSE;
 
-	if( pWaveFormatEx->wFormatTag != WAVE_FORMAT_PCM )
+	if( pWaveFormatEx->tag_ != ul::WaveFormatTag::pcm )
 	{
 		MMRESULT mmResult = 0;
 		uint32 uiNumSampleBytes = 0;
 
-		WAVEFORMATEX pcmWaveFormat;
-		memset( &pcmWaveFormat, 0, sizeof( WAVEFORMATEX ) );
+		ul::WaveFormatEx pcmWaveFormat;
+		pcmWaveFormat = {};
 
-		pcmWaveFormat.cbSize = sizeof( WAVEFORMATEX );
-		pcmWaveFormat.wFormatTag = WAVE_FORMAT_PCM;
+		pcmWaveFormat.extra_size_ = ul::WaveFormatEx::packed_size;
+		pcmWaveFormat.tag_ = ul::WaveFormatTag::pcm;
 
 		// setup correct decompression format
-		if ( pWaveFormatEx->wFormatTag == WAVE_FORMAT_IMA_ADPCM )
+		if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::ima_adpcm )
 		{
 			// ADPCM compression
-			mmResult = acmFormatSuggest( m_hAcmADPCMDriver, const_cast< WAVEFORMATEX* >( pWaveFormatEx ),
-				&pcmWaveFormat,	sizeof( WAVEFORMATEX ), ACM_FORMATSUGGESTF_WFORMATTAG );
+			mmResult = acmFormatSuggest( m_hAcmADPCMDriver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
+				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), ul::WaveFormatEx::packed_size, ACM_FORMATSUGGESTF_WFORMATTAG );
 
 			// prepare the uncompressed PCM wave audio format
-			uint32 uiBitsPerSample = pWaveFormatEx->nChannels * pWaveFormatEx->wBitsPerSample;
+			uint32 uiBitsPerSample = pWaveFormatEx->channel_count_ * pWaveFormatEx->bit_depth_;
 			float fBytesPerSample = ( float )uiBitsPerSample * 0.125f;
 			uint32 uiNumSamples = ( uint32 )( ( float )uiSampleDataSize / fBytesPerSample );
-			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.nBlockAlign ) + DECOMPRESSION_BUFFER_PAD;
+			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.block_align_ ) + DECOMPRESSION_BUFFER_PAD;
 		}
-		else if ( pWaveFormatEx->wFormatTag == WAVE_FORMAT_MPEGLAYER3 )
+		else if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::mp3 )
 		{
 
-			mmResult = acmFormatSuggest( m_hAcmMP3Driver, const_cast< WAVEFORMATEX* >( pWaveFormatEx ),
-				&pcmWaveFormat,	sizeof( WAVEFORMATEX ), ACM_FORMATSUGGESTF_WFORMATTAG );
+			mmResult = acmFormatSuggest( m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
+				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), ul::WaveFormatEx::packed_size, ACM_FORMATSUGGESTF_WFORMATTAG );
 
 			// for .mp3 compression figure out the duration of the file and multiply by current rate
-			float fDuration = (float) uiSampleDataSize / pWaveFormatEx->nAvgBytesPerSec;
-			uint32 uiNumSamples = (uint32) (fDuration * pcmWaveFormat.nSamplesPerSec + 0.5f);
-			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.nBlockAlign ) + DECOMPRESSION_BUFFER_PAD;
+			float fDuration = (float) uiSampleDataSize / pWaveFormatEx->avg_bytes_per_sec_;
+			uint32 uiNumSamples = (uint32) (fDuration * pcmWaveFormat.sample_rate_ + 0.5f);
+			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.block_align_ ) + DECOMPRESSION_BUFFER_PAD;
 		}
 
 /*
@@ -3914,11 +3914,11 @@ S32	CDx8SoundSys::Init3DSampleFromFile( LH3DSAMPLE hS, void* pFile_image, S32 si
 
 		HACMDRIVER hDriver = NULL;
 
-		if ( pWaveFormatEx->wFormatTag == WAVE_FORMAT_IMA_ADPCM )
+		if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::ima_adpcm )
 		{
 			hDriver = m_hAcmADPCMDriver;
 		}
-		else if ( pWaveFormatEx->wFormatTag == WAVE_FORMAT_MPEGLAYER3)
+		else if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::mp3)
 		{
 			hDriver = m_hAcmMP3Driver;
 		}
@@ -3930,15 +3930,15 @@ S32	CDx8SoundSys::Init3DSampleFromFile( LH3DSAMPLE hS, void* pFile_image, S32 si
 
 		// First check if the driver supports this conversion in realtime.  If not, use slower method.
 		uint32 nFlags = 0;
-		mmResult = acmStreamOpen( &hAcmStream, hDriver, const_cast< WAVEFORMATEX* >( pWaveFormatEx ),
-			&pcmWaveFormat, NULL, 0, 0, ACM_STREAMOPENF_QUERY );
+		mmResult = acmStreamOpen( &hAcmStream, hDriver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
+			reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, ACM_STREAMOPENF_QUERY );
 		if( mmResult == ACMERR_NOTPOSSIBLE )
 		{
 			nFlags |= ACM_STREAMOPENF_NONREALTIME;
 		}
 
-		mmResult = acmStreamOpen( &hAcmStream, hDriver, const_cast< WAVEFORMATEX* >( pWaveFormatEx ),
-			&pcmWaveFormat, NULL, 0, 0, nFlags );
+		mmResult = acmStreamOpen( &hAcmStream, hDriver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
+			reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, nFlags );
 
 		if( mmResult != 0 )
 		{
@@ -3984,9 +3984,9 @@ S32	CDx8SoundSys::Init3DSampleFromFile( LH3DSAMPLE hS, void* pFile_image, S32 si
 	else
 	{
 		// Modify the pitch.
-		WAVEFORMATEX waveFormat = *pWaveFormatEx;
-		waveFormat.nSamplesPerSec = siPlaybackRate;
-		waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
+		auto waveFormat = *pWaveFormatEx;
+		waveFormat.sample_rate_ = siPlaybackRate;
+		waveFormat.avg_bytes_per_sec_ = waveFormat.block_align_ * waveFormat.sample_rate_;
 
 		if( !pSample->Init( m_hResult, m_pDirectSound, uiSampleDataSize, false, &waveFormat, pFilterData ) )
 			return LTFALSE;
@@ -4074,9 +4074,9 @@ S32	CDx8SoundSys::Set3DSampleInfo( LH3DSAMPLE hS, LTSOUNDINFO* pInfo )
 
     // Set up wave format structure.
 
-    p3DSample->m_sample.m_waveFormat.nChannels = ( U16 )pInfo->channels;
-    p3DSample->m_sample.m_waveFormat.nSamplesPerSec = pInfo->rate;
-    p3DSample->m_sample.m_waveFormat.wBitsPerSample = ( U16 )pInfo->bits;
+    p3DSample->m_sample.m_waveFormat.channel_count_ = ( U16 )pInfo->channels;
+    p3DSample->m_sample.m_waveFormat.sample_rate_ = pInfo->rate;
+    p3DSample->m_sample.m_waveFormat.bit_depth_ = ( U16 )pInfo->bits;
 
     // Create buffer.
 
@@ -4196,7 +4196,7 @@ LHSAMPLE CDx8SoundSys::AllocateSampleHandle( LHDIGDRIVER hDig )
 
     // Set up wave format structure.
 
-	memcpy( &pSample->m_waveFormat, &m_waveFormat, sizeof( WAVEFORMATEX ) );
+	pSample->m_waveFormat = m_waveFormat;
 
     // Set up DSBUFFERDESC structure.
 
@@ -4210,7 +4210,7 @@ LHSAMPLE CDx8SoundSys::AllocateSampleHandle( LHDIGDRIVER hDig )
 		pSample->m_dsbDesc.dwFlags |= DSBCAPS_LOCSOFTWARE;
 
     // Create buffer.
-	pSample->Init( m_hResult, m_pDirectSound, m_waveFormat.nSamplesPerSec, false );
+	pSample->Init( m_hResult, m_pDirectSound, m_waveFormat.sample_rate_, false );
 
 	SetSampleNotify( pSample, true );
 
@@ -4246,10 +4246,10 @@ void CDx8SoundSys::InitSample( LHSAMPLE hS )
 
 	CSample* pSample = ( CSample* )hS;
 
-	pSample->m_waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-	pSample->m_waveFormat.nChannels = DEFAULT_SAMPLE_CHANNELS;
-	pSample->m_waveFormat.nSamplesPerSec = DEFAULT_SAMPLE_RATE;
-	pSample->m_waveFormat.wBitsPerSample = DEFAULT_SAMPLE_BITS;
+	pSample->m_waveFormat.tag_ = ul::WaveFormatTag::pcm;
+	pSample->m_waveFormat.channel_count_ = DEFAULT_SAMPLE_CHANNELS;
+	pSample->m_waveFormat.sample_rate_ = DEFAULT_SAMPLE_RATE;
+	pSample->m_waveFormat.bit_depth_ = DEFAULT_SAMPLE_BITS;
 
 	pSample->Init( m_hResult, m_pDirectSound, DEFAULT_SAMPLE_RATE, false );
 	SetSampleNotify( pSample, true );
@@ -4497,7 +4497,7 @@ void CDx8SoundSys::SetSampleReverb( LHSAMPLE hS, float fReverb_level, float fRev
 //	===========================================================================
 //	DONE...
 
-S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, void* pStart, U32 uiLen, WAVEFORMATEX* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData )
+S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, void* pStart, U32 uiLen, ul::WaveFormatEx* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData )
 {
 //	LOG_WRITE( g_pLogFile, "InitSampleFromAddress( %x, %x, %d )\n", hS, pStart, uiLen );
 
@@ -4505,11 +4505,11 @@ S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, void* pStart, U32 uiLen, W
 		return LTFALSE;
 
 	// Modify the pitch.
-	WAVEFORMATEX waveFormat = *pWaveFormat;
-	waveFormat.nSamplesPerSec = siPlaybackRate;
-	waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
+	auto waveFormat = *pWaveFormat;
+	waveFormat.sample_rate_ = siPlaybackRate;
+	waveFormat.avg_bytes_per_sec_ = waveFormat.block_align_ * waveFormat.sample_rate_;
 	CSample* pSample = ( CSample* )hS;
-	if( !pSample->Init( m_hResult, m_pDirectSound, uiLen, false, ( WAVEFORMATEX* )&waveFormat, pFilterData ))
+	if( !pSample->Init( m_hResult, m_pDirectSound, uiLen, false, &waveFormat, pFilterData ))
 		return LTFALSE;
 
 	pSample->m_pSoundData = pStart;
@@ -4550,42 +4550,42 @@ S32	CDx8SoundSys::InitSampleFromFile( LHSAMPLE hS, void* pFile_image, S32 siBloc
 	// check if we're a PCM format and convert the compressed data
 	// to PCM if not
 
-	WAVEFORMATEX const* pWaveFormatEx = ( WAVEFORMATEX* )pWaveFormat;
+	auto const pWaveFormatEx = ( ul::WaveFormatEx* )pWaveFormat;
 
-	if( pWaveFormatEx->wFormatTag != WAVE_FORMAT_PCM )
+	if( pWaveFormatEx->tag_ != ul::WaveFormatTag::pcm )
 	{
 		MMRESULT mmResult = 0;
 		uint32 uiNumSampleBytes = 0;
 
-		WAVEFORMATEX pcmWaveFormat;
-		memset( &pcmWaveFormat, 0, sizeof( WAVEFORMATEX ) );
+		ul::WaveFormatEx pcmWaveFormat;
+		pcmWaveFormat = {};
 
-		pcmWaveFormat.cbSize = sizeof( WAVEFORMATEX );
-		pcmWaveFormat.wFormatTag = WAVE_FORMAT_PCM;
+		pcmWaveFormat.extra_size_ = ul::WaveFormatEx::packed_size;
+		pcmWaveFormat.tag_ = ul::WaveFormatTag::pcm;
 
 		// setup correct decompression format
-		if ( pWaveFormatEx->wFormatTag == WAVE_FORMAT_IMA_ADPCM )
+		if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::ima_adpcm )
 		{
 			// ADPCM compression
-			mmResult = acmFormatSuggest( m_hAcmADPCMDriver, const_cast< WAVEFORMATEX* >( pWaveFormatEx ),
-				&pcmWaveFormat,	sizeof( WAVEFORMATEX ), ACM_FORMATSUGGESTF_WFORMATTAG );
+			mmResult = acmFormatSuggest( m_hAcmADPCMDriver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
+				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), ul::WaveFormatEx::packed_size, ACM_FORMATSUGGESTF_WFORMATTAG );
 
 			// prepare the uncompressed PCM wave audio format
-			uint32 uiBitsPerSample = pWaveFormatEx->nChannels * pWaveFormatEx->wBitsPerSample;
+			uint32 uiBitsPerSample = pWaveFormatEx->channel_count_ * pWaveFormatEx->bit_depth_;
 			float fBytesPerSample = ( float )uiBitsPerSample * 0.125f;
 			uint32 uiNumSamples = ( uint32 )( ( float )uiSampleDataSize / fBytesPerSample );
-			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.nBlockAlign ) + DECOMPRESSION_BUFFER_PAD;
+			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.block_align_ ) + DECOMPRESSION_BUFFER_PAD;
 		}
-		else if ( pWaveFormatEx->wFormatTag == WAVE_FORMAT_MPEGLAYER3 )
+		else if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::mp3 )
 		{
 
-			mmResult = acmFormatSuggest( m_hAcmMP3Driver, const_cast< WAVEFORMATEX* >( pWaveFormatEx ),
-				&pcmWaveFormat,	sizeof( WAVEFORMATEX ), ACM_FORMATSUGGESTF_WFORMATTAG );
+			mmResult = acmFormatSuggest( m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
+				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), ul::WaveFormatEx::packed_size, ACM_FORMATSUGGESTF_WFORMATTAG );
 
 			// for .mp3 compression figure out the duration of the file and multiply by current rate
-			float fDuration = (float) uiSampleDataSize / pWaveFormatEx->nAvgBytesPerSec;
-			uint32 uiNumSamples = (uint32) (fDuration * pcmWaveFormat.nSamplesPerSec + 0.5f);
-			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.nBlockAlign ) + DECOMPRESSION_BUFFER_PAD;
+			float fDuration = (float) uiSampleDataSize / pWaveFormatEx->avg_bytes_per_sec_;
+			uint32 uiNumSamples = (uint32) (fDuration * pcmWaveFormat.sample_rate_ + 0.5f);
+			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.block_align_ ) + DECOMPRESSION_BUFFER_PAD;
 		}
 
 /*
@@ -4616,15 +4616,15 @@ S32	CDx8SoundSys::InitSampleFromFile( LHSAMPLE hS, void* pFile_image, S32 siBloc
 
 		HACMSTREAM hAcmStream = NULL;
 
-		if ( pWaveFormatEx->wFormatTag == WAVE_FORMAT_IMA_ADPCM )
+		if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::ima_adpcm )
 		{
-			mmResult = acmStreamOpen( &hAcmStream, m_hAcmADPCMDriver, const_cast< WAVEFORMATEX* >( pWaveFormatEx ),
-				&pcmWaveFormat, NULL, 0, 0, 0 );
+			mmResult = acmStreamOpen( &hAcmStream, m_hAcmADPCMDriver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
+				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, 0 );
 		}
-		else if ( pWaveFormatEx->wFormatTag == WAVE_FORMAT_MPEGLAYER3)
+		else if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::mp3)
 		{
-			mmResult = acmStreamOpen( &hAcmStream, m_hAcmMP3Driver, const_cast< WAVEFORMATEX* >( pWaveFormatEx ),
-				&pcmWaveFormat, NULL, 0, 0, 0 );
+			mmResult = acmStreamOpen( &hAcmStream, m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
+				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, 0 );
 		}
 
 
@@ -4672,9 +4672,9 @@ S32	CDx8SoundSys::InitSampleFromFile( LHSAMPLE hS, void* pFile_image, S32 siBloc
 	else
 	{
 		// Modify the pitch.
-		WAVEFORMATEX waveFormat = *pWaveFormatEx;
-		waveFormat.nSamplesPerSec = siPlaybackRate;
-		waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
+		auto waveFormat = *pWaveFormatEx;
+		waveFormat.sample_rate_ = siPlaybackRate;
+		waveFormat.avg_bytes_per_sec_ = waveFormat.block_align_ * waveFormat.sample_rate_;
 
 		if( !pSample->Init( m_hResult, m_pDirectSound, uiSampleDataSize, false, &waveFormat, pFilterData ) )
 		{
@@ -4736,8 +4736,8 @@ void CDx8SoundSys::SetSampleMsPosition( LHSAMPLE hS, S32 siMilliseconds )
 	if( siMilliseconds < 0 )
 		siMilliseconds = 0;
 
-	uint32 uiByteOffset = MulDiv( pSample->m_waveFormat.nAvgBytesPerSec, siMilliseconds, 1000 );
-	uiByteOffset -= uiByteOffset % pSample->m_waveFormat.nBlockAlign;
+	uint32 uiByteOffset = MulDiv( pSample->m_waveFormat.avg_bytes_per_sec_, siMilliseconds, 1000 );
+	uiByteOffset -= uiByteOffset % pSample->m_waveFormat.block_align_;
 	m_hResult = pSample->SetCurrentPosition( uiByteOffset );
 	m_pcLastError = LastError( );
 }
@@ -4795,28 +4795,28 @@ LHSTREAM CDx8SoundSys::OpenStream( char* sFilename, uint32 nFilePos, LHDIGDRIVER
 	if ( pWaveFile->IsMP3() )
 	{
 		// set bytes per sample to default buffer format, since mp3 doesn't have a value
-		pWaveFile->SetBytesPerSample( m_waveFormat.wBitsPerSample >> 3 );
+		pWaveFile->SetBytesPerSample( m_waveFormat.bit_depth_ >> 3 );
 	}
 
 	streamBufferParams_t streamBufferParams;
 	memset(&streamBufferParams, 0, sizeof(streamBufferParams_t));
 
 	// create a buffer that holds STREAM_BUF_SECONDS seconds of data, rounded out so each read ends at block end
-	int nBlockAlign = ( pWaveFile->m_pwfmt->nChannels * m_waveFormat.wBitsPerSample ) >> 3;
-	int nBufferSize = pWaveFile->m_pwfmt->nSamplesPerSec * STREAM_BUF_SECONDS * nBlockAlign / NUM_PLAY_NOTIFICATIONS;
+	int nBlockAlign = ( pWaveFile->m_pwfmt->channel_count_ * m_waveFormat.bit_depth_ ) >> 3;
+	int nBufferSize = pWaveFile->m_pwfmt->sample_rate_ * STREAM_BUF_SECONDS * nBlockAlign / NUM_PLAY_NOTIFICATIONS;
     nBufferSize -= nBufferSize % nBlockAlign;
 	nBufferSize *= NUM_PLAY_NOTIFICATIONS;
 
 //	streamBufferParams.m_siParams[SBP_BUFFER_SIZE] = STR_BUFFER_SIZE;
 	streamBufferParams.m_siParams[SBP_BUFFER_SIZE] = nBufferSize;
 
-	if ( pWaveFile->m_pwfmt->wFormatTag == WAVE_FORMAT_MPEGLAYER3 )
-		streamBufferParams.m_siParams[SBP_BITS_PER_CHANNEL] = m_waveFormat.wBitsPerSample;
+	if ( pWaveFile->m_pwfmt->tag_ == ul::WaveFormatTag::mp3 )
+		streamBufferParams.m_siParams[SBP_BITS_PER_CHANNEL] = m_waveFormat.bit_depth_;
 	else
-		streamBufferParams.m_siParams[SBP_BITS_PER_CHANNEL] = pWaveFile->m_pwfmt->wBitsPerSample;
+		streamBufferParams.m_siParams[SBP_BITS_PER_CHANNEL] = pWaveFile->m_pwfmt->bit_depth_;
 
-	streamBufferParams.m_siParams[SBP_CHANNELS_PER_SAMPLE] = pWaveFile->m_pwfmt->nChannels;
-	streamBufferParams.m_siParams[SBP_SAMPLES_PER_SEC] = pWaveFile->m_pwfmt->nSamplesPerSec;
+	streamBufferParams.m_siParams[SBP_CHANNELS_PER_SAMPLE] = pWaveFile->m_pwfmt->channel_count_;
+	streamBufferParams.m_siParams[SBP_SAMPLES_PER_SEC] = pWaveFile->m_pwfmt->sample_rate_;
 
    	// if this is an .mp3 file, setup decompression parameters
 	if ( pWaveFile->IsMP3() )
@@ -4825,16 +4825,16 @@ LHSTREAM CDx8SoundSys::OpenStream( char* sFilename, uint32 nFilePos, LHDIGDRIVER
 		MMRESULT mmResult = 0;
 		HACMSTREAM hAcmStream;
 		ACMSTREAMHEADER* pAcmStreamHeader = pWaveFile->GetAcmStreamHeader();
-		WAVEFORMATEX pcmWaveFormat;
-		memset( &pcmWaveFormat, 0, sizeof( WAVEFORMATEX ) );
+		ul::WaveFormatEx pcmWaveFormat;
+		pcmWaveFormat = {};
 
-		pcmWaveFormat.cbSize = sizeof( WAVEFORMATEX );
-		pcmWaveFormat.wFormatTag = WAVE_FORMAT_PCM;
+		pcmWaveFormat.extra_size_ = ul::WaveFormatEx::packed_size;
+		pcmWaveFormat.tag_ = ul::WaveFormatTag::pcm;
 
-		mmResult = acmFormatSuggest( m_hAcmMP3Driver, pWaveFile->m_pwfmt, &pcmWaveFormat,
-			sizeof( WAVEFORMATEX ), ACM_FORMATSUGGESTF_WFORMATTAG );
+		mmResult = acmFormatSuggest( m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFile->m_pwfmt), reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat),
+			ul::WaveFormatEx::packed_size, ACM_FORMATSUGGESTF_WFORMATTAG );
 
-		mmResult = acmStreamOpen( &hAcmStream, m_hAcmMP3Driver, pWaveFile->m_pwfmt, &pcmWaveFormat, NULL, 0, 0, 0 );
+		mmResult = acmStreamOpen( &hAcmStream, m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFile->m_pwfmt), reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, 0 );
 
 		if ( mmResult != 0 )
 		{
@@ -4917,7 +4917,7 @@ void CDx8SoundSys::SetStreamMsPosition( LHSTREAM hStream, S32 siMilliseconds )
 	CStream* pStream = ( CStream* )hStream;
 	uint32 uiByteOffset = MulDiv( pStream->m_pWaveFile->GetDataSize( ), siMilliseconds,
 		pStream->m_pWaveFile->GetDuration( ));
-	uiByteOffset -= uiByteOffset % pStream->m_waveFormat.nBlockAlign;
+	uiByteOffset -= uiByteOffset % pStream->m_waveFormat.block_align_;
 	m_hResult = pStream->SetCurrentPosition( uiByteOffset );
 	m_pcLastError = LastError( );
 }
@@ -4953,15 +4953,15 @@ LHSTREAM CDx8SoundSys::OpenStream( streamBufferParams_t* pStreamBufferParams, Wa
 
 	pStream->Reset();
 
-	WAVEFORMATEX waveFormat;
-	memset( &waveFormat, 0, sizeof( waveFormat ) );
+	ul::WaveFormatEx waveFormat;
+	waveFormat = {};
 
-	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-	waveFormat.wBitsPerSample = ( WORD )pStreamBufferParams->m_siParams[ SBP_BITS_PER_CHANNEL ];
-	waveFormat.nSamplesPerSec = pStreamBufferParams->m_siParams[ SBP_SAMPLES_PER_SEC ];
-	waveFormat.nChannels = ( WORD )pStreamBufferParams->m_siParams[ SBP_CHANNELS_PER_SAMPLE ];
-	waveFormat.nBlockAlign = ( waveFormat.nChannels * waveFormat.wBitsPerSample ) >> 3;
-	waveFormat.nAvgBytesPerSec = ( waveFormat.nBlockAlign * waveFormat.nSamplesPerSec );
+	waveFormat.tag_ = ul::WaveFormatTag::pcm;
+	waveFormat.bit_depth_ = ( WORD )pStreamBufferParams->m_siParams[ SBP_BITS_PER_CHANNEL ];
+	waveFormat.sample_rate_ = pStreamBufferParams->m_siParams[ SBP_SAMPLES_PER_SEC ];
+	waveFormat.channel_count_ = ( WORD )pStreamBufferParams->m_siParams[ SBP_CHANNELS_PER_SAMPLE ];
+	waveFormat.block_align_ = ( waveFormat.channel_count_ * waveFormat.bit_depth_ ) >> 3;
+	waveFormat.avg_bytes_per_sec_ = ( waveFormat.block_align_ * waveFormat.sample_rate_ );
 
 	uint uiNumBytes = pStreamBufferParams->m_siParams[ SBP_BUFFER_SIZE ];
 	pStream->m_uiBufferSize = uiNumBytes;
@@ -5434,28 +5434,28 @@ S32	CDx8SoundSys::DecompressASI( void* pInData, U32 uiInSize, char* sFilename_ex
 	// check if we're a PCM format and convert the compressed data
 	// to PCM if not
 
-	WAVEFORMATEX const* pWaveFormatEx = ( WAVEFORMATEX* )pWaveFormat;
+	auto const pWaveFormatEx = ( ul::WaveFormatEx* )pWaveFormat;
 
 	MMRESULT mmResult = 0;
 	uint32 uiNumSampleBytes;
 
-	WAVEFORMATEX pcmWaveFormat;
-	memset( &pcmWaveFormat, 0, sizeof( WAVEFORMATEX ) );
+	ul::WaveFormatEx pcmWaveFormat;
+	pcmWaveFormat = {};
 
-	pcmWaveFormat.cbSize = sizeof( WAVEFORMATEX );
-	pcmWaveFormat.wFormatTag = WAVE_FORMAT_PCM;
-	pcmWaveFormat.nChannels = pWaveFormatEx->nChannels;
+	pcmWaveFormat.extra_size_ = ul::WaveFormatEx::packed_size;
+	pcmWaveFormat.tag_ = ul::WaveFormatTag::pcm;
+	pcmWaveFormat.channel_count_ = pWaveFormatEx->channel_count_;
 	DWORD nSuggestFlags = ACM_FORMATSUGGESTF_WFORMATTAG | ACM_FORMATSUGGESTF_NCHANNELS;
 
-	if ( pWaveFormatEx->wFormatTag == WAVE_FORMAT_MPEGLAYER3 )
+	if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::mp3 )
 	{
-		mmResult = acmFormatSuggest( m_hAcmMP3Driver, const_cast< WAVEFORMATEX* >( pWaveFormatEx ),
-			&pcmWaveFormat,	sizeof( WAVEFORMATEX ), nSuggestFlags );
+		mmResult = acmFormatSuggest( m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
+			reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), ul::WaveFormatEx::packed_size, nSuggestFlags );
 
 		// for .mp3 compression figure out the duration of the file and multiply by current rate
-		float fDuration = (float) uiSampleDataSize / pWaveFormatEx->nAvgBytesPerSec;
-		uint32 uiNumSamples = (uint32) (fDuration * pcmWaveFormat.nSamplesPerSec + 0.5f);
-		uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.nBlockAlign ) + DECOMPRESSION_BUFFER_PAD;
+		float fDuration = (float) uiSampleDataSize / pWaveFormatEx->avg_bytes_per_sec_;
+		uint32 uiNumSamples = (uint32) (fDuration * pcmWaveFormat.sample_rate_ + 0.5f);
+		uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.block_align_ ) + DECOMPRESSION_BUFFER_PAD;
 
 /*
 		LOG_WRITE( g_pLogFile, "  formatTag       : %d\n", pcmWaveFormat.wFormatTag );
@@ -5484,8 +5484,8 @@ S32	CDx8SoundSys::DecompressASI( void* pInData, U32 uiInSize, char* sFilename_ex
 
 		HACMSTREAM hAcmStream = NULL;
 
-		mmResult = acmStreamOpen( &hAcmStream, m_hAcmMP3Driver, const_cast< WAVEFORMATEX* >( pWaveFormatEx ),
-			&pcmWaveFormat, NULL, 0, 0, 0 );
+		mmResult = acmStreamOpen( &hAcmStream, m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
+			reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, 0 );
 
 		if( mmResult != 0 )
 		{
@@ -5510,7 +5510,7 @@ S32	CDx8SoundSys::DecompressASI( void* pInData, U32 uiInSize, char* sFilename_ex
 		mmResult = acmStreamClose( hAcmStream, 0 );
 
 				// format the converted data to that of a WAVE file
-		uint32 uiWaveFmtSize = sizeof( WAVEFORMATEX ) - sizeof( pcmWaveFormat.cbSize );
+		uint32 uiWaveFmtSize = ul::WaveFormatEx::packed_size - sizeof( pcmWaveFormat.extra_size_ );
 		uint32 uiFileSize =
 			4 +	sizeof( uint32 ) +									// RIFF chunk
 			8 + sizeof( uint32 ) + uiWaveFmtSize +					// WAVE chunk
@@ -5578,7 +5578,7 @@ S32	CDx8SoundSys::DecompressASI( void* pInData, U32 uiInSize, char* sFilename_ex
 UINT CDx8SoundSys::ReadStream( WaveFile* pStream, BYTE* pOutBuffer, int nSize )
 {
 	UINT nRead = 0;
-	if ( pStream->m_pwfmt->wFormatTag == WAVE_FORMAT_MPEGLAYER3 )
+	if ( pStream->m_pwfmt->tag_ == ul::WaveFormatTag::mp3 )
 	{
 		// handle decompression of stream if .mp3
 		nRead = pStream->ReadCompressed( pOutBuffer, nSize, m_pCompressedBuffer, m_pDecompressedBuffer );
