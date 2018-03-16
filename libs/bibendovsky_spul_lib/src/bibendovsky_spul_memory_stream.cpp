@@ -364,7 +364,6 @@ bool MemoryStream::open_internal(
 {
 	const auto is_readable = ((open_mode & OpenMode::read) != 0);
 	const auto is_writable = ((open_mode & OpenMode::write) != 0);
-	const auto is_at_the_end = ((open_mode & OpenMode::at_the_end) != 0);
 
 	if (!is_readable && !is_writable)
 	{

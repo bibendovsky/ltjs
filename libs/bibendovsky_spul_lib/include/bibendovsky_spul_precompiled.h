@@ -77,6 +77,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 #include "bibendovsky_spul_path_utils.h"
 #include "bibendovsky_spul_riff_four_ccs.h"
 #include "bibendovsky_spul_riff_reader.h"
+#include "bibendovsky_spul_scope_guard.h"
 #include "bibendovsky_spul_stream.h"
 #include "bibendovsky_spul_substream.h"
 #include "bibendovsky_spul_utf8_utils.h"

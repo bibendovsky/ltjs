@@ -101,14 +101,14 @@ public:
 	//    "true" on success.
 	//    "false" otherwise.
 	//
-	bool initialize(
+	bool open(
 		Stream* stream_ptr,
 		const FourCc& type = {});
 
 	//
 	// Uninitializes the instance.
 	//
-	void uninitialize();
+	void close();
 
 	//
 	// Gets an initialization status of the instance.
@@ -117,7 +117,7 @@ public:
 	//    "true" if instance is initialized.
 	//    "false" otherwise.
 	//
-	bool is_initialized() const;
+	bool is_open() const;
 
 	//
 	// Descends into a chunk.
@@ -191,7 +191,7 @@ private:
 	using Chunks = std::vector<ChunkInternal>;
 
 
-	bool is_initialized_;
+	bool is_open_;
 	StreamPtr stream_ptr_;
 	Chunks chunks_;
 

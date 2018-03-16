@@ -60,7 +60,7 @@ bool RiffReader::Chunk::is_empty() const
 
 RiffReader::RiffReader()
 	:
-	is_initialized_{},
+	is_open_{},
 	stream_ptr_{},
 	chunks_{}
 {
@@ -73,10 +73,10 @@ RiffReader::RiffReader(
 	:
 	RiffReader{}
 {
-	static_cast<void>(initialize(stream_ptr, type));
+	static_cast<void>(open(stream_ptr, type));
 }
 
-bool RiffReader::initialize(
+bool RiffReader::open(
 	Stream* stream_ptr,
 	const FourCc& type)
 {
@@ -94,31 +94,31 @@ bool RiffReader::initialize(
 
 	if (!descend_internal(type))
 	{
-		uninitialize();
+		close();
 		return false;
 	}
 
-	is_initialized_ = true;
+	is_open_ = true;
 
 	return true;
 }
 
-void RiffReader::uninitialize()
+void RiffReader::close()
 {
-	is_initialized_ = false;
+	is_open_ = false;
 	stream_ptr_ = nullptr;
 	chunks_.clear();
 }
 
-bool RiffReader::is_initialized() const
+bool RiffReader::is_open() const
 {
-	return is_initialized_;
+	return is_open_;
 }
 
 bool RiffReader::descend(
 	const FourCc& type)
 {
-	if (!is_initialized_)
+	if (!is_open_)
 	{
 		return false;
 	}
@@ -128,7 +128,7 @@ bool RiffReader::descend(
 
 bool RiffReader::ascend()
 {
-	if (!is_initialized_ || chunks_.empty())
+	if (!is_open_ || chunks_.empty())
 	{
 		return false;
 	}
@@ -159,7 +159,7 @@ bool RiffReader::ascend()
 
 bool RiffReader::rewind()
 {
-	if (!is_initialized_ || chunks_.empty())
+	if (!is_open_ || chunks_.empty())
 	{
 		return false;
 	}
@@ -182,7 +182,7 @@ bool RiffReader::find_and_descend(
 	const FourCc id,
 	const FourCc type)
 {
-	if (!is_initialized_ || id == 0 || chunks_.empty())
+	if (!is_open_ || id == 0 || chunks_.empty())
 	{
 		return false;
 	}

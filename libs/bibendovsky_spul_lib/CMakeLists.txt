@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
-project(bibendovsky_spul_lib VERSION 1.0.0 LANGUAGES CXX)
+project(bibendovsky_spul_lib VERSION 1.0.1 LANGUAGES CXX)
 
 
-option(BIBENDOVSKY_SPUL_USE_PCH "Use precompiled headers if available." ON)
+option(BIBENDOVSKY_SPUL_USE_PCH "Use precompiled headers if available." OFF)
+option(BIBENDOVSKY_SPUL_STATIC_CRT "Use static runtime library if available." OFF)
+option(BIBENDOVSKY_SPUL_VC_DISABLE_CHECKED_ITERATORS "Disables checked iterators and disables iterator debugging (Visual C++)." OFF)
 
 
 set(
 	headers
-	include/bibendovsky_spul_algorithm.h	
+	include/bibendovsky_spul_algorithm.h
 	include/bibendovsky_spul_ascii_utils.h
 	include/bibendovsky_spul_encoding_utils.h
 	include/bibendovsky_spul_endian.h
@@ -20,6 +22,7 @@ set(
 	include/bibendovsky_spul_precompiled.h
 	include/bibendovsky_spul_riff_four_ccs.h
 	include/bibendovsky_spul_riff_reader.h
+	include/bibendovsky_spul_scope_guard.h
 	include/bibendovsky_spul_stream.h
 	include/bibendovsky_spul_substream.h
 	include/bibendovsky_spul_utf8_utils.h
@@ -85,6 +88,30 @@ if (BIBENDOVSKY_SPUL_USE_PCH)
 		target_compile_options(
 			bibendovsky_spul_lib
 			PRIVATE -Yubibendovsky_spul_precompiled.h
+		)
+	endif ()
+endif ()
+
+if (BIBENDOVSKY_SPUL_VC_DISABLE_CHECKED_ITERATORS)
+	if (MSVC)
+		target_compile_definitions(
+			bibendovsky_spul_lib
+			PRIVATE $<$<CONFIG:DEBUG>:_ITERATOR_DEBUG_LEVEL=0>
+		)
+
+		target_compile_options(
+			bibendovsky_spul_lib
+			PRIVATE -Yubibendovsky_spul_precompiled.h
+		)
+	endif ()
+endif ()
+
+if (BIBENDOVSKY_SPUL_STATIC_CRT)
+	if (MSVC)
+		target_compile_options(
+			bibendovsky_spul_lib
+			PRIVATE $<$<CONFIG:DEBUG>:-MTd>
+			PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:-MT>
 		)
 	endif ()
 endif ()
