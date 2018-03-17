@@ -51,6 +51,34 @@ class WaveformatUtils
 {
 public:
 	//
+	// Swaps byte order on big-endian platform of all fields.
+	//
+	// Parameters:
+	//    - format - a format buffer.
+	//
+	static void endian(
+		WaveFormat& format);
+
+	//
+	// Swaps byte order on big-endian platform of all fields.
+	//
+	// Parameters:
+	//    - format - a format buffer.
+	//
+	static void endian(
+		PcmWaveFormat& format);
+
+	//
+	// Swaps byte order on big-endian platform of all fields.
+	//
+	// Parameters:
+	//    - format - a format buffer.
+	//
+	static void endian(
+		WaveFormatEx& format);
+
+
+	//
 	// Reads WaveFormat structure from a stream.
 	//
 	// Parameters:

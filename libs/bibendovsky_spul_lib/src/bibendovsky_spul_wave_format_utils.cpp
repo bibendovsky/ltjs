@@ -41,6 +41,54 @@ namespace spul
 {
 
 
+void WaveformatUtils::endian(
+	WaveFormat& format)
+{
+	if (Endian::is_little())
+	{
+		return;
+	}
+
+	Endian::swap_i(format.tag_);
+	Endian::swap_i(format.channel_count_);
+	Endian::swap_i(format.sample_rate_);
+	Endian::swap_i(format.avg_bytes_per_sec_);
+	Endian::swap_i(format.block_align_);
+}
+
+void WaveformatUtils::endian(
+	PcmWaveFormat& format)
+{
+	if (Endian::is_little())
+	{
+		return;
+	}
+
+	Endian::swap_i(format.tag_);
+	Endian::swap_i(format.channel_count_);
+	Endian::swap_i(format.sample_rate_);
+	Endian::swap_i(format.avg_bytes_per_sec_);
+	Endian::swap_i(format.block_align_);
+	Endian::swap_i(format.bit_depth_);
+}
+
+void WaveformatUtils::endian(
+	WaveFormatEx& format)
+{
+	if (Endian::is_little())
+	{
+		return;
+	}
+
+	Endian::swap_i(format.tag_);
+	Endian::swap_i(format.channel_count_);
+	Endian::swap_i(format.sample_rate_);
+	Endian::swap_i(format.avg_bytes_per_sec_);
+	Endian::swap_i(format.block_align_);
+	Endian::swap_i(format.bit_depth_);
+	Endian::swap_i(format.extra_size_);
+}
+
 bool WaveformatUtils::read(
 	StreamPtr stream_ptr,
 	WaveFormat& format)
@@ -50,14 +98,7 @@ bool WaveformatUtils::read(
 		return false;
 	}
 
-	if (!Endian::is_little())
-	{
-		Endian::swap_i(format.tag_);
-		Endian::swap_i(format.channel_count_);
-		Endian::swap_i(format.sample_rate_);
-		Endian::swap_i(format.avg_bytes_per_sec_);
-		Endian::swap_i(format.block_align_);
-	}
+	endian(format);
 
 	return true;
 }
@@ -71,15 +112,7 @@ bool WaveformatUtils::read(
 		return false;
 	}
 
-	if (!Endian::is_little())
-	{
-		Endian::swap_i(format.tag_);
-		Endian::swap_i(format.channel_count_);
-		Endian::swap_i(format.sample_rate_);
-		Endian::swap_i(format.avg_bytes_per_sec_);
-		Endian::swap_i(format.block_align_);
-		Endian::swap_i(format.bit_depth_);
-	}
+	endian(format);
 
 	return true;
 }
@@ -93,16 +126,7 @@ bool WaveformatUtils::read(
 		return false;
 	}
 
-	if (!Endian::is_little())
-	{
-		Endian::swap_i(format.tag_);
-		Endian::swap_i(format.channel_count_);
-		Endian::swap_i(format.sample_rate_);
-		Endian::swap_i(format.avg_bytes_per_sec_);
-		Endian::swap_i(format.block_align_);
-		Endian::swap_i(format.bit_depth_);
-		Endian::swap_i(format.extra_size_);
-	}
+	endian(format);
 
 	return true;
 }
