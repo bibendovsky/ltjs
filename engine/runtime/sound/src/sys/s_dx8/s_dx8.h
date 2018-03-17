@@ -212,10 +212,12 @@ protected:
 }; // WaveFile
 
 
-//! ParseWaveFile
-
-bool ParseWaveFile( void* pWaveFileBlock, void*& rpWaveFormat, uint32& ruiWaveFormatSize,
-	void*& rpSampleData, uint32& ruiSampleDataSize );
+bool ParseWaveFile(
+	void* pWaveFileBlock,
+	void*& rpWaveFormat,
+	std::uint32_t& ruiWaveFormatSize,
+	void*& rpSampleData,
+	std::uint32_t& ruiSampleDataSize);
 
 //! I3DObject
 
