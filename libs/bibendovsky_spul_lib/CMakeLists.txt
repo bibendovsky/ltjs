@@ -2,9 +2,14 @@ cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
 project(bibendovsky_spul_lib VERSION 1.0.1 LANGUAGES CXX)
 
 
+option(BIBENDOVSKY_SPUL_CMAKE_ENABLE_INSTALL "Enable install (CMake)." OFF)
 option(BIBENDOVSKY_SPUL_USE_PCH "Use precompiled headers if available." OFF)
 option(BIBENDOVSKY_SPUL_STATIC_CRT "Use static runtime library if available." OFF)
-option(BIBENDOVSKY_SPUL_VC_DISABLE_CHECKED_ITERATORS "Disables checked iterators and disables iterator debugging (Visual C++)." OFF)
+
+if (MSVC)
+	option(BIBENDOVSKY_SPUL_VC_DISABLE_CHECKED_ITERATORS "Disable checked iterators and disables iterator debugging (Visual C++)." OFF)
+	option(BIBENDOVSKY_SPUL_VC_DISABLE_CRT_SECURE_WARNINGS "Disable CRT secure warnings (Visual C++)." OFF)
+endif ()
 
 
 set(
@@ -92,8 +97,18 @@ if (BIBENDOVSKY_SPUL_USE_PCH)
 	endif ()
 endif ()
 
-if (BIBENDOVSKY_SPUL_VC_DISABLE_CHECKED_ITERATORS)
+if (BIBENDOVSKY_SPUL_STATIC_CRT)
 	if (MSVC)
+		target_compile_options(
+			bibendovsky_spul_lib
+			PRIVATE $<$<CONFIG:DEBUG>:-MTd>
+			PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:-MT>
+		)
+	endif ()
+endif ()
+
+if (MSVC)
+	if (BIBENDOVSKY_SPUL_VC_DISABLE_CHECKED_ITERATORS)
 		target_compile_definitions(
 			bibendovsky_spul_lib
 			PRIVATE $<$<CONFIG:DEBUG>:_ITERATOR_DEBUG_LEVEL=0>
@@ -104,14 +119,11 @@ if (BIBENDOVSKY_SPUL_VC_DISABLE_CHECKED_ITERATORS)
 			PRIVATE -Yubibendovsky_spul_precompiled.h
 		)
 	endif ()
-endif ()
 
-if (BIBENDOVSKY_SPUL_STATIC_CRT)
-	if (MSVC)
-		target_compile_options(
+	if (BIBENDOVSKY_SPUL_VC_DISABLE_CRT_SECURE_WARNINGS)
+		target_compile_definitions(
 			bibendovsky_spul_lib
-			PRIVATE $<$<CONFIG:DEBUG>:-MTd>
-			PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:-MT>
+			PRIVATE _CRT_SECURE_NO_WARNINGS
 		)
 	endif ()
 endif ()
@@ -131,9 +143,11 @@ set_target_properties(
 	PROJECT_LABEL "bibendovsky_spul_lib"
 )
 
-install(
-	TARGETS
-	bibendovsky_spul_lib
-	ARCHIVE DESTINATION lib
-	PUBLIC_HEADER DESTINATION include
-)
+if (BIBENDOVSKY_SPUL_CMAKE_ENABLE_INSTALL)
+	install(
+		TARGETS
+		bibendovsky_spul_lib
+		ARCHIVE DESTINATION lib
+		PUBLIC_HEADER DESTINATION include
+	)
+endif ()
