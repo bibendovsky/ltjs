@@ -11,6 +11,8 @@
 #include "msacm.h"
 // ---
 
+#include "bibendovsky_spul_file_stream.h"
+#include "bibendovsky_spul_riff_reader.h"
 #include "bibendovsky_spul_wave_format.h"
 #include "iltsound.h"
 
@@ -61,72 +63,153 @@ class CDx8SoundSys;
 class WaveFile
 {
 public:
-    WaveFile (void);
-    ~WaveFile (void);
-	void Clear(void);
-    BOOL Open (LPSTR pszFilename, uint32 nFilePos);
-	void Close(void);
-    BOOL Cue (void);
-	BOOL IsMP3() { return m_bMP3Compressed; }
-    UINT Read (BYTE * pbDest, UINT cbSize);
-	UINT ReadCompressed( BYTE* pbDest, UINT cbSize, BYTE* pCompressedBuffer, BYTE* pbDecompressedBuffer );
-    UINT GetAvgDataRate (void) { return (m_nAvgDataRate); }
-    UINT GetDataSize (void) { return (m_nDataSize); }
-    UINT GetNumBytesRead (void) { return (m_nBytesRead); }
-	UINT GetNumBytesCopied( ) { return m_nBytesCopied; }
-	UINT GetMaxBytesRead( ) { return m_nMaxBytesRead; }
-	UINT GetMaxBytesCopied( ) { return m_nMaxBytesCopied; }
-    UINT GetDuration (void) { return (m_nDuration); }
-    BYTE GetSilenceData (void);
-	void SetBytesPerSample( UINT nBytesPerSample ) { m_nBytesPerSample = nBytesPerSample; }
+	WaveFile();
 
-	UINT SeekFromStart( uint32 nBytes );
-	UINT SeekFromStartCompressed( uint32 nBytes );
-	
+	~WaveFile();
+
+	void Clear();
+
+	bool Open(
+		const char* pszFilename,
+		const std::uint32_t nFilePos);
+
+	void Close();
+
+	bool Cue();
+
+	bool IsMP3() const
+	{
+		return m_bMP3Compressed;
+	}
+
+	std::uint32_t Read(
+		std::uint8_t* pbDest,
+		const std::uint32_t cbSize);
+
+	std::uint32_t ReadCompressed(
+		std::uint8_t* pbDest,
+		const std::uint32_t cbSize,
+		const std::uint8_t* pCompressedBuffer,
+		std::uint8_t* pbDecompressedBuffer);
+
+	std::uint32_t GetAvgDataRate() const
+	{
+		return m_nAvgDataRate;
+	}
+
+	std::uint32_t GetDataSize() const
+	{
+		return m_nDataSize;
+	}
+
+	std::uint32_t GetNumBytesRead() const
+	{
+		return m_nBytesRead;
+	}
+
+	std::uint32_t GetNumBytesCopied() const
+	{
+		return m_nBytesCopied;
+	}
+
+	std::uint32_t GetMaxBytesRead() const
+	{
+		return m_nMaxBytesRead;
+	}
+
+	std::uint32_t GetMaxBytesCopied() const
+	{
+		return m_nMaxBytesCopied;
+	}
+
+	std::uint32_t GetDuration() const
+	{
+		return m_nDuration;
+	}
+
+	std::uint8_t GetSilenceData() const;
+
+	void SetBytesPerSample(
+		const std::uint32_t nBytesPerSample)
+	{
+		m_nBytesPerSample = nBytesPerSample;
+	}
+
+	std::uint32_t SeekFromStart(
+		const std::uint32_t nBytes);
+
+	std::uint32_t SeekFromStartCompressed(
+		const std::uint32_t nBytes);
+
 	// Integration functions
-	bool IsActive()	{ return (m_hStream) ? true : false;  }
-	void SetStream(LHSTREAM hStream) { m_hStream = hStream; }
-	LHSTREAM GetStream() { return m_hStream;  }
+	bool IsActive() const
+	{
+		return m_hStream != nullptr;
+	}
+
+	void SetStream(
+		LHSTREAM hStream)
+	{
+		m_hStream = hStream;
+	}
+
+	LHSTREAM GetStream() const
+	{
+		return m_hStream;
+	}
 
 	// decompression related functions
-	HACMSTREAM GetAcmStream() { return m_hAcmStream; }
-	void SetAcmStream( HACMSTREAM hAcmStream ) { m_hAcmStream = hAcmStream; }
-	ACMSTREAMHEADER* GetAcmStreamHeader() { return &m_acmStreamHeader; }
-	void SetSrcBufferSize( unsigned long ulSrcBufferSize ) { m_ulSrcBufferSize = ulSrcBufferSize; }
+	HACMSTREAM GetAcmStream() const
+	{
+		return m_hAcmStream;
+	}
 
-    ul::WaveFormatEx* m_pwfmt;
+	void SetAcmStream(
+		HACMSTREAM hAcmStream)
+	{
+		m_hAcmStream = hAcmStream;
+	}
 
-  protected:
-    HMMIO m_hmmio;
-	uint32 m_nFilePos;			// Offset from the beginning of the file where the wav is.
-    MMRESULT m_mmr;
-    MMCKINFO m_mmckiRiff;
-    MMCKINFO m_mmckiFmt;
-    MMCKINFO m_mmckiData;
-    UINT m_nDuration;           // duration of sound in msec
-    UINT m_nBlockAlign;         // wave data block alignment spec
-    UINT m_nAvgDataRate;        // average wave data rate
-    UINT m_nDataSize;           // size of data chunk
-    UINT m_nBytesRead;			// Number of uncompressed bytes read.
-	UINT m_nMaxBytesRead;		// Maximum number of bytes read, regardless of looping back.
-    UINT m_nBytesCopied;		// Number of uncompressed bytes copied.
-	UINT m_nMaxBytesCopied;		// Maximum number of bytes copied, regardless of looping back.
-	UINT m_nBytesPerSample;		// number of bytes in each sample
+	ACMSTREAMHEADER* GetAcmStreamHeader()
+	{
+		return &m_acmStreamHeader;
+	}
 
+	void SetSrcBufferSize(
+		std::uint32_t ulSrcBufferSize)
+	{
+		m_ulSrcBufferSize = ulSrcBufferSize;
+	}
+
+	ul::WaveFormatEx* m_pwfmt;
+
+
+protected:
+	ul::FileStream file_stream_;
+	ul::RiffReader riff_reader_;
+	ul::RiffReader::Chunk data_chunk_;
+
+	std::uint32_t m_nDuration; // duration of sound in msec
+	std::uint32_t m_nBlockAlign; // wave data block alignment spec
+	std::uint32_t m_nAvgDataRate; // average wave data rate
+	std::uint32_t m_nDataSize; // size of data chunk
+	std::uint32_t m_nBytesRead; // Number of uncompressed bytes read.
+	std::uint32_t m_nMaxBytesRead; // Maximum number of bytes read, regardless of looping back.
+	std::uint32_t m_nBytesCopied; // Number of uncompressed bytes copied.
+	std::uint32_t m_nMaxBytesCopied; // Maximum number of bytes copied, regardless of looping back.
+	std::uint32_t m_nBytesPerSample; // number of bytes in each sample
 
 	// Integration data
 	LHSTREAM m_hStream;
 
 	// for files that need to be decompressed
-	BOOL m_bMP3Compressed;
+	bool m_bMP3Compressed;
 	ACMSTREAMHEADER m_acmStreamHeader;
 	HACMSTREAM m_hAcmStream;
-	unsigned long m_ulSrcBufferSize;
-	UINT m_nRemainderBytes;
-	UINT m_nRemainderOffset;
-	BYTE m_RemainderBuffer[STR_BUFFER_SIZE];
-};
-
+	std::uint32_t m_ulSrcBufferSize;
+	std::uint32_t m_nRemainderBytes;
+	std::uint32_t m_nRemainderOffset;
+}; // WaveFile
 
 
 //! ParseWaveFile

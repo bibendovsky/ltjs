@@ -1,5 +1,10 @@
 
 #include "s_dx8.h"
+#include <memory>
+#include "bibendovsky_spul_endian.h"
+#include "bibendovsky_spul_scope_guard.h"
+#include "bibendovsky_spul_wave_format_utils.h"
+#include "bibendovsky_spul_wave_four_ccs.h"
 #include "eax.h"
 
 
@@ -97,679 +102,394 @@ static sint32 g_iCurrentEAXDirectSetting;
 //
 ////////////////////////////////////////////////////////////
 
-
-// Constructor
-WaveFile::WaveFile (void)
+WaveFile::WaveFile()
 {
-    DOUT ("WaveFile::WaveFile\n\r");
 	Clear();
 }
 
-// Destructor
-WaveFile::~WaveFile (void)
+WaveFile::~WaveFile()
 {
-    DOUT ("WaveFile::~WaveFile\n\r");
 	Close();
-
 }
-
 
 void WaveFile::Clear()
 {
-    DOUT ("WaveFile::Clear\n\r");
-    // Init data members
-	m_pwfmt = NULL;
-    m_hmmio = NULL;
-    m_nBlockAlign= 0;
-    m_nAvgDataRate = 0;
-    m_nDataSize = 0;
-    m_nBytesRead = 0;
+	// Init data members
+	m_pwfmt = nullptr;
+	m_nBlockAlign = 0;
+	m_nAvgDataRate = 0;
+	m_nDataSize = 0;
+	m_nBytesRead = 0;
 	m_nMaxBytesRead = 0;
-    m_nBytesCopied = 0;
+	m_nBytesCopied = 0;
 	m_nMaxBytesCopied = 0;
-    m_nDuration = 0;
+	m_nDuration = 0;
 	m_nBytesPerSample = 0;
-    memset (&m_mmckiRiff, 0, sizeof (MMCKINFO));
-    memset (&m_mmckiFmt, 0, sizeof (MMCKINFO));
-    memset (&m_mmckiData, 0, sizeof (MMCKINFO));
-	m_hStream = NULL;
-	m_bMP3Compressed = FALSE;
-	m_hAcmStream = NULL;
+	m_hStream = nullptr;
+	m_bMP3Compressed = false;
+	m_hAcmStream = nullptr;
 	m_ulSrcBufferSize = 0;
 	m_nRemainderBytes = 0;
 	m_nRemainderOffset = 0;
-	memset( &m_acmStreamHeader, 0, sizeof( ACMSTREAMHEADER ) );
-	m_mmr = MMSYSERR_NOERROR;
+	::memset(&m_acmStreamHeader, 0, sizeof(ACMSTREAMHEADER));
 }
-
 
 void WaveFile::Close()
 {
-    DOUT ("WaveFile::Close\n\r");
- 	m_hStream = NULL;
+	m_hStream = nullptr;
 
-	if(m_pwfmt)
+	if (m_pwfmt)
 	{
 		LTMemFree(m_pwfmt);
-		m_pwfmt = NULL;
+		m_pwfmt = nullptr;
 	}
 
-    // Close file
-    if (m_hmmio)
-    {
-        mmioClose (m_hmmio, 0);
-		m_hmmio = NULL;
-    }
+	riff_reader_.close();
+	file_stream_.close();
 
 	// free up ACM stuff
-	if ( m_hAcmStream )
+	if (m_hAcmStream)
 	{
-		acmStreamUnprepareHeader( m_hAcmStream, &m_acmStreamHeader, 0 );
-		acmStreamClose( m_hAcmStream, 0 );
-		m_hAcmStream = NULL;
+		m_acmStreamHeader.cbSrcLength = m_ulSrcBufferSize;
+		acmStreamUnprepareHeader(m_hAcmStream, &m_acmStreamHeader, 0);
+		acmStreamClose(m_hAcmStream, 0);
+		m_hAcmStream = nullptr;
 	}
 
-	Clear( );
+	Clear();
 }
 
-
-// Open
-BOOL WaveFile::Open (LPSTR pszFilename, uint32 nFilePos)
+bool WaveFile::Open(
+	const char* pszFilename,
+	const std::uint32_t nFilePos)
 {
-    WORD cbExtra = 0;
-    DOUT ("WaveFile::Open\n\r");
+	const auto open_result = file_stream_.open(pszFilename, ul::Stream::OpenMode::read);
 
-    BOOL fRtn = SUCCESS;    // assume success
-	m_mmr = MMSYSERR_NOERROR;
-
-    // Open the requested file
-    if ((m_hmmio = mmioOpen (pszFilename, NULL, MMIO_ALLOCBUF | MMIO_READ)) == NULL)
-    {
-        m_mmr = MMIOERR_CANNOTOPEN;
-    }
-
-	if( m_mmr == MMSYSERR_NOERROR )
+	if (!open_result)
 	{
-		// Save the offset for future seeks.
-		m_nFilePos = nFilePos;
+		return false;
+	}
 
-		// Seek to the correct file position (should be 0 for stand-alone files)
-		if(mmioSeek(m_hmmio, nFilePos, SEEK_SET) == -1)
+	auto is_succeed = false;
+
+	auto cleaner = ul::ScopeGuard{
+		[&]()
 		{
-			m_mmr = MMIOERR_CANNOTSEEK;
-		}
-	}
-
-	if( m_mmr == MMSYSERR_NOERROR )
-	{
-		// Descend into initial chunk ('RIFF')
-		m_mmr = mmioDescend (m_hmmio, &m_mmckiRiff, NULL, 0);
-	}
-
-	if( m_mmr == MMSYSERR_NOERROR )
-	{
-		// Validate that it's a WAVE file
-		if ((m_mmckiRiff.ckid != FOURCC_RIFF) || (m_mmckiRiff.fccType != mmioFOURCC('W', 'A', 'V', 'E')))
-		{
-			m_mmr = MMIOERR_INVALIDFILE;
-		}
-	}
-
-	if( m_mmr == MMSYSERR_NOERROR )
-	{
-		// Find format chunk ('fmt '), allocate and fill WAVEFORMATEX structure
-		m_mmckiFmt.ckid = mmioFOURCC('f', 'm', 't', ' ');
-		m_mmr = mmioDescend (m_hmmio, &m_mmckiFmt, &m_mmckiRiff, MMIO_FINDCHUNK);
-	}
-
-    auto pcmwf = ul::PcmWaveFormat{};
-	if( m_mmr == MMSYSERR_NOERROR )
-	{
-		// Read the format chunk into temporary structure
-		if (mmioRead (m_hmmio, (CHAR *) &pcmwf, ul::PcmWaveFormat::packed_size) != ul::PcmWaveFormat::packed_size)
-		{
-			m_mmr = MMIOERR_CANNOTREAD;
-		}
-	}
-
-	if( m_mmr == MMSYSERR_NOERROR )
-	{
-		// If format is not PCM, then there are extra bytes appended to WAVEFORMATEX
-		if (pcmwf.tag_ != ul::WaveFormatTag::pcm)
-		{
-			// Read WORD specifying number of extra bytes
-			if (mmioRead (m_hmmio, (LPSTR) &cbExtra, sizeof (cbExtra)) != sizeof(cbExtra))
+			if (!is_succeed)
 			{
-				m_mmr = MMIOERR_CANNOTREAD;
-			}
-
-			if( m_mmr == MMSYSERR_NOERROR )
-			{
-				// if it's an .mp3 compressed file, flag it
-				if ( pcmwf.tag_ == ul::WaveFormatTag::mp3 )
-					m_bMP3Compressed = TRUE;
+				Close();
 			}
 		}
+	};
+
+	const auto set_position_result = file_stream_.set_position(nFilePos);
+
+	if (!set_position_result)
+	{
+		return false;
 	}
 
-	if( m_mmr == MMSYSERR_NOERROR )
-	{
-		// Allocate memory for WAVEFORMATEX structure + extra bytes
-		LT_MEM_TRACK_ALLOC(m_pwfmt = (ul::WaveFormatEx *) LTMemAlloc (ul::WaveFormatEx::packed_size+cbExtra),LT_MEM_TYPE_SOUND);
-		if (m_pwfmt)
-		{
-			// Copy bytes from temporary format structure
-			memcpy (m_pwfmt, &pcmwf, sizeof(pcmwf));
-			m_pwfmt->extra_size_ = cbExtra;
+	const auto reader_open_result = riff_reader_.open(&file_stream_, ul::WaveFourCcs::wave);
 
-			// Read those extra bytes, append to WAVEFORMATEX structure
-			if (cbExtra != 0)
-			{
-				if ( mmioRead (m_hmmio, (LPSTR) ((BYTE *)(m_pwfmt) + ul::WaveFormatEx::packed_size), cbExtra) != cbExtra)
-				{
-					// Error reading extra bytes
-					m_mmr = MMIOERR_CANNOTREAD;
-				}
-			}
+	if (!reader_open_result)
+	{
+		return false;
+	}
+
+	const auto find_fmt_result = riff_reader_.find_and_descend(ul::WaveFourCcs::fmt);
+
+	if (!find_fmt_result)
+	{
+		return false;
+	}
+
+	auto pcmwf = ul::PcmWaveFormat{};
+	auto fm_chunk = riff_reader_.get_current_chunk();
+	auto& fmt_stream = fm_chunk.data_stream_;
+	const auto fmt_read_result = ul::WaveformatUtils::read(&fmt_stream, pcmwf);
+
+	if (!fmt_read_result)
+	{
+		return false;
+	}
+
+	const auto extra_field_size = 2;
+	auto cbExtra = std::uint16_t{};
+
+	// If format is not PCM, then there are extra bytes appended to WAVEFORMATEX
+	if (pcmwf.tag_ != ul::WaveFormatTag::pcm)
+	{
+		const auto extra_read_result = fmt_stream.read(&cbExtra, extra_field_size);
+
+		if (extra_read_result != extra_field_size)
+		{
+			return false;
 		}
-		else
+
+		ul::Endian::little_i(cbExtra);
+
+		// if it's an .mp3 compressed file, flag it
+		if (pcmwf.tag_ == ul::WaveFormatTag::mp3)
 		{
-			// Error allocating memory
-			m_mmr = MMIOERR_OUTOFMEMORY;
-		}
-	}
-
-	if( m_mmr == MMSYSERR_NOERROR )
-	{
-		// Init some member data from format chunk
-		m_nBlockAlign = m_pwfmt->block_align_;
-		m_nAvgDataRate = m_pwfmt->avg_bytes_per_sec_;
-
-		// init some decompression related data
-		m_nRemainderBytes = 0;
-		m_nRemainderOffset = 0;
-
-		// Ascend out of format chunk
-		m_mmr = mmioAscend (m_hmmio, &m_mmckiFmt, 0);
-	}
-
-	if( m_mmr == MMSYSERR_NOERROR )
-	{
-		// Cue for streaming
-		if( !Cue( ))
-		{
-			// m_mmr already set.
-		}
-	}
-
-	if( m_mmr == MMSYSERR_NOERROR )
-	{
-		// Init some member data from data chunk
-		m_nDataSize = m_mmckiData.cksize;
-		m_nDuration = (m_nDataSize * 1000) / m_nAvgDataRate;
-	}
-
-	if( m_mmr != MMSYSERR_NOERROR )
-	{
-		// Handle all errors here
-		fRtn = FAILURE;
-		if (m_hmmio)
-		{
-			// Close file
-			mmioClose (m_hmmio, 0);
-			m_hmmio = NULL;
-		}
-		if (m_pwfmt)
-		{
-			// Free memory
-			LTMemFree(m_pwfmt);
-			m_pwfmt = NULL;
+			m_bMP3Compressed = true;
 		}
 	}
 
-    return (fRtn);
+	// Allocate memory for WAVEFORMATEX structure + extra bytes
+	m_pwfmt = static_cast<ul::WaveFormatEx*>(LTMemAlloc(ul::WaveFormatEx::packed_size + cbExtra));
+	LT_MEM_TRACK_ALLOC(m_pwfmt, LT_MEM_TYPE_SOUND);
+
+	if (!m_pwfmt)
+	{
+		return false;
+	}
+
+	// Copy bytes from temporary format structure
+	*static_cast<ul::PcmWaveFormat*>(m_pwfmt) = pcmwf;
+	m_pwfmt->extra_size_ = cbExtra;
+
+	// Read those extra bytes, append to WAVEFORMATEX structure
+	if (cbExtra != 0)
+	{
+		const auto extra_read_result = fmt_stream.read(
+			reinterpret_cast<char*>(m_pwfmt) + ul::WaveFormatEx::packed_size,
+			cbExtra);
+
+		if (extra_read_result != cbExtra)
+		{
+			return false;
+		}
+	}
+
+	// Init some member data from format chunk
+	m_nBlockAlign = m_pwfmt->block_align_;
+	m_nAvgDataRate = m_pwfmt->avg_bytes_per_sec_;
+
+	// init some decompression related data
+	m_nRemainderBytes = 0;
+	m_nRemainderOffset = 0;
+
+	// Ascend out of format chunk
+	const auto fmt_ascend_result = riff_reader_.ascend();
+
+	if (!fmt_ascend_result)
+	{
+		return false;
+	}
+
+	const auto data_descend_result = riff_reader_.find_and_descend(ul::WaveFourCcs::data);
+
+	if (!data_descend_result)
+	{
+		return false;
+	}
+
+	data_chunk_ = riff_reader_.get_current_chunk();
+
+	// Cue for streaming
+	if(!Cue())
+	{
+		return false;
+	}
+
+	// Init some member data from data chunk
+	m_nDataSize = data_chunk_.size_;
+	m_nDuration = (m_nDataSize * 1000) / m_nAvgDataRate;
+
+	is_succeed = true;
+
+	return true;
 }
 
-
-// Cue
-//
-BOOL WaveFile::Cue (void)
+bool WaveFile::Cue()
 {
-    BOOL fRtn = SUCCESS;    // assume success
-
 	m_nRemainderBytes = 0;
 	m_nRemainderOffset = 0;
 	m_nBytesRead = 0;
 	m_nBytesCopied = 0;
 
-    // Seek to 'data' chunk from beginning of file
-    if (mmioSeek (m_hmmio, m_mmckiRiff.dwDataOffset + sizeof(FOURCC), SEEK_SET) != -1)
-    {
-        // Descend into 'data' chunk
-        m_mmckiData.ckid = mmioFOURCC('d', 'a', 't', 'a');
-        if ((m_mmr = mmioDescend (m_hmmio, &m_mmckiData, &m_mmckiRiff, MMIO_FINDCHUNK)) == MMSYSERR_NOERROR)
-        {
-            // Reset byte counter
-            m_nBytesRead = 0;
-			m_nBytesCopied = 0;
-        }
-        else
-        {
-            // UNDONE: set m_mmr
-            fRtn = FAILURE;
-        }
-    }
-    else
-    {
-        // mmioSeek error
-        m_mmr = MMIOERR_CANNOTSEEK;
-        fRtn = FAILURE;
-    }
+	const auto rewind_result = data_chunk_.data_stream_.set_position(0);
 
+	if (!rewind_result)
+	{
+		return false;
+	}
 
-    return fRtn;
+	return true;
 }
-
 
 // Read
 //
 // Returns number of bytes actually read.
-// On error, returns 0, MMIO error code in m_mmr.
+// On error, returns 0.
 //
-UINT WaveFile::Read (BYTE * pbDest, UINT cbSize)
+std::uint32_t WaveFile::Read(
+	std::uint8_t* pbDest,
+	const std::uint32_t cbSize)
 {
-    MMIOINFO mmioinfo;
-    UINT cb;
-	uint32 uiReadSize = 0;
+	auto result = 0;
+	auto& data_stream = data_chunk_.data_stream_;
 
-    DOUT ("WaveFile::Read\n\r");
-
-    // Use direct buffer access for reads to maximize performance
-    m_mmr = mmioGetInfo (m_hmmio, &mmioinfo, 0);
-    if (m_mmr)
-    {
-        goto READ_ERROR;
-    }
-
-    // Limit read size to chunk size
-    uiReadSize = (cbSize > m_mmckiData.cksize) ? m_mmckiData.cksize : cbSize;
-
-    // Adjust chunk size
-    m_mmckiData.cksize -= uiReadSize;
-
-	// Copy bytes from MMIO buffer
-	cb = 0;
-	while( cb < uiReadSize )
+	if (pbDest)
 	{
-		// Advance buffer if necessary
-		if (mmioinfo.pchNext == mmioinfo.pchEndRead)
-	    {
-            m_mmr = mmioAdvance (m_hmmio, &mmioinfo, MMIO_READ);
+		const auto read_result = data_stream.read(pbDest, cbSize);
 
-		    if (m_mmr)
-			{
-				goto READ_ERROR;
-	        }
-
-	        if (mmioinfo.pchNext == mmioinfo.pchEndRead )
-			{
-				m_mmr = MMIOERR_CANNOTREAD;
-				goto READ_ERROR;
-	        }
+		if (read_result <= 0)
+		{
+			return 0;
 		}
 
+		result = read_result;
+	}
+	else
+	{
+		const auto current_position = data_stream.skip(0);
 
-		// Actual copy
-		int nCopyAmount = uiReadSize - cb;
-		int nBufferLeft = mmioinfo.pchEndRead - mmioinfo.pchNext;
-		nBufferLeft = Min( nBufferLeft, ( int )m_nDataSize - ( int )m_nBytesCopied );
-		if( nCopyAmount > nBufferLeft )
-			nCopyAmount = nBufferLeft;
+		if (current_position < 0)
+		{
+			return 0;
+		}
 
-		// See if they actually want to copy the data.  If NULL, they are just seeking.
-		if( pbDest )
-			memcpy( pbDest+cb, mmioinfo.pchNext, nCopyAmount );
+		const auto data_size = data_stream.get_size();
 
-		cb += nCopyAmount;
+		if (data_size < 0)
+		{
+			return 0;
+		}
 
-		// On uncompressed data, the copied and read amounts are the same.
-		m_nBytesRead += nCopyAmount;
-		m_nMaxBytesRead = Max( m_nMaxBytesRead, m_nBytesRead );
-		m_nBytesCopied += nCopyAmount;
-		m_nMaxBytesCopied = Max( m_nMaxBytesCopied, m_nBytesCopied );
+		auto skip_size = static_cast<int>(cbSize);
 
-		mmioinfo.pchNext += nCopyAmount;
+		if ((current_position + skip_size) > data_size)
+		{
+			skip_size = static_cast<int>(data_size - current_position);
+		}
 
-		if( nCopyAmount <= 0 )
-			break;
+		const auto skip_result = data_stream.skip(skip_size);
+
+		if (skip_result < 0)
+		{
+			return 0;
+		}
+
+		result = skip_size;
 	}
 
+	m_nBytesCopied += result;
+	m_nMaxBytesCopied = Max(m_nMaxBytesCopied, m_nBytesCopied);
 
-    // End direct buffer access
-    m_mmr = mmioSetInfo (m_hmmio, &mmioinfo, 0);
-
-    if (m_mmr)
-    {
-        goto READ_ERROR;
-    }
-
-    goto READ_DONE;
-
-READ_ERROR:
-    uiReadSize = 0;
-
-READ_DONE:
-    return (uiReadSize);
+	return result;
 }
 
 // SeekFromStart
 //
 // Returns logical offset into buffer.
-// On error, returns 0, MMIO error code in m_mmr.
+// On error, returns 0.
 //
-UINT WaveFile::SeekFromStart( uint32 nBytes )
+std::uint32_t WaveFile::SeekFromStart(
+	const std::uint32_t nBytes)
 {
-	if( !Cue( ))
+	if (!Cue())
+	{
 		return 0;
+	}
 
-	return Read( NULL, nBytes );
+	return Read(nullptr, nBytes);
 }
 
 // ReadCompressed
 //
 // Returns number of uncompressed bytes actually read.
-// On error, returns 0, MMIO error code in m_mmr.
+// On error, returns 0.
 //
 //
 // Basically what we want to do, in general is read STR_BUFFER_SIZE worth
 // of UNCOMPRESSED data.  Since we don't know exactly how much compressed
 // data to read to get exactly that amount, we estimate and then adjust
 // as necessary.
-UINT WaveFile::ReadCompressed( BYTE* pbDest, UINT cbSize, BYTE* pCompressedBuffer, BYTE* pDecompressedBuffer )
+std::uint32_t WaveFile::ReadCompressed(
+	std::uint8_t* pbDest,
+	const std::uint32_t cbSize,
+	const std::uint8_t* pCompressedBuffer,
+	std::uint8_t* pDecompressedBuffer)
 {
-	BYTE *pCurOutputPtr, *pCurDecompressedPtr;
-	UINT uiReadSize = 0;
-	UINT uiDecompressedBytesOutput = 0;
-	UINT uiDecompressedSize = 0;
-	UINT uiTotalDecompressedBytes = 0;
-    MMIOINFO mmioinfo;
-    UINT cb;
+	static_cast<void>(pCompressedBuffer);
+	static_cast<void>(pDecompressedBuffer);
 
-    DOUT ("WaveFile::ReadCompressed\n\r");
-
-	// make sure we have buffers.  If pbDest is NULL, they are just seeking.
-	if( pCompressedBuffer == NULL || pDecompressedBuffer == NULL )
-		goto READ_ERROR;
-
-	// point our output pointer to the output buffer
-	pCurOutputPtr = pbDest;
-
-    // Use direct buffer access for reads to maximize performance
-    m_mmr = mmioGetInfo (m_hmmio, &mmioinfo, 0);
-    if (m_mmr)
-    {
-        goto READ_ERROR;
-    }
-
-	// see if we have any data left from our last read
-	if ( m_nRemainderBytes )
+	if (!pbDest || cbSize == 0)
 	{
-		uint32 nBytesFromRemainder = Min( m_nRemainderBytes, cbSize );
-
-		// copy it to the output buffer
-		memcpy( pbDest, m_RemainderBuffer + m_nRemainderOffset, nBytesFromRemainder );
-		uiTotalDecompressedBytes = nBytesFromRemainder;
-		uiDecompressedBytesOutput = nBytesFromRemainder;
-		if( pCurOutputPtr )
-			pCurOutputPtr += nBytesFromRemainder;
-		m_nRemainderBytes -= nBytesFromRemainder;
-		m_nRemainderOffset += nBytesFromRemainder;
+		return 0;
 	}
 
-	// now read in enough data to get to a full decompressed buffer
-	// if we have excess, it will sit in the stream's buffer until next time
+	auto dst_decoded_size = 0;
 
-    // If we have less than a full read left, adjust accordingly
-	if ( m_ulSrcBufferSize > m_mmckiData.cksize )
+	while (true)
 	{
-		if ( m_mmckiData.cksize == 0 )
-			goto READ_DONE;
+		const auto dst_remain_size = static_cast<int>(cbSize) - dst_decoded_size;
 
-		uiReadSize = m_mmckiData.cksize;
-		// we don't really know this size, but we'll get
-		// it after we decompress
-		uiDecompressedSize = cbSize;
-	}
-	else
-	{
-		uiReadSize = m_ulSrcBufferSize;
-		uiDecompressedSize = cbSize;
-	}
-
-	while ( uiTotalDecompressedBytes < uiDecompressedSize )
-	{
-		UINT uiBytesDecompressed;
-		UINT uiBytesToFinish = uiDecompressedSize - uiTotalDecompressedBytes;
-
-	    // Adjust chunk size by the amount we're going to read out.
-		if( uiReadSize > m_mmckiData.cksize )
+		if (m_nRemainderBytes > 0)
 		{
-			uiReadSize = m_mmckiData.cksize;
-			m_mmckiData.cksize = 0;
+			const auto flush_size = Min(static_cast<int>(m_nRemainderBytes), dst_remain_size);
+
+			std::uninitialized_copy_n(
+				&m_acmStreamHeader.pbDst[m_nRemainderOffset],
+				flush_size,
+				&pbDest[dst_decoded_size]);
+
+			m_acmStreamHeader.cbDstLengthUsed -= flush_size;
+			m_nRemainderOffset += flush_size;
+			m_nRemainderBytes -= flush_size;
+
+			dst_decoded_size += flush_size;
 		}
 		else
 		{
-			m_mmckiData.cksize -= uiReadSize;
-		}
+			auto& data_stream = data_chunk_.data_stream_;
 
-	    // Copy bytes from MMIO buffer
-		cb = 0;
-		while( cb < uiReadSize )
-	    {
-		    // Advance buffer if necessary
-			if (mmioinfo.pchNext == mmioinfo.pchEndRead)
-	        {
-                m_mmr = mmioAdvance (m_hmmio, &mmioinfo, MMIO_READ);
+			if (m_acmStreamHeader.cbSrcLengthUsed == m_acmStreamHeader.cbSrcLength)
+			{
+				const auto read_result = data_stream.read(m_acmStreamHeader.pbSrc, m_ulSrcBufferSize);
 
-		        if (m_mmr)
-			    {
-				    goto READ_ERROR;
-	            }
+				if (read_result <= 0)
+				{
+					break;
+				}
 
-		        if (mmioinfo.pchNext == mmioinfo.pchEndRead )
-			    {
-				    m_mmr = MMIOERR_CANNOTREAD;
-					goto READ_ERROR;
-	            }
-		    }
+				m_acmStreamHeader.cbSrcLength = read_result;
+				m_acmStreamHeader.cbSrcLengthUsed = 0;
+			}
 
-			// Actual copy
-			int nCopyAmount = uiReadSize - cb;
-			int nBufferLeft = mmioinfo.pchEndRead - mmioinfo.pchNext;
-			nBufferLeft = Min( nBufferLeft, ( int )m_nDataSize - ( int )m_nBytesRead );
-			if( nCopyAmount > nBufferLeft )
-				nCopyAmount = nBufferLeft;
+			const auto acm_result = ::acmStreamConvert(m_hAcmStream, &m_acmStreamHeader, 0);
 
-			// Check if we reached the end.
-			if( nCopyAmount <= 0 )
+			if (acm_result != 0)
+			{
 				break;
+			}
 
-			memcpy( pCompressedBuffer+cb, mmioinfo.pchNext, nCopyAmount );
-			cb += nCopyAmount;
-			mmioinfo.pchNext += nCopyAmount;
-
-			// Successful read, keep running total of number of data bytes read
-			m_nBytesRead += nCopyAmount;
-			m_nMaxBytesRead = Max( m_nMaxBytesRead, m_nBytesRead );
-	    }
-
-	   	// now decompress into the decompression buffer
-		m_mmr = acmStreamConvert( m_hAcmStream, &m_acmStreamHeader, 0 );
-
-		if ( m_mmr != 0 )
-		{
-			goto READ_ERROR;
-		}
-
-	  	// see how many new uncompressed bytes we have
-		uiBytesDecompressed = this->m_acmStreamHeader.cbDstLengthUsed;
-
-		// handle different cases
-		uiTotalDecompressedBytes += uiBytesDecompressed;
-
-		if ( uiTotalDecompressedBytes >= uiDecompressedSize )
-		{
-			// new read gives us more than a buffer's worth
-
-			// copy the data that'll fit
-			if( pCurOutputPtr )
-				memcpy( pCurOutputPtr, pDecompressedBuffer, uiBytesToFinish );
-
-			// update the pointer in the decompression buffer
-			pCurDecompressedPtr = pDecompressedBuffer + uiBytesToFinish;
-			// set up the conditions for the next read
-			m_nRemainderBytes = uiTotalDecompressedBytes - uiDecompressedSize;
 			m_nRemainderOffset = 0;
-			// copy the remaining bytes to the stream's remainder buffer
-			memcpy( m_RemainderBuffer, pCurDecompressedPtr, m_nRemainderBytes );
-			uiDecompressedBytesOutput = uiDecompressedSize;
-
-			// Successful copy, keep running total of number of data bytes read
-			m_nBytesCopied += m_nRemainderBytes;
-			m_nMaxBytesCopied = Max( m_nMaxBytesCopied, m_nBytesCopied );
-
+			m_nRemainderBytes = m_acmStreamHeader.cbDstLengthUsed;
 		}
-		else
+
+		if (dst_decoded_size == static_cast<int>(cbSize))
 		{
-			// still don't have a buffer's worth
-
-			// copy the new data
-			if( pCurOutputPtr )
-			{
-				memcpy( pCurOutputPtr, pDecompressedBuffer, uiBytesDecompressed );
-
-				// update the output buffer ptr
-				pCurOutputPtr += uiBytesDecompressed;
-
-			}
-
-			// Successful copy, keep running total of number of data bytes read
-			m_nBytesCopied += uiBytesDecompressed;
-			m_nMaxBytesCopied = Max( m_nMaxBytesCopied, m_nBytesCopied );
-
-			// if we just read the last of the original data, we're done
-			if ( m_mmckiData.cksize == 0 )
-			{
-				uiDecompressedSize = uiTotalDecompressedBytes;
-				uiDecompressedBytesOutput = uiTotalDecompressedBytes;
-			}
+			break;
 		}
 	}
 
-    // End direct buffer access
-    m_mmr = mmioSetInfo (m_hmmio, &mmioinfo, 0);
+	m_nBytesCopied += dst_decoded_size;
+	m_nMaxBytesCopied = Max(m_nMaxBytesCopied, m_nBytesCopied);
 
-    if (m_mmr)
-    {
-        goto READ_ERROR;
-    }
-
-    goto READ_DONE;
-
-READ_ERROR:
-	uiDecompressedBytesOutput = 0;
-
-READ_DONE:
-    return (uiDecompressedBytesOutput);
+	return dst_decoded_size;
 }
 
 // SeekFromStartCompresed
 //
 // Returns logical offset into buffer.
-// On error, returns 0, MMIO error code in m_mmr.
+// On error, returns 0.
 //
-UINT WaveFile::SeekFromStartCompressed( uint32 nBytes )
+std::uint32_t WaveFile::SeekFromStartCompressed(
+	const std::uint32_t nBytes)
 {
-	UINT uiReadSize = 0;
-    MMIOINFO mmioinfo;
-    UINT cb;
-
-	// Start from beginning.
-	if( !Cue( ))
-		return 0;
-
-	// Reset some data updated by actually reading the file.
-	m_nRemainderBytes = 0;
-
-    // Use direct buffer access for reads to maximize performance
-    m_mmr = mmioGetInfo (m_hmmio, &mmioinfo, 0);
-
-    if (m_mmr)
-		return 0;
-
-	if ( m_mmckiData.cksize == 0 )
-		return 0;
-
-    // If we have less than a full read left, adjust accordingly
-	if ( nBytes > m_mmckiData.cksize )
-	{
-		uiReadSize = m_mmckiData.cksize;
-	}
-	else
-	{
-		uiReadSize = nBytes;
-	}
-
-	// Adjust chunk size by the amount we're going to read out.
-	if( uiReadSize > m_mmckiData.cksize )
-	{
-		uiReadSize = m_mmckiData.cksize;
-		m_mmckiData.cksize = 0;
-	}
-	else
-	{
-		m_mmckiData.cksize -= uiReadSize;
-	}
-
-	cb = 0;
-	while( cb < uiReadSize )
-	{
-		// Advance buffer if necessary
-		if (mmioinfo.pchNext == mmioinfo.pchEndRead)
-	    {
-            m_mmr = mmioAdvance (m_hmmio, &mmioinfo, MMIO_READ);
-
-		    if (m_mmr)
-			{
-				return 0;
-	        }
-
-		    if (mmioinfo.pchNext == mmioinfo.pchEndRead)
-			{
-				m_mmr = MMIOERR_CANNOTREAD;
-				return 0;
-	        }
-		}
-
-		// Actual copy
-		uint32 nSeekAmount = uiReadSize - cb;
-		uint32 nBufferLeft = mmioinfo.pchEndRead - mmioinfo.pchNext;
-		if( nSeekAmount > nBufferLeft )
-			nSeekAmount = nBufferLeft;
-
-		cb += nSeekAmount;
-		mmioinfo.pchNext += nSeekAmount;
-	}
-
-    // End direct buffer access
-    m_mmr = mmioSetInfo (m_hmmio, &mmioinfo, 0);
-
-    if (m_mmr)
-    {
-        return 0;
-    }
-
-    return (uiReadSize);
+	return SeekFromStart(nBytes);
 }
 
 // GetSilenceData
@@ -787,37 +507,38 @@ UINT WaveFile::SeekFromStartCompressed( uint32 nBytes )
 // 16-bit mono      2 bytes         0x0000
 // 16-bit stereo    4 bytes         0x00000000
 //
-BYTE WaveFile::GetSilenceData (void)
+std::uint8_t WaveFile::GetSilenceData() const
 {
-    BYTE bSilenceData = 0;
+	auto bSilenceData = std::uint8_t{};
 
-    // Silence data depends on format of Wave file
-    if (m_pwfmt)
-    {
-        if (m_pwfmt->bit_depth_ == 8)
-        {
-            // For 8-bit formats (unsigned, 0 to 255)
-            // Packed DWORD = 0x80808080;
-            bSilenceData = 0x80;
-        }
-        else if (m_pwfmt->bit_depth_ == 16)
-        {
-            // For 16-bit formats (signed, -32768 to 32767)
-            // Packed DWORD = 0x00000000;
-            bSilenceData = 0x00;
-        }
-        else
-        {
-            ASSERT (0);
-        }
-    }
-    else
-    {
-        ASSERT (0);
-    }
+	// Silence data depends on format of Wave file
+	if (m_pwfmt)
+	{
+		if (m_pwfmt->bit_depth_ == 8)
+		{
+			// For 8-bit formats (unsigned, 0 to 255)
+			// Packed DWORD = 0x80808080;
+			bSilenceData = 0x80;
+		}
+		else if (m_pwfmt->bit_depth_ == 16)
+		{
+			// For 16-bit formats (signed, -32768 to 32767)
+			// Packed DWORD = 0x00000000;
+			bSilenceData = 0x00;
+		}
+		else
+		{
+			ASSERT(0);
+		}
+	}
+	else
+	{
+		ASSERT(0);
+	}
 
-    return (bSilenceData);
+	return bSilenceData;
 }
+
 
 //! I3DObject
 
@@ -4863,6 +4584,7 @@ LHSTREAM CDx8SoundSys::OpenStream( char* sFilename, uint32 nFilePos, LHDIGDRIVER
 		pAcmStreamHeader->cbStruct = sizeof( ACMSTREAMHEADER );
 		pAcmStreamHeader->pbSrc = m_pCompressedBuffer;
 		pAcmStreamHeader->cbSrcLength = ulSrcBufferSize;
+		pAcmStreamHeader->cbSrcLengthUsed = ulSrcBufferSize;
 		pAcmStreamHeader->pbDst = m_pDecompressedBuffer;
 		pAcmStreamHeader->cbDstLength = STR_BUFFER_SIZE;
 
