@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(ltjs_snd_drv VERSION 0.0.1 LANGUAGES CXX)
 
+find_package(LTJS_FFmpeg REQUIRED 2.8.11)
+
 include(ltjs_common)
 
 include_directories(
@@ -43,6 +45,13 @@ set_target_properties(
         PREFIX ""
 )
 
+if (LTJS_FFMPEG_LIBRARY_DIR)
+	set(
+		ffmpeg_libs
+		${LTJS_FFMPEG_LIBRARY}
+	)
+endif ()
+
 if (MSVC)
     set_target_properties(
         ltjs_snd_drv
@@ -59,6 +68,7 @@ if (MSVC)
         libs
         ${path_to_dx_libs}/dxguid.lib
         ${CMAKE_CURRENT_SOURCE_DIR}/eaxguid.lib
+		${ffmpeg_libs}
         winmm
         msacm32
     )
@@ -68,6 +78,7 @@ if (MINGW)
     set(
         libs
         ${CMAKE_CURRENT_SOURCE_DIR}/eaxguid.lib
+		${ffmpeg_libs}
         dxguid
         msacm32
         winmm
