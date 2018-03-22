@@ -102,7 +102,7 @@ LTRESULT CSoundBuffer::InitFromCompressed(CSoundBuffer &compressedSoundBuffer)
 		if( !compressedSoundBuffer.m_pFileData )
 			return LT_ERROR;
 
-		if (!GetSoundSys()->DecompressASI(compressedSoundBuffer.m_pFileData, compressedSoundBuffer.m_WaveHeader.m_dwDataSize, ".mp3",
+		if (!GetSoundSys()->DecompressASI(compressedSoundBuffer.m_pFileData, compressedSoundBuffer.m_dwFileSize, ".mp3",
             (void **)&m_pFileData, &m_dwFileSize, LTNULL))
         {
             char *pszError = GetSoundSys()->LastError();
