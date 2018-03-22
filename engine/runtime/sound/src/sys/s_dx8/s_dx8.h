@@ -182,6 +182,10 @@ public:
 		m_ulSrcBufferSize = ulSrcBufferSize;
 	}
 
+	static int extract_wave_size(
+		const void* raw_data);
+
+
 	ul::WaveFormatEx* m_pwfmt;
 
 
@@ -612,10 +616,6 @@ private:
 	uint32				m_nThreadedTickCounts;
 
 	ltjs::AudioDecoder audio_decoder_;
-
-
-	static int extract_wave_size(
-		const void* raw_data);
 };
 
 #endif 
