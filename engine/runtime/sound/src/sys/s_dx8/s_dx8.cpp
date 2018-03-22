@@ -2,6 +2,8 @@
 #include "s_dx8.h"
 #include <memory>
 #include "bibendovsky_spul_endian.h"
+#include "bibendovsky_spul_memory_stream.h"
+#include "bibendovsky_spul_riff_four_ccs.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "bibendovsky_spul_wave_format_utils.h"
 #include "bibendovsky_spul_wave_four_ccs.h"
@@ -2087,6 +2089,8 @@ bool CDx8SoundSys::Init( )
 {
 	LOG_OPEN;
 
+	ltjs::AudioDecoder::initialize_current_thread();
+
 	m_hResult = ::CoInitialize( NULL );
 	if( m_hResult != S_OK && m_hResult != S_FALSE )
 		return false;
@@ -3537,187 +3541,90 @@ S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, void* pStart, U32 uiLe
 	return LTTRUE;
 }
 
-S32	CDx8SoundSys::Init3DSampleFromFile( LH3DSAMPLE hS, void* pFile_image, S32 siBlock, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData  )
+S32	CDx8SoundSys::Init3DSampleFromFile(
+	LH3DSAMPLE hS,
+	void* pFile_image,
+	S32 siBlock,
+	S32 siPlaybackRate,
+	LTSOUNDFILTERDATA* pFilterData)
 {
-//	LOG_WRITE( g_pLogFile, "SetSampleFile( %x, %x, %d )\n", hS, pFile_image, siBlock );
+	if (!hS)
+	{
+		return false;
+	}
 
-	if( hS == NULL )
-		return LTFALSE;
+	const auto wave_size = extract_wave_size(pFile_image);
 
-	C3DSample* p3DSample = ( C3DSample* ) hS;
-	CSample* pSample = &p3DSample->m_sample;
+	if (wave_size == 0)
+	{
+		return false;
+	}
 
-	bool bSuccess = false;
+	auto memory_stream = ul::MemoryStream{pFile_image, wave_size, ul::Stream::OpenMode::read};
 
-	uint32 uiWaveFormatSize = 0;
-	uint32 uiSampleDataSize = 0;
+	if (!audio_decoder_.open(&memory_stream))
+	{
+		return false;
+	}
 
-	void* pWaveFormat = NULL;
-	void* pSampleData = NULL;
-
-	bSuccess = ParseWaveFile( pFile_image, pWaveFormat, uiWaveFormatSize, pSampleData, uiSampleDataSize );
-	if( !bSuccess )
-		return LTFALSE;
-
-	// check if we're a PCM format and convert the compressed data
-	// to PCM if not
-
-	auto const pWaveFormatEx = ( ul::WaveFormatEx* )pWaveFormat;
+	auto wave_format_ex = audio_decoder_.get_wave_format_ex();
 
 	// if we have more than one channel, we fail
 	// 3D sounds can't be stereo
-	if ( pWaveFormatEx->channel_count_ > 1 )
-		return LTFALSE;
-
-	if( pWaveFormatEx->tag_ != ul::WaveFormatTag::pcm )
+	if (wave_format_ex.channel_count_ != 1)
 	{
-		MMRESULT mmResult = 0;
-		uint32 uiNumSampleBytes = 0;
+		return false;
+	}
 
-		ul::WaveFormatEx pcmWaveFormat;
-		pcmWaveFormat = {};
+	auto p3DSample = static_cast<C3DSample*>(hS);
+	auto pSample = &p3DSample->m_sample;
 
-		pcmWaveFormat.extra_size_ = ul::WaveFormatEx::packed_size;
-		pcmWaveFormat.tag_ = ul::WaveFormatTag::pcm;
+	const auto max_decoded_size = audio_decoder_.get_data_size();
 
-		// setup correct decompression format
-		if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::ima_adpcm )
+	if (!audio_decoder_.is_pcm())
+	{
+		auto pucUncompressedSampleData = std::make_unique<std::uint8_t[]>(max_decoded_size);
+
+		const auto decoded_size = audio_decoder_.decode(pucUncompressedSampleData.get(), max_decoded_size);
+
+		if (decoded_size <= 0)
 		{
-			// ADPCM compression
-			mmResult = acmFormatSuggest( m_hAcmADPCMDriver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
-				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), ul::WaveFormatEx::packed_size, ACM_FORMATSUGGESTF_WFORMATTAG );
-
-			// prepare the uncompressed PCM wave audio format
-			uint32 uiBitsPerSample = pWaveFormatEx->channel_count_ * pWaveFormatEx->bit_depth_;
-			float fBytesPerSample = ( float )uiBitsPerSample * 0.125f;
-			uint32 uiNumSamples = ( uint32 )( ( float )uiSampleDataSize / fBytesPerSample );
-			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.block_align_ ) + DECOMPRESSION_BUFFER_PAD;
-		}
-		else if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::mp3 )
-		{
-
-			mmResult = acmFormatSuggest( m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
-				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), ul::WaveFormatEx::packed_size, ACM_FORMATSUGGESTF_WFORMATTAG );
-
-			// for .mp3 compression figure out the duration of the file and multiply by current rate
-			float fDuration = (float) uiSampleDataSize / pWaveFormatEx->avg_bytes_per_sec_;
-			uint32 uiNumSamples = (uint32) (fDuration * pcmWaveFormat.sample_rate_ + 0.5f);
-			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.block_align_ ) + DECOMPRESSION_BUFFER_PAD;
+			return false;
 		}
 
-/*
-		LOG_WRITE( g_pLogFile, "  formatTag       : %d\n", pcmWaveFormat.wFormatTag );
-		LOG_WRITE( g_pLogFile, "  bits per sample : %d\n", pcmWaveFormat.wBitsPerSample );
-		LOG_WRITE( g_pLogFile, "  samples per sec : %d\n", pcmWaveFormat.nSamplesPerSec );
-		LOG_WRITE( g_pLogFile, "  channels        : %d\n", pcmWaveFormat.nChannels );
-		LOG_WRITE( g_pLogFile, "  block align     : %d\n", pcmWaveFormat.nBlockAlign );
-		LOG_WRITE( g_pLogFile, "  bytes per sec   : %d\n", pcmWaveFormat.nAvgBytesPerSec );
-		LOG_WRITE( g_pLogFile, "  extra data size : %d\n", pcmWaveFormat.cbSize );
-*/
-
-
-		// now use ACM functions to uncompress the source stream
-
-		uint8* pucUncompressedSampleData;
-		LT_MEM_TRACK_ALLOC(pucUncompressedSampleData = new uint8[ uiNumSampleBytes ],LT_MEM_TYPE_SOUND);
-		memset( pucUncompressedSampleData, 0, uiNumSampleBytes );
-
-		ACMSTREAMHEADER acmStreamHeader;
-		memset( &acmStreamHeader, 0, sizeof( ACMSTREAMHEADER ) );
-
-		acmStreamHeader.cbStruct = sizeof( ACMSTREAMHEADER );
-		acmStreamHeader.pbSrc = ( uint8* )pSampleData;
-		acmStreamHeader.cbSrcLength = uiSampleDataSize;
-		acmStreamHeader.pbDst = pucUncompressedSampleData;
-		acmStreamHeader.cbDstLength = uiNumSampleBytes;
-
-		HACMSTREAM hAcmStream = NULL;
-
-		HACMDRIVER hDriver = NULL;
-
-		if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::ima_adpcm )
+		if (!Init3DSampleFromAddress(
+			hS,
+			pucUncompressedSampleData.get(),
+			decoded_size,
+			&wave_format_ex,
+			siPlaybackRate,
+			pFilterData))
 		{
-			hDriver = m_hAcmADPCMDriver;
-		}
-		else if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::mp3)
-		{
-			hDriver = m_hAcmMP3Driver;
-		}
-		else
-		{
-			ASSERT( !"CDx8SoundSys::Init3DSampleFromFile:  Unsupported compression format." );
-			return LTFALSE;
+			return false;
 		}
 
-		// First check if the driver supports this conversion in realtime.  If not, use slower method.
-		uint32 nFlags = 0;
-		mmResult = acmStreamOpen( &hAcmStream, hDriver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
-			reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, ACM_STREAMOPENF_QUERY );
-		if( mmResult == ACMERR_NOTPOSSIBLE )
-		{
-			nFlags |= ACM_STREAMOPENF_NONREALTIME;
-		}
-
-		mmResult = acmStreamOpen( &hAcmStream, hDriver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
-			reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, nFlags );
-
-		if( mmResult != 0 )
-		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
-		}
-
-		mmResult = acmStreamPrepareHeader( hAcmStream, &acmStreamHeader, 0 );
-		if( mmResult != 0 )
-		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
-		}
-
-		mmResult = acmStreamConvert( hAcmStream, &acmStreamHeader, 0 );
-		if( mmResult != 0 )
-		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
-		}
-
-		mmResult = acmStreamClose( hAcmStream, 0 );
-
-		// finally, init the sample to the uncompressed PCM wave audio
-
-		uiSampleDataSize = acmStreamHeader.cbDstLengthUsed;
-
-//		if( !pSample->Init( m_hResult, m_pDirectSound, uiSampleDataSize, false, &pcmWaveFormat ) )
-//		{
-//			delete[] pucUncompressedSampleData;
-//			return LTFALSE;
-//		}
-
-		pSampleData = pucUncompressedSampleData;
-
-		if ( !Init3DSampleFromAddress( hS, pSampleData, uiSampleDataSize, &pcmWaveFormat, siPlaybackRate, pFilterData ) )
-		{
-			delete [] pSampleData;
-			return LTFALSE;
-		}
 		pSample->m_bAllocatedSoundData = true;
+
+		static_cast<void>(pucUncompressedSampleData.release());
 	}
 	else
 	{
 		// Modify the pitch.
-		auto waveFormat = *pWaveFormatEx;
-		waveFormat.sample_rate_ = siPlaybackRate;
-		waveFormat.avg_bytes_per_sec_ = waveFormat.block_align_ * waveFormat.sample_rate_;
+		wave_format_ex.sample_rate_ = siPlaybackRate;
+		wave_format_ex.avg_bytes_per_sec_ = wave_format_ex.block_align_ * wave_format_ex.sample_rate_;
 
-		if( !pSample->Init( m_hResult, m_pDirectSound, uiSampleDataSize, false, &waveFormat, pFilterData ) )
-			return LTFALSE;
+		if (!pSample->Init(m_hResult, m_pDirectSound, max_decoded_size, false, &wave_format_ex, pFilterData))
+		{
+			return false;
+		}
 
-		if ( !SetSampleNotify( pSample, true ) )
-			return LTFALSE;
+		if (!SetSampleNotify(pSample, true))
+		{
+			return false;
+		}
 	}
 
-	return LTTRUE;
-
+	return true;
 }
 
 S32	CDx8SoundSys::Get3DSampleVolume( LH3DSAMPLE hS )
@@ -4247,170 +4154,87 @@ S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, void* pStart, U32 uiLen, u
 	return LTTRUE;
 }
 
-S32	CDx8SoundSys::InitSampleFromFile( LHSAMPLE hS, void* pFile_image, S32 siBlock, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData )
+S32	CDx8SoundSys::InitSampleFromFile(
+	LHSAMPLE hS,
+	void* pFile_image,
+	S32 siBlock,
+	S32 siPlaybackRate,
+	LTSOUNDFILTERDATA* pFilterData)
 {
-//	LOG_WRITE( g_pLogFile, "InitSampleFromFile( %x, %x, %d )\n", hS, pFile_image, siBlock );
-
-	if( hS == NULL )
-			return LTFALSE;
-
-	CSample* pSample = ( CSample* )hS;
-
-	bool bSuccess = false;
-
-	uint32 uiWaveFormatSize = 0;
-	uint32 uiSampleDataSize = 0;
-
-	void* pWaveFormat = NULL;
-	void* pSampleData = NULL;
-
-	bSuccess = ParseWaveFile( pFile_image, pWaveFormat, uiWaveFormatSize, pSampleData, uiSampleDataSize );
-	if( !bSuccess )
-		return LTFALSE;
-
-	// check if we're a PCM format and convert the compressed data
-	// to PCM if not
-
-	auto const pWaveFormatEx = ( ul::WaveFormatEx* )pWaveFormat;
-
-	if( pWaveFormatEx->tag_ != ul::WaveFormatTag::pcm )
+	if (!hS)
 	{
-		MMRESULT mmResult = 0;
-		uint32 uiNumSampleBytes = 0;
+		return false;
+	}
 
-		ul::WaveFormatEx pcmWaveFormat;
-		pcmWaveFormat = {};
+	const auto wave_size = extract_wave_size(pFile_image);
 
-		pcmWaveFormat.extra_size_ = ul::WaveFormatEx::packed_size;
-		pcmWaveFormat.tag_ = ul::WaveFormatTag::pcm;
+	if (wave_size == 0)
+	{
+		return false;
+	}
 
-		// setup correct decompression format
-		if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::ima_adpcm )
+	auto memory_stream = ul::MemoryStream{pFile_image, wave_size, ul::Stream::OpenMode::read};
+
+	if (!audio_decoder_.open(&memory_stream))
+	{
+		return false;
+	}
+
+	auto pSample = static_cast<CSample*>(hS);
+
+	const auto max_decoded_size = audio_decoder_.get_data_size();
+	auto wave_format_ex = audio_decoder_.get_wave_format_ex();
+
+	if (!audio_decoder_.is_pcm())
+	{
+		auto pucUncompressedSampleData = std::make_unique<std::uint8_t[]>(max_decoded_size);
+
+		const auto decoded_size = audio_decoder_.decode(pucUncompressedSampleData.get(), max_decoded_size);
+
+		if (decoded_size <= 0)
 		{
-			// ADPCM compression
-			mmResult = acmFormatSuggest( m_hAcmADPCMDriver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
-				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), ul::WaveFormatEx::packed_size, ACM_FORMATSUGGESTF_WFORMATTAG );
-
-			// prepare the uncompressed PCM wave audio format
-			uint32 uiBitsPerSample = pWaveFormatEx->channel_count_ * pWaveFormatEx->bit_depth_;
-			float fBytesPerSample = ( float )uiBitsPerSample * 0.125f;
-			uint32 uiNumSamples = ( uint32 )( ( float )uiSampleDataSize / fBytesPerSample );
-			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.block_align_ ) + DECOMPRESSION_BUFFER_PAD;
-		}
-		else if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::mp3 )
-		{
-
-			mmResult = acmFormatSuggest( m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
-				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), ul::WaveFormatEx::packed_size, ACM_FORMATSUGGESTF_WFORMATTAG );
-
-			// for .mp3 compression figure out the duration of the file and multiply by current rate
-			float fDuration = (float) uiSampleDataSize / pWaveFormatEx->avg_bytes_per_sec_;
-			uint32 uiNumSamples = (uint32) (fDuration * pcmWaveFormat.sample_rate_ + 0.5f);
-			uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.block_align_ ) + DECOMPRESSION_BUFFER_PAD;
-		}
-
-/*
-		LOG_WRITE( g_pLogFile, "  formatTag       : %d\n", pcmWaveFormat.wFormatTag );
-		LOG_WRITE( g_pLogFile, "  bits per sample : %d\n", pcmWaveFormat.wBitsPerSample );
-		LOG_WRITE( g_pLogFile, "  samples per sec : %d\n", pcmWaveFormat.nSamplesPerSec );
-		LOG_WRITE( g_pLogFile, "  channels        : %d\n", pcmWaveFormat.nChannels );
-		LOG_WRITE( g_pLogFile, "  block align     : %d\n", pcmWaveFormat.nBlockAlign );
-		LOG_WRITE( g_pLogFile, "  bytes per sec   : %d\n", pcmWaveFormat.nAvgBytesPerSec );
-		LOG_WRITE( g_pLogFile, "  extra data size : %d\n", pcmWaveFormat.cbSize );
-*/
-
-
-		// now use ACM functions to uncompress the source stream
-
-		uint8* pucUncompressedSampleData;
-		LT_MEM_TRACK_ALLOC(pucUncompressedSampleData = new uint8[ uiNumSampleBytes ], LT_MEM_TYPE_SOUND);
-		memset( pucUncompressedSampleData, 0, uiNumSampleBytes );
-
-		ACMSTREAMHEADER acmStreamHeader;
-		memset( &acmStreamHeader, 0, sizeof( ACMSTREAMHEADER ) );
-
-		acmStreamHeader.cbStruct = sizeof( ACMSTREAMHEADER );
-		acmStreamHeader.pbSrc = ( uint8* )pSampleData;
-		acmStreamHeader.cbSrcLength = uiSampleDataSize;
-		acmStreamHeader.pbDst = pucUncompressedSampleData;
-		acmStreamHeader.cbDstLength = uiNumSampleBytes;
-
-		HACMSTREAM hAcmStream = NULL;
-
-		if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::ima_adpcm )
-		{
-			mmResult = acmStreamOpen( &hAcmStream, m_hAcmADPCMDriver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
-				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, 0 );
-		}
-		else if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::mp3)
-		{
-			mmResult = acmStreamOpen( &hAcmStream, m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
-				reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, 0 );
+			return false;
 		}
 
-
-		if( mmResult != 0 )
+		if (!pSample->Init(m_hResult, m_pDirectSound, decoded_size, false, &wave_format_ex))
 		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
+			return false;
 		}
 
-		mmResult = acmStreamPrepareHeader( hAcmStream, &acmStreamHeader, 0 );
-		if( mmResult != 0 )
+		if (!InitSampleFromAddress(
+			hS,
+			pucUncompressedSampleData.get(),
+			decoded_size,
+			&wave_format_ex,
+			siPlaybackRate,
+			pFilterData))
 		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
+			return false;
 		}
 
-		mmResult = acmStreamConvert( hAcmStream, &acmStreamHeader, 0 );
-		if( mmResult != 0 )
-		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
-		}
-
-		mmResult = acmStreamClose( hAcmStream, 0 );
-
-		// finally, init the sample to the uncompressed PCM wave audio
-
-		uiSampleDataSize = acmStreamHeader.cbDstLengthUsed;
-
-		if( !pSample->Init( m_hResult, m_pDirectSound, uiSampleDataSize, false, &pcmWaveFormat ) )
-		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
-		}
-
-		pSampleData = pucUncompressedSampleData;
 		pSample->m_bAllocatedSoundData = true;
 
-		if( !InitSampleFromAddress( hS, pSampleData, uiSampleDataSize, &pcmWaveFormat, siPlaybackRate, pFilterData ))
-		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
-		}
+		static_cast<void>(pucUncompressedSampleData.release());
 	}
 	else
 	{
 		// Modify the pitch.
-		auto waveFormat = *pWaveFormatEx;
-		waveFormat.sample_rate_ = siPlaybackRate;
-		waveFormat.avg_bytes_per_sec_ = waveFormat.block_align_ * waveFormat.sample_rate_;
+		wave_format_ex.sample_rate_ = siPlaybackRate;
+		wave_format_ex.avg_bytes_per_sec_ = wave_format_ex.block_align_ * wave_format_ex.sample_rate_;
 
-		if( !pSample->Init( m_hResult, m_pDirectSound, uiSampleDataSize, false, &waveFormat, pFilterData ) )
+		if (!pSample->Init(m_hResult, m_pDirectSound, max_decoded_size, false, &wave_format_ex, pFilterData))
 		{
-			return LTFALSE;
+			return false;
 		}
 
-		if ( !SetSampleNotify( pSample, true ) )
-			return LTFALSE;
+		if (!SetSampleNotify(pSample, true))
+		{
+			return false;
+		}
 	}
 
-	// use the PCM formatted sample data
-	return LTTRUE;
-
+	return true;
 }
-
 
 //	===========================================================================
 //	TO DO...
@@ -4921,381 +4745,105 @@ void CDx8SoundSys::ClearStreamBuffer( LHSTREAM hStream, bool bClearStreamDataQue
 
 // these next two functions are here apparently for compatibility with MSS interface
 // they aren't used.  We should probably remove them when we update the SoundSys interface
-S32	CDx8SoundSys::DecompressADPCM( LTSOUNDINFO* pInfo, void** ppOutData, U32* puiOutSize )
+S32	CDx8SoundSys::DecompressADPCM(
+	LTSOUNDINFO* pInfo,
+	void** ppOutData,
+	U32* puiOutSize)
 {
-	 return 0;
-/*
-	LOG_WRITE( g_pLogFile, "DecompressADPCM( %x, %x, %x )\n", pInfo, ppOutData, puiOutSize );
+	static_cast<void>(pInfo);
+	static_cast<void>(ppOutData);
+	static_cast<void>(puiOutSize);
 
-	if( ppOutData == NULL || puiOutSize == NULL )
-		return LTFALSE;
+	return 0;
+}
 
-	ppOutData[0] = NULL;
-	puiOutSize[0] = NULL;
+S32	CDx8SoundSys::DecompressASI(
+	void* pInData,
+	U32 uiInSize,
+	char* sFilename_ext,
+	void** ppWav,
+	U32* puiWavSize,
+	LTLENGTHYCB fnCallback)
+{
+	auto memory_stream = ul::MemoryStream{pInData, static_cast<int>(uiInSize), ul::Stream::OpenMode::read};
 
-	if( pInfo->data_ptr == NULL )
-		return LTFALSE;
-
-	uint32 uiWaveFormatSize = 0;
-	uint32 uiSampleDataSize = 0;
-
-	void* pWaveFormat = NULL;
-	void* pSampleData = NULL;
-
-	bool bSuccess = ParseWaveFile( pInfo->data_ptr, pWaveFormat, uiWaveFormatSize, pSampleData, uiSampleDataSize );
-	if( !bSuccess )
-		return LTFALSE;
-
-	MMRESULT mmResult = 0;
-
-	// check if we're a PCM format and convert the compressed data
-	// to PCM if not
-
-	WAVEFORMATEX* pWaveFormatEx = ( WAVEFORMATEX* )pWaveFormat;
-
-	if( pWaveFormatEx->wFormatTag == WAVE_FORMAT_PCM )
-		return LTFALSE;
-
-
-	WAVEFORMATEX pcmWaveFormat;
-	memset( &pcmWaveFormat, 0, sizeof( WAVEFORMATEX ) );
-
-	pcmWaveFormat.cbSize = sizeof( WAVEFORMATEX );
-	pcmWaveFormat.wFormatTag = WAVE_FORMAT_PCM;
-
-//	mmResult = acmFormatSuggest( m_hAcmADPCMDriver, pWaveFormatEx, &pcmWaveFormat,
-//		sizeof( WAVEFORMATEX ), ACM_FORMATSUGGESTF_WFORMATTAG );
-	mmResult = acmFormatSuggest( m_hAcmMP3Driver, pWaveFormatEx, &pcmWaveFormat,
-		sizeof( WAVEFORMATEX ), ACM_FORMATSUGGESTF_WFORMATTAG );
-
-//
-//	LOG_WRITE( g_pLogFile, "  formatTag       : %d\n", pcmWaveFormat.wFormatTag );
-//	LOG_WRITE( g_pLogFile, "  bits per sample : %d\n", pcmWaveFormat.wBitsPerSample );
-//	LOG_WRITE( g_pLogFile, "  samples per sec : %d\n", pcmWaveFormat.nSamplesPerSec );
-//	LOG_WRITE( g_pLogFile, "  channels        : %d\n", pcmWaveFormat.nChannels );
-//	LOG_WRITE( g_pLogFile, "  block align     : %d\n", pcmWaveFormat.nBlockAlign );
-//	LOG_WRITE( g_pLogFile, "  bytes per sec   : %d\n", pcmWaveFormat.nAvgBytesPerSec );
-//	LOG_WRITE( g_pLogFile, "  extra data size : %d\n", pcmWaveFormat.cbSize );
-//
-
-	// first prepare the uncompressed PCM wave audio format
-
-	uint32 uiBitsPerSample = pWaveFormatEx->nChannels * pWaveFormatEx->wBitsPerSample;
-	float fBytesPerSample = ( float )uiBitsPerSample * 0.125f;
-	uint32 uiNumSamples = ( uint32 )( ( float )uiSampleDataSize / fBytesPerSample );
-	uint32 uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.nBlockAlign ) +  + DECOMPRESSION_BUFFER_PAD;
-
-	// now use ACM functions to uncompress the source stream
-
-	uint8* pucUncompressedSampleData = new uint8[ uiNumSampleBytes ];
-	memset( pucUncompressedSampleData, 0, uiNumSampleBytes );
-
-	ACMSTREAMHEADER acmStreamHeader;
-	memset( &acmStreamHeader, 0, sizeof( ACMSTREAMHEADER ) );
-
-	acmStreamHeader.cbStruct = sizeof( ACMSTREAMHEADER );
-	acmStreamHeader.pbSrc = ( uint8* )pSampleData;
-	acmStreamHeader.cbSrcLength = uiSampleDataSize;
-	acmStreamHeader.pbDst = pucUncompressedSampleData;
-	acmStreamHeader.cbDstLength = uiNumSampleBytes;
-
-	HACMSTREAM hAcmStream = NULL;
-
-//	mmResult = acmStreamOpen( &hAcmStream, m_hAcmADPCMDriver, pWaveFormatEx, &pcmWaveFormat, NULL, 0, 0, 0 );
-	mmResult = acmStreamOpen( &hAcmStream, m_hAcmMP3Driver, pWaveFormatEx, &pcmWaveFormat, NULL, 0, 0, 0 );
-	if( mmResult != 0 )
+	if (!audio_decoder_.open(&memory_stream))
 	{
-		delete[] pucUncompressedSampleData;
-		return LTFALSE;
+		return false;
 	}
 
-	mmResult = acmStreamPrepareHeader( hAcmStream, &acmStreamHeader, 0 );
-	if( mmResult != 0 )
+	if (!audio_decoder_.is_mp3())
 	{
-		delete[] pucUncompressedSampleData;
-		return LTFALSE;
+		return false;
 	}
 
-	mmResult = acmStreamConvert( hAcmStream, &acmStreamHeader, 0 );
-	if( mmResult != 0 )
+	const auto max_decoded_size = audio_decoder_.get_data_size();
+
+	const auto header_size =
+		4 + 4 + // "RIFF" + size
+		4 + // WAVE
+		4 + 4 + ul::WaveFormatEx::packed_size + // "fmt " + size + format_size
+		4 + 4 + // "data" + size
+		0;
+
+	auto pucUncompressedSampleData = std::make_unique<std::uint8_t[]>(header_size + max_decoded_size);
+
+	const auto decoded_size = audio_decoder_.decode(
+		pucUncompressedSampleData.get() + header_size,
+		max_decoded_size);
+
+	if (decoded_size <= 0)
 	{
-		delete[] pucUncompressedSampleData;
-		return LTFALSE;
+		return false;
 	}
 
-	mmResult = acmStreamClose( hAcmStream, 0 );
+	const auto wave_size = header_size + decoded_size;
 
-	// perform a second conversion from raw uncompressed PCM audio into
-	// PCM data formatted to fit the primary sound buffer
-
-	uint32 uiNumSourceBytes = acmStreamHeader.cbDstLengthUsed;
-	uint32 uiNumFormattedBytes = ( uiNumSamples * m_waveFormat.nBlockAlign ) + DECOMPRESSION_BUFFER_PAD;
-
-	uint8* pucFormattedSampleData = new uint8[ uiNumFormattedBytes ];
-	memset( pucFormattedSampleData, 0, uiNumFormattedBytes );
-
-	memset( &acmStreamHeader, 0, sizeof( ACMSTREAMHEADER ) );
-
-	acmStreamHeader.cbStruct = sizeof( ACMSTREAMHEADER );
-	acmStreamHeader.pbSrc = pucUncompressedSampleData;
-	acmStreamHeader.cbSrcLength = uiNumSourceBytes;
-	acmStreamHeader.pbDst = pucFormattedSampleData;
-	acmStreamHeader.cbDstLength = uiNumFormattedBytes;
-
-	hAcmStream = NULL;
-
-	mmResult = acmStreamOpen( &hAcmStream, m_hAcmPCMDriver, &pcmWaveFormat, &m_waveFormat, NULL, 0, 0, 0 );
-	if( mmResult != 0 )
-	{
-		delete[] pucUncompressedSampleData;
-		delete[] pucFormattedSampleData;
-		return LTFALSE;
-	}
-
-	mmResult = acmStreamPrepareHeader( hAcmStream, &acmStreamHeader, 0 );
-	if( mmResult != 0 )
-	{
-		delete[] pucUncompressedSampleData;
-		delete[] pucFormattedSampleData;
-		return LTFALSE;
-	}
-
-	mmResult = acmStreamConvert( hAcmStream, &acmStreamHeader, 0 );
-	if( mmResult != 0 )
-	{
-		delete[] pucUncompressedSampleData;
-		delete[] pucFormattedSampleData;
-		return LTFALSE;
-	}
-
-	mmResult = acmStreamClose( hAcmStream, 0 );
-
-	// format the converted data to that of a WAVE file
-
-	uint32 uiWaveFmtSize = sizeof( WAVEFORMATEX ) - sizeof( pcmWaveFormat.cbSize );
-	uint32 uiFileSize =
-		4 +	sizeof( uint32 ) +									// RIFF chunk
-		8 + sizeof( uint32 ) + uiWaveFmtSize +					// WAVE chunk
-		4 + sizeof( uint32 ) + acmStreamHeader.cbDstLengthUsed;	// DATA chunk
-
-	uint8* pucUncompressedFile = new uint8[ uiFileSize ];
-
-	ppOutData[0] = pucUncompressedFile;
-	puiOutSize[0] = uiFileSize;
+	auto header = pucUncompressedSampleData.get();
 
 	// fill in RIFF chunk
+	header[0] = 'R';
+	header[1] = 'I';
+	header[2] = 'F';
+	header[3] = 'F';
+	header += 4;
 
-	pucUncompressedFile[0] = 'R';
-	pucUncompressedFile[1] = 'I';
-	pucUncompressedFile[2] = 'F';
-	pucUncompressedFile[3] = 'F';
-	pucUncompressedFile += 4;
-
-	uint32* puiRIFFSize = ( uint32* )pucUncompressedFile;
-	puiRIFFSize[0] = uiFileSize - 8;
-	pucUncompressedFile += sizeof( uint32 );
+	*reinterpret_cast<std::uint32_t*>(header) = wave_size - 8;
+	header += 4;
 
 	// fill in WAVE chunk
+	header[0] = 'W';
+	header[1] = 'A';
+	header[2] = 'V';
+	header[3] = 'E';
+	header[4] = 'f';
+	header[5] = 'm';
+	header[6] = 't';
+	header[7] = ' ';
+	header += 8;
 
-	pucUncompressedFile[0] = 'W';
-	pucUncompressedFile[1] = 'A';
-	pucUncompressedFile[2] = 'V';
-	pucUncompressedFile[3] = 'E';
-	pucUncompressedFile[4] = 'f';
-	pucUncompressedFile[5] = 'm';
-	pucUncompressedFile[6] = 't';
-	pucUncompressedFile[7] = ' ';
-	pucUncompressedFile += 8;
+	*reinterpret_cast<std::uint32_t*>(header) = ul::WaveFormatEx::packed_size;
+	header += 4;
 
-	uint32* puiWAVEFMTSize = ( uint32* )pucUncompressedFile;
-	puiWAVEFMTSize[0] = uiWaveFmtSize;
-	pucUncompressedFile += sizeof( uint32 );
-
-//	memcpy( pucUncompressedFile, &pcmWaveFormat, uiWaveFormatSize );
-	memcpy( pucUncompressedFile, &m_waveFormat, uiWaveFormatSize );
-	pucUncompressedFile += uiWaveFmtSize;
+	const auto wave_format_ex = audio_decoder_.get_wave_format_ex();
+	*reinterpret_cast<ul::WaveFormatEx*>(header) = wave_format_ex;
+	header += ul::WaveFormatEx::packed_size;
 
 	// fill in DATA chunk
+	header[0] = 'd';
+	header[1] = 'a';
+	header[2] = 't';
+	header[3] = 'a';
+	header += 4;
 
-	pucUncompressedFile[0] = 'd';
-	pucUncompressedFile[1] = 'a';
-	pucUncompressedFile[2] = 't';
-	pucUncompressedFile[3] = 'a';
-	pucUncompressedFile += 4;
+	*reinterpret_cast<std::uint32_t*>(header) = decoded_size;
+	header += 4;
 
-	uint32* puiDATASize = ( uint32* )pucUncompressedFile;
-	puiDATASize[0] = acmStreamHeader.cbDstLengthUsed;
-	pucUncompressedFile += sizeof( uint32 );
+	*ppWav = pucUncompressedSampleData.release();
+	*puiWavSize = wave_size;
 
-//	memcpy( pucUncompressedFile, pucUncompressedSampleData, acmStreamHeader.cbDstLengthUsed );
-	memcpy( pucUncompressedFile, pucFormattedSampleData, acmStreamHeader.cbDstLengthUsed );
-	pucUncompressedFile += acmStreamHeader.cbDstLengthUsed;
-
-	delete[] pucUncompressedSampleData;
-	delete[] pucFormattedSampleData;
-
-	return LTTRUE;
-*/
+	return true;
 }
-
-S32	CDx8SoundSys::DecompressASI( void* pInData, U32 uiInSize, char* sFilename_ext, void** ppWav, U32* puiWavSize, LTLENGTHYCB fnCallback )
-{
-	bool bSuccess = false;
-
-	uint32 uiWaveFormatSize = 0;
-	uint32 uiSampleDataSize = 0;
-
-	void* pWaveFormat = NULL;
-	void* pSampleData = NULL;
-
-	bSuccess = ParseWaveFile( pInData, pWaveFormat, uiWaveFormatSize, pSampleData, uiSampleDataSize );
-
-	if( !bSuccess )
-		return LTFALSE;
-
-	// check if we're a PCM format and convert the compressed data
-	// to PCM if not
-
-	auto const pWaveFormatEx = ( ul::WaveFormatEx* )pWaveFormat;
-
-	MMRESULT mmResult = 0;
-	uint32 uiNumSampleBytes;
-
-	ul::WaveFormatEx pcmWaveFormat;
-	pcmWaveFormat = {};
-
-	pcmWaveFormat.extra_size_ = ul::WaveFormatEx::packed_size;
-	pcmWaveFormat.tag_ = ul::WaveFormatTag::pcm;
-	pcmWaveFormat.channel_count_ = pWaveFormatEx->channel_count_;
-	DWORD nSuggestFlags = ACM_FORMATSUGGESTF_WFORMATTAG | ACM_FORMATSUGGESTF_NCHANNELS;
-
-	if ( pWaveFormatEx->tag_ == ul::WaveFormatTag::mp3 )
-	{
-		mmResult = acmFormatSuggest( m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
-			reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), ul::WaveFormatEx::packed_size, nSuggestFlags );
-
-		// for .mp3 compression figure out the duration of the file and multiply by current rate
-		float fDuration = (float) uiSampleDataSize / pWaveFormatEx->avg_bytes_per_sec_;
-		uint32 uiNumSamples = (uint32) (fDuration * pcmWaveFormat.sample_rate_ + 0.5f);
-		uiNumSampleBytes = ( uiNumSamples * pcmWaveFormat.block_align_ ) + DECOMPRESSION_BUFFER_PAD;
-
-/*
-		LOG_WRITE( g_pLogFile, "  formatTag       : %d\n", pcmWaveFormat.wFormatTag );
-		LOG_WRITE( g_pLogFile, "  bits per sample : %d\n", pcmWaveFormat.wBitsPerSample );
-		LOG_WRITE( g_pLogFile, "  samples per sec : %d\n", pcmWaveFormat.nSamplesPerSec );
-		LOG_WRITE( g_pLogFile, "  channels        : %d\n", pcmWaveFormat.nChannels );
-		LOG_WRITE( g_pLogFile, "  block align     : %d\n", pcmWaveFormat.nBlockAlign );
-		LOG_WRITE( g_pLogFile, "  bytes per sec   : %d\n", pcmWaveFormat.nAvgBytesPerSec );
-		LOG_WRITE( g_pLogFile, "  extra data size : %d\n", pcmWaveFormat.cbSize );
-*/
-
-		// now use ACM functions to uncompress the source stream
-
-		uint8* pucUncompressedSampleData;
-		LT_MEM_TRACK_ALLOC(pucUncompressedSampleData = new uint8[ uiNumSampleBytes ],LT_MEM_TYPE_SOUND);
-		memset( pucUncompressedSampleData, 0, uiNumSampleBytes );
-
-		ACMSTREAMHEADER acmStreamHeader;
-		memset( &acmStreamHeader, 0, sizeof( ACMSTREAMHEADER ) );
-
-		acmStreamHeader.cbStruct = sizeof( ACMSTREAMHEADER );
-		acmStreamHeader.pbSrc = ( uint8* )pSampleData;
-		acmStreamHeader.cbSrcLength = uiSampleDataSize;
-		acmStreamHeader.pbDst = pucUncompressedSampleData;
-		acmStreamHeader.cbDstLength = uiNumSampleBytes;
-
-		HACMSTREAM hAcmStream = NULL;
-
-		mmResult = acmStreamOpen( &hAcmStream, m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFormatEx),
-			reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, 0 );
-
-		if( mmResult != 0 )
-		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
-		}
-
-		mmResult = acmStreamPrepareHeader( hAcmStream, &acmStreamHeader, 0 );
-		if( mmResult != 0 )
-		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
-		}
-
-		mmResult = acmStreamConvert( hAcmStream, &acmStreamHeader, 0 );
-		if( mmResult != 0 )
-		{
-			delete[] pucUncompressedSampleData;
-			return LTFALSE;
-		}
-
-		mmResult = acmStreamClose( hAcmStream, 0 );
-
-				// format the converted data to that of a WAVE file
-		uint32 uiWaveFmtSize = ul::WaveFormatEx::packed_size - sizeof( pcmWaveFormat.extra_size_ );
-		uint32 uiFileSize =
-			4 +	sizeof( uint32 ) +									// RIFF chunk
-			8 + sizeof( uint32 ) + uiWaveFmtSize +					// WAVE chunk
-			4 + sizeof( uint32 ) + acmStreamHeader.cbDstLengthUsed;	// DATA chunk
-
-		uint8* pucUncompressedFile;
-		LT_MEM_TRACK_ALLOC(pucUncompressedFile = new uint8[ uiFileSize ],LT_MEM_TYPE_SOUND);
-
-		// finally, init the buffer to the uncompressed PCM wave audio
-		*puiWavSize = uiFileSize;
-		*ppWav = (void*) pucUncompressedFile;
-
-		// fill in RIFF chunk
-		pucUncompressedFile[0] = 'R';
-		pucUncompressedFile[1] = 'I';
-		pucUncompressedFile[2] = 'F';
-		pucUncompressedFile[3] = 'F';
-		pucUncompressedFile += 4;
-
-		uint32* puiRIFFSize = ( uint32* )pucUncompressedFile;
-		puiRIFFSize[0] = uiFileSize - 8;
-		pucUncompressedFile += sizeof( uint32 );
-
-		// fill in WAVE chunk
-		pucUncompressedFile[0] = 'W';
-		pucUncompressedFile[1] = 'A';
-		pucUncompressedFile[2] = 'V';
-		pucUncompressedFile[3] = 'E';
-		pucUncompressedFile[4] = 'f';
-		pucUncompressedFile[5] = 'm';
-		pucUncompressedFile[6] = 't';
-		pucUncompressedFile[7] = ' ';
-		pucUncompressedFile += 8;
-
-		uint32* puiWAVEFMTSize = ( uint32* )pucUncompressedFile;
-		puiWAVEFMTSize[0] = uiWaveFmtSize;
-		pucUncompressedFile += sizeof( uint32 );
-
-		memcpy( pucUncompressedFile, &pcmWaveFormat, uiWaveFormatSize );
-		pucUncompressedFile += uiWaveFmtSize;
-
-		// fill in DATA chunk
-		pucUncompressedFile[0] = 'd';
-		pucUncompressedFile[1] = 'a';
-		pucUncompressedFile[2] = 't';
-		pucUncompressedFile[3] = 'a';
-		pucUncompressedFile += 4;
-
-		uint32* puiDATASize = ( uint32* )pucUncompressedFile;
-		puiDATASize[0] = acmStreamHeader.cbDstLengthUsed;
-		pucUncompressedFile += sizeof( uint32 );
-
-		memcpy( pucUncompressedFile, pucUncompressedSampleData, acmStreamHeader.cbDstLengthUsed );
-		pucUncompressedFile += acmStreamHeader.cbDstLengthUsed;
-
-		delete[] pucUncompressedSampleData;
-
-	}
-
-		// use the PCM formatted sample data
-	return LTTRUE;
-}
-
 
 UINT CDx8SoundSys::ReadStream( WaveFile* pStream, BYTE* pOutBuffer, int nSize )
 {
@@ -5327,6 +4875,46 @@ uint32 CDx8SoundSys::GetThreadedSoundTicks( )
 	}
 
 	return nThreadedTickCounts;
+}
+
+int CDx8SoundSys::extract_wave_size(
+	const void* raw_data)
+{
+	if (!raw_data)
+	{
+		return 0;
+	}
+
+	auto header = static_cast<const std::uint32_t*>(raw_data);
+
+	const auto riff_id = ul::Endian::little(header[0]);
+
+	if (riff_id != ul::RiffFourCcs::riff)
+	{
+		return 0;
+	}
+
+	const auto riff_size = ul::Endian::little(header[1]);
+
+	constexpr auto min_riff_size =
+		4 + // "WAVE"
+		4 + 4 + ul::PcmWaveFormat::packed_size + // "fmt " + size + pcm_wave_format
+		4 + 4 + 1 + // "data" + size + min_data_size
+		0;
+
+	if (riff_size < min_riff_size)
+	{
+		return 0;
+	}
+
+	const auto wave_id = ul::Endian::little(header[2]);
+
+	if (wave_id != ul::WaveFourCcs::wave)
+	{
+		return 0;
+	}
+
+	return riff_size + 8;
 }
 
 //	===========================================================================

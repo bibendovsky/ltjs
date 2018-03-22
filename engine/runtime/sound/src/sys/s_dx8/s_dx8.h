@@ -14,6 +14,7 @@
 #include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_riff_reader.h"
 #include "bibendovsky_spul_wave_format.h"
+#include "ltjs_audio_decoder.h"
 #include "iltsound.h"
 
 #include "winsync.h"
@@ -610,6 +611,11 @@ private:
 	CWinSync_CS			m_cCS_ThreadedTickCounts;
 	uint32				m_nThreadedTickCounts;
 
+	ltjs::AudioDecoder audio_decoder_;
+
+
+	static int extract_wave_size(
+		const void* raw_data);
 };
 
 #endif 
