@@ -5,6 +5,7 @@
 #include "stdafx.h"
 
 // ---
+#include <array>
 #include "dsound.h"
 #include "mmsystem.h"
 #include "mmreg.h"
@@ -80,7 +81,7 @@ public:
 
 	bool IsMP3() const
 	{
-		return m_bMP3Compressed;
+		return audio_decoder_.is_mp3();
 	}
 
 	std::uint32_t Read(
@@ -159,40 +160,25 @@ public:
 		return m_hStream;
 	}
 
-	// decompression related functions
-	HACMSTREAM GetAcmStream() const
+	const ul::WaveFormatEx& get_format() const
 	{
-		return m_hAcmStream;
-	}
-
-	void SetAcmStream(
-		HACMSTREAM hAcmStream)
-	{
-		m_hAcmStream = hAcmStream;
-	}
-
-	ACMSTREAMHEADER* GetAcmStreamHeader()
-	{
-		return &m_acmStreamHeader;
-	}
-
-	void SetSrcBufferSize(
-		std::uint32_t ulSrcBufferSize)
-	{
-		m_ulSrcBufferSize = ulSrcBufferSize;
+		return wave_format_ex_;
 	}
 
 	static int extract_wave_size(
 		const void* raw_data);
 
 
-	ul::WaveFormatEx* m_pwfmt;
-
-
 protected:
+	static constexpr auto max_skip_buffer_size = 4096;
+
+	using SkipBuffer = std::array<std::uint8_t, max_skip_buffer_size>;
+
 	ul::FileStream file_stream_;
-	ul::RiffReader riff_reader_;
-	ul::RiffReader::Chunk data_chunk_;
+	ul::Substream file_substream_;
+	ltjs::AudioDecoder audio_decoder_;
+	ul::WaveFormatEx wave_format_ex_;
+	SkipBuffer skip_buffer_;
 
 	std::uint32_t m_nDuration; // duration of sound in msec
 	std::uint32_t m_nBlockAlign; // wave data block alignment spec
@@ -206,14 +192,6 @@ protected:
 
 	// Integration data
 	LHSTREAM m_hStream;
-
-	// for files that need to be decompressed
-	bool m_bMP3Compressed;
-	ACMSTREAMHEADER m_acmStreamHeader;
-	HACMSTREAM m_hAcmStream;
-	std::uint32_t m_ulSrcBufferSize;
-	std::uint32_t m_nRemainderBytes;
-	std::uint32_t m_nRemainderOffset;
 }; // WaveFile
 
 

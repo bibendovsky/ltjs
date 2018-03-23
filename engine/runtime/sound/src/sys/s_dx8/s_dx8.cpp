@@ -1,5 +1,6 @@
 
 #include "s_dx8.h"
+#include <array>
 #include <memory>
 #include "bibendovsky_spul_endian.h"
 #include "bibendovsky_spul_memory_stream.h"
@@ -117,7 +118,7 @@ WaveFile::~WaveFile()
 void WaveFile::Clear()
 {
 	// Init data members
-	m_pwfmt = nullptr;
+	wave_format_ex_ = {};
 	m_nBlockAlign = 0;
 	m_nAvgDataRate = 0;
 	m_nDataSize = 0;
@@ -128,35 +129,17 @@ void WaveFile::Clear()
 	m_nDuration = 0;
 	m_nBytesPerSample = 0;
 	m_hStream = nullptr;
-	m_bMP3Compressed = false;
-	m_hAcmStream = nullptr;
-	m_ulSrcBufferSize = 0;
-	m_nRemainderBytes = 0;
-	m_nRemainderOffset = 0;
-	::memset(&m_acmStreamHeader, 0, sizeof(ACMSTREAMHEADER));
 }
 
 void WaveFile::Close()
 {
 	m_hStream = nullptr;
 
-	if (m_pwfmt)
-	{
-		LTMemFree(m_pwfmt);
-		m_pwfmt = nullptr;
-	}
+	wave_format_ex_ = {};
 
-	riff_reader_.close();
+	audio_decoder_.close();
+	file_substream_.close();
 	file_stream_.close();
-
-	// free up ACM stuff
-	if (m_hAcmStream)
-	{
-		m_acmStreamHeader.cbSrcLength = m_ulSrcBufferSize;
-		acmStreamUnprepareHeader(m_hAcmStream, &m_acmStreamHeader, 0);
-		acmStreamClose(m_hAcmStream, 0);
-		m_hAcmStream = nullptr;
-	}
 
 	Clear();
 }
@@ -191,102 +174,38 @@ bool WaveFile::Open(
 		return false;
 	}
 
-	const auto reader_open_result = riff_reader_.open(&file_stream_, ul::WaveFourCcs::wave);
 
-	if (!reader_open_result)
+	using RiffBuffer = std::array<std::uint32_t, 3>;
+	const auto riff_buffer_size = static_cast<int>(sizeof(RiffBuffer));
+	auto riff_buffer = RiffBuffer{};
+
+	if (file_stream_.read(riff_buffer.data(), riff_buffer_size) != riff_buffer_size)
 	{
 		return false;
 	}
 
-	const auto find_fmt_result = riff_reader_.find_and_descend(ul::WaveFourCcs::fmt);
+	const auto wave_size = extract_wave_size(riff_buffer.data());
 
-	if (!find_fmt_result)
+	if (wave_size == 0)
 	{
 		return false;
 	}
 
-	auto pcmwf = ul::PcmWaveFormat{};
-	auto fm_chunk = riff_reader_.get_current_chunk();
-	auto& fmt_stream = fm_chunk.data_stream_;
-	const auto fmt_read_result = ul::WaveformatUtils::read(&fmt_stream, pcmwf);
-
-	if (!fmt_read_result)
+	if (!file_substream_.open(&file_stream_, nFilePos, wave_size))
 	{
 		return false;
 	}
 
-	const auto extra_field_size = 2;
-	auto cbExtra = std::uint16_t{};
-
-	// If format is not PCM, then there are extra bytes appended to WAVEFORMATEX
-	if (pcmwf.tag_ != ul::WaveFormatTag::pcm)
-	{
-		const auto extra_read_result = fmt_stream.read(&cbExtra, extra_field_size);
-
-		if (extra_read_result != extra_field_size)
-		{
-			return false;
-		}
-
-		ul::Endian::little_i(cbExtra);
-
-		// if it's an .mp3 compressed file, flag it
-		if (pcmwf.tag_ == ul::WaveFormatTag::mp3)
-		{
-			m_bMP3Compressed = true;
-		}
-	}
-
-	// Allocate memory for WAVEFORMATEX structure + extra bytes
-	m_pwfmt = static_cast<ul::WaveFormatEx*>(LTMemAlloc(ul::WaveFormatEx::packed_size + cbExtra));
-	LT_MEM_TRACK_ALLOC(m_pwfmt, LT_MEM_TYPE_SOUND);
-
-	if (!m_pwfmt)
+	if (!audio_decoder_.open(&file_substream_))
 	{
 		return false;
 	}
 
-	// Copy bytes from temporary format structure
-	*static_cast<ul::PcmWaveFormat*>(m_pwfmt) = pcmwf;
-	m_pwfmt->extra_size_ = cbExtra;
-
-	// Read those extra bytes, append to WAVEFORMATEX structure
-	if (cbExtra != 0)
-	{
-		const auto extra_read_result = fmt_stream.read(
-			reinterpret_cast<char*>(m_pwfmt) + ul::WaveFormatEx::packed_size,
-			cbExtra);
-
-		if (extra_read_result != cbExtra)
-		{
-			return false;
-		}
-	}
+	wave_format_ex_ = audio_decoder_.get_wave_format_ex();
 
 	// Init some member data from format chunk
-	m_nBlockAlign = m_pwfmt->block_align_;
-	m_nAvgDataRate = m_pwfmt->avg_bytes_per_sec_;
-
-	// init some decompression related data
-	m_nRemainderBytes = 0;
-	m_nRemainderOffset = 0;
-
-	// Ascend out of format chunk
-	const auto fmt_ascend_result = riff_reader_.ascend();
-
-	if (!fmt_ascend_result)
-	{
-		return false;
-	}
-
-	const auto data_descend_result = riff_reader_.find_and_descend(ul::WaveFourCcs::data);
-
-	if (!data_descend_result)
-	{
-		return false;
-	}
-
-	data_chunk_ = riff_reader_.get_current_chunk();
+	m_nBlockAlign = wave_format_ex_.block_align_;
+	m_nAvgDataRate = wave_format_ex_.avg_bytes_per_sec_;
 
 	// Cue for streaming
 	if(!Cue())
@@ -294,8 +213,7 @@ bool WaveFile::Open(
 		return false;
 	}
 
-	// Init some member data from data chunk
-	m_nDataSize = data_chunk_.size_;
+	m_nDataSize = audio_decoder_.get_data_size();
 	m_nDuration = (m_nDataSize * 1000) / m_nAvgDataRate;
 
 	is_succeed = true;
@@ -305,14 +223,10 @@ bool WaveFile::Open(
 
 bool WaveFile::Cue()
 {
-	m_nRemainderBytes = 0;
-	m_nRemainderOffset = 0;
 	m_nBytesRead = 0;
 	m_nBytesCopied = 0;
 
-	const auto rewind_result = data_chunk_.data_stream_.set_position(0);
-
-	if (!rewind_result)
+	if (!audio_decoder_.rewind())
 	{
 		return false;
 	}
@@ -329,12 +243,16 @@ std::uint32_t WaveFile::Read(
 	std::uint8_t* pbDest,
 	const std::uint32_t cbSize)
 {
+	if (cbSize == 0)
+	{
+		return 0;
+	}
+
 	auto result = 0;
-	auto& data_stream = data_chunk_.data_stream_;
 
 	if (pbDest)
 	{
-		const auto read_result = data_stream.read(pbDest, cbSize);
+		const auto read_result = audio_decoder_.decode(pbDest, static_cast<int>(cbSize));
 
 		if (read_result <= 0)
 		{
@@ -345,35 +263,14 @@ std::uint32_t WaveFile::Read(
 	}
 	else
 	{
-		const auto current_position = data_stream.skip(0);
+		const auto decoded_size = audio_decoder_.decode(skip_buffer_.data(), cbSize);
 
-		if (current_position < 0)
+		if (decoded_size < 0)
 		{
 			return 0;
 		}
 
-		const auto data_size = data_stream.get_size();
-
-		if (data_size < 0)
-		{
-			return 0;
-		}
-
-		auto skip_size = static_cast<int>(cbSize);
-
-		if ((current_position + skip_size) > data_size)
-		{
-			skip_size = static_cast<int>(data_size - current_position);
-		}
-
-		const auto skip_result = data_stream.skip(skip_size);
-
-		if (skip_result < 0)
-		{
-			return 0;
-		}
-
-		result = skip_size;
+		result = decoded_size;
 	}
 
 	m_nBytesCopied += result;
@@ -417,70 +314,7 @@ std::uint32_t WaveFile::ReadCompressed(
 	static_cast<void>(pCompressedBuffer);
 	static_cast<void>(pDecompressedBuffer);
 
-	if (!pbDest || cbSize == 0)
-	{
-		return 0;
-	}
-
-	auto dst_decoded_size = 0;
-
-	while (true)
-	{
-		const auto dst_remain_size = static_cast<int>(cbSize) - dst_decoded_size;
-
-		if (m_nRemainderBytes > 0)
-		{
-			const auto flush_size = Min(static_cast<int>(m_nRemainderBytes), dst_remain_size);
-
-			std::uninitialized_copy_n(
-				&m_acmStreamHeader.pbDst[m_nRemainderOffset],
-				flush_size,
-				&pbDest[dst_decoded_size]);
-
-			m_acmStreamHeader.cbDstLengthUsed -= flush_size;
-			m_nRemainderOffset += flush_size;
-			m_nRemainderBytes -= flush_size;
-
-			dst_decoded_size += flush_size;
-		}
-		else
-		{
-			auto& data_stream = data_chunk_.data_stream_;
-
-			if (m_acmStreamHeader.cbSrcLengthUsed == m_acmStreamHeader.cbSrcLength)
-			{
-				const auto read_result = data_stream.read(m_acmStreamHeader.pbSrc, m_ulSrcBufferSize);
-
-				if (read_result <= 0)
-				{
-					break;
-				}
-
-				m_acmStreamHeader.cbSrcLength = read_result;
-				m_acmStreamHeader.cbSrcLengthUsed = 0;
-			}
-
-			const auto acm_result = ::acmStreamConvert(m_hAcmStream, &m_acmStreamHeader, 0);
-
-			if (acm_result != 0)
-			{
-				break;
-			}
-
-			m_nRemainderOffset = 0;
-			m_nRemainderBytes = m_acmStreamHeader.cbDstLengthUsed;
-		}
-
-		if (dst_decoded_size == static_cast<int>(cbSize))
-		{
-			break;
-		}
-	}
-
-	m_nBytesCopied += dst_decoded_size;
-	m_nMaxBytesCopied = Max(m_nMaxBytesCopied, m_nBytesCopied);
-
-	return dst_decoded_size;
+	return Read(pbDest, cbSize);
 }
 
 // SeekFromStartCompresed
@@ -514,24 +348,17 @@ std::uint8_t WaveFile::GetSilenceData() const
 	auto bSilenceData = std::uint8_t{};
 
 	// Silence data depends on format of Wave file
-	if (m_pwfmt)
+	if (wave_format_ex_.bit_depth_ == 8)
 	{
-		if (m_pwfmt->bit_depth_ == 8)
-		{
-			// For 8-bit formats (unsigned, 0 to 255)
-			// Packed DWORD = 0x80808080;
-			bSilenceData = 0x80;
-		}
-		else if (m_pwfmt->bit_depth_ == 16)
-		{
-			// For 16-bit formats (signed, -32768 to 32767)
-			// Packed DWORD = 0x00000000;
-			bSilenceData = 0x00;
-		}
-		else
-		{
-			ASSERT(0);
-		}
+		// For 8-bit formats (unsigned, 0 to 255)
+		// Packed DWORD = 0x80808080;
+		bSilenceData = 0x80;
+	}
+	else if (wave_format_ex_.bit_depth_ == 16)
+	{
+		// For 16-bit formats (signed, -32768 to 32767)
+		// Packed DWORD = 0x00000000;
+		bSilenceData = 0x00;
 	}
 	else
 	{
@@ -1586,7 +1413,7 @@ void CStream::ReadStreamIntoBuffer( CDx8SoundSys* pSoundSys, BYTE* pBuffer, int3
 		if( uiBytesRead < nBufferSize )
 			{
 				// Fill in the rest of the buffer with silence.
-			BYTE nZeroValue = (BYTE)(m_pWaveFile->m_pwfmt->bit_depth_ == 8 ? 128 : 0 );
+			BYTE nZeroValue = (BYTE)(m_pWaveFile->get_format().bit_depth_ == 8 ? 128 : 0 );
 			BYTE* pBufferEnd = pBuffer + uiBytesRead;
 			uint32 nBytesToZero = nBufferSize - uiBytesRead;
 			FillMemory( pBufferEnd, nBytesToZero, nZeroValue );
@@ -1721,7 +1548,7 @@ uint32 CStream::FillBuffer( CDx8SoundSys* pSoundSys )
         // Don't repeat the wav file, just fill in silence
         FillMemory( (BYTE*) pDSLockedBuffer + uiBytesRead,
                     dwDSLockedBufferSize - uiBytesRead,
-                    (BYTE)(m_pWaveFile->m_pwfmt->bit_depth_ == 8 ? 128 : 0 ) );
+                    (BYTE)(m_pWaveFile->get_format().bit_depth_ == 8 ? 128 : 0 ) );
 		uiBytesRead = dwDSLockedBufferSize;
     }
 
@@ -1746,7 +1573,7 @@ BOOL CStream::SetCurrentPosition( DWORD dwStartOffset )
 	if( m_pDSBuffer == NULL )
 		return FALSE;
 
-	if ( m_pWaveFile->m_pwfmt->tag_ == ul::WaveFormatTag::mp3 )
+	if (m_pWaveFile->IsMP3())
 	{
 		m_pWaveFile->SeekFromStartCompressed( dwStartOffset );
 	}
@@ -4351,18 +4178,22 @@ uint32 CDx8SoundSys::GetSampleStatus( LHSAMPLE hS )
 //	TO DO...
 
 // old 2d sound stream functions
-LHSTREAM CDx8SoundSys::OpenStream( char* sFilename, uint32 nFilePos, LHDIGDRIVER hDig, char* sStream, sint32 siStream_mem )
+LHSTREAM CDx8SoundSys::OpenStream(
+	char* sFilename,
+	uint32 nFilePos,
+	LHDIGDRIVER hDig,
+	char* sStream,
+	sint32 siStream_mem)
 {
-	//OutputDebugString("OLD [CDx8SoundSys::OpenStream]\n");
-	WaveFile* pWaveFile;
 	int i;
-	for(i = 0; i < MAX_WAVE_STREAMS; i++)
+
+	for (i = 0; i < MAX_WAVE_STREAMS; ++i)
 	{
-		if(!m_WaveStream[i].IsActive())
+		if (!m_WaveStream[i].IsActive())
 		{
-			if(!m_WaveStream[i].Open(sFilename, nFilePos))
+			if (!m_WaveStream[i].Open(sFilename, nFilePos))
 			{
-				return NULL;
+				return nullptr;
 			}
 			else
 			{
@@ -4371,106 +4202,40 @@ LHSTREAM CDx8SoundSys::OpenStream( char* sFilename, uint32 nFilePos, LHDIGDRIVER
 		}
 	}
 
-	// Error: all streams are full (max = MAX_WAVE_STREAMS)
-	if(i == MAX_WAVE_STREAMS)
-		return NULL;
-
-	pWaveFile = &m_WaveStream[i];
-	// we need to initialize .mp3 streams differently, since they contain different header info
-	if ( pWaveFile->IsMP3() )
+	if (i == MAX_WAVE_STREAMS)
 	{
-		// set bytes per sample to default buffer format, since mp3 doesn't have a value
-		pWaveFile->SetBytesPerSample( m_waveFormat.bit_depth_ >> 3 );
+		return nullptr;
 	}
 
-	streamBufferParams_t streamBufferParams;
-	memset(&streamBufferParams, 0, sizeof(streamBufferParams_t));
+	auto pWaveFile = &m_WaveStream[i];
+	auto streamBufferParams = streamBufferParams_t{};
+
+	const auto& wave_format_ex = pWaveFile->get_format();
 
 	// create a buffer that holds STREAM_BUF_SECONDS seconds of data, rounded out so each read ends at block end
-	int nBlockAlign = ( pWaveFile->m_pwfmt->channel_count_ * m_waveFormat.bit_depth_ ) >> 3;
-	int nBufferSize = pWaveFile->m_pwfmt->sample_rate_ * STREAM_BUF_SECONDS * nBlockAlign / NUM_PLAY_NOTIFICATIONS;
-    nBufferSize -= nBufferSize % nBlockAlign;
+	auto nBlockAlign = static_cast<int>(wave_format_ex.channel_count_ * (m_waveFormat.bit_depth_ / 8));
+
+	auto nBufferSize = static_cast<int>(
+		wave_format_ex.sample_rate_ * STREAM_BUF_SECONDS * nBlockAlign / NUM_PLAY_NOTIFICATIONS);
+
+	nBufferSize -= nBufferSize % nBlockAlign;
 	nBufferSize *= NUM_PLAY_NOTIFICATIONS;
 
-//	streamBufferParams.m_siParams[SBP_BUFFER_SIZE] = STR_BUFFER_SIZE;
 	streamBufferParams.m_siParams[SBP_BUFFER_SIZE] = nBufferSize;
-
-	if ( pWaveFile->m_pwfmt->tag_ == ul::WaveFormatTag::mp3 )
-		streamBufferParams.m_siParams[SBP_BITS_PER_CHANNEL] = m_waveFormat.bit_depth_;
-	else
-		streamBufferParams.m_siParams[SBP_BITS_PER_CHANNEL] = pWaveFile->m_pwfmt->bit_depth_;
-
-	streamBufferParams.m_siParams[SBP_CHANNELS_PER_SAMPLE] = pWaveFile->m_pwfmt->channel_count_;
-	streamBufferParams.m_siParams[SBP_SAMPLES_PER_SEC] = pWaveFile->m_pwfmt->sample_rate_;
-
-   	// if this is an .mp3 file, setup decompression parameters
-	if ( pWaveFile->IsMP3() )
-	{
-		unsigned long ulSrcBufferSize;
-		MMRESULT mmResult = 0;
-		HACMSTREAM hAcmStream;
-		ACMSTREAMHEADER* pAcmStreamHeader = pWaveFile->GetAcmStreamHeader();
-		ul::WaveFormatEx pcmWaveFormat;
-		pcmWaveFormat = {};
-
-		pcmWaveFormat.extra_size_ = ul::WaveFormatEx::packed_size;
-		pcmWaveFormat.tag_ = ul::WaveFormatTag::pcm;
-
-		mmResult = acmFormatSuggest( m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFile->m_pwfmt), reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat),
-			ul::WaveFormatEx::packed_size, ACM_FORMATSUGGESTF_WFORMATTAG );
-
-		mmResult = acmStreamOpen( &hAcmStream, m_hAcmMP3Driver, reinterpret_cast<LPWAVEFORMATEX>(pWaveFile->m_pwfmt), reinterpret_cast<LPWAVEFORMATEX>(&pcmWaveFormat), NULL, 0, 0, 0 );
-
-		if ( mmResult != 0 )
-		{
-			pWaveFile->Close();
-			return NULL;
-		}
-
-		pWaveFile->SetAcmStream( hAcmStream );
-
-		// now get info about the size of the compressed buffer
-
-		// This function is kind of bizarre, It always gives you a "safe" estimate
-		// of how much compressed data will give you how much decompressed data
-		// So, in this instance, it's trying to predict how much compressed data
-		// will make STR_BUFFER_SIZE uncompressed data.  Sometimes, though, it
-		// rounds down too severely, so to compensate, I'm multiplying the
-		// destination size and then dividing the source size.
-		// No matter what, we don't want to decompress more than STR_BUFFER_SIZE of data
-		mmResult = acmStreamSize( hAcmStream, STR_BUFFER_SIZE, &ulSrcBufferSize,
-					                ACM_STREAMSIZEF_DESTINATION);
-
-		pWaveFile->SetSrcBufferSize( ulSrcBufferSize );
-
-		memset( pAcmStreamHeader, 0, sizeof( ACMSTREAMHEADER ) );
-
-		pAcmStreamHeader->cbStruct = sizeof( ACMSTREAMHEADER );
-		pAcmStreamHeader->pbSrc = m_pCompressedBuffer;
-		pAcmStreamHeader->cbSrcLength = ulSrcBufferSize;
-		pAcmStreamHeader->cbSrcLengthUsed = ulSrcBufferSize;
-		pAcmStreamHeader->pbDst = m_pDecompressedBuffer;
-		pAcmStreamHeader->cbDstLength = STR_BUFFER_SIZE;
-
-		mmResult = acmStreamPrepareHeader( hAcmStream, pWaveFile->GetAcmStreamHeader(), 0 );
-
-		if ( mmResult != 0 )
-		{
-			pWaveFile->Close();
-			return NULL;
-		}
-	}
+	streamBufferParams.m_siParams[SBP_BITS_PER_CHANNEL] = wave_format_ex.bit_depth_;
+	streamBufferParams.m_siParams[SBP_CHANNELS_PER_SAMPLE] = wave_format_ex.channel_count_;
+	streamBufferParams.m_siParams[SBP_SAMPLES_PER_SEC] = wave_format_ex.sample_rate_;
 
 	// Use the new streaming functions.
-	LHSTREAM hStream = OpenStream(&streamBufferParams, pWaveFile, static_cast<uint8>(i));
+	auto hStream = OpenStream(&streamBufferParams, pWaveFile, static_cast<uint8>(i));
 
-	if( !hStream )
+	if (!hStream)
 	{
 		// Error opening stream
 		pWaveFile->Close();
 	}
 
-   	return hStream;
+	return hStream;
 }
 
 void CDx8SoundSys::SetStreamLoop( LHSTREAM hStream, bool bLoop )
@@ -4885,20 +4650,12 @@ S32	CDx8SoundSys::DecompressASI(
 	return true;
 }
 
-UINT CDx8SoundSys::ReadStream( WaveFile* pStream, BYTE* pOutBuffer, int nSize )
+UINT CDx8SoundSys::ReadStream(
+	WaveFile* pStream,
+	BYTE* pOutBuffer,
+	int nSize)
 {
-	UINT nRead = 0;
-	if ( pStream->m_pwfmt->tag_ == ul::WaveFormatTag::mp3 )
-	{
-		// handle decompression of stream if .mp3
-		nRead = pStream->ReadCompressed( pOutBuffer, nSize, m_pCompressedBuffer, m_pDecompressedBuffer );
-	}
-	else
-	{
-		// regular .wav file
-		nRead = pStream->Read( pOutBuffer, nSize );
-	}
-	return nRead;
+	return pStream->Read(pOutBuffer, nSize);
 }
 
 uint32 CDx8SoundSys::GetThreadedSoundTicks( )
