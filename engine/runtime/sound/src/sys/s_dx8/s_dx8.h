@@ -79,10 +79,7 @@ public:
 
 	bool Cue();
 
-	bool IsMP3() const
-	{
-		return audio_decoder_.is_mp3();
-	}
+	bool IsMP3() const;
 
 	std::uint32_t Read(
 		std::uint8_t* pbDest,
@@ -94,20 +91,11 @@ public:
 		const std::uint8_t* pCompressedBuffer,
 		std::uint8_t* pbDecompressedBuffer);
 
-	std::uint32_t GetDataSize() const
-	{
-		return audio_decoder_.get_data_size();
-	}
+	std::uint32_t GetDataSize() const;
 
-	std::uint32_t GetMaxBytesCopied() const
-	{
-		return m_nMaxBytesCopied;
-	}
+	std::uint32_t GetMaxBytesCopied() const;
 
-	std::uint32_t GetDuration() const
-	{
-		return m_nDuration;
-	}
+	std::uint32_t GetDuration() const;
 
 	std::uint8_t GetSilenceData() const;
 
@@ -115,26 +103,14 @@ public:
 		const std::uint32_t nBytes);
 
 	// Integration functions
-	bool IsActive() const
-	{
-		return m_hStream != nullptr;
-	}
+	bool IsActive() const;
 
 	void SetStream(
-		LHSTREAM hStream)
-	{
-		m_hStream = hStream;
-	}
+		LHSTREAM hStream);
 
-	LHSTREAM GetStream() const
-	{
-		return m_hStream;
-	}
+	LHSTREAM GetStream() const;
 
-	const ul::WaveFormatEx& get_format() const
-	{
-		return wave_format_ex_;
-	}
+	const ul::WaveFormatEx& get_format() const;
 
 	static int extract_wave_size(
 		const void* raw_data);

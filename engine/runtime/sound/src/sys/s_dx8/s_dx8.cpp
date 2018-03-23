@@ -226,6 +226,11 @@ bool WaveFile::Cue()
 	return true;
 }
 
+bool WaveFile::IsMP3() const
+{
+	return audio_decoder_.is_mp3();
+}
+
 // Read
 //
 // Returns number of bytes actually read.
@@ -309,6 +314,21 @@ std::uint32_t WaveFile::ReadCompressed(
 	return Read(pbDest, cbSize);
 }
 
+std::uint32_t WaveFile::GetDataSize() const
+{
+	return audio_decoder_.get_data_size();
+}
+
+std::uint32_t WaveFile::GetMaxBytesCopied() const
+{
+	return m_nMaxBytesCopied;
+}
+
+std::uint32_t WaveFile::GetDuration() const
+{
+	return m_nDuration;
+}
+
 // GetSilenceData
 //
 // Returns 8 bits of data representing silence for the Wave file format.
@@ -347,6 +367,27 @@ std::uint8_t WaveFile::GetSilenceData() const
 	}
 
 	return bSilenceData;
+}
+
+bool WaveFile::IsActive() const
+{
+	return m_hStream != nullptr;
+}
+
+void WaveFile::SetStream(
+	LHSTREAM hStream)
+{
+	m_hStream = hStream;
+}
+
+LHSTREAM WaveFile::GetStream() const
+{
+	return m_hStream;
+}
+
+const ul::WaveFormatEx& WaveFile::get_format() const
+{
+	return wave_format_ex_;
 }
 
 int WaveFile::extract_wave_size(
