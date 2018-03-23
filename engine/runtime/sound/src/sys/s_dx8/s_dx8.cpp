@@ -119,15 +119,10 @@ void WaveFile::Clear()
 {
 	// Init data members
 	wave_format_ex_ = {};
-	m_nBlockAlign = 0;
 	m_nAvgDataRate = 0;
-	m_nDataSize = 0;
-	m_nBytesRead = 0;
-	m_nMaxBytesRead = 0;
 	m_nBytesCopied = 0;
 	m_nMaxBytesCopied = 0;
 	m_nDuration = 0;
-	m_nBytesPerSample = 0;
 	m_hStream = nullptr;
 }
 
@@ -204,7 +199,6 @@ bool WaveFile::Open(
 	wave_format_ex_ = audio_decoder_.get_wave_format_ex();
 
 	// Init some member data from format chunk
-	m_nBlockAlign = wave_format_ex_.block_align_;
 	m_nAvgDataRate = wave_format_ex_.avg_bytes_per_sec_;
 
 	// Cue for streaming
@@ -213,8 +207,7 @@ bool WaveFile::Open(
 		return false;
 	}
 
-	m_nDataSize = audio_decoder_.get_data_size();
-	m_nDuration = (m_nDataSize * 1000) / m_nAvgDataRate;
+	m_nDuration = (audio_decoder_.get_data_size() * 1000) / m_nAvgDataRate;
 
 	is_succeed = true;
 
@@ -223,7 +216,6 @@ bool WaveFile::Open(
 
 bool WaveFile::Cue()
 {
-	m_nBytesRead = 0;
 	m_nBytesCopied = 0;
 
 	if (!audio_decoder_.rewind())
@@ -315,17 +307,6 @@ std::uint32_t WaveFile::ReadCompressed(
 	static_cast<void>(pDecompressedBuffer);
 
 	return Read(pbDest, cbSize);
-}
-
-// SeekFromStartCompresed
-//
-// Returns logical offset into buffer.
-// On error, returns 0.
-//
-std::uint32_t WaveFile::SeekFromStartCompressed(
-	const std::uint32_t nBytes)
-{
-	return SeekFromStart(nBytes);
 }
 
 // GetSilenceData
@@ -1573,14 +1554,7 @@ BOOL CStream::SetCurrentPosition( DWORD dwStartOffset )
 	if( m_pDSBuffer == NULL )
 		return FALSE;
 
-	if (m_pWaveFile->IsMP3())
-	{
-		m_pWaveFile->SeekFromStartCompressed( dwStartOffset );
-	}
-	else
-	{
-		m_pWaveFile->SeekFromStart( dwStartOffset );
-	}
+	m_pWaveFile->SeekFromStart( dwStartOffset );
 
 	// Set the last play pos to zero, because doing this on a playing sound
 	// seems to not really set it to exactly dwStartOffset anyway.

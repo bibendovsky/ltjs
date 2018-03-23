@@ -94,29 +94,9 @@ public:
 		const std::uint8_t* pCompressedBuffer,
 		std::uint8_t* pbDecompressedBuffer);
 
-	std::uint32_t GetAvgDataRate() const
-	{
-		return m_nAvgDataRate;
-	}
-
 	std::uint32_t GetDataSize() const
 	{
-		return m_nDataSize;
-	}
-
-	std::uint32_t GetNumBytesRead() const
-	{
-		return m_nBytesRead;
-	}
-
-	std::uint32_t GetNumBytesCopied() const
-	{
-		return m_nBytesCopied;
-	}
-
-	std::uint32_t GetMaxBytesRead() const
-	{
-		return m_nMaxBytesRead;
+		return audio_decoder_.get_data_size();
 	}
 
 	std::uint32_t GetMaxBytesCopied() const
@@ -131,16 +111,7 @@ public:
 
 	std::uint8_t GetSilenceData() const;
 
-	void SetBytesPerSample(
-		const std::uint32_t nBytesPerSample)
-	{
-		m_nBytesPerSample = nBytesPerSample;
-	}
-
 	std::uint32_t SeekFromStart(
-		const std::uint32_t nBytes);
-
-	std::uint32_t SeekFromStartCompressed(
 		const std::uint32_t nBytes);
 
 	// Integration functions
@@ -181,14 +152,9 @@ protected:
 	SkipBuffer skip_buffer_;
 
 	std::uint32_t m_nDuration; // duration of sound in msec
-	std::uint32_t m_nBlockAlign; // wave data block alignment spec
 	std::uint32_t m_nAvgDataRate; // average wave data rate
-	std::uint32_t m_nDataSize; // size of data chunk
-	std::uint32_t m_nBytesRead; // Number of uncompressed bytes read.
-	std::uint32_t m_nMaxBytesRead; // Maximum number of bytes read, regardless of looping back.
 	std::uint32_t m_nBytesCopied; // Number of uncompressed bytes copied.
 	std::uint32_t m_nMaxBytesCopied; // Maximum number of bytes copied, regardless of looping back.
-	std::uint32_t m_nBytesPerSample; // number of bytes in each sample
 
 	// Integration data
 	LHSTREAM m_hStream;
