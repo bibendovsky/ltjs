@@ -28,7 +28,6 @@ set(
 	sources
 	../../../../kernel/src/sys/win/counter.cpp
 	../../ltjs_audio_decoder.cpp
-	parsewavefile.cpp
 	s_dx8.cpp
 	stdafx.cpp
 )
