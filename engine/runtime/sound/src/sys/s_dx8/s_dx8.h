@@ -4,9 +4,6 @@
 
 #include <array>
 #include "dsound.h"
-#include "mmsystem.h"
-#include "mmreg.h"
-#include "msacm.h"
 #include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_riff_reader.h"
 #include "bibendovsky_spul_wave_format.h"
@@ -434,8 +431,6 @@ public:
 	virtual S32			DecompressADPCM( LTSOUNDINFO* pInfo, void** ppOutData, U32* puiOutSize );
 	virtual S32			DecompressASI( void* pInData, U32 uiInSize, char* sFilename_ext, void** ppWav, U32* puiWavSize, LTLENGTHYCB fnCallback );
 	UINT				ReadStream( WaveFile* pStream, BYTE* pOutBuffer, int nSize );
-	BYTE*				GetCompressedBuffer() { return m_pCompressedBuffer; }
-	BYTE*				GetDecompressedBuffer() { return m_pDecompressedBuffer; }
 
 	virtual bool		HasOnBoardMemory( );
 
@@ -458,7 +453,6 @@ private:
 	void InitEAX20Filtering(void);
 #endif
 	bool SupportsDS3DHardware(void);
-	bool FillStreamBuffer( LPDIRECTSOUNDBUFFER pDSB, WaveFile* pStream, int nSize );
 
 	// Gets the propertyset interface to do eax operations.
 	bool GetPropertySetForEAX( );
@@ -477,12 +471,6 @@ public:
 	DSCAPS				m_dscaps;
 	HRESULT				m_hResult;
 	char*				m_pcLastError;
-	HACMDRIVERID		m_hAcmPCMDriverId;
-	HACMDRIVER			m_hAcmPCMDriver;
-	HACMDRIVERID		m_hAcmADPCMDriverId;
-	HACMDRIVER			m_hAcmADPCMDriver;
-	HACMDRIVERID		m_hAcmMP3DriverId;
-	HACMDRIVER			m_hAcmMP3Driver;
 	sint32				m_iCur3DProvider;
 	DWORD				m_dwMinHardwareBuffers;
 
@@ -496,10 +484,6 @@ public:
 public:
 	CStream*			m_pStreams;
 
-	// for decompressing streams
-	BYTE*				m_pCompressedBuffer;
-	BYTE*				m_pDecompressedBuffer;
-	
 	WaveFile			m_WaveStream[MAX_WAVE_STREAMS];
 	
 private:
