@@ -21,7 +21,6 @@ set(
 	../../ltjs_audio_decoder.h
 	eax.h
 	s_dx8.h
-	stdafx.h
 )
 
 set(
@@ -29,7 +28,6 @@ set(
 	../../../../kernel/src/sys/win/counter.cpp
 	../../ltjs_audio_decoder.cpp
 	s_dx8.cpp
-	stdafx.cpp
 )
 
 add_library(

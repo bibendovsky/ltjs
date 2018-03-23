@@ -2,22 +2,16 @@
 #define __S_DX8_H__
 
 
-#include "stdafx.h"
-
-// ---
 #include <array>
 #include "dsound.h"
 #include "mmsystem.h"
 #include "mmreg.h"
 #include "msacm.h"
-// ---
-
 #include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_riff_reader.h"
 #include "bibendovsky_spul_wave_format.h"
 #include "ltjs_audio_decoder.h"
 #include "iltsound.h"
-
 #include "winsync.h"
 
 
