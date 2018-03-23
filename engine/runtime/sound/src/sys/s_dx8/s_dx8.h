@@ -1,5 +1,5 @@
-#ifndef __S_DX8_H__
-#define __S_DX8_H__
+#ifndef LTJS_S_DX8_INCLUDED
+#define LTJS_S_DX8_INCLUDED
 
 
 #include <array>
@@ -15,14 +15,6 @@
 namespace ul = bibendovsky::spul;
 
 
-enum DS3DAlgo
-{
-	DS3D_NO_VIRTUALIZATION,
-	DS3D_HRTF_LIGHT,
-	DS3D_HRTF_FULL,
-	DS3D_TOTAL_NUM
-};
-
 typedef sint16	S16;
 typedef uint16	U16;
 typedef sint32	S32;
@@ -35,23 +27,11 @@ typedef lpvoid	PTR;
 #define MAX_USER_DATA_INDEX		7
 #define MAX_USER_PREF_INDEX		255
 #define	MAX_WAVE_STREAMS		16
-//  we can loop as many samples as we can create
-// events to wait for
-#define MAX_LOOPED_SAMPLES		(MAXIMUM_WAIT_OBJECTS - 1)
-
 #define STR_BUFFER_SIZE			8192
 
-//! WaveFile
-
-// Constants
-#ifndef SUCCESS
-#define SUCCESS TRUE        // Error returns for all member functions
-#define FAILURE FALSE
-#endif // SUCCESS
-
-#define DOUT	(void)//OutputDebugString
 
 class CDx8SoundSys;
+
 
 class WaveFile
 {
@@ -110,7 +90,9 @@ public:
 protected:
 	static constexpr auto max_skip_buffer_size = 4096;
 
+
 	using SkipBuffer = std::array<std::uint8_t, max_skip_buffer_size>;
+
 
 	ul::FileStream file_stream_;
 	ul::Substream file_substream_;
@@ -127,8 +109,6 @@ protected:
 	LHSTREAM m_hStream;
 }; // WaveFile
 
-
-//! I3DObject
 
 class I3DObject
 {
@@ -150,7 +130,6 @@ public:
 	S32			m_userData[ MAX_USER_DATA_INDEX + 1 ];
 };
 
-//! C3DListener
 
 class C3DListener : public I3DObject
 {
@@ -169,8 +148,6 @@ public:
 	float						m_fDopplerSetting;
 };
 
-
-//! CSample
 
 class CSample
 {
@@ -223,7 +200,6 @@ public:
 	static 	LTLink			m_lstSampleLoopHead;
 };
 
-//! C3DSample
 
 class C3DSample : public I3DObject
 {
@@ -250,8 +226,6 @@ public:
 	LPDIRECTSOUND3DBUFFER8	m_pDS3DBuffer;
 };
 
-
-//! CStream
 
 class CStream : public CSample
 {
@@ -281,18 +255,6 @@ public:
 	int8		m_nEventNum;
 };
 
-
-//! CFileStream
-
-class CFileStream
-{
-public:
-	
-
-
-};
-
-//! CDx8SoundSys
 
 class CDx8SoundSys : public ILTSoundSys
 {
@@ -509,4 +471,5 @@ private:
 	ltjs::AudioDecoder audio_decoder_;
 };
 
-#endif 
+
+#endif // LTJS_S_DX8_INCLUDED

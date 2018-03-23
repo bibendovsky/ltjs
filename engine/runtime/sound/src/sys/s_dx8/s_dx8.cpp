@@ -1,4 +1,3 @@
-
 #include "s_dx8.h"
 #include <array>
 #include <memory>
@@ -1254,8 +1253,6 @@ void CSample::HandleLoop( CDx8SoundSys* pSoundSys )
 
 //	===========================================================================
 
-//! C3DSample
-
 C3DSample::C3DSample( )
 {
 	Reset( );
@@ -1368,8 +1365,6 @@ void C3DSample::GetRadiusData( float* fInnerRadius, float* fInnerRadiusSquared )
 }
 
 
-//! CStream
-
 CStream::CStream( CStream* pPrev, CStream* pNext ) :
   	CSample( ), m_pPrev( pPrev ), m_pNext( pNext )
 {
@@ -1401,7 +1396,6 @@ CStream::~CStream( )
   	if( m_pNext != NULL )
   		m_pNext->m_pPrev = m_pPrev;
 }
-
 
 void CStream::ReadStreamIntoBuffer( CDx8SoundSys* pSoundSys, BYTE* pBuffer, int32 nBufferSize )
 {
@@ -1442,7 +1436,6 @@ void CStream::ReadStreamIntoBuffer( CDx8SoundSys* pSoundSys, BYTE* pBuffer, int3
 		}
 	}
 }
-
 
 // stream in more data when we get an
 // update event
