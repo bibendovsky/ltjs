@@ -196,6 +196,16 @@ bool WaveFile::Open(
 		return false;
 	}
 
+	if (audio_decoder_.get_bit_depth() != default_bit_depth)
+	{
+		return false;
+	}
+
+	if (audio_decoder_.get_channel_count() > max_channel_count)
+	{
+		return false;
+	}
+
 	wave_format_ex_ = audio_decoder_.get_wave_format_ex();
 
 	// Init some member data from format chunk
@@ -260,14 +270,50 @@ std::uint32_t WaveFile::Read(
 	}
 	else
 	{
-		const auto decoded_size = audio_decoder_.decode(skip_buffer_.data(), cbSize);
+		const auto data_size = audio_decoder_.get_data_size();
+		const auto decoded_size = audio_decoder_.get_decoded_size();
 
-		if (decoded_size < 0)
+		auto new_decoded_size = decoded_size + static_cast<int>(cbSize);
+
+		if (new_decoded_size > data_size)
+		{
+			new_decoded_size = data_size;
+		}
+
+		const auto skip_size = new_decoded_size - decoded_size;
+
+		if (skip_size == 0)
 		{
 			return 0;
 		}
 
-		result = decoded_size;
+		const auto sample_size = audio_decoder_.get_sample_size();
+		const auto sample_offset = new_decoded_size / sample_size;
+
+		if (!audio_decoder_.set_position(sample_offset))
+		{
+			return 0;
+		}
+
+		constexpr auto max_sample_size = (default_bit_depth / 8) * max_channel_count;
+		const auto sample_reminder = new_decoded_size % sample_size;
+
+		if (sample_reminder > max_sample_size)
+		{
+			return 0;
+		}
+
+		if (sample_reminder > 0)
+		{
+			std::uint8_t byte_buffer[max_sample_size];
+
+			if (audio_decoder_.decode(byte_buffer, sample_reminder) != sample_reminder)
+			{
+				return 0;
+			}
+		}
+
+		result = skip_size;
 	}
 
 	m_nBytesCopied += result;

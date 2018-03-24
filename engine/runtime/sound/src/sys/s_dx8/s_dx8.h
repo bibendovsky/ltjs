@@ -90,17 +90,14 @@ public:
 
 
 protected:
-	static constexpr auto max_skip_buffer_size = 4096;
-
-
-	using SkipBuffer = std::array<std::uint8_t, max_skip_buffer_size>;
+	static constexpr auto default_bit_depth = 16;
+	static constexpr auto max_channel_count = 2;
 
 
 	ul::FileStream file_stream_;
 	ul::Substream file_substream_;
 	ltjs::AudioDecoder audio_decoder_;
 	ul::WaveFormatEx wave_format_ex_;
-	SkipBuffer skip_buffer_;
 
 	std::uint32_t m_nDuration; // duration of sound in msec
 	std::uint32_t m_nAvgDataRate; // average wave data rate
