@@ -102,8 +102,10 @@ add_library(
 ltjs_add_defaults(ltjs_game_client_fx stdafx.h)
 
 target_compile_definitions(
-    ltjs_game_client_fx
-    PRIVATE MEMTRACK_CLIENTFX)
+	ltjs_game_client_fx
+	PRIVATE MEMTRACK_CLIENTFX
+	PRIVATE _NOMFC
+)
 
 set_target_properties(
     ltjs_game_client_fx
