@@ -74,8 +74,8 @@ unset(LTJS_FFMPEG_TMP_MISSING_LIBS)
 
 set(
 	LTJS_FFMPEG_TMP_REF_LIBS
-	avcodec
 	avformat
+	avcodec
 	avutil
 	swresample
 	swscale

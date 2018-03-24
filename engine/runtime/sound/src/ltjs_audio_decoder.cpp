@@ -42,7 +42,7 @@ struct AudioDecoder::Impl
 	static constexpr int max_ff_io_buffer_size = 4096;
 
 
-	Impl::Impl() :
+	Impl() :
 		ff_io_context_{},
 		ff_io_buffer_{},
 		ff_format_context_{},
@@ -72,7 +72,7 @@ struct AudioDecoder::Impl
 	Impl& operator=(
 		const Impl& that) = delete;
 
-	Impl::~Impl()
+	~Impl()
 	{
 		close();
 	}

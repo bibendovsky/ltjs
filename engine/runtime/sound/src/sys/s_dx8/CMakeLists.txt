@@ -82,6 +82,8 @@ if (MINGW)
 		dxguid
 		msacm32
 		winmm
+		iconv
+		z
 	)
 endif ()
 
