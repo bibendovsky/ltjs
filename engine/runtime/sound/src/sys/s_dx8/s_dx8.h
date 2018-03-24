@@ -4,6 +4,7 @@
 
 #include <array>
 #include <mutex>
+#include <thread>
 #include "dsound.h"
 #include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_riff_reader.h"
@@ -450,6 +451,7 @@ public:
 	WaveFile			m_WaveStream[MAX_WAVE_STREAMS];
 	
 private:
+	using Thread = std::thread;
 
 	using MtMutex = std::mutex;
 	using MtRMutex = std::recursive_mutex;
@@ -458,14 +460,8 @@ private:
 	using MtRLockGuard = std::lock_guard<MtRMutex>;
 
 
-#ifdef __MINGW32__
-    static unsigned long __attribute__((stdcall)) ThreadBootstrap(void *pUserData);
-#else
-	static unsigned long _stdcall ThreadBootstrap(void *pUserData);
-#endif
-
-	uint32				Thread_Func();
-	HANDLE				m_cThread_Handle;
+	void				Thread_Func();
+	Thread				m_cThread_Handle;
 
 	MtRMutex			m_cCS_SoundThread;
 

@@ -1,5 +1,6 @@
 #include "s_dx8.h"
 #include <array>
+#include <functional>
 #include <memory>
 #include "bibendovsky_spul_endian.h"
 #include "bibendovsky_spul_memory_stream.h"
@@ -1608,22 +1609,12 @@ BOOL CStream::SetCurrentPosition( DWORD dwStartOffset )
 #define NUM_PLAY_NOTIFICATIONS  16
 #define STREAM_BUF_SECONDS	3
 
-#ifdef __MINGW32__
-unsigned long __attribute__((stdcall)) CDx8SoundSys::ThreadBootstrap(void *pUserData)
-#else
-unsigned long _stdcall CDx8SoundSys::ThreadBootstrap(void *pUserData)
-#endif
-{
-	CDx8SoundSys* pSoundSys = (CDx8SoundSys*) pUserData;
-	return (unsigned long)pSoundSys->Thread_Func();
-}
-
 
 //-----------------------------------------------------------------------------
 //	Streaming thread handling
 //	Looping thread handling
 //-----------------------------------------------------------------------------
-uint32 CDx8SoundSys::Thread_Func()
+void CDx8SoundSys::Thread_Func()
 {
 	HANDLE aEvents[3];
 	aEvents[0] = m_cEvent_Shutdown.GetEvent();
@@ -1702,8 +1693,6 @@ uint32 CDx8SoundSys::Thread_Func()
 			break;
 
 	}
-
-	return 0;
 }
 
 #define HANDLE_DS_ERROR( hr, val )
@@ -1770,7 +1759,7 @@ void CDx8SoundSys::Reset( )
 	m_cEvent_SampleLoopActive.Clear();
 	m_cEvent_StreamingActive.Clear();
 	m_cEvent_Shutdown.Clear();
-	m_cThread_Handle = NULL;
+	m_cThread_Handle = {};
 
 	m_nThreadedTickCounts = 0;
 }
@@ -2005,8 +1994,7 @@ bool CDx8SoundSys::Init( )
 	m_nThreadedTickCounts = 0;
 
 	// Create a thread to handle streaming
-	unsigned long nThreadID;
-	m_cThread_Handle = CreateThread( NULL, 0, ThreadBootstrap, (void*) this, 0, &nThreadID);
+	m_cThread_Handle = Thread{std::bind(&CDx8SoundSys::Thread_Func, this)};
 	m_pcLastError = LastError( );
 	DS_CHECK
 
@@ -2031,17 +2019,13 @@ void CDx8SoundSys::Term( )
 {
 	// Shut down the thread
 	m_cEvent_Shutdown.Set();
-	if (m_cThread_Handle)
-	{
-		// If the thread is signaled as shutdown then terminate it 
-		if( WaitForSingleObject(m_cThread_Handle, 1000) != WAIT_OBJECT_0 )
-		{
-			TerminateThread( m_cThread_Handle, 0 );
-		}
 
-		CloseHandle(m_cThread_Handle);
-		m_cThread_Handle = NULL;
+	if (m_cThread_Handle.joinable())
+	{
+		m_cThread_Handle.join();
 	}
+
+	m_cThread_Handle = {};
 
 	while( m_pStreams != NULL )
 	{
