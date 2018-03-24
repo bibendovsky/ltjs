@@ -1,104 +1,117 @@
-#include "s_dx8.h"
+#include <cstdint>
+#include "bibendovsky_spul_endian.h"
+#include "bibendovsky_spul_riff_four_ccs.h"
+#include "bibendovsky_spul_wave_four_ccs.h"
+#include "bibendovsky_spul_wave_format.h"
+#include "bibendovsky_spul_wave_format_utils.h"
 
-#define CHUNK_ID_RIFF			0x46464952	// 'RIFF'
-#define CHUNK_ID_WAVE			0x45564157	// 'WAVE'
-#define CHUNK_ID_FACT			0x74636166	// 'fact'
-#define CHUNK_ID_DATA			0x61746164	// 'data'
-#define CHUNK_ID_WAVH			0x68766177	// 'wavh'
-#define CHUNK_ID_FMT			0x20746d66	// 'fmt'
-#define CHUNK_ID_GUID			0x64697567	// 'guid'
 
-bool ParseWaveFile( void* pWaveFileBlock, void*& rpWaveFormat, uint32& ruiWaveFormatSize,
-	void*& rpSampleData, uint32& ruiSampleDataSize )
+namespace ul = bibendovsky::spul;
+
+
+bool ParseWaveFile(
+	void* pWaveFileBlock,
+	void*& rpWaveFormat,
+	std::uint32_t& ruiWaveFormatSize,
+	void*& rpSampleData,
+	std::uint32_t& ruiSampleDataSize)
 {
-	
-	ruiSampleDataSize = ruiWaveFormatSize = 0;
-	rpSampleData = rpWaveFormat = NULL;
+	constexpr auto wavh_four_cc = ul::FourCc{"wavh"};
+	constexpr auto guid_four_cc = ul::FourCc{"guid"};
 
-	uint8* pucFileBlock = ( uint8* )pWaveFileBlock;
+	ruiSampleDataSize = 0;
+	ruiWaveFormatSize = 0;
+	rpSampleData = nullptr;
+	rpWaveFormat = nullptr;
 
-	bool bFinished = false;
-	while( !bFinished )
+	auto pucFileBlock = static_cast<std::uint8_t*>(pWaveFileBlock);
+
+	auto bFinished = false;
+
+	while (!bFinished)
 	{
+		const auto uiChunkId = ul::Endian::little(*reinterpret_cast<std::uint32_t*>(pucFileBlock));
 
-		uint32 uiChunkId = *( ( uint32* )pucFileBlock );
-		pucFileBlock += sizeof( uint32 );
+		pucFileBlock += sizeof(std::uint32_t);
 
-		switch( uiChunkId )
+		switch (uiChunkId)
 		{
-			case CHUNK_ID_RIFF:
-			{
-				uint32 uiRiffSize = *( ( uint32* )pucFileBlock );
-                static_cast<void>(uiRiffSize);
-				pucFileBlock += sizeof( uint32 );
-				break;
-			}
+		case ul::RiffFourCcs::riff:
+			pucFileBlock += sizeof(std::uint32_t);
+			break;
 
-			case CHUNK_ID_WAVE:
-			{
-				// skip this
-				break;
-//				uint32 uiFmtWord = *( ( uint32* )pucFileBlock );
-//				pucFileBlock += sizeof( uint32 );
+		case ul::WaveFourCcs::wave:
+			// skip this
+			break;
 
-			}
+		case ul::WaveFourCcs::fact:
+		{
+			const auto uiFactSize = ul::Endian::little(*reinterpret_cast<std::uint32_t*>(pucFileBlock));
+			pucFileBlock += sizeof(std::uint32_t);
+			pucFileBlock += uiFactSize;
+			break;
+		}
 
-			case CHUNK_ID_FACT:
-			{
-				uint32 uiFactSize = *( ( uint32* )pucFileBlock );
-				pucFileBlock += sizeof( uint32 );
+		case ul::WaveFourCcs::data:
+		{
+			const auto uiDataSize = ul::Endian::little(*reinterpret_cast<std::uint32_t*>(pucFileBlock));
+			pucFileBlock += sizeof(std::uint32_t);
 
-				uint32* puiFactData = ( uint32* )pucFileBlock;
-                static_cast<void>(puiFactData);
-				pucFileBlock += uiFactSize;
-				break;
-			}
+			rpSampleData = pucFileBlock;
+			ruiSampleDataSize = uiDataSize;
+			pucFileBlock += uiDataSize;
 
-			case CHUNK_ID_DATA:
-			{
-				uint32 uiDataSize = *( ( uint32* )pucFileBlock );
-				pucFileBlock += sizeof( uint32 );
+			bFinished = true;
+			break;
+		}
 
-				rpSampleData = ( void* )pucFileBlock;
-				ruiSampleDataSize = uiDataSize;
-				pucFileBlock += uiDataSize;
+		case wavh_four_cc:
+		case guid_four_cc:
+		{
+			// just skip these
+			const auto uiSkipSize = ul::Endian::little(*reinterpret_cast<std::uint32_t*>(pucFileBlock));
+			pucFileBlock += sizeof(std::uint32_t);
+			pucFileBlock += uiSkipSize;
+			break;
+		}
 
-				bFinished = true;
-				break;
-			}
+		case ul::WaveFourCcs::fmt:
+		{
+			const auto uiFmtSize = ul::Endian::little(*reinterpret_cast<std::uint32_t*>(pucFileBlock));
 
-			case CHUNK_ID_WAVH:
-			case CHUNK_ID_GUID:
-			{
-				// just skip these
-				uint32 uiSkipSize = *( ( uint32* )pucFileBlock );
-				pucFileBlock += sizeof( uint32 );
-
-				uint32* pucSkipData = ( uint32* )pucFileBlock;
-                static_cast<void>(pucSkipData);
-				pucFileBlock += uiSkipSize;
-				break;
-			}
-
-			case CHUNK_ID_FMT:
-			{
-				uint32 uiFmtSize = *( ( uint32* )pucFileBlock );
-				pucFileBlock += sizeof( uint32 );
-
-				rpWaveFormat = ( void* )pucFileBlock;
-				ruiWaveFormatSize = uiFmtSize;
-				pucFileBlock += uiFmtSize;
-				break;
-			}
-
-			default:
+			if (uiFmtSize < ul::WaveFormat::packed_size)
 			{
 				return false;
 			}
+
+			pucFileBlock += sizeof(std::uint32_t);
+			rpWaveFormat = pucFileBlock;
+			ruiWaveFormatSize = uiFmtSize;
+
+			if (!ul::Endian::is_little())
+			{
+				if (uiFmtSize >= ul::WaveFormatEx::packed_size)
+				{
+					ul::WaveformatUtils::endian(*static_cast<ul::WaveFormatEx*>(rpWaveFormat));
+				}
+				else if (uiFmtSize >= ul::PcmWaveFormat::packed_size)
+				{
+					ul::WaveformatUtils::endian(*static_cast<ul::PcmWaveFormat*>(rpWaveFormat));
+				}
+				else
+				{
+					ul::WaveformatUtils::endian(*static_cast<ul::WaveFormat*>(rpWaveFormat));
+				}
+			}
+
+			pucFileBlock += uiFmtSize;
+			break;
+		}
+
+		default:
+			return false;
 		}
 	}
 
-	bool bSuccess = ( ( rpWaveFormat != NULL ) && ( rpSampleData != NULL ) );
-	return bSuccess;
-
+	return rpWaveFormat && rpSampleData;
 }

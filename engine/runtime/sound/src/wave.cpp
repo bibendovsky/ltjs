@@ -58,12 +58,12 @@ static LTBOOL ReadChunk( ILTStream &inStream, uint32 dwType, uint32 dwLength, ui
 				waveHeader.m_dwDataSize = dwLength;
 
 				// Calculate the default ADPCM samples value.
-				if( waveHeader.m_WaveFormat.wFormatTag == WAVE_FORMAT_IMA_ADPCM )
+				if( waveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::ima_adpcm )
 				{
-					dwSamplesPerBlock = 4 << ( waveHeader.m_WaveFormat.nChannels / 2 );
-					dwSamplesPerBlock = 1 + ( waveHeader.m_WaveFormat.nBlockAlign - dwSamplesPerBlock ) * 8 / dwSamplesPerBlock;
-					waveHeader.m_dwSamples = (( waveHeader.m_dwDataSize + waveHeader.m_WaveFormat.nBlockAlign - 1 ) / 
-						waveHeader.m_WaveFormat.nBlockAlign ) * dwSamplesPerBlock;
+					dwSamplesPerBlock = 4 << ( waveHeader.m_WaveFormat.channel_count_ / 2 );
+					dwSamplesPerBlock = 1 + ( waveHeader.m_WaveFormat.block_align_ - dwSamplesPerBlock ) * 8 / dwSamplesPerBlock;
+					waveHeader.m_dwSamples = (( waveHeader.m_dwDataSize + waveHeader.m_WaveFormat.block_align_ - 1 ) / 
+						waveHeader.m_WaveFormat.block_align_ ) * dwSamplesPerBlock;
 				}
 				else
 				{
@@ -79,7 +79,7 @@ static LTBOOL ReadChunk( ILTStream &inStream, uint32 dwType, uint32 dwLength, ui
 			if( dwForm == s_tagWAVE )
 			{
 				// Look for ADPCM extra data.
-				if( waveHeader.m_WaveFormat.wFormatTag == WAVE_FORMAT_IMA_ADPCM )
+				if( waveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::ima_adpcm )
 				{
 					inStream.Read( &waveHeader.m_dwSamples, sizeof( uint32 ));
 				}
@@ -200,9 +200,9 @@ LTBOOL GetWaveInfo( ILTStream &inStream, CWaveHeader &waveHeader )
 			break;
 	}
 
-	if( waveHeader.m_WaveFormat.wFormatTag == WAVE_FORMAT_PCM ||
-		waveHeader.m_WaveFormat.wFormatTag == WAVE_FORMAT_IMA_ADPCM ||
-		waveHeader.m_WaveFormat.wFormatTag == WAVE_FORMAT_MPEGLAYER3 )
+	if( waveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::pcm ||
+		waveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::ima_adpcm ||
+		waveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::mp3 )
 		return LTTRUE;
 
 	return LTFALSE;

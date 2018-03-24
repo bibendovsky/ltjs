@@ -1,26 +1,20 @@
-#ifndef __S_DX8_H__
-#define __S_DX8_H__
+#ifndef LTJS_S_DX8_INCLUDED
+#define LTJS_S_DX8_INCLUDED
 
 
-#include "stdafx.h"
-
-// ---
+#include <array>
+#include <mutex>
+#include <thread>
 #include "dsound.h"
-#include "mmsystem.h"
-#include "mmreg.h"
-#include "msacm.h"
-// ---
+#include "bibendovsky_spul_file_stream.h"
+#include "bibendovsky_spul_riff_reader.h"
+#include "bibendovsky_spul_wave_format.h"
+#include "ltjs_audio_decoder.h"
 #include "iltsound.h"
 
-#include "winsync.h"
 
-enum DS3DAlgo
-{
-	DS3D_NO_VIRTUALIZATION,
-	DS3D_HRTF_LIGHT,
-	DS3D_HRTF_FULL,
-	DS3D_TOTAL_NUM
-};
+namespace ul = bibendovsky::spul;
+
 
 typedef sint16	S16;
 typedef uint16	U16;
@@ -34,101 +28,85 @@ typedef lpvoid	PTR;
 #define MAX_USER_DATA_INDEX		7
 #define MAX_USER_PREF_INDEX		255
 #define	MAX_WAVE_STREAMS		16
-//  we can loop as many samples as we can create
-// events to wait for
-#define MAX_LOOPED_SAMPLES		(MAXIMUM_WAIT_OBJECTS - 1)
-
 #define STR_BUFFER_SIZE			8192
 
-//! WaveFile
-
-// Constants
-#ifndef SUCCESS
-#define SUCCESS TRUE        // Error returns for all member functions
-#define FAILURE FALSE
-#endif // SUCCESS
-
-#define DOUT	(void)//OutputDebugString
 
 class CDx8SoundSys;
+
 
 class WaveFile
 {
 public:
-    WaveFile (void);
-    ~WaveFile (void);
-	void Clear(void);
-    BOOL Open (LPSTR pszFilename, uint32 nFilePos);
-	void Close(void);
-    BOOL Cue (void);
-	BOOL IsMP3() { return m_bMP3Compressed; }
-    UINT Read (BYTE * pbDest, UINT cbSize);
-	UINT ReadCompressed( BYTE* pbDest, UINT cbSize, BYTE* pCompressedBuffer, BYTE* pbDecompressedBuffer );
-    UINT GetAvgDataRate (void) { return (m_nAvgDataRate); }
-    UINT GetDataSize (void) { return (m_nDataSize); }
-    UINT GetNumBytesRead (void) { return (m_nBytesRead); }
-	UINT GetNumBytesCopied( ) { return m_nBytesCopied; }
-	UINT GetMaxBytesRead( ) { return m_nMaxBytesRead; }
-	UINT GetMaxBytesCopied( ) { return m_nMaxBytesCopied; }
-    UINT GetDuration (void) { return (m_nDuration); }
-    BYTE GetSilenceData (void);
-	void SetBytesPerSample( UINT nBytesPerSample ) { m_nBytesPerSample = nBytesPerSample; }
+	WaveFile();
 
-	UINT SeekFromStart( uint32 nBytes );
-	UINT SeekFromStartCompressed( uint32 nBytes );
-	
+	~WaveFile();
+
+	void Clear();
+
+	bool Open(
+		const char* pszFilename,
+		const std::uint32_t nFilePos);
+
+	void Close();
+
+	bool Cue();
+
+	bool IsMP3() const;
+
+	std::uint32_t Read(
+		std::uint8_t* pbDest,
+		const std::uint32_t cbSize);
+
+	std::uint32_t ReadCompressed(
+		std::uint8_t* pbDest,
+		const std::uint32_t cbSize,
+		const std::uint8_t* pCompressedBuffer,
+		std::uint8_t* pbDecompressedBuffer);
+
+	std::uint32_t GetDataSize() const;
+
+	std::uint32_t GetMaxBytesCopied() const;
+
+	std::uint32_t GetDuration() const;
+
+	std::uint8_t GetSilenceData() const;
+
+	std::uint32_t SeekFromStart(
+		const std::uint32_t nBytes);
+
 	// Integration functions
-	bool IsActive()	{ return (m_hStream) ? true : false;  }
-	void SetStream(LHSTREAM hStream) { m_hStream = hStream; }
-	LHSTREAM GetStream() { return m_hStream;  }
+	bool IsActive() const;
 
-	// decompression related functions
-	HACMSTREAM GetAcmStream() { return m_hAcmStream; }
-	void SetAcmStream( HACMSTREAM hAcmStream ) { m_hAcmStream = hAcmStream; }
-	ACMSTREAMHEADER* GetAcmStreamHeader() { return &m_acmStreamHeader; }
-	void SetSrcBufferSize( unsigned long ulSrcBufferSize ) { m_ulSrcBufferSize = ulSrcBufferSize; }
+	void SetStream(
+		LHSTREAM hStream);
 
-    WAVEFORMATEX* m_pwfmt;
+	LHSTREAM GetStream() const;
 
-  protected:
-    HMMIO m_hmmio;
-	uint32 m_nFilePos;			// Offset from the beginning of the file where the wav is.
-    MMRESULT m_mmr;
-    MMCKINFO m_mmckiRiff;
-    MMCKINFO m_mmckiFmt;
-    MMCKINFO m_mmckiData;
-    UINT m_nDuration;           // duration of sound in msec
-    UINT m_nBlockAlign;         // wave data block alignment spec
-    UINT m_nAvgDataRate;        // average wave data rate
-    UINT m_nDataSize;           // size of data chunk
-    UINT m_nBytesRead;			// Number of uncompressed bytes read.
-	UINT m_nMaxBytesRead;		// Maximum number of bytes read, regardless of looping back.
-    UINT m_nBytesCopied;		// Number of uncompressed bytes copied.
-	UINT m_nMaxBytesCopied;		// Maximum number of bytes copied, regardless of looping back.
-	UINT m_nBytesPerSample;		// number of bytes in each sample
+	const ul::WaveFormatEx& get_format() const;
 
+	static int extract_wave_size(
+		const void* raw_data);
+
+
+protected:
+	static constexpr auto default_bit_depth = 16;
+	static constexpr auto max_channel_count = 2;
+
+
+	ul::FileStream file_stream_;
+	ul::Substream file_substream_;
+	ltjs::AudioDecoder audio_decoder_;
+	ul::WaveFormatEx wave_format_ex_;
+
+	std::uint32_t m_nDuration; // duration of sound in msec
+	std::uint32_t m_nAvgDataRate; // average wave data rate
+	std::uint32_t m_nBytesCopied; // Number of uncompressed bytes copied.
+	std::uint32_t m_nMaxBytesCopied; // Maximum number of bytes copied, regardless of looping back.
 
 	// Integration data
 	LHSTREAM m_hStream;
+}; // WaveFile
 
-	// for files that need to be decompressed
-	BOOL m_bMP3Compressed;
-	ACMSTREAMHEADER m_acmStreamHeader;
-	HACMSTREAM m_hAcmStream;
-	unsigned long m_ulSrcBufferSize;
-	UINT m_nRemainderBytes;
-	UINT m_nRemainderOffset;
-	BYTE m_RemainderBuffer[STR_BUFFER_SIZE];
-};
-
-
-
-//! ParseWaveFile
-
-bool ParseWaveFile( void* pWaveFileBlock, void*& rpWaveFormat, uint32& ruiWaveFormatSize,
-	void*& rpSampleData, uint32& ruiSampleDataSize );
-
-//! I3DObject
 
 class I3DObject
 {
@@ -150,7 +128,6 @@ public:
 	S32			m_userData[ MAX_USER_DATA_INDEX + 1 ];
 };
 
-//! C3DListener
 
 class C3DListener : public I3DObject
 {
@@ -170,8 +147,6 @@ public:
 };
 
 
-//! CSample
-
 class CSample
 {
 public:
@@ -179,7 +154,7 @@ public:
 	virtual ~CSample( );
 	void Reset( );
 	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, 
-		bool b3DBuffer, WAVEFORMATEX* pWaveFormat = NULL, LTSOUNDFILTERDATA* pFilterData = NULL );
+		bool b3DBuffer, ul::WaveFormatEx* pWaveFormat = NULL, LTSOUNDFILTERDATA* pFilterData = NULL );
 	void Term( );
 	void Restore( );
 	bool Fill( );
@@ -206,7 +181,7 @@ public:
 //	===========================================================================
 
 public:
-	WAVEFORMATEX			m_waveFormat;
+	ul::WaveFormatEx		m_waveFormat;
 	DSBUFFERDESC			m_dsbDesc;
 	LPDIRECTSOUNDBUFFER		m_pDSBuffer;
 	void*					m_pSoundData;
@@ -223,7 +198,6 @@ public:
 	static 	LTLink			m_lstSampleLoopHead;
 };
 
-//! C3DSample
 
 class C3DSample : public I3DObject
 {
@@ -231,7 +205,7 @@ public:
 	C3DSample( );
 	virtual ~C3DSample( );
 	void Reset( );
-	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, WAVEFORMATEX* pWaveFormat, LTSOUNDFILTERDATA* pFilterData );
+	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, ul::WaveFormatEx* pWaveFormat, LTSOUNDFILTERDATA* pFilterData );
 	void Term( );
 	virtual void SetPosition( LTVector& pos );
 	virtual void SetVelocity( LTVector& vel );
@@ -250,8 +224,6 @@ public:
 	LPDIRECTSOUND3DBUFFER8	m_pDS3DBuffer;
 };
 
-
-//! CStream
 
 class CStream : public CSample
 {
@@ -282,18 +254,6 @@ public:
 };
 
 
-//! CFileStream
-
-class CFileStream
-{
-public:
-	
-
-
-};
-
-//! CDx8SoundSys
-
 class CDx8SoundSys : public ILTSoundSys
 {
 public:
@@ -321,7 +281,7 @@ public:
 	virtual char*		LastError( void );
 
 	// digital sound driver functions
-	virtual S32			WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, S32 siDeviceId, WAVEFORMAT* pWaveFormat );
+	virtual S32			WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, S32 siDeviceId, ul::WaveFormat* pWaveFormat );
 	virtual void		WaveOutClose( LHDIGDRIVER hDriver );
 	virtual void		SetDigitalMasterVolume( LHDIGDRIVER hDig, S32 siMasterVolume );
 	virtual S32			GetDigitalMasterVolume( LHDIGDRIVER hDig );
@@ -365,7 +325,7 @@ public:
 	virtual void		Start3DSample( LH3DSAMPLE hS );
 	virtual void		Resume3DSample( LH3DSAMPLE hS );
 	virtual void		End3DSample( LH3DSAMPLE hS );
-	virtual S32			Init3DSampleFromAddress( LH3DSAMPLE hS, void* pStart, U32 uiLen, WAVEFORMATEX* pWaveFormat, S32 nPitchShift, LTSOUNDFILTERDATA* pFilterData );
+	virtual S32			Init3DSampleFromAddress( LH3DSAMPLE hS, void* pStart, U32 uiLen, ul::WaveFormatEx* pWaveFormat, S32 nPitchShift, LTSOUNDFILTERDATA* pFilterData );
 	virtual S32			Init3DSampleFromFile( LH3DSAMPLE hS, void* pFile_image, S32 siBlock, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
 	virtual S32			Get3DSampleVolume( LH3DSAMPLE hS );
 	virtual void		Set3DSampleVolume( LH3DSAMPLE hS, S32 siVolume );
@@ -396,7 +356,7 @@ public:
 	virtual void		SetSampleUserData( LHSAMPLE hS, U32 uiIndex, S32 siValue );
 	virtual void		GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND* ppDS, PTDIRECTSOUNDBUFFER* ppDSB );
 	virtual void		SetSampleReverb( LHSAMPLE hS, float fReverb_level, float fReverb_reflect_time, float fReverb_decay_time );
-	virtual S32			InitSampleFromAddress( LHSAMPLE hS, void* pStart, U32 uiLen, WAVEFORMATEX* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
+	virtual S32			InitSampleFromAddress( LHSAMPLE hS, void* pStart, U32 uiLen, ul::WaveFormatEx* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
 	virtual S32			InitSampleFromFile( LHSAMPLE hS, void* pFile_image, S32 siBlock, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
 	virtual void		SetSampleLoopBlock( LHSAMPLE hS, S32 siLoop_start_offset, S32 siLoop_end_offset, bool bEnable );
 	virtual void		SetSampleLoop( LHSAMPLE hS, bool bLoop );
@@ -431,15 +391,13 @@ public:
 	virtual S32			DecompressADPCM( LTSOUNDINFO* pInfo, void** ppOutData, U32* puiOutSize );
 	virtual S32			DecompressASI( void* pInData, U32 uiInSize, char* sFilename_ext, void** ppWav, U32* puiWavSize, LTLENGTHYCB fnCallback );
 	UINT				ReadStream( WaveFile* pStream, BYTE* pOutBuffer, int nSize );
-	BYTE*				GetCompressedBuffer() { return m_pCompressedBuffer; }
-	BYTE*				GetDecompressedBuffer() { return m_pDecompressedBuffer; }
 
 	virtual bool		HasOnBoardMemory( );
 
 //	===========================================================================
 //	Incorporation of DSMStrm* required functionality
 public:
-	CSample*			CreateBuffer( WAVEFORMATEX* pWaveFormat, DWORD dwBufferSize, DWORD dwFlags );
+	CSample*			CreateBuffer( ul::WaveFormatEx* pWaveFormat, DWORD dwBufferSize, DWORD dwFlags );
 	void				DestroyBuffer( CSample* pSoundBuffer );
 //	===========================================================================
 
@@ -455,7 +413,6 @@ private:
 	void InitEAX20Filtering(void);
 #endif
 	bool SupportsDS3DHardware(void);
-	bool FillStreamBuffer( LPDIRECTSOUNDBUFFER pDSB, WaveFile* pStream, int nSize );
 
 	// Gets the propertyset interface to do eax operations.
 	bool GetPropertySetForEAX( );
@@ -470,16 +427,10 @@ public:
 	LPDIRECTSOUND8		m_pDirectSound;
 	LPDIRECTSOUNDBUFFER m_pDSPrimaryBuffer;
 	LPKSPROPERTYSET     m_pKSPropertySet;
-	WAVEFORMATEX		m_waveFormat;
+	ul::WaveFormatEx	m_waveFormat;
 	DSCAPS				m_dscaps;
 	HRESULT				m_hResult;
 	char*				m_pcLastError;
-	HACMDRIVERID		m_hAcmPCMDriverId;
-	HACMDRIVER			m_hAcmPCMDriver;
-	HACMDRIVERID		m_hAcmADPCMDriverId;
-	HACMDRIVER			m_hAcmADPCMDriver;
-	HACMDRIVERID		m_hAcmMP3DriverId;
-	HACMDRIVER			m_hAcmMP3Driver;
 	sint32				m_iCur3DProvider;
 	DWORD				m_dwMinHardwareBuffers;
 
@@ -493,32 +444,32 @@ public:
 public:
 	CStream*			m_pStreams;
 
-	// for decompressing streams
-	BYTE*				m_pCompressedBuffer;
-	BYTE*				m_pDecompressedBuffer;
-	
 	WaveFile			m_WaveStream[MAX_WAVE_STREAMS];
 	
 private:
+	using Thread = std::thread;
 
-#ifdef __MINGW32__
-    static unsigned long __attribute__((stdcall)) ThreadBootstrap(void *pUserData);
-#else
-	static unsigned long _stdcall ThreadBootstrap(void *pUserData);
-#endif
+	using MtMutex = std::mutex;
+	using MtRMutex = std::recursive_mutex;
 
-	uint32				Thread_Func();
-	HANDLE				m_cThread_Handle;
+	using MtLockGuard = std::lock_guard<MtMutex>;
+	using MtRLockGuard = std::lock_guard<MtRMutex>;
 
-	CWinSync_CS			m_cCS_SoundThread;
 
-	CWinSync_Event		m_cEvent_SampleLoopActive;
-	CWinSync_Event		m_cEvent_StreamingActive;
-	CWinSync_Event		m_cEvent_Shutdown;
+	void				Thread_Func();
+	Thread				m_cThread_Handle;
 
-	CWinSync_CS			m_cCS_ThreadedTickCounts;
+	MtRMutex			m_cCS_SoundThread;
+
+	bool is_mt_sample_loop_active_;
+	bool is_mt_streaming_active_;
+	bool is_mt_shutdown_;
+
+	MtMutex				m_cCS_ThreadedTickCounts;
 	uint32				m_nThreadedTickCounts;
 
+	ltjs::AudioDecoder audio_decoder_;
 };
 
-#endif 
+
+#endif // LTJS_S_DX8_INCLUDED

@@ -6,6 +6,7 @@ include(ltjs_common)
 include_directories(
     .
     ../../../../directx/include
+    ../../../../libs/bibendovsky_spul_lib/include
     ../../../../libs/lith
     ../../../../libs/mfcstub
     ../../../../libs/stdlith
