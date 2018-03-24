@@ -3,6 +3,7 @@
 
 
 #include <array>
+#include <mutex>
 #include "dsound.h"
 #include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_riff_reader.h"
@@ -450,6 +451,13 @@ public:
 	
 private:
 
+	using MtMutex = std::mutex;
+	using MtRMutex = std::recursive_mutex;
+
+	using MtLockGuard = std::lock_guard<MtMutex>;
+	using MtRLockGuard = std::lock_guard<MtRMutex>;
+
+
 #ifdef __MINGW32__
     static unsigned long __attribute__((stdcall)) ThreadBootstrap(void *pUserData);
 #else
@@ -459,13 +467,13 @@ private:
 	uint32				Thread_Func();
 	HANDLE				m_cThread_Handle;
 
-	CWinSync_CS			m_cCS_SoundThread;
+	MtRMutex			m_cCS_SoundThread;
 
 	CWinSync_Event		m_cEvent_SampleLoopActive;
 	CWinSync_Event		m_cEvent_StreamingActive;
 	CWinSync_Event		m_cEvent_Shutdown;
 
-	CWinSync_CS			m_cCS_ThreadedTickCounts;
+	MtMutex				m_cCS_ThreadedTickCounts;
 	uint32				m_nThreadedTickCounts;
 
 	ltjs::AudioDecoder audio_decoder_;

@@ -1639,7 +1639,7 @@ uint32 CDx8SoundSys::Thread_Func()
 		// Stream section.
 		if(m_cEvent_StreamingActive.IsSet())
 		{
-			CWinSync_CSAuto cStreamProtection(m_cCS_SoundThread);
+			MtRLockGuard cStreamProtection(m_cCS_SoundThread);
 
 			CountAdder cntAdd(&nTheadedTickCounts);
 
@@ -1665,7 +1665,7 @@ uint32 CDx8SoundSys::Thread_Func()
 		// Loop point section.
 		if(m_cEvent_SampleLoopActive.IsSet())
 		{
-			CWinSync_CSAuto cLoopProtection(m_cCS_SoundThread);
+			MtRLockGuard cLoopProtection(m_cCS_SoundThread);
 
 			CountAdder cntAdd(&nTheadedTickCounts);
 
@@ -1693,7 +1693,7 @@ uint32 CDx8SoundSys::Thread_Func()
 
 		// Add up the tick counts.
 		{
-			CWinSync_CSAuto cThreadTickCountsProtection(m_cCS_ThreadedTickCounts);
+			MtLockGuard cThreadTickCountsProtection(m_cCS_ThreadedTickCounts);
 			m_nThreadedTickCounts += (timeGetTime() - nTheadedTickCounts);
 		}
 	
@@ -1910,7 +1910,7 @@ bool CDx8SoundSys::SetSampleNotify( CSample* pSample, bool bEnable )
 		if( !pSample->m_lnkLoopNotify.IsTiedOff( ))
 		{
 			// don't write to list if other thread is using it.
-			CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+			MtRLockGuard cProtection(m_cCS_SoundThread);
 
 			dl_Remove( &pSample->m_lnkLoopNotify );
 
@@ -1925,7 +1925,7 @@ bool CDx8SoundSys::SetSampleNotify( CSample* pSample, bool bEnable )
   			{
 
 				// don't write to array if other thread is using it.
-				CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+				MtRLockGuard cProtection(m_cCS_SoundThread);
 
 				// store sample for later use
 				dl_Insert( CSample::m_lstSampleLoopHead.m_pPrev, &pSample->m_lnkLoopNotify );
@@ -2780,7 +2780,7 @@ void CDx8SoundSys::Release3DSampleHandle( LH3DSAMPLE hS )
 	if( hS == NULL )
 		return;
 
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	C3DSample* p3DSample = ( C3DSample* )hS;
 	delete p3DSample;
@@ -3133,7 +3133,7 @@ void CDx8SoundSys::Set3DSampleLoop( LH3DSAMPLE hS, bool bLoop )
 	C3DSample* p3DSample = ( C3DSample* )hS;
 	p3DSample->m_sample.Restore( );
 
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	p3DSample->m_sample.SetLooping( this, bLoop );
 }
@@ -3197,7 +3197,7 @@ void CDx8SoundSys::ReleaseSampleHandle( LHSAMPLE hS )
 	if( hS == NULL )
 		return;
 
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	CSample* pSample = ( CSample* )hS;
 
@@ -3605,7 +3605,7 @@ void CDx8SoundSys::SetSampleLoop( LHSAMPLE hS, bool bLoop )
 	CSample* pSample = ( CSample* )hS;
 	pSample->Restore( );
 
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	pSample->SetLooping( this, bLoop );
 }
@@ -3721,7 +3721,7 @@ void CDx8SoundSys::SetStreamLoop( LHSTREAM hStream, bool bLoop )
 	if( hStream == NULL )
 		return;
 
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	CStream* pStream = ( CStream* )hStream;
 
@@ -3735,7 +3735,7 @@ void CDx8SoundSys::SetStreamPlaybackRate( LHSTREAM hStream, S32 siRate )
 
 void CDx8SoundSys::SetStreamMsPosition( LHSTREAM hStream, S32 siMilliseconds )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	if( hStream == NULL )
 		return;
@@ -3775,7 +3775,7 @@ LHSTREAM CDx8SoundSys::OpenStream( streamBufferParams_t* pStreamBufferParams, Wa
 	if( pStreamBufferParams == NULL )
 		return NULL;
 
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
     CStream* pStream;
 	LT_MEM_TRACK_ALLOC(pStream = new CStream( m_pStreams, NULL ),LT_MEM_TYPE_SOUND);
@@ -3844,7 +3844,7 @@ end:
 
 void CDx8SoundSys::CloseStream( LHSTREAM hStream )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::CloseStream]\n");
 	PauseStream( hStream, 1 );
@@ -3862,7 +3862,7 @@ void CDx8SoundSys::CloseStream( LHSTREAM hStream )
 
 void CDx8SoundSys::StartStream( LHSTREAM hStream )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	CStream* pStream = ( CStream* )hStream;
 	pStream->Stop( true );
@@ -3874,7 +3874,7 @@ void CDx8SoundSys::StartStream( LHSTREAM hStream )
 
 void CDx8SoundSys::PauseStream( LHSTREAM hStream, sint32 siOnOff )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::PauseStream]\n");
 	CStream* pStream = ( CStream* )hStream;
@@ -3889,7 +3889,7 @@ void CDx8SoundSys::PauseStream( LHSTREAM hStream, sint32 siOnOff )
 
 void CDx8SoundSys::ResetStream( LHSTREAM hStream )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::ResetStream]\n");
 	PauseStream( hStream, 1 );
@@ -3902,7 +3902,7 @@ void CDx8SoundSys::ResetStream( LHSTREAM hStream )
 
 void CDx8SoundSys::SetStreamVolume( LHSTREAM hStream, sint32 siVolume )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::SetStreamVolume]\n");
 
@@ -3924,7 +3924,7 @@ void CDx8SoundSys::SetStreamVolume( LHSTREAM hStream, sint32 siVolume )
 
 void CDx8SoundSys::SetStreamPan( LHSTREAM hStream, sint32 siPan )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::SetStreamPan]\n");
 
@@ -3939,7 +3939,7 @@ void CDx8SoundSys::SetStreamPan( LHSTREAM hStream, sint32 siPan )
 
 sint32 CDx8SoundSys::GetStreamVolume( LHSTREAM hStream )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::GetStreamVolume]\n");
 
@@ -3958,7 +3958,7 @@ sint32 CDx8SoundSys::GetStreamVolume( LHSTREAM hStream )
 
 sint32 CDx8SoundSys::GetStreamPan( LHSTREAM hStream )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::GetStreamPan]\n");
 
@@ -3976,7 +3976,7 @@ sint32 CDx8SoundSys::GetStreamPan( LHSTREAM hStream )
 
 uint32 CDx8SoundSys::GetStreamStatus( LHSTREAM hStream )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::GetStreamStatus]\n");
 	CStream* pStream = ( CStream* )hStream;
@@ -3986,7 +3986,7 @@ uint32 CDx8SoundSys::GetStreamStatus( LHSTREAM hStream )
 
 sint32 CDx8SoundSys::GetStreamBufferParam( LHSTREAM hStream, uint32 uiParam )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::GetStreamBufferParam]\n");
 	CStream* pStream = ( CStream* )hStream;
@@ -3996,7 +3996,7 @@ sint32 CDx8SoundSys::GetStreamBufferParam( LHSTREAM hStream, uint32 uiParam )
 
 void CDx8SoundSys::ClearStreamBuffer( LHSTREAM hStream, bool bClearStreamDataQueue )
 {
-	CWinSync_CSAuto cProtection(m_cCS_SoundThread);
+	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::ClearStreamBuffer]\n");
 	PauseStream( hStream, 1 );
@@ -4142,7 +4142,7 @@ uint32 CDx8SoundSys::GetThreadedSoundTicks( )
 
 	// Copy the tick counts.
 	{
-		CWinSync_CSAuto cThreadTickCountsProtection(m_cCS_ThreadedTickCounts);
+		MtLockGuard cThreadTickCountsProtection(m_cCS_ThreadedTickCounts);
 		nThreadedTickCounts = m_nThreadedTickCounts;
 
 		// Reset it for the next frame.
