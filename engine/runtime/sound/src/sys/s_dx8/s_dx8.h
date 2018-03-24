@@ -11,7 +11,6 @@
 #include "bibendovsky_spul_wave_format.h"
 #include "ltjs_audio_decoder.h"
 #include "iltsound.h"
-#include "winsync.h"
 
 
 namespace ul = bibendovsky::spul;
@@ -462,9 +461,9 @@ private:
 
 	MtRMutex			m_cCS_SoundThread;
 
-	CWinSync_Event		m_cEvent_SampleLoopActive;
-	CWinSync_Event		m_cEvent_StreamingActive;
-	CWinSync_Event		m_cEvent_Shutdown;
+	bool is_mt_sample_loop_active_;
+	bool is_mt_streaming_active_;
+	bool is_mt_shutdown_;
 
 	MtMutex				m_cCS_ThreadedTickCounts;
 	uint32				m_nThreadedTickCounts;

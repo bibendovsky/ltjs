@@ -1,5 +1,6 @@
 #include "s_dx8.h"
 #include <array>
+#include <chrono>
 #include <functional>
 #include <memory>
 #include "bibendovsky_spul_endian.h"
@@ -1662,82 +1663,94 @@ BOOL CStream::SetCurrentPosition( DWORD dwStartOffset )
 //-----------------------------------------------------------------------------
 void CDx8SoundSys::Thread_Func()
 {
-	HANDLE aEvents[3];
-	aEvents[0] = m_cEvent_Shutdown.GetEvent();
-	aEvents[1] = m_cEvent_StreamingActive.GetEvent();
-	aEvents[2] = m_cEvent_SampleLoopActive.GetEvent();
-
-	// Block on all the events.  If WAIT_OBJECT_0, then it's our shutdown event.
-	while (WaitForMultipleObjects(3, aEvents, FALSE, INFINITE ) != WAIT_OBJECT_0)
+	while (true)
 	{
+		auto is_sleep = true;
+
 		// Calculate how much time we are using up
-		uint32 nTheadedTickCounts = timeGetTime();
+		uint32 nTheadedTickCounts = ::timeGetTime();
 
-		// Stream section.
-		if(m_cEvent_StreamingActive.IsSet())
 		{
-			MtRLockGuard cStreamProtection(m_cCS_SoundThread);
+			MtRLockGuard lock_guard{m_cCS_SoundThread};
 
-			CountAdder cntAdd(&nTheadedTickCounts);
-
-			// go through the streams and see if any are playing
-			bool bSleep = true;
-			for( CStream *pStream = m_pStreams; pStream != NULL; )
+			if (is_mt_sample_loop_active_ || is_mt_streaming_active_)
 			{
-				CStream* pNext = pStream->m_pNext;
+				is_sleep = false;
 
-				if ( pStream->IsPlaying() )
+				// Stream section.
+				if (is_mt_streaming_active_)
 				{
-					pStream->HandleUpdate( this );
-					bSleep = false;
+					CountAdder cntAdd(&nTheadedTickCounts);
+
+					// go through the streams and see if any are playing
+					auto bSleep = true;
+
+					for (auto pStream = m_pStreams; pStream; )
+					{
+						auto pNext = pStream->m_pNext;
+
+						if (pStream->IsPlaying())
+						{
+							pStream->HandleUpdate(this);
+							bSleep = false;
+						}
+
+						pStream = pNext;
+					}
+
+					// Go to sleep if we didn't do anything
+					if (bSleep)
+					{
+						is_mt_streaming_active_ = false;
+					}
 				}
 
-				pStream = pNext;
-			}
-			// Go to sleep if we didn't do anything
-			if (bSleep)
-				m_cEvent_StreamingActive.Clear();
-		}
-
-		// Loop point section.
-		if(m_cEvent_SampleLoopActive.IsSet())
-		{
-			MtRLockGuard cLoopProtection(m_cCS_SoundThread);
-
-			CountAdder cntAdd(&nTheadedTickCounts);
-
-			bool bSleep = true;
-
-			LTLink* pLink = CSample::m_lstSampleLoopHead.m_pNext;
-			while( pLink != &CSample::m_lstSampleLoopHead )
-			{
-				LTLink* pNext = pLink->m_pNext;
-
-				CSample* pSample = ( CSample* )pLink->m_pData;
-				if( pSample )
+				// Loop point section.
+				if (is_mt_sample_loop_active_)
 				{
-					pSample->HandleLoop( this );
-					bSleep = false;
+					CountAdder cntAdd(&nTheadedTickCounts);
+
+					auto bSleep = true;
+					auto pLink = CSample::m_lstSampleLoopHead.m_pNext;
+
+					while (pLink != &CSample::m_lstSampleLoopHead)
+					{
+						auto pNext = pLink->m_pNext;
+						auto pSample = static_cast<CSample*>(pLink->m_pData);
+
+						if (pSample)
+						{
+							pSample->HandleLoop(this);
+							bSleep = false;
+						}
+
+						pLink = pNext;
+					}
+
+					// Go to sleep if we didn't do anything
+					if (bSleep)
+					{
+						is_mt_sample_loop_active_ = false;
+					}
 				}
-
-				pLink = pNext;
 			}
-
-			// Go to sleep if we didn't do anything
-			if (bSleep)
-				m_cEvent_SampleLoopActive.Clear();
+			else if (is_mt_shutdown_)
+			{
+				break;
+			}
 		}
 
 		// Add up the tick counts.
 		{
-			MtLockGuard cThreadTickCountsProtection(m_cCS_ThreadedTickCounts);
-			m_nThreadedTickCounts += (timeGetTime() - nTheadedTickCounts);
+			MtLockGuard cThreadTickCountsProtection{m_cCS_ThreadedTickCounts};
+			m_nThreadedTickCounts += ::timeGetTime() - nTheadedTickCounts;
 		}
-	
-		// Just in case shutdown was also signaled
-		if( m_cEvent_Shutdown.IsSet() )
-			break;
 
+		if (is_sleep)
+		{
+			constexpr auto sleep_delay_ms = std::chrono::milliseconds{10};
+			std::this_thread::sleep_for(sleep_delay_ms);
+		}
 	}
 }
 
@@ -1802,9 +1815,10 @@ void CDx8SoundSys::Reset( )
 	m_pKSPropertySet = NULL;
 	g_iCurrentEAXDirectSetting = 0;
 
-	m_cEvent_SampleLoopActive.Clear();
-	m_cEvent_StreamingActive.Clear();
-	m_cEvent_Shutdown.Clear();
+	is_mt_sample_loop_active_ = false;
+	is_mt_streaming_active_ = false;
+	is_mt_shutdown_ = false;
+
 	m_cThread_Handle = {};
 
 	m_nThreadedTickCounts = 0;
@@ -1966,7 +1980,7 @@ bool CDx8SoundSys::SetSampleNotify( CSample* pSample, bool bEnable )
 				dl_Insert( CSample::m_lstSampleLoopHead.m_pPrev, &pSample->m_lnkLoopNotify );
 
 				// Tell the looping thread to wake up
-				m_cEvent_SampleLoopActive.Set();
+				is_mt_sample_loop_active_ = true;
 			}
 		}
 	}
@@ -2064,7 +2078,7 @@ bool CDx8SoundSys::HasOnBoardMemory( )
 void CDx8SoundSys::Term( )
 {
 	// Shut down the thread
-	m_cEvent_Shutdown.Set();
+	is_mt_shutdown_ = true;
 
 	if (m_cThread_Handle.joinable())
 	{
@@ -3899,7 +3913,7 @@ void CDx8SoundSys::StartStream( LHSTREAM hStream )
 	pStream->Play( );
 
 	// Tell the streaming thread something's going on...
-	m_cEvent_StreamingActive.Set();
+	is_mt_streaming_active_ = true;
 }
 
 void CDx8SoundSys::PauseStream( LHSTREAM hStream, sint32 siOnOff )
@@ -3912,7 +3926,7 @@ void CDx8SoundSys::PauseStream( LHSTREAM hStream, sint32 siOnOff )
 		pStream->Stop( false );
 	else
 	{
-		m_cEvent_StreamingActive.Set();
+		is_mt_streaming_active_ = true;
 		pStream->Play( );
 	}
 }
