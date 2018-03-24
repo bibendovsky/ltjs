@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(ltjs_snd_drv VERSION 0.0.1 LANGUAGES CXX)
+project(ltjs_snd_drv_dx8 VERSION 0.0.1 LANGUAGES CXX)
 
 find_package(LTJS_FFmpeg REQUIRED 2.8.11)
+
+option(LTJS_INSTALL_SND_DRV_DX8 "Install DirectSound sound driver." ON)
 
 include(ltjs_common)
 
@@ -31,15 +33,15 @@ set(
 )
 
 add_library(
-	ltjs_snd_drv SHARED
+	ltjs_snd_drv_dx8 SHARED
 	${headers}
 	${sources}
 )
 
-ltjs_add_defaults(ltjs_snd_drv)
+ltjs_add_defaults(ltjs_snd_drv_dx8)
 
 set_target_properties(
-	ltjs_snd_drv
+	ltjs_snd_drv_dx8
 	PROPERTIES
 		OUTPUT_NAME ltjs_snddrv
 		PREFIX ""
@@ -54,7 +56,7 @@ endif ()
 
 if (MSVC)
 	set_target_properties(
-		ltjs_snd_drv
+		ltjs_snd_drv_dx8
 		PROPERTIES
 			LINK_FLAGS /SUBSYSTEM:WINDOWS
 	)
@@ -88,14 +90,22 @@ if (MINGW)
 endif ()
 
 target_link_libraries(
-	ltjs_snd_drv
+	ltjs_snd_drv_dx8
 	bibendovsky_spul_lib
 	ltjs_lib_lt_mem
 	${libs}
 )
 
+if (LTJS_INSTALL_SND_DRV_DX8)
+	install(
+		TARGETS
+		ltjs_snd_drv_dx8
+		RUNTIME DESTINATION "."
+	)
+endif ()
+
 install(
 	TARGETS
-	ltjs_snd_drv
-	RUNTIME DESTINATION "."
+	ltjs_snd_drv_dx8
+	RUNTIME DESTINATION "ltjs_dx8_"
 )
