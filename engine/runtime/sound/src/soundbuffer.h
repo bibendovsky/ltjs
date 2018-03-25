@@ -66,7 +66,7 @@ public:
 	uint32			GetDuration( ) const
         { return m_dwDuration; } // In milliseconds
 
-	ul::WaveFormatEx*	GetWaveFormat( LTBOOL bDelegate = LTTRUE );
+	ul::WaveFormatEx&	GetWaveFormat( LTBOOL bDelegate = LTTRUE );
 
 
 
@@ -76,7 +76,7 @@ public:
 	{ return ( bDelegate && m_pDecompressedSoundBuffer ) ? m_pDecompressedSoundBuffer->m_nSampleType : m_nSampleType; }
 
 	S32				GetPlaybackRate( LTBOOL bDelegate = LTTRUE )
-	{ return GetWaveFormat( bDelegate )->sample_rate_; }
+	{ return GetWaveFormat( bDelegate ).sample_rate_; }
 
 //	===========================================================================
 #ifdef USE_ABSTRACT_SOUND_INTERFACES
@@ -203,10 +203,10 @@ inline float CSoundBuffer::RandomPitchMod( )
 	return GetRandom( -m_WaveHeader.m_lith.m_fPitchMod, m_WaveHeader.m_lith.m_fPitchMod );
 }
 
-inline ul::WaveFormatEx *CSoundBuffer::GetWaveFormat( LTBOOL bDelegate )
+inline ul::WaveFormatEx& CSoundBuffer::GetWaveFormat( LTBOOL bDelegate )
 {
     return ( bDelegate && m_pDecompressedSoundBuffer ) ?
-        &m_pDecompressedSoundBuffer->m_WaveHeader.m_WaveFormat : &m_WaveHeader.m_WaveFormat;
+        m_pDecompressedSoundBuffer->m_WaveHeader.m_WaveFormat : m_WaveHeader.m_WaveFormat;
 }
 
 

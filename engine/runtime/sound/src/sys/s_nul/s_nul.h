@@ -54,10 +54,10 @@ public:
 	// digital sound driver functions
 	//
 	sint32 WaveOutOpen(
-		LHDIGDRIVER* driver_ptr,
-		PHWAVEOUT* wave_out_ptr,
+		LHDIGDRIVER& driver_ptr,
+		PHWAVEOUT& wave_out_ptr,
 		const sint32 device_id,
-		const ul::WaveFormat* wave_format_ptr) override;
+		const ul::WaveFormatEx& wave_format) override;
 
 	void WaveOutClose(
 		LHDIGDRIVER driver_ptr) override;
@@ -78,13 +78,13 @@ public:
 #ifdef USE_EAX20_HARDWARE_FILTERS
 	bool SetEAX20Filter(
 		const bool is_enable,
-		const LTSOUNDFILTERDATA* filter_data_ptr) override;
+		const LTSOUNDFILTERDATA& filter_data) override;
 
 	bool SupportsEAX20Filter() override;
 
 	bool SetEAX20BufferSettings(
 		LHSAMPLE sample_handle,
-		const LTSOUNDFILTERDATA* filter_data) override;
+		const LTSOUNDFILTERDATA& filter_data) override;
 #endif
 
 
@@ -110,9 +110,9 @@ public:
 		void* value) override;
 
 	sint32 Enumerate3DProviders(
-		LHPROENUM* next_ptr,
-		LHPROVIDER* destination_ptr,
-		const char** name) override;
+		LHPROENUM& next,
+		LHPROVIDER& destination,
+		const char*& name) override;
 
 
 	// 3D listener_ptr functions
@@ -160,24 +160,24 @@ public:
 
 	void Get3DPosition(
 		LH3DPOBJECT object_ptr,
-		float* x_ptr,
-		float* y_ptr,
-		float* z_ptr) override;
+		float& x,
+		float& y,
+		float& z) override;
 
 	void Get3DVelocity(
 		LH3DPOBJECT object_ptr,
-		float* dx_per_ms_ptr,
-		float* dy_per_ms_ptr,
-		float* dz_per_ms_ptr) override;
+		float& dx_per_ms,
+		float& dy_per_ms,
+		float& dz_per_ms) override;
 
 	void Get3DOrientation(
 		LH3DPOBJECT object_ptr,
-		float* x_face_ptr,
-		float* y_face_ptr,
-		float* z_face_ptr,
-		float* x_up_ptr,
-		float* y_up_ptr,
-		float* z_up_ptr) override;
+		float& x_face,
+		float& y_face,
+		float& z_face,
+		float& x_up,
+		float& y_up,
+		float& z_up) override;
 
 	sint32 Get3DUserData(
 		LH3DPOBJECT object_ptr,
@@ -208,7 +208,7 @@ public:
 		LH3DSAMPLE sample_handle,
 		const void* ptr,
 		const uint32 length,
-		const ul::WaveFormatEx* wave_format_ptr,
+		const ul::WaveFormatEx& wave_format,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 
@@ -235,7 +235,7 @@ public:
 
 	sint32 Set3DSampleInfo(
 		LH3DSAMPLE sample_handle,
-		const LTSOUNDINFO* sound_info_ptr) override;
+		const LTSOUNDINFO& sound_info) override;
 
 	void Set3DSampleDistances(
 		LH3DSAMPLE sample_handle,
@@ -316,8 +316,8 @@ public:
 
 	void GetDirectSoundInfo(
 		LHSAMPLE sample_handle,
-		PTDIRECTSOUND* direct_sound_ptr,
-		PTDIRECTSOUNDBUFFER* direct_sound_buffer_ptr) override;
+		PTDIRECTSOUND& direct_sound,
+		PTDIRECTSOUNDBUFFER& direct_sound_buffer) override;
 
 	void SetSampleReverb(
 		LHSAMPLE sample_handle,
@@ -329,7 +329,7 @@ public:
 		LHSAMPLE sample_handle,
 		const void* ptr,
 		const uint32 length,
-		const ul::WaveFormatEx* wave_format_ptr,
+		const ul::WaveFormatEx& wave_format,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 
@@ -437,16 +437,16 @@ public:
 	// wave file decompression functons
 	//
 	sint32 DecompressADPCM(
-		const LTSOUNDINFO* sound_info_ptr,
-		void** output_data_ptr,
-		uint32* output_size_ptr) override;
+		const LTSOUNDINFO& sound_info,
+		void*& output_data,
+		uint32& output_size) override;
 
 	sint32 DecompressASI(
 		const void* src_data_ptr,
 		const uint32 src_size,
 		const char* file_name_ext,
-		void** dst_wav_ptr,
-		uint32* dst_wav_size_ptr,
+		void*& dst_wav,
+		uint32& dst_wav_size,
 		LTLENGTHYCB callback) override;
 
 

@@ -361,7 +361,8 @@ LTRESULT CSoundMgr::Init(InitSoundInfo &soundInit)
     m_bConvert16to8 = (soundInit.m_dwFlags & INITSOUNDINFOFLAG_CONVERT16TO8) ? true : false;
 
     // Open the wave device
-    if ( g_pSoundSys->WaveOutOpen(&m_hDigDriver, 0, WAVE_MAPPER, &m_PrimaryBufferWaveFormat) != LS_OK )
+	auto wave_out = PHWAVEOUT{};
+    if ( g_pSoundSys->WaveOutOpen(m_hDigDriver, wave_out, WAVE_MAPPER, m_PrimaryBufferWaveFormat) != LS_OK )
     {
         Term();
         return LT_UNABLETOINITSOUND;
@@ -651,7 +652,7 @@ CProvider *CSoundMgr::EnumerateAllProviders(bool bVerifyOpens)
 		return LTNULL;
 	}
 
-    while ( g_pSoundSys->Enumerate3DProviders(&next, &hProvider, &szName) )
+    while ( g_pSoundSys->Enumerate3DProviders(next, hProvider, szName) )
     {
 		 // got a valid provider
 		 if ( hProvider != LTNULL )
@@ -717,7 +718,7 @@ LTRESULT CSoundMgr::Get3DProviderLists(CProvider *&p3DProviderList, bool bVerify
         next = HPROENUM_FIRST;
 
 		g_pSoundSys->Set3DProviderMinBuffers( uiMax3DVoices );
-        while ( g_pSoundSys->Enumerate3DProviders(&next, &hProvider, &szName) )
+        while ( g_pSoundSys->Enumerate3DProviders(next, hProvider, szName) )
         {
 			// if we got a valid provider
 			if ( hProvider )
@@ -1013,7 +1014,7 @@ LPDIRECTSOUND8 CSoundMgr::GetDirectSound()
 	if (!g_pSoundSys)
 		return LTNULL;
 
-    g_pSoundSys->GetDirectSoundInfo(LTNULL, (void**)&lpDirectSound, (void**)&lpDirectSoundBuffer);
+    g_pSoundSys->GetDirectSoundInfo(LTNULL, reinterpret_cast<PTDIRECTSOUND&>(lpDirectSound), reinterpret_cast<PTDIRECTSOUNDBUFFER&>(lpDirectSoundBuffer));
     
     return lpDirectSound;
 }
@@ -1351,11 +1352,11 @@ LTRESULT CSoundMgr::Update()
     if (m_h3DListener && m_bCommitChanges)
     {
 
-        g_pSoundSys->Get3DOrientation(m_h3DListener, &vTemp.x, &vTemp.y, &vTemp.z, &vTemp2.x, &vTemp2.y, &vTemp2.z);
+        g_pSoundSys->Get3DOrientation(m_h3DListener, vTemp.x, vTemp.y, vTemp.z, vTemp2.x, vTemp2.y, vTemp2.z);
         if (vTemp.DistSqr(m_vListenerForward) > 0.001f || vTemp2.DistSqr(m_vListenerUp) > 0.001f)
             g_pSoundSys->Set3DOrientation(m_h3DListener, m_vListenerForward.x, m_vListenerForward.y, m_vListenerForward.z, 
                 m_vListenerUp.x, m_vListenerUp.y, m_vListenerUp.z);
-		GetSoundSys()->Get3DVelocity( m_h3DListener, &vTemp.x, &vTemp.y, &vTemp.z );
+		GetSoundSys()->Get3DVelocity( m_h3DListener, vTemp.x, vTemp.y, vTemp.z );
 		if( vTemp.DistSqr( m_vListenerVelocity ) > 0.5f )
 			GetSoundSys()->Set3DVelocityVector( m_h3DListener, 
 					m_vListenerVelocity.x, m_vListenerVelocity.y, m_vListenerVelocity.z );
@@ -1996,7 +1997,7 @@ H3DSAMPLE CSoundMgr::GetFree3DSample(CSoundInstance *pSoundInstance)
                     pSample = pTestSample;
 
                     // Check if the position is the same, if so, we can't get any better.
-                    g_pSoundSys->Get3DPosition(pSample->m_h3DSample, &vTestPos.x, &vTestPos.y, &vTestPos.z);
+                    g_pSoundSys->Get3DPosition(pSample->m_h3DSample, vTestPos.x, vTestPos.y, vTestPos.z);
 
                     if (vPos.DistSqr(vTestPos) < 0.001f)
                     {
@@ -3027,7 +3028,7 @@ LTRESULT CSoundMgr::EnableSoundFilter(bool bEnable)
 
 	if (!g_pSoundSys) return LT_ERROR;
 
-	g_pSoundSys->SetEAX20Filter( bEnable, &m_FilterData );
+	g_pSoundSys->SetEAX20Filter( bEnable, m_FilterData );
 
 	// if turning a filter on, reset all the sound-specific filter parameters
 	// for any 3D sample in use.
@@ -3036,7 +3037,7 @@ LTRESULT CSoundMgr::EnableSoundFilter(bool bEnable)
 		H3DSAMPLE h3DSample = m_p3DSampleList[dwIndex].m_h3DSample;
 
 		if ( h3DSample != NULL )
-			g_pSoundSys->SetEAX20BufferSettings( h3DSample, &m_FilterData );
+			g_pSoundSys->SetEAX20BufferSettings( h3DSample, m_FilterData );
 	}
 
 	return LT_OK;

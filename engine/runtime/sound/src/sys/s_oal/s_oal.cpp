@@ -85,15 +85,15 @@ const char* OalSoundSys::LastError()
 }
 
 sint32 OalSoundSys::WaveOutOpen(
-	LHDIGDRIVER* driver_ptr,
-	PHWAVEOUT* wave_out_ptr,
+	LHDIGDRIVER& driver,
+	PHWAVEOUT& wave_out,
 	const sint32 device_id,
-	const ul::WaveFormat* wave_format_ptr)
+	const ul::WaveFormatEx& wave_format)
 {
-	static_cast<void>(driver_ptr);
-	static_cast<void>(wave_out_ptr);
+	static_cast<void>(driver);
+	static_cast<void>(wave_out);
 	static_cast<void>(device_id);
-	static_cast<void>(wave_format_ptr);
+	static_cast<void>(wave_format);
 
 	return {};
 }
@@ -138,10 +138,10 @@ sint32 OalSoundSys::DigitalHandleReacquire(
 
 bool OalSoundSys::SetEAX20Filter(
 	const bool is_enable,
-	const LTSOUNDFILTERDATA* filter_data_ptr)
+	const LTSOUNDFILTERDATA& filter_data)
 {
 	static_cast<void>(is_enable);
-	static_cast<void>(filter_data_ptr);
+	static_cast<void>(filter_data);
 
 	return {};
 }
@@ -153,10 +153,10 @@ bool OalSoundSys::SupportsEAX20Filter()
 
 bool OalSoundSys::SetEAX20BufferSettings(
 	LHSAMPLE sample_handle,
-	const LTSOUNDFILTERDATA* filter_data_ptr)
+	const LTSOUNDFILTERDATA& filter_data)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(filter_data_ptr);
+	static_cast<void>(filter_data);
 
 	return {};
 }
@@ -202,12 +202,12 @@ void OalSoundSys::Get3DProviderAttribute(
 }
 
 sint32 OalSoundSys::Enumerate3DProviders(
-	LHPROENUM* next_ptr,
-	LHPROVIDER* destination_ptr,
-	const char** name)
+	LHPROENUM& next,
+	LHPROVIDER& destination,
+	const char*& name)
 {
-	static_cast<void>(next_ptr);
-	static_cast<void>(destination_ptr);
+	static_cast<void>(next);
+	static_cast<void>(destination);
 	static_cast<void>(name);
 
 	return {};
@@ -293,44 +293,44 @@ void OalSoundSys::Set3DUserData(
 
 void OalSoundSys::Get3DPosition(
 	LH3DPOBJECT object_ptr,
-	float* x_ptr,
-	float* y_ptr,
-	float* z_ptr)
+	float& x,
+	float& y,
+	float& z)
 {
 	static_cast<void>(object_ptr);
-	static_cast<void>(x_ptr);
-	static_cast<void>(y_ptr);
-	static_cast<void>(z_ptr);
+	static_cast<void>(x);
+	static_cast<void>(y);
+	static_cast<void>(z);
 }
 
 void OalSoundSys::Get3DVelocity(
 	LH3DPOBJECT object_ptr,
-	float* dx_per_ms_ptr,
-	float* dy_per_ms_ptr,
-	float* dz_per_ms_ptr)
+	float& dx_per_ms,
+	float& dy_per_ms,
+	float& dz_per_ms)
 {
 	static_cast<void>(object_ptr);
-	static_cast<void>(dx_per_ms_ptr);
-	static_cast<void>(dy_per_ms_ptr);
-	static_cast<void>(dz_per_ms_ptr);
+	static_cast<void>(dx_per_ms);
+	static_cast<void>(dy_per_ms);
+	static_cast<void>(dz_per_ms);
 }
 
 void OalSoundSys::Get3DOrientation(
 	LH3DPOBJECT object_ptr,
-	float* x_face_ptr,
-	float* y_face_ptr,
-	float* z_face_ptr,
-	float* x_up_ptr,
-	float* y_up_ptr,
-	float* z_up_ptr)
+	float& x_face,
+	float& y_face,
+	float& z_face,
+	float& x_up,
+	float& y_up,
+	float& z_up)
 {
 	static_cast<void>(object_ptr);
-	static_cast<void>(x_face_ptr);
-	static_cast<void>(y_face_ptr);
-	static_cast<void>(z_face_ptr);
-	static_cast<void>(x_up_ptr);
-	static_cast<void>(y_up_ptr);
-	static_cast<void>(z_up_ptr);
+	static_cast<void>(x_face);
+	static_cast<void>(y_face);
+	static_cast<void>(z_face);
+	static_cast<void>(x_up);
+	static_cast<void>(y_up);
+	static_cast<void>(z_up);
 }
 
 sint32 OalSoundSys::Get3DUserData(
@@ -385,14 +385,14 @@ sint32 OalSoundSys::Init3DSampleFromAddress(
 	LH3DSAMPLE sample_handle,
 	const void* ptr,
 	const uint32 length,
-	const ul::WaveFormatEx* wave_format_ptr,
+	const ul::WaveFormatEx& wave_format,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
 	static_cast<void>(sample_handle);
 	static_cast<void>(ptr);
 	static_cast<void>(length);
-	static_cast<void>(wave_format_ptr);
+	static_cast<void>(wave_format);
 	static_cast<void>(playback_rate);
 	static_cast<void>(filter_data_ptr);
 
@@ -449,10 +449,10 @@ void OalSoundSys::Set3DSampleMsPosition(
 
 sint32 OalSoundSys::Set3DSampleInfo(
 	LH3DSAMPLE sample_handle,
-	const LTSOUNDINFO* sound_info_ptr)
+	const LTSOUNDINFO& sound_info)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(sound_info_ptr);
+	static_cast<void>(sound_info);
 
 	return {};
 }
@@ -617,12 +617,12 @@ void OalSoundSys::SetSampleUserData(
 
 void OalSoundSys::GetDirectSoundInfo(
 	LHSAMPLE sample_handle,
-	PTDIRECTSOUND* direct_sound_ptr,
-	PTDIRECTSOUNDBUFFER* direct_sound_buffer_ptr)
+	PTDIRECTSOUND& direct_sound,
+	PTDIRECTSOUNDBUFFER& direct_sound_buffer)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(direct_sound_ptr);
-	static_cast<void>(direct_sound_buffer_ptr);
+	static_cast<void>(direct_sound);
+	static_cast<void>(direct_sound_buffer);
 }
 
 void OalSoundSys::SetSampleReverb(
@@ -641,14 +641,14 @@ sint32 OalSoundSys::InitSampleFromAddress(
 	LHSAMPLE sample_handle,
 	const void* ptr,
 	const uint32 length,
-	const ul::WaveFormatEx* wave_format_ptr,
+	const ul::WaveFormatEx& wave_format,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
 	static_cast<void>(sample_handle);
 	static_cast<void>(ptr);
 	static_cast<void>(length);
-	static_cast<void>(wave_format_ptr);
+	static_cast<void>(wave_format);
 	static_cast<void>(playback_rate);
 	static_cast<void>(filter_data_ptr);
 
@@ -862,13 +862,13 @@ void OalSoundSys::ClearStreamBuffer(
 }
 
 sint32 OalSoundSys::DecompressADPCM(
-	const LTSOUNDINFO* sound_info_ptr,
-	void** dst_data_ptr,
-	uint32* dst_size_ptr)
+	const LTSOUNDINFO& sound_info,
+	void*& dst_data,
+	uint32& dst_size)
 {
-	static_cast<void>(sound_info_ptr);
-	static_cast<void>(dst_data_ptr);
-	static_cast<void>(dst_size_ptr);
+	static_cast<void>(sound_info);
+	static_cast<void>(dst_data);
+	static_cast<void>(dst_size);
 
 	return {};
 }
@@ -877,15 +877,15 @@ sint32 OalSoundSys::DecompressASI(
 	const void* srd_data_ptr,
 	const uint32 src_size,
 	const char* file_name_ext,
-	void** dst_wav_ptr,
-	uint32* dst_wav_size_ptr,
+	void*& dst_wav,
+	uint32& dst_wav_size,
 	LTLENGTHYCB callback)
 {
 	static_cast<void>(srd_data_ptr);
 	static_cast<void>(src_size);
 	static_cast<void>(file_name_ext);
-	static_cast<void>(dst_wav_ptr);
-	static_cast<void>(dst_wav_size_ptr);
+	static_cast<void>(dst_wav);
+	static_cast<void>(dst_wav_size);
 	static_cast<void>(callback);
 
 	return {};

@@ -261,138 +261,138 @@ public:
 	virtual ~CDx8SoundSys( );
 
 public:
-	virtual bool		Init( );
-	virtual void		Term( );
+	bool		Init( ) override;
+	void		Term( ) override;
 
 public:
-	virtual void*		GetDDInterface( const uint uiDDInterfaceId );
+	void*		GetDDInterface( const uint uiDDInterfaceId ) override;
 
 public:
 	// system wide functions
-	virtual void		Lock( void );
-	virtual void		Unlock( void );
-	virtual S32			Startup( void );
-	virtual void		Shutdown( void );
-	virtual U32			MsCount( void );
-	virtual S32			SetPreference( const U32 uiNumber, const S32 siValue );
-	virtual S32			GetPreference( const U32 uiNumber );
-	virtual void		MemFreeLock( void* ptr );
-	virtual void*		MemAllocLock( const U32 uiSize );
-	virtual const char*	LastError( void );
+	void		Lock( void ) override;
+	void		Unlock( void ) override;
+	S32			Startup( void ) override;
+	void		Shutdown( void ) override;
+	U32			MsCount( void ) override;
+	S32			SetPreference( const U32 uiNumber, const S32 siValue ) override;
+	S32			GetPreference( const U32 uiNumber ) override;
+	void		MemFreeLock( void* ptr ) override;
+	void*		MemAllocLock( const U32 uiSize ) override;
+	const char*	LastError( void ) override;
 
 	// digital sound driver functions
-	virtual S32			WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, const S32 siDeviceId, const ul::WaveFormat* pWaveFormat );
-	virtual void		WaveOutClose( LHDIGDRIVER hDriver );
-	virtual void		SetDigitalMasterVolume( LHDIGDRIVER hDig, const S32 siMasterVolume );
-	virtual S32			GetDigitalMasterVolume( LHDIGDRIVER hDig );
-	virtual S32			DigitalHandleRelease( LHDIGDRIVER hDriver );
-	virtual S32			DigitalHandleReacquire( LHDIGDRIVER hDriver );
+	S32			WaveOutOpen( LHDIGDRIVER& phDriver, PHWAVEOUT& pphWaveOut, const S32 siDeviceId, const ul::WaveFormatEx& pWaveFormat ) override;
+	void		WaveOutClose( LHDIGDRIVER hDriver ) override;
+	void		SetDigitalMasterVolume( LHDIGDRIVER hDig, const S32 siMasterVolume ) override;
+	S32			GetDigitalMasterVolume( LHDIGDRIVER hDig ) override;
+	S32			DigitalHandleRelease( LHDIGDRIVER hDriver ) override;
+	S32			DigitalHandleReacquire( LHDIGDRIVER hDriver ) override;
 #ifdef USE_EAX20_HARDWARE_FILTERS
-	virtual bool		SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA* pFilterData );
-	virtual bool		SupportsEAX20Filter();
-	virtual	bool		SetEAX20BufferSettings( LH3DSAMPLE h3DSample, const LTSOUNDFILTERDATA* pFilterData );
+	bool		SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& pFilterData ) override;
+	bool		SupportsEAX20Filter() override;
+	virtual	bool		SetEAX20BufferSettings( LH3DSAMPLE h3DSample, const LTSOUNDFILTERDATA& pFilterData ) override;
 #endif
 
 	// 3d sound provider functions
-	virtual void		Set3DProviderMinBuffers( const U32 uiMinBuffers );
-	virtual S32			Open3DProvider( LHPROVIDER hLib );
-	virtual void		Close3DProvider( LHPROVIDER hLib );
-	virtual void		Set3DProviderPreference( LHPROVIDER hLib, const char* sName, const void* pVal );
-	virtual void		Get3DProviderAttribute( LHPROVIDER hLib, const char* sName, void* pVal );
-	virtual S32			Enumerate3DProviders( LHPROENUM* phNext, LHPROVIDER* phDest, const char** psName);
+	void		Set3DProviderMinBuffers( const U32 uiMinBuffers ) override;
+	S32			Open3DProvider( LHPROVIDER hLib ) override;
+	void		Close3DProvider( LHPROVIDER hLib ) override;
+	void		Set3DProviderPreference( LHPROVIDER hLib, const char* sName, const void* pVal ) override;
+	void		Get3DProviderAttribute( LHPROVIDER hLib, const char* sName, void* pVal ) override;
+	S32			Enumerate3DProviders( LHPROENUM& phNext, LHPROVIDER& phDest, const char*& psName) override;
 
 	// 3d listener functions
-	virtual LH3DPOBJECT	Open3DListener( LHPROVIDER hLib );
-	virtual void		Close3DListener( LH3DPOBJECT hListener );
-	virtual void		SetListenerDoppler( LH3DPOBJECT hListener, const float fDoppler );
-	virtual void		CommitDeferred();
+	LH3DPOBJECT	Open3DListener( LHPROVIDER hLib ) override;
+	void		Close3DListener( LH3DPOBJECT hListener ) override;
+	void		SetListenerDoppler( LH3DPOBJECT hListener, const float fDoppler ) override;
+	void		CommitDeferred() override;
 
 
 	// 3d sound object functions
-	virtual void		Set3DPosition( LH3DPOBJECT hObj, const float fX, const float fY, const float fZ);
-	virtual void		Set3DVelocityVector( LH3DPOBJECT hObj, const float fDX_per_ms, const float fDY_per_ms, const float fDZ_per_ms );
-	virtual void		Set3DOrientation( LH3DPOBJECT hObj, const float fX_face, const float fY_face, const float fZ_face, const float fX_up, const float fY_up, const float fZ_up );
-	virtual void		Set3DUserData( LH3DPOBJECT hObj, const U32 uiIndex, const S32 siValue );
-	virtual void		Get3DPosition( LH3DPOBJECT hObj, float* pfX, float* pfY, float* pfZ);
-	virtual void		Get3DVelocity( LH3DPOBJECT hObj, float* pfDX_per_ms, float* pfDY_per_ms, float* pfDZ_per_ms );
-	virtual void		Get3DOrientation( LH3DPOBJECT hObj, float* pfX_face, float* pfY_face, float* pfZ_face, float* pfX_up, float* pfY_up, float* pfZ_up );
-	virtual S32			Get3DUserData( LH3DPOBJECT hObj, const U32 uiIndex);
+	void		Set3DPosition( LH3DPOBJECT hObj, const float fX, const float fY, const float fZ) override;
+	void		Set3DVelocityVector( LH3DPOBJECT hObj, const float fDX_per_ms, const float fDY_per_ms, const float fDZ_per_ms ) override;
+	void		Set3DOrientation( LH3DPOBJECT hObj, const float fX_face, const float fY_face, const float fZ_face, const float fX_up, const float fY_up, const float fZ_up ) override;
+	void		Set3DUserData( LH3DPOBJECT hObj, const U32 uiIndex, const S32 siValue ) override;
+	void		Get3DPosition( LH3DPOBJECT hObj, float& pfX, float& pfY, float& pfZ) override;
+	void		Get3DVelocity( LH3DPOBJECT hObj, float& pfDX_per_ms, float& pfDY_per_ms, float& pfDZ_per_ms ) override;
+	void		Get3DOrientation( LH3DPOBJECT hObj, float& pfX_face, float& pfY_face, float& pfZ_face, float& pfX_up, float& pfY_up, float& pfZ_up ) override;
+	S32			Get3DUserData( LH3DPOBJECT hObj, const U32 uiIndex) override;
 
 	// 3d sound sample functions
-	virtual LH3DSAMPLE	Allocate3DSampleHandle( LHPROVIDER hLib );
-	virtual void		Release3DSampleHandle( LH3DSAMPLE hS );
-	virtual void		Stop3DSample( LH3DSAMPLE hS );
-	virtual void		Start3DSample( LH3DSAMPLE hS );
-	virtual void		Resume3DSample( LH3DSAMPLE hS );
-	virtual void		End3DSample( LH3DSAMPLE hS );
-	virtual S32			Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx* pWaveFormat, const S32 nPitchShift, const LTSOUNDFILTERDATA* pFilterData );
-	virtual S32			Init3DSampleFromFile( LH3DSAMPLE hS, const void* pFile_image, const S32 siBlock, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData );
-	virtual S32			Get3DSampleVolume( LH3DSAMPLE hS );
-	virtual void		Set3DSampleVolume( LH3DSAMPLE hS, const S32 siVolume );
-	virtual uint32		Get3DSampleStatus( LH3DSAMPLE hS );
-	virtual void		Set3DSampleMsPosition( LHSAMPLE hS, const sint32 siMilliseconds );
-	virtual S32			Set3DSampleInfo( LH3DSAMPLE hS, const LTSOUNDINFO* pInfo );
-	virtual void		Set3DSampleDistances( LH3DSAMPLE hS, const float fMax_dist, const float fMin_dist );
-	virtual void		Set3DSamplePreference( LH3DSAMPLE hSample, const char* sName, const void* pVal );
-	virtual void		Set3DSampleLoopBlock( LH3DSAMPLE hS, const S32 siLoop_start_offset, const S32 siLoop_end_offset, const bool bEnable );
-	virtual void		Set3DSampleLoop( LH3DSAMPLE hS, const bool bLoop );
-	virtual void		Set3DSampleObstruction( LH3DSAMPLE hS, const float fObstruction );
-	virtual float		Get3DSampleObstruction( LH3DSAMPLE hS );
-	virtual void		Set3DSampleOcclusion( LH3DSAMPLE hS, const float fOcclusion );
-	virtual float		Get3DSampleOcclusion( LH3DSAMPLE hS );
+	LH3DSAMPLE	Allocate3DSampleHandle( LHPROVIDER hLib ) override;
+	void		Release3DSampleHandle( LH3DSAMPLE hS ) override;
+	void		Stop3DSample( LH3DSAMPLE hS ) override;
+	void		Start3DSample( LH3DSAMPLE hS ) override;
+	void		Resume3DSample( LH3DSAMPLE hS ) override;
+	void		End3DSample( LH3DSAMPLE hS ) override;
+	S32			Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx& pWaveFormat, const S32 nPitchShift, const LTSOUNDFILTERDATA* pFilterData ) override;
+	S32			Init3DSampleFromFile( LH3DSAMPLE hS, const void* pFile_image, const S32 siBlock, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData ) override;
+	S32			Get3DSampleVolume( LH3DSAMPLE hS ) override;
+	void		Set3DSampleVolume( LH3DSAMPLE hS, const S32 siVolume ) override;
+	uint32		Get3DSampleStatus( LH3DSAMPLE hS ) override;
+	void		Set3DSampleMsPosition( LHSAMPLE hS, const sint32 siMilliseconds ) override;
+	S32			Set3DSampleInfo( LH3DSAMPLE hS, const LTSOUNDINFO& pInfo ) override;
+	void		Set3DSampleDistances( LH3DSAMPLE hS, const float fMax_dist, const float fMin_dist ) override;
+	void		Set3DSamplePreference( LH3DSAMPLE hSample, const char* sName, const void* pVal ) override;
+	void		Set3DSampleLoopBlock( LH3DSAMPLE hS, const S32 siLoop_start_offset, const S32 siLoop_end_offset, const bool bEnable ) override;
+	void		Set3DSampleLoop( LH3DSAMPLE hS, const bool bLoop ) override;
+	void		Set3DSampleObstruction( LH3DSAMPLE hS, const float fObstruction ) override;
+	float		Get3DSampleObstruction( LH3DSAMPLE hS ) override;
+	void		Set3DSampleOcclusion( LH3DSAMPLE hS, const float fOcclusion ) override;
+	float		Get3DSampleOcclusion( LH3DSAMPLE hS ) override;
 
 	// 2d sound sample functions
-	virtual LHSAMPLE	AllocateSampleHandle( LHDIGDRIVER hDig );
-	virtual void		ReleaseSampleHandle( LHSAMPLE hS );
-	virtual void		InitSample( LHSAMPLE hS );
-	virtual void		StopSample( LHSAMPLE hS );
-	virtual void		StartSample( LHSAMPLE hS );
-	virtual void		ResumeSample( LHSAMPLE hS );
-	virtual void		EndSample( LHSAMPLE hS );
-	virtual void		SetSampleVolume( LHSAMPLE hS, const S32 siVolume );
-	virtual void		SetSamplePan( LHSAMPLE hS, const S32 siPan );
-	virtual S32			GetSampleVolume( LHSAMPLE hS );
-	virtual S32			GetSamplePan( LHSAMPLE hS );
-	virtual void		SetSampleUserData( LHSAMPLE hS, const U32 uiIndex, const S32 siValue );
-	virtual void		GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND* ppDS, PTDIRECTSOUNDBUFFER* ppDSB );
-	virtual void		SetSampleReverb( LHSAMPLE hS, const float fReverb_level, const float fReverb_reflect_time, const float fReverb_decay_time );
-	virtual S32			InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx* pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData );
-	virtual S32			InitSampleFromFile( LHSAMPLE hS, const void* pFile_image, const S32 siBlock, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData );
-	virtual void		SetSampleLoopBlock( LHSAMPLE hS, const S32 siLoop_start_offset, const S32 siLoop_end_offset, const bool bEnable );
-	virtual void		SetSampleLoop( LHSAMPLE hS, const bool bLoop );
-	virtual void		SetSampleMsPosition( LHSAMPLE hS, const S32 siMilliseconds );
-	virtual S32			GetSampleUserData( LHSAMPLE hS, const U32 uiIndex );
-	virtual uint32		GetSampleStatus( LHSAMPLE hS );
+	LHSAMPLE	AllocateSampleHandle( LHDIGDRIVER hDig ) override;
+	void		ReleaseSampleHandle( LHSAMPLE hS ) override;
+	void		InitSample( LHSAMPLE hS ) override;
+	void		StopSample( LHSAMPLE hS ) override;
+	void		StartSample( LHSAMPLE hS ) override;
+	void		ResumeSample( LHSAMPLE hS ) override;
+	void		EndSample( LHSAMPLE hS ) override;
+	void		SetSampleVolume( LHSAMPLE hS, const S32 siVolume ) override;
+	void		SetSamplePan( LHSAMPLE hS, const S32 siPan ) override;
+	S32			GetSampleVolume( LHSAMPLE hS ) override;
+	S32			GetSamplePan( LHSAMPLE hS ) override;
+	void		SetSampleUserData( LHSAMPLE hS, const U32 uiIndex, const S32 siValue ) override;
+	void		GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND& ppDS, PTDIRECTSOUNDBUFFER& ppDSB ) override;
+	void		SetSampleReverb( LHSAMPLE hS, const float fReverb_level, const float fReverb_reflect_time, const float fReverb_decay_time ) override;
+	S32			InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx& pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData ) override;
+	S32			InitSampleFromFile( LHSAMPLE hS, const void* pFile_image, const S32 siBlock, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData ) override;
+	void		SetSampleLoopBlock( LHSAMPLE hS, const S32 siLoop_start_offset, const S32 siLoop_end_offset, const bool bEnable ) override;
+	void		SetSampleLoop( LHSAMPLE hS, const bool bLoop ) override;
+	void		SetSampleMsPosition( LHSAMPLE hS, const S32 siMilliseconds ) override;
+	S32			GetSampleUserData( LHSAMPLE hS, const U32 uiIndex ) override;
+	uint32		GetSampleStatus( LHSAMPLE hS ) override;
 
 
 	// old 2d sound stream functions
-	virtual LHSTREAM	OpenStream( const char* sFilename, const uint32 nFilePos, LHDIGDRIVER hDig, const char* sStream, const sint32 siStream_mem );
-	virtual void		SetStreamLoop( LHSTREAM hStream, const bool bLoop );
-	virtual void		SetStreamPlaybackRate( LHSTREAM hStream, const S32 siRate );
-	virtual void		SetStreamMsPosition( LHSTREAM hStream, const S32 siMilliseconds );
-	virtual void		SetStreamUserData( LHSTREAM hS, const U32 uiIndex, const S32 siValue);
-	virtual S32			GetStreamUserData( LHSTREAM hS, const U32 uiIndex);
+	LHSTREAM	OpenStream( const char* sFilename, const uint32 nFilePos, LHDIGDRIVER hDig, const char* sStream, const sint32 siStream_mem ) override;
+	void		SetStreamLoop( LHSTREAM hStream, const bool bLoop ) override;
+	void		SetStreamPlaybackRate( LHSTREAM hStream, const S32 siRate ) override;
+	void		SetStreamMsPosition( LHSTREAM hStream, const S32 siMilliseconds ) override;
+	void		SetStreamUserData( LHSTREAM hS, const U32 uiIndex, const S32 siValue) override;
+	S32			GetStreamUserData( LHSTREAM hS, const U32 uiIndex) override;
 
 	// new 2d sound stream functions
-	virtual LHSTREAM	OpenStream( streamBufferParams_t* pStreamBufferParams, WaveFile* pWaveFile, uint8 nEventNum );
-	virtual void		CloseStream( LHSTREAM hStream );
-	virtual void		StartStream( LHSTREAM hStream );
-	virtual void		PauseStream( LHSTREAM hStream, const sint32 siOnOff );
-	virtual void		ResetStream( LHSTREAM hStream );
-	virtual void		SetStreamVolume( LHSTREAM hStream, const sint32 siVolume );
-	virtual void		SetStreamPan( LHSTREAM hStream, const sint32 siPan );
-	virtual sint32		GetStreamVolume( LHSTREAM hStream );
-	virtual sint32		GetStreamPan( LHSTREAM hStream );
-	virtual uint32		GetStreamStatus( LHSTREAM hStream );
-	virtual sint32		GetStreamBufferParam( LHSTREAM hStream, const uint32 uiParam );
-	virtual void		ClearStreamBuffer( LHSTREAM hStream, const bool bClearStreamDataQueue = true );
+	LHSTREAM	OpenStream( streamBufferParams_t* pStreamBufferParams, WaveFile* pWaveFile, uint8 nEventNum );
+	void		CloseStream( LHSTREAM hStream ) override;
+	void		StartStream( LHSTREAM hStream ) override;
+	void		PauseStream( LHSTREAM hStream, const sint32 siOnOff ) override;
+	void		ResetStream( LHSTREAM hStream ) override;
+	void		SetStreamVolume( LHSTREAM hStream, const sint32 siVolume ) override;
+	void		SetStreamPan( LHSTREAM hStream, const sint32 siPan ) override;
+	sint32		GetStreamVolume( LHSTREAM hStream ) override;
+	sint32		GetStreamPan( LHSTREAM hStream ) override;
+	uint32		GetStreamStatus( LHSTREAM hStream ) override;
+	sint32		GetStreamBufferParam( LHSTREAM hStream, const uint32 uiParam ) override;
+	void		ClearStreamBuffer( LHSTREAM hStream, const bool bClearStreamDataQueue = true ) override;
 
 	// wave file decompression functons
-	virtual S32			DecompressADPCM( const LTSOUNDINFO* pInfo, void** ppOutData, U32* puiOutSize );
-	virtual S32			DecompressASI( const void* pInData, const U32 uiInSize, const char* sFilename_ext, void** ppWav, U32* puiWavSize, LTLENGTHYCB fnCallback );
+	S32			DecompressADPCM( const LTSOUNDINFO& pInfo, void*& ppOutData, U32& puiOutSize ) override;
+	S32			DecompressASI( const void* pInData, const U32 uiInSize, const char* sFilename_ext, void*& ppWav, U32& puiWavSize, LTLENGTHYCB fnCallback ) override;
 	UINT				ReadStream( WaveFile* pStream, BYTE* pOutBuffer, const int nSize );
 
-	virtual bool		HasOnBoardMemory( );
+	bool		HasOnBoardMemory( ) override;
 
 //	===========================================================================
 //	Incorporation of DSMStrm* required functionality
@@ -402,7 +402,7 @@ public:
 //	===========================================================================
 
 	// Gets the ticks spent in sound thread.
-	uint32				GetThreadedSoundTicks( );
+	uint32				GetThreadedSoundTicks( ) override;
 
 	bool SetSampleNotify( CSample* pSample, bool bEnable );
 

@@ -2199,7 +2199,7 @@ const char* CDx8SoundSys::LastError( void )
 #endif	// HANDLE_DS_ERROR
 
 // digital sound driver functions
-S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, const S32 siDeviceId, const ul::WaveFormat* pWaveFormat )
+S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER& phDriver, PHWAVEOUT& pphWaveOut, const S32 siDeviceId, const ul::WaveFormatEx& pWaveFormat )
 {
 
 	WaveOutClose( m_pDSPrimaryBuffer );
@@ -2222,13 +2222,13 @@ S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, con
 
     // Set primary buffer to desired format.
 
-    m_hResult = m_pDSPrimaryBuffer->SetFormat( reinterpret_cast<LPCWAVEFORMATEX>(pWaveFormat) );
+    m_hResult = m_pDSPrimaryBuffer->SetFormat( reinterpret_cast<LPCWAVEFORMATEX>(&pWaveFormat) );
 	m_pcLastError = LastError( );
 	DS_CHECK
 
-	*phDriver = ( LHDIGDRIVER )m_pDSPrimaryBuffer;
+	phDriver = ( LHDIGDRIVER )m_pDSPrimaryBuffer;
 
-	memcpy( &m_waveFormat, pWaveFormat, sizeof( m_waveFormat ) );
+	m_waveFormat = pWaveFormat;
 
 	// see if we can set up EAX filtering
 #ifdef USE_EAX20_HARDWARE_FILTERS
@@ -2326,7 +2326,7 @@ S32	CDx8SoundSys::DigitalHandleReacquire( LHDIGDRIVER hDriver )
 }
 
 #ifdef USE_EAX20_HARDWARE_FILTERS
-bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA* pFilterData )
+bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& pFilterData )
 {
 	// Check if we support filtering.
 	if( !m_bSupportsEAX20Filtering )
@@ -2334,14 +2334,11 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA* 
 
 	LTFILTERREVERB* pLTReverb;
 
-	if ( pFilterData == NULL )
-		return false;
-
 	// for EAX 2.0, this should be a reverb
-	if ( pFilterData->uiFilterType != FilterReverb )
+	if ( pFilterData.uiFilterType != FilterReverb )
 		return false;
 
-	pLTReverb = (LTFILTERREVERB*) pFilterData->pSoundFilter;
+	pLTReverb = (LTFILTERREVERB*) pFilterData.pSoundFilter;
 
 	// Should have this setup the first time we allocated a 3d sound buffer.
 	if( !m_pKSPropertySet )
@@ -2369,7 +2366,7 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA* 
 		// First check if they are setting the environment property.  We have to set
 		// this first so it sets up all the defaults.  Then we get the defaults and modify
 		// them the way we want.
-		uiFilterParamFlags = pFilterData->pSoundFilter->uiFilterParamFlags;
+		uiFilterParamFlags = pFilterData.pSoundFilter->uiFilterParamFlags;
 		if( uiFilterParamFlags & SET_REVERB_ENVIRONMENT )
 		{
 			unsigned long nEnvironment = pLTReverb->lEnvironment;
@@ -2462,7 +2459,7 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA* 
 	return true;
 }
 
-bool CDx8SoundSys::SetEAX20BufferSettings( LH3DSAMPLE h3DSample, const LTSOUNDFILTERDATA* pFilterData )
+bool CDx8SoundSys::SetEAX20BufferSettings( LH3DSAMPLE h3DSample, const LTSOUNDFILTERDATA& pFilterData )
 {
 	uint32 uiFilterParamFlags;
 	EAXBUFFERPROPERTIES soundProps;
@@ -2479,16 +2476,13 @@ bool CDx8SoundSys::SetEAX20BufferSettings( LH3DSAMPLE h3DSample, const LTSOUNDFI
 	if ( pSample->m_pDSBuffer == NULL )
 		return false;
 
-	if ( pFilterData == NULL )
-		return false;
-
 	// for EAX 2.0, this should be a reverb
-	if ( pFilterData->uiFilterType != FilterReverb )
+	if ( pFilterData.uiFilterType != FilterReverb )
 		return false;
 
 	// now set any of the parameters
-	uiFilterParamFlags = pFilterData->pSoundFilter->uiFilterParamFlags;
-	pLTReverb = (LTFILTERREVERB*) pFilterData->pSoundFilter;
+	uiFilterParamFlags = pFilterData.pSoundFilter->uiFilterParamFlags;
+	pLTReverb = (LTFILTERREVERB*) pFilterData.pSoundFilter;
 
 	LPKSPROPERTYSET pKSPropertySet = NULL;
   	m_hResult = pSample->m_pDSBuffer->QueryInterface(IID_IKsPropertySet, (LPVOID *)&pKSPropertySet);
@@ -2579,15 +2573,15 @@ void CDx8SoundSys::Get3DProviderAttribute( LHPROVIDER hLib, const char* sName, v
 }
 
 
-S32	CDx8SoundSys::Enumerate3DProviders( LHPROENUM* phNext, LHPROVIDER* phDest, const char** psName)
+S32	CDx8SoundSys::Enumerate3DProviders( LHPROENUM& phNext, LHPROVIDER& phDest, const char*& psName)
 {
-	int nCur = *phNext;
-	phNext[0] += 1;
+	int nCur = phNext;
+	phNext += 1;
 
 	if( nCur == NUM_PROVIDERS )
 	{
-		psName[0] = NULL;
-		phDest[0] = 0;
+		psName = NULL;
+		phDest = 0;
 		return 0;
 	}
 
@@ -2595,24 +2589,24 @@ S32	CDx8SoundSys::Enumerate3DProviders( LHPROENUM* phNext, LHPROVIDER* phDest, c
 	{
 	case PROVIDER_DS3D_SOFTWARE:
 		// always allow software support
-		psName[0] = SOUND3DPROVIDERNAME_DS3D_SOFTWARE;
-		phDest[0] = SOUND3DPROVIDERID_DS3D_SOFTWARE;
+		psName = SOUND3DPROVIDERNAME_DS3D_SOFTWARE;
+		phDest = SOUND3DPROVIDERID_DS3D_SOFTWARE;
 		break;
 	case PROVIDER_DS3D_HARDWARE:
 		// check for hardware support
 		if ( SupportsDS3DHardware() )
 		{
-			psName[0] = SOUND3DPROVIDERNAME_DS3D_HARDWARE;
-			phDest[0] = SOUND3DPROVIDERID_DS3D_HARDWARE;
+			psName = SOUND3DPROVIDERNAME_DS3D_HARDWARE;
+			phDest = SOUND3DPROVIDERID_DS3D_HARDWARE;
 		}
 		else
 		{
-			phDest[0] = 0;
+			phDest = 0;
 		}
 		break;
 	case PROVIDER_DS3D_DEFAULT:
-		psName[0] = SOUND3DPROVIDERNAME_DS3D_DEFAULT;
-		phDest[0] = SOUND3DPROVIDERID_DS3D_DEFAULT;
+		psName = SOUND3DPROVIDERNAME_DS3D_DEFAULT;
+		phDest = SOUND3DPROVIDERID_DS3D_DEFAULT;
 		break;
 	}
 
@@ -2719,44 +2713,44 @@ void CDx8SoundSys::Set3DUserData( LH3DPOBJECT hObj, U32 uiIndex, S32 siValue )
 	p3DObject->m_userData[ uiIndex ] = siValue;
 }
 
-void CDx8SoundSys::Get3DPosition( LH3DPOBJECT hObj, float* pfX, float* pfY, float* pfZ)
+void CDx8SoundSys::Get3DPosition( LH3DPOBJECT hObj, float& pfX, float& pfY, float& pfZ)
 {
 	if( hObj == NULL )
 		return;
 
 	I3DObject* p3DObject = ( I3DObject* )hObj;
 
-	*pfX = p3DObject->m_position.x;
-	*pfY = p3DObject->m_position.y;
-	*pfZ = p3DObject->m_position.z;
+	pfX = p3DObject->m_position.x;
+	pfY = p3DObject->m_position.y;
+	pfZ = p3DObject->m_position.z;
 }
 
-void CDx8SoundSys::Get3DVelocity( LH3DPOBJECT hObj, float* pfDX_per_ms, float* pfDY_per_ms, float* pfDZ_per_ms )
+void CDx8SoundSys::Get3DVelocity( LH3DPOBJECT hObj, float& pfDX_per_ms, float& pfDY_per_ms, float& pfDZ_per_ms )
 {
 	if( hObj == NULL )
 		return;
 
 	I3DObject* p3DObject = ( I3DObject* )hObj;
 
-	*pfDX_per_ms = p3DObject->m_velocity.x;
-	*pfDY_per_ms = p3DObject->m_velocity.y;
-	*pfDZ_per_ms = p3DObject->m_velocity.z;
+	pfDX_per_ms = p3DObject->m_velocity.x;
+	pfDY_per_ms = p3DObject->m_velocity.y;
+	pfDZ_per_ms = p3DObject->m_velocity.z;
 }
 
-void CDx8SoundSys::Get3DOrientation( LH3DPOBJECT hObj, float* pfX_face, float* pfY_face, float* pfZ_face, float* pfX_up, float* pfY_up, float* pfZ_up )
+void CDx8SoundSys::Get3DOrientation( LH3DPOBJECT hObj, float& pfX_face, float& pfY_face, float& pfZ_face, float& pfX_up, float& pfY_up, float& pfZ_up )
 {
 	if( hObj == NULL )
 		return;
 
 	I3DObject* p3DObject = ( I3DObject* )hObj;
 
-	*pfX_up = p3DObject->m_up.x;
-	*pfY_up = p3DObject->m_up.y;
-	*pfZ_up = p3DObject->m_up.z;
+	pfX_up = p3DObject->m_up.x;
+	pfY_up = p3DObject->m_up.y;
+	pfZ_up = p3DObject->m_up.z;
 
-	*pfX_face = p3DObject->m_face.x;
-	*pfY_face = p3DObject->m_face.y;
-	*pfZ_face = p3DObject->m_face.z;
+	pfX_face = p3DObject->m_face.x;
+	pfY_face = p3DObject->m_face.y;
+	pfZ_face = p3DObject->m_face.z;
 }
 
 S32	CDx8SoundSys::Get3DUserData( LH3DPOBJECT hObj, U32 uiIndex )
@@ -2896,18 +2890,18 @@ void CDx8SoundSys::End3DSample( LH3DSAMPLE hS )
 }
 
 
-S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx* pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData )
+S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx& pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData )
 {
 //	LOG_WRITE( g_pLogFile, "SetSampleAddress( %x, %x, %d )\n", hS, pStart, uiLen );
 
-	if( hS == NULL || pStart == NULL || uiLen == 0 || pWaveFormat == NULL )
+	if( hS == NULL || pStart == NULL || uiLen == 0 )
 		return LTFALSE;
 
 	C3DSample* p3DSample = ( C3DSample* )hS;
 	CSample* pSample = &p3DSample->m_sample;
 
 	// Modify the pitch.
-	auto waveFormat = *pWaveFormat;
+	auto waveFormat = pWaveFormat;
 	waveFormat.sample_rate_ = siPlaybackRate;
 	waveFormat.avg_bytes_per_sec_ = waveFormat.block_align_ * waveFormat.sample_rate_;
 
@@ -2985,7 +2979,7 @@ S32	CDx8SoundSys::Init3DSampleFromFile(
 			hS,
 			pucUncompressedSampleData.get(),
 			decoded_size,
-			&wave_format_ex,
+			wave_format_ex,
 			siPlaybackRate,
 			pFilterData))
 		{
@@ -3083,23 +3077,23 @@ void CDx8SoundSys::Set3DSampleMsPosition( LHSAMPLE hS, const sint32 siMillisecon
 //	===========================================================================
 //	DONE...
 
-S32	CDx8SoundSys::Set3DSampleInfo( LH3DSAMPLE hS, const LTSOUNDINFO* pInfo )
+S32	CDx8SoundSys::Set3DSampleInfo( LH3DSAMPLE hS, const LTSOUNDINFO& pInfo )
 {
 
-	if( hS == NULL || pInfo == NULL )
+	if( hS == NULL )
 		return LS_ERROR;
 
 	C3DSample* p3DSample = ( C3DSample* )hS;
 
     // Set up wave format structure.
 
-    p3DSample->m_sample.m_waveFormat.channel_count_ = ( U16 )pInfo->channels;
-    p3DSample->m_sample.m_waveFormat.sample_rate_ = pInfo->rate;
-    p3DSample->m_sample.m_waveFormat.bit_depth_ = ( U16 )pInfo->bits;
+    p3DSample->m_sample.m_waveFormat.channel_count_ = ( U16 )pInfo.channels;
+    p3DSample->m_sample.m_waveFormat.sample_rate_ = pInfo.rate;
+    p3DSample->m_sample.m_waveFormat.bit_depth_ = ( U16 )pInfo.bits;
 
     // Create buffer.
 
-	if( !p3DSample->Init( m_hResult, m_pDirectSound, pInfo->samples, &p3DSample->m_sample.m_waveFormat, NULL ) )
+	if( !p3DSample->Init( m_hResult, m_pDirectSound, pInfo.samples, &p3DSample->m_sample.m_waveFormat, NULL ) )
 		return LS_ERROR;
 
 	return LS_OK;
@@ -3489,19 +3483,19 @@ void CDx8SoundSys::SetSampleUserData( LHSAMPLE hS, U32 uiIndex, S32 siValue )
 	pSample->m_userData[ uiIndex ] = siValue;
 }
 
-void CDx8SoundSys::GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND* ppDS, PTDIRECTSOUNDBUFFER* ppDSB )
+void CDx8SoundSys::GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND& ppDS, PTDIRECTSOUNDBUFFER& ppDSB )
 {
-	*ppDS = NULL;
-	*ppDSB = NULL;
+	ppDS = NULL;
+	ppDSB = NULL;
 
-	*ppDS = m_pDirectSound;
+	ppDS = m_pDirectSound;
 
 	if( hS == NULL )
 		return;
 
 	CSample* pSample = ( CSample* )hS;
 
-	*ppDSB = pSample->m_pDSBuffer;
+	ppDSB = pSample->m_pDSBuffer;
 }
 
 
@@ -3516,15 +3510,15 @@ void CDx8SoundSys::SetSampleReverb( LHSAMPLE hS, float fReverb_level, float fRev
 //	===========================================================================
 //	DONE...
 
-S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx* pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData )
+S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx& pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData )
 {
 //	LOG_WRITE( g_pLogFile, "InitSampleFromAddress( %x, %x, %d )\n", hS, pStart, uiLen );
 
-	if( hS == NULL || pStart == NULL || uiLen == 0 || !pWaveFormat )
+	if( hS == NULL || pStart == NULL || uiLen == 0 )
 		return LTFALSE;
 
 	// Modify the pitch.
-	auto waveFormat = *pWaveFormat;
+	auto waveFormat = pWaveFormat;
 	waveFormat.sample_rate_ = siPlaybackRate;
 	waveFormat.avg_bytes_per_sec_ = waveFormat.block_align_ * waveFormat.sample_rate_;
 	CSample* pSample = ( CSample* )hS;
@@ -3596,7 +3590,7 @@ S32	CDx8SoundSys::InitSampleFromFile(
 			hS,
 			pucUncompressedSampleData.get(),
 			decoded_size,
-			&wave_format_ex,
+			wave_format_ex,
 			siPlaybackRate,
 			pFilterData))
 		{
@@ -4077,9 +4071,9 @@ void CDx8SoundSys::ClearStreamBuffer( LHSTREAM hStream, bool bClearStreamDataQue
 // these next two functions are here apparently for compatibility with MSS interface
 // they aren't used.  We should probably remove them when we update the SoundSys interface
 S32	CDx8SoundSys::DecompressADPCM(
-	const LTSOUNDINFO* pInfo,
-	void** ppOutData,
-	U32* puiOutSize)
+	const LTSOUNDINFO& pInfo,
+	void*& ppOutData,
+	U32& puiOutSize)
 {
 	static_cast<void>(pInfo);
 	static_cast<void>(ppOutData);
@@ -4090,10 +4084,10 @@ S32	CDx8SoundSys::DecompressADPCM(
 
 S32	CDx8SoundSys::DecompressASI(
 	const void* pInData,
-	U32 uiInSize,
+	const U32 uiInSize,
 	const char* sFilename_ext,
-	void** ppWav,
-	U32* puiWavSize,
+	void*& ppWav,
+	U32& puiWavSize,
 	LTLENGTHYCB fnCallback)
 {
 	auto memory_stream = ul::MemoryStream{pInData, static_cast<int>(uiInSize), ul::Stream::OpenMode::read};
@@ -4170,8 +4164,8 @@ S32	CDx8SoundSys::DecompressASI(
 	*reinterpret_cast<std::uint32_t*>(header) = decoded_size;
 	header += 4;
 
-	*ppWav = pucUncompressedSampleData.release();
-	*puiWavSize = wave_size;
+	ppWav = pucUncompressedSampleData.release();
+	puiWavSize = wave_size;
 
 	return true;
 }
