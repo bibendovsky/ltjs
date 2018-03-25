@@ -635,8 +635,8 @@ void CSample::Reset( )
 	dl_Remove( &m_lnkLoopNotify );
 }
 
-bool CSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples,
-				   bool b3DBuffer, ul::WaveFormatEx* pWaveFormat, LTSOUNDFILTERDATA* pFilterData )
+bool CSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, const uint32 uiNumSamples,
+				const bool b3DBuffer, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData )
 {
 	bool bUseFilter;
 
@@ -1319,7 +1319,7 @@ void C3DSample::Reset( )
 	m_status = LS_DONE;
 }
 
-bool C3DSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, ul::WaveFormatEx* pWaveFormat, LTSOUNDFILTERDATA* pFilterData )
+bool C3DSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, const uint32 uiNumSamples, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData )
 {
 	Term( );
 
@@ -2199,7 +2199,7 @@ const char* CDx8SoundSys::LastError( void )
 #endif	// HANDLE_DS_ERROR
 
 // digital sound driver functions
-S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, S32 siDeviceId, ul::WaveFormat* pWaveFormat )
+S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, const S32 siDeviceId, const ul::WaveFormat* pWaveFormat )
 {
 
 	WaveOutClose( m_pDSPrimaryBuffer );
@@ -2222,7 +2222,7 @@ S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, S32
 
     // Set primary buffer to desired format.
 
-    m_hResult = m_pDSPrimaryBuffer->SetFormat( reinterpret_cast<LPWAVEFORMATEX>(pWaveFormat) );
+    m_hResult = m_pDSPrimaryBuffer->SetFormat( reinterpret_cast<LPCWAVEFORMATEX>(pWaveFormat) );
 	m_pcLastError = LastError( );
 	DS_CHECK
 
@@ -2326,7 +2326,7 @@ S32	CDx8SoundSys::DigitalHandleReacquire( LHDIGDRIVER hDriver )
 }
 
 #ifdef USE_EAX20_HARDWARE_FILTERS
-bool CDx8SoundSys::SetEAX20Filter( bool bEnable, LTSOUNDFILTERDATA* pFilterData )
+bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA* pFilterData )
 {
 	// Check if we support filtering.
 	if( !m_bSupportsEAX20Filtering )
@@ -2462,7 +2462,7 @@ bool CDx8SoundSys::SetEAX20Filter( bool bEnable, LTSOUNDFILTERDATA* pFilterData 
 	return true;
 }
 
-bool CDx8SoundSys::SetEAX20BufferSettings( LH3DSAMPLE h3DSample, LTSOUNDFILTERDATA* pFilterData )
+bool CDx8SoundSys::SetEAX20BufferSettings( LH3DSAMPLE h3DSample, const LTSOUNDFILTERDATA* pFilterData )
 {
 	uint32 uiFilterParamFlags;
 	EAXBUFFERPROPERTIES soundProps;
@@ -2896,7 +2896,7 @@ void CDx8SoundSys::End3DSample( LH3DSAMPLE hS )
 }
 
 
-S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, U32 uiLen, ul::WaveFormatEx* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData )
+S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx* pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData )
 {
 //	LOG_WRITE( g_pLogFile, "SetSampleAddress( %x, %x, %d )\n", hS, pStart, uiLen );
 
@@ -2933,9 +2933,9 @@ S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, U3
 S32	CDx8SoundSys::Init3DSampleFromFile(
 	LH3DSAMPLE hS,
 	const void* pFile_image,
-	S32 siBlock,
-	S32 siPlaybackRate,
-	LTSOUNDFILTERDATA* pFilterData)
+	const S32 siBlock,
+	const S32 siPlaybackRate,
+	const LTSOUNDFILTERDATA* pFilterData)
 {
 	if (!hS)
 	{
@@ -3038,7 +3038,7 @@ S32	CDx8SoundSys::Get3DSampleVolume( LH3DSAMPLE hS )
 	return siVolume;
 }
 
-void CDx8SoundSys::Set3DSampleVolume( LH3DSAMPLE hS, S32 siVolume )
+void CDx8SoundSys::Set3DSampleVolume( LH3DSAMPLE hS, const S32 siVolume )
 {
 	if( hS == NULL )
 		return;
@@ -3046,14 +3046,16 @@ void CDx8SoundSys::Set3DSampleVolume( LH3DSAMPLE hS, S32 siVolume )
 	C3DSample* p3DSample = ( C3DSample* )hS;
 	p3DSample->m_sample.Restore( );
 
-	if( siVolume < ( S32 )MIN_MASTER_VOLUME )
-		siVolume = ( S32 )MIN_MASTER_VOLUME;
+	auto volume = siVolume;
 
-	if( siVolume > ( S32 )MAX_MASTER_VOLUME )
-		siVolume = ( S32 )MAX_MASTER_VOLUME;
+	if( volume < ( S32 )MIN_MASTER_VOLUME )
+		volume = ( S32 )MIN_MASTER_VOLUME;
+
+	if( volume > ( S32 )MAX_MASTER_VOLUME )
+		volume = ( S32 )MAX_MASTER_VOLUME;
 
 	long lDSVolume;
-	CONVERT_LIN_VOL_TO_LOG_VOL( siVolume, lDSVolume );
+	CONVERT_LIN_VOL_TO_LOG_VOL( volume, lDSVolume );
 	m_hResult = p3DSample->m_sample.m_pDSBuffer->SetVolume( lDSVolume );
 	m_pcLastError = LastError( );
 }
@@ -3067,7 +3069,7 @@ uint32 CDx8SoundSys::Get3DSampleStatus( LH3DSAMPLE hS )
 	return ( p3DSample->m_sample.IsPlaying( ) ? LS_PLAYING : LS_STOPPED );
 }
 
-void CDx8SoundSys::Set3DSampleMsPosition( LHSAMPLE hS, sint32 siMilliseconds )
+void CDx8SoundSys::Set3DSampleMsPosition( LHSAMPLE hS, const sint32 siMilliseconds )
 {
 	if( hS == NULL )
 		return;
@@ -3081,7 +3083,7 @@ void CDx8SoundSys::Set3DSampleMsPosition( LHSAMPLE hS, sint32 siMilliseconds )
 //	===========================================================================
 //	DONE...
 
-S32	CDx8SoundSys::Set3DSampleInfo( LH3DSAMPLE hS, LTSOUNDINFO* pInfo )
+S32	CDx8SoundSys::Set3DSampleInfo( LH3DSAMPLE hS, const LTSOUNDINFO* pInfo )
 {
 
 	if( hS == NULL || pInfo == NULL )
@@ -3155,7 +3157,7 @@ void CDx8SoundSys::Set3DSamplePreference( LH3DSAMPLE hSample, const char* sName,
 {
 }
 
-void CDx8SoundSys::Set3DSampleLoopBlock( LH3DSAMPLE hS, S32 siLoop_start_offset, S32 siLoop_end_offset, bool bEnable )
+void CDx8SoundSys::Set3DSampleLoopBlock( LH3DSAMPLE hS, const S32 siLoop_start_offset, const S32 siLoop_end_offset, const bool bEnable )
 {
 	// this function sets up a loop within a sample, so until notified otherwise,
 	// the sample will play between the start and end points
@@ -3514,7 +3516,7 @@ void CDx8SoundSys::SetSampleReverb( LHSAMPLE hS, float fReverb_level, float fRev
 //	===========================================================================
 //	DONE...
 
-S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, const void* pStart, U32 uiLen, ul::WaveFormatEx* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData )
+S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx* pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData )
 {
 //	LOG_WRITE( g_pLogFile, "InitSampleFromAddress( %x, %x, %d )\n", hS, pStart, uiLen );
 
@@ -3546,9 +3548,9 @@ S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, const void* pStart, U32 ui
 S32	CDx8SoundSys::InitSampleFromFile(
 	LHSAMPLE hS,
 	const void* pFile_image,
-	S32 siBlock,
-	S32 siPlaybackRate,
-	LTSOUNDFILTERDATA* pFilterData)
+	const S32 siBlock,
+	const S32 siPlaybackRate,
+	const LTSOUNDFILTERDATA* pFilterData)
 {
 	if (!hS)
 	{
@@ -3628,7 +3630,7 @@ S32	CDx8SoundSys::InitSampleFromFile(
 //	===========================================================================
 //	TO DO...
 
-void CDx8SoundSys::SetSampleLoopBlock( LHSAMPLE hS, S32 siLoop_start_offset, S32 siLoop_end_offset, bool bEnable )
+void CDx8SoundSys::SetSampleLoopBlock( LHSAMPLE hS, const S32 siLoop_start_offset, const S32 siLoop_end_offset, const bool bEnable )
 {
 	if( hS == NULL )
 		return;
@@ -3639,7 +3641,7 @@ void CDx8SoundSys::SetSampleLoopBlock( LHSAMPLE hS, S32 siLoop_start_offset, S32
 	pSample->m_bLoopBlock = bEnable;
 }
 
-void CDx8SoundSys::SetSampleLoop( LHSAMPLE hS, bool bLoop )
+void CDx8SoundSys::SetSampleLoop( LHSAMPLE hS, const bool bLoop )
 {
 //	LOG_WRITE( g_pLogFile, "SetSampleLoopCount( %x, %d )\n", hS, siLoop_count );
 
@@ -3657,7 +3659,7 @@ void CDx8SoundSys::SetSampleLoop( LHSAMPLE hS, bool bLoop )
 //	===========================================================================
 //	DONE...
 
-void CDx8SoundSys::SetSampleMsPosition( LHSAMPLE hS, S32 siMilliseconds )
+void CDx8SoundSys::SetSampleMsPosition( LHSAMPLE hS, const S32 siMilliseconds )
 {
 //	LOG_WRITE( g_pLogFile, "SetSampleMsPosition( %x, %d )\n", hS, siMilliseconds );
 
@@ -3667,16 +3669,18 @@ void CDx8SoundSys::SetSampleMsPosition( LHSAMPLE hS, S32 siMilliseconds )
 	CSample* pSample = ( CSample* )hS;
 	pSample->Restore( );
 
-	if( siMilliseconds < 0 )
-		siMilliseconds = 0;
+	auto milliseconds = siMilliseconds;
 
-	uint32 uiByteOffset = MulDiv( pSample->m_waveFormat.avg_bytes_per_sec_, siMilliseconds, 1000 );
+	if( milliseconds < 0 )
+		milliseconds = 0;
+
+	uint32 uiByteOffset = MulDiv( pSample->m_waveFormat.avg_bytes_per_sec_, milliseconds, 1000 );
 	uiByteOffset -= uiByteOffset % pSample->m_waveFormat.block_align_;
 	m_hResult = pSample->SetCurrentPosition( uiByteOffset );
 	m_pcLastError = LastError( );
 }
 
-S32	CDx8SoundSys::GetSampleUserData( LHSAMPLE hS, U32 uiIndex )
+S32	CDx8SoundSys::GetSampleUserData( LHSAMPLE hS, const U32 uiIndex )
 {
 //	LOG_WRITE( g_pLogFile, "GetSampleUserData( %x, %d )\n", hS, uiIndex );
 
@@ -3702,9 +3706,9 @@ uint32 CDx8SoundSys::GetSampleStatus( LHSAMPLE hS )
 // old 2d sound stream functions
 LHSTREAM CDx8SoundSys::OpenStream(
 	const char* sFilename,
-	uint32 nFilePos,
+	const uint32 nFilePos,
 	LHDIGDRIVER hDig,
-	char* sStream,
+	const char* sStream,
 	sint32 siStream_mem)
 {
 	int i;
@@ -4073,7 +4077,7 @@ void CDx8SoundSys::ClearStreamBuffer( LHSTREAM hStream, bool bClearStreamDataQue
 // these next two functions are here apparently for compatibility with MSS interface
 // they aren't used.  We should probably remove them when we update the SoundSys interface
 S32	CDx8SoundSys::DecompressADPCM(
-	LTSOUNDINFO* pInfo,
+	const LTSOUNDINFO* pInfo,
 	void** ppOutData,
 	U32* puiOutSize)
 {

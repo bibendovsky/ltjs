@@ -88,7 +88,7 @@ sint32 OalSoundSys::WaveOutOpen(
 	LHDIGDRIVER* driver_ptr,
 	PHWAVEOUT* wave_out_ptr,
 	const sint32 device_id,
-	ul::WaveFormat* wave_format_ptr)
+	const ul::WaveFormat* wave_format_ptr)
 {
 	static_cast<void>(driver_ptr);
 	static_cast<void>(wave_out_ptr);
@@ -138,7 +138,7 @@ sint32 OalSoundSys::DigitalHandleReacquire(
 
 bool OalSoundSys::SetEAX20Filter(
 	const bool is_enable,
-	LTSOUNDFILTERDATA* filter_data_ptr)
+	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
 	static_cast<void>(is_enable);
 	static_cast<void>(filter_data_ptr);
@@ -153,7 +153,7 @@ bool OalSoundSys::SupportsEAX20Filter()
 
 bool OalSoundSys::SetEAX20BufferSettings(
 	LHSAMPLE sample_handle,
-	LTSOUNDFILTERDATA* filter_data_ptr)
+	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
 	static_cast<void>(sample_handle);
 	static_cast<void>(filter_data_ptr);
@@ -385,9 +385,9 @@ sint32 OalSoundSys::Init3DSampleFromAddress(
 	LH3DSAMPLE sample_handle,
 	const void* ptr,
 	const uint32 length,
-	ul::WaveFormatEx* wave_format_ptr,
+	const ul::WaveFormatEx* wave_format_ptr,
 	const sint32 playback_rate,
-	LTSOUNDFILTERDATA* filter_data_ptr)
+	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
 	static_cast<void>(sample_handle);
 	static_cast<void>(ptr);
@@ -404,7 +404,7 @@ sint32 OalSoundSys::Init3DSampleFromFile(
 	const void* file_image_ptr,
 	const sint32 block,
 	const sint32 playback_rate,
-	LTSOUNDFILTERDATA* filter_data_ptr)
+	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
 	static_cast<void>(sample_handle);
 	static_cast<void>(file_image_ptr);
@@ -449,7 +449,7 @@ void OalSoundSys::Set3DSampleMsPosition(
 
 sint32 OalSoundSys::Set3DSampleInfo(
 	LH3DSAMPLE sample_handle,
-	LTSOUNDINFO* sound_info_ptr)
+	const LTSOUNDINFO* sound_info_ptr)
 {
 	static_cast<void>(sample_handle);
 	static_cast<void>(sound_info_ptr);
@@ -641,9 +641,9 @@ sint32 OalSoundSys::InitSampleFromAddress(
 	LHSAMPLE sample_handle,
 	const void* ptr,
 	const uint32 length,
-	ul::WaveFormatEx* wave_format_ptr,
+	const ul::WaveFormatEx* wave_format_ptr,
 	const sint32 playback_rate,
-	LTSOUNDFILTERDATA* filter_data_ptr)
+	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
 	static_cast<void>(sample_handle);
 	static_cast<void>(ptr);
@@ -660,7 +660,7 @@ sint32 OalSoundSys::InitSampleFromFile(
 	const void* file_image_ptr,
 	const sint32 block,
 	const sint32 playback_rate,
-	LTSOUNDFILTERDATA* filter_data_ptr)
+	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
 	static_cast<void>(sample_handle);
 	static_cast<void>(file_image_ptr);
@@ -721,7 +721,7 @@ LHSTREAM OalSoundSys::OpenStream(
 	const char* file_name,
 	const uint32 file_offset,
 	LHDIGDRIVER driver_ptr,
-	char* stream_ptr,
+	const char* stream_ptr,
 	const sint32 stream_memory_size)
 {
 	static_cast<void>(file_name);
@@ -862,7 +862,7 @@ void OalSoundSys::ClearStreamBuffer(
 }
 
 sint32 OalSoundSys::DecompressADPCM(
-	LTSOUNDINFO* sound_info_ptr,
+	const LTSOUNDINFO* sound_info_ptr,
 	void** dst_data_ptr,
 	uint32* dst_size_ptr)
 {

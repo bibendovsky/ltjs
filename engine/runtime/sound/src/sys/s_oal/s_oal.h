@@ -64,7 +64,7 @@ public:
 		LHDIGDRIVER* driver_ptr,
 		PHWAVEOUT* wave_out_ptr,
 		const sint32 device_id,
-		ul::WaveFormat* wave_format_ptr) override;
+		const ul::WaveFormat* wave_format_ptr) override;
 
 	void WaveOutClose(
 		LHDIGDRIVER driver_ptr) override;
@@ -85,13 +85,13 @@ public:
 #ifdef USE_EAX20_HARDWARE_FILTERS
 	bool SetEAX20Filter(
 		const bool is_enable,
-		LTSOUNDFILTERDATA* filter_data_ptr) override;
+		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 
 	bool SupportsEAX20Filter() override;
 
 	bool SetEAX20BufferSettings(
 		LHSAMPLE sample_handle,
-		LTSOUNDFILTERDATA* filter_data) override;
+		const LTSOUNDFILTERDATA* filter_data) override;
 #endif
 
 
@@ -215,16 +215,16 @@ public:
 		LH3DSAMPLE sample_handle,
 		const void* ptr,
 		const uint32 length,
-		ul::WaveFormatEx* wave_format_ptr,
+		const ul::WaveFormatEx* wave_format_ptr,
 		const sint32 playback_rate,
-		LTSOUNDFILTERDATA* filter_data_ptr) override;
+		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 
 	sint32 Init3DSampleFromFile(
 		LH3DSAMPLE sample_handle,
 		const void* file_image_ptr,
 		const sint32 block,
 		const sint32 playback_rate,
-		LTSOUNDFILTERDATA* filter_data_ptr) override;
+		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 
 	sint32 Get3DSampleVolume(
 		LH3DSAMPLE sample_handle) override;
@@ -242,7 +242,7 @@ public:
 
 	sint32 Set3DSampleInfo(
 		LH3DSAMPLE sample_handle,
-		LTSOUNDINFO* sound_info_ptr) override;
+		const LTSOUNDINFO* sound_info_ptr) override;
 
 	void Set3DSampleDistances(
 		LH3DSAMPLE sample_handle,
@@ -336,16 +336,16 @@ public:
 		LHSAMPLE sample_handle,
 		const void* ptr,
 		const uint32 length,
-		ul::WaveFormatEx* wave_format_ptr,
+		const ul::WaveFormatEx* wave_format_ptr,
 		const sint32 playback_rate,
-		LTSOUNDFILTERDATA* filter_data_ptr) override;
+		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 
 	sint32 InitSampleFromFile(
 		LHSAMPLE sample_handle,
 		const void* file_image_ptr,
 		const sint32 block,
 		const sint32 playback_rate,
-		LTSOUNDFILTERDATA* filter_data_ptr) override;
+		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 
 	void SetSampleLoopBlock(
 		LHSAMPLE sample_handle,
@@ -375,7 +375,7 @@ public:
 		const char* file_name,
 		const uint32 file_offset,
 		LHDIGDRIVER driver_ptr,
-		char* stream_ptr,
+		const char* stream_ptr,
 		const sint32 stream_memory_size) override;
 
 	void SetStreamLoop(
@@ -444,7 +444,7 @@ public:
 	// wave file decompression functons
 	//
 	sint32 DecompressADPCM(
-		LTSOUNDINFO* sound_info_ptr,
+		const LTSOUNDINFO* sound_info_ptr,
 		void** output_data_ptr,
 		uint32* output_size_ptr) override;
 

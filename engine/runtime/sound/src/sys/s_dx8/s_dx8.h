@@ -153,8 +153,8 @@ public:
 	CSample( );
 	virtual ~CSample( );
 	void Reset( );
-	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, 
-		bool b3DBuffer, ul::WaveFormatEx* pWaveFormat = NULL, LTSOUNDFILTERDATA* pFilterData = NULL );
+	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, const uint32 uiNumSamples, 
+		const bool b3DBuffer, const ul::WaveFormatEx* pWaveFormat = NULL, const LTSOUNDFILTERDATA* pFilterData = NULL );
 	void Term( );
 	void Restore( );
 	bool Fill( );
@@ -205,7 +205,7 @@ public:
 	C3DSample( );
 	virtual ~C3DSample( );
 	void Reset( );
-	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, uint32 uiNumSamples, ul::WaveFormatEx* pWaveFormat, LTSOUNDFILTERDATA* pFilterData );
+	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, const uint32 uiNumSamples, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData );
 	void Term( );
 	virtual void SetPosition( LTVector& pos );
 	virtual void SetVelocity( LTVector& vel );
@@ -265,7 +265,7 @@ public:
 	virtual void		Term( );
 
 public:
-	virtual void*		GetDDInterface( uint uiDDInterfaceId );
+	virtual void*		GetDDInterface( const uint uiDDInterfaceId );
 
 public:
 	// system wide functions
@@ -274,27 +274,27 @@ public:
 	virtual S32			Startup( void );
 	virtual void		Shutdown( void );
 	virtual U32			MsCount( void );
-	virtual S32			SetPreference( U32 uiNumber, S32 siValue );
-	virtual S32			GetPreference( U32 uiNumber );
+	virtual S32			SetPreference( const U32 uiNumber, const S32 siValue );
+	virtual S32			GetPreference( const U32 uiNumber );
 	virtual void		MemFreeLock( void* ptr );
-	virtual void*		MemAllocLock( U32 uiSize );
+	virtual void*		MemAllocLock( const U32 uiSize );
 	virtual const char*	LastError( void );
 
 	// digital sound driver functions
-	virtual S32			WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, S32 siDeviceId, ul::WaveFormat* pWaveFormat );
+	virtual S32			WaveOutOpen( LHDIGDRIVER* phDriver, PHWAVEOUT* pphWaveOut, const S32 siDeviceId, const ul::WaveFormat* pWaveFormat );
 	virtual void		WaveOutClose( LHDIGDRIVER hDriver );
-	virtual void		SetDigitalMasterVolume( LHDIGDRIVER hDig, S32 siMasterVolume );
+	virtual void		SetDigitalMasterVolume( LHDIGDRIVER hDig, const S32 siMasterVolume );
 	virtual S32			GetDigitalMasterVolume( LHDIGDRIVER hDig );
 	virtual S32			DigitalHandleRelease( LHDIGDRIVER hDriver );
 	virtual S32			DigitalHandleReacquire( LHDIGDRIVER hDriver );
 #ifdef USE_EAX20_HARDWARE_FILTERS
-	virtual bool		SetEAX20Filter( bool bEnable, LTSOUNDFILTERDATA* pFilterData );
+	virtual bool		SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA* pFilterData );
 	virtual bool		SupportsEAX20Filter();
-	virtual	bool		SetEAX20BufferSettings( LH3DSAMPLE h3DSample, LTSOUNDFILTERDATA* pFilterData );
+	virtual	bool		SetEAX20BufferSettings( LH3DSAMPLE h3DSample, const LTSOUNDFILTERDATA* pFilterData );
 #endif
 
 	// 3d sound provider functions
-	virtual void		Set3DProviderMinBuffers( U32 uiMinBuffers );
+	virtual void		Set3DProviderMinBuffers( const U32 uiMinBuffers );
 	virtual S32			Open3DProvider( LHPROVIDER hLib );
 	virtual void		Close3DProvider( LHPROVIDER hLib );
 	virtual void		Set3DProviderPreference( LHPROVIDER hLib, const char* sName, const void* pVal );
@@ -304,19 +304,19 @@ public:
 	// 3d listener functions
 	virtual LH3DPOBJECT	Open3DListener( LHPROVIDER hLib );
 	virtual void		Close3DListener( LH3DPOBJECT hListener );
-	virtual void		SetListenerDoppler( LH3DPOBJECT hListener, float fDoppler );
+	virtual void		SetListenerDoppler( LH3DPOBJECT hListener, const float fDoppler );
 	virtual void		CommitDeferred();
 
 
 	// 3d sound object functions
-	virtual void		Set3DPosition( LH3DPOBJECT hObj, float fX, float fY, float fZ);
-	virtual void		Set3DVelocityVector( LH3DPOBJECT hObj, float fDX_per_ms, float fDY_per_ms, float fDZ_per_ms );
-	virtual void		Set3DOrientation( LH3DPOBJECT hObj, float fX_face, float fY_face, float fZ_face, float fX_up, float fY_up, float fZ_up );
-	virtual void		Set3DUserData( LH3DPOBJECT hObj, U32 uiIndex, S32 siValue );
+	virtual void		Set3DPosition( LH3DPOBJECT hObj, const float fX, const float fY, const float fZ);
+	virtual void		Set3DVelocityVector( LH3DPOBJECT hObj, const float fDX_per_ms, const float fDY_per_ms, const float fDZ_per_ms );
+	virtual void		Set3DOrientation( LH3DPOBJECT hObj, const float fX_face, const float fY_face, const float fZ_face, const float fX_up, const float fY_up, const float fZ_up );
+	virtual void		Set3DUserData( LH3DPOBJECT hObj, const U32 uiIndex, const S32 siValue );
 	virtual void		Get3DPosition( LH3DPOBJECT hObj, float* pfX, float* pfY, float* pfZ);
 	virtual void		Get3DVelocity( LH3DPOBJECT hObj, float* pfDX_per_ms, float* pfDY_per_ms, float* pfDZ_per_ms );
 	virtual void		Get3DOrientation( LH3DPOBJECT hObj, float* pfX_face, float* pfY_face, float* pfZ_face, float* pfX_up, float* pfY_up, float* pfZ_up );
-	virtual S32			Get3DUserData( LH3DPOBJECT hObj, U32 uiIndex);
+	virtual S32			Get3DUserData( LH3DPOBJECT hObj, const U32 uiIndex);
 
 	// 3d sound sample functions
 	virtual LH3DSAMPLE	Allocate3DSampleHandle( LHPROVIDER hLib );
@@ -325,20 +325,20 @@ public:
 	virtual void		Start3DSample( LH3DSAMPLE hS );
 	virtual void		Resume3DSample( LH3DSAMPLE hS );
 	virtual void		End3DSample( LH3DSAMPLE hS );
-	virtual S32			Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, U32 uiLen, ul::WaveFormatEx* pWaveFormat, S32 nPitchShift, LTSOUNDFILTERDATA* pFilterData );
-	virtual S32			Init3DSampleFromFile( LH3DSAMPLE hS, const void* pFile_image, S32 siBlock, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
+	virtual S32			Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx* pWaveFormat, const S32 nPitchShift, const LTSOUNDFILTERDATA* pFilterData );
+	virtual S32			Init3DSampleFromFile( LH3DSAMPLE hS, const void* pFile_image, const S32 siBlock, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData );
 	virtual S32			Get3DSampleVolume( LH3DSAMPLE hS );
-	virtual void		Set3DSampleVolume( LH3DSAMPLE hS, S32 siVolume );
+	virtual void		Set3DSampleVolume( LH3DSAMPLE hS, const S32 siVolume );
 	virtual uint32		Get3DSampleStatus( LH3DSAMPLE hS );
-	virtual void		Set3DSampleMsPosition( LHSAMPLE hS, sint32 siMilliseconds );
-	virtual S32			Set3DSampleInfo( LH3DSAMPLE hS, LTSOUNDINFO* pInfo );
-	virtual void		Set3DSampleDistances( LH3DSAMPLE hS, float fMax_dist, float fMin_dist );
+	virtual void		Set3DSampleMsPosition( LHSAMPLE hS, const sint32 siMilliseconds );
+	virtual S32			Set3DSampleInfo( LH3DSAMPLE hS, const LTSOUNDINFO* pInfo );
+	virtual void		Set3DSampleDistances( LH3DSAMPLE hS, const float fMax_dist, const float fMin_dist );
 	virtual void		Set3DSamplePreference( LH3DSAMPLE hSample, const char* sName, const void* pVal );
-	virtual void		Set3DSampleLoopBlock( LH3DSAMPLE hS, S32 siLoop_start_offset, S32 siLoop_end_offset, bool bEnable );
-	virtual void		Set3DSampleLoop( LH3DSAMPLE hS, bool bLoop );
-	virtual void		Set3DSampleObstruction( LH3DSAMPLE hS, float fObstruction );
+	virtual void		Set3DSampleLoopBlock( LH3DSAMPLE hS, const S32 siLoop_start_offset, const S32 siLoop_end_offset, const bool bEnable );
+	virtual void		Set3DSampleLoop( LH3DSAMPLE hS, const bool bLoop );
+	virtual void		Set3DSampleObstruction( LH3DSAMPLE hS, const float fObstruction );
 	virtual float		Get3DSampleObstruction( LH3DSAMPLE hS );
-	virtual void		Set3DSampleOcclusion( LH3DSAMPLE hS, float fOcclusion );
+	virtual void		Set3DSampleOcclusion( LH3DSAMPLE hS, const float fOcclusion );
 	virtual float		Get3DSampleOcclusion( LH3DSAMPLE hS );
 
 	// 2d sound sample functions
@@ -349,48 +349,48 @@ public:
 	virtual void		StartSample( LHSAMPLE hS );
 	virtual void		ResumeSample( LHSAMPLE hS );
 	virtual void		EndSample( LHSAMPLE hS );
-	virtual void		SetSampleVolume( LHSAMPLE hS, S32 siVolume );
-	virtual void		SetSamplePan( LHSAMPLE hS, S32 siPan );
+	virtual void		SetSampleVolume( LHSAMPLE hS, const S32 siVolume );
+	virtual void		SetSamplePan( LHSAMPLE hS, const S32 siPan );
 	virtual S32			GetSampleVolume( LHSAMPLE hS );
 	virtual S32			GetSamplePan( LHSAMPLE hS );
-	virtual void		SetSampleUserData( LHSAMPLE hS, U32 uiIndex, S32 siValue );
+	virtual void		SetSampleUserData( LHSAMPLE hS, const U32 uiIndex, const S32 siValue );
 	virtual void		GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND* ppDS, PTDIRECTSOUNDBUFFER* ppDSB );
-	virtual void		SetSampleReverb( LHSAMPLE hS, float fReverb_level, float fReverb_reflect_time, float fReverb_decay_time );
-	virtual S32			InitSampleFromAddress( LHSAMPLE hS, const void* pStart, U32 uiLen, ul::WaveFormatEx* pWaveFormat, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
-	virtual S32			InitSampleFromFile( LHSAMPLE hS, const void* pFile_image, S32 siBlock, S32 siPlaybackRate, LTSOUNDFILTERDATA* pFilterData );
-	virtual void		SetSampleLoopBlock( LHSAMPLE hS, S32 siLoop_start_offset, S32 siLoop_end_offset, bool bEnable );
-	virtual void		SetSampleLoop( LHSAMPLE hS, bool bLoop );
-	virtual void		SetSampleMsPosition( LHSAMPLE hS, S32 siMilliseconds );
-	virtual S32			GetSampleUserData( LHSAMPLE hS, U32 uiIndex );
+	virtual void		SetSampleReverb( LHSAMPLE hS, const float fReverb_level, const float fReverb_reflect_time, const float fReverb_decay_time );
+	virtual S32			InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx* pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData );
+	virtual S32			InitSampleFromFile( LHSAMPLE hS, const void* pFile_image, const S32 siBlock, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData );
+	virtual void		SetSampleLoopBlock( LHSAMPLE hS, const S32 siLoop_start_offset, const S32 siLoop_end_offset, const bool bEnable );
+	virtual void		SetSampleLoop( LHSAMPLE hS, const bool bLoop );
+	virtual void		SetSampleMsPosition( LHSAMPLE hS, const S32 siMilliseconds );
+	virtual S32			GetSampleUserData( LHSAMPLE hS, const U32 uiIndex );
 	virtual uint32		GetSampleStatus( LHSAMPLE hS );
 
 
 	// old 2d sound stream functions
-	virtual LHSTREAM	OpenStream( const char* sFilename, uint32 nFilePos, LHDIGDRIVER hDig, char* sStream, sint32 siStream_mem );
-	virtual void		SetStreamLoop( LHSTREAM hStream, bool bLoop );
-	virtual void		SetStreamPlaybackRate( LHSTREAM hStream, S32 siRate );
-	virtual void		SetStreamMsPosition( LHSTREAM hStream, S32 siMilliseconds );
-	virtual void		SetStreamUserData( LHSTREAM hS, U32 uiIndex, S32 siValue);
-	virtual S32			GetStreamUserData( LHSTREAM hS, U32 uiIndex);
+	virtual LHSTREAM	OpenStream( const char* sFilename, const uint32 nFilePos, LHDIGDRIVER hDig, const char* sStream, const sint32 siStream_mem );
+	virtual void		SetStreamLoop( LHSTREAM hStream, const bool bLoop );
+	virtual void		SetStreamPlaybackRate( LHSTREAM hStream, const S32 siRate );
+	virtual void		SetStreamMsPosition( LHSTREAM hStream, const S32 siMilliseconds );
+	virtual void		SetStreamUserData( LHSTREAM hS, const U32 uiIndex, const S32 siValue);
+	virtual S32			GetStreamUserData( LHSTREAM hS, const U32 uiIndex);
 
 	// new 2d sound stream functions
 	virtual LHSTREAM	OpenStream( streamBufferParams_t* pStreamBufferParams, WaveFile* pWaveFile, uint8 nEventNum );
 	virtual void		CloseStream( LHSTREAM hStream );
 	virtual void		StartStream( LHSTREAM hStream );
-	virtual void		PauseStream( LHSTREAM hStream, sint32 siOnOff );
+	virtual void		PauseStream( LHSTREAM hStream, const sint32 siOnOff );
 	virtual void		ResetStream( LHSTREAM hStream );
-	virtual void		SetStreamVolume( LHSTREAM hStream, sint32 siVolume );
-	virtual void		SetStreamPan( LHSTREAM hStream, sint32 siPan );
+	virtual void		SetStreamVolume( LHSTREAM hStream, const sint32 siVolume );
+	virtual void		SetStreamPan( LHSTREAM hStream, const sint32 siPan );
 	virtual sint32		GetStreamVolume( LHSTREAM hStream );
 	virtual sint32		GetStreamPan( LHSTREAM hStream );
 	virtual uint32		GetStreamStatus( LHSTREAM hStream );
-	virtual sint32		GetStreamBufferParam( LHSTREAM hStream, uint32 uiParam );
-	virtual void		ClearStreamBuffer( LHSTREAM hStream, bool bClearStreamDataQueue = true );
+	virtual sint32		GetStreamBufferParam( LHSTREAM hStream, const uint32 uiParam );
+	virtual void		ClearStreamBuffer( LHSTREAM hStream, const bool bClearStreamDataQueue = true );
 
 	// wave file decompression functons
-	virtual S32			DecompressADPCM( LTSOUNDINFO* pInfo, void** ppOutData, U32* puiOutSize );
-	virtual S32			DecompressASI( const void* pInData, U32 uiInSize, const char* sFilename_ext, void** ppWav, U32* puiWavSize, LTLENGTHYCB fnCallback );
-	UINT				ReadStream( WaveFile* pStream, BYTE* pOutBuffer, int nSize );
+	virtual S32			DecompressADPCM( const LTSOUNDINFO* pInfo, void** ppOutData, U32* puiOutSize );
+	virtual S32			DecompressASI( const void* pInData, const U32 uiInSize, const char* sFilename_ext, void** ppWav, U32* puiWavSize, LTLENGTHYCB fnCallback );
+	UINT				ReadStream( WaveFile* pStream, BYTE* pOutBuffer, const int nSize );
 
 	virtual bool		HasOnBoardMemory( );
 
