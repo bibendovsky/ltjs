@@ -639,7 +639,7 @@ CProvider *CSoundMgr::EnumerateAllProviders(bool bVerifyOpens)
     HPROENUM next;
     LHPROVIDER hProvider;
 
-    char *szName;
+    const char *szName;
     CProvider *pProvider, *pProviderList;
 
     pProviderList = LTNULL;
@@ -690,7 +690,7 @@ LTRESULT CSoundMgr::Get3DProviderLists(CProvider *&p3DProviderList, bool bVerify
     HPROENUM next;
 	LHPROVIDER hProvider;
 
-    char *szName;
+    const char *szName;
     CProvider *pProvider;
 
     uint32 dwCaps;

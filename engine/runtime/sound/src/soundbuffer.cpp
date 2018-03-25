@@ -105,7 +105,7 @@ LTRESULT CSoundBuffer::InitFromCompressed(CSoundBuffer &compressedSoundBuffer)
 		if (!GetSoundSys()->DecompressASI(compressedSoundBuffer.m_pFileData, compressedSoundBuffer.m_dwFileSize, ".mp3",
             (void **)&m_pFileData, &m_dwFileSize, LTNULL))
         {
-            char *pszError = GetSoundSys()->LastError();
+            auto pszError = GetSoundSys()->LastError();
             static_cast<void>(pszError);
             return LT_ERROR;
         }

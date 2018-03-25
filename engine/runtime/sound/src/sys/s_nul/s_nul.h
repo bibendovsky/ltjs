@@ -1,24 +1,17 @@
-#ifndef LTJS_S_OAL_INCLUDED
-#define LTJS_S_OAL_INCLUDED
+#ifndef LTJS_S_NUL_INCLUDED
+#define LTJS_S_NUL_INCLUDED
 
 
-#include "bibendovsky_spul_wave_format.h"
 #include "iltsound.h"
 
 
-namespace ltjs
-{
-namespace ul = bibendovsky::spul;
-} // ltjs
-
-
-class OalSoundSys :
+class NulSoundSys :
 	public ILTSoundSys
 {
 public:
-	OalSoundSys();
+	NulSoundSys();
 
-	~OalSoundSys() override;
+	~NulSoundSys() override;
 
 
 	bool Init() override;
@@ -464,8 +457,8 @@ public:
 	bool HasOnBoardMemory() override;
 
 
-	static OalSoundSys& get_singleton();
-}; // OalSoundSys
+	static NulSoundSys& get_singleton();
+}; // NulSoundSys
 
 
-#endif // LTJS_S_OAL_INCLUDED
+#endif // LTJS_S_NUL_INCLUDED

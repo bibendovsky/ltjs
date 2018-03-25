@@ -78,9 +78,9 @@ void* OalSoundSys::MemAllocLock(
 	return ::LTMemAlloc(size);
 }
 
-char* OalSoundSys::LastError()
+const char* OalSoundSys::LastError()
 {
-	static char last_error[] = {'\0'};
+	static auto last_error = "";
 	return last_error;
 }
 
@@ -183,8 +183,8 @@ void OalSoundSys::Close3DProvider(
 
 void OalSoundSys::Set3DProviderPreference(
 	LHPROVIDER provider_id,
-	char* name,
-	void* value)
+	const char* name,
+	const void* value)
 {
 	static_cast<void>(provider_id);
 	static_cast<void>(name);
@@ -193,7 +193,7 @@ void OalSoundSys::Set3DProviderPreference(
 
 void OalSoundSys::Get3DProviderAttribute(
 	LHPROVIDER provider_id,
-	char* name,
+	const char* name,
 	void* value)
 {
 	static_cast<void>(provider_id);
@@ -204,7 +204,7 @@ void OalSoundSys::Get3DProviderAttribute(
 sint32 OalSoundSys::Enumerate3DProviders(
 	LHPROENUM* next_ptr,
 	LHPROVIDER* destination_ptr,
-	char** name)
+	const char** name)
 {
 	static_cast<void>(next_ptr);
 	static_cast<void>(destination_ptr);
@@ -383,7 +383,7 @@ void OalSoundSys::End3DSample(
 
 sint32 OalSoundSys::Init3DSampleFromAddress(
 	LH3DSAMPLE sample_handle,
-	void* ptr,
+	const void* ptr,
 	const uint32 length,
 	ul::WaveFormatEx* wave_format_ptr,
 	const sint32 playback_rate,
@@ -401,7 +401,7 @@ sint32 OalSoundSys::Init3DSampleFromAddress(
 
 sint32 OalSoundSys::Init3DSampleFromFile(
 	LH3DSAMPLE sample_handle,
-	void* file_image_ptr,
+	const void* file_image_ptr,
 	const sint32 block,
 	const sint32 playback_rate,
 	LTSOUNDFILTERDATA* filter_data_ptr)
@@ -469,8 +469,8 @@ void OalSoundSys::Set3DSampleDistances(
 
 void OalSoundSys::Set3DSamplePreference(
 	LH3DSAMPLE sample_handle,
-	char* name,
-	void* value)
+	const char* name,
+	const void* value)
 {
 	static_cast<void>(sample_handle);
 	static_cast<void>(name);
@@ -639,7 +639,7 @@ void OalSoundSys::SetSampleReverb(
 
 sint32 OalSoundSys::InitSampleFromAddress(
 	LHSAMPLE sample_handle,
-	void* ptr,
+	const void* ptr,
 	const uint32 length,
 	ul::WaveFormatEx* wave_format_ptr,
 	const sint32 playback_rate,
@@ -657,7 +657,7 @@ sint32 OalSoundSys::InitSampleFromAddress(
 
 sint32 OalSoundSys::InitSampleFromFile(
 	LHSAMPLE sample_handle,
-	void* file_image_ptr,
+	const void* file_image_ptr,
 	const sint32 block,
 	const sint32 playback_rate,
 	LTSOUNDFILTERDATA* filter_data_ptr)
@@ -718,7 +718,7 @@ uint32 OalSoundSys::GetSampleStatus(
 }
 
 LHSTREAM OalSoundSys::OpenStream(
-	char* file_name,
+	const char* file_name,
 	const uint32 file_offset,
 	LHDIGDRIVER driver_ptr,
 	char* stream_ptr,
@@ -874,9 +874,9 @@ sint32 OalSoundSys::DecompressADPCM(
 }
 
 sint32 OalSoundSys::DecompressASI(
-	void* srd_data_ptr,
+	const void* srd_data_ptr,
 	const uint32 src_size,
-	char* file_name_ext,
+	const char* file_name_ext,
 	void** dst_wav_ptr,
 	uint32* dst_wav_size_ptr,
 	LTLENGTHYCB callback)
