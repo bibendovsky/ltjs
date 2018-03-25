@@ -2,6 +2,8 @@
 #define LTJS_S_OAL_INCLUDED
 
 
+#include "al.h"
+#include "alc.h"
 #include "bibendovsky_spul_wave_format.h"
 #include "iltsound.h"
 
