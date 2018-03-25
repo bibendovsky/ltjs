@@ -3,7 +3,7 @@ project(ltjs_snd_drv_dx8 VERSION 0.0.1 LANGUAGES CXX)
 
 find_package(LTJS_FFmpeg REQUIRED 2.8.11)
 
-option(LTJS_INSTALL_SND_DRV_DX8 "Install DirectSound sound driver." ON)
+option(LTJS_INSTALL_SND_DRV_DX8 "Install DirectSound sound driver." OFF)
 
 include(ltjs_common)
 
