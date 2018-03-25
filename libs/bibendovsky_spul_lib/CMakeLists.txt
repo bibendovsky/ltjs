@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
-project(bibendovsky_spul_lib VERSION 1.0.1 LANGUAGES CXX)
+project(bibendovsky_spul_lib VERSION 1.0.2 LANGUAGES CXX)
 
 
 option(BIBENDOVSKY_SPUL_CMAKE_ENABLE_INSTALL "Enable install (CMake)." OFF)
@@ -40,17 +40,25 @@ set(
 
 set(
 	sources
+	src/bibendovsky_spul_algorithm.cpp
 	src/bibendovsky_spul_ascii_utils.cpp
 	src/bibendovsky_spul_encoding_utils.cpp
+	src/bibendovsky_spul_endian.cpp
+	src/bibendovsky_spul_enum_flags.cpp
 	src/bibendovsky_spul_file_stream.cpp
+	src/bibendovsky_spul_four_cc.cpp
 	src/bibendovsky_spul_memory_stream.cpp
 	src/bibendovsky_spul_path_utils.cpp
+	src/bibendovsky_spul_platform.cpp
 	src/bibendovsky_spul_precompiled.cpp
 	src/bibendovsky_spul_riff_four_ccs.cpp
 	src/bibendovsky_spul_riff_reader.cpp
+	src/bibendovsky_spul_scope_guard.cpp
 	src/bibendovsky_spul_stream.cpp
 	src/bibendovsky_spul_substream.cpp
 	src/bibendovsky_spul_utf8_utils.cpp
+	src/bibendovsky_spul_wave_format.cpp
+	src/bibendovsky_spul_wave_format_tag.cpp
 	src/bibendovsky_spul_wave_format_utils.cpp
 	src/bibendovsky_spul_wave_four_ccs.cpp
 	src/bibendovsky_spul_wchar_utils.cpp
