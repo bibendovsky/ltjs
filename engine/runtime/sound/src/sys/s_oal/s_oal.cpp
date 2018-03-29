@@ -1,7 +1,586 @@
 #include "s_oal.h"
+#include <cstdint>
+#include <chrono>
+#include <limits>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+#include "efx.h"
+#include "bibendovsky_spul_scope_guard.h"
+#include "ltjs_audio_decoder.h"
+
+
+struct OalSoundSys::Impl
+{
+	static constexpr auto min_aux_sends = 1;
+	static constexpr auto default_aux_sends = 2;
+
+
+	using String = std::string;
+	using ExtensionsStrings = std::vector<String>;
+
+	using Clock = std::chrono::system_clock;
+	using ClockTs = Clock::time_point;
+
+
+	struct Version
+	{
+		int major_;
+		int minor_;
+
+
+		constexpr bool is_empty() const
+		{
+			return major_ == 0 && minor_ == 0;
+		}
+
+		constexpr bool operator<(
+			const Version& that)
+		{
+			return major_ < that.major_ || (major_ == that.major_ && minor_ < that.minor_);
+		}
+	}; // Version
+
+
+	static constexpr auto oal_ref_version = Version{1, 1};
+	static constexpr auto oal_efx_ref_version = Version{1, 0};
+
+
+	const char* get_error_message() const
+	{
+		return error_message_.c_str();
+	}
+
+	static void oal_clear_error()
+	{
+		static_cast<void>(::alGetError());
+	}
+
+	static bool oal_is_succeed()
+	{
+		return ::alGetError() == AL_NO_ERROR;
+	}
+
+	Version oal_get_version(
+		const ALenum oal_major_id,
+		const ALenum oal_minor_id)
+	{
+		oal_clear_error();
+
+		auto major = ALCint{};
+		auto minor = ALCint{};
+
+		::alcGetIntegerv(oal_device_, oal_major_id, 1, &major);
+		::alcGetIntegerv(oal_device_, oal_minor_id, 1, &minor);
+
+		if (!oal_is_succeed())
+		{
+			return {};
+		}
+
+		return {major, minor};
+	}
+
+	ExtensionsStrings oal_parse_extensions_string(
+		const char* const extensions_string)
+	{
+		auto iss = std::istringstream{extensions_string};
+
+		return ExtensionsStrings{
+			std::istream_iterator<String>{iss},
+			std::istream_iterator<String>{}};
+	}
+
+	bool oal_get_global_strings()
+	{
+		oal_clear_error();
+
+		auto version_string = ::alGetString(AL_VERSION);
+		auto renderer_string = ::alGetString(AL_RENDERER);
+		auto vendor_string = ::alGetString(AL_VENDOR);
+		auto extensions_string = ::alGetString(AL_EXTENSIONS);
+
+		if (!oal_is_succeed() || !version_string || !renderer_string || !vendor_string || !extensions_string)
+		{
+			error_message_ = "OAL: Failed to get global strings.";
+			return false;
+		}
+
+		oal_version_string_ = version_string;
+		oal_renderer_string_ = renderer_string;
+		oal_vendor_string_ = vendor_string;
+		oal_extentions_strings_ = oal_parse_extensions_string(extensions_string);
+
+		return true;
+	}
+
+	bool oal_get_version()
+	{
+		oal_version_ = oal_get_version(ALC_MAJOR_VERSION, ALC_MINOR_VERSION);
+
+		if (oal_version_.is_empty())
+		{
+			error_message_ = "OAL: Failed to get a version.";
+			return false;
+		}
+
+		if (oal_version_ < oal_ref_version)
+		{
+			error_message_ = "OAL: Expected at least version 1.1.";
+			return false;
+		}
+
+		return true;
+	}
+
+	bool oal_get_efx_version()
+	{
+		oal_efx_version_ = oal_get_version(ALC_EFX_MAJOR_VERSION, ALC_EFX_MINOR_VERSION);
+
+		if (oal_efx_version_.is_empty() || oal_efx_version_ < oal_efx_ref_version)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool oal_get_max_aux_sends()
+	{
+		oal_clear_error();
+
+		auto max_aux_sends = ALCint{};
+		::alcGetIntegerv(oal_device_, ALC_MAX_AUXILIARY_SENDS, 1, &max_aux_sends);
+
+		if (!oal_is_succeed() || max_aux_sends == 0)
+		{
+			return false;
+		}
+
+		oal_max_aux_sends_ = max_aux_sends;
+
+		return true;
+	}
+
+	template<typename T>
+	static bool oal_get_efx_function(
+		const char* name,
+		T& function)
+	{
+		function = reinterpret_cast<T>(::alGetProcAddress(name));
+
+		return function;
+	}
+
+	void oal_clear_efx_functions()
+	{
+		alGenEffects_ = nullptr;
+		alDeleteEffects_ = nullptr;
+		alIsEffect_ = nullptr;
+		alEffecti_ = nullptr;
+		alEffectiv_ = nullptr;
+		alEffectf_ = nullptr;
+		alEffectfv_ = nullptr;
+		alGetEffecti_ = nullptr;
+		alGetEffectiv_ = nullptr;
+		alGetEffectf_ = nullptr;
+		alGetEffectfv_ = nullptr;
+		alGenFilters_ = nullptr;
+		alDeleteFilters_ = nullptr;
+		alIsFilter_ = nullptr;
+		alFilteri_ = nullptr;
+		alFilteriv_ = nullptr;
+		alFilterf_ = nullptr;
+		alFilterfv_ = nullptr;
+		alGetFilteri_ = nullptr;
+		alGetFilteriv_ = nullptr;
+		alGetFilterf_ = nullptr;
+		alGetFilterfv_ = nullptr;
+		alGenAuxiliaryEffectSlots_ = nullptr;
+		alDeleteAuxiliaryEffectSlots_ = nullptr;
+		alIsAuxiliaryEffectSlot_ = nullptr;
+		alAuxiliaryEffectSloti_ = nullptr;
+		alAuxiliaryEffectSlotiv_ = nullptr;
+		alAuxiliaryEffectSlotf_ = nullptr;
+		alAuxiliaryEffectSlotfv_ = nullptr;
+		alGetAuxiliaryEffectSloti_ = nullptr;
+		alGetAuxiliaryEffectSlotiv_ = nullptr;
+		alGetAuxiliaryEffectSlotf_ = nullptr;
+		alGetAuxiliaryEffectSlotfv_ = nullptr;
+	}
+
+	bool oal_get_efx_symbols()
+	{
+		auto result = true;
+
+		result &= oal_get_efx_function("alGenEffects", alGenEffects_);
+		result &= oal_get_efx_function("alDeleteEffects", alDeleteEffects_);
+		result &= oal_get_efx_function("alIsEffect", alIsEffect_);
+		result &= oal_get_efx_function("alEffecti", alEffecti_);
+		result &= oal_get_efx_function("alEffectiv", alEffectiv_);
+		result &= oal_get_efx_function("alEffectf", alEffectf_);
+		result &= oal_get_efx_function("alEffectfv", alEffectfv_);
+		result &= oal_get_efx_function("alGetEffecti", alGetEffecti_);
+		result &= oal_get_efx_function("alGetEffectiv", alGetEffectiv_);
+		result &= oal_get_efx_function("alGetEffectf", alGetEffectf_);
+		result &= oal_get_efx_function("alGetEffectfv", alGetEffectfv_);
+		result &= oal_get_efx_function("alGenFilters", alGenFilters_);
+		result &= oal_get_efx_function("alDeleteFilters", alDeleteFilters_);
+		result &= oal_get_efx_function("alIsFilter", alIsFilter_);
+		result &= oal_get_efx_function("alFilteri", alFilteri_);
+		result &= oal_get_efx_function("alFilteriv", alFilteriv_);
+		result &= oal_get_efx_function("alFilterf", alFilterf_);
+		result &= oal_get_efx_function("alFilterfv", alFilterfv_);
+		result &= oal_get_efx_function("alGetFilteri", alGetFilteri_);
+		result &= oal_get_efx_function("alGetFilteriv", alGetFilteriv_);
+		result &= oal_get_efx_function("alGetFilterf", alGetFilterf_);
+		result &= oal_get_efx_function("alGetFilterfv", alGetFilterfv_);
+		result &= oal_get_efx_function("alGenAuxiliaryEffectSlots", alGenAuxiliaryEffectSlots_);
+		result &= oal_get_efx_function("alDeleteAuxiliaryEffectSlots", alDeleteAuxiliaryEffectSlots_);
+		result &= oal_get_efx_function("alIsAuxiliaryEffectSlot", alIsAuxiliaryEffectSlot_);
+		result &= oal_get_efx_function("alAuxiliaryEffectSloti", alAuxiliaryEffectSloti_);
+		result &= oal_get_efx_function("alAuxiliaryEffectSlotiv", alAuxiliaryEffectSlotiv_);
+		result &= oal_get_efx_function("alAuxiliaryEffectSlotf", alAuxiliaryEffectSlotf_);
+		result &= oal_get_efx_function("alAuxiliaryEffectSlotfv", alAuxiliaryEffectSlotfv_);
+		result &= oal_get_efx_function("alGetAuxiliaryEffectSloti", alGetAuxiliaryEffectSloti_);
+		result &= oal_get_efx_function("alGetAuxiliaryEffectSlotiv", alGetAuxiliaryEffectSlotiv_);
+		result &= oal_get_efx_function("alGetAuxiliaryEffectSlotf", alGetAuxiliaryEffectSlotf_);
+		result &= oal_get_efx_function("alGetAuxiliaryEffectSlotfv", alGetAuxiliaryEffectSlotfv_);
+
+		return result;
+	}
+
+	bool oal_has_efx()
+	{
+		if (!::alcIsExtensionPresent(oal_device_, ALC_EXT_EFX_NAME))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool oal_detect_effect(
+		const ALenum effect_type)
+	{
+		oal_clear_error();
+
+		auto has_effect = false;
+		auto effect_name = ALuint{};
+
+		alGenEffects_(1, &effect_name);
+
+		if (oal_is_succeed())
+		{
+			alEffecti_(effect_name, AL_EFFECT_TYPE, effect_type);
+
+			if (oal_is_succeed())
+			{
+				has_effect = true;
+			}
+		}
+
+		if (alIsEffect_(effect_name))
+		{
+			alDeleteEffects_(1, &effect_name);
+		}
+
+		return has_effect;
+	}
+
+	void oal_detect_effects()
+	{
+		oal_has_chorus_effect_ = oal_detect_effect(AL_EFFECT_CHORUS);
+		oal_has_compressor_effect_ = oal_detect_effect(AL_EFFECT_COMPRESSOR);
+		oal_has_distortion_effect_ = oal_detect_effect(AL_EFFECT_DISTORTION);
+		oal_has_echo_effect_ = oal_detect_effect(AL_EFFECT_ECHO);
+		oal_has_flange_effect_ = oal_detect_effect(AL_EFFECT_FLANGER);
+		oal_has_equalizer_effect_ = oal_detect_effect(AL_EFFECT_EQUALIZER);
+		oal_has_reverb_effect_ = oal_detect_effect(AL_EFFECT_REVERB);
+		oal_has_eax_reverb_effect_ = oal_detect_effect(AL_EFFECT_EAXREVERB);
+	}
+
+	void oal_examine_efx()
+	{
+		auto is_succeed = true;
+
+		auto guard_this = ul::ScopeGuard{
+			[&]()
+			{
+				if (!is_succeed)
+				{
+					oal_clear_efx();
+				}
+			}
+		};
+
+		if (!oal_get_efx_version())
+		{
+			return;
+		}
+
+		if (!oal_get_max_aux_sends())
+		{
+			return;
+		}
+
+		if (!oal_get_efx_symbols())
+		{
+			return;
+		}
+
+		oal_detect_effects();
+
+		is_succeed = true;
+		oal_has_efx_ = true;
+	}
+
+	void oal_clear_efx()
+	{
+		oal_efx_version_ = {};
+
+		oal_has_efx_ = false;
+
+		oal_has_chorus_effect_ = false;
+		oal_has_compressor_effect_ = false;
+		oal_has_distortion_effect_ = false;
+		oal_has_echo_effect_ = false;
+		oal_has_flange_effect_ = false;
+		oal_has_equalizer_effect_ = false;
+		oal_has_reverb_effect_ = false;
+		oal_has_eax_reverb_effect_ = false;
+		oal_max_aux_sends_ = 0;
+
+		oal_clear_efx_functions();
+	}
+
+	bool oal_open_device()
+	{
+		oal_device_ = ::alcOpenDevice(nullptr);
+
+		if (!oal_device_)
+		{
+			error_message_ = "OAL: Failed to open a device.";
+			return false;
+		}
+
+		return true;
+	}
+
+	void oal_close_device()
+	{
+		if (oal_device_)
+		{
+			static_cast<void>(::alcCloseDevice(oal_device_));
+			oal_device_ = nullptr;
+		}
+	}
+
+	bool oal_create_context()
+	{
+		static const ALint attribs[] =
+		{
+			ALC_MAX_AUXILIARY_SENDS, default_aux_sends,
+			0, 0,
+		}; // attribs
+
+		oal_context_ = ::alcCreateContext(oal_device_, attribs);
+
+		if (!oal_context_)
+		{
+			error_message_ = "OAL: Failed to create a context.";
+			return false;
+		}
+
+		if (!::alcMakeContextCurrent(oal_context_))
+		{
+			error_message_ = "OAL: Failed to make a context current.";
+			return false;
+		}
+
+		return true;
+	}
+
+	void oal_destroy_context()
+	{
+		if (oal_context_)
+		{
+			static_cast<void>(::alcMakeContextCurrent(nullptr));
+			::alcDestroyContext(oal_context_);
+			oal_context_ = nullptr;
+		}
+	}
+
+	bool startup()
+	{
+		clock_base_ = Clock::now();
+
+		return true;
+	}
+
+	std::uint32_t get_milliseconds()
+	{
+		constexpr auto max_uint32_t = std::numeric_limits<std::uint32_t>::max();
+
+		const auto time_diff = Clock::now() - clock_base_;
+		const auto time_diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
+
+		return static_cast<std::uint32_t>(time_diff_ms % max_uint32_t);
+	}
+
+	bool wave_out_open_internal()
+	{
+		auto is_succeed = false;
+
+		auto guard_this = ul::ScopeGuard{
+			[&]()
+			{
+				if (!is_succeed)
+				{
+					wave_out_close_internal();
+				}
+			}
+		};
+
+		if (!oal_open_device())
+		{
+			return false;
+		}
+
+		if (!oal_create_context())
+		{
+			return false;
+		}
+
+		if (!oal_get_version())
+		{
+			return false;
+		}
+
+		if (!oal_get_global_strings())
+		{
+			return false;
+		}
+
+		oal_examine_efx();
+
+		is_succeed = true;
+
+		return true;
+	}
+
+	sint32 wave_out_open(
+		LHDIGDRIVER& driver,
+		PHWAVEOUT& wave_out,
+		const sint32 device_id,
+		const ul::WaveFormatEx& wave_format)
+	{
+		static_cast<void>(device_id);
+		static_cast<void>(wave_format);
+
+		driver = nullptr;
+		wave_out = nullptr;
+
+		wave_out_close_internal();
+
+		if (!wave_out_open_internal())
+		{
+			return LS_ERROR;
+		}
+
+		driver = oal_device_;
+
+		return LS_OK;
+	}
+
+	void wave_out_close_internal()
+	{
+		oal_destroy_context();
+		oal_close_device();
+		oal_clear_efx();
+	}
+
+	void wave_out_close(
+		LHDIGDRIVER driver_ptr)
+	{
+		static_cast<void>(driver_ptr);
+
+		wave_out_close_internal();
+	}
+
+
+	String error_message_;
+	ALCdevice* oal_device_;
+	ALCcontext* oal_context_;
+
+	Version oal_version_;
+	String oal_version_string_;
+	String oal_vendor_string_;
+	String oal_renderer_string_;
+	ExtensionsStrings oal_extentions_strings_;
+
+	Version oal_efx_version_;
+	bool oal_has_efx_;
+	bool oal_has_chorus_effect_;
+	bool oal_has_compressor_effect_;
+	bool oal_has_distortion_effect_;
+	bool oal_has_echo_effect_;
+	bool oal_has_flange_effect_;
+	bool oal_has_equalizer_effect_;
+	bool oal_has_reverb_effect_;
+	bool oal_has_eax_reverb_effect_;
+	int oal_max_aux_sends_;
+
+	LPALGENEFFECTS alGenEffects_;
+	LPALDELETEEFFECTS alDeleteEffects_;
+	LPALISEFFECT alIsEffect_;
+	LPALEFFECTI alEffecti_;
+	LPALEFFECTIV alEffectiv_;
+	LPALEFFECTF alEffectf_;
+	LPALEFFECTFV alEffectfv_;
+	LPALGETEFFECTI alGetEffecti_;
+	LPALGETEFFECTIV alGetEffectiv_;
+	LPALGETEFFECTF alGetEffectf_;
+	LPALGETEFFECTFV alGetEffectfv_;
+	LPALGENFILTERS alGenFilters_;
+	LPALDELETEFILTERS alDeleteFilters_;
+	LPALISFILTER alIsFilter_;
+	LPALFILTERI alFilteri_;
+	LPALFILTERIV alFilteriv_;
+	LPALFILTERF alFilterf_;
+	LPALFILTERFV alFilterfv_;
+	LPALGETFILTERI alGetFilteri_;
+	LPALGETFILTERIV alGetFilteriv_;
+	LPALGETFILTERF alGetFilterf_;
+	LPALGETFILTERFV alGetFilterfv_;
+	LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots_;
+	LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots_;
+	LPALISAUXILIARYEFFECTSLOT alIsAuxiliaryEffectSlot_;
+	LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti_;
+	LPALAUXILIARYEFFECTSLOTIV alAuxiliaryEffectSlotiv_;
+	LPALAUXILIARYEFFECTSLOTF alAuxiliaryEffectSlotf_;
+	LPALAUXILIARYEFFECTSLOTFV alAuxiliaryEffectSlotfv_;
+	LPALGETAUXILIARYEFFECTSLOTI alGetAuxiliaryEffectSloti_;
+	LPALGETAUXILIARYEFFECTSLOTIV alGetAuxiliaryEffectSlotiv_;
+	LPALGETAUXILIARYEFFECTSLOTF alGetAuxiliaryEffectSlotf_;
+	LPALGETAUXILIARYEFFECTSLOTFV alGetAuxiliaryEffectSlotfv_;
+
+	ClockTs clock_base_;
+}; // OalSoundSys::Impl
 
 
 OalSoundSys::OalSoundSys()
+	:
+	pimpl_{new Impl{}}
+{
+}
+
+OalSoundSys::OalSoundSys(
+	OalSoundSys&& that)
+	:
+	pimpl_{std::move(that.pimpl_)}
 {
 }
 
@@ -11,6 +590,8 @@ OalSoundSys::~OalSoundSys()
 
 bool OalSoundSys::Init()
 {
+	ltjs::AudioDecoder::initialize_current_thread();
+
 	return true;
 }
 
@@ -36,7 +617,12 @@ void OalSoundSys::Unlock()
 
 sint32 OalSoundSys::Startup()
 {
-	return {};
+	if (!pimpl_->startup())
+	{
+		return LS_ERROR;
+	}
+
+	return LS_OK;
 }
 
 void OalSoundSys::Shutdown()
@@ -45,7 +631,7 @@ void OalSoundSys::Shutdown()
 
 uint32 OalSoundSys::MsCount()
 {
-	return {};
+	return pimpl_->get_milliseconds();
 }
 
 sint32 OalSoundSys::SetPreference(
@@ -55,7 +641,7 @@ sint32 OalSoundSys::SetPreference(
 	static_cast<void>(number);
 	static_cast<void>(value);
 
-	return {};
+	return LS_ERROR;
 }
 
 sint32 OalSoundSys::GetPreference(
@@ -69,19 +655,18 @@ sint32 OalSoundSys::GetPreference(
 void OalSoundSys::MemFreeLock(
 	void* ptr)
 {
-	::LTMemFree(ptr);
+	delete[] static_cast<char*>(ptr);
 }
 
 void* OalSoundSys::MemAllocLock(
 	const uint32 size)
 {
-	return ::LTMemAlloc(size);
+	return new (std::nothrow) char[size];
 }
 
 const char* OalSoundSys::LastError()
 {
-	static auto last_error = "";
-	return last_error;
+	return pimpl_->get_error_message();
 }
 
 sint32 OalSoundSys::WaveOutOpen(
@@ -90,18 +675,13 @@ sint32 OalSoundSys::WaveOutOpen(
 	const sint32 device_id,
 	const ul::WaveFormatEx& wave_format)
 {
-	static_cast<void>(driver);
-	static_cast<void>(wave_out);
-	static_cast<void>(device_id);
-	static_cast<void>(wave_format);
-
-	return {};
+	return pimpl_->wave_out_open(driver, wave_out, device_id, wave_format);
 }
 
 void OalSoundSys::WaveOutClose(
 	LHDIGDRIVER driver_ptr)
 {
-	static_cast<void>(driver_ptr);
+	pimpl_->wave_out_close(driver_ptr);
 }
 
 void OalSoundSys::SetDigitalMasterVolume(
@@ -170,9 +750,15 @@ void OalSoundSys::Set3DProviderMinBuffers(
 sint32 OalSoundSys::Open3DProvider(
 	LHPROVIDER provider_id)
 {
-	static_cast<void>(provider_id);
+	switch (provider_id)
+	{
+	case SOUND3DPROVIDERID_DS3D_SOFTWARE:
+	case SOUND3DPROVIDERID_DS3D_HARDWARE:
+		return true;
 
-	return {};
+	default:
+		return false;
+	}
 }
 
 void OalSoundSys::Close3DProvider(
@@ -206,11 +792,46 @@ sint32 OalSoundSys::Enumerate3DProviders(
 	LHPROVIDER& destination,
 	const char*& name)
 {
-	static_cast<void>(next);
-	static_cast<void>(destination);
-	static_cast<void>(name);
+	constexpr auto max_providers = 3;
 
-	return {};
+	static const char* const provider_names[max_providers] =
+	{
+		"OpenAL (2D)",
+		"OpenAL (3D)",
+		"OpenAL (default)",
+	}; // provider_names
+
+	const auto current = next++;
+
+	destination = 0;
+	name = nullptr;
+
+	if (current < 0 || current >= max_providers)
+	{
+		return false;
+	}
+
+	switch (current)
+	{
+	case 0:
+		destination = SOUND3DPROVIDERID_DS3D_SOFTWARE;
+		break;
+
+	case 1:
+		destination = SOUND3DPROVIDERID_DS3D_HARDWARE;
+		break;
+
+	case 2:
+		destination = SOUND3DPROVIDERID_DS3D_DEFAULT;
+		break;
+
+	default:
+		return false;
+	}
+
+	name = provider_names[current];
+
+	return true;
 }
 
 LH3DPOBJECT OalSoundSys::Open3DListener(
@@ -621,8 +1242,8 @@ void OalSoundSys::GetDirectSoundInfo(
 	PTDIRECTSOUNDBUFFER& direct_sound_buffer)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(direct_sound);
-	static_cast<void>(direct_sound_buffer);
+	direct_sound = nullptr;
+	direct_sound_buffer = nullptr;
 }
 
 void OalSoundSys::SetSampleReverb(
@@ -906,6 +1527,7 @@ OalSoundSys& OalSoundSys::get_singleton()
 	static auto singleton = OalSoundSys{};
 	return singleton;
 }
+
 
 extern "C"
 {

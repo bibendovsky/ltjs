@@ -2,6 +2,7 @@
 #define LTJS_S_OAL_INCLUDED
 
 
+#include <memory>
 #include "al.h"
 #include "alc.h"
 #include "bibendovsky_spul_wave_format.h"
@@ -19,6 +20,9 @@ class OalSoundSys :
 {
 public:
 	OalSoundSys();
+
+	OalSoundSys(
+		OalSoundSys&& that);
 
 	~OalSoundSys() override;
 
@@ -467,6 +471,14 @@ public:
 
 
 	static OalSoundSys& get_singleton();
+
+
+private:
+	struct Impl;
+
+	using ImplUPtr = std::unique_ptr<Impl>;
+
+	ImplUPtr pimpl_;
 }; // OalSoundSys
 
 
