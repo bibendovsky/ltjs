@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 #include "efx.h"
+#include "bibendovsky_spul_algorithm.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "ltjs_audio_decoder.h"
 
@@ -16,6 +17,10 @@ struct OalSoundSys::Impl
 {
 	static constexpr auto min_aux_sends = 1;
 	static constexpr auto default_aux_sends = 2;
+
+	static constexpr auto min_master_volume = 1;
+	static constexpr auto max_master_volume = 127;
+	static constexpr auto default_master_volume = max_master_volume;
 
 
 	using String = std::string;
@@ -494,6 +499,7 @@ struct OalSoundSys::Impl
 		oal_examine_efx();
 
 		is_succeed = true;
+		master_volume_ = max_master_volume;
 
 		return true;
 	}
@@ -527,6 +533,8 @@ struct OalSoundSys::Impl
 		oal_destroy_context();
 		oal_close_device();
 		oal_clear_efx();
+
+		master_volume_ = {};
 	}
 
 	void wave_out_close(
@@ -535,6 +543,43 @@ struct OalSoundSys::Impl
 		static_cast<void>(driver_ptr);
 
 		wave_out_close_internal();
+	}
+
+	sint32 get_master_volume(
+		LHDIGDRIVER driver_ptr)
+	{
+		if (!driver_ptr || driver_ptr != oal_device_)
+		{
+			return {};
+		}
+
+		return master_volume_;
+	}
+
+	void set_master_volume(
+		LHDIGDRIVER driver_ptr,
+		const int master_volume)
+	{
+		if (!driver_ptr || driver_ptr != oal_device_)
+		{
+			return;
+		}
+
+		const auto new_master_volume = ul::Algorithm::clamp(master_volume, min_master_volume, max_master_volume);
+
+		if (master_volume_ == new_master_volume)
+		{
+			return;
+		}
+
+		master_volume_ = new_master_volume;
+
+
+		const auto oal_gain =
+			static_cast<ALfloat>(new_master_volume - min_master_volume) /
+			static_cast<ALfloat>(max_master_volume - min_master_volume);
+
+		::alListenerf(AL_GAIN, oal_gain);
 	}
 
 	//
@@ -599,7 +644,9 @@ struct OalSoundSys::Impl
 	LPALGETAUXILIARYEFFECTSLOTF alGetAuxiliaryEffectSlotf_;
 	LPALGETAUXILIARYEFFECTSLOTFV alGetAuxiliaryEffectSlotfv_;
 
+
 	ClockTs clock_base_;
+	sint32 master_volume_;
 }; // OalSoundSys::Impl
 
 
@@ -720,16 +767,13 @@ void OalSoundSys::SetDigitalMasterVolume(
 	LHDIGDRIVER driver_ptr,
 	const sint32 master_volume)
 {
-	static_cast<void>(driver_ptr);
-	static_cast<void>(master_volume);
+	pimpl_->set_master_volume(driver_ptr, master_volume);
 }
 
 sint32 OalSoundSys::GetDigitalMasterVolume(
 	LHDIGDRIVER driver_ptr)
 {
-	static_cast<void>(driver_ptr);
-
-	return {};
+	return pimpl_->get_master_volume(driver_ptr);
 }
 
 sint32 OalSoundSys::DigitalHandleRelease(
