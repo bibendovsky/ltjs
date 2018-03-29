@@ -25,6 +25,11 @@ struct OalSoundSys::Impl
 	using ClockTs = Clock::time_point;
 
 
+	// =========================================================================
+	// OpenAL
+	// =========================================================================
+	//
+
 	struct Version
 	{
 		int major_;
@@ -413,6 +418,16 @@ struct OalSoundSys::Impl
 		}
 	}
 
+	//
+	// =========================================================================
+	// OpenAL
+	// =========================================================================
+
+	// =========================================================================
+	// API
+	// =========================================================================
+	//
+
 	bool startup()
 	{
 		clock_base_ = Clock::now();
@@ -428,6 +443,18 @@ struct OalSoundSys::Impl
 		const auto time_diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
 
 		return static_cast<std::uint32_t>(time_diff_ms % max_uint32_t);
+	}
+
+	void* allocate(
+		const std::size_t size)
+	{
+		return new (std::nothrow) char[size];
+	}
+
+	void deallocate(
+		void* ptr)
+	{
+		delete[] static_cast<char*>(ptr);
 	}
 
 	bool wave_out_open_internal()
@@ -509,6 +536,11 @@ struct OalSoundSys::Impl
 
 		wave_out_close_internal();
 	}
+
+	//
+	// =========================================================================
+	// API
+	// =========================================================================
 
 
 	String error_message_;
@@ -655,13 +687,13 @@ sint32 OalSoundSys::GetPreference(
 void OalSoundSys::MemFreeLock(
 	void* ptr)
 {
-	delete[] static_cast<char*>(ptr);
+	pimpl_->deallocate(ptr);
 }
 
 void* OalSoundSys::MemAllocLock(
 	const uint32 size)
 {
-	return new (std::nothrow) char[size];
+	return pimpl_->allocate(size);
 }
 
 const char* OalSoundSys::LastError()
