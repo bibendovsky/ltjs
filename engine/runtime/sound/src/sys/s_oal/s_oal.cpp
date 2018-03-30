@@ -20,9 +20,9 @@ struct OalSoundSys::Impl
 	static constexpr auto min_aux_sends = 1;
 	static constexpr auto default_aux_sends = 2;
 
-	static constexpr auto min_master_volume = 1;
-	static constexpr auto max_master_volume = 127;
-	static constexpr auto default_master_volume = max_master_volume;
+	static constexpr auto min_volume = 1;
+	static constexpr auto max_volume = 127;
+	static constexpr auto default_volume = max_volume;
 
 
 	using String = std::string;
@@ -533,7 +533,7 @@ struct OalSoundSys::Impl
 		oal_examine_efx();
 
 		is_succeed = true;
-		master_volume_ = max_master_volume;
+		master_volume_ = max_volume;
 
 		return true;
 	}
@@ -599,7 +599,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		const auto new_master_volume = ul::Algorithm::clamp(master_volume, min_master_volume, max_master_volume);
+		const auto new_master_volume = ul::Algorithm::clamp(master_volume, min_volume, max_volume);
 
 		if (master_volume_ == new_master_volume)
 		{
@@ -610,8 +610,8 @@ struct OalSoundSys::Impl
 
 
 		const auto oal_gain =
-			static_cast<ALfloat>(new_master_volume - min_master_volume) /
-			static_cast<ALfloat>(max_master_volume - min_master_volume);
+			static_cast<ALfloat>(new_master_volume - min_volume) /
+			static_cast<ALfloat>(max_volume - min_volume);
 
 		::alListenerf(AL_GAIN, oal_gain);
 	}
