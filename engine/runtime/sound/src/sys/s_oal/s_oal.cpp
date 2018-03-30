@@ -1,7 +1,9 @@
 #include "s_oal.h"
 #include <cstdint>
+#include <array>
 #include <chrono>
 #include <limits>
+#include <list>
 #include <iterator>
 #include <sstream>
 #include <string>
@@ -28,6 +30,38 @@ struct OalSoundSys::Impl
 
 	using Clock = std::chrono::system_clock;
 	using ClockTs = Clock::time_point;
+
+
+	struct SampleBase
+	{
+		using Data = std::vector<std::uint8_t>;
+
+
+		ul::WaveFormatEx format_;
+		bool is_looping_;
+		bool has_loop_block_;
+		sint32 loop_start_;
+		sint32 loop_end_;
+		sint32 volume_;
+		Data data_;
+
+		ALenum oal_buffer_;
+		ALenum oal_loop_buffer_;
+	}; // SampleBase
+
+	struct Sample2d :
+		public SampleBase
+	{
+		static constexpr auto max_user_data_count = 8;
+		static constexpr auto max_user_data_index = max_user_data_count - 1;
+
+		using UserDataArray = std::array<sint32, max_user_data_count>;
+
+		sint32 pan_;
+		UserDataArray user_data_array_;
+	}; // Sample2d
+
+	using Samples2d = std::list<Sample2d>;
 
 
 	// =========================================================================
