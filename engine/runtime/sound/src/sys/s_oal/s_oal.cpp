@@ -35,7 +35,7 @@ struct OalSoundSys::Impl
 	// =========================================================================
 	//
 
-	struct Version
+	struct OalVersion
 	{
 		int major_;
 		int minor_;
@@ -47,15 +47,15 @@ struct OalSoundSys::Impl
 		}
 
 		constexpr bool operator<(
-			const Version& that)
+			const OalVersion& that)
 		{
 			return major_ < that.major_ || (major_ == that.major_ && minor_ < that.minor_);
 		}
-	}; // Version
+	}; // OalVersion
 
 
-	static constexpr auto oal_ref_version = Version{1, 1};
-	static constexpr auto oal_efx_ref_version = Version{1, 0};
+	static constexpr auto oal_ref_version = OalVersion{1, 1};
+	static constexpr auto oal_efx_ref_version = OalVersion{1, 0};
 
 
 	const char* get_error_message() const
@@ -73,7 +73,7 @@ struct OalSoundSys::Impl
 		return ::alGetError() == AL_NO_ERROR;
 	}
 
-	Version oal_get_version(
+	OalVersion oal_get_version(
 		const ALenum oal_major_id,
 		const ALenum oal_minor_id)
 	{
@@ -592,13 +592,13 @@ struct OalSoundSys::Impl
 	ALCdevice* oal_device_;
 	ALCcontext* oal_context_;
 
-	Version oal_version_;
+	OalVersion oal_version_;
 	String oal_version_string_;
 	String oal_vendor_string_;
 	String oal_renderer_string_;
 	ExtensionsStrings oal_extentions_strings_;
 
-	Version oal_efx_version_;
+	OalVersion oal_efx_version_;
 	bool oal_has_efx_;
 	bool oal_has_chorus_effect_;
 	bool oal_has_compressor_effect_;
