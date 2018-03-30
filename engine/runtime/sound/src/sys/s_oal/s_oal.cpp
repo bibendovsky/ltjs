@@ -20,9 +20,12 @@ struct OalSoundSys::Impl
 	static constexpr auto min_aux_sends = 1;
 	static constexpr auto default_aux_sends = 2;
 
-	static constexpr auto min_volume = 1;
-	static constexpr auto max_volume = 127;
+	static constexpr auto min_volume = sint32{1};
+	static constexpr auto max_volume = sint32{127};
 	static constexpr auto default_volume = max_volume;
+
+	static constexpr auto pan_center = min_volume + ((max_volume - min_volume) / 2);
+	static constexpr auto default_pan = pan_center;
 
 
 	using String = std::string;
@@ -32,25 +35,40 @@ struct OalSoundSys::Impl
 	using ClockTs = Clock::time_point;
 
 
-	struct SampleBase
+	struct Sample
 	{
+		enum class Status
+		{
+			none,
+			unknown,
+			paused,
+			stopped,
+		}; // Status
+
+
 		using Data = std::vector<std::uint8_t>;
 
 
-		ul::WaveFormatEx format_;
+		int channel_count_;
+		int bit_depth_;
+		int sample_rate_;
+		int playback_sample_rate_;
+
 		bool is_looping_;
 		bool has_loop_block_;
 		sint32 loop_start_;
 		sint32 loop_end_;
 		sint32 volume_;
+		Status status_;
 		Data data_;
 
-		ALenum oal_buffer_;
-		ALenum oal_loop_buffer_;
-	}; // SampleBase
+		ALuint oal_buffer_;
+		ALuint oal_loop_buffer_;
+		ALuint oal_source_;
+	}; // Sample
 
 	struct Sample2d :
-		public SampleBase
+		public Sample
 	{
 		static constexpr auto max_user_data_count = 8;
 		static constexpr auto max_user_data_index = max_user_data_count - 1;
@@ -62,6 +80,52 @@ struct OalSoundSys::Impl
 	}; // Sample2d
 
 	using Samples2d = std::list<Sample2d>;
+
+
+	// =========================================================================
+	// Utils
+	// =========================================================================
+	//
+
+	static constexpr sint32 clamp_volume(
+		const sint32 volume)
+	{
+		return ul::Algorithm::clamp(volume, min_volume, max_volume);
+	}
+
+	static constexpr float calculate_oal_gain(
+		const sint32 clamped_volume)
+	{
+		constexpr auto max_volume_diff = static_cast<float>(max_volume - min_volume);
+
+		return static_cast<float>(clamped_volume - min_volume) / max_volume_diff;
+	}
+
+	static float calculate_pan_balance(
+		const sint32 clamped_pan)
+	{
+		if (clamped_pan == pan_center)
+		{
+			return {};
+		}
+		else if (clamped_pan < pan_center)
+		{
+			constexpr auto max_diff = static_cast<float>(pan_center - min_volume);
+
+			return static_cast<float>(clamped_pan - min_volume - max_diff) / max_diff;
+		}
+		else
+		{
+			constexpr auto max_diff = static_cast<float>(max_volume - pan_center);
+
+			return static_cast<float>(max_volume - clamped_pan) / max_diff;
+		}
+	}
+
+	//
+	// =========================================================================
+	// Utils
+	// =========================================================================
 
 
 	// =========================================================================
@@ -462,6 +526,7 @@ struct OalSoundSys::Impl
 	// OpenAL
 	// =========================================================================
 
+
 	// =========================================================================
 	// API
 	// =========================================================================
@@ -580,7 +645,7 @@ struct OalSoundSys::Impl
 	}
 
 	sint32 get_master_volume(
-		LHDIGDRIVER driver_ptr)
+		LHDIGDRIVER driver_ptr) const
 	{
 		if (!driver_ptr || driver_ptr != oal_device_)
 		{
@@ -592,7 +657,7 @@ struct OalSoundSys::Impl
 
 	void set_master_volume(
 		LHDIGDRIVER driver_ptr,
-		const int master_volume)
+		const sint32 master_volume)
 	{
 		if (!driver_ptr || driver_ptr != oal_device_)
 		{
@@ -614,6 +679,541 @@ struct OalSoundSys::Impl
 			static_cast<ALfloat>(max_volume - min_volume);
 
 		::alListenerf(AL_GAIN, oal_gain);
+	}
+
+	LHSAMPLE allocate_sample(
+		LHDIGDRIVER driver_ptr)
+	{
+		if (driver_ptr != oal_device_)
+		{
+			return nullptr;
+		}
+
+		samples_2d_.emplace_back();
+		auto& sample = samples_2d_.back();
+
+		return &sample;
+	}
+
+	void deallocate_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		samples_2d_.remove_if(
+			[=](const auto& sample)
+			{
+				return &sample == sample_ptr;
+			}
+		);
+	}
+
+	void stop_sample(
+		Sample& sample)
+	{
+		switch (sample.status_)
+		{
+		case Sample::Status::paused:
+		case Sample::Status::stopped:
+			break;
+
+		default:
+			::alSourcePause(sample.oal_source_);
+			sample.status_ = Sample::Status::paused;
+			break;
+		}
+	}
+
+	void stop_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+
+		stop_sample(sample);
+	}
+
+	void start_sample(
+		Sample& sample)
+	{
+		::alSourcePlay(sample.oal_source_);
+		sample.status_ = Sample::Status::unknown;
+	}
+
+	void start_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+
+		start_sample(sample);
+	}
+
+	void resume_sample(
+		Sample& sample)
+	{
+		if (sample.status_ == Sample::Status::unknown)
+		{
+			auto oal_status = ALint{};
+
+			::alGetSourcei(sample.oal_source_, AL_SOURCE_STATE, &oal_status);
+
+			if (oal_status == AL_PLAYING)
+			{
+				return;
+			}
+		}
+
+		::alSourcePlay(sample.oal_source_);
+		sample.status_ = Sample::Status::unknown;
+	}
+
+	void resume_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+
+		resume_sample(sample);
+	}
+
+	void end_sample(
+		Sample& sample)
+	{
+		if (sample.status_ == Sample::Status::stopped)
+		{
+			return;
+		}
+
+		::alSourceStop(sample.oal_source_);
+		sample.status_ = Sample::Status::stopped;
+	}
+
+	void end_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+
+		end_sample(sample);
+	}
+
+	void set_sample_volume(
+		Sample& sample,
+		const sint32 volume)
+	{
+		const auto new_volume = clamp_volume(volume);
+
+		if (sample.volume_ == new_volume)
+		{
+			return;
+		}
+
+		sample.volume_ = new_volume;
+
+		const auto oal_gain = calculate_oal_gain(new_volume);
+
+		::alSourcef(sample.oal_source_, AL_GAIN, oal_gain);
+	}
+
+	sint32 get_sample_volume(
+		LHSAMPLE sample_ptr) const
+	{
+		if (!sample_ptr)
+		{
+			return {};
+		}
+
+		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+
+		return sample.volume_;
+	}
+
+	void set_sample_volume(
+		LHSAMPLE sample_ptr,
+		const sint32 volume)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+
+		set_sample_volume(sample, volume);
+	}
+
+	void set_sample_pan(
+		Sample2d& sample,
+		const sint32 pan)
+	{
+		const auto new_pan = clamp_volume(pan);
+
+		if (sample.pan_ == new_pan)
+		{
+			return;
+		}
+
+		sample.pan_ = new_pan;
+
+		const auto pan_balance = calculate_pan_balance(new_pan);
+
+		::alSource3f(sample.oal_source_, AL_POSITION, pan_balance, 0.0F, 0.0F);
+	}
+
+	sint32 get_sample_pan(
+		LHSAMPLE sample_ptr) const
+	{
+		if (!sample_ptr)
+		{
+			return {};
+		}
+
+		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+
+		return sample.pan_;
+	}
+
+	void set_sample_pan(
+		LHSAMPLE sample_ptr,
+		const sint32 pan)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+
+		set_sample_pan(sample, pan);
+	}
+
+	sint32 get_sample_user_data(
+		LHSAMPLE sample_handle,
+		const uint32 index) const
+	{
+		if (!sample_handle || index > Sample2d::max_user_data_index)
+		{
+			return {};
+		}
+
+		auto& sample = *static_cast<Sample2d*>(sample_handle);
+
+		return sample.user_data_array_[index];
+	}
+
+	void set_sample_user_data(
+		LHSAMPLE sample_handle,
+		const uint32 index,
+		const sint32 value)
+	{
+		if (!sample_handle || index > Sample2d::max_user_data_index)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample2d*>(sample_handle);
+
+		sample.user_data_array_[index] = value;
+	}
+
+	void uninitialize_sample(
+		Sample& sample)
+	{
+		sample.channel_count_ = {};
+		sample.bit_depth_ = {};
+		sample.sample_rate_ = {};
+		sample.playback_sample_rate_ = {};
+
+		sample.is_looping_ = {};
+		sample.has_loop_block_ = {};
+		sample.loop_start_ = {};
+		sample.loop_end_ = {};
+		sample.volume_ = max_volume;
+		sample.status_ = {};
+		sample.data_ = {};
+
+		if (::alIsSource(sample.oal_source_))
+		{
+			::alDeleteSources(1, &sample.oal_source_);
+			sample.oal_source_ = AL_NONE;
+		}
+
+		if (::alIsBuffer(sample.oal_buffer_))
+		{
+			::alDeleteBuffers(1, &sample.oal_buffer_);
+			sample.oal_buffer_ = AL_NONE;
+		}
+
+		if (::alIsBuffer(sample.oal_loop_buffer_))
+		{
+			::alDeleteBuffers(1, &sample.oal_loop_buffer_);
+			sample.oal_loop_buffer_ = AL_NONE;
+		}
+	}
+
+	void uninitialize_sample(
+		Sample2d& sample)
+	{
+		sample.pan_ = default_pan;
+		sample.user_data_array_ = {};
+	}
+
+	static bool validate_wave_format_ex(
+		const ul::WaveFormatEx& wave_format)
+	{
+		if (wave_format.tag_ != ul::WaveFormatTag::pcm)
+		{
+			return false;
+		}
+
+		if (wave_format.channel_count_ != 1 && wave_format.channel_count_ != 2)
+		{
+			return false;
+		}
+
+		if (wave_format.bit_depth_ != 8 && wave_format.bit_depth_ != 16)
+		{
+			return false;
+		}
+
+		if (wave_format.sample_rate_ <= 0)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	static ALenum get_oal_buffer_format(
+		const ul::WaveFormatEx& wave_format)
+	{
+		switch (wave_format.channel_count_)
+		{
+		case 1:
+			switch (wave_format.bit_depth_)
+			{
+			case 8:
+				return AL_FORMAT_MONO8;
+
+			case 16:
+				return AL_FORMAT_MONO16;
+
+			default:
+				return AL_NONE;
+			}
+
+			break;
+
+
+		case 2:
+			switch (wave_format.bit_depth_)
+			{
+			case 8:
+				return AL_FORMAT_STEREO8;
+
+			case 16:
+				return AL_FORMAT_STEREO16;
+
+			default:
+				return AL_NONE;
+			}
+
+			break;
+
+		default:
+			return AL_NONE;
+		}
+	}
+
+	bool initialize_sample(
+		Sample& sample,
+		const void* ptr,
+		const uint32 length,
+		const ul::WaveFormatEx& wave_format,
+		const sint32 playback_rate,
+		const LTSOUNDFILTERDATA* filter_data_ptr)
+	{
+		uninitialize_sample(sample);
+
+		if (!ptr || length == 0 || !validate_wave_format_ex(wave_format) || playback_rate <= 0)
+		{
+			return false;
+		}
+
+		auto is_succeed = false;
+
+		auto cleanup = ul::ScopeGuard{
+			[&]()
+			{
+				if (!is_succeed)
+				{
+					uninitialize_sample(sample);
+				}
+			}
+		};
+
+		oal_clear_error();
+
+		::alGenBuffers(1, &sample.oal_buffer_);
+		::alGenBuffers(1, &sample.oal_loop_buffer_);
+		::alGenSources(1, &sample.oal_source_);
+
+		if (!oal_is_succeed())
+		{
+			return false;
+		}
+
+		sample.channel_count_ = wave_format.channel_count_;
+		sample.bit_depth_ = wave_format.bit_depth_;
+		sample.sample_rate_ = static_cast<int>(wave_format.sample_rate_);
+		sample.playback_sample_rate_ = playback_rate;
+
+		const auto has_pitch = (sample.sample_rate_ != sample.playback_sample_rate_);
+
+		const auto pitch = (
+			has_pitch ?
+			static_cast<float>(sample.playback_sample_rate_) / static_cast<float>(sample.sample_rate_) :
+			1.0F);
+
+		const auto oal_buffer_format = get_oal_buffer_format(wave_format);
+
+		sample.data_.resize(length);
+
+		std::uninitialized_copy_n(
+			static_cast<const std::uint8_t*>(ptr),
+			length,
+			sample.data_.begin());
+
+		::alBufferData(
+			sample.oal_buffer_,
+			oal_buffer_format,
+			sample.data_.data(),
+			static_cast<ALsizei>(sample.data_.size()),
+			sample.sample_rate_);
+
+		if (has_pitch)
+		{
+			::alSourcef(sample.oal_source_, AL_PITCH, pitch);
+		}
+
+		if (!oal_is_succeed())
+		{
+			return false;
+		}
+
+		is_succeed = true;
+
+		return true;
+	}
+
+	bool initialize_sample(
+		Sample2d& sample_2d)
+	{
+		uninitialize_sample(sample_2d);
+
+
+		auto is_succeed = false;
+
+		auto cleanup = ul::ScopeGuard{
+			[&]()
+			{
+				if (!is_succeed)
+				{
+					uninitialize_sample(sample_2d);
+				}
+			}
+		};
+
+
+		oal_clear_error();
+
+		::alSourcei(sample_2d.oal_source_, AL_SOURCE_RELATIVE, AL_TRUE);
+
+		if (!oal_is_succeed())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	sint32 initialize_sample(
+		LHSAMPLE sample_handle,
+		const void* ptr,
+		const uint32 length,
+		const ul::WaveFormatEx& wave_format,
+		const sint32 playback_rate,
+		const LTSOUNDFILTERDATA* filter_data_ptr)
+	{
+		if (!sample_handle)
+		{
+			return false;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_handle);
+
+		auto is_succeed = false;
+
+		auto cleanup = ul::ScopeGuard{
+			[&]()
+			{
+				if (!is_succeed)
+				{
+					uninitialize_sample(static_cast<Sample2d&>(sample));
+					uninitialize_sample(static_cast<Sample&>(sample));
+				}
+			}
+		};
+
+		if (!initialize_sample(
+			sample,
+			ptr,
+			length,
+			wave_format,
+			playback_rate,
+			filter_data_ptr))
+		{
+			return false;
+		}
+
+		if (!initialize_sample(static_cast<Sample2d&>(sample)))
+		{
+			return false;
+		}
+
+		is_succeed = true;
+
+		return true;
+	}
+
+	bool initialize_sample_from_file(
+		Sample& sample,
+		const void* file_image_ptr,
+		const sint32 block,
+		const sint32 playback_rate,
+		const LTSOUNDFILTERDATA* filter_data_ptr)
+	{
+		return false;
 	}
 
 	//
@@ -681,6 +1281,7 @@ struct OalSoundSys::Impl
 
 	ClockTs clock_base_;
 	sint32 master_volume_;
+	Samples2d samples_2d_;
 }; // OalSoundSys::Impl
 
 
@@ -1263,15 +1864,13 @@ float OalSoundSys::Get3DSampleOcclusion(
 LHSAMPLE OalSoundSys::AllocateSampleHandle(
 	LHDIGDRIVER driver_ptr)
 {
-	static_cast<void>(driver_ptr);
-
-	return {};
+	return pimpl_->allocate_sample(driver_ptr);
 }
 
 void OalSoundSys::ReleaseSampleHandle(
 	LHSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	pimpl_->deallocate_sample(sample_handle);
 }
 
 void OalSoundSys::InitSample(
@@ -1283,57 +1882,51 @@ void OalSoundSys::InitSample(
 void OalSoundSys::StopSample(
 	LHSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	pimpl_->stop_sample(sample_handle);
 }
 
 void OalSoundSys::StartSample(
 	LHSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	pimpl_->start_sample(sample_handle);
 }
 
 void OalSoundSys::ResumeSample(
 	LHSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	pimpl_->resume_sample(sample_handle);
 }
 
 void OalSoundSys::EndSample(
 	LHSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	pimpl_->end_sample(sample_handle);
 }
 
 void OalSoundSys::SetSampleVolume(
 	LHSAMPLE sample_handle,
 	const sint32 volume)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(volume);
+	pimpl_->set_sample_volume(sample_handle, volume);
 }
 
 void OalSoundSys::SetSamplePan(
 	LHSAMPLE sample_handle,
 	const sint32 pan)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(pan);
+	pimpl_->set_sample_pan(sample_handle, pan);
 }
 
 sint32 OalSoundSys::GetSampleVolume(
 	LHSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
-
-	return {};
+	return pimpl_->get_sample_volume(sample_handle);
 }
 
 sint32 OalSoundSys::GetSamplePan(
 	LHSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
-
-	return {};
+	return pimpl_->get_sample_pan(sample_handle);
 }
 
 void OalSoundSys::SetSampleUserData(
@@ -1341,9 +1934,7 @@ void OalSoundSys::SetSampleUserData(
 	const uint32 index,
 	const sint32 value)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(index);
-	static_cast<void>(value);
+	pimpl_->set_sample_user_data(sample_handle, index, value);
 }
 
 void OalSoundSys::GetDirectSoundInfo(
@@ -1352,6 +1943,7 @@ void OalSoundSys::GetDirectSoundInfo(
 	PTDIRECTSOUNDBUFFER& direct_sound_buffer)
 {
 	static_cast<void>(sample_handle);
+
 	direct_sound = nullptr;
 	direct_sound_buffer = nullptr;
 }
@@ -1376,14 +1968,7 @@ sint32 OalSoundSys::InitSampleFromAddress(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(ptr);
-	static_cast<void>(length);
-	static_cast<void>(wave_format);
-	static_cast<void>(playback_rate);
-	static_cast<void>(filter_data_ptr);
-
-	return {};
+	return pimpl_->initialize_sample(sample_handle, ptr, length, wave_format, playback_rate, filter_data_ptr);
 }
 
 sint32 OalSoundSys::InitSampleFromFile(
@@ -1434,10 +2019,7 @@ sint32 OalSoundSys::GetSampleUserData(
 	LHSAMPLE sample_handle,
 	const uint32 index)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(index);
-
-	return {};
+	return pimpl_->get_sample_user_data(sample_handle, index);
 }
 
 uint32 OalSoundSys::GetSampleStatus(
