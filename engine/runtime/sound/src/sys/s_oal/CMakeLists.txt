@@ -21,12 +21,14 @@ include_directories(
 set(
 	headers
 	../../ltjs_audio_decoder.h
+	../../ltjs_wave_utils.h
 	s_oal.h
 )
 
 set(
 	sources
 	../../ltjs_audio_decoder.cpp
+	../../ltjs_wave_utils.cpp
 	s_oal.cpp
 )
 
