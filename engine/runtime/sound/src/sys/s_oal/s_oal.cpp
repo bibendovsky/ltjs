@@ -47,39 +47,35 @@ struct OalSoundSys::Impl
 		}; // Status
 
 
-		using Data = std::vector<std::uint8_t>;
-
-
-		ul::WaveFormatEx format_;
-		int playback_sample_rate_;
-
-		bool is_looping_;
-		bool has_loop_block_;
-		sint32 loop_start_;
-		sint32 loop_end_;
-		sint32 volume_;
-		Status status_;
-		Data data_;
-
-		ALuint oal_buffer_;
-		int oal_loop_start_;
-		int oal_loop_end_;
-		ALuint oal_source_;
-	}; // Sample
-
-	struct Sample2d :
-		public Sample
-	{
 		static constexpr auto max_user_data_count = 8;
 		static constexpr auto max_user_data_index = max_user_data_count - 1;
 
 		using UserDataArray = std::array<sint32, max_user_data_count>;
 
-		sint32 pan_;
-		UserDataArray user_data_array_;
-	}; // Sample2d
+		using Data = std::vector<std::uint8_t>;
 
-	using Samples2d = std::list<Sample2d>;
+
+		ul::WaveFormatEx format_;
+
+		bool is_3d_;
+		bool is_looping_;
+		bool has_loop_block_;
+		sint32 loop_start_;
+		sint32 loop_end_;
+		sint32 volume_;
+		sint32 pan_;
+		Status status_;
+		Data data_;
+		UserDataArray user_data_array_;
+
+		ALuint oal_buffer_;
+		ALuint oal_source_;
+
+		int oal_loop_start_;
+		int oal_loop_end_;
+	}; // Sample
+
+	using Samples = std::list<Sample>;
 
 
 	// =========================================================================
@@ -732,7 +728,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+		auto& sample = *static_cast<Sample*>(sample_ptr);
 
 		stop_sample(sample);
 	}
@@ -760,7 +756,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+		auto& sample = *static_cast<Sample*>(sample_ptr);
 
 		start_sample(sample);
 	}
@@ -793,7 +789,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+		auto& sample = *static_cast<Sample*>(sample_ptr);
 
 		resume_sample(sample);
 	}
@@ -826,7 +822,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+		auto& sample = *static_cast<Sample*>(sample_ptr);
 
 		end_sample(sample);
 	}
@@ -862,7 +858,7 @@ struct OalSoundSys::Impl
 			return {};
 		}
 
-		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+		auto& sample = *static_cast<Sample*>(sample_ptr);
 
 		return sample.volume_;
 	}
@@ -876,13 +872,13 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+		auto& sample = *static_cast<Sample*>(sample_ptr);
 
 		set_sample_volume(sample, volume);
 	}
 
 	void set_sample_pan(
-		Sample2d& sample,
+		Sample& sample,
 		const sint32 pan)
 	{
 		const auto new_pan = ltjs::VolumeUtils::clamp_lt_volume(pan);
@@ -913,7 +909,7 @@ struct OalSoundSys::Impl
 			return {};
 		}
 
-		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+		auto& sample = *static_cast<Sample*>(sample_ptr);
 
 		return sample.pan_;
 	}
@@ -927,7 +923,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		auto& sample = *static_cast<Sample2d*>(sample_ptr);
+		auto& sample = *static_cast<Sample*>(sample_ptr);
 
 		set_sample_pan(sample, pan);
 	}
@@ -936,12 +932,12 @@ struct OalSoundSys::Impl
 		LHSAMPLE sample_handle,
 		const uint32 index) const
 	{
-		if (!sample_handle || index > Sample2d::max_user_data_index)
+		if (!sample_handle || index > Sample::max_user_data_index)
 		{
 			return {};
 		}
 
-		auto& sample = *static_cast<Sample2d*>(sample_handle);
+		auto& sample = *static_cast<Sample*>(sample_handle);
 
 		return sample.user_data_array_[index];
 	}
@@ -951,12 +947,12 @@ struct OalSoundSys::Impl
 		const uint32 index,
 		const sint32 value)
 	{
-		if (!sample_handle || index > Sample2d::max_user_data_index)
+		if (!sample_handle || index > Sample::max_user_data_index)
 		{
 			return;
 		}
 
-		auto& sample = *static_cast<Sample2d*>(sample_handle);
+		auto& sample = *static_cast<Sample*>(sample_handle);
 
 		sample.user_data_array_[index] = value;
 	}
@@ -965,23 +961,18 @@ struct OalSoundSys::Impl
 		Sample& sample)
 	{
 		sample.format_ = {};
-		sample.playback_sample_rate_ = {};
 
+		sample.is_3d_ = {};
 		sample.is_looping_ = {};
 		sample.has_loop_block_ = {};
 		sample.loop_start_ = {};
 		sample.loop_end_ = {};
 		sample.volume_ = ltjs::VolumeUtils::max_lt_volume;
+		sample.pan_ = pan_center;
 		sample.data_.clear();
 
 		sample.oal_loop_start_ = -1;
 		sample.oal_loop_end_ = -1;
-	}
-
-	void clear_sample(
-		Sample2d& sample)
-	{
-		sample.pan_ = pan_center;
 	}
 
 	static bool validate_wave_format_ex(
@@ -1115,13 +1106,12 @@ struct OalSoundSys::Impl
 		}
 
 		sample.format_ = wave_format;
-		sample.playback_sample_rate_ = playback_rate;
 
-		const auto has_pitch = (static_cast<int>(sample.format_.sample_rate_) != sample.playback_sample_rate_);
+		const auto has_pitch = (static_cast<int>(sample.format_.sample_rate_) != playback_rate);
 
 		const auto pitch = (
 			has_pitch ?
-			static_cast<float>(sample.playback_sample_rate_) / static_cast<float>(sample.format_.sample_rate_) :
+			static_cast<float>(playback_rate) / static_cast<float>(sample.format_.sample_rate_) :
 			1.0F);
 
 		const auto buffer_format = get_oal_buffer_format(wave_format);
@@ -1175,15 +1165,13 @@ struct OalSoundSys::Impl
 		return true;
 	}
 
-	bool initialize_sample(
-		Sample2d& sample)
+	bool initialize_sample_2d(
+		Sample& sample)
 	{
 		if (sample.status_ == Sample::Status::failed)
 		{
 			return false;
 		}
-
-		clear_sample(sample);
 
 		oal_clear_error();
 
@@ -1229,7 +1217,7 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
-		if (!initialize_sample(static_cast<Sample2d&>(sample)))
+		if (!initialize_sample_2d(sample))
 		{
 			return false;
 		}
@@ -1543,7 +1531,7 @@ struct OalSoundSys::Impl
 
 	ClockTs clock_base_;
 	sint32 master_volume_;
-	Samples2d samples_2d_;
+	Samples samples_2d_;
 }; // OalSoundSys::Impl
 
 
