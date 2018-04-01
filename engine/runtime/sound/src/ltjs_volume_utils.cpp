@@ -36,7 +36,7 @@ long VolumeUtils::lt_to_ds(
 	t = std::pow(t, attenuation);
 
 	const auto ds_volume = min_ds_volume + static_cast<long>(t * max_ds_volume_delta);
-	const auto clamped_ds_volume = clamp_lt_volume(ds_volume);
+	const auto clamped_ds_volume = clamp_ds_volume(ds_volume);
 
 	return clamped_ds_volume;
 }
@@ -44,7 +44,7 @@ long VolumeUtils::lt_to_ds(
 float VolumeUtils::ds_to_gain(
 	const long ds_volume)
 {
-	const auto clamped_ds_volume = clamp_lt_volume(ds_volume);
+	const auto clamped_ds_volume = clamp_ds_volume(ds_volume);
 	return static_cast<float>(std::pow(10.0, static_cast<double>(clamped_ds_volume) / 2000.0));
 }
 
