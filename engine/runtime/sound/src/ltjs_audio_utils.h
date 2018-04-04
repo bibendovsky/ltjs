@@ -11,13 +11,13 @@ namespace ltjs
 
 struct AudioUtils
 {
-	static constexpr auto min_lt_volume = sint32{1};
-	static constexpr auto max_lt_volume = sint32{127};
-	static constexpr auto max_lt_volume_delta = max_lt_volume - min_lt_volume;
+	static constexpr auto lt_min_volume = sint32{1};
+	static constexpr auto lt_max_volume = sint32{127};
+	static constexpr auto lt_max_volume_delta = lt_max_volume - lt_min_volume;
 
-	static constexpr auto min_ds_volume = long{-10000};
-	static constexpr auto max_ds_volume = long{0};
-	static constexpr auto max_ds_volume_delta = max_ds_volume - min_ds_volume;
+	static constexpr auto ds_min_volume = long{-10000};
+	static constexpr auto ds_max_volume = long{0};
+	static constexpr auto ds_max_volume_delta = ds_max_volume - ds_min_volume;
 
 	static constexpr auto lt_min_pan = sint32{1};
 	static constexpr auto lt_max_pan = sint32{127};
@@ -32,7 +32,7 @@ struct AudioUtils
 
 	static constexpr auto min_gain = 0.0F;
 	static constexpr auto max_gain = 1.0F;
-	static constexpr auto max_gain_delta = max_ds_volume - min_ds_volume;
+	static constexpr auto max_gain_delta = ds_max_volume - ds_min_volume;
 
 
 	//
@@ -92,7 +92,7 @@ struct AudioUtils
 	// Returns:
 	//    A gain [0..1].
 	//
-	static float lt_to_gain(
+	static float lt_volume_to_gain(
 		const sint32 lt_volume);
 
 
@@ -155,6 +155,13 @@ struct AudioUtils
 	//
 	static float lt_pan_to_gain(
 		const sint32 lt_pan);
+
+
+	static void initialize_lookup_tables();
+
+
+private:
+	struct Detail;
 }; // AudioUtils
 
 
