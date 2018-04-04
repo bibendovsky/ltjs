@@ -1,5 +1,5 @@
-#ifndef LTJS_VOLUME_UTILS_INCLUDED
-#define LTJS_VOLUME_UTILS_INCLUDED
+#ifndef LTJS_AUDIO_UTILS_INCLUDED
+#define LTJS_AUDIO_UTILS_INCLUDED
 
 
 #include "iltsound.h"
@@ -9,7 +9,7 @@ namespace ltjs
 {
 
 
-struct VolumeUtils
+struct AudioUtils
 {
 	static constexpr auto min_lt_volume = sint32{1};
 	static constexpr auto max_lt_volume = sint32{127};
@@ -57,7 +57,7 @@ struct VolumeUtils
 	// Returns:
 	//    - A DirectSound volume.
 	//
-	static long lt_to_ds(
+	static long lt_volume_to_ds_volume(
 		const sint32 lt_volume);
 
 	//
@@ -69,7 +69,7 @@ struct VolumeUtils
 	// Returns:
 	//    - A gain [0..1].
 	//
-	static float ds_to_gain(
+	static float ds_volume_to_gain(
 		const long ds_volume);
 
 	//
@@ -83,10 +83,10 @@ struct VolumeUtils
 	//
 	static float lt_to_gain(
 		const sint32 lt_volume);
-}; // VolumeUtils
+}; // AudioUtils
 
 
 } // ltjs
 
 
-#endif // LTJS_VOLUME_UTILS_INCLUDED
+#endif // LTJS_AUDIO_UTILS_INCLUDED

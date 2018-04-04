@@ -1,4 +1,4 @@
-#include "ltjs_volume_utils.h"
+#include "ltjs_audio_utils.h"
 #include <cmath>
 #include "bibendovsky_spul_algorithm.h"
 
@@ -10,19 +10,19 @@ namespace ltjs
 namespace ul = bibendovsky::spul;
 
 
-sint32 VolumeUtils::clamp_lt_volume(
+sint32 AudioUtils::clamp_lt_volume(
 	const sint32 lt_volume)
 {
 	return ul::Algorithm::clamp(lt_volume, min_lt_volume, max_lt_volume);
 }
 
-long VolumeUtils::clamp_ds_volume(
+long AudioUtils::clamp_ds_volume(
 	const long ds_volume)
 {
 	return ul::Algorithm::clamp(ds_volume, min_ds_volume, max_ds_volume);
 }
 
-long VolumeUtils::lt_to_ds(
+long AudioUtils::lt_volume_to_ds_volume(
 	const sint32 lt_volume)
 {
 	const auto clamped_lt_volume = clamp_lt_volume(lt_volume);
@@ -41,18 +41,18 @@ long VolumeUtils::lt_to_ds(
 	return clamped_ds_volume;
 }
 
-float VolumeUtils::ds_to_gain(
+float AudioUtils::ds_volume_to_gain(
 	const long ds_volume)
 {
 	const auto clamped_ds_volume = clamp_ds_volume(ds_volume);
 	return static_cast<float>(std::pow(10.0, static_cast<double>(clamped_ds_volume) / 2000.0));
 }
 
-float VolumeUtils::lt_to_gain(
+float AudioUtils::lt_to_gain(
 	const sint32 lt_volume)
 {
-	const auto ds_volume = lt_to_ds(lt_volume);
-	const auto gain = ds_to_gain(ds_volume);
+	const auto ds_volume = lt_volume_to_ds_volume(lt_volume);
+	const auto gain = ds_volume_to_gain(ds_volume);
 
 	return gain;
 }

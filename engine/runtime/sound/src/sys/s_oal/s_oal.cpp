@@ -16,7 +16,7 @@
 #include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "ltjs_audio_decoder.h"
-#include "ltjs_volume_utils.h"
+#include "ltjs_audio_utils.h"
 #include "ltjs_wave_utils.h"
 
 
@@ -92,15 +92,15 @@ struct OalSoundSys::Impl
 		}
 		else if (clamped_pan < pan_center)
 		{
-			constexpr auto max_diff = static_cast<float>(pan_center - ltjs::VolumeUtils::min_lt_volume);
+			constexpr auto max_diff = static_cast<float>(pan_center - ltjs::AudioUtils::min_lt_volume);
 
-			return static_cast<float>(clamped_pan - ltjs::VolumeUtils::min_lt_volume - max_diff) / max_diff;
+			return static_cast<float>(clamped_pan - ltjs::AudioUtils::min_lt_volume - max_diff) / max_diff;
 		}
 		else
 		{
-			constexpr auto max_diff = static_cast<float>(ltjs::VolumeUtils::max_lt_volume - pan_center);
+			constexpr auto max_diff = static_cast<float>(ltjs::AudioUtils::max_lt_volume - pan_center);
 
-			return static_cast<float>(ltjs::VolumeUtils::max_lt_volume - clamped_pan) / max_diff;
+			return static_cast<float>(ltjs::AudioUtils::max_lt_volume - clamped_pan) / max_diff;
 		}
 	}
 
@@ -580,7 +580,7 @@ struct OalSoundSys::Impl
 		oal_examine_efx();
 
 		is_succeed = true;
-		master_volume_ = ltjs::VolumeUtils::max_lt_volume;
+		master_volume_ = ltjs::AudioUtils::max_lt_volume;
 
 		return true;
 	}
@@ -646,7 +646,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		const auto new_master_volume = ltjs::VolumeUtils::clamp_lt_volume(master_volume);
+		const auto new_master_volume = ltjs::AudioUtils::clamp_lt_volume(master_volume);
 
 		if (master_volume_ == new_master_volume)
 		{
@@ -657,8 +657,8 @@ struct OalSoundSys::Impl
 
 
 		const auto oal_gain =
-			static_cast<ALfloat>(new_master_volume - ltjs::VolumeUtils::min_lt_volume) /
-			static_cast<ALfloat>(ltjs::VolumeUtils::max_lt_volume_delta);
+			static_cast<ALfloat>(new_master_volume - ltjs::AudioUtils::min_lt_volume) /
+			static_cast<ALfloat>(ltjs::AudioUtils::max_lt_volume_delta);
 
 		::alListenerf(AL_GAIN, oal_gain);
 	}
@@ -831,7 +831,7 @@ struct OalSoundSys::Impl
 		Sample& sample,
 		const sint32 volume)
 	{
-		const auto new_volume = ltjs::VolumeUtils::clamp_lt_volume(volume);
+		const auto new_volume = ltjs::AudioUtils::clamp_lt_volume(volume);
 
 		if (sample.volume_ == new_volume)
 		{
@@ -845,7 +845,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		const auto oal_gain = ltjs::VolumeUtils::lt_to_gain(new_volume);
+		const auto oal_gain = ltjs::AudioUtils::lt_to_gain(new_volume);
 
 		::alSourcef(sample.oal_source_, AL_GAIN, oal_gain);
 	}
@@ -881,7 +881,7 @@ struct OalSoundSys::Impl
 		Sample& sample,
 		const sint32 pan)
 	{
-		const auto new_pan = ltjs::VolumeUtils::clamp_lt_volume(pan);
+		const auto new_pan = ltjs::AudioUtils::clamp_lt_volume(pan);
 
 		if (sample.pan_ == new_pan)
 		{
@@ -967,7 +967,7 @@ struct OalSoundSys::Impl
 		sample.has_loop_block_ = {};
 		sample.loop_start_ = {};
 		sample.loop_end_ = {};
-		sample.volume_ = ltjs::VolumeUtils::max_lt_volume;
+		sample.volume_ = ltjs::AudioUtils::max_lt_volume;
 		sample.pan_ = pan_center;
 		sample.data_.clear();
 
@@ -1150,7 +1150,7 @@ struct OalSoundSys::Impl
 			::alSourcef(sample.oal_source_, AL_PITCH, 1.0F);
 		}
 
-		::alSourcef(sample.oal_source_, AL_GAIN, ltjs::VolumeUtils::max_gain);
+		::alSourcef(sample.oal_source_, AL_GAIN, ltjs::AudioUtils::max_gain);
 		::alSourcei(sample.oal_source_, AL_LOOPING, AL_FALSE);
 		::alSource3f(sample.oal_source_, AL_POSITION, 0.0F, 0.0F, 0.0F);
 
