@@ -107,32 +107,24 @@ struct AudioDecoder::Impl
 		::avcodec_free_context(&ff_codec_context_);
 		::avformat_close_input(&ff_format_context_);
 		::av_frame_free(&ff_frame_);
-
-		const auto free_buffer = (ff_io_context_ == nullptr);
-
-		::av_freep(&ff_io_context_);
-
-		if (free_buffer)
-		{
-			::av_freep(&ff_io_buffer_);
-		}
-		else
-		{
-			ff_io_buffer_ = nullptr;
-		}
-
+		::avio_context_free(&ff_io_context_);
+		::av_freep(&ff_io_buffer_);
 		::swr_free(&ff_swr_context_);
 
-		ff_codec_ = nullptr;
-		ff_codec_context_ = nullptr;
-		state_ = State::none;
-		stream_ptr_ = nullptr;
-		channel_count_ = 0;
-		sample_size_ = 0;
-		sample_count_ = 0;
-		sample_rate_ = 0;
-		is_draining_ = false;
-		is_flushing_ = false;
+		ff_codec_ = {};
+		ff_stream_index_ = -1;
+		state_ = {};
+		stream_ptr_ = {};
+		channel_count_ = {};
+		sample_rate_ = {};
+		sample_size_ = {};
+		sample_count_ = {};
+		frame_size_ = {};
+		frame_offset_ = {};
+		decoded_size_ = {};
+		decoded_offset_ = {};
+		is_draining_ = {};
+		is_flushing_ = {};
 	}
 
 	int decode(
@@ -170,6 +162,10 @@ struct AudioDecoder::Impl
 					{
 						state_ = State::send_packet;
 					}
+					else
+					{
+						::av_packet_unref(&ff_packet);
+					}
 				}
 				else if (ff_result == AVERROR_EOF)
 				{
@@ -178,10 +174,15 @@ struct AudioDecoder::Impl
 						is_draining_ = true;
 						state_ = State::send_packet;
 					}
+					else
+					{
+						::av_packet_unref(&ff_packet);
+					}
 				}
 				else
 				{
 					state_ = State::is_failed;
+					::av_packet_unref(&ff_packet);
 				}
 
 				break;
@@ -191,13 +192,22 @@ struct AudioDecoder::Impl
 			{
 				const auto ff_result = ::avcodec_send_packet(ff_codec_context_, is_draining_ ? nullptr : &ff_packet);
 
+				::av_packet_unref(&ff_packet);
+
 				if (ff_result == 0)
 				{
 					state_ = State::receive_frame;
 				}
 				else if (ff_result == AVERROR(EAGAIN))
 				{
-					state_ = (is_draining_ ? State::is_failed : State::read_packet);
+					if (is_draining_)
+					{
+						state_ = State::is_failed;
+					}
+					else
+					{
+						state_ = State::read_packet;
+					}
 				}
 				else if (ff_result == AVERROR_EOF)
 				{
@@ -351,8 +361,6 @@ struct AudioDecoder::Impl
 				break;
 			}
 		}
-
-		::av_packet_unref(&ff_packet);
 
 		return decoded_size;
 	}
