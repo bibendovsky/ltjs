@@ -881,7 +881,7 @@ struct OalSoundSys::Impl
 		Sample& sample,
 		const sint32 pan)
 	{
-		const auto new_pan = ltjs::AudioUtils::clamp_lt_volume(pan);
+		const auto new_pan = ltjs::AudioUtils::clamp_lt_pan(pan);
 
 		if (sample.pan_ == new_pan)
 		{
@@ -895,7 +895,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		const auto pan_x = -calculate_pan_balance(new_pan);
+		const auto pan_x = -ltjs::AudioUtils::lt_pan_to_gain(new_pan);
 		const auto pan_z = -std::sqrt(1.0F - (pan_x * pan_x));
 
 		::alSource3f(sample.oal_source_, AL_POSITION, pan_x, 0.0F, pan_z);
