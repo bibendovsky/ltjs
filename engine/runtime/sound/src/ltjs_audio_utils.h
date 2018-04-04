@@ -30,9 +30,10 @@ struct AudioUtils
 	static constexpr auto ds_pan_center = 0L;
 	static constexpr auto ds_max_pan_side_delta = ds_max_pan - ds_pan_center;
 
-	static constexpr auto min_gain = 0.0F;
-	static constexpr auto max_gain = 1.0F;
-	static constexpr auto max_gain_delta = ds_max_volume - ds_min_volume;
+	static constexpr auto gain_min = 0.0F;
+	static constexpr auto gain_max = 1.0F;
+	static constexpr auto gain_max_delta = gain_max - gain_min;
+	static constexpr auto gain_center = gain_min + (gain_max_delta / 2.0F);
 
 
 	//
