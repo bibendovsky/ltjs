@@ -133,7 +133,10 @@ struct AudioUtils
 		const sint32 lt_pan);
 
 
-	static void initialize_lookup_tables();
+	//
+	// Initializes internal data.
+	//
+	static void initialize();
 
 
 private:

@@ -1555,7 +1555,7 @@ OalSoundSys::~OalSoundSys()
 bool OalSoundSys::Init()
 {
 	ltjs::AudioDecoder::initialize_current_thread();
-	ltjs::AudioUtils::initialize_lookup_tables();
+	ltjs::AudioUtils::initialize();
 
 	return true;
 }

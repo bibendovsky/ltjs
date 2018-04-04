@@ -269,7 +269,7 @@ float AudioUtils::lt_pan_to_gain(
 	return Detail::pan_gain_table[Detail::clamp_lt_pan(lt_pan)];
 }
 
-void AudioUtils::initialize_lookup_tables()
+void AudioUtils::initialize()
 {
 	Detail::initialize_tables();
 }
