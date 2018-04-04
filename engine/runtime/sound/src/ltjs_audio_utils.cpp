@@ -239,12 +239,6 @@ long AudioUtils::lt_volume_to_ds_volume(
 	return Detail::volume_ds_table[Detail::clamp_lt_volume(lt_volume)];
 }
 
-float AudioUtils::ds_volume_to_gain(
-	const long ds_volume)
-{
-	return Detail::ds_volume_to_gain(ds_volume);
-}
-
 float AudioUtils::lt_volume_to_gain(
 	const sint32 lt_volume)
 {
@@ -267,12 +261,6 @@ long AudioUtils::lt_pan_to_ds_pan(
 	const sint32 lt_pan)
 {
 	return Detail::pan_ds_table[Detail::clamp_lt_pan(lt_pan)];
-}
-
-float AudioUtils::ds_pan_to_gain(
-	const long ds_pan)
-{
-	return Detail::ds_pan_to_gain(ds_pan);
 }
 
 float AudioUtils::lt_pan_to_gain(

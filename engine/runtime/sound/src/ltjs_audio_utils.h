@@ -72,18 +72,6 @@ struct AudioUtils
 		const sint32 lt_volume);
 
 	//
-	// Converts a DirectSound volume to a gain.
-	//
-	// Parameters:
-	//    - ds_volume - a DirectSound volume.
-	//
-	// Returns:
-	//    - A gain [0..1].
-	//
-	static float ds_volume_to_gain(
-		const long ds_volume);
-
-	//
 	// Converts a LithTech volume to a gain.
 	//
 	// Parameters:
@@ -131,18 +119,6 @@ struct AudioUtils
 	//
 	static long lt_pan_to_ds_pan(
 		const sint32 lt_pan);
-
-	//
-	// Converts a DirectSound pan to a gain.
-	//
-	// Parameters:
-	//    - ds_pan - a DirectSound pan.
-	//
-	// Returns:
-	//    - A gain [-1..1].
-	//
-	static float ds_pan_to_gain(
-		const long ds_pan);
 
 	//
 	// Converts a LithTech pan to a gain.
