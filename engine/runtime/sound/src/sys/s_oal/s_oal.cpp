@@ -102,27 +102,6 @@ struct OalSoundSys::Impl
 	// =========================================================================
 	//
 
-	static float calculate_pan_balance(
-		const sint32 clamped_pan)
-	{
-		if (clamped_pan == pan_center)
-		{
-			return {};
-		}
-		else if (clamped_pan < pan_center)
-		{
-			constexpr auto max_diff = static_cast<float>(pan_center - ltjs::AudioUtils::lt_min_volume);
-
-			return static_cast<float>(clamped_pan - ltjs::AudioUtils::lt_min_volume - max_diff) / max_diff;
-		}
-		else
-		{
-			constexpr auto max_diff = static_cast<float>(ltjs::AudioUtils::lt_max_volume - pan_center);
-
-			return static_cast<float>(ltjs::AudioUtils::lt_max_volume - clamped_pan) / max_diff;
-		}
-	}
-
 	//
 	// =========================================================================
 	// Utils
