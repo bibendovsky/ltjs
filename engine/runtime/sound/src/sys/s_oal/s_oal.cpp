@@ -63,6 +63,7 @@ struct OalSoundSys::Impl
 		ul::WaveFormatEx format_;
 
 		bool is_3d_;
+		bool is_stream_;
 		bool is_looping_;
 		bool has_loop_block_;
 		sint32 loop_start_;
@@ -720,6 +721,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = samples_2d_.back();
 		sample.is_3d_ = false;
+		sample.is_stream_ = false;
 		sample.oal_source_count_ = 2;
 
 		create_sample(sample);
@@ -1156,7 +1158,7 @@ struct OalSoundSys::Impl
 		sample.oal_source_count_ = 0;
 	}
 
-	bool initialize_sample_from_address(
+	bool initialize_sample_from_address_generic(
 		Sample& sample,
 		const void* ptr,
 		const uint32 length,
@@ -1265,7 +1267,7 @@ struct OalSoundSys::Impl
 		return true;
 	}
 
-	sint32 initialize_sample(
+	sint32 initialize_sample_generic(
 		LHSAMPLE sample_handle,
 		const void* ptr,
 		const uint32 length,
@@ -1285,7 +1287,7 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
-		if (!initialize_sample_from_address(
+		if (!initialize_sample_from_address_generic(
 			sample,
 			ptr,
 			length,
@@ -1359,7 +1361,7 @@ struct OalSoundSys::Impl
 
 		const auto wave_format = audio_decoder_.get_wave_format_ex();
 
-		const auto result = initialize_sample_from_address(
+		const auto result = initialize_sample_from_address_generic(
 			sample,
 			nullptr,
 			decoded_size,
@@ -2299,7 +2301,7 @@ sint32 OalSoundSys::InitSampleFromAddress(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->initialize_sample(sample_handle, ptr, length, wave_format, playback_rate, filter_data_ptr);
+	return pimpl_->initialize_sample_generic(sample_handle, ptr, length, wave_format, playback_rate, filter_data_ptr);
 }
 
 sint32 OalSoundSys::InitSampleFromFile(
