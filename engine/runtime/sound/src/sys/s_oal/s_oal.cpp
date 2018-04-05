@@ -536,6 +536,16 @@ struct OalSoundSys::Impl
 		}
 	}
 
+	void remove_samples()
+	{
+		for (auto& sample : samples_2d_)
+		{
+			destroy_sample(sample);
+		}
+
+		samples_2d_= {};
+	}
+
 	//
 	// =========================================================================
 	// API utils
@@ -644,6 +654,8 @@ struct OalSoundSys::Impl
 
 	void wave_out_close_internal()
 	{
+		remove_samples();
+
 		oal_destroy_context();
 		oal_close_device();
 		oal_clear_efx();
