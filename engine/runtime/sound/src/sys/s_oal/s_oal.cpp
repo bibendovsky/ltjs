@@ -1027,7 +1027,7 @@ struct OalSoundSys::Impl
 		sample.user_data_array_[index] = value;
 	}
 
-	void clear_sample(
+	void reset_sample(
 		Sample& sample)
 	{
 		sample.format_ = {};
@@ -1038,7 +1038,6 @@ struct OalSoundSys::Impl
 		sample.loop_end_ = {};
 		sample.volume_ = ltjs::AudioUtils::lt_max_volume;
 		sample.pan_ = pan_center;
-		sample.data_.clear();
 
 		sample.oal_loop_start_ = -1;
 		sample.oal_loop_end_ = -1;
@@ -1170,7 +1169,7 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
-		clear_sample(sample);
+		reset_sample(sample);
 
 		if (length == 0 || !validate_wave_format_ex(wave_format) || playback_rate <= 0)
 		{
