@@ -89,10 +89,7 @@ struct OalSoundSys::Impl
 		// 3D: 0 - main; 1 - not available.
 		OalSources oal_sources_;
 
-		bool oal_has_loop_block_;
-		int oal_loop_start_;
-		int oal_loop_end_;
-
+		ALenum oal_buffer_format_;
 		float oal_volume_;
 		OalPans oal_pans_;
 	}; // Sample
@@ -766,15 +763,15 @@ struct OalSoundSys::Impl
 	{
 		const auto status = get_sample_status(sample);
 
-		switch (sample.status_)
+		switch (status)
 		{
 		case Sample::Status::failed:
 		case Sample::Status::paused:
 		case Sample::Status::stopped:
-			break;
+			return;
 
 		default:
-			return;
+			break;
 		}
 
 		::alSourcePausev(sample.oal_source_count_, sample.oal_sources_.data());
@@ -1053,10 +1050,7 @@ struct OalSoundSys::Impl
 		sample.volume_ = ltjs::AudioUtils::lt_max_volume;
 		sample.pan_ = pan_center;
 
-		sample.oal_has_loop_block_ = false;
-		sample.oal_loop_start_ = -1;
-		sample.oal_loop_end_ = -1;
-
+		sample.oal_buffer_format_ = AL_NONE;
 		sample.oal_volume_ = ltjs::AudioUtils::gain_max;
 		sample.oal_pans_.fill(ltjs::AudioUtils::gain_max);
 	}
@@ -1209,7 +1203,7 @@ struct OalSoundSys::Impl
 			static_cast<float>(playback_rate) / static_cast<float>(sample.format_.sample_rate_) :
 			1.0F);
 
-		const auto buffer_format = get_oal_buffer_format(wave_format);
+		sample.oal_buffer_format_ = get_oal_buffer_format(wave_format);
 
 		if (ptr)
 		{
@@ -1232,7 +1226,7 @@ struct OalSoundSys::Impl
 
 		::alBufferData(
 			sample.oal_buffers_[0],
-			buffer_format,
+			sample.oal_buffer_format_,
 			sample.data_.data(),
 			static_cast<ALsizei>(sample.data_.size()),
 			static_cast<ALsizei>(sample.format_.sample_rate_));
@@ -1461,17 +1455,97 @@ struct OalSoundSys::Impl
 			return;
 		}
 
+		const auto status_before_stop = get_sample_status(sample);
+
+		if (status_before_stop == Sample::Status::failed)
+		{
+			return;
+		}
+
 		oal_clear_error();
+
+		::alSourceStopv(sample.oal_source_count_, sample.oal_sources_.data());
+
+		auto sample_offset = ALint{-1};
+
+		::alGetSourcei(sample.oal_sources_[0], AL_SAMPLE_OFFSET, &sample_offset);
+
+		if (sample_offset < 0)
+		{
+			sample.status_ = Sample::Status::failed;
+			return;
+		}
 
 		for (auto i = 0; i < sample.oal_source_count_; ++i)
 		{
-			::alSourcei(sample.oal_sources_[i], AL_LOOPING, is_enable);
+			::alSourcei(sample.oal_sources_[i], AL_BUFFER, AL_NONE);
+		}
+
+		if (is_enable)
+		{
+			if (sample.has_loop_block_)
+			{
+				::alBufferData(
+					sample.oal_buffers_[1],
+					sample.oal_buffer_format_,
+					sample.data_.data(),
+					static_cast<ALsizei>(sample.loop_start_),
+					static_cast<ALsizei>(sample.format_.sample_rate_));
+
+				::alBufferData(
+					sample.oal_buffers_[2],
+					sample.oal_buffer_format_,
+					&sample.data_[sample.loop_start_],
+					static_cast<ALsizei>(sample.loop_end_ - sample.loop_start_),
+					static_cast<ALsizei>(sample.format_.sample_rate_));
+
+				for (auto i = 0; i < sample.oal_source_count_; ++i)
+				{
+					::alSourceQueueBuffers(sample.oal_sources_[i], 2, &sample.oal_buffers_[1]);
+					::alSourcei(sample.oal_sources_[i], AL_SAMPLE_OFFSET, sample_offset);
+				}
+			}
+			else
+			{
+				for (auto i = 0; i < sample.oal_source_count_; ++i)
+				{
+					::alSourcei(sample.oal_sources_[i], AL_BUFFER, sample.oal_buffers_[0]);
+				}
+			}
+
+			for (auto i = 0; i < sample.oal_source_count_; ++i)
+			{
+				::alSourcei(sample.oal_sources_[i], AL_LOOPING, AL_TRUE);
+			}
+		}
+		else
+		{
+			for (auto i = 0; i < sample.oal_source_count_; ++i)
+			{
+				::alSourcei(sample.oal_sources_[i], AL_BUFFER, sample.oal_buffers_[0]);
+				::alSourcei(sample.oal_sources_[i], AL_LOOPING, AL_FALSE);
+				::alSourcei(sample.oal_sources_[i], AL_SAMPLE_OFFSET, sample_offset);
+			}
+		}
+
+		if (status_before_stop == Sample::Status::playing)
+		{
+			::alSourcePlayv(2, sample.oal_sources_.data());
 		}
 
 		if (!oal_is_succeed())
 		{
 			sample.status_ = Sample::Status::failed;
 			return;
+		}
+
+		if (status_before_stop == Sample::Status::playing)
+		{
+			sample.status_ = Sample::Status::playing;
+		}
+		else
+		{
+			sample.status_ = Sample::Status::paused;
 		}
 	}
 
