@@ -519,7 +519,7 @@ struct OalSoundSys::Impl
 		{
 			auto& oal_source = sample.oal_sources_[i];
 
-			const auto gain = 0.5F * sample.oal_volume_ * sample.oal_pans_[i];
+			const auto gain = sample.oal_volume_ * sample.oal_pans_[i];
 
 			::alSourcef(oal_source, AL_GAIN, gain);
 		}
