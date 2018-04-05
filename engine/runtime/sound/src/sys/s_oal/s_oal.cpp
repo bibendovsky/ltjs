@@ -50,9 +50,14 @@ struct OalSoundSys::Impl
 		static constexpr auto max_user_data_count = 8;
 		static constexpr auto max_user_data_index = max_user_data_count - 1;
 
+		static constexpr auto left_index = 0;
+		static constexpr auto right_index = 1;
+
 		using UserDataArray = std::array<sint32, max_user_data_count>;
 
 		using Data = std::vector<std::uint8_t>;
+		using OalPans = std::array<float, 2>;
+		using OalSources = std::array<ALuint, 2>;
 
 
 		ul::WaveFormatEx format_;
@@ -69,10 +74,14 @@ struct OalSoundSys::Impl
 		UserDataArray user_data_array_;
 
 		ALuint oal_buffer_;
-		ALuint oal_source_;
+		OalSources oal_sources_;
 
+		int oal_source_count_;
 		int oal_loop_start_;
 		int oal_loop_end_;
+
+		float oal_volume_;
+		OalPans oal_pans_;
 	}; // Sample
 
 	using Samples = std::list<Sample>;
@@ -510,6 +519,30 @@ struct OalSoundSys::Impl
 
 
 	// =========================================================================
+	// API utils
+	// =========================================================================
+	//
+
+	void update_sample_volume_and_pan(
+		Sample& sample)
+	{
+		for (auto i = 0; i < 2; ++i)
+		{
+			auto& oal_source = sample.oal_sources_[i];
+
+			const auto gain = 0.5F * sample.oal_volume_ * sample.oal_pans_[i];
+
+			::alSourcef(oal_source, AL_GAIN, gain);
+		}
+	}
+
+	//
+	// =========================================================================
+	// API utils
+	// =========================================================================
+
+
+	// =========================================================================
 	// API
 	// =========================================================================
 	//
@@ -672,7 +705,10 @@ struct OalSoundSys::Impl
 		}
 
 		samples_2d_.emplace_back();
+
 		auto& sample = samples_2d_.back();
+		sample.is_3d_ = false;
+		sample.oal_source_count_ = 2;
 
 		create_sample(sample);
 
@@ -715,7 +751,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		::alSourcePause(sample.oal_source_);
+		::alSourcePausev(sample.oal_source_count_, sample.oal_sources_.data());
 
 		sample.status_ = Sample::Status::paused;
 	}
@@ -743,7 +779,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		::alSourcePlay(sample.oal_source_);
+		::alSourcePlayv(sample.oal_source_count_, sample.oal_sources_.data());
 
 		sample.status_ = Sample::Status::playing;
 	}
@@ -776,7 +812,7 @@ struct OalSoundSys::Impl
 			break;
 		}
 
-		::alSourcePlay(sample.oal_source_);
+		::alSourcePlayv(sample.oal_source_count_, sample.oal_sources_.data());
 
 		sample.status_ = Sample::Status::playing;
 	}
@@ -809,7 +845,7 @@ struct OalSoundSys::Impl
 			break;
 		}
 
-		::alSourceStop(sample.oal_source_);
+		::alSourceStopv(sample.oal_source_count_, sample.oal_sources_.data());
 
 		sample.status_ = Sample::Status::stopped;
 	}
@@ -845,9 +881,11 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		const auto oal_gain = ltjs::AudioUtils::lt_volume_to_gain(new_volume);
+		const auto oal_volume = ltjs::AudioUtils::lt_volume_to_gain(new_volume);
 
-		::alSourcef(sample.oal_source_, AL_GAIN, oal_gain);
+		sample.oal_volume_ = oal_volume;
+
+		update_sample_volume_and_pan(sample);
 	}
 
 	sint32 get_sample_volume(
@@ -895,10 +933,30 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		const auto pan_x = ltjs::AudioUtils::lt_pan_to_gain(new_pan);
-		const auto pan_z = -std::sqrt(1.0F - (pan_x * pan_x));
+		const auto oal_pan = ltjs::AudioUtils::lt_pan_to_gain(new_pan);
 
-		::alSource3f(sample.oal_source_, AL_POSITION, pan_x, 0.0F, pan_z);
+		if (new_pan == ltjs::AudioUtils::lt_pan_center)
+		{
+			// Left and right channels are at full volume.
+
+			sample.oal_pans_.fill(ltjs::AudioUtils::gain_max);
+		}
+		else if (new_pan < ltjs::AudioUtils::lt_pan_center)
+		{
+			// Left channel is at full volume; right channels is attenuated.
+
+			sample.oal_pans_[Sample::left_index] = ltjs::AudioUtils::gain_max;
+			sample.oal_pans_[Sample::right_index] = std::abs(oal_pan);
+		}
+		else
+		{
+			// Right channel is at full volume; lrft channels is attenuated.
+
+			sample.oal_pans_[Sample::left_index] = std::abs(oal_pan);
+			sample.oal_pans_[Sample::right_index] = ltjs::AudioUtils::gain_max;
+		}
+
+		update_sample_volume_and_pan(sample);
 	}
 
 	sint32 get_sample_pan(
@@ -962,7 +1020,6 @@ struct OalSoundSys::Impl
 	{
 		sample.format_ = {};
 
-		sample.is_3d_ = {};
 		sample.is_looping_ = {};
 		sample.has_loop_block_ = {};
 		sample.loop_start_ = {};
@@ -973,6 +1030,9 @@ struct OalSoundSys::Impl
 
 		sample.oal_loop_start_ = -1;
 		sample.oal_loop_end_ = -1;
+
+		sample.oal_volume_ = ltjs::AudioUtils::gain_max;
+		sample.oal_pans_.fill(ltjs::AudioUtils::gain_max);
 	}
 
 	static bool validate_wave_format_ex(
@@ -1048,7 +1108,7 @@ struct OalSoundSys::Impl
 		oal_clear_error();
 
 		::alGenBuffers(1, &sample.oal_buffer_);
-		::alGenSources(1, &sample.oal_source_);
+		::alGenSources(sample.oal_source_count_, sample.oal_sources_.data());
 
 		if (!oal_is_succeed())
 		{
@@ -1065,12 +1125,15 @@ struct OalSoundSys::Impl
 	void destroy_sample(
 		Sample& sample)
 	{
-		if (sample.oal_source_ != AL_NONE)
+		for (auto& oal_source : sample.oal_sources_)
 		{
-			::alSourceStop(sample.oal_source_);
-			::alSourcei(sample.oal_source_, AL_BUFFER, AL_NONE);
-			::alDeleteSources(1, &sample.oal_source_);
-			sample.oal_source_ = AL_NONE;
+			if (oal_source != AL_NONE)
+			{
+				::alSourceStop(oal_source);
+				::alSourcei(oal_source, AL_BUFFER, AL_NONE);
+				::alDeleteSources(1, &oal_source);
+				oal_source = AL_NONE;
+			}
 		}
 
 		if (sample.oal_buffer_ != AL_NONE)
@@ -1078,6 +1141,8 @@ struct OalSoundSys::Impl
 			::alDeleteBuffers(1, &sample.oal_buffer_);
 			sample.oal_buffer_ = AL_NONE;
 		}
+
+		sample.oal_source_count_ = 0;
 	}
 
 	bool initialize_sample_from_address(
@@ -1128,9 +1193,12 @@ struct OalSoundSys::Impl
 
 		oal_clear_error();
 
-		::alSourceStop(sample.oal_source_);
+		::alSourceStopv(sample.oal_source_count_, sample.oal_sources_.data());
 
-		::alSourcei(sample.oal_source_, AL_BUFFER, AL_NONE);
+		for (auto i = 0; i < sample.oal_source_count_; ++i)
+		{
+			::alSourcei(sample.oal_sources_[i], AL_BUFFER, AL_NONE);
+		}
 
 		::alBufferData(
 			sample.oal_buffer_,
@@ -1139,20 +1207,41 @@ struct OalSoundSys::Impl
 			static_cast<ALsizei>(sample.data_.size()),
 			static_cast<ALsizei>(sample.format_.sample_rate_));
 
-		::alSourcei(sample.oal_source_, AL_BUFFER, sample.oal_buffer_);
-
-		if (has_pitch)
+		for (auto i = 0; i < sample.oal_source_count_; ++i)
 		{
-			::alSourcef(sample.oal_source_, AL_PITCH, pitch);
-		}
-		else
-		{
-			::alSourcef(sample.oal_source_, AL_PITCH, 1.0F);
+			const auto oal_source = sample.oal_sources_[i];
+
+			::alSourcei(oal_source, AL_BUFFER, sample.oal_buffer_);
+
+			if (has_pitch)
+			{
+				::alSourcef(oal_source, AL_PITCH, pitch);
+			}
+			else
+			{
+				::alSourcef(oal_source, AL_PITCH, 1.0F);
+			}
+
+			if (sample.is_3d_)
+			{
+				::alSourcef(oal_source, AL_GAIN, ltjs::AudioUtils::gain_max);
+			}
+
+			::alSourcei(oal_source, AL_LOOPING, AL_FALSE);
 		}
 
-		::alSourcef(sample.oal_source_, AL_GAIN, ltjs::AudioUtils::max_gain);
-		::alSourcei(sample.oal_source_, AL_LOOPING, AL_FALSE);
-		::alSource3f(sample.oal_source_, AL_POSITION, 0.0F, 0.0F, 0.0F);
+		if (!sample.is_3d_)
+		{
+			update_sample_volume_and_pan(sample);
+
+			for (auto i = 0; i < 2; ++i)
+			{
+				::alSourcei(sample.oal_sources_[i], AL_SOURCE_RELATIVE, AL_TRUE);
+			}
+
+			::alSource3f(sample.oal_sources_[Sample::left_index], AL_POSITION, -1.0F, 0.0F, 0.0F);
+			::alSource3f(sample.oal_sources_[Sample::right_index], AL_POSITION, 1.0F, 0.0F, 0.0F);
+		}
 
 		if (!oal_is_succeed())
 		{
@@ -1161,27 +1250,6 @@ struct OalSoundSys::Impl
 		}
 
 		sample.status_ = Sample::Status::stopped;
-
-		return true;
-	}
-
-	bool initialize_sample_2d(
-		Sample& sample)
-	{
-		if (sample.status_ == Sample::Status::failed)
-		{
-			return false;
-		}
-
-		oal_clear_error();
-
-		::alSourcei(sample.oal_source_, AL_SOURCE_RELATIVE, AL_TRUE);
-
-		if (!oal_is_succeed())
-		{
-			sample.status_ = Sample::Status::failed;
-			return false;
-		}
 
 		return true;
 	}
@@ -1213,11 +1281,6 @@ struct OalSoundSys::Impl
 			wave_format,
 			playback_rate,
 			filter_data_ptr))
-		{
-			return false;
-		}
-
-		if (!initialize_sample_2d(sample))
 		{
 			return false;
 		}
@@ -1367,7 +1430,10 @@ struct OalSoundSys::Impl
 
 		oal_clear_error();
 
-		::alSourcei(sample.oal_source_, AL_LOOPING, is_enable);
+		for (auto i = 0; i < sample.oal_source_count_; ++i)
+		{
+			::alSourcei(sample.oal_sources_[i], AL_LOOPING, is_enable);
+		}
 
 		if (!oal_is_succeed())
 		{
@@ -1387,6 +1453,11 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
+		if (sample.status_ == Sample::Status::failed)
+		{
+			return;
+		}
+
 		const auto sample_offset = (static_cast<int>(sample.format_.sample_rate_) * static_cast<int>(milliseconds)) / 1000;
 		const auto data_offset = sample_offset * sample.format_.block_align_;
 		const auto data_size = static_cast<int>(sample.data_.size());
@@ -1396,12 +1467,10 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		if (sample.status_ == Sample::Status::failed)
+		for (auto i = 0; i < sample.oal_source_count_; ++i)
 		{
-			return;
+			::alSourcei(sample.oal_sources_[i], AL_SAMPLE_OFFSET, sample_offset);
 		}
-
-		::alSourcei(sample.oal_source_, AL_SAMPLE_OFFSET, sample_offset);
 	}
 
 	Sample::Status get_sample_status(
@@ -1420,7 +1489,7 @@ struct OalSoundSys::Impl
 
 		auto oal_state = ALint{};
 
-		::alGetSourcei(sample.oal_source_, AL_SOURCE_STATE, &oal_state);
+		::alGetSourcei(sample.oal_sources_[Sample::left_index], AL_SOURCE_STATE, &oal_state);
 
 		auto status = Sample::Status::none;
 
