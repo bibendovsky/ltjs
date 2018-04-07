@@ -2,17 +2,24 @@
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <algorithm>
 #include <array>
 #include <chrono>
+#include <condition_variable>
+#include <functional>
+#include <iterator>
 #include <limits>
 #include <list>
-#include <iterator>
+#include <mutex>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <utility>
 #include <vector>
 #include "efx.h"
 #include "bibendovsky_spul_algorithm.h"
+#include "bibendovsky_spul_file_stream.h"
+#include "bibendovsky_spul_substream.h"
 #include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "ltjs_audio_decoder.h"
@@ -33,6 +40,12 @@ struct OalSoundSys::Impl
 
 	using Clock = std::chrono::system_clock;
 	using ClockTs = Clock::time_point;
+
+	using MtThread = std::thread;
+	using MtMutex = std::mutex;
+	using MtMutexGuard = std::lock_guard<MtMutex>;
+	using MtUniqueLock = std::unique_lock<MtMutex>;
+	using MtCondVar = std::condition_variable;
 
 
 	struct Sample
@@ -69,7 +82,7 @@ struct OalSoundSys::Impl
 		bool is_stream_;
 		bool is_looping_;
 		bool has_loop_block_;
-		sint32 loop_start_;
+		sint32 loop_begin_;
 		sint32 loop_end_;
 		sint32 volume_;
 		sint32 pan_;
@@ -97,10 +110,437 @@ struct OalSoundSys::Impl
 	using Samples = std::list<Sample>;
 
 
+	static constexpr auto max_streams = 16;
+
+	struct Stream
+	{
+		static constexpr auto mix_size_ms = 20;
+
+		using OalBuffers = std::vector<ALuint>;
+		using MixBuffer = std::vector<std::uint8_t>;
+
+		bool is_open_;
+		bool is_playing_;
+		int mix_size_;
+		int data_size_;
+		int data_offset_;
+		Sample sample_;
+		ul::FileStream file_stream_;
+		ul::Substream file_substream_;
+		ltjs::AudioDecoder decoder_;
+		MixBuffer mix_buffer_;
+
+		OalBuffers oal_queued_buffers_;
+		OalBuffers oal_unqueued_buffers_;
+	}; // Stream
+
+	using Streams = std::vector<Stream>;
+	using OpenStreams = std::list<Stream*>;
+
+
+
 	// =========================================================================
 	// Utils
 	// =========================================================================
 	//
+
+	void uninitialize_stream(
+		Stream& stream)
+	{
+		stream.is_open_ = false;
+
+		stream.decoder_.close();
+		stream.file_substream_.close();
+		stream.file_stream_.close();
+
+		destroy_sample(stream.sample_);
+	}
+
+	void destroy_streams()
+	{
+		if (streams_.empty())
+		{
+			return;
+		}
+
+		mt_is_stop_stream_worker_ = true;
+
+		mt_notify_stream();
+
+		if (mt_stream_thread_.joinable())
+		{
+			mt_stream_thread_.join();
+		}
+
+		mt_is_stop_stream_worker_ = false;
+
+		for (auto& stream : streams_)
+		{
+			uninitialize_stream(stream);
+		}
+
+		streams_.clear();
+		mt_open_streams_.clear();
+	}
+
+	bool initialize_stream(
+		Stream& stream)
+	{
+		uninitialize_stream(stream);
+
+		auto& sample = stream.sample_;
+
+		sample.is_stream_ = true;
+		sample.oal_source_count_ = 2;
+		reset_sample(sample);
+		create_sample(sample);
+
+		return sample.status_ != Sample::Status::failed;
+	}
+
+	void create_streams()
+	{
+		destroy_streams();
+
+		streams_.resize(max_streams);
+
+		auto is_succeed = true;
+
+		for (auto& stream : streams_)
+		{
+			is_succeed &= initialize_stream(stream);
+		}
+
+		if (!is_succeed)
+		{
+			destroy_streams();
+		}
+
+		if (is_succeed)
+		{
+			mt_stream_thread_ = MtThread{std::bind(&Impl::stream_worker, this)};
+		}
+	}
+
+	void reset_stream(
+		Stream& stream)
+	{
+		stream.is_playing_ = {};
+		stream.mix_size_ = {};
+		stream.data_size_ = {};
+		stream.data_offset_ = {};
+
+		stream.oal_queued_buffers_.clear();
+		stream.oal_queued_buffers_.reserve(Sample::oal_max_buffer_count);
+
+		stream.oal_unqueued_buffers_.clear();
+		stream.oal_unqueued_buffers_.reserve(Sample::oal_max_buffer_count);
+		stream.oal_unqueued_buffers_.assign(stream.sample_.oal_buffers_.cbegin(), stream.sample_.oal_buffers_.cend());
+	}
+
+	Stream* get_free_stream()
+	{
+		auto stream_end = streams_.end();
+
+		auto stream_it = std::find_if(
+			streams_.begin(),
+			stream_end,
+			[](const auto& stream)
+			{
+				return !stream.is_open_;
+			}
+		);
+
+		if (stream_it == stream_end)
+		{
+			return nullptr;
+		}
+
+		return &(*stream_it);
+	}
+
+	int fill_stream_mix_buffer(
+		Stream& stream)
+	{
+		const auto& sample = stream.sample_;
+
+		const auto is_looping = sample.is_looping_;
+
+		const auto data_begin_offset = static_cast<int>(
+			is_looping && sample.has_loop_block_ ? sample.loop_begin_ : 0);
+
+		auto data_end_offset = static_cast<int>(
+			is_looping && sample.has_loop_block_ ? sample.loop_end_ : stream.data_size_);
+
+		auto mix_offset = 0;
+
+		while (mix_offset < stream.mix_size_)
+		{
+			const auto data_remain_size = data_end_offset - stream.data_offset_;
+
+			if (data_remain_size == 0)
+			{
+				if (is_looping)
+				{
+					stream.data_offset_ = data_begin_offset;
+
+					const auto sample_offset = data_begin_offset / stream.sample_.format_.block_align_;
+
+					if (!stream.decoder_.set_position(sample_offset))
+					{
+						break;
+					}
+
+					continue;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			const auto mix_remain_size = stream.mix_size_ - mix_offset;
+			const auto to_decode_size = std::min(data_remain_size, mix_remain_size);
+
+			if (to_decode_size == 0)
+			{
+				break;
+			}
+
+			const auto decoded_size = stream.decoder_.decode(&stream.mix_buffer_[mix_offset], to_decode_size);
+
+			if (decoded_size > 0)
+			{
+				mix_offset += decoded_size;
+				stream.data_offset_ += decoded_size;
+			}
+			else
+			{
+				if (decoded_size == 0)
+				{
+					// Adjust the actual data size if necessary.
+					//
+					const auto actual_data_size = stream.decoder_.get_decoded_size();
+
+					if (stream.data_size_ != actual_data_size)
+					{
+						stream.data_size_ = actual_data_size;
+
+						if (!is_looping)
+						{
+							data_end_offset = actual_data_size;
+						}
+					}
+				}
+
+				std::uninitialized_fill_n(
+					stream.mix_buffer_.begin() + mix_offset,
+					stream.mix_size_ - mix_offset,
+					std::uint8_t{});
+
+				break;
+			}
+		}
+
+		return mix_offset;
+	}
+
+	void mt_notify_stream()
+	{
+		MtUniqueLock cv_lock{mt_stream_cv_mutex_};
+		mt_stream_cv_flag_ = true;
+		mt_stream_cv_.notify_one();
+	}
+
+	void mt_wait_for_stream_cv()
+	{
+		MtUniqueLock cv_lock{mt_stream_cv_mutex_};
+		mt_stream_cv_.wait(cv_lock, [&](){ return mt_stream_cv_flag_; });
+		mt_stream_cv_flag_ = false;
+	}
+
+	//
+	// Fills a stream with data.
+	//
+	// Returns:
+	//    - "true" - if stream is processed.
+	//    - "false" - if stream is not processed (paused, failed, etc).
+	//
+	bool mix_stream(
+		Stream& stream)
+	{
+		auto& sample = stream.sample_;
+
+		if (sample.status_ == Sample::Status::none || sample.status_ == Sample::Status::failed)
+		{
+			return false;
+		}
+
+		const auto is_sample_playing = (sample.status_ == Sample::Status::playing);
+
+		if (stream.is_playing_ && !is_sample_playing)
+		{
+			sample.status_ = Sample::Status::playing;
+		}
+		else if (!stream.is_playing_ && is_sample_playing)
+		{
+			sample.status_ = Sample::Status::paused;
+
+			::alSourcePausev(2, sample.oal_sources_.data());
+
+			return false;
+		}
+		else if (!stream.is_playing_ && !is_sample_playing)
+		{
+			return false;
+		}
+
+		auto oal_processed = ALint{};
+		auto oal_queued = ALint{};
+
+		::alGetSourcei(sample.oal_sources_[0], AL_BUFFERS_PROCESSED, &oal_processed);
+		::alGetSourcei(sample.oal_sources_[0], AL_BUFFERS_QUEUED, &oal_queued);
+
+		if (oal_processed > 0)
+		{
+			auto buffers = Sample::OalBuffers{};
+			const auto old_size = stream.oal_unqueued_buffers_.size();
+
+			stream.oal_unqueued_buffers_.resize(
+				old_size + std::min(oal_processed, Sample::oal_max_buffer_count));
+
+			::alSourceUnqueueBuffers(
+				sample.oal_sources_[0],
+				oal_processed,
+				&stream.oal_unqueued_buffers_[old_size]);
+
+			::alSourceUnqueueBuffers(
+				sample.oal_sources_[1],
+				oal_processed,
+				buffers.data());
+		}
+
+		if (!sample.is_looping_ && stream.data_offset_ == stream.data_size_)
+		{
+			if (oal_queued == 0)
+			{
+				stream.is_playing_ = false;
+				sample.status_ = Sample::Status::paused;
+				return false;
+			}
+
+			if (oal_queued > 0)
+			{
+				return true;
+			}
+		}
+
+		auto queued_count = 0;
+
+		for (auto i = oal_queued; i < Sample::oal_max_buffer_count; ++i)
+		{
+			if (stream.oal_unqueued_buffers_.empty())
+			{
+				break;
+			}
+
+			auto decoded_mix_size = fill_stream_mix_buffer(stream);
+
+			if (decoded_mix_size == 0)
+			{
+				break;
+			}
+
+			const auto oal_buffer = stream.oal_unqueued_buffers_.back();
+			stream.oal_unqueued_buffers_.pop_back();
+			stream.oal_queued_buffers_.push_back(oal_buffer);
+
+			::alBufferData(
+				oal_buffer,
+				sample.oal_buffer_format_,
+				stream.mix_buffer_.data(),
+				stream.mix_size_,
+				static_cast<ALsizei>(sample.format_.sample_rate_));
+
+			for (auto j = 0; j < 2; ++j)
+			{
+				::alSourceQueueBuffers(sample.oal_sources_[j], 1, &oal_buffer);
+			}
+
+			queued_count += 1;
+
+			if (decoded_mix_size < stream.mix_size_)
+			{
+				break;
+			}
+		}
+
+		if (queued_count > 0)
+		{
+			auto oal_state = ALint{};
+
+			::alGetSourcei(sample.oal_sources_[0], AL_SOURCE_STATE, &oal_state);
+
+			if (oal_state != AL_PLAYING)
+			{
+				::alSourcePlayv(2, sample.oal_sources_.data());
+			}
+		}
+
+		return oal_processed > 0 || queued_count > 0;
+	}
+
+	void stream_worker()
+	{
+		const auto sleep_delay = std::chrono::milliseconds{10};
+
+		while (!mt_is_stop_stream_worker_)
+		{
+			auto is_mixed = false;
+			auto is_idle = false;
+
+			{
+				MtUniqueLock lock{mt_stream_mutex_};
+
+				if (mt_open_streams_.empty())
+				{
+					is_idle = true;
+				}
+				else
+				{
+					const auto total_count = static_cast<int>(mt_open_streams_.size());
+
+					auto paused_count = 0;
+
+					for (auto stream_ptr : mt_open_streams_)
+					{
+						auto& stream = *stream_ptr;
+
+						is_mixed |= mix_stream(stream);
+
+						if (stream.sample_.status_ != Sample::Status::playing)
+						{
+							paused_count += 1;
+						}
+					}
+
+					if (paused_count == total_count)
+					{
+						is_idle = true;
+					}
+				}
+			}
+
+			if (is_idle)
+			{
+				mt_wait_for_stream_cv();
+			}
+			else if (!is_mixed)
+			{
+				std::this_thread::sleep_for(sleep_delay);
+			}
+		}
+	}
 
 	//
 	// =========================================================================
@@ -553,6 +993,11 @@ struct OalSoundSys::Impl
 		return true;
 	}
 
+	void shutdown()
+	{
+		destroy_streams();
+	}
+
 	std::uint32_t get_milliseconds()
 	{
 		constexpr auto max_uint32_t = std::numeric_limits<std::uint32_t>::max();
@@ -611,6 +1056,8 @@ struct OalSoundSys::Impl
 
 		oal_examine_efx();
 
+		create_streams();
+
 		is_succeed = true;
 		master_volume_ = ltjs::AudioUtils::lt_max_volume;
 
@@ -643,6 +1090,8 @@ struct OalSoundSys::Impl
 
 	void wave_out_close_internal()
 	{
+		destroy_streams();
+
 		remove_samples();
 
 		oal_destroy_context();
@@ -1024,7 +1473,7 @@ struct OalSoundSys::Impl
 
 		sample.is_looping_ = {};
 		sample.has_loop_block_ = {};
-		sample.loop_start_ = {};
+		sample.loop_begin_ = {};
 		sample.loop_end_ = {};
 		sample.volume_ = ltjs::AudioUtils::lt_max_volume;
 		sample.pan_ = pan_center;
@@ -1156,6 +1605,8 @@ struct OalSoundSys::Impl
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr)
 	{
+		static_cast<void>(filter_data_ptr);
+
 		if (sample.status_ == Sample::Status::failed)
 		{
 			return false;
@@ -1163,12 +1614,12 @@ struct OalSoundSys::Impl
 
 		reset_sample(sample);
 
-		if (length == 0 || !validate_wave_format_ex(wave_format) || playback_rate <= 0)
+		if ((!sample.is_stream_ && length == 0) || !validate_wave_format_ex(wave_format) || playback_rate <= 0)
 		{
 			return false;
 		}
 
-		if (!ptr && sample.data_.empty())
+		if (!sample.is_stream_ && !ptr && sample.data_.empty())
 		{
 			return false;
 		}
@@ -1203,18 +1654,43 @@ struct OalSoundSys::Impl
 			::alSourcei(sample.oal_sources_[i], AL_BUFFER, AL_NONE);
 		}
 
-		::alBufferData(
-			sample.oal_buffers_[0],
-			sample.oal_buffer_format_,
-			sample.data_.data(),
-			static_cast<ALsizei>(sample.data_.size()),
-			static_cast<ALsizei>(sample.format_.sample_rate_));
+		if (sample.is_stream_)
+		{
+			auto processed_buffers = Sample::OalBuffers{};
+
+			for (auto i = 0; i < sample.oal_source_count_; ++i)
+			{
+				const auto oal_source = sample.oal_sources_[i];
+
+				auto processed_count = ALint{};
+
+				::alGetSourcei(oal_source, AL_BUFFERS_PROCESSED, &processed_count);
+
+				if (processed_count > 0)
+				{
+					::alSourceUnqueueBuffers(oal_source, processed_count, processed_buffers.data());
+				}
+			}
+		}
+
+		if (!sample.is_stream_)
+		{
+			::alBufferData(
+				sample.oal_buffers_[0],
+				sample.oal_buffer_format_,
+				sample.data_.data(),
+				static_cast<ALsizei>(sample.data_.size()),
+				static_cast<ALsizei>(sample.format_.sample_rate_));
+		}
 
 		for (auto i = 0; i < sample.oal_source_count_; ++i)
 		{
 			const auto oal_source = sample.oal_sources_[i];
 
-			::alSourcei(oal_source, AL_BUFFER, sample.oal_buffers_[0]);
+			if (!sample.is_stream_)
+			{
+				::alSourcei(oal_source, AL_BUFFER, sample.oal_buffers_[0]);
+			}
 
 			if (has_pitch)
 			{
@@ -1402,7 +1878,7 @@ struct OalSoundSys::Impl
 		new_end *= sample_size;
 
 		sample.has_loop_block_ = is_enable;
-		sample.loop_start_ = new_start;
+		sample.loop_begin_ = new_start;
 		sample.loop_end_ = new_end;
 
 		if ((new_start == 0 && new_end == data_size) || new_start > new_end)
@@ -1468,14 +1944,14 @@ struct OalSoundSys::Impl
 					sample.oal_buffers_[1],
 					sample.oal_buffer_format_,
 					sample.data_.data(),
-					static_cast<ALsizei>(sample.loop_start_),
+					static_cast<ALsizei>(sample.loop_begin_),
 					static_cast<ALsizei>(sample.format_.sample_rate_));
 
 				::alBufferData(
 					sample.oal_buffers_[2],
 					sample.oal_buffer_format_,
-					&sample.data_[sample.loop_start_],
-					static_cast<ALsizei>(sample.loop_end_ - sample.loop_start_),
+					&sample.data_[sample.loop_begin_],
+					static_cast<ALsizei>(sample.loop_end_ - sample.loop_begin_),
 					static_cast<ALsizei>(sample.format_.sample_rate_));
 
 				for (auto i = 0; i < sample.oal_source_count_; ++i)
@@ -1544,7 +2020,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		const auto sample_offset = (static_cast<int>(sample.format_.sample_rate_) * static_cast<int>(milliseconds)) / 1000;
+		const auto sample_offset = static_cast<int>((sample.format_.sample_rate_ * milliseconds) / 1000LL);
 		const auto data_offset = sample_offset * sample.format_.block_align_;
 		const auto data_size = static_cast<int>(sample.data_.size());
 
@@ -1619,6 +2095,304 @@ struct OalSoundSys::Impl
 		return status == Sample::Status::playing ? LS_PLAYING : LS_STOPPED;
 	}
 
+	LHSTREAM open_stream(
+		const char* file_name,
+		const uint32 file_offset,
+		LHDIGDRIVER driver_ptr,
+		const char* stream_ptr,
+		const sint32 stream_memory_size)
+	{
+		static_cast<void>(stream_ptr);
+		static_cast<void>(stream_memory_size);
+
+		if (!file_name || driver_ptr != oal_device_ || streams_.empty())
+		{
+			return nullptr;
+		}
+
+		auto free_stream_ptr = get_free_stream();
+
+		if (!free_stream_ptr)
+		{
+			return nullptr;
+		}
+
+		auto& stream = *free_stream_ptr;
+
+		if (!stream.file_stream_.open(file_name, ul::Stream::OpenMode::read))
+		{
+			return nullptr;
+		}
+
+		if (!stream.file_substream_.open(&stream.file_stream_, file_offset))
+		{
+			return nullptr;
+		}
+
+		auto& decoder = stream.decoder_;
+
+		if (!decoder.open(&stream.file_substream_))
+		{
+			return nullptr;
+		}
+
+		reset_stream(stream);
+
+		stream.data_size_ = decoder.get_data_size();
+
+		const auto sample_size = decoder.get_sample_size();
+		const auto sample_rate = decoder.get_sample_rate();
+		const auto mix_sample_count = (Stream::mix_size_ms * sample_rate) / 1000;
+		stream.mix_size_ = mix_sample_count * sample_size;
+
+		stream.mix_buffer_.resize(stream.mix_size_);
+
+		auto format = decoder.get_wave_format_ex();
+
+		auto& sample = stream.sample_;
+
+		const auto initialize_sample_result = initialize_sample_from_address_generic(
+			sample,
+			nullptr,
+			0,
+			format,
+			sample_rate,
+			nullptr);
+
+		if (!initialize_sample_result)
+		{
+			return nullptr;
+		}
+
+		stream.is_open_ = true;
+
+		MtMutexGuard stream_lock{mt_stream_mutex_};
+
+		mt_open_streams_.emplace_back(&stream);
+		mt_notify_stream();
+
+		return &stream;
+	}
+
+	void close_stream(
+		LHSTREAM stream_ptr)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		{
+			MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+			stream.is_open_ = false;
+
+			mt_open_streams_.remove_if(
+				[&](const auto& item)
+				{
+					return item == &stream;
+				}
+			);
+		}
+
+		::alSourceStopv(2, stream.sample_.oal_sources_.data());
+	}
+
+	void set_stream_loop(
+		LHSTREAM stream_ptr,
+		const bool is_loop)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+		stream.sample_.is_looping_ = is_loop;
+	}
+
+	void set_stream_position_ms(
+		LHSTREAM stream_ptr,
+		const sint32 milliseconds)
+	{
+		if (!stream_ptr || milliseconds < 0)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+		const auto& format = stream.sample_.format_;
+
+		auto position = static_cast<int>((milliseconds * format.sample_rate_) / 1000LL);
+		position /= format.block_align_;
+		position *= format.block_align_;
+
+		if (position > stream.data_size_)
+		{
+			return;
+		}
+
+		stream.data_offset_ = position;
+	}
+
+	void set_stream_user_data(
+		LHSTREAM stream_ptr,
+		const uint32 index,
+		const sint32 value)
+	{
+		if (!stream_ptr || index >= Sample::max_user_data_index)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		stream.sample_.user_data_array_[index] = value;
+	}
+
+	sint32 get_stream_user_data(
+		LHSTREAM stream_ptr,
+		const uint32 index)
+	{
+		if (!stream_ptr || index >= Sample::max_user_data_index)
+		{
+			return {};
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		return stream.sample_.user_data_array_[index];
+	}
+
+	void start_stream(
+		LHSTREAM stream_ptr)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+		stream.is_playing_ = true;
+		stream.data_offset_ = 0;
+
+		mt_notify_stream();
+	}
+
+	void pause_stream(
+		LHSTREAM stream_ptr,
+		const sint32 is_pause)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+		stream.is_playing_ = (is_pause != 0);
+
+		if (stream.is_playing_)
+		{
+			mt_notify_stream();
+		}
+	}
+
+	void set_stream_volume(
+		LHSTREAM stream_ptr,
+		const sint32 volume)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+		set_sample_volume(stream.sample_, volume);
+	}
+
+	void set_stream_pan(
+		LHSTREAM stream_ptr,
+		const sint32 pan)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+		set_sample_pan(stream.sample_, pan);
+	}
+
+	sint32 set_stream_volume(
+		LHSTREAM stream_ptr)
+	{
+		if (!stream_ptr)
+		{
+			return {};
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+		return stream.sample_.volume_;
+	}
+
+	sint32 get_stream_pan(
+		LHSTREAM stream_ptr)
+	{
+		if (!stream_ptr)
+		{
+			return {};
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+		return stream.sample_.pan_;
+	}
+
+	uint32 get_stream_status(
+		LHSTREAM stream_ptr)
+	{
+		if (!stream_ptr)
+		{
+			return LS_ERROR;
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+		if (stream.sample_.status_ != Sample::Status::playing)
+		{
+			return LS_STOPPED;
+		}
+
+		return LS_PLAYING;
+	}
+
 	//
 	// =========================================================================
 	// API
@@ -1687,6 +2461,14 @@ struct OalSoundSys::Impl
 	ClockTs clock_base_;
 	sint32 master_volume_;
 	Samples samples_2d_;
+	Streams streams_;
+	MtThread mt_stream_thread_;
+	MtMutex mt_stream_mutex_;
+	MtCondVar mt_stream_cv_;
+	MtMutex mt_stream_cv_mutex_;
+	OpenStreams mt_open_streams_;
+	bool mt_is_stop_stream_worker_;
+	bool mt_stream_cv_flag_;
 }; // OalSoundSys::Impl
 
 
@@ -1747,6 +2529,7 @@ sint32 OalSoundSys::Startup()
 
 void OalSoundSys::Shutdown()
 {
+	pimpl_->shutdown();
 }
 
 uint32 OalSoundSys::MsCount()
@@ -2430,21 +3213,14 @@ LHSTREAM OalSoundSys::OpenStream(
 	const char* stream_ptr,
 	const sint32 stream_memory_size)
 {
-	static_cast<void>(file_name);
-	static_cast<void>(file_offset);
-	static_cast<void>(driver_ptr);
-	static_cast<void>(stream_ptr);
-	static_cast<void>(stream_memory_size);
-
-	return {};
+	return pimpl_->open_stream(file_name, file_offset, driver_ptr, stream_ptr, stream_memory_size);
 }
 
 void OalSoundSys::SetStreamLoop(
 	LHSTREAM stream_ptr,
 	const bool is_loop)
 {
-	static_cast<void>(stream_ptr);
-	static_cast<void>(is_loop);
+	pimpl_->set_stream_loop(stream_ptr, is_loop);
 }
 
 void OalSoundSys::SetStreamPlaybackRate(
@@ -2459,8 +3235,7 @@ void OalSoundSys::SetStreamMsPosition(
 	LHSTREAM stream_ptr,
 	const sint32 milliseconds)
 {
-	static_cast<void>(stream_ptr);
-	static_cast<void>(milliseconds);
+	pimpl_->set_stream_position_ms(stream_ptr, milliseconds);
 }
 
 void OalSoundSys::SetStreamUserData(
@@ -2468,39 +3243,33 @@ void OalSoundSys::SetStreamUserData(
 	const uint32 index,
 	const sint32 value)
 {
-	static_cast<void>(stream_ptr);
-	static_cast<void>(index);
-	static_cast<void>(value);
+	pimpl_->set_stream_user_data(stream_ptr, index,value);
 }
 
 sint32 OalSoundSys::GetStreamUserData(
 	LHSTREAM stream_ptr,
 	const uint32 index)
 {
-	static_cast<void>(stream_ptr);
-	static_cast<void>(index);
-
-	return {};
+	return pimpl_->get_stream_user_data(stream_ptr, index);
 }
 
 void OalSoundSys::CloseStream(
 	LHSTREAM stream_ptr)
 {
-	static_cast<void>(stream_ptr);
+	pimpl_->close_stream(stream_ptr);
 }
 
 void OalSoundSys::StartStream(
 	LHSTREAM stream_ptr)
 {
-	static_cast<void>(stream_ptr);
+	pimpl_->start_stream(stream_ptr);
 }
 
 void OalSoundSys::PauseStream(
 	LHSTREAM stream_ptr,
 	const sint32 is_pause)
 {
-	static_cast<void>(stream_ptr);
-	static_cast<void>(is_pause);
+	pimpl_->pause_stream(stream_ptr, is_pause);
 }
 
 void OalSoundSys::ResetStream(
@@ -2513,40 +3282,32 @@ void OalSoundSys::SetStreamVolume(
 	LHSTREAM stream_ptr,
 	const sint32 volume)
 {
-	static_cast<void>(stream_ptr);
-	static_cast<void>(volume);
+	pimpl_->set_stream_volume(stream_ptr, volume);
 }
 
 void OalSoundSys::SetStreamPan(
 	LHSTREAM stream_ptr,
 	const sint32 pan)
 {
-	static_cast<void>(stream_ptr);
-	static_cast<void>(pan);
+	pimpl_->set_stream_pan(stream_ptr, pan);
 }
 
 sint32 OalSoundSys::GetStreamVolume(
 	LHSTREAM stream_ptr)
 {
-	static_cast<void>(stream_ptr);
-
-	return {};
+	return pimpl_->set_stream_volume(stream_ptr);
 }
 
 sint32 OalSoundSys::GetStreamPan(
 	LHSTREAM stream_ptr)
 {
-	static_cast<void>(stream_ptr);
-
-	return {};
+	return pimpl_->get_stream_pan(stream_ptr);
 }
 
 uint32 OalSoundSys::GetStreamStatus(
 	LHSTREAM stream_ptr)
 {
-	static_cast<void>(stream_ptr);
-
-	return {};
+	return pimpl_->get_stream_status(stream_ptr);
 }
 
 sint32 OalSoundSys::GetStreamBufferParam(
