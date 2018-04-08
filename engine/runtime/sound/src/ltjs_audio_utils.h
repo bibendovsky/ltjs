@@ -38,6 +38,9 @@ struct AudioUtils
 
 	static constexpr auto ds_max_distance = 1'000'000'000.0F;
 
+	static constexpr auto ds_min_doppler_factor = 0.0F;
+	static constexpr auto ds_min_doppler_factor = 10.0F;
+
 
 	//
 	// Clamps a LithTech volume.
