@@ -31,6 +31,7 @@ struct OalSoundSys::Impl
 {
 	static constexpr auto min_aux_sends = 1;
 	static constexpr auto default_aux_sends = 2;
+	static constexpr auto default_doppler_factor = 1.0F;
 
 	static constexpr auto pan_center = 64;
 
@@ -47,6 +48,61 @@ struct OalSoundSys::Impl
 	using MtUniqueLock = std::unique_lock<MtMutex>;
 	using MtCondVar = std::condition_variable;
 
+	static constexpr auto max_user_data_count = 8;
+	static constexpr auto max_user_data_index = max_user_data_count - 1;
+	using UserDataArray = std::array<sint32, max_user_data_count>;
+
+
+	struct Vector3d
+	{
+		float x_;
+		float y_;
+		float z_;
+
+
+		bool operator==(
+			const Vector3d& that) const
+		{
+			return x_ == that.x_ && y_ == that.y_ && z_ == that.z_;
+		}
+
+		static Vector3d to_oal(
+			const Vector3d& vector_3d)
+		{
+			return {vector_3d.x_, vector_3d.y_, -vector_3d.z_};
+		}
+	}; // Vector3d
+
+	struct Direction3d
+	{
+		Vector3d at_;
+		Vector3d up_;
+
+
+		bool operator==(
+			const Direction3d& that) const
+		{
+			return at_ == that.at_ && up_ == that.up_;
+		}
+
+		static Direction3d to_oal(
+			const Direction3d& direction_3d)
+		{
+			return {Vector3d::to_oal(direction_3d.at_), Vector3d::to_oal(direction_3d.up_)};
+		}
+
+		static const Direction3d& get_listener_defaults()
+		{
+			static const auto direction_3d = Direction3d{{0.0F, 0.0F, 1.0F}, {0.0F, 1.0F, 0.0F}};
+			return direction_3d;
+		}
+
+		static const Direction3d& get_object_defaults()
+		{
+			static const auto direction_3d = Direction3d{};
+			return direction_3d;
+		}
+	}; // Direction3d
 
 	struct Sample
 	{
@@ -59,16 +115,10 @@ struct OalSoundSys::Impl
 			failed,
 		}; // Status
 
-
-		static constexpr auto max_user_data_count = 8;
-		static constexpr auto max_user_data_index = max_user_data_count - 1;
-
 		static constexpr auto oal_max_buffer_count = 3;
 
 		static constexpr auto left_index = 0;
 		static constexpr auto right_index = 1;
-
-		using UserDataArray = std::array<sint32, max_user_data_count>;
 
 		using Data = std::vector<std::uint8_t>;
 		using OalPans = std::array<float, 2>;
@@ -108,6 +158,33 @@ struct OalSoundSys::Impl
 	}; // Sample
 
 	using Samples = std::list<Sample>;
+
+
+	struct Object3d
+	{
+		bool is_listener_;
+		float min_distance_;
+		float max_distance_;
+		Vector3d position_;
+		Vector3d velocity_;
+		Direction3d direction_;
+		float doppler_factor_;
+		UserDataArray user_data_;
+		Sample sample_;
+
+
+		void reset()
+		{
+			min_distance_ = ltjs::AudioUtils::ds_default_min_distance;
+			max_distance_ = ltjs::AudioUtils::ds_default_max_distance;
+			position_ = {};
+			velocity_ = {};
+			direction_ = (is_listener_ ? Direction3d::get_listener_defaults() : Direction3d::get_object_defaults());
+			doppler_factor_ = ltjs::AudioUtils::ds_default_doppler_factor;
+		}
+	}; // Object3d
+
+	using Objects3d = std::list<Object3d>;
 
 
 	static constexpr auto max_streams = 16;
@@ -973,6 +1050,14 @@ struct OalSoundSys::Impl
 		}
 
 		samples_2d_= {};
+
+
+		for (auto& object_3d : objects_3d_)
+		{
+			destroy_sample(object_3d.sample_);
+		}
+
+		objects_3d_ = {};
 	}
 
 	//
@@ -989,6 +1074,7 @@ struct OalSoundSys::Impl
 	bool startup()
 	{
 		clock_base_ = Clock::now();
+		listener_3d_.is_listener_ = true;
 
 		return true;
 	}
@@ -1060,6 +1146,7 @@ struct OalSoundSys::Impl
 
 		is_succeed = true;
 		master_volume_ = ltjs::AudioUtils::lt_max_volume;
+		reset_3d_object(listener_3d_);
 
 		return true;
 	}
@@ -1441,7 +1528,7 @@ struct OalSoundSys::Impl
 		LHSAMPLE sample_handle,
 		const uint32 index) const
 	{
-		if (!sample_handle || index > Sample::max_user_data_index)
+		if (!sample_handle || index > max_user_data_index)
 		{
 			return {};
 		}
@@ -1456,7 +1543,7 @@ struct OalSoundSys::Impl
 		const uint32 index,
 		const sint32 value)
 	{
-		if (!sample_handle || index > Sample::max_user_data_index)
+		if (!sample_handle || index > max_user_data_index)
 		{
 			return;
 		}
@@ -1619,6 +1706,11 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
+		if (sample.is_3d_ && wave_format.channel_count_ != 1)
+		{
+			return false;
+		}
+
 		if (!sample.is_stream_ && !ptr && sample.data_.empty())
 		{
 			return false;
@@ -1771,20 +1863,17 @@ struct OalSoundSys::Impl
 	}
 
 	bool initialize_sample_from_file(
-		LHSAMPLE sample_handle,
+		Sample& sample,
 		const void* file_image_ptr,
-		const sint32 block,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr)
 	{
-		static_cast<void>(block);
+		static_cast<void>(filter_data_ptr);
 
-		if (!sample_handle || !file_image_ptr || playback_rate <= 0)
+		if (!file_image_ptr || playback_rate <= 0)
 		{
 			return false;
 		}
-
-		auto& sample = *static_cast<Sample*>(sample_handle);
 
 		if (sample.status_ == Sample::Status::failed)
 		{
@@ -1841,19 +1930,31 @@ struct OalSoundSys::Impl
 		return result;
 	}
 
-	void set_sample_loop_block(
+	bool initialize_sample_from_file(
 		LHSAMPLE sample_handle,
-		const sint32 loop_start_offset,
-		const sint32 loop_end_offset,
-		const bool is_enable)
+		const void* file_image_ptr,
+		const sint32 block,
+		const sint32 playback_rate,
+		const LTSOUNDFILTERDATA* filter_data_ptr)
 	{
+		static_cast<void>(block);
+
 		if (!sample_handle)
 		{
-			return;
+			return false;
 		}
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
+		return initialize_sample_from_file(sample, file_image_ptr, playback_rate, filter_data_ptr);
+	}
+
+	void set_sample_loop_block(
+		Sample& sample,
+		const sint32 loop_start_offset,
+		const sint32 loop_end_offset,
+		const bool is_enable)
+	{
 		const auto data_size = static_cast<int>(sample.data_.size());
 		const auto sample_size = sample.format_.block_align_;
 
@@ -1887,8 +1988,10 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	void set_sample_loop(
+	void set_sample_loop_block(
 		LHSAMPLE sample_handle,
+		const sint32 loop_start_offset,
+		const sint32 loop_end_offset,
 		const bool is_enable)
 	{
 		if (!sample_handle)
@@ -1898,6 +2001,13 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
+		set_sample_loop_block(sample, loop_start_offset, loop_end_offset, is_enable);
+	}
+
+	void set_sample_loop(
+		Sample& sample,
+		const bool is_enable)
+	{
 		if (sample.is_looping_ == is_enable)
 		{
 			return;
@@ -2004,9 +2114,9 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	void set_sample_position_ms(
+	void set_sample_loop(
 		LHSAMPLE sample_handle,
-		const sint32 milliseconds)
+		const bool is_enable)
 	{
 		if (!sample_handle)
 		{
@@ -2015,6 +2125,13 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
+		set_sample_loop(sample, is_enable);
+	}
+
+	void set_sample_ms_position(
+		Sample& sample,
+		const sint32 milliseconds)
+	{
 		if (sample.status_ == Sample::Status::failed)
 		{
 			return;
@@ -2033,6 +2150,20 @@ struct OalSoundSys::Impl
 		{
 			::alSourcei(sample.oal_sources_[i], AL_SAMPLE_OFFSET, sample_offset);
 		}
+	}
+
+	void set_sample_ms_position(
+		LHSAMPLE sample_handle,
+		const sint32 milliseconds)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_handle);
+
+		set_sample_ms_position(sample, milliseconds);
 	}
 
 	Sample::Status get_sample_status(
@@ -2248,7 +2379,7 @@ struct OalSoundSys::Impl
 		const uint32 index,
 		const sint32 value)
 	{
-		if (!stream_ptr || index > Sample::max_user_data_index)
+		if (!stream_ptr || index > max_user_data_index)
 		{
 			return;
 		}
@@ -2262,7 +2393,7 @@ struct OalSoundSys::Impl
 		LHSTREAM stream_ptr,
 		const uint32 index)
 	{
-		if (!stream_ptr || index > Sample::max_user_data_index)
+		if (!stream_ptr || index > max_user_data_index)
 		{
 			return {};
 		}
@@ -2407,6 +2538,636 @@ struct OalSoundSys::Impl
 		return ltjs::AudioUtils::decode_mp3(audio_decoder_, srd_data_ptr, src_size, dst_wav, dst_wav_size);
 	}
 
+	void reset_3d_object(
+		Object3d& object_3d)
+	{
+		auto& sample = object_3d.sample_;
+		const auto oal_source = sample.oal_sources_[0];
+
+		object_3d.reset();
+		oal_clear_error();
+
+
+		if (!object_3d.is_listener_)
+		{
+			::alSourceStopv(1, sample.oal_sources_.data());
+			::alSourcei(oal_source, AL_BUFFER, AL_NONE);
+			::alSourcei(oal_source, AL_SOURCE_RELATIVE, AL_FALSE);
+		}
+
+		// Doppler factor.
+		//
+		if (object_3d.is_listener_)
+		{
+			::alDopplerFactor(object_3d.doppler_factor_);
+		}
+
+		// Minimum/Maximum distance.
+		//
+		if (!object_3d.is_listener_)
+		{
+			::alSourcef(oal_source, AL_REFERENCE_DISTANCE, object_3d.min_distance_);
+			::alSourcef(oal_source, AL_MAX_DISTANCE, object_3d.max_distance_);
+		}
+
+		// Position.
+		//
+		const auto oal_position = Vector3d::to_oal(object_3d.position_);
+		const auto oal_position_ptr = reinterpret_cast<const ALfloat*>(&oal_position);
+
+		if (object_3d.is_listener_)
+		{
+			::alListenerfv(AL_POSITION, oal_position_ptr);
+		}
+		else
+		{
+			::alSourcefv(oal_source, AL_POSITION, oal_position_ptr);
+		}
+
+
+		// Velocity.
+		//
+		const auto oal_velocity = Vector3d::to_oal(object_3d.velocity_);
+		const auto oal_velocity_ptr = reinterpret_cast<const ALfloat*>(&oal_velocity);
+
+		if (object_3d.is_listener_)
+		{
+			::alListenerfv(AL_VELOCITY, oal_velocity_ptr);
+		}
+		else
+		{
+			::alSourcefv(oal_source, AL_VELOCITY, oal_velocity_ptr);
+		}
+
+
+		// Orientaion.
+		//
+		if (object_3d.is_listener_)
+		{
+			const auto oal_direction = Direction3d::to_oal(object_3d.direction_);
+			const auto oal_direction_ptr = reinterpret_cast<const ALfloat*>(&oal_direction);
+
+			::alListenerfv(AL_ORIENTATION, oal_direction_ptr);
+		}
+
+		if (!oal_is_succeed())
+		{
+			sample.status_ = Sample::Status::failed;
+			return;
+		}
+	}
+
+	void get_3d_provider_attribute(
+		LHPROVIDER provider_id,
+		const char* name,
+		void* value)
+	{
+		if (!value)
+		{
+			return;
+		}
+
+		auto& int_value = *static_cast<sint32*>(value);
+
+		int_value = -1;
+
+		if (!name)
+		{
+			return;
+		}
+
+		const auto name_string = std::string{name};
+
+		if (name_string != "Max samples")
+		{
+			return;
+		}
+
+		int_value = 255;
+	}
+
+	LH3DPOBJECT open_3d_listener(
+		LHPROVIDER provider_id)
+	{
+		static_cast<void>(provider_id);
+
+		return &listener_3d_;
+	}
+
+	void close_3d_listener(
+		LH3DPOBJECT listener_ptr)
+	{
+		static_cast<void>(listener_ptr);
+	}
+
+	void set_3d_listener_doppler(
+		LH3DPOBJECT listener_ptr,
+		const float doppler)
+	{
+		if (listener_ptr != &listener_3d_)
+		{
+			return;
+		}
+
+		if (listener_3d_.doppler_factor_ == doppler)
+		{
+			return;
+		}
+
+		listener_3d_.doppler_factor_ = doppler;
+
+		::alDopplerFactor(doppler);
+	}
+
+	void set_3d_position(
+		LH3DPOBJECT object_ptr,
+		const float x,
+		const float y,
+		const float z)
+	{
+		if (!object_ptr)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+
+		const auto new_position = Vector3d{x, y, z};
+
+		if (object_3d.position_ == new_position)
+		{
+			return;
+		}
+
+		object_3d.position_ = new_position;
+
+		const auto oal_position = Vector3d::to_oal(new_position);
+		const auto oal_position_ptr = reinterpret_cast<const ALfloat*>(&oal_position);
+
+		if (object_3d.is_listener_)
+		{
+			::alListenerfv(AL_POSITION, oal_position_ptr);
+		}
+		else
+		{
+			::alSourcefv(object_3d.sample_.oal_sources_[0], AL_POSITION, oal_position_ptr);
+		}
+	}
+
+	void set_3d_velocity(
+		LH3DPOBJECT object_ptr,
+		const float dx_per_s,
+		const float dy_per_s,
+		const float dz_per_s)
+	{
+		if (!object_ptr)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+
+		const auto new_velocity = Vector3d{dx_per_s, dy_per_s, dz_per_s};
+
+		if (object_3d.velocity_ == new_velocity)
+		{
+			return;
+		}
+
+		object_3d.velocity_ = new_velocity;
+
+		const auto oal_velocity = Vector3d::to_oal(new_velocity);
+		const auto oal_velocity_ptr = reinterpret_cast<const ALfloat*>(&oal_velocity);
+
+		if (object_3d.is_listener_)
+		{
+			::alListenerfv(AL_VELOCITY, oal_velocity_ptr);
+		}
+		else
+		{
+			::alSourcefv(object_3d.sample_.oal_sources_[0], AL_VELOCITY, oal_velocity_ptr);
+		}
+	}
+
+	void set_3d_orientation(
+		LH3DPOBJECT object_ptr,
+		const float x_face,
+		const float y_face,
+		const float z_face,
+		const float x_up,
+		const float y_up,
+		const float z_up)
+	{
+		if (!object_ptr)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+
+		const auto new_direction_ = Direction3d{{x_face, y_face, z_face}, {x_up, y_up, z_up}};
+
+		if (object_3d.direction_ == new_direction_)
+		{
+			return;
+		}
+
+		object_3d.direction_ = new_direction_;
+
+		const auto oal_orientation = Direction3d::to_oal(new_direction_);
+
+		::alListenerfv(AL_ORIENTATION, reinterpret_cast<const ALfloat*>(&oal_orientation));
+	}
+
+	void get_3d_position(
+		LH3DPOBJECT object_ptr,
+		float& x,
+		float& y,
+		float& z)
+	{
+		x = 0.0F;
+		y = 0.0F;
+		z = 0.0F;
+
+		if (!object_ptr)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+
+		x = object_3d.position_.x_;
+		y = object_3d.position_.y_;
+		z = object_3d.position_.z_;
+	}
+
+	void get_3d_velocity(
+		LH3DPOBJECT object_ptr,
+		float& dx_per_ms,
+		float& dy_per_ms,
+		float& dz_per_ms)
+	{
+		dx_per_ms = 0.0F;
+		dy_per_ms = 0.0F;
+		dz_per_ms = 0.0F;
+
+		if (!object_ptr)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+
+		dx_per_ms = object_3d.velocity_.x_;
+		dy_per_ms = object_3d.velocity_.y_;
+		dz_per_ms = object_3d.velocity_.z_;
+	}
+
+	void get_3d_orientation(
+		LH3DPOBJECT object_ptr,
+		float& x_face,
+		float& y_face,
+		float& z_face,
+		float& x_up,
+		float& y_up,
+		float& z_up)
+	{
+		x_face = 0.0F;
+		y_face = 0.0F;
+		z_face = 0.0F;
+
+		x_up = 0.0F;
+		y_up = 0.0F;
+		z_up = 0.0F;
+
+		if (!object_ptr)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+
+		x_face = object_3d.direction_.at_.x_;
+		y_face = object_3d.direction_.at_.y_;
+		z_face = object_3d.direction_.at_.z_;
+
+		x_up = object_3d.direction_.up_.x_;
+		y_up = object_3d.direction_.up_.y_;
+		z_up = object_3d.direction_.up_.z_;
+	}
+
+	LH3DSAMPLE allocate_3d_sample(
+		LHPROVIDER provider_id)
+	{
+		static_cast<void>(provider_id);
+
+		objects_3d_.emplace_back();
+
+		auto& object_3d = objects_3d_.back();
+
+		auto& sample = object_3d.sample_;
+		sample.is_3d_ = true;
+		sample.is_stream_ = false;
+		sample.oal_source_count_ = 1;
+
+		create_sample(sample);
+
+		return &object_3d;
+	}
+
+	void release_3d_sample(
+		LH3DSAMPLE sample_handle)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+
+		destroy_sample(object_3d.sample_);
+
+		objects_3d_.remove_if(
+			[&](const auto& object_3d_item)
+			{
+				return &object_3d_item == &object_3d;
+			}
+		);
+	}
+
+	void set_3d_sample_volume(
+		LH3DSAMPLE sample_handle,
+		const sint32 volume)
+	{
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+
+		if (object_3d.is_listener_)
+		{
+			return;
+		}
+
+		const auto new_volume = ltjs::AudioUtils::clamp_lt_volume(volume);
+
+		auto& sample = object_3d.sample_;
+
+		if (sample.volume_ == new_volume)
+		{
+			return;
+		}
+
+		sample.volume_ = new_volume;
+
+		if (sample.status_ == Sample::Status::failed)
+		{
+			return;
+		}
+
+		const auto oal_volume = ltjs::AudioUtils::lt_volume_to_gain(new_volume);
+
+		sample.oal_volume_ = oal_volume;
+
+		::alSourcef(sample.oal_sources_[0], AL_GAIN, oal_volume);
+	}
+
+	void set_3d_sample_distances(
+		LH3DSAMPLE sample_handle,
+		const float max_distance,
+		const float min_distance)
+	{
+		if (!sample_handle || max_distance <= 0.0F || min_distance <= 0.0F || max_distance < min_distance)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+
+		if (object_3d.min_distance_ == min_distance && object_3d.max_distance_ == max_distance)
+		{
+			return;
+		}
+
+		object_3d.min_distance_ = min_distance;
+		object_3d.max_distance_ = max_distance;
+
+		auto& sample = object_3d.sample_;
+
+		::alSourcef(sample.oal_sources_[0], AL_REFERENCE_DISTANCE, min_distance);
+		::alSourcef(sample.oal_sources_[0], AL_MAX_DISTANCE, max_distance);
+	}
+
+	void set_3d_user_data(
+		LH3DPOBJECT object_ptr,
+		const uint32 index,
+		const sint32 value)
+	{
+		if (!object_ptr || index > max_user_data_index)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+
+		object_3d.user_data_[index] = value;
+	}
+
+	sint32 get_3d_user_data(
+		LH3DPOBJECT object_ptr,
+		const uint32 index)
+	{
+		if (!object_ptr || index > max_user_data_index)
+		{
+			return {};
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+
+		return object_3d.user_data_[index];
+	}
+
+	void stop_3d_sample(
+		LH3DSAMPLE sample_handle)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+		auto& sample = object_3d.sample_;
+
+		stop_sample(sample);
+	}
+
+	void start_3d_sample(
+		LH3DSAMPLE sample_handle)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+		auto& sample = object_3d.sample_;
+
+		start_sample(sample);
+	}
+
+	void resume_3d_sample(
+		LH3DSAMPLE sample_handle)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+		auto& sample = object_3d.sample_;
+
+		resume_sample(sample);
+	}
+
+	void end_3d_sample(
+		LH3DSAMPLE sample_handle)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+		auto& sample = object_3d.sample_;
+
+		end_sample(sample);
+	}
+
+	sint32 initialize_3d_sample_from_address(
+		LH3DSAMPLE sample_handle,
+		const void* ptr,
+		const uint32 length,
+		const ul::WaveFormatEx& wave_format,
+		const sint32 playback_rate,
+		const LTSOUNDFILTERDATA* filter_data_ptr)
+	{
+		if (!sample_handle)
+		{
+			return {};
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+
+		reset_3d_object(object_3d);
+
+		auto& sample = object_3d.sample_;
+
+		return initialize_sample_from_address_generic(
+			sample,
+			ptr,
+			length,
+			wave_format,
+			playback_rate,
+			filter_data_ptr);
+	}
+
+	sint32 initialize_3d_sample_from_file(
+		LH3DSAMPLE sample_handle,
+		const void* file_image_ptr,
+		const sint32 block,
+		const sint32 playback_rate,
+		const LTSOUNDFILTERDATA* filter_data_ptr)
+	{
+		static_cast<void>(block);
+
+		if (!sample_handle)
+		{
+			return {};
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+
+		reset_3d_object(object_3d);
+
+		auto& sample = object_3d.sample_;
+
+		return initialize_sample_from_file(sample, file_image_ptr, playback_rate, filter_data_ptr);
+	}
+
+	sint32 get_3d_sample_volume(
+		LH3DSAMPLE sample_handle)
+	{
+		if (!sample_handle)
+		{
+			return {};
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+		auto& sample = object_3d.sample_;
+
+		return sample.volume_;
+	}
+
+	uint32 get_3d_sample_status(
+		LH3DSAMPLE sample_handle)
+	{
+		if (!sample_handle)
+		{
+			return LS_STOPPED;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+		auto& sample = object_3d.sample_;
+
+		const auto status = get_sample_status(sample);
+
+		return status == Sample::Status::playing ? LS_PLAYING : LS_STOPPED;
+	}
+
+	void set_3d_sample_ms_position(
+		LHSAMPLE sample_handle,
+		const sint32 milliseconds)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+		auto& sample = object_3d.sample_;
+
+		set_sample_ms_position(sample, milliseconds);
+	}
+
+	void set_3d_sample_loop_block(
+		LH3DSAMPLE sample_handle,
+		const sint32 loop_start_offset,
+		const sint32 loop_end_offset,
+		const bool is_enable)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+		auto& sample = object_3d.sample_;
+
+		set_sample_loop_block(sample, loop_start_offset, loop_end_offset, is_enable);
+	}
+
+	void set_3d_sample_loop(
+		LH3DSAMPLE sample_handle,
+		const bool is_loop)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& object_3d = *static_cast<Object3d*>(sample_handle);
+		auto& sample = object_3d.sample_;
+
+		set_sample_loop(sample, is_loop);
+	}
+
 	//
 	// =========================================================================
 	// API
@@ -2475,6 +3236,8 @@ struct OalSoundSys::Impl
 	ClockTs clock_base_;
 	sint32 master_volume_;
 	Samples samples_2d_;
+	Object3d listener_3d_;
+	Objects3d objects_3d_;
 	Streams streams_;
 	MtThread mt_stream_thread_;
 	MtMutex mt_stream_mutex_;
@@ -2668,6 +3431,7 @@ sint32 OalSoundSys::Open3DProvider(
 	{
 	case SOUND3DPROVIDERID_DS3D_SOFTWARE:
 	case SOUND3DPROVIDERID_DS3D_HARDWARE:
+	case SOUND3DPROVIDERID_DS3D_DEFAULT:
 		return true;
 
 	default:
@@ -2696,9 +3460,7 @@ void OalSoundSys::Get3DProviderAttribute(
 	const char* name,
 	void* value)
 {
-	static_cast<void>(provider_id);
-	static_cast<void>(name);
-	static_cast<void>(value);
+	pimpl_->get_3d_provider_attribute(provider_id, name, value);
 }
 
 sint32 OalSoundSys::Enumerate3DProviders(
@@ -2706,44 +3468,18 @@ sint32 OalSoundSys::Enumerate3DProviders(
 	LHPROVIDER& destination,
 	const char*& name)
 {
-	constexpr auto max_providers = 3;
-
-	static const char* const provider_names[max_providers] =
-	{
-		"OpenAL (2D)",
-		"OpenAL (3D)",
-		"OpenAL (default)",
-	}; // provider_names
-
 	const auto current = next++;
 
 	destination = 0;
 	name = nullptr;
 
-	if (current < 0 || current >= max_providers)
+	if (current < 0 || current > 0)
 	{
 		return false;
 	}
 
-	switch (current)
-	{
-	case 0:
-		destination = SOUND3DPROVIDERID_DS3D_SOFTWARE;
-		break;
-
-	case 1:
-		destination = SOUND3DPROVIDERID_DS3D_HARDWARE;
-		break;
-
-	case 2:
-		destination = SOUND3DPROVIDERID_DS3D_DEFAULT;
-		break;
-
-	default:
-		return false;
-	}
-
-	name = provider_names[current];
+	destination = SOUND3DPROVIDERID_DS3D_HARDWARE;
+	name = "OpenAL";
 
 	return true;
 }
@@ -2751,23 +3487,20 @@ sint32 OalSoundSys::Enumerate3DProviders(
 LH3DPOBJECT OalSoundSys::Open3DListener(
 	LHPROVIDER provider_id)
 {
-	static_cast<void>(provider_id);
-
-	return {};
+	return pimpl_->open_3d_listener(provider_id);
 }
 
 void OalSoundSys::Close3DListener(
 	LH3DPOBJECT listener_ptr)
 {
-	static_cast<void>(listener_ptr);
+	pimpl_->close_3d_listener(listener_ptr);
 }
 
 void OalSoundSys::SetListenerDoppler(
 	LH3DPOBJECT listener_ptr,
 	const float doppler)
 {
-	static_cast<void>(listener_ptr);
-	static_cast<void>(doppler);
+	pimpl_->set_3d_listener_doppler(listener_ptr, doppler);
 }
 
 void OalSoundSys::CommitDeferred()
@@ -2780,10 +3513,7 @@ void OalSoundSys::Set3DPosition(
 	const float y,
 	const float z)
 {
-	static_cast<void>(object_ptr);
-	static_cast<void>(x);
-	static_cast<void>(y);
-	static_cast<void>(z);
+	pimpl_->set_3d_position(object_ptr, x, y, z);
 }
 
 void OalSoundSys::Set3DVelocityVector(
@@ -2792,10 +3522,7 @@ void OalSoundSys::Set3DVelocityVector(
 	const float dy_per_s,
 	const float dz_per_s)
 {
-	static_cast<void>(object_ptr);
-	static_cast<void>(dx_per_s);
-	static_cast<void>(dy_per_s);
-	static_cast<void>(dz_per_s);
+	pimpl_->set_3d_velocity(object_ptr, dx_per_s, dy_per_s, dz_per_s);
 }
 
 void OalSoundSys::Set3DOrientation(
@@ -2807,13 +3534,7 @@ void OalSoundSys::Set3DOrientation(
 	const float y_up,
 	const float z_up)
 {
-	static_cast<void>(object_ptr);
-	static_cast<void>(x_face);
-	static_cast<void>(y_face);
-	static_cast<void>(z_face);
-	static_cast<void>(x_up);
-	static_cast<void>(y_up);
-	static_cast<void>(z_up);
+	pimpl_->set_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
 }
 
 void OalSoundSys::Set3DUserData(
@@ -2821,9 +3542,7 @@ void OalSoundSys::Set3DUserData(
 	const uint32 index,
 	const sint32 value)
 {
-	static_cast<void>(object_ptr);
-	static_cast<void>(index);
-	static_cast<void>(value);
+	pimpl_->set_3d_user_data(object_ptr, index, value);
 }
 
 void OalSoundSys::Get3DPosition(
@@ -2832,10 +3551,7 @@ void OalSoundSys::Get3DPosition(
 	float& y,
 	float& z)
 {
-	static_cast<void>(object_ptr);
-	static_cast<void>(x);
-	static_cast<void>(y);
-	static_cast<void>(z);
+	pimpl_->get_3d_position(object_ptr, x, y, z);
 }
 
 void OalSoundSys::Get3DVelocity(
@@ -2844,10 +3560,7 @@ void OalSoundSys::Get3DVelocity(
 	float& dy_per_ms,
 	float& dz_per_ms)
 {
-	static_cast<void>(object_ptr);
-	static_cast<void>(dx_per_ms);
-	static_cast<void>(dy_per_ms);
-	static_cast<void>(dz_per_ms);
+	pimpl_->get_3d_velocity(object_ptr, dx_per_ms, dy_per_ms, dz_per_ms);
 }
 
 void OalSoundSys::Get3DOrientation(
@@ -2859,61 +3572,50 @@ void OalSoundSys::Get3DOrientation(
 	float& y_up,
 	float& z_up)
 {
-	static_cast<void>(object_ptr);
-	static_cast<void>(x_face);
-	static_cast<void>(y_face);
-	static_cast<void>(z_face);
-	static_cast<void>(x_up);
-	static_cast<void>(y_up);
-	static_cast<void>(z_up);
+	pimpl_->get_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
 }
 
 sint32 OalSoundSys::Get3DUserData(
 	LH3DPOBJECT object_ptr,
 	const uint32 index)
 {
-	static_cast<void>(object_ptr);
-	static_cast<void>(index);
-
-	return {};
+	return pimpl_->get_3d_user_data(object_ptr, index);
 }
 
 LH3DSAMPLE OalSoundSys::Allocate3DSampleHandle(
 	LHPROVIDER driver_id)
 {
-	static_cast<void>(driver_id);
-
-	return {};
+	return pimpl_->allocate_3d_sample(driver_id);
 }
 
 void OalSoundSys::Release3DSampleHandle(
 	LH3DSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	return pimpl_->release_3d_sample(sample_handle);
 }
 
 void OalSoundSys::Stop3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	pimpl_->stop_3d_sample(sample_handle);
 }
 
 void OalSoundSys::Start3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	pimpl_->start_3d_sample(sample_handle);
 }
 
 void OalSoundSys::Resume3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	pimpl_->resume_3d_sample(sample_handle);
 }
 
 void OalSoundSys::End3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	pimpl_->end_3d_sample(sample_handle);
 }
 
 sint32 OalSoundSys::Init3DSampleFromAddress(
@@ -2924,14 +3626,7 @@ sint32 OalSoundSys::Init3DSampleFromAddress(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(ptr);
-	static_cast<void>(length);
-	static_cast<void>(wave_format);
-	static_cast<void>(playback_rate);
-	static_cast<void>(filter_data_ptr);
-
-	return {};
+	return pimpl_->initialize_3d_sample_from_address(sample_handle, ptr, length, wave_format, playback_rate, filter_data_ptr);
 }
 
 sint32 OalSoundSys::Init3DSampleFromFile(
@@ -2941,45 +3636,33 @@ sint32 OalSoundSys::Init3DSampleFromFile(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(file_image_ptr);
-	static_cast<void>(block);
-	static_cast<void>(playback_rate);
-	static_cast<void>(filter_data_ptr);
-
-	return {};
+	return pimpl_->initialize_3d_sample_from_file(sample_handle, file_image_ptr, block, playback_rate, filter_data_ptr);
 }
 
 sint32 OalSoundSys::Get3DSampleVolume(
 	LH3DSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
-
-	return {};
+	return pimpl_->get_3d_sample_volume(sample_handle);
 }
 
 void OalSoundSys::Set3DSampleVolume(
 	LH3DSAMPLE sample_handle,
 	const sint32 volume)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(volume);
+	pimpl_->set_3d_sample_volume(sample_handle, volume);
 }
 
 uint32 OalSoundSys::Get3DSampleStatus(
 	LH3DSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
-
-	return {};
+	return pimpl_->get_3d_sample_status(sample_handle);
 }
 
 void OalSoundSys::Set3DSampleMsPosition(
 	LHSAMPLE sample_handle,
 	const sint32 milliseconds)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(milliseconds);
+	pimpl_->set_3d_sample_ms_position(sample_handle, milliseconds);
 }
 
 sint32 OalSoundSys::Set3DSampleInfo(
@@ -2997,9 +3680,7 @@ void OalSoundSys::Set3DSampleDistances(
 	const float max_distance,
 	const float min_distance)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(max_distance);
-	static_cast<void>(min_distance);
+	pimpl_->set_3d_sample_distances(sample_handle, max_distance, min_distance);
 }
 
 void OalSoundSys::Set3DSamplePreference(
@@ -3018,18 +3699,14 @@ void OalSoundSys::Set3DSampleLoopBlock(
 	const sint32 loop_end_offset,
 	const bool is_enable)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(loop_start_offset);
-	static_cast<void>(loop_end_offset);
-	static_cast<void>(is_enable);
+	pimpl_->set_3d_sample_loop_block(sample_handle, loop_start_offset, loop_end_offset, is_enable);
 }
 
 void OalSoundSys::Set3DSampleLoop(
 	LH3DSAMPLE sample_handle,
 	const bool is_loop)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(is_loop);
+	pimpl_->set_3d_sample_loop(sample_handle, is_loop);
 }
 
 void OalSoundSys::Set3DSampleObstruction(
@@ -3204,7 +3881,7 @@ void OalSoundSys::SetSampleMsPosition(
 	LHSAMPLE sample_handle,
 	const sint32 milliseconds)
 {
-	pimpl_->set_sample_position_ms(sample_handle, milliseconds);
+	pimpl_->set_sample_ms_position(sample_handle, milliseconds);
 }
 
 sint32 OalSoundSys::GetSampleUserData(
