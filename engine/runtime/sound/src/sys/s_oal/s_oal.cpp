@@ -2248,7 +2248,7 @@ struct OalSoundSys::Impl
 		const uint32 index,
 		const sint32 value)
 	{
-		if (!stream_ptr || index >= Sample::max_user_data_index)
+		if (!stream_ptr || index > Sample::max_user_data_index)
 		{
 			return;
 		}
@@ -2262,7 +2262,7 @@ struct OalSoundSys::Impl
 		LHSTREAM stream_ptr,
 		const uint32 index)
 	{
-		if (!stream_ptr || index >= Sample::max_user_data_index)
+		if (!stream_ptr || index > Sample::max_user_data_index)
 		{
 			return {};
 		}
