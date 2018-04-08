@@ -3,6 +3,7 @@
 
 
 #include "iltsound.h"
+#include "ltjs_audio_decoder.h"
 
 
 namespace ltjs
@@ -132,6 +133,38 @@ struct AudioUtils
 	//
 	static float lt_pan_to_gain(
 		const sint32 lt_pan);
+
+
+	//
+	// Allocates a block of memory.
+	//
+	// Parameters:
+	//    - size - a size of the block.
+	//
+	// Returns:
+	//    - The allocated memory block.
+	//
+	static void* allocate(
+		const std::size_t size);
+
+	//
+	// Deallocates a block of memory.
+	//
+	// Parameters:
+	//    - ptr - a pointer to the block to deallocate.
+	//
+	static void deallocate(
+		void* ptr);
+
+	//
+	// Decodes MP3 in-memory file (wrapped in WAVE).
+	//
+	static sint32 decode_mp3(
+		AudioDecoder& audio_decoder,
+		const void* src_data_ptr,
+		const uint32 src_size,
+		void*& dst_wav,
+		uint32& dst_wav_size);
 
 
 	//

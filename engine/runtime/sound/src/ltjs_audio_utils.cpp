@@ -1,7 +1,9 @@
 #include "ltjs_audio_utils.h"
 #include <cmath>
 #include <array>
+#include <memory>
 #include "bibendovsky_spul_algorithm.h"
+#include "bibendovsky_spul_memory_stream.h"
 
 
 namespace ltjs
@@ -30,6 +32,16 @@ struct AudioUtils::Detail
 
 	// LT pan -> gain
 	using PanGainTable = std::array<float, max_pan_values>;
+
+
+	struct UPtrDeleter
+	{
+		void operator()(
+			char* ptr)
+		{
+			deallocate(ptr);
+		}
+	}; // UPtrDeleter
 
 
 	static VolumeDsTable volume_ds_table;
@@ -211,6 +223,18 @@ struct AudioUtils::Detail
 			}
 		}
 	}
+
+	static void* allocate(
+		const std::size_t size)
+	{
+		return ::operator new(size);
+	}
+
+	static void deallocate(
+		void* ptr)
+	{
+		return ::operator delete(ptr);
+	}
 }; // AudioUtils::Detail
 
 
@@ -267,6 +291,118 @@ float AudioUtils::lt_pan_to_gain(
 	const sint32 lt_pan)
 {
 	return Detail::pan_gain_table[Detail::clamp_lt_pan(lt_pan)];
+}
+
+void* AudioUtils::allocate(
+	const std::size_t size)
+{
+	return Detail::allocate(size);
+}
+
+void AudioUtils::deallocate(
+	void* ptr)
+{
+	Detail::deallocate(ptr);
+}
+
+sint32 AudioUtils::decode_mp3(
+	AudioDecoder& audio_decoder,
+	const void* src_data_ptr,
+	const uint32 src_size,
+	void*& dst_wav,
+	uint32& dst_wav_size)
+{
+	dst_wav = nullptr;
+	dst_wav_size = 0;
+
+	auto memory_stream = ul::MemoryStream{src_data_ptr, static_cast<int>(src_size), ul::Stream::OpenMode::read};
+
+	if (!memory_stream.is_open())
+	{
+		return false;
+	}
+
+	if (!audio_decoder.open(&memory_stream))
+	{
+		return false;
+	}
+
+	if (!audio_decoder.is_mp3())
+	{
+		return false;
+	}
+
+	const auto max_decoded_size = audio_decoder.get_data_size();
+
+	const auto header_size =
+		4 + 4 + // "RIFF" + size
+		4 + // WAVE
+		4 + 4 + ul::WaveFormatEx::packed_size + // "fmt " + size + format_size
+		4 + 4 + // "data" + size
+		0;
+
+	auto decoded_data = std::unique_ptr<char, Detail::UPtrDeleter>{
+		static_cast<char*>(Detail::allocate(header_size + max_decoded_size))
+	};
+
+	if (!decoded_data)
+	{
+		return false;
+	}
+
+	const auto decoded_size = audio_decoder.decode(decoded_data.get() + header_size, max_decoded_size);
+
+	if (decoded_size <= 0)
+	{
+		return false;
+	}
+
+	const auto wave_size = header_size + decoded_size;
+
+	auto header = decoded_data.get();
+
+	// fill in RIFF chunk
+	header[0] = 'R';
+	header[1] = 'I';
+	header[2] = 'F';
+	header[3] = 'F';
+	header += 4;
+
+	*reinterpret_cast<std::uint32_t*>(header) = wave_size - 8;
+	header += 4;
+
+	// fill in WAVE chunk
+	header[0] = 'W';
+	header[1] = 'A';
+	header[2] = 'V';
+	header[3] = 'E';
+	header[4] = 'f';
+	header[5] = 'm';
+	header[6] = 't';
+	header[7] = ' ';
+	header += 8;
+
+	*reinterpret_cast<std::uint32_t*>(header) = ul::WaveFormatEx::packed_size;
+	header += 4;
+
+	const auto wave_format_ex = audio_decoder.get_wave_format_ex();
+	*reinterpret_cast<ul::WaveFormatEx*>(header) = wave_format_ex;
+	header += ul::WaveFormatEx::packed_size;
+
+	// fill in DATA chunk
+	header[0] = 'd';
+	header[1] = 'a';
+	header[2] = 't';
+	header[3] = 'a';
+	header += 4;
+
+	*reinterpret_cast<std::uint32_t*>(header) = decoded_size;
+	header += 4;
+
+	dst_wav = decoded_data.release();
+	dst_wav_size = wave_size;
+
+	return true;
 }
 
 void AudioUtils::initialize()

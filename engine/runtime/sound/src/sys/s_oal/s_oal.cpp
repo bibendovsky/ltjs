@@ -2393,6 +2393,20 @@ struct OalSoundSys::Impl
 		return LS_PLAYING;
 	}
 
+	sint32 decode_mp3(
+		const void* srd_data_ptr,
+		const uint32 src_size,
+		const char* file_name_ext,
+		void*& dst_wav,
+		uint32& dst_wav_size,
+		LTLENGTHYCB callback)
+	{
+		static_cast<void>(file_name_ext);
+		static_cast<void>(callback);
+
+		return ltjs::AudioUtils::decode_mp3(audio_decoder_, srd_data_ptr, src_size, dst_wav, dst_wav_size);
+	}
+
 	//
 	// =========================================================================
 	// API
@@ -2558,13 +2572,13 @@ sint32 OalSoundSys::GetPreference(
 void OalSoundSys::MemFreeLock(
 	void* ptr)
 {
-	pimpl_->deallocate(ptr);
+	ltjs::AudioUtils::deallocate(ptr);
 }
 
 void* OalSoundSys::MemAllocLock(
 	const uint32 size)
 {
-	return pimpl_->allocate(size);
+	return ltjs::AudioUtils::allocate(size);
 }
 
 const char* OalSoundSys::LastError()
@@ -3348,14 +3362,7 @@ sint32 OalSoundSys::DecompressASI(
 	uint32& dst_wav_size,
 	LTLENGTHYCB callback)
 {
-	static_cast<void>(srd_data_ptr);
-	static_cast<void>(src_size);
-	static_cast<void>(file_name_ext);
-	static_cast<void>(dst_wav);
-	static_cast<void>(dst_wav_size);
-	static_cast<void>(callback);
-
-	return {};
+	return pimpl_->decode_mp3(srd_data_ptr, src_size, file_name_ext, dst_wav, dst_wav_size, callback);
 }
 
 uint32 OalSoundSys::GetThreadedSoundTicks()
