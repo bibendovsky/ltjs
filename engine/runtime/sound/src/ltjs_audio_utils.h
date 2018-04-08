@@ -36,6 +36,8 @@ struct AudioUtils
 	static constexpr auto gain_max_delta = gain_max - gain_min;
 	static constexpr auto gain_center = gain_min + (gain_max_delta / 2.0F);
 
+	static constexpr auto ds_max_distance = 1'000'000'000.0F;
+
 
 	//
 	// Clamps a LithTech volume.
