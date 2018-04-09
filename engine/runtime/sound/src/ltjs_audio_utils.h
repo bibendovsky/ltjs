@@ -141,6 +141,18 @@ struct AudioUtils
 	static float lt_pan_to_gain(
 		const sint32 lt_pan);
 
+	//
+	// Converts a DirectSound volume to a gain.
+	//
+	// Parameters:
+	//    - ds_volume - a DirectSound volume.
+	//
+	// Returns:
+	//    A gain [0..1].
+	//
+	static float ds_volume_to_gain(
+		const long ds_volume);
+
 
 	//
 	// Allocates a block of memory.

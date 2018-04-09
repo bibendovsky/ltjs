@@ -34,6 +34,13 @@ struct AudioUtils::Detail
 	using PanGainTable = std::array<float, max_pan_values>;
 
 
+	static constexpr auto ds_max_volumes = ds_max_volume - ds_min_volume + 1;
+
+	// DS volume -> gain
+	// [0..10000]
+	using DsVolumeToGainTable = std::array<float, ds_max_volumes>;
+
+
 	struct UPtrDeleter
 	{
 		void operator()(
@@ -49,6 +56,8 @@ struct AudioUtils::Detail
 
 	static PanDsTable pan_ds_table;
 	static PanGainTable pan_gain_table;
+
+	static DsVolumeToGainTable ds_volume_to_gain_table;
 
 
 	static sint32 clamp_lt_volume(
@@ -211,16 +220,13 @@ struct AudioUtils::Detail
 			if (i >= lt_min_pan && i <= lt_max_pan)
 			{
 				ds_item = lt_pan_to_ds_pan(i);
-
-				auto wtf = false;
-
-				if (ds_item == 0)
-				{
-					wtf = true;
-				}
-
 				gain_item = lt_pan_to_gain(i);
 			}
+		}
+
+		for (auto i = 0; i < ds_max_volumes; ++i)
+		{
+			ds_volume_to_gain_table[i] = static_cast<float>(std::pow(10.0, static_cast<double>(-i) / 2'000.0));
 		}
 	}
 
@@ -243,6 +249,8 @@ AudioUtils::Detail::VolumeGainTable AudioUtils::Detail::volume_gain_table;
 
 AudioUtils::Detail::PanDsTable AudioUtils::Detail::pan_ds_table;
 AudioUtils::Detail::PanGainTable AudioUtils::Detail::pan_gain_table;
+
+AudioUtils::Detail::DsVolumeToGainTable AudioUtils::Detail::ds_volume_to_gain_table;
 
 
 sint32 AudioUtils::clamp_lt_volume(
@@ -291,6 +299,12 @@ float AudioUtils::lt_pan_to_gain(
 	const sint32 lt_pan)
 {
 	return Detail::pan_gain_table[Detail::clamp_lt_pan(lt_pan)];
+}
+
+float AudioUtils::ds_volume_to_gain(
+	const long ds_volume)
+{
+	return Detail::ds_volume_to_gain_table[-Detail::clamp_ds_volume(ds_volume)];
 }
 
 void* AudioUtils::allocate(
