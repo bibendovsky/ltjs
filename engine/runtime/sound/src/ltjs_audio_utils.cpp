@@ -307,6 +307,13 @@ float AudioUtils::ds_volume_to_gain(
 	return Detail::ds_volume_to_gain_table[-Detail::clamp_ds_volume(ds_volume)];
 }
 
+float AudioUtils::mb_f_to_gain(
+	const float mb_value)
+{
+	const auto clamped_mb_value = ul::Algorithm::clamp(mb_value, -10'000.0F, 10'000.0F);
+	return std::pow(10.0F, clamped_mb_value / 2'000.0F);
+}
+
 float AudioUtils::mb_to_gain(
 	const int mb_value)
 {

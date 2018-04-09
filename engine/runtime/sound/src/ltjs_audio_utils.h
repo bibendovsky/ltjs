@@ -162,6 +162,18 @@ struct AudioUtils
 	// Returns:
 	//    A gain [0.000'01..100'000].
 	//
+	static float mb_f_to_gain(
+		const float mb_value);
+
+	//
+	// Converts a value in millibel to a gain.
+	//
+	// Parameters:
+	//    - mb_value - a value in millibel.
+	//
+	// Returns:
+	//    A gain [0.000'01..100'000].
+	//
 	static float mb_to_gain(
 		const int mb_value);
 
