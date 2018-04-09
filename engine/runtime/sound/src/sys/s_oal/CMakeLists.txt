@@ -9,11 +9,11 @@ option(LTJS_INSTALL_SND_DRV_OAL "Install OpenAL sound driver." ON)
 include(ltjs_common)
 
 include_directories(
-	${OPENAL_INCLUDE_DIR}
 	${LTJS_FFMPEG_INCLUDE_DIR}
 	../..
 	../../../../../../libs/bibendovsky_spul_lib/include
 	../../../../../../libs/lith
+	../../../../../../libs/openal_soft/include/AL
 	../../../../../sdk/inc
 	../../../../kernel/src
 )
