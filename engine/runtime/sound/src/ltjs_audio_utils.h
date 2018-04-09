@@ -153,6 +153,30 @@ struct AudioUtils
 	static float ds_volume_to_gain(
 		const long ds_volume);
 
+	//
+	// Converts a value in millibel to a gain.
+	//
+	// Parameters:
+	//    - mb_value - a value in millibel.
+	//
+	// Returns:
+	//    A gain [0.000'01..100'000].
+	//
+	static float mb_to_gain(
+		const int mb_value);
+
+	//
+	// Converts a gain to a value in millibel.
+	//
+	// Parameters:
+	//    - gain - a gain.
+	//
+	// Returns:
+	//    A value in millibel [-10'000..10'000].
+	//
+	static int gain_to_mb(
+		const float gain);
+
 
 	//
 	// Allocates a block of memory.
