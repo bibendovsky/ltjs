@@ -18,20 +18,20 @@ struct AudioUtils::Detail
 	static constexpr auto max_volume_values = static_cast<int>(lt_max_volume + 1);
 
 	// LT volume -> DirectSound volume
-	using VolumeDsTable = std::array<int, max_volume_values>;
+	using LtVolumeToDsVolumeTable = std::array<int, max_volume_values>;
 
 	// LT volume -> gain
-	using VolumeGainTable = std::array<float, max_volume_values>;
+	using LtVolumeToGainTable = std::array<float, max_volume_values>;
 
 
 	static constexpr auto max_pan_values = static_cast<int>(lt_max_pan + 1);
 
 
 	// LT pan -> DirectSound pan
-	using PanDsTable = std::array<int, max_pan_values>;
+	using LtPanDsPanTable = std::array<int, max_pan_values>;
 
 	// LT pan -> gain
-	using PanGainTable = std::array<float, max_pan_values>;
+	using LtPanToGainTable = std::array<float, max_pan_values>;
 
 
 	static constexpr auto ds_max_volumes = ds_max_volume - ds_min_volume + 1;
@@ -51,11 +51,11 @@ struct AudioUtils::Detail
 	}; // UPtrDeleter
 
 
-	static VolumeDsTable volume_ds_table;
-	static VolumeGainTable volume_gain_table;
+	static LtVolumeToDsVolumeTable lt_volume_to_ds_volume_table;
+	static LtVolumeToGainTable lt_volume_to_gain_table;
 
-	static PanDsTable pan_ds_table;
-	static PanGainTable pan_gain_table;
+	static LtPanDsPanTable lt_pan_to_ds_pan_table;
+	static LtPanToGainTable lt_pan_to_gain_table;
 
 	static DsVolumeToGainTable ds_volume_to_gain_table;
 
@@ -196,8 +196,8 @@ struct AudioUtils::Detail
 	{
 		for (auto i = 0; i < max_volume_values; ++i)
 		{
-			auto& ds_item = volume_ds_table[i];
-			auto& gain_item = volume_gain_table[i];
+			auto& ds_item = lt_volume_to_ds_volume_table[i];
+			auto& gain_item = lt_volume_to_gain_table[i];
 
 			ds_item = {};
 			gain_item = {};
@@ -211,8 +211,8 @@ struct AudioUtils::Detail
 
 		for (auto i = 0; i < max_pan_values; ++i)
 		{
-			auto& ds_item = pan_ds_table[i];
-			auto& gain_item = pan_gain_table[i];
+			auto& ds_item = lt_pan_to_ds_pan_table[i];
+			auto& gain_item = lt_pan_to_gain_table[i];
 
 			ds_item = {};
 			gain_item = {};
@@ -244,11 +244,11 @@ struct AudioUtils::Detail
 }; // AudioUtils::Detail
 
 
-AudioUtils::Detail::VolumeDsTable AudioUtils::Detail::volume_ds_table;
-AudioUtils::Detail::VolumeGainTable AudioUtils::Detail::volume_gain_table;
+AudioUtils::Detail::LtVolumeToDsVolumeTable AudioUtils::Detail::lt_volume_to_ds_volume_table;
+AudioUtils::Detail::LtVolumeToGainTable AudioUtils::Detail::lt_volume_to_gain_table;
 
-AudioUtils::Detail::PanDsTable AudioUtils::Detail::pan_ds_table;
-AudioUtils::Detail::PanGainTable AudioUtils::Detail::pan_gain_table;
+AudioUtils::Detail::LtPanDsPanTable AudioUtils::Detail::lt_pan_to_ds_pan_table;
+AudioUtils::Detail::LtPanToGainTable AudioUtils::Detail::lt_pan_to_gain_table;
 
 AudioUtils::Detail::DsVolumeToGainTable AudioUtils::Detail::ds_volume_to_gain_table;
 
@@ -268,13 +268,13 @@ int AudioUtils::clamp_ds_volume(
 int AudioUtils::lt_volume_to_ds_volume(
 	const sint32 lt_volume)
 {
-	return Detail::volume_ds_table[Detail::clamp_lt_volume(lt_volume)];
+	return Detail::lt_volume_to_ds_volume_table[Detail::clamp_lt_volume(lt_volume)];
 }
 
 float AudioUtils::lt_volume_to_gain(
 	const sint32 lt_volume)
 {
-	return Detail::volume_gain_table[Detail::clamp_lt_volume(lt_volume)];
+	return Detail::lt_volume_to_gain_table[Detail::clamp_lt_volume(lt_volume)];
 }
 
 sint32 AudioUtils::clamp_lt_pan(
@@ -292,13 +292,13 @@ int AudioUtils::clamp_ds_pan(
 int AudioUtils::lt_pan_to_ds_pan(
 	const sint32 lt_pan)
 {
-	return Detail::pan_ds_table[Detail::clamp_lt_pan(lt_pan)];
+	return Detail::lt_pan_to_ds_pan_table[Detail::clamp_lt_pan(lt_pan)];
 }
 
 float AudioUtils::lt_pan_to_gain(
 	const sint32 lt_pan)
 {
-	return Detail::pan_gain_table[Detail::clamp_lt_pan(lt_pan)];
+	return Detail::lt_pan_to_gain_table[Detail::clamp_lt_pan(lt_pan)];
 }
 
 float AudioUtils::ds_volume_to_gain(
