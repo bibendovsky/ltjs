@@ -136,6 +136,7 @@ sint32 NulSoundSys::DigitalHandleReacquire(
 	return {};
 }
 
+#ifdef USE_EAX20_HARDWARE_FILTERS
 bool NulSoundSys::SetEAX20Filter(
 	const bool is_enable,
 	const LTSOUNDFILTERDATA& filter_data)
@@ -160,6 +161,7 @@ bool NulSoundSys::SetEAX20BufferSettings(
 
 	return {};
 }
+#endif // USE_EAX20_HARDWARE_FILTERS
 
 void NulSoundSys::Set3DProviderMinBuffers(
 	const uint32 min_buffers)
