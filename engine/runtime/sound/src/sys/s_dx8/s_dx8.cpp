@@ -1772,7 +1772,6 @@ CDx8SoundSys::~CDx8SoundSys( )
 
 void CDx8SoundSys::Reset( )
 {
-	m_bCOMInitialized = false;
 	m_bLocked = false;
 	m_pDirectSound = NULL;
 
@@ -1984,19 +1983,11 @@ bool CDx8SoundSys::Init( )
 	ltjs::AudioDecoder::initialize_current_thread();
 	ltjs::AudioUtils::initialize();
 
-	m_hResult = ::CoInitialize( NULL );
-	if( m_hResult != S_OK && m_hResult != S_FALSE )
-		return false;
-
-	if( m_hResult == S_OK )
-		m_bCOMInitialized = true;
-
 	// Initialize our loop list.
 	dl_TieOff( &CSample::m_lstSampleLoopHead );
 
 	// create the direct sound object
-	m_hResult = ::CoCreateInstance( CLSID_DirectSound8, NULL, CLSCTX_INPROC_SERVER, IID_IDirectSound8,
-		( void** )&m_pDirectSound );
+	m_hResult = ::DirectSoundCreate8(nullptr, &m_pDirectSound, nullptr);
 	m_pcLastError = LastError( );
 	DS_CHECK
 
@@ -2074,14 +2065,11 @@ void CDx8SoundSys::Term( )
 	LOG_CLOSE;
 
 
-//	if( m_pDirectSound != NULL )
-//	{
-//		m_pDirectSound->Release( );
-//		m_pDirectSound = NULL;
-//	}
-
-	if( m_bCOMInitialized )
-		::CoUninitialize( );
+	if (m_pDirectSound)
+	{
+		m_pDirectSound->Release();
+		m_pDirectSound = nullptr;
+	}
 
 	Reset( );
 

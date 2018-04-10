@@ -422,7 +422,6 @@ public:
 	static const char*	m_pcDx8SoundSysDesc;
 
 public:
-	bool				m_bCOMInitialized;
 	bool				m_bLocked;
 	LPDIRECTSOUND8		m_pDirectSound;
 	LPDIRECTSOUNDBUFFER m_pDSPrimaryBuffer;

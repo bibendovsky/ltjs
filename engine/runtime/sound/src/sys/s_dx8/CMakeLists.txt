@@ -70,6 +70,7 @@ if (MSVC)
 
 	set(
 		libs
+		${path_to_dx_libs}/dsound.lib
 		${path_to_dx_libs}/dxguid.lib
 		${ffmpeg_libs}
 		winmm
@@ -80,6 +81,7 @@ if (MINGW)
 	set(
 		libs
 		${ffmpeg_libs}
+		dsound
 		dxguid
 		winmm
 		iconv
