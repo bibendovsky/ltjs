@@ -2740,6 +2740,7 @@ LH3DSAMPLE CDx8SoundSys::Allocate3DSampleHandle( LHPROVIDER hLib )
 	}
 
 	pSample->lt_volume_ = ltjs::AudioUtils::lt_max_volume;
+	pSample->lt_pan_ = ltjs::AudioUtils::lt_pan_center;
 
 	return p3DSample;
 }
@@ -3150,6 +3151,7 @@ LHSAMPLE CDx8SoundSys::AllocateSampleHandle( LHDIGDRIVER hDig )
 	SetSampleNotify( pSample, true );
 
 	pSample->lt_volume_ = ltjs::AudioUtils::lt_max_volume;
+	pSample->lt_pan_ = ltjs::AudioUtils::lt_pan_center;
 
 	return pSample;
 }
@@ -3291,101 +3293,39 @@ S32	CDx8SoundSys::GetSampleVolume(LHSAMPLE hS)
 	return sample.lt_volume_;
 }
 
-#define MIN_MASTER_PAN	1		// LEFT
-#define MAX_MASTER_PAN	127		// RIGHT
-#define DEL_MASTER_PAN	(float) ( MAX_MASTER_PAN - MIN_MASTER_PAN )
-#define CENTER_PAN		(float) ((MAX_MASTER_PAN - MIN_MASTER_PAN)/2 + MIN_MASTER_PAN)
-#define DEL_SIDE_PAN	(float) (MAX_MASTER_PAN - CENTER_PAN)
-
-#define DSBPAN_MIN		(float) DSBPAN_LEFT
-#define DSBPAN_MAX		(float) DSBPAN_RIGHT
-#define DSBPAN_DEL		(float) ( DSBPAN_RIGHT - DSBPAN_LEFT )
-#define DEL_DSBPAN_SIDE	(float) ( DSBPAN_RIGHT - DSBPAN_CENTER )
-
-// raise this value decrease drop off of pan level
-#define ATTENUATION_FACTOR	6.0f
-#define LOG_PAN_ATTENUATION	(float)	( ATTENUATION_FACTOR * sqrt( CENTER_PAN ))
-#define LOG_PAN_INVATTENUATION	(float) ( 1.0f / LOG_PAN_ATTENUATION )
-
-// raise this to drop max pan rolloff for a channel
-#define MAX_ROLLOFF_DIVIDER	3.0f
-
-// helper functions, since DX8 wants logarithmic
-// pan values, while the game keeps linear ones
-long ConvertLinPanToLogPan( long linPan )
+void CDx8SoundSys::SetSamplePan(LHSAMPLE hS, S32 siPan)
 {
-	long logPan;
+	//LOG_WRITE( g_pLogFile, "SetSamplePan( %x, %d )\n", hS, siPan );
 
-	float fDistFromCenter = fabsf( (float)linPan - CENTER_PAN );
-
-	// avoid divide by 0
-	if ( fDistFromCenter == 0 )
-		return DSBPAN_CENTER;
-
-	float t = ( 1.0f - ( MIN_MASTER_PAN / fDistFromCenter ) ) * ( CENTER_PAN / DEL_SIDE_PAN );
-	t = ( float )pow( t, LOG_PAN_ATTENUATION );
-
-	// this essentially clamps the maximum rolloff
-	// DX allows 100dB max.  This allows only 33 dB
-	logPan = ( long )( t * DEL_DSBPAN_SIDE / MAX_ROLLOFF_DIVIDER );
-
-	if ( linPan < CENTER_PAN )
-		logPan = -logPan;
-
-	return logPan;
-}
-
-S32 ConvertLogPanToLinPan( long logPan )
-{
-	long linPan;
-
-	long lTempPan = abs( logPan );
-	float t = (float) lTempPan * MAX_ROLLOFF_DIVIDER / DEL_DSBPAN_SIDE;
-	t = ( float )pow( t, LOG_PAN_INVATTENUATION );
-
-	float fDistFromCenter = (CENTER_PAN * MIN_MASTER_PAN) / (CENTER_PAN - (t * DEL_SIDE_PAN));
-
-	if ( logPan < 0 )
-		linPan = (long) (CENTER_PAN - fDistFromCenter);
-	else
-		linPan = (long) (CENTER_PAN + fDistFromCenter);
-
-	return linPan;
-}
-
-void CDx8SoundSys::SetSamplePan( LHSAMPLE hS, S32 siPan )
-{
-//	LOG_WRITE( g_pLogFile, "SetSamplePan( %x, %d )\n", hS, siPan );
-
-	if( hS == NULL )
+	if (!hS)
+	{
 		return;
+	}
 
-	CSample* pSample = ( CSample* )hS;
-	pSample->Restore( );
+	auto& sample = *static_cast<CSample*>(hS);
 
-	long lDSPan = ConvertLinPanToLogPan( siPan );
+	const auto lt_pan = ltjs::AudioUtils::clamp_lt_pan(siPan);
+	const auto ds_pan = ltjs::AudioUtils::lt_pan_to_ds_pan(siPan);
 
-	m_hResult = pSample->m_pDSBuffer->SetPan( lDSPan );
-	m_pcLastError = LastError( );
+	sample.lt_pan_ = lt_pan;
+	sample.Restore();
+
+	m_hResult = sample.m_pDSBuffer->SetPan(ds_pan);
+	m_pcLastError = LastError();
 }
 
-S32	CDx8SoundSys::GetSamplePan( LHSAMPLE hS )
+S32	CDx8SoundSys::GetSamplePan(LHSAMPLE hS)
 {
-//	LOG_WRITE( g_pLogFile, "GetSamplePan( %x )\n", hS );
+	//	LOG_WRITE( g_pLogFile, "GetSamplePan( %x )\n", hS );
 
-	if( hS == NULL )
+	if (!hS)
+	{
 		return 0;
+	}
 
-	CSample* pSample = ( CSample* )hS;
-	pSample->Restore( );
+	auto& sample = *static_cast<CSample*>(hS);
 
-	long lDSPan = 0;
-	m_hResult = pSample->m_pDSBuffer->GetPan( &lDSPan );
-	m_pcLastError = LastError( );
-
-	S32 siPan = ConvertLogPanToLinPan( lDSPan );
-
-	return siPan;
+	return sample.lt_pan_;
 }
 
 void CDx8SoundSys::SetSampleUserData( LHSAMPLE hS, U32 uiIndex, S32 siValue )
@@ -3768,6 +3708,7 @@ LHSTREAM CDx8SoundSys::OpenStream( streamBufferParams_t* pStreamBufferParams, Wa
 	pStream->m_dwPlayFlags |= DSBPLAY_LOOPING;
 
 	pStream->lt_volume_ = ltjs::AudioUtils::lt_max_volume;
+	pStream->lt_pan_ = ltjs::AudioUtils::lt_pan_center;
 
 	if( m_hResult != DS_OK )
 	{
@@ -3878,19 +3819,22 @@ void CDx8SoundSys::SetStreamVolume(LHSTREAM hStream, sint32 siVolume)
 	m_pcLastError = LastError();
 }
 
-void CDx8SoundSys::SetStreamPan( LHSTREAM hStream, sint32 siPan )
+void CDx8SoundSys::SetStreamPan(LHSTREAM hStream, sint32 siPan)
 {
 	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::SetStreamPan]\n");
 
-	CStream* pStream = ( CStream* )hStream;
-	pStream->Restore( );
+	auto& stream = *static_cast<CStream*>(hStream);
 
-	long lDSPan = ConvertLinPanToLogPan( siPan );
+	const auto lt_pan = ltjs::AudioUtils::clamp_lt_pan(siPan);
+	const auto ds_pan = ltjs::AudioUtils::lt_pan_to_ds_pan(siPan);
 
-	m_hResult = pStream->m_pDSBuffer->SetPan( lDSPan );
-	m_pcLastError = LastError( );
+	stream.lt_pan_ = lt_pan;
+	stream.Restore();
+
+	m_hResult = stream.m_pDSBuffer->SetPan(ds_pan);
+	m_pcLastError = LastError();
 }
 
 sint32 CDx8SoundSys::GetStreamVolume(LHSTREAM hStream)
@@ -3904,22 +3848,15 @@ sint32 CDx8SoundSys::GetStreamVolume(LHSTREAM hStream)
 	return stream.lt_volume_;
 }
 
-sint32 CDx8SoundSys::GetStreamPan( LHSTREAM hStream )
+sint32 CDx8SoundSys::GetStreamPan(LHSTREAM hStream)
 {
 	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::GetStreamPan]\n");
 
-	CStream* pStream = ( CStream* )hStream;
-	pStream->Restore( );
+	auto& stream = *static_cast<CStream*>(hStream);
 
-	long lDSPan = 0;
-	m_hResult = pStream->m_pDSBuffer->GetPan( &lDSPan );
-	m_pcLastError = LastError( );
-
-	S32 siPan = ConvertLogPanToLinPan( lDSPan );
-
-	return siPan;
+	return stream.lt_pan_;
 }
 
 uint32 CDx8SoundSys::GetStreamStatus( LHSTREAM hStream )

@@ -195,6 +195,7 @@ public:
 	static 	LTLink			m_lstSampleLoopHead;
 
 	int lt_volume_;
+	int lt_pan_;
 };
 
 
