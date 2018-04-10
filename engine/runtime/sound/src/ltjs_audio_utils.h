@@ -16,8 +16,8 @@ struct AudioUtils
 	static constexpr auto lt_max_volume = sint32{127};
 	static constexpr auto lt_max_volume_delta = lt_max_volume - lt_min_volume;
 
-	static constexpr auto ds_min_volume = long{-10000};
-	static constexpr auto ds_max_volume = long{0};
+	static constexpr auto ds_min_volume = -10000;
+	static constexpr auto ds_max_volume = 0;
 	static constexpr auto ds_max_volume_delta = ds_max_volume - ds_min_volume;
 
 	static constexpr auto lt_min_pan = sint32{1};
@@ -26,9 +26,9 @@ struct AudioUtils
 	static constexpr auto lt_pan_center = lt_min_pan + (lt_max_pan_delta / 2);
 	static constexpr auto lt_max_pan_side_delta = lt_max_pan - lt_pan_center;
 
-	static constexpr auto ds_min_pan = -10000L;
-	static constexpr auto ds_max_pan = 10000L;
-	static constexpr auto ds_pan_center = 0L;
+	static constexpr auto ds_min_pan = -10000;
+	static constexpr auto ds_max_pan = 10000;
+	static constexpr auto ds_pan_center = 0;
 	static constexpr auto ds_max_pan_side_delta = ds_max_pan - ds_pan_center;
 
 	static constexpr auto gain_min = 0.0F;
