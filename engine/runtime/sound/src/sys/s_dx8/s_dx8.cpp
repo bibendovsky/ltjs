@@ -3,13 +3,10 @@
 #include <chrono>
 #include <functional>
 #include <memory>
-#include "bibendovsky_spul_endian.h"
 #include "bibendovsky_spul_memory_stream.h"
-#include "bibendovsky_spul_riff_four_ccs.h"
 #include "bibendovsky_spul_scope_guard.h"
-#include "bibendovsky_spul_wave_format_utils.h"
-#include "bibendovsky_spul_wave_four_ccs.h"
 #include "eax.h"
+#include "ltjs_audio_utils.h"
 
 
 //	===========================================================================
@@ -180,7 +177,7 @@ bool WaveFile::Open(
 		return false;
 	}
 
-	const auto wave_size = extract_wave_size(riff_buffer.data());
+	const auto wave_size = ltjs::AudioUtils::extract_wave_size(riff_buffer.data());
 
 	if (wave_size == 0)
 	{
@@ -435,46 +432,6 @@ LHSTREAM WaveFile::GetStream() const
 const ul::WaveFormatEx& WaveFile::get_format() const
 {
 	return wave_format_ex_;
-}
-
-int WaveFile::extract_wave_size(
-	const void* raw_data)
-{
-	if (!raw_data)
-	{
-		return 0;
-	}
-
-	auto header = static_cast<const std::uint32_t*>(raw_data);
-
-	const auto riff_id = ul::Endian::little(header[0]);
-
-	if (riff_id != ul::RiffFourCcs::riff)
-	{
-		return 0;
-	}
-
-	const auto riff_size = ul::Endian::little(header[1]);
-
-	constexpr auto min_riff_size =
-		4 + // "WAVE"
-		4 + 4 + ul::PcmWaveFormat::packed_size + // "fmt " + size + pcm_wave_format
-		4 + 4 + 1 + // "data" + size + min_data_size
-		0;
-
-	if (riff_size < min_riff_size)
-	{
-		return 0;
-	}
-
-	const auto wave_id = ul::Endian::little(header[2]);
-
-	if (wave_id != ul::WaveFourCcs::wave)
-	{
-		return 0;
-	}
-
-	return riff_size + 8;
 }
 
 
@@ -2936,7 +2893,7 @@ S32	CDx8SoundSys::Init3DSampleFromFile(
 		return false;
 	}
 
-	const auto wave_size = WaveFile::extract_wave_size(pFile_image);
+	const auto wave_size = ltjs::AudioUtils::extract_wave_size(pFile_image);
 
 	if (wave_size == 0)
 	{
@@ -3551,7 +3508,7 @@ S32	CDx8SoundSys::InitSampleFromFile(
 		return false;
 	}
 
-	const auto wave_size = WaveFile::extract_wave_size(pFile_image);
+	const auto wave_size = ltjs::AudioUtils::extract_wave_size(pFile_image);
 
 	if (wave_size == 0)
 	{

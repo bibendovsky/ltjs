@@ -21,6 +21,7 @@ include_directories(
 set(
 	headers
 	../../ltjs_audio_decoder.h
+	../../ltjs_audio_utils.h
 	eax.h
 	s_dx8.h
 )
@@ -29,6 +30,7 @@ set(
 	sources
 	../../../../kernel/src/sys/win/counter.cpp
 	../../ltjs_audio_decoder.cpp
+	../../ltjs_audio_utils.cpp
 	s_dx8.cpp
 )
 

@@ -84,9 +84,6 @@ public:
 
 	const ul::WaveFormatEx& get_format() const;
 
-	static int extract_wave_size(
-		const void* raw_data);
-
 
 protected:
 	static constexpr auto default_bit_depth = 16;
