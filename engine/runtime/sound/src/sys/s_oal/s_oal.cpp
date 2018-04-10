@@ -736,7 +736,7 @@ struct OalSoundSys::Impl
 			AL_EAXREVERB_MAX_DECAY_HFRATIO);
 
 		const auto efx_reflections_gain = ul::Algorithm::clamp(
-			ltjs::AudioUtils::mb_to_gain(eax_reflections),
+			ltjs::AudioUtils::mb_volume_to_gain(eax_reflections),
 			AL_EAXREVERB_MIN_REFLECTIONS_GAIN,
 			AL_EAXREVERB_MAX_REFLECTIONS_GAIN);
 
@@ -746,7 +746,7 @@ struct OalSoundSys::Impl
 			AL_EAXREVERB_MAX_REFLECTIONS_DELAY);
 
 		const auto efx_late_reverb_gain = ul::Algorithm::clamp(
-			ltjs::AudioUtils::mb_to_gain(eax_reverb),
+			ltjs::AudioUtils::mb_volume_to_gain(eax_reverb),
 			AL_EAXREVERB_MIN_LATE_REVERB_GAIN,
 			AL_EAXREVERB_MAX_LATE_REVERB_GAIN);
 
@@ -762,7 +762,7 @@ struct OalSoundSys::Impl
 
 #ifdef USE_EAX20_HARDWARE_FILTERS
 		const auto efx_air_absorption_gain_hf = ul::Algorithm::clamp(
-			ltjs::AudioUtils::mb_f_to_gain(eax_air_absorbtion_hf),
+			ltjs::AudioUtils::mb_volume_to_gain(static_cast<int>(eax_air_absorbtion_hf)),
 			AL_EAXREVERB_MIN_AIR_ABSORPTION_GAINHF,
 			AL_EAXREVERB_MAX_AIR_ABSORPTION_GAINHF);
 #endif // USE_EAX20_HARDWARE_FILTERS
