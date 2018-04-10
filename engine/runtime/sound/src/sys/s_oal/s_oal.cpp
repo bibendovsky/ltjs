@@ -17,6 +17,7 @@
 #include <utility>
 #include <vector>
 #include "efx.h"
+#include "efx-presets.h"
 #include "bibendovsky_spul_algorithm.h"
 #include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_substream.h"
@@ -619,6 +620,229 @@ struct OalSoundSys::Impl
 		}
 	}
 
+	using EfxReverbPresets = std::array<EFXEAXREVERBPROPERTIES, ltjs::AudioUtils::eax_environment_count>;
+
+	static const EfxReverbPresets efx_reverb_presets;
+
+	static const EFXEAXREVERBPROPERTIES& get_efx_reverb_preset(
+		const int preset_index)
+	{
+		auto new_preset_index = preset_index;
+
+		if (new_preset_index < 0 || new_preset_index > ltjs::AudioUtils::eax_max_environment)
+		{
+			new_preset_index = ltjs::AudioUtils::eax_default_environment;
+		}
+
+		return efx_reverb_presets[new_preset_index];
+	}
+
+	static void lt_reverb_to_efx_reverb(
+		const LTFILTERREVERB& lt_reverb,
+		EFXEAXREVERBPROPERTIES& efx_reverb)
+	{
+		// Normalize EAX parameters.
+		//
+#ifdef USE_EAX20_HARDWARE_FILTERS
+		const auto eax_environment = ul::Algorithm::clamp(
+			lt_reverb.lEnvironment,
+			ltjs::AudioUtils::eax_min_environment,
+			ltjs::AudioUtils::eax_max_environment);
+#endif // USE_EAX20_HARDWARE_FILTERS
+
+		const auto eax_environment_diffusion = ul::Algorithm::clamp(
+			lt_reverb.fDiffusion,
+			ltjs::AudioUtils::eax_min_environment_diffusion,
+			ltjs::AudioUtils::eax_max_environment_diffusion);
+
+		const auto eax_room = ul::Algorithm::clamp(
+			lt_reverb.lRoom,
+			ltjs::AudioUtils::eax_min_room,
+			ltjs::AudioUtils::eax_max_room);
+
+		const auto eax_room_hf = ul::Algorithm::clamp(
+			lt_reverb.lRoomHF,
+			ltjs::AudioUtils::eax_min_room_hf,
+			ltjs::AudioUtils::eax_max_room_hf);
+
+		const auto eax_decay_time = ul::Algorithm::clamp(
+			lt_reverb.fDecayTime,
+			ltjs::AudioUtils::eax_min_decay_time,
+			ltjs::AudioUtils::eax_max_decay_time);
+
+		const auto eax_decay_hf_ratio = ul::Algorithm::clamp(
+			lt_reverb.fDecayHFRatio,
+			ltjs::AudioUtils::eax_min_decay_hf_ratio,
+			ltjs::AudioUtils::eax_max_decay_hf_ratio);
+
+		const auto eax_reflections = ul::Algorithm::clamp(
+			lt_reverb.lReflections,
+			ltjs::AudioUtils::eax_min_reflections,
+			ltjs::AudioUtils::eax_max_reflections);
+
+		const auto eax_reflections_delay = ul::Algorithm::clamp(
+			lt_reverb.fReflectionsDelay,
+			ltjs::AudioUtils::eax_min_reflections_delay,
+			ltjs::AudioUtils::eax_max_reflections_delay);
+
+		const auto eax_reverb = ul::Algorithm::clamp(
+			lt_reverb.lReverb,
+			ltjs::AudioUtils::eax_min_reverb,
+			ltjs::AudioUtils::eax_max_reverb);
+
+		const auto eax_reverb_delay = ul::Algorithm::clamp(
+			lt_reverb.fReverbDelay,
+			ltjs::AudioUtils::eax_min_reverb_delay,
+			ltjs::AudioUtils::eax_max_reverb_delay);
+
+		const auto eax_room_rolloff_factor = ul::Algorithm::clamp(
+			lt_reverb.fRoomRolloffFactor,
+			ltjs::AudioUtils::eax_min_room_rolloff_factor,
+			ltjs::AudioUtils::eax_max_room_rolloff_factor);
+
+#ifdef USE_EAX20_HARDWARE_FILTERS
+		const auto eax_air_absorbtion_hf = ul::Algorithm::clamp(
+			lt_reverb.fAirAbsorptionHF,
+			ltjs::AudioUtils::eax_min_air_absorption_hf,
+			ltjs::AudioUtils::eax_max_air_absorption_hf);
+#endif // USE_EAX20_HARDWARE_FILTERS
+
+
+		// Normalize EFX parameters.
+		//
+		const auto efx_diffusion = ul::Algorithm::clamp(
+			eax_environment_diffusion,
+			AL_EAXREVERB_MIN_DIFFUSION,
+			AL_EAXREVERB_MAX_DIFFUSION);
+
+		const auto efx_gain = ul::Algorithm::clamp(
+			ltjs::AudioUtils::ds_volume_to_gain(eax_room),
+			AL_EAXREVERB_MIN_GAIN,
+			AL_EAXREVERB_MAX_GAIN);
+
+		const auto efx_gain_hf = ul::Algorithm::clamp(
+			ltjs::AudioUtils::ds_volume_to_gain(eax_room_hf),
+			AL_EAXREVERB_MIN_GAINHF,
+			AL_EAXREVERB_MAX_GAINHF);
+
+		const auto efx_decay_time = ul::Algorithm::clamp(
+			eax_decay_time,
+			AL_EAXREVERB_MIN_DECAY_TIME,
+			AL_EAXREVERB_MAX_DECAY_TIME);
+
+		const auto efx_decay_hf_ratio = ul::Algorithm::clamp(
+			eax_decay_hf_ratio,
+			AL_EAXREVERB_MIN_DECAY_HFRATIO,
+			AL_EAXREVERB_MAX_DECAY_HFRATIO);
+
+		const auto efx_reflections_gain = ul::Algorithm::clamp(
+			ltjs::AudioUtils::mb_to_gain(eax_reflections),
+			AL_EAXREVERB_MIN_REFLECTIONS_GAIN,
+			AL_EAXREVERB_MAX_REFLECTIONS_GAIN);
+
+		const auto efx_reflections_delay = ul::Algorithm::clamp(
+			eax_reflections_delay,
+			AL_EAXREVERB_MIN_REFLECTIONS_DELAY,
+			AL_EAXREVERB_MAX_REFLECTIONS_DELAY);
+
+		const auto efx_late_reverb_gain = ul::Algorithm::clamp(
+			ltjs::AudioUtils::mb_to_gain(eax_reverb),
+			AL_EAXREVERB_MIN_LATE_REVERB_GAIN,
+			AL_EAXREVERB_MAX_LATE_REVERB_GAIN);
+
+		const auto efx_late_reverb_delay = ul::Algorithm::clamp(
+			eax_reverb_delay,
+			AL_EAXREVERB_MIN_LATE_REVERB_DELAY,
+			AL_EAXREVERB_MAX_LATE_REVERB_DELAY);
+
+		const auto efx_room_rolloff_factor = ul::Algorithm::clamp(
+			eax_room_rolloff_factor,
+			AL_EAXREVERB_MIN_ROOM_ROLLOFF_FACTOR,
+			AL_EAXREVERB_MAX_ROOM_ROLLOFF_FACTOR);
+
+#ifdef USE_EAX20_HARDWARE_FILTERS
+		const auto efx_air_absorption_gain_hf = ul::Algorithm::clamp(
+			ltjs::AudioUtils::mb_f_to_gain(eax_air_absorbtion_hf),
+			AL_EAXREVERB_MIN_AIR_ABSORPTION_GAINHF,
+			AL_EAXREVERB_MAX_AIR_ABSORPTION_GAINHF);
+#endif // USE_EAX20_HARDWARE_FILTERS
+
+
+		// Set all properties according to the environmetn value.
+		//
+#ifdef USE_EAX20_HARDWARE_FILTERS
+		efx_reverb = get_efx_reverb_preset(eax_environment);
+#else
+		efx_reverb = get_efx_reverb_preset(ltjs::AudioUtils::eax_default_environment);
+#endif // USE_EAX20_HARDWARE_FILTERS
+
+
+		// Set specific properties.
+		//
+		efx_reverb.flDiffusion = efx_diffusion;
+		efx_reverb.flGain = efx_gain;
+		efx_reverb.flGainHF = efx_gain_hf;
+		efx_reverb.flDecayTime = efx_decay_time;
+		efx_reverb.flDecayHFRatio = efx_decay_hf_ratio;
+		efx_reverb.flReflectionsGain = efx_reflections_gain;
+		efx_reverb.flReflectionsDelay = efx_reflections_delay;
+		efx_reverb.flLateReverbGain = efx_late_reverb_gain;
+		efx_reverb.flLateReverbDelay = efx_late_reverb_delay;
+		efx_reverb.flRoomRolloffFactor = efx_room_rolloff_factor;
+
+#ifdef USE_EAX20_HARDWARE_FILTERS
+		efx_reverb.flAirAbsorptionGainHF = efx_air_absorption_gain_hf;
+#endif // USE_EAX20_HARDWARE_FILTERS
+	}
+
+	void set_efx_eax_reverb_properties(
+		const ALuint oal_effect,
+		const EFXEAXREVERBPROPERTIES& efx_reverb)
+	{
+		alEffectf_(oal_effect, AL_EAXREVERB_DENSITY, efx_reverb.flDensity);
+		alEffectf_(oal_effect, AL_EAXREVERB_DIFFUSION, efx_reverb.flDiffusion);
+		alEffectf_(oal_effect, AL_EAXREVERB_GAIN, efx_reverb.flGain);
+		alEffectf_(oal_effect, AL_EAXREVERB_GAINHF, efx_reverb.flGainHF);
+		alEffectf_(oal_effect, AL_EAXREVERB_GAINLF, efx_reverb.flGainLF);
+		alEffectf_(oal_effect, AL_EAXREVERB_DECAY_TIME, efx_reverb.flDecayTime);
+		alEffectf_(oal_effect, AL_EAXREVERB_DECAY_HFRATIO, efx_reverb.flDecayHFRatio);
+		alEffectf_(oal_effect, AL_EAXREVERB_DECAY_LFRATIO, efx_reverb.flDecayLFRatio);
+		alEffectf_(oal_effect, AL_EAXREVERB_REFLECTIONS_GAIN, efx_reverb.flReflectionsGain);
+		alEffectf_(oal_effect, AL_EAXREVERB_REFLECTIONS_DELAY, efx_reverb.flReflectionsDelay);
+		alEffectfv_(oal_effect, AL_EAXREVERB_REFLECTIONS_PAN, efx_reverb.flReflectionsPan);
+		alEffectf_(oal_effect, AL_EAXREVERB_LATE_REVERB_GAIN, efx_reverb.flLateReverbGain);
+		alEffectf_(oal_effect, AL_EAXREVERB_LATE_REVERB_DELAY, efx_reverb.flLateReverbDelay);
+		alEffectfv_(oal_effect, AL_EAXREVERB_LATE_REVERB_PAN, efx_reverb.flLateReverbPan);
+		alEffectf_(oal_effect, AL_EAXREVERB_ECHO_TIME, efx_reverb.flEchoTime);
+		alEffectf_(oal_effect, AL_EAXREVERB_ECHO_DEPTH, efx_reverb.flEchoDepth);
+		alEffectf_(oal_effect, AL_EAXREVERB_MODULATION_TIME, efx_reverb.flModulationTime);
+		alEffectf_(oal_effect, AL_EAXREVERB_MODULATION_DEPTH, efx_reverb.flModulationDepth);
+		alEffectf_(oal_effect, AL_EAXREVERB_HFREFERENCE, efx_reverb.flHFReference);
+		alEffectf_(oal_effect, AL_EAXREVERB_LFREFERENCE, efx_reverb.flLFReference);
+		alEffectf_(oal_effect, AL_EAXREVERB_ROOM_ROLLOFF_FACTOR, efx_reverb.flRoomRolloffFactor);
+		alEffectf_(oal_effect, AL_EAXREVERB_AIR_ABSORPTION_GAINHF, efx_reverb.flAirAbsorptionGainHF);
+		alEffecti_(oal_effect, AL_EAXREVERB_DECAY_HFLIMIT, efx_reverb.iDecayHFLimit);
+	}
+
+	void set_efx_reverb_properties(
+		const ALuint oal_effect,
+		const EFXEAXREVERBPROPERTIES& efx_reverb)
+	{
+		alEffectf_(oal_effect, AL_REVERB_DENSITY, efx_reverb.flDensity);
+		alEffectf_(oal_effect, AL_REVERB_DIFFUSION, efx_reverb.flDiffusion);
+		alEffectf_(oal_effect, AL_REVERB_GAIN, efx_reverb.flGain);
+		alEffectf_(oal_effect, AL_REVERB_GAINHF, efx_reverb.flGainHF);
+		alEffectf_(oal_effect, AL_REVERB_DECAY_TIME, efx_reverb.flDecayTime);
+		alEffectf_(oal_effect, AL_REVERB_DECAY_HFRATIO, efx_reverb.flDecayHFRatio);
+		alEffectf_(oal_effect, AL_REVERB_REFLECTIONS_GAIN, efx_reverb.flReflectionsGain);
+		alEffectf_(oal_effect, AL_REVERB_REFLECTIONS_DELAY, efx_reverb.flReflectionsDelay);
+		alEffectf_(oal_effect, AL_REVERB_LATE_REVERB_GAIN, efx_reverb.flLateReverbGain);
+		alEffectf_(oal_effect, AL_REVERB_LATE_REVERB_DELAY, efx_reverb.flLateReverbDelay);
+		alEffectf_(oal_effect, AL_REVERB_ROOM_ROLLOFF_FACTOR, efx_reverb.flRoomRolloffFactor);
+		alEffectf_(oal_effect, AL_REVERB_AIR_ABSORPTION_GAINHF, efx_reverb.flAirAbsorptionGainHF);
+		alEffecti_(oal_effect, AL_REVERB_DECAY_HFLIMIT, efx_reverb.iDecayHFLimit);
+	}
+
 	//
 	// =========================================================================
 	// Utils
@@ -1073,6 +1297,12 @@ struct OalSoundSys::Impl
 
 	bool startup()
 	{
+#ifdef USE_EAX20_HARDWARE_FILTERS
+		is_eax20_filters_defined_ = true;
+#else
+		is_eax20_filters_defined_ = false;
+#endif // USE_EAX20_HARDWARE_FILTERS
+
 		clock_base_ = Clock::now();
 		listener_3d_.is_listener_ = true;
 
@@ -1081,7 +1311,6 @@ struct OalSoundSys::Impl
 
 	void shutdown()
 	{
-		destroy_streams();
 	}
 
 	std::uint32_t get_milliseconds()
@@ -1142,6 +1371,8 @@ struct OalSoundSys::Impl
 
 		oal_examine_efx();
 
+		initialize_eax20_filter();
+
 		create_streams();
 
 		is_succeed = true;
@@ -1177,6 +1408,8 @@ struct OalSoundSys::Impl
 
 	void wave_out_close_internal()
 	{
+		uninitialize_eax20_filter();
+
 		destroy_streams();
 
 		remove_samples();
@@ -1815,6 +2048,11 @@ struct OalSoundSys::Impl
 
 			// Right channel.
 			::alSource3f(sample.oal_sources_[Sample::right_index], AL_POSITION, 1.0F, 0.0F, 0.0F);
+		}
+
+		if (oal_is_supports_eax20_filter_)
+		{
+			set_efx_effect_slot_on_sample(sample, oal_effect_slot_);
 		}
 
 		if (!oal_is_succeed())
@@ -3168,6 +3406,141 @@ struct OalSoundSys::Impl
 		set_sample_loop(sample, is_loop);
 	}
 
+	void set_efx_effect_slot_on_sample(
+		const Sample& sample,
+		const ALuint oal_effect_slot)
+	{
+		if (!oal_is_supports_eax20_filter_)
+		{
+			return;
+		}
+
+		for (auto i_source = 0; i_source < sample.oal_source_count_; ++i_source)
+		{
+			const auto oal_source = sample.oal_sources_[i_source];
+
+			::alSource3i(oal_source, AL_AUXILIARY_SEND_FILTER, oal_effect_slot, 0, AL_FILTER_NULL);
+		}
+	}
+
+	void uninitialize_eax20_filter()
+	{
+		if (oal_effect_slot_ != AL_EFFECTSLOT_NULL)
+		{
+			alAuxiliaryEffectSloti_(oal_effect_slot_, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
+
+			alDeleteAuxiliaryEffectSlots_(1, &oal_effect_slot_);
+			oal_effect_slot_ = AL_EFFECTSLOT_NULL;
+		}
+
+		if (oal_effect_ != AL_EFFECT_NULL)
+		{
+			alDeleteEffects_(1, &oal_effect_);
+			oal_effect_ = AL_EFFECT_NULL;
+		}
+
+		if (oal_null_effect_ != AL_EFFECT_NULL)
+		{
+			alDeleteEffects_(1, &oal_null_effect_);
+			oal_null_effect_ = AL_EFFECT_NULL;
+		}
+
+		oal_is_supports_eax20_filter_ = false;
+	}
+
+	void oal_update_reverb_effect()
+	{
+		if (oal_has_eax_reverb_effect_)
+		{
+			set_efx_eax_reverb_properties(oal_effect_, oal_efx_eax_reverb_properties_);
+		}
+		else
+		{
+			set_efx_reverb_properties(oal_effect_, oal_efx_eax_reverb_properties_);
+		}
+	}
+
+	void initialize_eax20_filter()
+	{
+		if (!is_eax20_filters_defined_ ||
+			!oal_has_efx_ ||
+			oal_max_aux_sends_ <= 0 ||
+			!(oal_has_reverb_effect_ || oal_has_eax_reverb_effect_))
+		{
+			return;
+		}
+
+		uninitialize_eax20_filter();
+
+		oal_clear_error();
+
+		alGenEffects_(1, &oal_effect_);
+		alGenEffects_(1, &oal_null_effect_);
+		alGenAuxiliaryEffectSlots_(1, &oal_effect_slot_);
+
+		const auto oal_effect_type = (oal_has_eax_reverb_effect_ ? AL_EFFECT_EAXREVERB : AL_EFFECT_REVERB);
+
+		alEffecti_(oal_effect_, AL_EFFECT_TYPE, oal_effect_type);
+
+		if (!oal_is_succeed())
+		{
+			uninitialize_eax20_filter();
+			return;
+		}
+
+		oal_is_supports_eax20_filter_ = true;
+		oal_is_eax20_filter_active_ = false;
+	}
+
+	bool set_eax20_filter(
+		const bool is_enable,
+		const LTSOUNDFILTERDATA& filter_data)
+	{
+		if (filter_data.uiFilterType != FilterReverb || !oal_is_supports_eax20_filter_)
+		{
+			return false;
+		}
+
+		oal_is_eax20_filter_active_ = is_enable;
+
+		const auto& lt_reverb = *reinterpret_cast<const LTFILTERREVERB*>(filter_data.pSoundFilter);
+
+		lt_reverb_to_efx_reverb(lt_reverb, oal_efx_eax_reverb_properties_);
+
+		oal_clear_error();
+
+		oal_update_reverb_effect();
+
+		const auto oal_effect = (is_enable ? oal_effect_ : oal_null_effect_);
+		alAuxiliaryEffectSloti_(oal_effect_slot_, AL_EFFECTSLOT_EFFECT, oal_effect);
+
+		if (!oal_is_succeed())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	bool supports_eax20_filter() const
+	{
+		return oal_is_supports_eax20_filter_;
+	}
+
+	bool set_eax20_buffer_settings(
+		LHSAMPLE sample_handle,
+		const LTSOUNDFILTERDATA& filter_data)
+	{
+		if (!sample_handle)
+		{
+			return false;
+		}
+
+		static_cast<void>(filter_data);
+
+		return true;
+	}
+
 	//
 	// =========================================================================
 	// API
@@ -3175,6 +3548,8 @@ struct OalSoundSys::Impl
 
 
 	String error_message_;
+	bool is_eax20_filters_defined_;
+
 	ALCdevice* oal_device_;
 	ALCcontext* oal_context_;
 
@@ -3195,6 +3570,13 @@ struct OalSoundSys::Impl
 	bool oal_has_reverb_effect_;
 	bool oal_has_eax_reverb_effect_;
 	int oal_max_aux_sends_;
+
+	bool oal_is_eax20_filter_active_;
+	bool oal_is_supports_eax20_filter_;
+	ALuint oal_effect_;
+	ALuint oal_null_effect_;
+	ALuint oal_effect_slot_;
+	EFXEAXREVERBPROPERTIES oal_efx_eax_reverb_properties_;
 
 	LPALGENEFFECTS alGenEffects_;
 	LPALDELETEEFFECTS alDeleteEffects_;
@@ -3247,6 +3629,37 @@ struct OalSoundSys::Impl
 	bool mt_is_stop_stream_worker_;
 	bool mt_stream_cv_flag_;
 }; // OalSoundSys::Impl
+
+
+const OalSoundSys::Impl::EfxReverbPresets OalSoundSys::Impl::efx_reverb_presets =
+{{
+	EFX_REVERB_PRESET_GENERIC,
+	EFX_REVERB_PRESET_PADDEDCELL,
+	EFX_REVERB_PRESET_ROOM,
+	EFX_REVERB_PRESET_BATHROOM,
+	EFX_REVERB_PRESET_LIVINGROOM,
+	EFX_REVERB_PRESET_STONEROOM,
+	EFX_REVERB_PRESET_AUDITORIUM,
+	EFX_REVERB_PRESET_CONCERTHALL,
+	EFX_REVERB_PRESET_CAVE,
+	EFX_REVERB_PRESET_ARENA,
+	EFX_REVERB_PRESET_HANGAR,
+	EFX_REVERB_PRESET_CARPETEDHALLWAY,
+	EFX_REVERB_PRESET_HALLWAY,
+	EFX_REVERB_PRESET_STONECORRIDOR,
+	EFX_REVERB_PRESET_ALLEY,
+	EFX_REVERB_PRESET_FOREST,
+	EFX_REVERB_PRESET_CITY,
+	EFX_REVERB_PRESET_MOUNTAINS,
+	EFX_REVERB_PRESET_QUARRY,
+	EFX_REVERB_PRESET_PLAIN,
+	EFX_REVERB_PRESET_PARKINGLOT,
+	EFX_REVERB_PRESET_SEWERPIPE,
+	EFX_REVERB_PRESET_UNDERWATER,
+	EFX_REVERB_PRESET_DRUGGED,
+	EFX_REVERB_PRESET_DIZZY,
+	EFX_REVERB_PRESET_PSYCHOTIC,
+}}; // efx_reverb_presets
 
 
 OalSoundSys::OalSoundSys()
@@ -3393,30 +3806,26 @@ sint32 OalSoundSys::DigitalHandleReacquire(
 	return {};
 }
 
+#ifdef USE_EAX20_HARDWARE_FILTERS
 bool OalSoundSys::SetEAX20Filter(
 	const bool is_enable,
 	const LTSOUNDFILTERDATA& filter_data)
 {
-	static_cast<void>(is_enable);
-	static_cast<void>(filter_data);
-
-	return {};
+	return pimpl_->set_eax20_filter(is_enable, filter_data);
 }
 
 bool OalSoundSys::SupportsEAX20Filter()
 {
-	return {};
+	return pimpl_->supports_eax20_filter();
 }
 
 bool OalSoundSys::SetEAX20BufferSettings(
 	LHSAMPLE sample_handle,
 	const LTSOUNDFILTERDATA& filter_data)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(filter_data);
-
-	return {};
+	return pimpl_->set_eax20_buffer_settings(sample_handle, filter_data);
 }
+#endif // USE_EAX20_HARDWARE_FILTERS
 
 void OalSoundSys::Set3DProviderMinBuffers(
 	const uint32 min_buffers)

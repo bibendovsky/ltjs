@@ -98,7 +98,7 @@ public:
 	bool SetEAX20BufferSettings(
 		LHSAMPLE sample_handle,
 		const LTSOUNDFILTERDATA& filter_data) override;
-#endif
+#endif // USE_EAX20_HARDWARE_FILTERS
 
 
 	// 3D sound provider functions
