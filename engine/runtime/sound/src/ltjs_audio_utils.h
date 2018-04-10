@@ -263,6 +263,21 @@ struct AudioUtils
 
 
 	//
+	// Extracts a WAVE size from the memory block.
+	//
+	// Parameters:
+	//    - raw_data - a data to extract the size from.
+	//
+	// Returns:
+	//    - An extracted WAVE size.
+	//
+	// Notes:
+	//    - The size of the provided data should be at least 12 bytes.
+	//
+	static int extract_wave_size(
+		const void* raw_data);
+
+	//
 	// Initializes internal data.
 	//
 	static void initialize();

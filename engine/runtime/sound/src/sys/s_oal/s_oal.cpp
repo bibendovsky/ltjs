@@ -25,7 +25,6 @@
 #include "bibendovsky_spul_scope_guard.h"
 #include "ltjs_audio_decoder.h"
 #include "ltjs_audio_utils.h"
-#include "ltjs_wave_utils.h"
 
 
 struct OalSoundSys::Impl
@@ -2126,7 +2125,7 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
-		const auto wave_size = ltjs::WaveUtils::extract_wave_size(file_image_ptr);
+		const auto wave_size = ltjs::AudioUtils::extract_wave_size(file_image_ptr);
 
 		if (wave_size <= 0)
 		{
