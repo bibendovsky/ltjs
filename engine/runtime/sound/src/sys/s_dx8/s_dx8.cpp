@@ -2129,16 +2129,14 @@ S32	CDx8SoundSys::GetPreference( U32 uiNumber )
 	return m_userPrefs[ uiNumber ];
 }
 
-void CDx8SoundSys::MemFreeLock( void* ptr )
+void CDx8SoundSys::MemFreeLock(void* ptr)
 {
-	delete [] ptr;
+	ltjs::AudioUtils::deallocate(ptr);
 }
 
-void* CDx8SoundSys::MemAllocLock( U32 uiSize )
+void* CDx8SoundSys::MemAllocLock(U32 uiSize)
 {
-	void* p;
-	LT_MEM_TRACK_ALLOC(p = (void*)(new uint8[uiSize]),	LT_MEM_TYPE_SOUND);
-	return p;
+	return ltjs::AudioUtils::allocate(uiSize);
 }
 
 const char* CDx8SoundSys::LastError( void )
@@ -3933,84 +3931,10 @@ S32	CDx8SoundSys::DecompressASI(
 	U32& puiWavSize,
 	LTLENGTHYCB fnCallback)
 {
-	auto memory_stream = ul::MemoryStream{pInData, static_cast<int>(uiInSize), ul::Stream::OpenMode::read};
+	static_cast<void>(sFilename_ext);
+	static_cast<void>(fnCallback);
 
-	if (!audio_decoder_.open(&memory_stream))
-	{
-		return false;
-	}
-
-	if (!audio_decoder_.is_mp3())
-	{
-		return false;
-	}
-
-	const auto max_decoded_size = audio_decoder_.get_data_size();
-
-	const auto header_size =
-		4 + 4 + // "RIFF" + size
-		4 + // WAVE
-		4 + 4 + ul::WaveFormatEx::packed_size + // "fmt " + size + format_size
-		4 + 4 + // "data" + size
-		0;
-
-	auto pucUncompressedSampleData = std::make_unique<std::uint8_t[]>(header_size + max_decoded_size);
-
-	const auto decoded_size = audio_decoder_.decode(
-		pucUncompressedSampleData.get() + header_size,
-		max_decoded_size);
-
-	if (decoded_size <= 0)
-	{
-		return false;
-	}
-
-	const auto wave_size = header_size + decoded_size;
-
-	auto header = pucUncompressedSampleData.get();
-
-	// fill in RIFF chunk
-	header[0] = 'R';
-	header[1] = 'I';
-	header[2] = 'F';
-	header[3] = 'F';
-	header += 4;
-
-	*reinterpret_cast<std::uint32_t*>(header) = wave_size - 8;
-	header += 4;
-
-	// fill in WAVE chunk
-	header[0] = 'W';
-	header[1] = 'A';
-	header[2] = 'V';
-	header[3] = 'E';
-	header[4] = 'f';
-	header[5] = 'm';
-	header[6] = 't';
-	header[7] = ' ';
-	header += 8;
-
-	*reinterpret_cast<std::uint32_t*>(header) = ul::WaveFormatEx::packed_size;
-	header += 4;
-
-	const auto wave_format_ex = audio_decoder_.get_wave_format_ex();
-	*reinterpret_cast<ul::WaveFormatEx*>(header) = wave_format_ex;
-	header += ul::WaveFormatEx::packed_size;
-
-	// fill in DATA chunk
-	header[0] = 'd';
-	header[1] = 'a';
-	header[2] = 't';
-	header[3] = 'a';
-	header += 4;
-
-	*reinterpret_cast<std::uint32_t*>(header) = decoded_size;
-	header += 4;
-
-	ppWav = pucUncompressedSampleData.release();
-	puiWavSize = wave_size;
-
-	return true;
+	return ltjs::AudioUtils::decode_mp3(audio_decoder_, pInData, uiInSize, ppWav, puiWavSize);
 }
 
 UINT CDx8SoundSys::ReadStream(
