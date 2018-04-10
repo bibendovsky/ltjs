@@ -49,19 +49,19 @@ uint32 NulSoundSys::MsCount()
 }
 
 sint32 NulSoundSys::SetPreference(
-	const uint32 number,
+	const uint32 index,
 	const sint32 value)
 {
-	static_cast<void>(number);
+	static_cast<void>(index);
 	static_cast<void>(value);
 
 	return {};
 }
 
 sint32 NulSoundSys::GetPreference(
-	const uint32 number)
+	const uint32 index)
 {
-	static_cast<void>(number);
+	static_cast<void>(index);
 
 	return {};
 }
@@ -164,9 +164,9 @@ bool NulSoundSys::SetEAX20BufferSettings(
 #endif // USE_EAX20_HARDWARE_FILTERS
 
 void NulSoundSys::Set3DProviderMinBuffers(
-	const uint32 min_buffers)
+	const uint32 buffer_count)
 {
-	static_cast<void>(min_buffers);
+	static_cast<void>(buffer_count);
 }
 
 sint32 NulSoundSys::Open3DProvider(
@@ -204,12 +204,12 @@ void NulSoundSys::Get3DProviderAttribute(
 }
 
 sint32 NulSoundSys::Enumerate3DProviders(
-	LHPROENUM& next,
-	LHPROVIDER& destination,
+	LHPROENUM& index,
+	LHPROVIDER& dst_id,
 	const char*& name)
 {
-	static_cast<void>(next);
-	static_cast<void>(destination);
+	static_cast<void>(index);
+	static_cast<void>(dst_id);
 	static_cast<void>(name);
 
 	return {};
@@ -231,10 +231,10 @@ void NulSoundSys::Close3DListener(
 
 void NulSoundSys::SetListenerDoppler(
 	LH3DPOBJECT listener_ptr,
-	const float doppler)
+	const float doppler_factor)
 {
 	static_cast<void>(listener_ptr);
-	static_cast<void>(doppler);
+	static_cast<void>(doppler_factor);
 }
 
 void NulSoundSys::CommitDeferred()
@@ -481,22 +481,22 @@ void NulSoundSys::Set3DSamplePreference(
 
 void NulSoundSys::Set3DSampleLoopBlock(
 	LH3DSAMPLE sample_handle,
-	const sint32 loop_start_offset,
+	const sint32 loop_begin_offset,
 	const sint32 loop_end_offset,
 	const bool is_enable)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(loop_start_offset);
+	static_cast<void>(loop_begin_offset);
 	static_cast<void>(loop_end_offset);
 	static_cast<void>(is_enable);
 }
 
 void NulSoundSys::Set3DSampleLoop(
 	LH3DSAMPLE sample_handle,
-	const bool is_loop)
+	const bool is_enable)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(is_loop);
+	static_cast<void>(is_enable);
 }
 
 void NulSoundSys::Set3DSampleObstruction(
@@ -619,12 +619,12 @@ void NulSoundSys::SetSampleUserData(
 
 void NulSoundSys::GetDirectSoundInfo(
 	LHSAMPLE sample_handle,
-	PTDIRECTSOUND& direct_sound,
-	PTDIRECTSOUNDBUFFER& direct_sound_buffer)
+	PTDIRECTSOUND& ds_instance,
+	PTDIRECTSOUNDBUFFER& ds_buffer)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(direct_sound);
-	static_cast<void>(direct_sound_buffer);
+	static_cast<void>(ds_instance);
+	static_cast<void>(ds_buffer);
 }
 
 void NulSoundSys::SetSampleReverb(
@@ -675,22 +675,22 @@ sint32 NulSoundSys::InitSampleFromFile(
 
 void NulSoundSys::SetSampleLoopBlock(
 	LHSAMPLE sample_handle,
-	const sint32 loop_start_offset,
+	const sint32 loop_begin_offset,
 	const sint32 loop_end_offset,
 	const bool is_enable)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(loop_start_offset);
+	static_cast<void>(loop_begin_offset);
 	static_cast<void>(loop_end_offset);
 	static_cast<void>(is_enable);
 }
 
 void NulSoundSys::SetSampleLoop(
 	LHSAMPLE sample_handle,
-	const bool is_loop)
+	const bool is_enable)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(is_loop);
+	static_cast<void>(is_enable);
 }
 
 void NulSoundSys::SetSampleMsPosition(
@@ -723,24 +723,24 @@ LHSTREAM NulSoundSys::OpenStream(
 	const char* file_name,
 	const uint32 file_offset,
 	LHDIGDRIVER driver_ptr,
-	const char* stream_ptr,
-	const sint32 stream_memory_size)
+	const char* file_image,
+	const sint32 file_image_size)
 {
 	static_cast<void>(file_name);
 	static_cast<void>(file_offset);
 	static_cast<void>(driver_ptr);
-	static_cast<void>(stream_ptr);
-	static_cast<void>(stream_memory_size);
+	static_cast<void>(file_image);
+	static_cast<void>(file_image_size);
 
 	return {};
 }
 
 void NulSoundSys::SetStreamLoop(
 	LHSTREAM stream_ptr,
-	const bool is_loop)
+	const bool is_enable)
 {
 	static_cast<void>(stream_ptr);
-	static_cast<void>(is_loop);
+	static_cast<void>(is_enable);
 }
 
 void NulSoundSys::SetStreamPlaybackRate(
@@ -793,10 +793,10 @@ void NulSoundSys::StartStream(
 
 void NulSoundSys::PauseStream(
 	LHSTREAM stream_ptr,
-	const sint32 is_pause)
+	const sint32 is_enable)
 {
 	static_cast<void>(stream_ptr);
-	static_cast<void>(is_pause);
+	static_cast<void>(is_enable);
 }
 
 void NulSoundSys::ResetStream(
@@ -877,17 +877,17 @@ sint32 NulSoundSys::DecompressADPCM(
 
 sint32 NulSoundSys::DecompressASI(
 	const void* srd_data_ptr,
-	const uint32 src_size,
+	const uint32 src_data_size,
 	const char* file_name_ext,
-	void*& dst_wav,
-	uint32& dst_wav_size,
+	void*& dst_wav_image,
+	uint32& dst_wav_image_size,
 	LTLENGTHYCB callback)
 {
 	static_cast<void>(srd_data_ptr);
-	static_cast<void>(src_size);
+	static_cast<void>(src_data_size);
 	static_cast<void>(file_name_ext);
-	static_cast<void>(dst_wav);
-	static_cast<void>(dst_wav_size);
+	static_cast<void>(dst_wav_image);
+	static_cast<void>(dst_wav_image_size);
 	static_cast<void>(callback);
 
 	return {};
