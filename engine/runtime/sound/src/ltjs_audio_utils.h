@@ -44,6 +44,63 @@ struct AudioUtils
 	static constexpr auto ds_default_doppler_factor = 1.0F;
 
 
+	static constexpr auto eax_environment_count = 26;
+
+	static constexpr auto eax_decay_hf_limit_flag = 0B0010'0000;
+ 
+	static constexpr auto eax_min_room = -10000;
+	static constexpr auto eax_max_room = 0;
+	static constexpr auto eax_default_room = -1000;
+
+	static constexpr auto eax_min_room_hf = -10'000;
+	static constexpr auto eax_max_room_hf = 0;
+	static constexpr auto eax_default_room_hf = -100;
+
+	static constexpr auto eax_min_room_rolloff_factor = 0.0F;
+	static constexpr auto eax_max_room_rolloff_factor = 10.0F;
+	static constexpr auto eax_default_room_rolloff_factor = 0.0F;
+
+	static constexpr auto eax_min_decay_time = 0.1F;
+	static constexpr auto eax_max_decay_time = 20.0F;
+	static constexpr auto eax_default_decay_time = 1.49F;
+
+	static constexpr auto eax_min_decay_hf_ratio = 0.1F;
+	static constexpr auto eax_max_decay_hf_ratio = 2.0F;
+	static constexpr auto eax_default_decay_hf_ratio = 0.83F;
+
+	static constexpr auto eax_min_reflections = -10'000;
+	static constexpr auto eax_max_reflections = 1'000;
+	static constexpr auto eax_default_reflections = -2'602;
+
+	static constexpr auto eax_min_reflections_delay = 0.0F;
+	static constexpr auto eax_max_reflections_delay = 0.3F;
+	static constexpr auto eax_default_reflections_delay = 0.007F;
+
+	static constexpr auto eax_min_reverb = -10'000;
+	static constexpr auto eax_max_reverb = 2'000;
+	static constexpr auto eax_default_reverb = 200;
+
+	static constexpr auto eax_min_reverb_delay = 0.0F;
+	static constexpr auto eax_max_reverb_delay = 0.1F;
+	static constexpr auto eax_default_reverb_delay = 0.011F;
+
+	static constexpr auto eax_min_environment = 0;
+	static constexpr auto eax_max_environment = eax_environment_count - 1;
+	static constexpr auto eax_default_environment = eax_min_environment;
+
+	static constexpr auto eax_min_environment_size = 1.0F;
+	static constexpr auto eax_max_environment_size = 100.0F;
+	static constexpr auto eax_default_environment_size = 7.5F;
+
+	static constexpr auto eax_min_environment_diffusion = 0.0F;
+	static constexpr auto eax_max_environment_diffusion = 1.0F;
+	static constexpr auto eax_default_environment_diffusion = 1.0F;
+
+	static constexpr auto eax_min_air_absorption_hf = -100.0F;
+	static constexpr auto eax_max_air_absorption_hf = 0.0F;
+	static constexpr auto eax_default_airabsorption_hf = -5.0F;
+
+
 	//
 	// Clamps a LithTech volume.
 	//
