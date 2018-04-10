@@ -145,7 +145,7 @@ struct OalSoundSys::Impl
 		// 3D: one source.
 		int oal_source_count_;
 
-		// 2D and 3D: 0 - non-loop block; 1 - pre-loop (0..loop_start); 2 - loop (loop_start..loop_end).
+		// 2D and 3D: 0 - non-loop block; 1 - pre-loop [0..loop_start); 2 - loop [loop_start..loop_end].
 		// Stream: 0, 1, 2 - queue.
 		OalBuffers oal_buffers_;
 
