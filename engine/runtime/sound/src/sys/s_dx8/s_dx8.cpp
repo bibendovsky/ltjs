@@ -9,6 +9,25 @@
 #include "ltjs_audio_utils.h"
 
 
+// ==========================================================================
+// EAX GUIDs
+//
+
+extern "C" const GUID DSPROPSETID_EAX20_ListenerProperties =
+{
+	0x306A6A8, 0xB224, 0x11D2, {0x99, 0xE5, 0x0, 0x0, 0xE8, 0xD8, 0xC7, 0x22}
+}; // DSPROPSETID_EAX20_ListenerProperties
+
+extern "C" const GUID DSPROPSETID_EAX20_BufferProperties =
+{
+	0x306A6A7, 0xB224, 0x11D2, {0x99, 0xE5, 0x0, 0x0, 0xE8, 0xD8, 0xC7, 0x22}
+}; // DSPROPSETID_EAX20_BufferProperties
+
+//
+// EAX GUIDs
+// ==========================================================================
+
+
 //	===========================================================================
 // For debug logging
 

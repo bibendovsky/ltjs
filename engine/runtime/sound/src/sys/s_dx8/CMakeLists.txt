@@ -71,20 +71,16 @@ if (MSVC)
 	set(
 		libs
 		${path_to_dx_libs}/dxguid.lib
-		${CMAKE_CURRENT_SOURCE_DIR}/eaxguid.lib
 		${ffmpeg_libs}
 		winmm
-		msacm32
 	)
 endif ()
 
 if (MINGW)
 	set(
 		libs
-		${CMAKE_CURRENT_SOURCE_DIR}/eaxguid.lib
 		${ffmpeg_libs}
 		dxguid
-		msacm32
 		winmm
 		iconv
 		z
