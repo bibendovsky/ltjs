@@ -74,36 +74,36 @@ struct OalSoundSys::Impl
 		}
 	}; // Vector3d
 
-	struct Direction3d
+	struct Orientation3d
 	{
 		Vector3d at_;
 		Vector3d up_;
 
 
 		bool operator==(
-			const Direction3d& that) const
+			const Orientation3d& that) const
 		{
 			return at_ == that.at_ && up_ == that.up_;
 		}
 
-		static Direction3d to_oal(
-			const Direction3d& direction_3d)
+		static Orientation3d to_oal(
+			const Orientation3d& direction_3d)
 		{
 			return {Vector3d::to_oal(direction_3d.at_), Vector3d::to_oal(direction_3d.up_)};
 		}
 
-		static const Direction3d& get_listener_defaults()
+		static const Orientation3d& get_listener_defaults()
 		{
-			static const auto direction_3d = Direction3d{{0.0F, 0.0F, 1.0F}, {0.0F, 1.0F, 0.0F}};
+			static const auto direction_3d = Orientation3d{{0.0F, 0.0F, 1.0F}, {0.0F, 1.0F, 0.0F}};
 			return direction_3d;
 		}
 
-		static const Direction3d& get_object_defaults()
+		static const Orientation3d& get_object_defaults()
 		{
-			static const auto direction_3d = Direction3d{};
+			static const auto direction_3d = Orientation3d{};
 			return direction_3d;
 		}
-	}; // Direction3d
+	}; // Orientation3d
 
 	struct Sample
 	{
@@ -168,7 +168,7 @@ struct OalSoundSys::Impl
 		float max_distance_;
 		Vector3d position_;
 		Vector3d velocity_;
-		Direction3d direction_;
+		Orientation3d orientation_;
 		float doppler_factor_;
 		UserDataArray user_data_;
 		Sample sample_;
@@ -180,7 +180,7 @@ struct OalSoundSys::Impl
 			max_distance_ = ltjs::AudioUtils::ds_default_max_distance;
 			position_ = {};
 			velocity_ = {};
-			direction_ = (is_listener_ ? Direction3d::get_listener_defaults() : Direction3d::get_object_defaults());
+			orientation_ = (is_listener_ ? Orientation3d::get_listener_defaults() : Orientation3d::get_object_defaults());
 			doppler_factor_ = ltjs::AudioUtils::ds_default_doppler_factor;
 		}
 	}; // Object3d
@@ -2847,10 +2847,10 @@ struct OalSoundSys::Impl
 		//
 		if (object_3d.is_listener_)
 		{
-			const auto oal_direction = Direction3d::to_oal(object_3d.direction_);
-			const auto oal_direction_ptr = reinterpret_cast<const ALfloat*>(&oal_direction);
+			const auto oal_orientation = Orientation3d::to_oal(object_3d.orientation_);
+			const auto oal_orientation_ptr = reinterpret_cast<const ALfloat*>(&oal_orientation);
 
-			::alListenerfv(AL_ORIENTATION, oal_direction_ptr);
+			::alListenerfv(AL_ORIENTATION, oal_orientation_ptr);
 		}
 
 		if (!oal_is_succeed())
@@ -3008,16 +3008,16 @@ struct OalSoundSys::Impl
 
 		auto& object_3d = *static_cast<Object3d*>(object_ptr);
 
-		const auto new_direction_ = Direction3d{{x_face, y_face, z_face}, {x_up, y_up, z_up}};
+		const auto new_direction_ = Orientation3d{{x_face, y_face, z_face}, {x_up, y_up, z_up}};
 
-		if (object_3d.direction_ == new_direction_)
+		if (object_3d.orientation_ == new_direction_)
 		{
 			return;
 		}
 
-		object_3d.direction_ = new_direction_;
+		object_3d.orientation_ = new_direction_;
 
-		const auto oal_orientation = Direction3d::to_oal(new_direction_);
+		const auto oal_orientation = Orientation3d::to_oal(new_direction_);
 
 		::alListenerfv(AL_ORIENTATION, reinterpret_cast<const ALfloat*>(&oal_orientation));
 	}
@@ -3090,13 +3090,13 @@ struct OalSoundSys::Impl
 
 		auto& object_3d = *static_cast<Object3d*>(object_ptr);
 
-		x_face = object_3d.direction_.at_.x_;
-		y_face = object_3d.direction_.at_.y_;
-		z_face = object_3d.direction_.at_.z_;
+		x_face = object_3d.orientation_.at_.x_;
+		y_face = object_3d.orientation_.at_.y_;
+		z_face = object_3d.orientation_.at_.z_;
 
-		x_up = object_3d.direction_.up_.x_;
-		y_up = object_3d.direction_.up_.y_;
-		z_up = object_3d.direction_.up_.z_;
+		x_up = object_3d.orientation_.up_.x_;
+		y_up = object_3d.orientation_.up_.y_;
+		z_up = object_3d.orientation_.up_.z_;
 	}
 
 	LH3DSAMPLE allocate_3d_sample(
@@ -3477,7 +3477,6 @@ struct OalSoundSys::Impl
 		}
 
 		oal_is_supports_eax20_filter_ = true;
-		oal_is_eax20_filter_active_ = false;
 	}
 
 	bool set_eax20_filter(
@@ -3488,8 +3487,6 @@ struct OalSoundSys::Impl
 		{
 			return false;
 		}
-
-		oal_is_eax20_filter_active_ = is_enable;
 
 		const auto& lt_reverb = *reinterpret_cast<const LTFILTERREVERB*>(filter_data.pSoundFilter);
 
@@ -3559,7 +3556,6 @@ struct OalSoundSys::Impl
 	bool oal_has_eax_reverb_effect_;
 	int oal_max_aux_sends_;
 
-	bool oal_is_eax20_filter_active_;
 	bool oal_is_supports_eax20_filter_;
 	ALuint oal_effect_;
 	ALuint oal_null_effect_;
