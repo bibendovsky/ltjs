@@ -2032,6 +2032,9 @@ struct OalSoundSys::Impl
 			}
 
 			::alSourcei(oal_source, AL_LOOPING, AL_FALSE);
+
+			::alSourcef(oal_source, AL_REFERENCE_DISTANCE, ltjs::AudioUtils::ds_default_min_distance);
+			::alSourcef(oal_source, AL_MAX_DISTANCE, ltjs::AudioUtils::ds_default_max_distance);
 		}
 
 		if (!sample.is_3d_)
