@@ -1963,6 +1963,7 @@ bool CDx8SoundSys::Init( )
 	LOG_OPEN;
 
 	ltjs::AudioDecoder::initialize_current_thread();
+	ltjs::AudioUtils::initialize();
 
 	m_hResult = ::CoInitialize( NULL );
 	if( m_hResult != S_OK && m_hResult != S_FALSE )
@@ -2192,6 +2193,8 @@ S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER& phDriver, PHWAVEOUT& pphWaveOut, con
 	InitEAX20Filtering();
 #endif
 
+	lt_master_volume_ = ltjs::AudioUtils::lt_max_volume;
+
     return LS_OK;
 
 }
@@ -2209,64 +2212,33 @@ void CDx8SoundSys::WaveOutClose( LHDIGDRIVER hDriver )
 		pDSPrimaryBuffer->Release( );
 }
 
-#define MAX_MASTER_VOLUME	127.0f
-#define MIN_MASTER_VOLUME	1.0f
-#define DEL_MASTER_VOLUME	( float )( MAX_MASTER_VOLUME - MIN_MASTER_VOLUME )
-
-#define DSBVOLUME_DEL		( float )( DSBVOLUME_MAX - DSBVOLUME_MIN )
-
-#define LOG_ATTENUATION		( float )sqrt( MAX_MASTER_VOLUME )
-#define LOG_INVATTENUATION	( 1.0f / LOG_ATTENUATION )
-
-#define CONVERT_LIN_VOL_TO_LOG_VOL( linVol, logVol )	\
-	{	\
-		float t = ( 1.0f - ( MIN_MASTER_VOLUME / ( float )linVol ) ) * ( MAX_MASTER_VOLUME / DEL_MASTER_VOLUME );	\
-		t = ( float )pow( t, LOG_ATTENUATION );	\
-		logVol = DSBVOLUME_MIN + ( long )( t * DSBVOLUME_DEL );	\
-	}	\
-
-#define CONVERT_LOG_VOL_TO_LIN_VOL( logVol, linVol )	\
-	{	\
-		float t = ( float )( logVol - DSBVOLUME_MIN ) / DSBVOLUME_DEL;	\
-		t = ( float )pow( t, LOG_INVATTENUATION );	\
-		linVol = ( S32 )( ( MAX_MASTER_VOLUME * MIN_MASTER_VOLUME ) / ( MAX_MASTER_VOLUME - ( t * DEL_MASTER_VOLUME ) ) );	\
-	}	\
-
-void CDx8SoundSys::SetDigitalMasterVolume( LHDIGDRIVER hDig, S32 siMasterVolume )
+void CDx8SoundSys::SetDigitalMasterVolume(LHDIGDRIVER hDig, S32 siMasterVolume)
 {
-	LPDIRECTSOUNDBUFFER pDSPrimaryBuffer = ( LPDIRECTSOUNDBUFFER )hDig;
+	const auto ds_primary_buffer_ptr = static_cast<LPDIRECTSOUNDBUFFER>(hDig);
 
-	if( pDSPrimaryBuffer == NULL )
+	if (!ds_primary_buffer_ptr)
+	{
 		return;
+	}
 
-	if( siMasterVolume < ( S32 )MIN_MASTER_VOLUME )
-		siMasterVolume = ( S32 )MIN_MASTER_VOLUME;
+	const auto lt_volume = ltjs::AudioUtils::clamp_lt_volume(siMasterVolume);
+	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_volume(siMasterVolume);
 
-	if( siMasterVolume > ( S32 )MAX_MASTER_VOLUME )
-		siMasterVolume = ( S32 )MAX_MASTER_VOLUME;
-
-	long lDSMasterVolume;
-	CONVERT_LIN_VOL_TO_LOG_VOL( siMasterVolume, lDSMasterVolume );
-
-	m_hResult = pDSPrimaryBuffer->SetVolume( lDSMasterVolume );
-	m_pcLastError = LastError( );
+	lt_master_volume_ = lt_volume;
+	m_hResult = ds_primary_buffer_ptr->SetVolume(ds_volume);
+	m_pcLastError = LastError();
 }
 
-S32	CDx8SoundSys::GetDigitalMasterVolume( LHDIGDRIVER hDig )
+S32	CDx8SoundSys::GetDigitalMasterVolume(LHDIGDRIVER hDig)
 {
-	LPDIRECTSOUNDBUFFER pDSPrimaryBuffer = ( LPDIRECTSOUNDBUFFER )hDig;
+	const auto ds_primary_buffer_ptr = static_cast<LPDIRECTSOUNDBUFFER>(hDig);
 
-	if( pDSPrimaryBuffer == NULL )
+	if (!ds_primary_buffer_ptr)
+	{
 		return 0;
+	}
 
-	long lDSMasterVolume = 0;
-	m_hResult = pDSPrimaryBuffer->GetVolume( &lDSMasterVolume );
-	m_pcLastError = LastError( );
-
-	S32 siMasterVolume;
-	CONVERT_LOG_VOL_TO_LIN_VOL( lDSMasterVolume, siMasterVolume );
-
-	return siMasterVolume;
+	return lt_master_volume_;
 }
 
 //	===========================================================================
@@ -2767,6 +2739,8 @@ LH3DSAMPLE CDx8SoundSys::Allocate3DSampleHandle( LHPROVIDER hLib )
 		}
 	}
 
+	pSample->lt_volume_ = ltjs::AudioUtils::lt_max_volume;
+
 	return p3DSample;
 }
 
@@ -2967,48 +2941,39 @@ S32	CDx8SoundSys::Init3DSampleFromFile(
 	return true;
 }
 
-S32	CDx8SoundSys::Get3DSampleVolume( LH3DSAMPLE hS )
+S32	CDx8SoundSys::Get3DSampleVolume(LH3DSAMPLE hS)
 {
-//	LOG_WRITE( g_pLogFile, "GetSampleVolume( %x )\n", hS );
+	//LOG_WRITE( g_pLogFile, "GetSampleVolume( %x )\n", hS );
 
-	if( hS == NULL )
+	if (!hS)
+	{
 		return 0;
+	}
 
-	C3DSample* p3DSample = ( C3DSample* ) hS;
-	CSample* pSample = &p3DSample->m_sample;
+	const auto& sample_3d = *static_cast<C3DSample*>(hS);
+	const auto& sample = sample_3d.m_sample;
 
-	pSample->Restore( );
-
-	long lDSVolume = 0;
-	m_hResult = pSample->m_pDSBuffer->GetVolume( &lDSVolume );
-	m_pcLastError = LastError( );
-
-	S32 siVolume;
-	CONVERT_LOG_VOL_TO_LIN_VOL( lDSVolume, siVolume );
-
-	return siVolume;
+	return sample.lt_volume_;
 }
 
-void CDx8SoundSys::Set3DSampleVolume( LH3DSAMPLE hS, const S32 siVolume )
+void CDx8SoundSys::Set3DSampleVolume(LH3DSAMPLE hS, const S32 siVolume)
 {
-	if( hS == NULL )
+	if (!hS)
+	{
 		return;
+	}
 
-	C3DSample* p3DSample = ( C3DSample* )hS;
-	p3DSample->m_sample.Restore( );
+	auto& sample_3d = *static_cast<C3DSample*>(hS);
+	auto& sample = sample_3d.m_sample;
 
-	auto volume = siVolume;
+	const auto lt_volume = ltjs::AudioUtils::clamp_lt_volume(siVolume);
+	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_volume(siVolume);
 
-	if( volume < ( S32 )MIN_MASTER_VOLUME )
-		volume = ( S32 )MIN_MASTER_VOLUME;
+	sample.lt_volume_ = lt_volume;
+	sample.Restore();
 
-	if( volume > ( S32 )MAX_MASTER_VOLUME )
-		volume = ( S32 )MAX_MASTER_VOLUME;
-
-	long lDSVolume;
-	CONVERT_LIN_VOL_TO_LOG_VOL( volume, lDSVolume );
-	m_hResult = p3DSample->m_sample.m_pDSBuffer->SetVolume( lDSVolume );
-	m_pcLastError = LastError( );
+	m_hResult = sample.m_pDSBuffer->SetVolume(ds_volume);
+	m_pcLastError = LastError();
 }
 
 //	===========================================================================
@@ -3184,6 +3149,8 @@ LHSAMPLE CDx8SoundSys::AllocateSampleHandle( LHDIGDRIVER hDig )
 
 	SetSampleNotify( pSample, true );
 
+	pSample->lt_volume_ = ltjs::AudioUtils::lt_max_volume;
+
 	return pSample;
 }
 
@@ -3289,47 +3256,39 @@ void CDx8SoundSys::EndSample( LHSAMPLE hS )
 	m_pcLastError = LastError( );
 }
 
-void CDx8SoundSys::SetSampleVolume( LHSAMPLE hS, S32 siVolume )
+void CDx8SoundSys::SetSampleVolume(LHSAMPLE hS, S32 siVolume)
 {
-//	LOG_WRITE( g_pLogFile, "SetSampleVolume( %x, %d )\n", hS, siVolume );
+	//LOG_WRITE( g_pLogFile, "SetSampleVolume( %x, %d )\n", hS, siVolume );
 
-	if( hS == NULL )
+	if (!hS)
+	{
 		return;
+	}
 
-	CSample* pSample = ( CSample* )hS;
-	pSample->Restore( );
+	auto& sample = *static_cast<CSample*>(hS);
 
-	if( siVolume < ( S32 )MIN_MASTER_VOLUME )
-		siVolume = ( S32 )MIN_MASTER_VOLUME;
+	const auto lt_volume = ltjs::AudioUtils::clamp_lt_volume(siVolume);
+	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_volume(siVolume);
 
-	if( siVolume > ( S32 )MAX_MASTER_VOLUME )
-		siVolume = ( S32 )MAX_MASTER_VOLUME;
+	sample.lt_volume_ = lt_volume;
+	sample.Restore();
 
-	long lDSVolume;
-	CONVERT_LIN_VOL_TO_LOG_VOL( siVolume, lDSVolume );
-
-	m_hResult = pSample->m_pDSBuffer->SetVolume( lDSVolume );
-	m_pcLastError = LastError( );
+	m_hResult = sample.m_pDSBuffer->SetVolume(ds_volume);
+	m_pcLastError = LastError();
 }
 
-S32	CDx8SoundSys::GetSampleVolume( LHSAMPLE hS )
+S32	CDx8SoundSys::GetSampleVolume(LHSAMPLE hS)
 {
-//	LOG_WRITE( g_pLogFile, "GetSampleVolume( %x )\n", hS );
+	//LOG_WRITE( g_pLogFile, "GetSampleVolume( %x )\n", hS );
 
-	if( hS == NULL )
+	if (!hS)
+	{
 		return 0;
+	}
 
-	CSample* pSample = ( CSample* )hS;
-	pSample->Restore( );
+	const auto& sample = *static_cast<CSample*>(hS);
 
-	long lDSVolume = 0;
-	m_hResult = pSample->m_pDSBuffer->GetVolume( &lDSVolume );
-	m_pcLastError = LastError( );
-
-	S32 siVolume;
-	CONVERT_LOG_VOL_TO_LIN_VOL( lDSVolume, siVolume );
-
-	return siVolume;
+	return sample.lt_volume_;
 }
 
 #define MIN_MASTER_PAN	1		// LEFT
@@ -3808,6 +3767,8 @@ LHSTREAM CDx8SoundSys::OpenStream( streamBufferParams_t* pStreamBufferParams, Wa
 	// Always need to loop streamed sounds buffers.
 	pStream->m_dwPlayFlags |= DSBPLAY_LOOPING;
 
+	pStream->lt_volume_ = ltjs::AudioUtils::lt_max_volume;
+
 	if( m_hResult != DS_OK )
 	{
 		delete pStream;
@@ -3899,26 +3860,22 @@ void CDx8SoundSys::ResetStream( LHSTREAM hStream )
 
 //	DONE...
 
-void CDx8SoundSys::SetStreamVolume( LHSTREAM hStream, sint32 siVolume )
+void CDx8SoundSys::SetStreamVolume(LHSTREAM hStream, sint32 siVolume)
 {
 	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::SetStreamVolume]\n");
 
-	CStream* pStream = ( CStream* )hStream;
-	pStream->Restore( );
+	auto& stream = *static_cast<CStream*>(hStream);
 
-	if( siVolume < ( S32 )MIN_MASTER_VOLUME )
-		siVolume = ( S32 )MIN_MASTER_VOLUME;
+	const auto lt_volume = ltjs::AudioUtils::clamp_lt_volume(siVolume);
+	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_volume(siVolume);
 
-	if( siVolume > ( S32 )MAX_MASTER_VOLUME )
-		siVolume = ( S32 )MAX_MASTER_VOLUME;
+	stream.lt_volume_ = lt_volume;
+	stream.Restore();
 
-	long lDSVolume;
-	CONVERT_LIN_VOL_TO_LOG_VOL( siVolume, lDSVolume );
-
-	m_hResult = pStream->m_pDSBuffer->SetVolume( lDSVolume );
-	m_pcLastError = LastError( );
+	m_hResult = stream.m_pDSBuffer->SetVolume(ds_volume);
+	m_pcLastError = LastError();
 }
 
 void CDx8SoundSys::SetStreamPan( LHSTREAM hStream, sint32 siPan )
@@ -3936,23 +3893,15 @@ void CDx8SoundSys::SetStreamPan( LHSTREAM hStream, sint32 siPan )
 	m_pcLastError = LastError( );
 }
 
-sint32 CDx8SoundSys::GetStreamVolume( LHSTREAM hStream )
+sint32 CDx8SoundSys::GetStreamVolume(LHSTREAM hStream)
 {
 	MtRLockGuard cProtection(m_cCS_SoundThread);
 
 	//OutputDebugString("NEW [CDx8SoundSys::GetStreamVolume]\n");
 
-	CStream* pStream = ( CStream* )hStream;
-	pStream->Restore( );
+	const auto& stream = *static_cast<CStream*>(hStream);
 
-	long lDSVolume = 0;
-	m_hResult = pStream->m_pDSBuffer->GetVolume( &lDSVolume );
-	m_pcLastError = LastError( );
-
-	S32 siVolume;
-	CONVERT_LOG_VOL_TO_LIN_VOL( lDSVolume, siVolume );
-
-	return 0;
+	return stream.lt_volume_;
 }
 
 sint32 CDx8SoundSys::GetStreamPan( LHSTREAM hStream )

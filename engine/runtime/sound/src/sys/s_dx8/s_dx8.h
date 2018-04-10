@@ -193,6 +193,8 @@ public:
 	bool					m_bLooping;
 
 	static 	LTLink			m_lstSampleLoopHead;
+
+	int lt_volume_;
 };
 
 
@@ -465,6 +467,7 @@ private:
 	MtMutex				m_cCS_ThreadedTickCounts;
 	uint32				m_nThreadedTickCounts;
 
+	int lt_master_volume_;
 	ltjs::AudioDecoder audio_decoder_;
 };
 
