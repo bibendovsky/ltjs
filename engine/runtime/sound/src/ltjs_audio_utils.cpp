@@ -62,8 +62,6 @@ struct AudioUtils::Detail
 	static LtPanDsPanTable lt_pan_to_ds_pan_table;
 	static LtPanToGainTable lt_pan_to_gain_table;
 
-	static DsVolumeToGainTable ds_volume_to_gain_table;
-
 	static MbVolumeToGainTable mb_volume_to_gain_table;
 
 
@@ -231,11 +229,6 @@ struct AudioUtils::Detail
 			}
 		}
 
-		for (auto i = 0; i < ds_max_volumes; ++i)
-		{
-			ds_volume_to_gain_table[i] = static_cast<float>(std::pow(10.0, static_cast<double>(-i) / 2'000.0));
-		}
-
 		for (auto i = 0; i < mb_volume_max_values; ++i)
 		{
 			const auto mb_value = i - mb_volume_to_gain_zero_index;
@@ -262,8 +255,6 @@ AudioUtils::Detail::LtVolumeToGainTable AudioUtils::Detail::lt_volume_to_gain_ta
 
 AudioUtils::Detail::LtPanDsPanTable AudioUtils::Detail::lt_pan_to_ds_pan_table;
 AudioUtils::Detail::LtPanToGainTable AudioUtils::Detail::lt_pan_to_gain_table;
-
-AudioUtils::Detail::DsVolumeToGainTable AudioUtils::Detail::ds_volume_to_gain_table;
 
 AudioUtils::Detail::MbVolumeToGainTable AudioUtils::Detail::mb_volume_to_gain_table;
 
@@ -319,28 +310,7 @@ float AudioUtils::lt_pan_to_gain(
 float AudioUtils::ds_volume_to_gain(
 	const int ds_volume)
 {
-	return Detail::ds_volume_to_gain_table[-Detail::clamp_ds_volume(ds_volume)];
-}
-
-float AudioUtils::mb_f_to_gain(
-	const float mb_value)
-{
-	const auto clamped_mb_value = ul::Algorithm::clamp(mb_value, -10'000.0F, 10'000.0F);
-	return std::pow(10.0F, clamped_mb_value / 2'000.0F);
-}
-
-float AudioUtils::mb_to_gain(
-	const int mb_value)
-{
-	const auto clamped_mb_value = ul::Algorithm::clamp(mb_value, -10'000, 10'000);
-	return std::pow(10.0F, clamped_mb_value / 2'000.0F);
-}
-
-int AudioUtils::gain_to_mb(
-	const float gain)
-{
-	const auto clamped_gain = ul::Algorithm::clamp(gain, 0.000'01F, 100'000.0F);
-	return static_cast<int>(2'000.0F * std::log10(clamped_gain));
+	return mb_volume_to_gain(Detail::clamp_ds_volume(ds_volume));
 }
 
 float AudioUtils::mb_volume_to_gain(

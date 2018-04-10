@@ -54,9 +54,9 @@ struct AudioUtils
 
 	static constexpr auto eax_decay_hf_limit_flag = 0B0010'0000;
  
-	static constexpr auto eax_min_room = -10000;
+	static constexpr auto eax_min_room = -10'000;
 	static constexpr auto eax_max_room = 0;
-	static constexpr auto eax_default_room = -1000;
+	static constexpr auto eax_default_room = -1'000;
 
 	static constexpr auto eax_min_room_hf = -10'000;
 	static constexpr auto eax_max_room_hf = 0;
@@ -216,41 +216,6 @@ struct AudioUtils
 	static float ds_volume_to_gain(
 		const int ds_volume);
 
-	//
-	// Converts a value in millibel to a gain.
-	//
-	// Parameters:
-	//    - mb_value - a value in millibel.
-	//
-	// Returns:
-	//    A gain [0.000'01..100'000].
-	//
-	static float mb_f_to_gain(
-		const float mb_value);
-
-	//
-	// Converts a value in millibel to a gain.
-	//
-	// Parameters:
-	//    - mb_value - a value in millibel.
-	//
-	// Returns:
-	//    A gain [0.000'01..100'000].
-	//
-	static float mb_to_gain(
-		const int mb_value);
-
-	//
-	// Converts a gain to a value in millibel.
-	//
-	// Parameters:
-	//    - gain - a gain.
-	//
-	// Returns:
-	//    A value in millibel [-10'000..10'000].
-	//
-	static int gain_to_mb(
-		const float gain);
 
 	//
 	// Converts a volume in millibels to a gain.
