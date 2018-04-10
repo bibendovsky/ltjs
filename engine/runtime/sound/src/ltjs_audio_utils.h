@@ -122,8 +122,8 @@ struct AudioUtils
 	// Returns:
 	//    - A clamped DirectSound volume.
 	//
-	static long clamp_ds_volume(
-		const long ds_volume);
+	static int clamp_ds_volume(
+		const int ds_volume);
 
 	//
 	// Converts a LithTech volume to a DirectSound one.
@@ -134,7 +134,7 @@ struct AudioUtils
 	// Returns:
 	//    - A DirectSound volume.
 	//
-	static long lt_volume_to_ds_volume(
+	static int lt_volume_to_ds_volume(
 		const sint32 lt_volume);
 
 	//
@@ -171,8 +171,8 @@ struct AudioUtils
 	// Returns:
 	//    - A clamped DirectSound pan.
 	//
-	static long clamp_ds_pan(
-		const long ds_pan);
+	static int clamp_ds_pan(
+		const int ds_pan);
 
 	//
 	// Converts a LithTech pan to a DirectSound one.
@@ -183,7 +183,7 @@ struct AudioUtils
 	// Returns:
 	//    - A DirectSound pan.
 	//
-	static long lt_pan_to_ds_pan(
+	static int lt_pan_to_ds_pan(
 		const sint32 lt_pan);
 
 	//
@@ -208,7 +208,7 @@ struct AudioUtils
 	//    A gain [0..1].
 	//
 	static float ds_volume_to_gain(
-		const long ds_volume);
+		const int ds_volume);
 
 	//
 	// Converts a value in millibel to a gain.
