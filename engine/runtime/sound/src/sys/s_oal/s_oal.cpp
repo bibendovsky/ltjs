@@ -2052,7 +2052,12 @@ struct OalSoundSys::Impl
 
 		if (oal_is_supports_eax20_filter_)
 		{
-			set_efx_effect_slot_on_sample(sample, oal_effect_slot_);
+			for (auto i_source = 0; i_source < sample.oal_source_count_; ++i_source)
+			{
+				const auto oal_source = sample.oal_sources_[i_source];
+
+				::alSource3i(oal_source, AL_AUXILIARY_SEND_FILTER, oal_effect_slot_, 0, AL_FILTER_NULL);
+			}
 		}
 
 		if (!oal_is_succeed())
@@ -3404,23 +3409,6 @@ struct OalSoundSys::Impl
 		auto& sample = object_3d.sample_;
 
 		set_sample_loop(sample, is_loop);
-	}
-
-	void set_efx_effect_slot_on_sample(
-		const Sample& sample,
-		const ALuint oal_effect_slot)
-	{
-		if (!oal_is_supports_eax20_filter_)
-		{
-			return;
-		}
-
-		for (auto i_source = 0; i_source < sample.oal_source_count_; ++i_source)
-		{
-			const auto oal_source = sample.oal_sources_[i_source];
-
-			::alSource3i(oal_source, AL_AUXILIARY_SEND_FILTER, oal_effect_slot, 0, AL_FILTER_NULL);
-		}
 	}
 
 	void uninitialize_eax20_filter()
