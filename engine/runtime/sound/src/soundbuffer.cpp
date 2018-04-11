@@ -90,8 +90,8 @@ LTRESULT CSoundBuffer::InitFromCompressed(CSoundBuffer &compressedSoundBuffer)
 
     if (compressedSoundBuffer.m_WaveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::ima_adpcm)
     {
-        if (!GetSoundSys()->DecompressADPCM(&compressedSoundBuffer.m_SoundInfo,
-            (void **)&m_pFileData, &m_dwFileSize))
+        if (!GetSoundSys()->DecompressADPCM(compressedSoundBuffer.m_SoundInfo,
+            reinterpret_cast<void*&>(m_pFileData), m_dwFileSize))
         {
             return LT_ERROR;
         }
@@ -103,9 +103,9 @@ LTRESULT CSoundBuffer::InitFromCompressed(CSoundBuffer &compressedSoundBuffer)
 			return LT_ERROR;
 
 		if (!GetSoundSys()->DecompressASI(compressedSoundBuffer.m_pFileData, compressedSoundBuffer.m_dwFileSize, ".mp3",
-            (void **)&m_pFileData, &m_dwFileSize, LTNULL))
+            reinterpret_cast<void*&>(m_pFileData), m_dwFileSize, LTNULL))
         {
-            char *pszError = GetSoundSys()->LastError();
+            auto pszError = GetSoundSys()->LastError();
             static_cast<void>(pszError);
             return LT_ERROR;
         }
@@ -327,12 +327,12 @@ LTRESULT CSoundBuffer::LoadData()
             // Convert sample if needed
             if (!IsCompressed() && GetClientILTSoundMgrImpl()->GetConvert16to8())
             {
-                if (GetWaveFormat()->bit_depth_ == 16 && GetWaveFormat()->tag_ == ul::WaveFormatTag::pcm)
+                if (GetWaveFormat().bit_depth_ == 16 && GetWaveFormat().tag_ == ul::WaveFormatTag::pcm)
                 {
                     m_WaveHeader.m_dwDataSize /= 2;
-                    GetWaveFormat()->bit_depth_ = 8;
-                    GetWaveFormat()->avg_bytes_per_sec_ /= 2;
-                    GetWaveFormat()->block_align_ /= 2;
+                    GetWaveFormat().bit_depth_ = 8;
+                    GetWaveFormat().avg_bytes_per_sec_ /= 2;
+                    GetWaveFormat().block_align_ /= 2;
 
                     // Create a new file buffer that has half the size for the data buffer.
                     pTempBuffer = (uint8*)GetSoundSys()->MemAllocLock(m_dwFileSize - m_WaveHeader.m_dwDataSize);

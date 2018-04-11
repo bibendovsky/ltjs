@@ -699,11 +699,14 @@ void CGameClientShell::InitSound()
 		{
             SAFE_STRCPY( sz3dSoundProviderName, g_pLTClient->GetVarValueString( hVar ));
 		}
+// bibendovsky
+#if 0
 		else
 		{
 			// try DX hardware
-		    SAFE_STRCPY( sz3dSoundProviderName, "DirectSound Hardware" );
+			SAFE_STRCPY( sz3dSoundProviderName, "DirectSound Hardware" );
 		}
+#endif // 0
 	}
 
 	// See if the provider exists....
@@ -715,21 +718,40 @@ void CGameClientShell::InitSound()
 			return;
 		}
 
-		pSound3DProvider = pSound3DProviderList;
-		while ( pSound3DProvider )
-		{
-			// If the provider is selected by name, then compare the names.
-			if (  dwProviderID == SOUND3DPROVIDERID_UNKNOWN )
-			{
-				if ( strcmp(( const char * )sz3dSoundProviderName, ( const char * )pSound3DProvider->m_szProvider ) == 0 )
-					break;
-			}
-			// Or compare by the id's.
-			else if ( pSound3DProvider->m_dwProviderID == dwProviderID )
-				break;
+		pSound3DProvider = nullptr;
 
-			// Not this one, try next one.
-			pSound3DProvider = pSound3DProvider->m_pNextProvider;
+		// At-first, search by a name.
+		//
+		if (*sz3dSoundProviderName != '\0')
+		{
+			pSound3DProvider = pSound3DProviderList;
+
+			while (pSound3DProvider)
+			{
+				if (::strcmp(sz3dSoundProviderName, pSound3DProvider->m_szProvider) == 0)
+				{
+					break;
+				}
+
+				pSound3DProvider = pSound3DProvider->m_pNextProvider;
+			}
+		}
+
+		// At-second, search by an id.
+		//
+		if (!pSound3DProvider)
+		{
+			pSound3DProvider = pSound3DProviderList;
+
+			while (pSound3DProvider)
+			{
+				if (pSound3DProvider->m_dwProviderID == SOUND3DPROVIDERID_DS3D_HARDWARE)
+				{
+					break;
+				}
+
+				pSound3DProvider = pSound3DProvider->m_pNextProvider;
+			}
 		}
 
 		// Check if we found one.

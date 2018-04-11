@@ -132,12 +132,12 @@ public:
 #include "windows.h"
 #include "stdio.h"
 
-typedef char*			( *SoundSysDescFn )( );
+typedef const char*		( *SoundSysDescFn )( );
 typedef ILTSoundSys*	( *SoundSysMakeFn )( );
 
 extern "C"
 {
-	__declspec( dllimport ) char*			SoundSysDesc( );
+	__declspec( dllimport ) const char*		SoundSysDesc( );
 	__declspec( dllimport ) ILTSoundSys*	SoundSysMake( );
 }
 

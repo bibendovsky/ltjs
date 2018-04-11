@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(ltjs_snd_drv_dx8 VERSION 0.0.1 LANGUAGES CXX)
+project(ltjs_snd_drv_oal VERSION 0.0.1 LANGUAGES CXX)
 
+find_package(OpenAL REQUIRED 1.1)
 find_package(LTJS_FFmpeg REQUIRED 2.8.11)
 
-option(LTJS_INSTALL_SND_DRV_DX8 "Install DirectSound sound driver." OFF)
+option(LTJS_INSTALL_SND_DRV_OAL "Install OpenAL sound driver." ON)
 
 include(ltjs_common)
 
@@ -12,37 +13,35 @@ include_directories(
 	../..
 	../../../../../../libs/bibendovsky_spul_lib/include
 	../../../../../../libs/lith
+	../../../../../../libs/openal_soft/include/AL
 	../../../../../sdk/inc
 	../../../../kernel/src
-	../../../../shared/src/sys/win
 )
 
 set(
 	headers
 	../../ltjs_audio_decoder.h
 	../../ltjs_audio_utils.h
-	eax.h
-	s_dx8.h
+	s_oal.h
 )
 
 set(
 	sources
-	../../../../kernel/src/sys/win/counter.cpp
 	../../ltjs_audio_decoder.cpp
 	../../ltjs_audio_utils.cpp
-	s_dx8.cpp
+	s_oal.cpp
 )
 
 add_library(
-	ltjs_snd_drv_dx8 SHARED
+	ltjs_snd_drv_oal SHARED
 	${headers}
 	${sources}
 )
 
-ltjs_add_defaults(ltjs_snd_drv_dx8)
+ltjs_add_defaults(ltjs_snd_drv_oal)
 
 set_target_properties(
-	ltjs_snd_drv_dx8
+	ltjs_snd_drv_oal
 	PROPERTIES
 		OUTPUT_NAME ltjs_snddrv
 		PREFIX ""
@@ -57,7 +56,7 @@ endif ()
 
 if (MSVC)
 	set_target_properties(
-		ltjs_snd_drv_dx8
+		ltjs_snd_drv_oal
 		PROPERTIES
 			LINK_FLAGS /SUBSYSTEM:WINDOWS
 	)
@@ -65,9 +64,7 @@ if (MSVC)
 	set(
 		libs
 		${ffmpeg_libs}
-		dsound
-		dxguid
-		winmm
+		${OPENAL_LIBRARY}
 	)
 endif ()
 
@@ -75,31 +72,29 @@ if (MINGW)
 	set(
 		libs
 		${ffmpeg_libs}
-		dsound
-		dxguid
-		winmm
+		${OPENAL_LIBRARY}
 		iconv
 		z
 	)
 endif ()
 
 target_link_libraries(
-	ltjs_snd_drv_dx8
+	ltjs_snd_drv_oal
 	bibendovsky_spul_lib
 	ltjs_lib_lt_mem
 	${libs}
 )
 
-if (LTJS_INSTALL_SND_DRV_DX8)
+if (LTJS_INSTALL_SND_DRV_OAL)
 	install(
 		TARGETS
-		ltjs_snd_drv_dx8
+		ltjs_snd_drv_oal
 		RUNTIME DESTINATION "."
 	)
 endif ()
 
 install(
 	TARGETS
-	ltjs_snd_drv_dx8
-	RUNTIME DESTINATION "ltjs_dx8_"
+	ltjs_snd_drv_oal
+	RUNTIME DESTINATION "ltjs_oal_"
 )

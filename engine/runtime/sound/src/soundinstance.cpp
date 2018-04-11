@@ -671,7 +671,7 @@ LTRESULT CSoundInstance::Acquire3DSample( )
 
 	SetVolume( m_nVolume );
 
-	GetSoundSys()->Get3DPosition( m_h3DSample, &vTemp.x, &vTemp.y, &vTemp.z );
+	GetSoundSys()->Get3DPosition( m_h3DSample, vTemp.x, vTemp.y, vTemp.z );
 	Get3DSamplePosition( vPos );
 	if( vTemp.DistSqr(vPos) > 0.001f )
 		GetSoundSys()->Set3DPosition( m_h3DSample, vPos.x, vPos.y, vPos.z );
@@ -782,7 +782,6 @@ LTRESULT CSoundInstance::AcquireStream( )
 
 LTRESULT CSoundInstance::StartRendering( )
 {
-	const ul::WaveFormatEx *pWaveFormat;
 	uint32 dwCurPos;
 
 	ASSERT( m_hSample || m_h3DSample || m_hStream );
@@ -795,14 +794,6 @@ LTRESULT CSoundInstance::StartRendering( )
 	if( !m_pSoundBuffer )
 		return LT_ERROR;
 
-	pWaveFormat = m_pSoundBuffer->GetWaveFormat( );
-	ASSERT( pWaveFormat );
-	if( !pWaveFormat )
-	{
-		return LT_ERROR;
-	}
-
-  
 	m_nNumCollisions = 0;
 
 	// Handle streaming sounds.
@@ -1023,11 +1014,11 @@ LTRESULT CLocalSoundInstance::UpdateOutput( uint32 dwFrameTime )
 			// Put the sound right in front of the listener
 			// Position is relative to listener, not absolute
 			h3DListener = GetClientILTSoundMgrImpl()->GetListenerObject( );
-			GetSoundSys()->Get3DOrientation( h3DListener, &vPosition.x, &vPosition.y, &vPosition.z, &vUp.x, &vUp.y, &vUp.z );
+			GetSoundSys()->Get3DOrientation( h3DListener, vPosition.x, vPosition.y, vPosition.z, vUp.x, vUp.y, vUp.z );
 			vPosition *= 5.0f;
 
 			// Update the position & velocity
-			GetSoundSys()->Get3DPosition( m_h3DSample, &vTemp.x, &vTemp.y, &vTemp.z );
+			GetSoundSys()->Get3DPosition( m_h3DSample, vTemp.x, vTemp.y, vTemp.z );
 			if( vTemp.DistSqr(vPosition) > 0.5f )
 				GetSoundSys()->Set3DPosition( m_h3DSample, vPosition.x, vPosition.y, vPosition.z );
 		}
@@ -1255,7 +1246,7 @@ LTRESULT CAmbientSoundInstance::UpdateOutput( uint32 dwFrameTime )
 				fScale2 = 1.0f - (( fDist - m_fInnerRadius ) / ( m_fOuterRadius - m_fInnerRadius ));
 			}
 
-			GetSoundSys()->Get3DPosition( m_h3DSample, &vTemp2.x, &vTemp2.y, &vTemp2.z );
+			GetSoundSys()->Get3DPosition( m_h3DSample, vTemp2.x, vTemp2.y, vTemp2.z );
 			if( vTemp2.DistSqr( vPosition ) > 0.5f )
 				GetSoundSys()->Set3DPosition( m_h3DSample, vPosition.x, vPosition.y, vPosition.z );
 
@@ -1458,12 +1449,12 @@ LTRESULT C3DSoundInstance::UpdateOutput( uint32 dwFrameTime )
 				fScale = 1.0f - (( fDist - m_fInnerRadius ) / ( m_fOuterRadius - m_fInnerRadius ));
 			}
 
-			GetSoundSys()->Get3DPosition( m_h3DSample, &vTemp.x, &vTemp.y, &vTemp.z );
+			GetSoundSys()->Get3DPosition( m_h3DSample, vTemp.x, vTemp.y, vTemp.z );
 			if( vTemp.DistSqr( vPosition ) > 0.5f )
 				GetSoundSys()->Set3DPosition( m_h3DSample, vPosition.x, vPosition.y, vPosition.z );
 			float fDistFactor = GetClientILTSoundMgrImpl()->GetDistanceFactor();
 			vVelocity = m_vVelocity * fDistFactor;
-			GetSoundSys()->Get3DVelocity( m_h3DSample, &vTemp.x, &vTemp.y, &vTemp.z );
+			GetSoundSys()->Get3DVelocity( m_h3DSample, vTemp.x, vTemp.y, vTemp.z );
 			if( vTemp.DistSqr( vVelocity ) > 0.5f )
 			{
 				GetSoundSys()->Set3DVelocityVector( m_h3DSample, vVelocity.x, 
