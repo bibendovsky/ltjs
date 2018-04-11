@@ -5,7 +5,7 @@
 #include <array>
 #include <mutex>
 #include <thread>
-#include "dsound.h"
+#include <dsound.h>
 #include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_riff_reader.h"
 #include "bibendovsky_spul_wave_format.h"

@@ -10,7 +10,6 @@ include(ltjs_common)
 include_directories(
 	${LTJS_FFMPEG_INCLUDE_DIR}
 	../..
-	../../../../../../directx/include
 	../../../../../../libs/bibendovsky_spul_lib/include
 	../../../../../../libs/lith
 	../../../../../sdk/inc
@@ -64,15 +63,10 @@ if (MSVC)
 	)
 
 	set(
-		path_to_dx_libs
-		${CMAKE_SOURCE_DIR}/directx/lib/x86
-	)
-
-	set(
 		libs
-		${path_to_dx_libs}/dsound.lib
-		${path_to_dx_libs}/dxguid.lib
 		${ffmpeg_libs}
+		dsound
+		dxguid
 		winmm
 	)
 endif ()
