@@ -242,15 +242,15 @@ struct AudioUtils::Detail
 	}
 
 	static void* allocate(
-		const std::size_t size)
+		const std::size_t storage_size)
 	{
-		return ::operator new(size);
+		return ::operator new(storage_size);
 	}
 
 	static void deallocate(
-		void* ptr)
+		void* storage_ptr)
 	{
-		return ::operator delete(ptr);
+		return ::operator delete(storage_ptr);
 	}
 }; // AudioUtils::Detail
 
@@ -326,28 +326,28 @@ float AudioUtils::mb_volume_to_gain(
 }
 
 void* AudioUtils::allocate(
-	const std::size_t size)
+	const std::size_t storage_size)
 {
-	return Detail::allocate(size);
+	return Detail::allocate(storage_size);
 }
 
 void AudioUtils::deallocate(
-	void* ptr)
+	void* storage_ptr)
 {
-	Detail::deallocate(ptr);
+	Detail::deallocate(storage_ptr);
 }
 
 sint32 AudioUtils::decode_mp3(
 	AudioDecoder& audio_decoder,
 	const void* src_data_ptr,
-	const uint32 src_size,
-	void*& dst_wav,
+	const uint32 src_data_size,
+	void*& dst_wav_ptr,
 	uint32& dst_wav_size)
 {
-	dst_wav = nullptr;
+	dst_wav_ptr = nullptr;
 	dst_wav_size = 0;
 
-	auto memory_stream = ul::MemoryStream{src_data_ptr, static_cast<int>(src_size), ul::Stream::OpenMode::read};
+	auto memory_stream = ul::MemoryStream{src_data_ptr, static_cast<int>(src_data_size), ul::Stream::OpenMode::read};
 
 	if (!memory_stream.is_open())
 	{
@@ -431,7 +431,7 @@ sint32 AudioUtils::decode_mp3(
 	*reinterpret_cast<std::uint32_t*>(header) = decoded_size;
 	header += 4;
 
-	dst_wav = decoded_data.release();
+	dst_wav_ptr = decoded_data.release();
 	dst_wav_size = wave_size;
 
 	return true;

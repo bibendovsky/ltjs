@@ -67,15 +67,15 @@ sint32 NulSoundSys::GetPreference(
 }
 
 void NulSoundSys::MemFreeLock(
-	void* ptr)
+	void* storage_ptr)
 {
-	::LTMemFree(ptr);
+	::LTMemFree(storage_ptr);
 }
 
 void* NulSoundSys::MemAllocLock(
-	const uint32 size)
+	const uint32 storage_size)
 {
-	return ::LTMemAlloc(size);
+	return ::LTMemAlloc(storage_size);
 }
 
 const char* NulSoundSys::LastError()
@@ -205,11 +205,11 @@ void NulSoundSys::Get3DProviderAttribute(
 
 sint32 NulSoundSys::Enumerate3DProviders(
 	LHPROENUM& index,
-	LHPROVIDER& dst_id,
+	LHPROVIDER& id,
 	const char*& name)
 {
 	static_cast<void>(index);
-	static_cast<void>(dst_id);
+	static_cast<void>(id);
 	static_cast<void>(name);
 
 	return {};
@@ -403,13 +403,13 @@ sint32 NulSoundSys::Init3DSampleFromAddress(
 
 sint32 NulSoundSys::Init3DSampleFromFile(
 	LH3DSAMPLE sample_handle,
-	const void* file_image_ptr,
+	const void* storage_ptr,
 	const sint32 block,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(file_image_ptr);
+	static_cast<void>(storage_ptr);
 	static_cast<void>(block);
 	static_cast<void>(playback_rate);
 	static_cast<void>(filter_data_ptr);
@@ -659,13 +659,13 @@ sint32 NulSoundSys::InitSampleFromAddress(
 
 sint32 NulSoundSys::InitSampleFromFile(
 	LHSAMPLE sample_handle,
-	const void* file_image_ptr,
+	const void* storage_ptr,
 	const sint32 block,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
 	static_cast<void>(sample_handle);
-	static_cast<void>(file_image_ptr);
+	static_cast<void>(storage_ptr);
 	static_cast<void>(block);
 	static_cast<void>(playback_rate);
 	static_cast<void>(filter_data_ptr);
@@ -724,13 +724,13 @@ LHSTREAM NulSoundSys::OpenStream(
 	const uint32 file_offset,
 	LHDIGDRIVER driver_ptr,
 	const char* file_image,
-	const sint32 file_image_size)
+	const sint32 storage_size)
 {
 	static_cast<void>(file_name);
 	static_cast<void>(file_offset);
 	static_cast<void>(driver_ptr);
 	static_cast<void>(file_image);
-	static_cast<void>(file_image_size);
+	static_cast<void>(storage_size);
 
 	return {};
 }
@@ -847,10 +847,10 @@ uint32 NulSoundSys::GetStreamStatus(
 
 sint32 NulSoundSys::GetStreamBufferParam(
 	LHSTREAM stream_ptr,
-	const uint32 param)
+	const uint32 index)
 {
 	static_cast<void>(stream_ptr);
-	static_cast<void>(param);
+	static_cast<void>(index);
 
 	return {};
 }

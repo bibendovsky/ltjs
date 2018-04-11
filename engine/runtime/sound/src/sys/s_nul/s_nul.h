@@ -43,10 +43,10 @@ public:
 		const uint32 index) override;
 
 	void MemFreeLock(
-		void* ptr) override;
+		void* storage_ptr) override;
 
 	void* MemAllocLock(
-		const uint32 size) override;
+		const uint32 storage_size) override;
 
 	const char* LastError() override;
 
@@ -111,7 +111,7 @@ public:
 
 	sint32 Enumerate3DProviders(
 		LHPROENUM& index,
-		LHPROVIDER& dst_id,
+		LHPROVIDER& id,
 		const char*& name) override;
 
 
@@ -206,15 +206,15 @@ public:
 
 	sint32 Init3DSampleFromAddress(
 		LH3DSAMPLE sample_handle,
-		const void* ptr,
-		const uint32 length,
+		const void* storage_ptr,
+		const uint32 storage_size,
 		const ul::WaveFormatEx& wave_format,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 
 	sint32 Init3DSampleFromFile(
 		LH3DSAMPLE sample_handle,
-		const void* file_image_ptr,
+		const void* storage_ptr,
 		const sint32 block,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr) override;
@@ -335,7 +335,7 @@ public:
 
 	sint32 InitSampleFromFile(
 		LHSAMPLE sample_handle,
-		const void* file_image_ptr,
+		const void* storage_ptr,
 		const sint32 block,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr) override;
@@ -369,7 +369,7 @@ public:
 		const uint32 file_offset,
 		LHDIGDRIVER driver_ptr,
 		const char* file_image,
-		const sint32 file_image_size) override;
+		const sint32 storage_size) override;
 
 	void SetStreamLoop(
 		LHSTREAM stream_ptr,
@@ -427,7 +427,7 @@ public:
 
 	sint32 GetStreamBufferParam(
 		LHSTREAM stream_ptr,
-		const uint32 param) override;
+		const uint32 index) override;
 
 	void ClearStreamBuffer(
 		LHSTREAM stream_ptr,

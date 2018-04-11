@@ -16,6 +16,8 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#include "al.h"
+#include "alc.h"
 #include "efx.h"
 #include "efx-presets.h"
 #include "bibendovsky_spul_algorithm.h"
@@ -1918,8 +1920,8 @@ struct OalSoundSys::Impl
 
 	bool initialize_sample_from_address_generic(
 		Sample& sample,
-		const void* ptr,
-		const uint32 length,
+		const void* storage_ptr,
+		const uint32 storage_size,
 		const ul::WaveFormatEx& wave_format,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr)
@@ -1933,7 +1935,7 @@ struct OalSoundSys::Impl
 
 		reset_sample(sample);
 
-		if ((!sample.is_stream_ && length == 0) || !validate_wave_format_ex(wave_format) || playback_rate <= 0)
+		if ((!sample.is_stream_ && storage_size == 0) || !validate_wave_format_ex(wave_format) || playback_rate <= 0)
 		{
 			return false;
 		}
@@ -1943,7 +1945,7 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
-		if (!sample.is_stream_ && !ptr && sample.data_.empty())
+		if (!sample.is_stream_ && !storage_ptr && sample.data_.empty())
 		{
 			return false;
 		}
@@ -1959,13 +1961,13 @@ struct OalSoundSys::Impl
 
 		sample.oal_buffer_format_ = get_oal_buffer_format(wave_format);
 
-		if (ptr)
+		if (storage_ptr)
 		{
-			sample.data_.resize(length);
+			sample.data_.resize(storage_size);
 
 			std::uninitialized_copy_n(
-				static_cast<const std::uint8_t*>(ptr),
-				length,
+				static_cast<const std::uint8_t*>(storage_ptr),
+				storage_size,
 				sample.data_.begin());
 		}
 
@@ -2075,8 +2077,8 @@ struct OalSoundSys::Impl
 
 	sint32 initialize_sample_generic(
 		LHSAMPLE sample_handle,
-		const void* ptr,
-		const uint32 length,
+		const void* storage_ptr,
+		const uint32 storage_size,
 		const ul::WaveFormatEx& wave_format,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr)
@@ -2095,8 +2097,8 @@ struct OalSoundSys::Impl
 
 		if (!initialize_sample_from_address_generic(
 			sample,
-			ptr,
-			length,
+			storage_ptr,
+			storage_size,
 			wave_format,
 			playback_rate,
 			filter_data_ptr))
@@ -2109,13 +2111,13 @@ struct OalSoundSys::Impl
 
 	bool initialize_sample_from_file(
 		Sample& sample,
-		const void* file_image_ptr,
+		const void* storage_ptr,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr)
 	{
 		static_cast<void>(filter_data_ptr);
 
-		if (!file_image_ptr || playback_rate <= 0)
+		if (!storage_ptr || playback_rate <= 0)
 		{
 			return false;
 		}
@@ -2125,14 +2127,14 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
-		const auto wave_size = ltjs::AudioUtils::extract_wave_size(file_image_ptr);
+		const auto wave_size = ltjs::AudioUtils::extract_wave_size(storage_ptr);
 
 		if (wave_size <= 0)
 		{
 			return false;
 		}
 
-		auto memory_stream = ul::MemoryStream{file_image_ptr, wave_size};
+		auto memory_stream = ul::MemoryStream{storage_ptr, wave_size};
 
 		if (!memory_stream.is_open())
 		{
@@ -2177,7 +2179,7 @@ struct OalSoundSys::Impl
 
 	bool initialize_sample_from_file(
 		LHSAMPLE sample_handle,
-		const void* file_image_ptr,
+		const void* storage_ptr,
 		const sint32 block,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr)
@@ -2191,19 +2193,19 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
-		return initialize_sample_from_file(sample, file_image_ptr, playback_rate, filter_data_ptr);
+		return initialize_sample_from_file(sample, storage_ptr, playback_rate, filter_data_ptr);
 	}
 
 	void set_sample_loop_block(
 		Sample& sample,
-		const sint32 loop_start_offset,
+		const sint32 loop_begin_offset,
 		const sint32 loop_end_offset,
 		const bool is_enable)
 	{
 		const auto data_size = static_cast<int>(sample.data_.size());
 		const auto sample_size = sample.format_.block_align_;
 
-		auto new_start = loop_start_offset;
+		auto new_start = loop_begin_offset;
 
 		if (new_start <= 0)
 		{
@@ -2235,7 +2237,7 @@ struct OalSoundSys::Impl
 
 	void set_sample_loop_block(
 		LHSAMPLE sample_handle,
-		const sint32 loop_start_offset,
+		const sint32 loop_begin_offset,
 		const sint32 loop_end_offset,
 		const bool is_enable)
 	{
@@ -2246,7 +2248,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
-		set_sample_loop_block(sample, loop_start_offset, loop_end_offset, is_enable);
+		set_sample_loop_block(sample, loop_begin_offset, loop_end_offset, is_enable);
 	}
 
 	void set_sample_loop(
@@ -2475,11 +2477,11 @@ struct OalSoundSys::Impl
 		const char* file_name,
 		const uint32 file_offset,
 		LHDIGDRIVER driver_ptr,
-		const char* stream_ptr,
-		const sint32 stream_memory_size)
+		const char* storage_ptr,
+		const sint32 storage_size)
 	{
-		static_cast<void>(stream_ptr);
-		static_cast<void>(stream_memory_size);
+		static_cast<void>(storage_ptr);
+		static_cast<void>(storage_size);
 
 		if (!file_name || driver_ptr != oal_device_ || streams_.empty())
 		{
@@ -2578,7 +2580,7 @@ struct OalSoundSys::Impl
 
 	void set_stream_loop(
 		LHSTREAM stream_ptr,
-		const bool is_loop)
+		const bool is_enable)
 	{
 		if (!stream_ptr)
 		{
@@ -2589,7 +2591,7 @@ struct OalSoundSys::Impl
 
 		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
 
-		stream.sample_.is_looping_ = is_loop;
+		stream.sample_.is_looping_ = is_enable;
 	}
 
 	void set_stream_position_ms(
@@ -2668,7 +2670,7 @@ struct OalSoundSys::Impl
 
 	void pause_stream(
 		LHSTREAM stream_ptr,
-		const sint32 is_pause)
+		const sint32 is_enable)
 	{
 		if (!stream_ptr)
 		{
@@ -2679,7 +2681,7 @@ struct OalSoundSys::Impl
 
 		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
 
-		stream.is_playing_ = (is_pause != 0);
+		stream.is_playing_ = (is_enable != 0);
 
 		if (stream.is_playing_)
 		{
@@ -2770,17 +2772,17 @@ struct OalSoundSys::Impl
 	}
 
 	sint32 decode_mp3(
-		const void* srd_data_ptr,
-		const uint32 src_size,
+		const void* src_data_ptr,
+		const uint32 src_data_size,
 		const char* file_name_ext,
-		void*& dst_wav,
-		uint32& dst_wav_size,
+		void*& ds_wav_ptr,
+		uint32& ds_wav_size,
 		LTLENGTHYCB callback)
 	{
 		static_cast<void>(file_name_ext);
 		static_cast<void>(callback);
 
-		return ltjs::AudioUtils::decode_mp3(audio_decoder_, srd_data_ptr, src_size, dst_wav, dst_wav_size);
+		return ltjs::AudioUtils::decode_mp3(audio_decoder_, src_data_ptr, src_data_size, ds_wav_ptr, ds_wav_size);
 	}
 
 	void reset_3d_object(
@@ -2907,21 +2909,21 @@ struct OalSoundSys::Impl
 
 	void set_3d_listener_doppler(
 		LH3DPOBJECT listener_ptr,
-		const float doppler)
+		const float doppler_factor)
 	{
 		if (listener_ptr != &listener_3d_)
 		{
 			return;
 		}
 
-		if (listener_3d_.doppler_factor_ == doppler)
+		if (listener_3d_.doppler_factor_ == doppler_factor)
 		{
 			return;
 		}
 
-		listener_3d_.doppler_factor_ = doppler;
+		listener_3d_.doppler_factor_ = doppler_factor;
 
-		::alDopplerFactor(doppler);
+		::alDopplerFactor(doppler_factor);
 	}
 
 	void set_3d_position(
@@ -3287,8 +3289,8 @@ struct OalSoundSys::Impl
 
 	sint32 initialize_3d_sample_from_address(
 		LH3DSAMPLE sample_handle,
-		const void* ptr,
-		const uint32 length,
+		const void* storage_ptr,
+		const uint32 storage_size,
 		const ul::WaveFormatEx& wave_format,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr)
@@ -3306,8 +3308,8 @@ struct OalSoundSys::Impl
 
 		return initialize_sample_from_address_generic(
 			sample,
-			ptr,
-			length,
+			storage_ptr,
+			storage_size,
 			wave_format,
 			playback_rate,
 			filter_data_ptr);
@@ -3315,7 +3317,7 @@ struct OalSoundSys::Impl
 
 	sint32 initialize_3d_sample_from_file(
 		LH3DSAMPLE sample_handle,
-		const void* file_image_ptr,
+		const void* storage_ptr,
 		const sint32 block,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr)
@@ -3333,7 +3335,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = object_3d.sample_;
 
-		return initialize_sample_from_file(sample, file_image_ptr, playback_rate, filter_data_ptr);
+		return initialize_sample_from_file(sample, storage_ptr, playback_rate, filter_data_ptr);
 	}
 
 	sint32 get_3d_sample_volume(
@@ -3383,7 +3385,7 @@ struct OalSoundSys::Impl
 
 	void set_3d_sample_loop_block(
 		LH3DSAMPLE sample_handle,
-		const sint32 loop_start_offset,
+		const sint32 loop_begin_offset,
 		const sint32 loop_end_offset,
 		const bool is_enable)
 	{
@@ -3395,12 +3397,12 @@ struct OalSoundSys::Impl
 		auto& object_3d = *static_cast<Object3d*>(sample_handle);
 		auto& sample = object_3d.sample_;
 
-		set_sample_loop_block(sample, loop_start_offset, loop_end_offset, is_enable);
+		set_sample_loop_block(sample, loop_begin_offset, loop_end_offset, is_enable);
 	}
 
 	void set_3d_sample_loop(
 		LH3DSAMPLE sample_handle,
-		const bool is_loop)
+		const bool is_enable)
 	{
 		if (!sample_handle)
 		{
@@ -3410,7 +3412,7 @@ struct OalSoundSys::Impl
 		auto& object_3d = *static_cast<Object3d*>(sample_handle);
 		auto& sample = object_3d.sample_;
 
-		set_sample_loop(sample, is_loop);
+		set_sample_loop(sample, is_enable);
 	}
 
 	void uninitialize_eax20_filter()
@@ -3714,33 +3716,33 @@ uint32 OalSoundSys::MsCount()
 }
 
 sint32 OalSoundSys::SetPreference(
-	const uint32 number,
+	const uint32 index,
 	const sint32 value)
 {
-	static_cast<void>(number);
+	static_cast<void>(index);
 	static_cast<void>(value);
 
 	return LS_ERROR;
 }
 
 sint32 OalSoundSys::GetPreference(
-	const uint32 number)
+	const uint32 index)
 {
-	static_cast<void>(number);
+	static_cast<void>(index);
 
 	return {};
 }
 
 void OalSoundSys::MemFreeLock(
-	void* ptr)
+	void* storage_ptr)
 {
-	ltjs::AudioUtils::deallocate(ptr);
+	ltjs::AudioUtils::deallocate(storage_ptr);
 }
 
 void* OalSoundSys::MemAllocLock(
-	const uint32 size)
+	const uint32 storage_size)
 {
-	return ltjs::AudioUtils::allocate(size);
+	return ltjs::AudioUtils::allocate(storage_size);
 }
 
 const char* OalSoundSys::LastError()
@@ -3814,9 +3816,9 @@ bool OalSoundSys::SetEAX20BufferSettings(
 #endif // USE_EAX20_HARDWARE_FILTERS
 
 void OalSoundSys::Set3DProviderMinBuffers(
-	const uint32 min_buffers)
+	const uint32 buffer_count)
 {
-	static_cast<void>(min_buffers);
+	static_cast<void>(buffer_count);
 }
 
 sint32 OalSoundSys::Open3DProvider(
@@ -3859,21 +3861,21 @@ void OalSoundSys::Get3DProviderAttribute(
 }
 
 sint32 OalSoundSys::Enumerate3DProviders(
-	LHPROENUM& next,
-	LHPROVIDER& destination,
+	LHPROENUM& index,
+	LHPROVIDER& id,
 	const char*& name)
 {
-	const auto current = next++;
+	const auto current_index = index++;
 
-	destination = 0;
+	id = 0;
 	name = nullptr;
 
-	if (current < 0 || current > 0)
+	if (current_index < 0 || current_index > 0)
 	{
 		return false;
 	}
 
-	destination = SOUND3DPROVIDERID_DS3D_HARDWARE;
+	id = SOUND3DPROVIDERID_DS3D_HARDWARE;
 	name = "OpenAL";
 
 	return true;
@@ -3893,9 +3895,9 @@ void OalSoundSys::Close3DListener(
 
 void OalSoundSys::SetListenerDoppler(
 	LH3DPOBJECT listener_ptr,
-	const float doppler)
+	const float doppler_factor)
 {
-	pimpl_->set_3d_listener_doppler(listener_ptr, doppler);
+	pimpl_->set_3d_listener_doppler(listener_ptr, doppler_factor);
 }
 
 void OalSoundSys::CommitDeferred()
@@ -4026,12 +4028,12 @@ sint32 OalSoundSys::Init3DSampleFromAddress(
 
 sint32 OalSoundSys::Init3DSampleFromFile(
 	LH3DSAMPLE sample_handle,
-	const void* file_image_ptr,
+	const void* storage_ptr,
 	const sint32 block,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->initialize_3d_sample_from_file(sample_handle, file_image_ptr, block, playback_rate, filter_data_ptr);
+	return pimpl_->initialize_3d_sample_from_file(sample_handle, storage_ptr, block, playback_rate, filter_data_ptr);
 }
 
 sint32 OalSoundSys::Get3DSampleVolume(
@@ -4090,18 +4092,18 @@ void OalSoundSys::Set3DSamplePreference(
 
 void OalSoundSys::Set3DSampleLoopBlock(
 	LH3DSAMPLE sample_handle,
-	const sint32 loop_start_offset,
+	const sint32 loop_begin_offset,
 	const sint32 loop_end_offset,
 	const bool is_enable)
 {
-	pimpl_->set_3d_sample_loop_block(sample_handle, loop_start_offset, loop_end_offset, is_enable);
+	pimpl_->set_3d_sample_loop_block(sample_handle, loop_begin_offset, loop_end_offset, is_enable);
 }
 
 void OalSoundSys::Set3DSampleLoop(
 	LH3DSAMPLE sample_handle,
-	const bool is_loop)
+	const bool is_enable)
 {
-	pimpl_->set_3d_sample_loop(sample_handle, is_loop);
+	pimpl_->set_3d_sample_loop(sample_handle, is_enable);
 }
 
 void OalSoundSys::Set3DSampleObstruction(
@@ -4214,13 +4216,13 @@ void OalSoundSys::SetSampleUserData(
 
 void OalSoundSys::GetDirectSoundInfo(
 	LHSAMPLE sample_handle,
-	PTDIRECTSOUND& direct_sound,
-	PTDIRECTSOUNDBUFFER& direct_sound_buffer)
+	PTDIRECTSOUND& ds_instance,
+	PTDIRECTSOUNDBUFFER& ds_buffer)
 {
 	static_cast<void>(sample_handle);
 
-	direct_sound = nullptr;
-	direct_sound_buffer = nullptr;
+	ds_instance = nullptr;
+	ds_buffer = nullptr;
 }
 
 void OalSoundSys::SetSampleReverb(
@@ -4237,39 +4239,40 @@ void OalSoundSys::SetSampleReverb(
 
 sint32 OalSoundSys::InitSampleFromAddress(
 	LHSAMPLE sample_handle,
-	const void* ptr,
-	const uint32 length,
+	const void* storage_ptr,
+	const uint32 storage_size,
 	const ul::WaveFormatEx& wave_format,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->initialize_sample_generic(sample_handle, ptr, length, wave_format, playback_rate, filter_data_ptr);
+	return pimpl_->initialize_sample_generic(
+		sample_handle, storage_ptr, storage_size, wave_format, playback_rate, filter_data_ptr);
 }
 
 sint32 OalSoundSys::InitSampleFromFile(
 	LHSAMPLE sample_handle,
-	const void* file_image_ptr,
+	const void* storage_ptr,
 	const sint32 block,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->initialize_sample_from_file(sample_handle, file_image_ptr, block, playback_rate, filter_data_ptr);
+	return pimpl_->initialize_sample_from_file(sample_handle, storage_ptr, block, playback_rate, filter_data_ptr);
 }
 
 void OalSoundSys::SetSampleLoopBlock(
 	LHSAMPLE sample_handle,
-	const sint32 loop_start_offset,
+	const sint32 loop_begin_offset,
 	const sint32 loop_end_offset,
 	const bool is_enable)
 {
-	pimpl_->set_sample_loop_block(sample_handle, loop_start_offset, loop_end_offset, is_enable);
+	pimpl_->set_sample_loop_block(sample_handle, loop_begin_offset, loop_end_offset, is_enable);
 }
 
 void OalSoundSys::SetSampleLoop(
 	LHSAMPLE sample_handle,
-	const bool is_loop)
+	const bool is_enable)
 {
-	pimpl_->set_sample_loop(sample_handle, is_loop);
+	pimpl_->set_sample_loop(sample_handle, is_enable);
 }
 
 void OalSoundSys::SetSampleMsPosition(
@@ -4296,17 +4299,17 @@ LHSTREAM OalSoundSys::OpenStream(
 	const char* file_name,
 	const uint32 file_offset,
 	LHDIGDRIVER driver_ptr,
-	const char* stream_ptr,
-	const sint32 stream_memory_size)
+	const char* storage_ptr,
+	const sint32 storage_size)
 {
-	return pimpl_->open_stream(file_name, file_offset, driver_ptr, stream_ptr, stream_memory_size);
+	return pimpl_->open_stream(file_name, file_offset, driver_ptr, storage_ptr, storage_size);
 }
 
 void OalSoundSys::SetStreamLoop(
 	LHSTREAM stream_ptr,
-	const bool is_loop)
+	const bool is_enable)
 {
-	pimpl_->set_stream_loop(stream_ptr, is_loop);
+	pimpl_->set_stream_loop(stream_ptr, is_enable);
 }
 
 void OalSoundSys::SetStreamPlaybackRate(
@@ -4353,9 +4356,9 @@ void OalSoundSys::StartStream(
 
 void OalSoundSys::PauseStream(
 	LHSTREAM stream_ptr,
-	const sint32 is_pause)
+	const sint32 is_enable)
 {
-	pimpl_->pause_stream(stream_ptr, is_pause);
+	pimpl_->pause_stream(stream_ptr, is_enable);
 }
 
 void OalSoundSys::ResetStream(
@@ -4398,10 +4401,10 @@ uint32 OalSoundSys::GetStreamStatus(
 
 sint32 OalSoundSys::GetStreamBufferParam(
 	LHSTREAM stream_ptr,
-	const uint32 param)
+	const uint32 index)
 {
 	static_cast<void>(stream_ptr);
-	static_cast<void>(param);
+	static_cast<void>(index);
 
 	return {};
 }
@@ -4427,14 +4430,14 @@ sint32 OalSoundSys::DecompressADPCM(
 }
 
 sint32 OalSoundSys::DecompressASI(
-	const void* srd_data_ptr,
-	const uint32 src_size,
+	const void* src_data_ptr,
+	const uint32 src_data_size,
 	const char* file_name_ext,
-	void*& dst_wav,
+	void*& dst_wav_ptr,
 	uint32& dst_wav_size,
 	LTLENGTHYCB callback)
 {
-	return pimpl_->decode_mp3(srd_data_ptr, src_size, file_name_ext, dst_wav, dst_wav_size, callback);
+	return pimpl_->decode_mp3(src_data_ptr, src_data_size, file_name_ext, dst_wav_ptr, dst_wav_size, callback);
 }
 
 uint32 OalSoundSys::GetThreadedSoundTicks()

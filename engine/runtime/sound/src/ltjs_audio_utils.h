@@ -240,7 +240,7 @@ struct AudioUtils
 	//    - The allocated memory block.
 	//
 	static void* allocate(
-		const std::size_t size);
+		const std::size_t storage_size);
 
 	//
 	// Deallocates a block of memory.
@@ -249,17 +249,17 @@ struct AudioUtils
 	//    - ptr - a pointer to the block to deallocate.
 	//
 	static void deallocate(
-		void* ptr);
+		void* storage_ptr);
 
 	//
 	// Decodes MP3 in-memory file (wrapped in WAVE).
 	//
 	static sint32 decode_mp3(
 		AudioDecoder& audio_decoder,
-		const void* src_data_ptr,
-		const uint32 src_size,
-		void*& dst_wav,
-		uint32& dst_wav_size);
+		const void* storage_ptr,
+		const uint32 storage_size,
+		void*& wav_data_ptr,
+		uint32& wav_data_size);
 
 
 	//

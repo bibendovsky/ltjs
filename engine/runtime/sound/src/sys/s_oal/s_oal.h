@@ -3,8 +3,6 @@
 
 
 #include <memory>
-#include "al.h"
-#include "alc.h"
 #include "bibendovsky_spul_wave_format.h"
 #include "iltsound.h"
 
@@ -49,17 +47,17 @@ public:
 	uint32 MsCount() override;
 
 	sint32 SetPreference(
-		const uint32 number,
+		const uint32 index,
 		const sint32 value) override;
 
 	sint32 GetPreference(
-		const uint32 number) override;
+		const uint32 index) override;
 
 	void MemFreeLock(
-		void* ptr) override;
+		void* storage_ptr) override;
 
 	void* MemAllocLock(
-		const uint32 size) override;
+		const uint32 storage_size) override;
 
 	const char* LastError() override;
 
@@ -104,7 +102,7 @@ public:
 	// 3D sound provider functions
 	//
 	void Set3DProviderMinBuffers(
-		const uint32 min_buffers) override;
+		const uint32 buffer_count) override;
 
 	sint32 Open3DProvider(
 		LHPROVIDER provider_id) override;
@@ -123,8 +121,8 @@ public:
 		void* value) override;
 
 	sint32 Enumerate3DProviders(
-		LHPROENUM& next,
-		LHPROVIDER& destination,
+		LHPROENUM& index,
+		LHPROVIDER& id,
 		const char*& name) override;
 
 
@@ -138,7 +136,7 @@ public:
 
 	void SetListenerDoppler(
 		LH3DPOBJECT listener_ptr,
-		const float doppler) override;
+		const float doppler_factor) override;
 
 	void CommitDeferred() override;
 
@@ -227,7 +225,7 @@ public:
 
 	sint32 Init3DSampleFromFile(
 		LH3DSAMPLE sample_handle,
-		const void* file_image_ptr,
+		const void* storage_ptr,
 		const sint32 block,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr) override;
@@ -262,13 +260,13 @@ public:
 
 	void Set3DSampleLoopBlock(
 		LH3DSAMPLE sample_handle,
-		const sint32 loop_start_offset,
+		const sint32 loop_begin_offset,
 		const sint32 loop_end_offset,
 		const bool is_enable) override;
 
 	void Set3DSampleLoop(
 		LH3DSAMPLE sample_handle,
-		const bool is_loop) override;
+		const bool is_enable) override;
 
 	void Set3DSampleObstruction(
 		LH3DSAMPLE sample_handle,
@@ -329,8 +327,8 @@ public:
 
 	void GetDirectSoundInfo(
 		LHSAMPLE sample_handle,
-		PTDIRECTSOUND& direct_sound,
-		PTDIRECTSOUNDBUFFER& direct_sound_buffer) override;
+		PTDIRECTSOUND& ds_instance,
+		PTDIRECTSOUNDBUFFER& ds_buffer) override;
 
 	void SetSampleReverb(
 		LHSAMPLE sample_handle,
@@ -348,20 +346,20 @@ public:
 
 	sint32 InitSampleFromFile(
 		LHSAMPLE sample_handle,
-		const void* file_image_ptr,
+		const void* storage_ptr,
 		const sint32 block,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 
 	void SetSampleLoopBlock(
 		LHSAMPLE sample_handle,
-		const sint32 loop_start_offset,
+		const sint32 loop_begin_offset,
 		const sint32 loop_end_offset,
 		const bool is_enable) override;
 
 	void SetSampleLoop(
 		LHSAMPLE sample_handle,
-		const bool is_loop) override;
+		const bool is_enable) override;
 
 	void SetSampleMsPosition(
 		LHSAMPLE sample_handle,
@@ -381,12 +379,12 @@ public:
 		const char* file_name,
 		const uint32 file_offset,
 		LHDIGDRIVER driver_ptr,
-		const char* stream_ptr,
-		const sint32 stream_memory_size) override;
+		const char* file_image,
+		const sint32 storage_size) override;
 
 	void SetStreamLoop(
 		LHSTREAM stream_ptr,
-		const bool is_loop) override;
+		const bool is_enable) override;
 
 	void SetStreamPlaybackRate(
 		LHSTREAM stream_ptr,
@@ -416,7 +414,7 @@ public:
 
 	void PauseStream(
 		LHSTREAM stream_ptr,
-		const sint32 is_pause) override;
+		const sint32 is_enable) override;
 
 	void ResetStream(
 		LHSTREAM stream_ptr) override;
@@ -440,7 +438,7 @@ public:
 
 	sint32 GetStreamBufferParam(
 		LHSTREAM stream_ptr,
-		const uint32 param) override;
+		const uint32 index) override;
 
 	void ClearStreamBuffer(
 		LHSTREAM stream_ptr,
@@ -456,9 +454,9 @@ public:
 
 	sint32 DecompressASI(
 		const void* src_data_ptr,
-		const uint32 src_size,
+		const uint32 src_data_size,
 		const char* file_name_ext,
-		void*& dst_wav,
+		void*& dst_wav_ptr,
 		uint32& dst_wav_size,
 		LTLENGTHYCB callback) override;
 
