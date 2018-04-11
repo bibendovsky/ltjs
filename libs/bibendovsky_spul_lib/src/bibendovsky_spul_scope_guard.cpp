@@ -30,9 +30,5 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
 
-#ifndef BIBENDOVSKY_SPUL_SCOPE_GUARD_INCLUDED
-#define BIBENDOVSKY_SPUL_SCOPE_GUARD_INCLUDED
-
-
 #include "bibendovsky_spul_precompiled.h"
 #include "bibendovsky_spul_scope_guard.h"

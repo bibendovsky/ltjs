@@ -611,7 +611,7 @@ void CSample::Reset( )
 	dl_Remove( &m_lnkLoopNotify );
 }
 
-bool CSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, const uint32 uiNumSamples,
+bool CSample::Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamples,
 				const bool b3DBuffer, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData )
 {
 	bool bUseFilter;
@@ -643,10 +643,14 @@ bool CSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, const uint32 uiNumSampl
 		}
 	}
 
+#ifndef __MINGW32__
 	if ( b3DBuffer )
 		m_dsbDesc.guid3DAlgorithm = DS3DALG_HRTF_FULL;
 	else
 		m_dsbDesc.guid3DAlgorithm = DS3DALG_DEFAULT;
+#else
+	m_dsbDesc.guid3DAlgorithm = DS3DALG_DEFAULT;
+#endif // !__MINGW32__
 
 	// filters and frequency variation are mutually exclusive
 	if ( bUseFilter )
@@ -1024,7 +1028,7 @@ void CSample::Term( )
 		m_pDSBuffer->Release( );
 
 	if( m_bAllocatedSoundData && m_pSoundData != NULL )
-		delete[] m_pSoundData;
+		ltjs::AudioUtils::deallocate(m_pSoundData);
 
 	Reset( );
 }
@@ -1295,7 +1299,7 @@ void C3DSample::Reset( )
 	m_status = LS_DONE;
 }
 
-bool C3DSample::Init( HRESULT& hResult, LPDIRECTSOUND pDS, const uint32 uiNumSamples, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData )
+bool C3DSample::Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamples, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData )
 {
 	Term( );
 
@@ -1778,7 +1782,7 @@ void CDx8SoundSys::Reset( )
 	// probably shouldn't need to lock this but ...
 	m_pDSPrimaryBuffer = NULL;
 
-	m_hResult = NULL;
+	m_hResult = DS_OK;
 	m_waveFormat = {};
 	memset( &m_userPrefs, 0, ( MAX_USER_PREF_INDEX + 1 ) * sizeof( S32 ) );
 	m_pStreams = NULL;
@@ -2588,7 +2592,7 @@ void CDx8SoundSys::SetListenerDoppler( LH3DPOBJECT hListener, float fDoppler )
 //
 void CDx8SoundSys::CommitDeferred()
 {
-	LPDIRECTSOUND3DLISTENER8 pDS3DListener; 
+	LPDIRECTSOUND3DLISTENER pDS3DListener; 
 
 	if ( m_pDSPrimaryBuffer )
 	{

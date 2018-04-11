@@ -139,7 +139,7 @@ public:
 	virtual void SetOrientation( LTVector& up, LTVector& face );
 
 public:
-	LPDIRECTSOUND3DLISTENER8	m_pDS3DListener;
+	LPDIRECTSOUND3DLISTENER		m_pDS3DListener;
 	float						m_fDopplerSetting;
 };
 
@@ -150,7 +150,7 @@ public:
 	CSample( );
 	virtual ~CSample( );
 	void Reset( );
-	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, const uint32 uiNumSamples, 
+	bool Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamples, 
 		const bool b3DBuffer, const ul::WaveFormatEx* pWaveFormat = NULL, const LTSOUNDFILTERDATA* pFilterData = NULL );
 	void Term( );
 	void Restore( );
@@ -205,7 +205,7 @@ public:
 	C3DSample( );
 	virtual ~C3DSample( );
 	void Reset( );
-	bool Init( HRESULT& hResult, LPDIRECTSOUND pDS, const uint32 uiNumSamples, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData );
+	bool Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamples, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData );
 	void Term( );
 	virtual void SetPosition( LTVector& pos );
 	virtual void SetVelocity( LTVector& vel );
@@ -221,7 +221,7 @@ public:
 	float					m_DSMinDist;
 	U32						m_status;
 	CSample					m_sample;
-	LPDIRECTSOUND3DBUFFER8	m_pDS3DBuffer;
+	LPDIRECTSOUND3DBUFFER	m_pDS3DBuffer;
 };
 
 
