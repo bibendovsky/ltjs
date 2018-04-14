@@ -394,6 +394,8 @@ public:
 
 	bool		HasOnBoardMemory( ) override;
 
+	void handle_focus_lost(
+		const bool is_focus_lost) override;
 //	===========================================================================
 //	Incorporation of DSMStrm* required functionality
 public:

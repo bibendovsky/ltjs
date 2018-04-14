@@ -456,6 +456,9 @@ public:
 
 	bool HasOnBoardMemory() override;
 
+	void handle_focus_lost(
+		const bool is_focus_lost) override;
+
 
 	static NulSoundSys& get_singleton();
 }; // NulSoundSys

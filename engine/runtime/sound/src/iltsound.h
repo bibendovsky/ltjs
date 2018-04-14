@@ -510,7 +510,8 @@ public:
 
 	virtual bool		HasOnBoardMemory( ) = 0;
 
-public:
+	virtual void handle_focus_lost(
+		const bool is_focus_lost) = 0;
 };
 
 // sound factory abstract base class

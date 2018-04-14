@@ -1995,12 +1995,6 @@ bool CDx8SoundSys::Init( )
 	m_pcLastError = LastError( );
 	DS_CHECK
 
-	// init it
-
-	m_hResult = m_pDirectSound->Initialize( NULL );
-	m_pcLastError = LastError( );
-	DS_CHECK
-
   	// set the cooperative level
 	HWND hWnd = FindWindow("LithTech", NULL);
 	if(hWnd)
@@ -2045,6 +2039,12 @@ bool CDx8SoundSys::Init( )
 bool CDx8SoundSys::HasOnBoardMemory( )
 {
 	return ( m_dscaps.dwMaxHwMixingStaticBuffers > 0 && m_dscaps.dwMaxHwMixingStreamingBuffers == 0 );
+}
+
+void CDx8SoundSys::handle_focus_lost(
+	const bool is_focus_lost)
+{
+	static_cast<void>(is_focus_lost);
 }
 
 void CDx8SoundSys::Term( )
