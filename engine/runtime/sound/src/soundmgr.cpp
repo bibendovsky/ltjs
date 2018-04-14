@@ -2936,6 +2936,18 @@ LTRESULT CSoundMgr::SetListener(bool bListenerInClient, LTVector *pPos, LTRotati
     return LT_OK;
 }
 
+LTRESULT CSoundMgr::handle_focus_lost(
+	const bool is_focus_lost)
+{
+	if (!::g_pSoundSys)
+	{
+		return LT_ERROR;
+	}
+
+	g_pSoundSys->handle_focus_lost(is_focus_lost);
+
+	return LT_OK;
+}
 
 #ifdef USE_DX8_SOFTWARE_FILTERS
 LTRESULT CSoundMgr::SetSoundFilter(HLTSOUND hSound, const char *pFilter)

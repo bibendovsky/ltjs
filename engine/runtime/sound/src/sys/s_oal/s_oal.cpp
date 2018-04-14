@@ -1285,6 +1285,18 @@ struct OalSoundSys::Impl
 		objects_3d_ = {};
 	}
 
+	void update_listener_gain()
+	{
+		if (is_mute_)
+		{
+			::alListenerf(AL_GAIN, ltjs::AudioUtils::gain_min);
+		}
+		else
+		{
+			::alListenerf(AL_GAIN, oal_master_gain_);
+		}
+	}
+
 	//
 	// =========================================================================
 	// API utils
@@ -1378,6 +1390,7 @@ struct OalSoundSys::Impl
 
 		is_succeed = true;
 		master_volume_ = ltjs::AudioUtils::lt_max_volume;
+		oal_master_gain_ = ltjs::AudioUtils::gain_max;
 		reset_3d_object(listener_3d_);
 
 		return true;
@@ -1420,6 +1433,7 @@ struct OalSoundSys::Impl
 		oal_clear_efx();
 
 		master_volume_ = {};
+		oal_master_gain_ = {};
 	}
 
 	void wave_out_close(
@@ -1464,7 +1478,9 @@ struct OalSoundSys::Impl
 			static_cast<ALfloat>(new_master_volume - ltjs::AudioUtils::lt_min_volume) /
 			static_cast<ALfloat>(ltjs::AudioUtils::lt_max_volume_delta);
 
-		::alListenerf(AL_GAIN, oal_gain);
+		oal_master_gain_ = oal_gain;
+
+		update_listener_gain();
 	}
 
 	LHSAMPLE allocate_sample(
@@ -3530,6 +3546,14 @@ struct OalSoundSys::Impl
 		return true;
 	}
 
+	void handle_focus_lost(
+		const bool is_focus_lost)
+	{
+		is_mute_ = is_focus_lost;
+
+		update_listener_gain();
+	}
+
 	//
 	// =========================================================================
 	// API
@@ -3605,6 +3629,8 @@ struct OalSoundSys::Impl
 
 	ClockTs clock_base_;
 	sint32 master_volume_;
+	float oal_master_gain_;
+	bool is_mute_;
 	Samples samples_2d_;
 	Object3d listener_3d_;
 	Objects3d objects_3d_;
@@ -4448,6 +4474,12 @@ uint32 OalSoundSys::GetThreadedSoundTicks()
 bool OalSoundSys::HasOnBoardMemory()
 {
 	return {};
+}
+
+void OalSoundSys::handle_focus_lost(
+	const bool is_focus_lost)
+{
+	pimpl_->handle_focus_lost(is_focus_lost);
 }
 
 OalSoundSys& OalSoundSys::get_singleton()

@@ -903,6 +903,12 @@ bool NulSoundSys::HasOnBoardMemory()
 	return {};
 }
 
+void NulSoundSys::handle_focus_lost(
+	const bool is_focus_lost)
+{
+	static_cast<void>(is_focus_lost);
+}
+
 NulSoundSys& NulSoundSys::get_singleton()
 {
 	static auto singleton = NulSoundSys{};

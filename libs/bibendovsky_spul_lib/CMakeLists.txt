@@ -121,11 +121,6 @@ if (MSVC)
 			bibendovsky_spul_lib
 			PRIVATE $<$<CONFIG:DEBUG>:_ITERATOR_DEBUG_LEVEL=0>
 		)
-
-		target_compile_options(
-			bibendovsky_spul_lib
-			PRIVATE -Yubibendovsky_spul_precompiled.h
-		)
 	endif ()
 
 	if (BIBENDOVSKY_SPUL_VC_DISABLE_CRT_SECURE_WARNINGS)

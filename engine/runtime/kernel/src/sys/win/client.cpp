@@ -427,7 +427,9 @@ static long WINAPI MainWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 						g_pClientMgr->m_pRealVideoMgr->AppFocus(LTFALSE);
 #endif // LITHTECH_ESD
                 }
-            
+
+				GetClientILTSoundMgrImpl()->handle_focus_lost(wParam == FALSE);
+
                 return (message == WM_NCACTIVATE) ? TRUE : 0;
             }
 			break;

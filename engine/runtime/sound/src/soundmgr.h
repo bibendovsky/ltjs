@@ -376,6 +376,9 @@ public:
 	virtual LTRESULT	SetListener( bool bListenerInClient, LTVector *pPos, LTRotation *pRot, bool bTeleport )
 	;
 
+	LTRESULT handle_focus_lost(
+		const bool is_focus_lost) override;
+
 #ifdef USE_DX8_SOFTWARE_FILTERS
 	virtual LTRESULT	SetSoundFilter( HLTSOUND hSound, const char *pFilter );
 	virtual LTRESULT	SetSoundFilterParam( HLTSOUND hSound, const char *pParam, float fValue );
