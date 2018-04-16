@@ -1,5 +1,5 @@
 #include "bdefs.h"
-
+#include "bibendovsky_spul_path_utils.h"
 #include "stringmgr.h"
 #include "render.h"
 #include "version_resource.h"
@@ -10,6 +10,12 @@
 #include "classbind.h"
 #include "bindmgr.h"
 #include "console.h"
+
+
+namespace ltjs
+{
+namespace ul = bibendovsky::spul;
+} // ltjs
 
 
 //------------------------------------------------------------------
@@ -293,6 +299,7 @@ LTRESULT GetOrCopyFile( char const* pszFilename,
     return LT_OK;
         }
 
+#ifdef LTJS_COPY_MODULES_TO_TEMP
 LTRESULT dsi_LoadServerObjects(CClassMgr *pClassMgr) 
 {
     char fileName[256];
@@ -347,6 +354,55 @@ LTRESULT dsi_LoadServerObjects(CClassMgr *pClassMgr)
     
     return LT_OK;
 }
+#else
+LTRESULT dsi_LoadServerObjects(
+	CClassMgr* pClassMgr)
+{
+	int status;
+
+	const auto object_file_name = ltjs::ul::PathUtils::append("game", "ltjs_object.dll");
+
+	//load the object.lto DLL.
+	int version;
+	status = cb_LoadModule(object_file_name.c_str(), false, pClassMgr->m_ClassModule, &version);
+
+	//check for errors.
+	if (status == CB_CANTFINDMODULE)
+	{
+		sm_SetupError(LT_INVALIDOBJECTDLL, object_file_name);
+		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLL, object_file_name);
+	}
+	else if (status == CB_NOTCLASSMODULE)
+	{
+		sm_SetupError(LT_INVALIDOBJECTDLL, object_file_name);
+		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLL, object_file_name);
+	}
+	else if (status == CB_VERSIONMISMATCH)
+	{
+		sm_SetupError(LT_INVALIDOBJECTDLLVERSION, object_file_name, version, SERVEROBJ_VERSION);
+		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLLVERSION, object_file_name);
+	}
+
+	// Get sres.dll.
+	const auto sres_file_name = ltjs::ul::PathUtils::append("game", "ltjs_sres.dll");
+
+	if (bm_BindModule(sres_file_name.c_str(), false, pClassMgr->m_hServerResourceModule) != BIND_NOERROR)
+	{
+		cb_UnloadModule(pClassMgr->m_ClassModule);
+
+		sm_SetupError(LT_ERRORCOPYINGFILE, sres_file_name);
+		RETURN_ERROR_PARAM(1, LoadServerObjects, LT_ERRORCOPYINGFILE, sres_file_name);
+	}
+
+	//let the dll know it's instance handle.
+	if (instance_handle_server != NULL)
+	{
+		instance_handle_server->SetInstanceHandle(pClassMgr->m_ClassModule.m_hModule);
+	}
+
+	return LT_OK;
+}
+#endif // LTJS_COPY_MODULES_TO_TEMP
 
 void dsi_ServerSleep(uint32 ms) {
     if (ms > 0) {
@@ -501,7 +557,7 @@ LTRESULT GetOrCopyClientFile( char const* pszFilename,
             }
 
 
-
+#ifdef LTJS_COPY_MODULES_TO_TEMP
 LTRESULT dsi_InitClientShellDE() 
 {
     char fileName[MAX_PATH];
@@ -572,7 +628,64 @@ LTRESULT dsi_InitClientShellDE()
 
     return LT_OK;
 }
+#else
+LTRESULT dsi_InitClientShellDE()
+{
+	int status;
 
+	g_pClientMgr->m_hClientResourceModule = nullptr;
+	g_pClientMgr->m_hLocalizedClientResourceModule = nullptr;
+	g_pClientMgr->m_hShellModule = nullptr;
+
+	// Setup the cshell.dll file.
+	const auto cshell_file_name = ltjs::ul::PathUtils::append("game" , "ltjs_cshell.dll");
+
+	//load the DLL.
+	status = bm_BindModule(cshell_file_name.c_str(), false, g_pClientMgr->m_hShellModule);
+
+	//check if it loaded correctly.
+	if (status == BIND_CANTFINDMODULE)
+	{
+		g_pClientMgr->SetupError(LT_MISSINGSHELLDLL, cshell_file_name);
+		RETURN_ERROR(1, InitClientShellDE, LT_MISSINGSHELLDLL);
+	}
+
+	//check if we now have the IClientShell interface instantiated.
+	if (!i_client_shell)
+	{
+		g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, cshell_file_name);
+		RETURN_ERROR(1, InitClientShellDE, LT_INVALIDSHELLDLL);
+	}
+
+	//
+	// Try to setup cres.dll.
+	//
+	const auto cres_file_name = ltjs::ul::PathUtils::append("game" , "ltjs_cres.dll");
+
+
+	//load the DLL.
+	status = bm_BindModule(cres_file_name.c_str(), false, g_pClientMgr->m_hClientResourceModule);
+
+	//check if it was loaded.
+	if (status == BIND_CANTFINDMODULE)
+	{
+		//unload cshell.dll.
+		bm_UnbindModule(g_pClientMgr->m_hShellModule);
+		g_pClientMgr->m_hShellModule = nullptr;
+
+		g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, cres_file_name);
+		RETURN_ERROR_PARAM(1, InitClientShellDE, LT_INVALIDSHELLDLL, cres_file_name);
+	}
+
+	//let the dll know it's instance handle.
+	if (instance_handle_client)
+	{
+		instance_handle_client->SetInstanceHandle(g_pClientMgr->m_hShellModule);
+	}
+
+	return LT_OK;
+}
+#endif // LTJS_COPY_MODULES_TO_TEMP
 
  
 void dsi_OnMemoryFailure() {

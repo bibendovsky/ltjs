@@ -244,6 +244,7 @@ bool CClientFXDB::LoadFxDll()
 	}
 	else
 	{
+#ifdef LTJS_COPY_MODULES_TO_TEMP
 		//otherwise copy it out of the rez file
 		if (!strlen(sDLLTmpFile))
 		{
@@ -262,6 +263,9 @@ bool CClientFXDB::LoadFxDll()
 		m_hDLLInst = ::LoadLibrary(sDLLTmpFile);
 		if (!m_hDLLInst) 
 			return false;
+#else
+		return false;
+#endif // LTJS_COPY_MODULES_TO_TEMP
 	}
 
 	//merge our interface database with the database in the DLL we just loaded.
