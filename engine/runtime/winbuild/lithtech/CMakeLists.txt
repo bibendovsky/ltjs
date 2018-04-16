@@ -597,6 +597,7 @@ endif ()
 
 target_link_libraries(
     ltjs_lith_tech
+	bibendovsky_spul_lib
     ltjs_lib_d3d_render
     ltjs_lib_lt_mem
     ltjs_lib_rez_mgr

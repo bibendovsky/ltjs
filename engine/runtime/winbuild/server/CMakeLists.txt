@@ -427,6 +427,7 @@ endif ()
 
 target_link_libraries(
     ltjs_server
+	bibendovsky_spul_lib
     ltjs_lib_rez_mgr
     ltjs_lib_lith
     ltjs_lib_std_lith
