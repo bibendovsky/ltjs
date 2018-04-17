@@ -1336,18 +1336,6 @@ struct OalSoundSys::Impl
 		return static_cast<std::uint32_t>(time_diff_ms % max_uint32_t);
 	}
 
-	void* allocate(
-		const std::size_t size)
-	{
-		return new (std::nothrow) char[size];
-	}
-
-	void deallocate(
-		void* ptr)
-	{
-		delete[] static_cast<char*>(ptr);
-	}
-
 	bool wave_out_open_internal()
 	{
 		auto is_succeed = false;
