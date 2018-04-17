@@ -1297,45 +1297,6 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	//
-	// =========================================================================
-	// API utils
-	// =========================================================================
-
-
-	// =========================================================================
-	// API
-	// =========================================================================
-	//
-
-	sint32 api_startup()
-	{
-#ifdef USE_EAX20_HARDWARE_FILTERS
-		is_eax20_filters_defined_ = true;
-#else
-		is_eax20_filters_defined_ = false;
-#endif // USE_EAX20_HARDWARE_FILTERS
-
-		clock_base_ = Clock::now();
-		listener_3d_.is_listener_ = true;
-
-		return LS_OK;
-	}
-
-	void api_shutdown()
-	{
-	}
-
-	std::uint32_t api_ms_count()
-	{
-		constexpr auto max_uint32_t = std::numeric_limits<std::uint32_t>::max();
-
-		const auto time_diff = Clock::now() - clock_base_;
-		const auto time_diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
-
-		return static_cast<std::uint32_t>(time_diff_ms % max_uint32_t);
-	}
-
 	bool wave_out_open_internal()
 	{
 		auto is_succeed = false;
@@ -1384,30 +1345,6 @@ struct OalSoundSys::Impl
 		return true;
 	}
 
-	sint32 api_wave_out_open(
-		LHDIGDRIVER& driver,
-		PHWAVEOUT& wave_out,
-		const sint32 device_id,
-		const ul::WaveFormatEx& wave_format)
-	{
-		static_cast<void>(device_id);
-		static_cast<void>(wave_format);
-
-		driver = nullptr;
-		wave_out = nullptr;
-
-		wave_out_close_internal();
-
-		if (!wave_out_open_internal())
-		{
-			return LS_ERROR;
-		}
-
-		driver = oal_device_;
-
-		return LS_OK;
-	}
-
 	void wave_out_close_internal()
 	{
 		uninitialize_eax20_filter();
@@ -1422,93 +1359,6 @@ struct OalSoundSys::Impl
 
 		master_volume_ = {};
 		oal_master_gain_ = {};
-	}
-
-	void api_wave_out_close(
-		LHDIGDRIVER driver_ptr)
-	{
-		static_cast<void>(driver_ptr);
-
-		wave_out_close_internal();
-	}
-
-	sint32 api_get_digital_master_volume(
-		LHDIGDRIVER driver_ptr) const
-	{
-		if (!driver_ptr || driver_ptr != oal_device_)
-		{
-			return {};
-		}
-
-		return master_volume_;
-	}
-
-	void api_set_digital_master_volume(
-		LHDIGDRIVER driver_ptr,
-		const sint32 master_volume)
-	{
-		if (!driver_ptr || driver_ptr != oal_device_)
-		{
-			return;
-		}
-
-		const auto new_master_volume = ltjs::AudioUtils::clamp_lt_volume(master_volume);
-
-		if (master_volume_ == new_master_volume)
-		{
-			return;
-		}
-
-		master_volume_ = new_master_volume;
-
-
-		const auto oal_gain =
-			static_cast<ALfloat>(new_master_volume - ltjs::AudioUtils::lt_min_volume) /
-			static_cast<ALfloat>(ltjs::AudioUtils::lt_max_volume_delta);
-
-		oal_master_gain_ = oal_gain;
-
-		update_listener_gain();
-	}
-
-	LHSAMPLE api_allocate_sample_handle(
-		LHDIGDRIVER driver_ptr)
-	{
-		if (driver_ptr != oal_device_)
-		{
-			return nullptr;
-		}
-
-		samples_2d_.emplace_back();
-
-		auto& sample = samples_2d_.back();
-		sample.is_3d_ = false;
-		sample.is_stream_ = false;
-		sample.oal_source_count_ = 2;
-
-		create_sample(sample);
-
-		return &sample;
-	}
-
-	void api_release_sample_handle(
-		LHSAMPLE sample_ptr)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_ptr);
-
-		destroy_sample(sample);
-
-		samples_2d_.remove_if(
-			[=](const auto& sample)
-			{
-				return &sample == sample_ptr;
-			}
-		);
 	}
 
 	void stop_sample(
@@ -1532,19 +1382,6 @@ struct OalSoundSys::Impl
 		sample.status_ = Sample::Status::paused;
 	}
 
-	void api_stop_sample(
-		LHSAMPLE sample_ptr)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_ptr);
-
-		stop_sample(sample);
-	}
-
 	void start_sample(
 		Sample& sample)
 	{
@@ -1558,19 +1395,6 @@ struct OalSoundSys::Impl
 		::alSourcePlayv(sample.oal_source_count_, sample.oal_sources_.data());
 
 		sample.status_ = Sample::Status::playing;
-	}
-
-	void api_start_sample(
-		LHSAMPLE sample_ptr)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_ptr);
-
-		start_sample(sample);
 	}
 
 	void resume_sample(
@@ -1593,19 +1417,6 @@ struct OalSoundSys::Impl
 		sample.status_ = Sample::Status::playing;
 	}
 
-	void api_resume_sample(
-		LHSAMPLE sample_ptr)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_ptr);
-
-		resume_sample(sample);
-	}
-
 	void end_sample(
 		Sample& sample)
 	{
@@ -1624,19 +1435,6 @@ struct OalSoundSys::Impl
 		::alSourceStopv(sample.oal_source_count_, sample.oal_sources_.data());
 
 		sample.status_ = Sample::Status::stopped;
-	}
-
-	void api_end_sample(
-		LHSAMPLE sample_ptr)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_ptr);
-
-		end_sample(sample);
 	}
 
 	void set_sample_volume(
@@ -1662,33 +1460,6 @@ struct OalSoundSys::Impl
 		sample.oal_volume_ = oal_volume;
 
 		update_sample_volume_and_pan(sample);
-	}
-
-	sint32 api_get_sample_volume(
-		LHSAMPLE sample_ptr) const
-	{
-		if (!sample_ptr)
-		{
-			return {};
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_ptr);
-
-		return sample.volume_;
-	}
-
-	void api_set_sample_volume(
-		LHSAMPLE sample_ptr,
-		const sint32 volume)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_ptr);
-
-		set_sample_volume(sample, volume);
 	}
 
 	void set_sample_pan(
@@ -1733,62 +1504,6 @@ struct OalSoundSys::Impl
 		}
 
 		update_sample_volume_and_pan(sample);
-	}
-
-	sint32 api_get_sample_pan(
-		LHSAMPLE sample_ptr) const
-	{
-		if (!sample_ptr)
-		{
-			return {};
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_ptr);
-
-		return sample.pan_;
-	}
-
-	void api_set_sample_pan(
-		LHSAMPLE sample_ptr,
-		const sint32 pan)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_ptr);
-
-		set_sample_pan(sample, pan);
-	}
-
-	sint32 api_get_sample_user_data(
-		LHSAMPLE sample_handle,
-		const uint32 index) const
-	{
-		if (!sample_handle || index > max_user_data_index)
-		{
-			return {};
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_handle);
-
-		return sample.user_data_array_[index];
-	}
-
-	void api_set_sample_user_data(
-		LHSAMPLE sample_handle,
-		const uint32 index,
-		const sint32 value)
-	{
-		if (!sample_handle || index > max_user_data_index)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_handle);
-
-		sample.user_data_array_[index] = value;
 	}
 
 	void reset_sample(
@@ -2181,25 +1896,6 @@ struct OalSoundSys::Impl
 		return result;
 	}
 
-	bool api_initialize_sample_from_file(
-		LHSAMPLE sample_handle,
-		const void* storage_ptr,
-		const sint32 block,
-		const sint32 playback_rate,
-		const LTSOUNDFILTERDATA* filter_data_ptr)
-	{
-		static_cast<void>(block);
-
-		if (!sample_handle)
-		{
-			return false;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_handle);
-
-		return initialize_sample_from_file(sample, storage_ptr, playback_rate, filter_data_ptr);
-	}
-
 	void set_sample_loop_block(
 		Sample& sample,
 		const sint32 loop_begin_offset,
@@ -2237,22 +1933,6 @@ struct OalSoundSys::Impl
 		{
 			sample.has_loop_block_ = false;
 		}
-	}
-
-	void api_set_sample_loop_block(
-		LHSAMPLE sample_handle,
-		const sint32 loop_begin_offset,
-		const sint32 loop_end_offset,
-		const bool is_enable)
-	{
-		if (!sample_handle)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_handle);
-
-		set_sample_loop_block(sample, loop_begin_offset, loop_end_offset, is_enable);
 	}
 
 	void set_sample_loop(
@@ -2365,20 +2045,6 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	void api_set_sample_loop(
-		LHSAMPLE sample_handle,
-		const bool is_enable)
-	{
-		if (!sample_handle)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_handle);
-
-		set_sample_loop(sample, is_enable);
-	}
-
 	void set_sample_ms_position(
 		Sample& sample,
 		const sint32 milliseconds)
@@ -2401,20 +2067,6 @@ struct OalSoundSys::Impl
 		{
 			::alSourcei(sample.oal_sources_[i], AL_SAMPLE_OFFSET, sample_offset);
 		}
-	}
-
-	void api_set_sample_ms_position(
-		LHSAMPLE sample_handle,
-		const sint32 milliseconds)
-	{
-		if (!sample_handle)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<Sample*>(sample_handle);
-
-		set_sample_ms_position(sample, milliseconds);
 	}
 
 	Sample::Status get_sample_status(
@@ -2460,6 +2112,517 @@ struct OalSoundSys::Impl
 		sample.status_ = status;
 
 		return status;
+	}
+
+	void set_set_stream_loop(
+		LHSTREAM stream_ptr,
+		const bool is_enable)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<Stream*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
+
+		stream.sample_.is_looping_ = is_enable;
+	}
+
+	void reset_3d_object(
+		Object3d& object_3d)
+	{
+		auto& sample = object_3d.sample_;
+		const auto oal_source = sample.oal_sources_[0];
+
+		object_3d.reset();
+		oal_clear_error();
+
+
+		if (!object_3d.is_listener_)
+		{
+			::alSourceStopv(1, sample.oal_sources_.data());
+			::alSourcei(oal_source, AL_BUFFER, AL_NONE);
+			::alSourcei(oal_source, AL_SOURCE_RELATIVE, AL_FALSE);
+		}
+
+		// Doppler factor.
+		//
+		if (object_3d.is_listener_)
+		{
+			::alDopplerFactor(object_3d.doppler_factor_);
+		}
+
+		// Minimum/Maximum distance.
+		//
+		if (!object_3d.is_listener_)
+		{
+			::alSourcef(oal_source, AL_REFERENCE_DISTANCE, object_3d.min_distance_);
+			::alSourcef(oal_source, AL_MAX_DISTANCE, object_3d.max_distance_);
+		}
+
+		// Position.
+		//
+		const auto oal_position = Vector3d::to_oal(object_3d.position_);
+		const auto oal_position_ptr = reinterpret_cast<const ALfloat*>(&oal_position);
+
+		if (object_3d.is_listener_)
+		{
+			::alListenerfv(AL_POSITION, oal_position_ptr);
+		}
+		else
+		{
+			::alSourcefv(oal_source, AL_POSITION, oal_position_ptr);
+		}
+
+
+		// Velocity.
+		//
+		const auto oal_velocity = Vector3d::to_oal(object_3d.velocity_);
+		const auto oal_velocity_ptr = reinterpret_cast<const ALfloat*>(&oal_velocity);
+
+		if (object_3d.is_listener_)
+		{
+			::alListenerfv(AL_VELOCITY, oal_velocity_ptr);
+		}
+		else
+		{
+			::alSourcefv(oal_source, AL_VELOCITY, oal_velocity_ptr);
+		}
+
+
+		// Orientaion.
+		//
+		if (object_3d.is_listener_)
+		{
+			const auto oal_orientation = Orientation3d::to_oal(object_3d.orientation_);
+			const auto oal_orientation_ptr = reinterpret_cast<const ALfloat*>(&oal_orientation);
+
+			::alListenerfv(AL_ORIENTATION, oal_orientation_ptr);
+		}
+
+		if (!oal_is_succeed())
+		{
+			sample.status_ = Sample::Status::failed;
+			return;
+		}
+	}
+
+	void uninitialize_eax20_filter()
+	{
+		if (oal_effect_slot_ != AL_EFFECTSLOT_NULL)
+		{
+			alAuxiliaryEffectSloti_(oal_effect_slot_, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
+
+			alDeleteAuxiliaryEffectSlots_(1, &oal_effect_slot_);
+			oal_effect_slot_ = AL_EFFECTSLOT_NULL;
+		}
+
+		if (oal_effect_ != AL_EFFECT_NULL)
+		{
+			alDeleteEffects_(1, &oal_effect_);
+			oal_effect_ = AL_EFFECT_NULL;
+		}
+
+		if (oal_null_effect_ != AL_EFFECT_NULL)
+		{
+			alDeleteEffects_(1, &oal_null_effect_);
+			oal_null_effect_ = AL_EFFECT_NULL;
+		}
+
+		oal_is_supports_eax20_filter_ = false;
+	}
+
+	void oal_update_reverb_effect()
+	{
+		if (oal_has_eax_reverb_effect_)
+		{
+			set_efx_eax_reverb_properties(oal_effect_, oal_efx_eax_reverb_properties_);
+		}
+		else
+		{
+			set_efx_reverb_properties(oal_effect_, oal_efx_eax_reverb_properties_);
+		}
+	}
+
+	void initialize_eax20_filter()
+	{
+		if (!is_eax20_filters_defined_ ||
+			!oal_has_efx_ ||
+			oal_max_aux_sends_ <= 0 ||
+			!(oal_has_reverb_effect_ || oal_has_eax_reverb_effect_))
+		{
+			return;
+		}
+
+		uninitialize_eax20_filter();
+
+		oal_clear_error();
+
+		alGenEffects_(1, &oal_effect_);
+		alGenEffects_(1, &oal_null_effect_);
+		alGenAuxiliaryEffectSlots_(1, &oal_effect_slot_);
+
+		const auto oal_effect_type = (oal_has_eax_reverb_effect_ ? AL_EFFECT_EAXREVERB : AL_EFFECT_REVERB);
+
+		alEffecti_(oal_effect_, AL_EFFECT_TYPE, oal_effect_type);
+
+		if (!oal_is_succeed())
+		{
+			uninitialize_eax20_filter();
+			return;
+		}
+
+		oal_is_supports_eax20_filter_ = true;
+	}
+
+	//
+	// =========================================================================
+	// API utils
+	// =========================================================================
+
+
+	// =========================================================================
+	// API
+	// =========================================================================
+	//
+
+	sint32 api_startup()
+	{
+#ifdef USE_EAX20_HARDWARE_FILTERS
+		is_eax20_filters_defined_ = true;
+#else
+		is_eax20_filters_defined_ = false;
+#endif // USE_EAX20_HARDWARE_FILTERS
+
+		clock_base_ = Clock::now();
+		listener_3d_.is_listener_ = true;
+
+		return LS_OK;
+	}
+
+	void api_shutdown()
+	{
+	}
+
+	std::uint32_t api_ms_count()
+	{
+		constexpr auto max_uint32_t = std::numeric_limits<std::uint32_t>::max();
+
+		const auto time_diff = Clock::now() - clock_base_;
+		const auto time_diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
+
+		return static_cast<std::uint32_t>(time_diff_ms % max_uint32_t);
+	}
+
+	sint32 api_wave_out_open(
+		LHDIGDRIVER& driver,
+		PHWAVEOUT& wave_out,
+		const sint32 device_id,
+		const ul::WaveFormatEx& wave_format)
+	{
+		static_cast<void>(device_id);
+		static_cast<void>(wave_format);
+
+		driver = nullptr;
+		wave_out = nullptr;
+
+		wave_out_close_internal();
+
+		if (!wave_out_open_internal())
+		{
+			return LS_ERROR;
+		}
+
+		driver = oal_device_;
+
+		return LS_OK;
+	}
+
+	void api_wave_out_close(
+		LHDIGDRIVER driver_ptr)
+	{
+		static_cast<void>(driver_ptr);
+
+		wave_out_close_internal();
+	}
+
+	sint32 api_get_digital_master_volume(
+		LHDIGDRIVER driver_ptr) const
+	{
+		if (!driver_ptr || driver_ptr != oal_device_)
+		{
+			return {};
+		}
+
+		return master_volume_;
+	}
+
+	void api_set_digital_master_volume(
+		LHDIGDRIVER driver_ptr,
+		const sint32 master_volume)
+	{
+		if (!driver_ptr || driver_ptr != oal_device_)
+		{
+			return;
+		}
+
+		const auto new_master_volume = ltjs::AudioUtils::clamp_lt_volume(master_volume);
+
+		if (master_volume_ == new_master_volume)
+		{
+			return;
+		}
+
+		master_volume_ = new_master_volume;
+
+
+		const auto oal_gain =
+			static_cast<ALfloat>(new_master_volume - ltjs::AudioUtils::lt_min_volume) /
+			static_cast<ALfloat>(ltjs::AudioUtils::lt_max_volume_delta);
+
+		oal_master_gain_ = oal_gain;
+
+		update_listener_gain();
+	}
+
+	LHSAMPLE api_allocate_sample_handle(
+		LHDIGDRIVER driver_ptr)
+	{
+		if (driver_ptr != oal_device_)
+		{
+			return nullptr;
+		}
+
+		samples_2d_.emplace_back();
+
+		auto& sample = samples_2d_.back();
+		sample.is_3d_ = false;
+		sample.is_stream_ = false;
+		sample.oal_source_count_ = 2;
+
+		create_sample(sample);
+
+		return &sample;
+	}
+
+	void api_release_sample_handle(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_ptr);
+
+		destroy_sample(sample);
+
+		samples_2d_.remove_if(
+			[=](const auto& sample)
+			{
+				return &sample == sample_ptr;
+			}
+		);
+	}
+
+	void api_stop_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_ptr);
+
+		stop_sample(sample);
+	}
+
+	void api_start_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_ptr);
+
+		start_sample(sample);
+	}
+
+	void api_resume_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_ptr);
+
+		resume_sample(sample);
+	}
+
+	void api_end_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_ptr);
+
+		end_sample(sample);
+	}
+
+	sint32 api_get_sample_volume(
+		LHSAMPLE sample_ptr) const
+	{
+		if (!sample_ptr)
+		{
+			return {};
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_ptr);
+
+		return sample.volume_;
+	}
+
+	void api_set_sample_volume(
+		LHSAMPLE sample_ptr,
+		const sint32 volume)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_ptr);
+
+		set_sample_volume(sample, volume);
+	}
+
+	sint32 api_get_sample_pan(
+		LHSAMPLE sample_ptr) const
+	{
+		if (!sample_ptr)
+		{
+			return {};
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_ptr);
+
+		return sample.pan_;
+	}
+
+	void api_set_sample_pan(
+		LHSAMPLE sample_ptr,
+		const sint32 pan)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_ptr);
+
+		set_sample_pan(sample, pan);
+	}
+
+	sint32 api_get_sample_user_data(
+		LHSAMPLE sample_handle,
+		const uint32 index) const
+	{
+		if (!sample_handle || index > max_user_data_index)
+		{
+			return {};
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_handle);
+
+		return sample.user_data_array_[index];
+	}
+
+	void api_set_sample_user_data(
+		LHSAMPLE sample_handle,
+		const uint32 index,
+		const sint32 value)
+	{
+		if (!sample_handle || index > max_user_data_index)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_handle);
+
+		sample.user_data_array_[index] = value;
+	}
+
+	bool api_initialize_sample_from_file(
+		LHSAMPLE sample_handle,
+		const void* storage_ptr,
+		const sint32 block,
+		const sint32 playback_rate,
+		const LTSOUNDFILTERDATA* filter_data_ptr)
+	{
+		static_cast<void>(block);
+
+		if (!sample_handle)
+		{
+			return false;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_handle);
+
+		return initialize_sample_from_file(sample, storage_ptr, playback_rate, filter_data_ptr);
+	}
+
+	void api_set_sample_loop_block(
+		LHSAMPLE sample_handle,
+		const sint32 loop_begin_offset,
+		const sint32 loop_end_offset,
+		const bool is_enable)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_handle);
+
+		set_sample_loop_block(sample, loop_begin_offset, loop_end_offset, is_enable);
+	}
+
+	void api_set_sample_loop(
+		LHSAMPLE sample_handle,
+		const bool is_enable)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_handle);
+
+		set_sample_loop(sample, is_enable);
+	}
+
+	void api_set_sample_ms_position(
+		LHSAMPLE sample_handle,
+		const sint32 milliseconds)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<Sample*>(sample_handle);
+
+		set_sample_ms_position(sample, milliseconds);
 	}
 
 	uint32 api_get_sample_status(
@@ -2580,22 +2743,6 @@ struct OalSoundSys::Impl
 		}
 
 		::alSourceStopv(2, stream.sample_.oal_sources_.data());
-	}
-
-	void set_set_stream_loop(
-		LHSTREAM stream_ptr,
-		const bool is_enable)
-	{
-		if (!stream_ptr)
-		{
-			return;
-		}
-
-		auto& stream = *static_cast<Stream*>(stream_ptr);
-
-		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
-
-		stream.sample_.is_looping_ = is_enable;
 	}
 
 	void api_set_stream_ms_position(
@@ -2787,85 +2934,6 @@ struct OalSoundSys::Impl
 		static_cast<void>(callback);
 
 		return ltjs::AudioUtils::decode_mp3(audio_decoder_, src_data_ptr, src_data_size, ds_wav_ptr, ds_wav_size);
-	}
-
-	void reset_3d_object(
-		Object3d& object_3d)
-	{
-		auto& sample = object_3d.sample_;
-		const auto oal_source = sample.oal_sources_[0];
-
-		object_3d.reset();
-		oal_clear_error();
-
-
-		if (!object_3d.is_listener_)
-		{
-			::alSourceStopv(1, sample.oal_sources_.data());
-			::alSourcei(oal_source, AL_BUFFER, AL_NONE);
-			::alSourcei(oal_source, AL_SOURCE_RELATIVE, AL_FALSE);
-		}
-
-		// Doppler factor.
-		//
-		if (object_3d.is_listener_)
-		{
-			::alDopplerFactor(object_3d.doppler_factor_);
-		}
-
-		// Minimum/Maximum distance.
-		//
-		if (!object_3d.is_listener_)
-		{
-			::alSourcef(oal_source, AL_REFERENCE_DISTANCE, object_3d.min_distance_);
-			::alSourcef(oal_source, AL_MAX_DISTANCE, object_3d.max_distance_);
-		}
-
-		// Position.
-		//
-		const auto oal_position = Vector3d::to_oal(object_3d.position_);
-		const auto oal_position_ptr = reinterpret_cast<const ALfloat*>(&oal_position);
-
-		if (object_3d.is_listener_)
-		{
-			::alListenerfv(AL_POSITION, oal_position_ptr);
-		}
-		else
-		{
-			::alSourcefv(oal_source, AL_POSITION, oal_position_ptr);
-		}
-
-
-		// Velocity.
-		//
-		const auto oal_velocity = Vector3d::to_oal(object_3d.velocity_);
-		const auto oal_velocity_ptr = reinterpret_cast<const ALfloat*>(&oal_velocity);
-
-		if (object_3d.is_listener_)
-		{
-			::alListenerfv(AL_VELOCITY, oal_velocity_ptr);
-		}
-		else
-		{
-			::alSourcefv(oal_source, AL_VELOCITY, oal_velocity_ptr);
-		}
-
-
-		// Orientaion.
-		//
-		if (object_3d.is_listener_)
-		{
-			const auto oal_orientation = Orientation3d::to_oal(object_3d.orientation_);
-			const auto oal_orientation_ptr = reinterpret_cast<const ALfloat*>(&oal_orientation);
-
-			::alListenerfv(AL_ORIENTATION, oal_orientation_ptr);
-		}
-
-		if (!oal_is_succeed())
-		{
-			sample.status_ = Sample::Status::failed;
-			return;
-		}
 	}
 
 	void api_get_3d_provider_attribute(
@@ -3417,74 +3485,6 @@ struct OalSoundSys::Impl
 		auto& sample = object_3d.sample_;
 
 		set_sample_loop(sample, is_enable);
-	}
-
-	void uninitialize_eax20_filter()
-	{
-		if (oal_effect_slot_ != AL_EFFECTSLOT_NULL)
-		{
-			alAuxiliaryEffectSloti_(oal_effect_slot_, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
-
-			alDeleteAuxiliaryEffectSlots_(1, &oal_effect_slot_);
-			oal_effect_slot_ = AL_EFFECTSLOT_NULL;
-		}
-
-		if (oal_effect_ != AL_EFFECT_NULL)
-		{
-			alDeleteEffects_(1, &oal_effect_);
-			oal_effect_ = AL_EFFECT_NULL;
-		}
-
-		if (oal_null_effect_ != AL_EFFECT_NULL)
-		{
-			alDeleteEffects_(1, &oal_null_effect_);
-			oal_null_effect_ = AL_EFFECT_NULL;
-		}
-
-		oal_is_supports_eax20_filter_ = false;
-	}
-
-	void oal_update_reverb_effect()
-	{
-		if (oal_has_eax_reverb_effect_)
-		{
-			set_efx_eax_reverb_properties(oal_effect_, oal_efx_eax_reverb_properties_);
-		}
-		else
-		{
-			set_efx_reverb_properties(oal_effect_, oal_efx_eax_reverb_properties_);
-		}
-	}
-
-	void initialize_eax20_filter()
-	{
-		if (!is_eax20_filters_defined_ ||
-			!oal_has_efx_ ||
-			oal_max_aux_sends_ <= 0 ||
-			!(oal_has_reverb_effect_ || oal_has_eax_reverb_effect_))
-		{
-			return;
-		}
-
-		uninitialize_eax20_filter();
-
-		oal_clear_error();
-
-		alGenEffects_(1, &oal_effect_);
-		alGenEffects_(1, &oal_null_effect_);
-		alGenAuxiliaryEffectSlots_(1, &oal_effect_slot_);
-
-		const auto oal_effect_type = (oal_has_eax_reverb_effect_ ? AL_EFFECT_EAXREVERB : AL_EFFECT_REVERB);
-
-		alEffecti_(oal_effect_, AL_EFFECT_TYPE, oal_effect_type);
-
-		if (!oal_is_succeed())
-		{
-			uninitialize_eax20_filter();
-			return;
-		}
-
-		oal_is_supports_eax20_filter_ = true;
 	}
 
 	bool api_set_eax20_filter(
