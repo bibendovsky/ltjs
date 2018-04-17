@@ -878,7 +878,7 @@ struct OalSoundSys::Impl
 	static constexpr auto oal_efx_ref_version = OalVersion{1, 0};
 
 
-	const char* get_error_message() const
+	const char* api_last_error() const
 	{
 		return error_message_.c_str();
 	}
@@ -1308,7 +1308,7 @@ struct OalSoundSys::Impl
 	// =========================================================================
 	//
 
-	bool startup()
+	sint32 api_startup()
 	{
 #ifdef USE_EAX20_HARDWARE_FILTERS
 		is_eax20_filters_defined_ = true;
@@ -1319,14 +1319,14 @@ struct OalSoundSys::Impl
 		clock_base_ = Clock::now();
 		listener_3d_.is_listener_ = true;
 
-		return true;
+		return LS_OK;
 	}
 
-	void shutdown()
+	void api_shutdown()
 	{
 	}
 
-	std::uint32_t get_milliseconds()
+	std::uint32_t api_ms_count()
 	{
 		constexpr auto max_uint32_t = std::numeric_limits<std::uint32_t>::max();
 
@@ -1396,7 +1396,7 @@ struct OalSoundSys::Impl
 		return true;
 	}
 
-	sint32 wave_out_open(
+	sint32 api_wave_out_open(
 		LHDIGDRIVER& driver,
 		PHWAVEOUT& wave_out,
 		const sint32 device_id,
@@ -1436,7 +1436,7 @@ struct OalSoundSys::Impl
 		oal_master_gain_ = {};
 	}
 
-	void wave_out_close(
+	void api_wave_out_close(
 		LHDIGDRIVER driver_ptr)
 	{
 		static_cast<void>(driver_ptr);
@@ -1444,7 +1444,7 @@ struct OalSoundSys::Impl
 		wave_out_close_internal();
 	}
 
-	sint32 get_master_volume(
+	sint32 api_get_digital_master_volume(
 		LHDIGDRIVER driver_ptr) const
 	{
 		if (!driver_ptr || driver_ptr != oal_device_)
@@ -1455,7 +1455,7 @@ struct OalSoundSys::Impl
 		return master_volume_;
 	}
 
-	void set_master_volume(
+	void api_set_digital_master_volume(
 		LHDIGDRIVER driver_ptr,
 		const sint32 master_volume)
 	{
@@ -1483,7 +1483,7 @@ struct OalSoundSys::Impl
 		update_listener_gain();
 	}
 
-	LHSAMPLE allocate_sample(
+	LHSAMPLE api_allocate_sample_handle(
 		LHDIGDRIVER driver_ptr)
 	{
 		if (driver_ptr != oal_device_)
@@ -1503,7 +1503,7 @@ struct OalSoundSys::Impl
 		return &sample;
 	}
 
-	void deallocate_sample(
+	void api_release_sample_handle(
 		LHSAMPLE sample_ptr)
 	{
 		if (!sample_ptr)
@@ -1544,7 +1544,7 @@ struct OalSoundSys::Impl
 		sample.status_ = Sample::Status::paused;
 	}
 
-	void stop_sample(
+	void api_stop_sample(
 		LHSAMPLE sample_ptr)
 	{
 		if (!sample_ptr)
@@ -1572,7 +1572,7 @@ struct OalSoundSys::Impl
 		sample.status_ = Sample::Status::playing;
 	}
 
-	void start_sample(
+	void api_start_sample(
 		LHSAMPLE sample_ptr)
 	{
 		if (!sample_ptr)
@@ -1605,7 +1605,7 @@ struct OalSoundSys::Impl
 		sample.status_ = Sample::Status::playing;
 	}
 
-	void resume_sample(
+	void api_resume_sample(
 		LHSAMPLE sample_ptr)
 	{
 		if (!sample_ptr)
@@ -1638,7 +1638,7 @@ struct OalSoundSys::Impl
 		sample.status_ = Sample::Status::stopped;
 	}
 
-	void end_sample(
+	void api_end_sample(
 		LHSAMPLE sample_ptr)
 	{
 		if (!sample_ptr)
@@ -1676,7 +1676,7 @@ struct OalSoundSys::Impl
 		update_sample_volume_and_pan(sample);
 	}
 
-	sint32 get_sample_volume(
+	sint32 api_get_sample_volume(
 		LHSAMPLE sample_ptr) const
 	{
 		if (!sample_ptr)
@@ -1689,7 +1689,7 @@ struct OalSoundSys::Impl
 		return sample.volume_;
 	}
 
-	void set_sample_volume(
+	void api_set_sample_volume(
 		LHSAMPLE sample_ptr,
 		const sint32 volume)
 	{
@@ -1747,7 +1747,7 @@ struct OalSoundSys::Impl
 		update_sample_volume_and_pan(sample);
 	}
 
-	sint32 get_sample_pan(
+	sint32 api_get_sample_pan(
 		LHSAMPLE sample_ptr) const
 	{
 		if (!sample_ptr)
@@ -1760,7 +1760,7 @@ struct OalSoundSys::Impl
 		return sample.pan_;
 	}
 
-	void set_sample_pan(
+	void api_set_sample_pan(
 		LHSAMPLE sample_ptr,
 		const sint32 pan)
 	{
@@ -1774,7 +1774,7 @@ struct OalSoundSys::Impl
 		set_sample_pan(sample, pan);
 	}
 
-	sint32 get_sample_user_data(
+	sint32 api_get_sample_user_data(
 		LHSAMPLE sample_handle,
 		const uint32 index) const
 	{
@@ -1788,7 +1788,7 @@ struct OalSoundSys::Impl
 		return sample.user_data_array_[index];
 	}
 
-	void set_sample_user_data(
+	void api_set_sample_user_data(
 		LHSAMPLE sample_handle,
 		const uint32 index,
 		const sint32 value)
@@ -2193,7 +2193,7 @@ struct OalSoundSys::Impl
 		return result;
 	}
 
-	bool initialize_sample_from_file(
+	bool api_initialize_sample_from_file(
 		LHSAMPLE sample_handle,
 		const void* storage_ptr,
 		const sint32 block,
@@ -2251,7 +2251,7 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	void set_sample_loop_block(
+	void api_set_sample_loop_block(
 		LHSAMPLE sample_handle,
 		const sint32 loop_begin_offset,
 		const sint32 loop_end_offset,
@@ -2377,7 +2377,7 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	void set_sample_loop(
+	void api_set_sample_loop(
 		LHSAMPLE sample_handle,
 		const bool is_enable)
 	{
@@ -2415,7 +2415,7 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	void set_sample_ms_position(
+	void api_set_sample_ms_position(
 		LHSAMPLE sample_handle,
 		const sint32 milliseconds)
 	{
@@ -2474,7 +2474,7 @@ struct OalSoundSys::Impl
 		return status;
 	}
 
-	uint32 get_sample_status(
+	uint32 api_get_sample_status(
 		LHSAMPLE sample_handle)
 	{
 		if (!sample_handle)
@@ -2489,7 +2489,7 @@ struct OalSoundSys::Impl
 		return status == Sample::Status::playing ? LS_PLAYING : LS_STOPPED;
 	}
 
-	LHSTREAM open_stream(
+	LHSTREAM api_open_stream(
 		const char* file_name,
 		const uint32 file_offset,
 		LHDIGDRIVER driver_ptr,
@@ -2568,7 +2568,7 @@ struct OalSoundSys::Impl
 		return &stream;
 	}
 
-	void close_stream(
+	void api_close_stream(
 		LHSTREAM stream_ptr)
 	{
 		if (!stream_ptr)
@@ -2594,7 +2594,7 @@ struct OalSoundSys::Impl
 		::alSourceStopv(2, stream.sample_.oal_sources_.data());
 	}
 
-	void set_stream_loop(
+	void set_set_stream_loop(
 		LHSTREAM stream_ptr,
 		const bool is_enable)
 	{
@@ -2610,7 +2610,7 @@ struct OalSoundSys::Impl
 		stream.sample_.is_looping_ = is_enable;
 	}
 
-	void set_stream_position_ms(
+	void api_set_stream_ms_position(
 		LHSTREAM stream_ptr,
 		const sint32 milliseconds)
 	{
@@ -2637,7 +2637,7 @@ struct OalSoundSys::Impl
 		stream.data_offset_ = position;
 	}
 
-	void set_stream_user_data(
+	void api_set_stream_user_data(
 		LHSTREAM stream_ptr,
 		const uint32 index,
 		const sint32 value)
@@ -2652,7 +2652,7 @@ struct OalSoundSys::Impl
 		stream.sample_.user_data_array_[index] = value;
 	}
 
-	sint32 get_stream_user_data(
+	sint32 api_get_stream_user_data(
 		LHSTREAM stream_ptr,
 		const uint32 index)
 	{
@@ -2666,7 +2666,7 @@ struct OalSoundSys::Impl
 		return stream.sample_.user_data_array_[index];
 	}
 
-	void start_stream(
+	void api_start_stream(
 		LHSTREAM stream_ptr)
 	{
 		if (!stream_ptr)
@@ -2684,7 +2684,7 @@ struct OalSoundSys::Impl
 		mt_notify_stream();
 	}
 
-	void pause_stream(
+	void api_pause_stream(
 		LHSTREAM stream_ptr,
 		const sint32 is_enable)
 	{
@@ -2705,7 +2705,7 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	void set_stream_volume(
+	void api_set_stream_volume(
 		LHSTREAM stream_ptr,
 		const sint32 volume)
 	{
@@ -2721,7 +2721,7 @@ struct OalSoundSys::Impl
 		set_sample_volume(stream.sample_, volume);
 	}
 
-	void set_stream_pan(
+	void api_set_stream_pan(
 		LHSTREAM stream_ptr,
 		const sint32 pan)
 	{
@@ -2737,7 +2737,7 @@ struct OalSoundSys::Impl
 		set_sample_pan(stream.sample_, pan);
 	}
 
-	sint32 set_stream_volume(
+	sint32 api_set_stream_volume(
 		LHSTREAM stream_ptr)
 	{
 		if (!stream_ptr)
@@ -2752,7 +2752,7 @@ struct OalSoundSys::Impl
 		return stream.sample_.volume_;
 	}
 
-	sint32 get_stream_pan(
+	sint32 api_get_stream_pan(
 		LHSTREAM stream_ptr)
 	{
 		if (!stream_ptr)
@@ -2767,7 +2767,7 @@ struct OalSoundSys::Impl
 		return stream.sample_.pan_;
 	}
 
-	uint32 get_stream_status(
+	uint32 api_get_stream_status(
 		LHSTREAM stream_ptr)
 	{
 		if (!stream_ptr)
@@ -2787,7 +2787,7 @@ struct OalSoundSys::Impl
 		return LS_PLAYING;
 	}
 
-	sint32 decode_mp3(
+	sint32 api_decode_mp3(
 		const void* src_data_ptr,
 		const uint32 src_data_size,
 		const char* file_name_ext,
@@ -2880,7 +2880,7 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	void get_3d_provider_attribute(
+	void api_get_3d_provider_attribute(
 		LHPROVIDER provider_id,
 		const char* name,
 		void* value)
@@ -2909,7 +2909,7 @@ struct OalSoundSys::Impl
 		int_value = 255;
 	}
 
-	LH3DPOBJECT open_3d_listener(
+	LH3DPOBJECT api_open_3d_listener(
 		LHPROVIDER provider_id)
 	{
 		static_cast<void>(provider_id);
@@ -2917,13 +2917,13 @@ struct OalSoundSys::Impl
 		return &listener_3d_;
 	}
 
-	void close_3d_listener(
+	void api_close_3d_listener(
 		LH3DPOBJECT listener_ptr)
 	{
 		static_cast<void>(listener_ptr);
 	}
 
-	void set_3d_listener_doppler(
+	void api_set_listener_doppler(
 		LH3DPOBJECT listener_ptr,
 		const float doppler_factor)
 	{
@@ -2942,7 +2942,7 @@ struct OalSoundSys::Impl
 		::alDopplerFactor(doppler_factor);
 	}
 
-	void set_3d_position(
+	void api_set_3d_position(
 		LH3DPOBJECT object_ptr,
 		const float x,
 		const float y,
@@ -2977,7 +2977,7 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	void set_3d_velocity(
+	void api_set_3d_velocity_vector(
 		LH3DPOBJECT object_ptr,
 		const float dx_per_s,
 		const float dy_per_s,
@@ -3012,7 +3012,7 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	void set_3d_orientation(
+	void api_set_3d_orientation(
 		LH3DPOBJECT object_ptr,
 		const float x_face,
 		const float y_face,
@@ -3042,7 +3042,7 @@ struct OalSoundSys::Impl
 		::alListenerfv(AL_ORIENTATION, reinterpret_cast<const ALfloat*>(&oal_orientation));
 	}
 
-	void get_3d_position(
+	void api_get_3d_position(
 		LH3DPOBJECT object_ptr,
 		float& x,
 		float& y,
@@ -3064,7 +3064,7 @@ struct OalSoundSys::Impl
 		z = object_3d.position_.z_;
 	}
 
-	void get_3d_velocity(
+	void api_get_3d_velocity(
 		LH3DPOBJECT object_ptr,
 		float& dx_per_ms,
 		float& dy_per_ms,
@@ -3086,7 +3086,7 @@ struct OalSoundSys::Impl
 		dz_per_ms = object_3d.velocity_.z_;
 	}
 
-	void get_3d_orientation(
+	void api_get_3d_orientation(
 		LH3DPOBJECT object_ptr,
 		float& x_face,
 		float& y_face,
@@ -3119,7 +3119,7 @@ struct OalSoundSys::Impl
 		z_up = object_3d.orientation_.up_.z_;
 	}
 
-	LH3DSAMPLE allocate_3d_sample(
+	LH3DSAMPLE api_allocate_3d_sample_handle(
 		LHPROVIDER provider_id)
 	{
 		static_cast<void>(provider_id);
@@ -3138,7 +3138,7 @@ struct OalSoundSys::Impl
 		return &object_3d;
 	}
 
-	void release_3d_sample(
+	void api_release_3d_sample_handle(
 		LH3DSAMPLE sample_handle)
 	{
 		if (!sample_handle)
@@ -3158,7 +3158,7 @@ struct OalSoundSys::Impl
 		);
 	}
 
-	void set_3d_sample_volume(
+	void api_set_3d_sample_volume(
 		LH3DSAMPLE sample_handle,
 		const sint32 volume)
 	{
@@ -3192,7 +3192,7 @@ struct OalSoundSys::Impl
 		::alSourcef(sample.oal_sources_[0], AL_GAIN, oal_volume);
 	}
 
-	void set_3d_sample_distances(
+	void api_set_3d_sample_distances(
 		LH3DSAMPLE sample_handle,
 		const float max_distance,
 		const float min_distance)
@@ -3218,7 +3218,7 @@ struct OalSoundSys::Impl
 		::alSourcef(sample.oal_sources_[0], AL_MAX_DISTANCE, max_distance);
 	}
 
-	void set_3d_user_data(
+	void api_set_3d_user_data(
 		LH3DPOBJECT object_ptr,
 		const uint32 index,
 		const sint32 value)
@@ -3233,7 +3233,7 @@ struct OalSoundSys::Impl
 		object_3d.user_data_[index] = value;
 	}
 
-	sint32 get_3d_user_data(
+	sint32 api_get_3d_user_data(
 		LH3DPOBJECT object_ptr,
 		const uint32 index)
 	{
@@ -3247,7 +3247,7 @@ struct OalSoundSys::Impl
 		return object_3d.user_data_[index];
 	}
 
-	void stop_3d_sample(
+	void api_stop_3d_sample(
 		LH3DSAMPLE sample_handle)
 	{
 		if (!sample_handle)
@@ -3261,7 +3261,7 @@ struct OalSoundSys::Impl
 		stop_sample(sample);
 	}
 
-	void start_3d_sample(
+	void api_start_3d_sample(
 		LH3DSAMPLE sample_handle)
 	{
 		if (!sample_handle)
@@ -3275,7 +3275,7 @@ struct OalSoundSys::Impl
 		start_sample(sample);
 	}
 
-	void resume_3d_sample(
+	void api_resume_3d_sample(
 		LH3DSAMPLE sample_handle)
 	{
 		if (!sample_handle)
@@ -3289,7 +3289,7 @@ struct OalSoundSys::Impl
 		resume_sample(sample);
 	}
 
-	void end_3d_sample(
+	void api_end_3d_sample(
 		LH3DSAMPLE sample_handle)
 	{
 		if (!sample_handle)
@@ -3303,7 +3303,7 @@ struct OalSoundSys::Impl
 		end_sample(sample);
 	}
 
-	sint32 initialize_3d_sample_from_address(
+	sint32 api_initialize_3d_sample_from_address(
 		LH3DSAMPLE sample_handle,
 		const void* storage_ptr,
 		const uint32 storage_size,
@@ -3331,7 +3331,7 @@ struct OalSoundSys::Impl
 			filter_data_ptr);
 	}
 
-	sint32 initialize_3d_sample_from_file(
+	sint32 api_initialize_3d_sample_from_file(
 		LH3DSAMPLE sample_handle,
 		const void* storage_ptr,
 		const sint32 block,
@@ -3354,7 +3354,7 @@ struct OalSoundSys::Impl
 		return initialize_sample_from_file(sample, storage_ptr, playback_rate, filter_data_ptr);
 	}
 
-	sint32 get_3d_sample_volume(
+	sint32 api_get_3d_sample_volume(
 		LH3DSAMPLE sample_handle)
 	{
 		if (!sample_handle)
@@ -3368,7 +3368,7 @@ struct OalSoundSys::Impl
 		return sample.volume_;
 	}
 
-	uint32 get_3d_sample_status(
+	uint32 api_get_3d_sample_status(
 		LH3DSAMPLE sample_handle)
 	{
 		if (!sample_handle)
@@ -3384,7 +3384,7 @@ struct OalSoundSys::Impl
 		return status == Sample::Status::playing ? LS_PLAYING : LS_STOPPED;
 	}
 
-	void set_3d_sample_ms_position(
+	void api_set_3d_sample_ms_position(
 		LHSAMPLE sample_handle,
 		const sint32 milliseconds)
 	{
@@ -3399,7 +3399,7 @@ struct OalSoundSys::Impl
 		set_sample_ms_position(sample, milliseconds);
 	}
 
-	void set_3d_sample_loop_block(
+	void api_set_3d_sample_loop_block(
 		LH3DSAMPLE sample_handle,
 		const sint32 loop_begin_offset,
 		const sint32 loop_end_offset,
@@ -3416,7 +3416,7 @@ struct OalSoundSys::Impl
 		set_sample_loop_block(sample, loop_begin_offset, loop_end_offset, is_enable);
 	}
 
-	void set_3d_sample_loop(
+	void api_set_3d_sample_loop(
 		LH3DSAMPLE sample_handle,
 		const bool is_enable)
 	{
@@ -3499,7 +3499,7 @@ struct OalSoundSys::Impl
 		oal_is_supports_eax20_filter_ = true;
 	}
 
-	bool set_eax20_filter(
+	bool api_set_eax20_filter(
 		const bool is_enable,
 		const LTSOUNDFILTERDATA& filter_data)
 	{
@@ -3527,12 +3527,12 @@ struct OalSoundSys::Impl
 		return true;
 	}
 
-	bool supports_eax20_filter() const
+	bool api_supports_eax20_filter() const
 	{
 		return oal_is_supports_eax20_filter_;
 	}
 
-	bool set_eax20_buffer_settings(
+	bool api_set_eax20_buffer_settings(
 		LHSAMPLE sample_handle,
 		const LTSOUNDFILTERDATA& filter_data)
 	{
@@ -3546,7 +3546,7 @@ struct OalSoundSys::Impl
 		return true;
 	}
 
-	void handle_focus_lost(
+	void api_handle_focus_lost(
 		const bool is_focus_lost)
 	{
 		is_mute_ = is_focus_lost;
@@ -3723,22 +3723,17 @@ void OalSoundSys::Unlock()
 
 sint32 OalSoundSys::Startup()
 {
-	if (!pimpl_->startup())
-	{
-		return LS_ERROR;
-	}
-
-	return LS_OK;
+	return pimpl_->api_startup();
 }
 
 void OalSoundSys::Shutdown()
 {
-	pimpl_->shutdown();
+	pimpl_->api_shutdown();
 }
 
 uint32 OalSoundSys::MsCount()
 {
-	return pimpl_->get_milliseconds();
+	return pimpl_->api_ms_count();
 }
 
 sint32 OalSoundSys::SetPreference(
@@ -3773,7 +3768,7 @@ void* OalSoundSys::MemAllocLock(
 
 const char* OalSoundSys::LastError()
 {
-	return pimpl_->get_error_message();
+	return pimpl_->api_last_error();
 }
 
 sint32 OalSoundSys::WaveOutOpen(
@@ -3782,26 +3777,26 @@ sint32 OalSoundSys::WaveOutOpen(
 	const sint32 device_id,
 	const ul::WaveFormatEx& wave_format)
 {
-	return pimpl_->wave_out_open(driver, wave_out, device_id, wave_format);
+	return pimpl_->api_wave_out_open(driver, wave_out, device_id, wave_format);
 }
 
 void OalSoundSys::WaveOutClose(
 	LHDIGDRIVER driver_ptr)
 {
-	pimpl_->wave_out_close(driver_ptr);
+	pimpl_->api_wave_out_close(driver_ptr);
 }
 
 void OalSoundSys::SetDigitalMasterVolume(
 	LHDIGDRIVER driver_ptr,
 	const sint32 master_volume)
 {
-	pimpl_->set_master_volume(driver_ptr, master_volume);
+	pimpl_->api_set_digital_master_volume(driver_ptr, master_volume);
 }
 
 sint32 OalSoundSys::GetDigitalMasterVolume(
 	LHDIGDRIVER driver_ptr)
 {
-	return pimpl_->get_master_volume(driver_ptr);
+	return pimpl_->api_get_digital_master_volume(driver_ptr);
 }
 
 sint32 OalSoundSys::DigitalHandleRelease(
@@ -3825,19 +3820,19 @@ bool OalSoundSys::SetEAX20Filter(
 	const bool is_enable,
 	const LTSOUNDFILTERDATA& filter_data)
 {
-	return pimpl_->set_eax20_filter(is_enable, filter_data);
+	return pimpl_->api_set_eax20_filter(is_enable, filter_data);
 }
 
 bool OalSoundSys::SupportsEAX20Filter()
 {
-	return pimpl_->supports_eax20_filter();
+	return pimpl_->api_supports_eax20_filter();
 }
 
 bool OalSoundSys::SetEAX20BufferSettings(
 	LHSAMPLE sample_handle,
 	const LTSOUNDFILTERDATA& filter_data)
 {
-	return pimpl_->set_eax20_buffer_settings(sample_handle, filter_data);
+	return pimpl_->api_set_eax20_buffer_settings(sample_handle, filter_data);
 }
 #endif // USE_EAX20_HARDWARE_FILTERS
 
@@ -3883,7 +3878,7 @@ void OalSoundSys::Get3DProviderAttribute(
 	const char* name,
 	void* value)
 {
-	pimpl_->get_3d_provider_attribute(provider_id, name, value);
+	pimpl_->api_get_3d_provider_attribute(provider_id, name, value);
 }
 
 sint32 OalSoundSys::Enumerate3DProviders(
@@ -3910,20 +3905,20 @@ sint32 OalSoundSys::Enumerate3DProviders(
 LH3DPOBJECT OalSoundSys::Open3DListener(
 	LHPROVIDER provider_id)
 {
-	return pimpl_->open_3d_listener(provider_id);
+	return pimpl_->api_open_3d_listener(provider_id);
 }
 
 void OalSoundSys::Close3DListener(
 	LH3DPOBJECT listener_ptr)
 {
-	pimpl_->close_3d_listener(listener_ptr);
+	pimpl_->api_close_3d_listener(listener_ptr);
 }
 
 void OalSoundSys::SetListenerDoppler(
 	LH3DPOBJECT listener_ptr,
 	const float doppler_factor)
 {
-	pimpl_->set_3d_listener_doppler(listener_ptr, doppler_factor);
+	pimpl_->api_set_listener_doppler(listener_ptr, doppler_factor);
 }
 
 void OalSoundSys::CommitDeferred()
@@ -3936,7 +3931,7 @@ void OalSoundSys::Set3DPosition(
 	const float y,
 	const float z)
 {
-	pimpl_->set_3d_position(object_ptr, x, y, z);
+	pimpl_->api_set_3d_position(object_ptr, x, y, z);
 }
 
 void OalSoundSys::Set3DVelocityVector(
@@ -3945,7 +3940,7 @@ void OalSoundSys::Set3DVelocityVector(
 	const float dy_per_s,
 	const float dz_per_s)
 {
-	pimpl_->set_3d_velocity(object_ptr, dx_per_s, dy_per_s, dz_per_s);
+	pimpl_->api_set_3d_velocity_vector(object_ptr, dx_per_s, dy_per_s, dz_per_s);
 }
 
 void OalSoundSys::Set3DOrientation(
@@ -3957,7 +3952,7 @@ void OalSoundSys::Set3DOrientation(
 	const float y_up,
 	const float z_up)
 {
-	pimpl_->set_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
+	pimpl_->api_set_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
 }
 
 void OalSoundSys::Set3DUserData(
@@ -3965,7 +3960,7 @@ void OalSoundSys::Set3DUserData(
 	const uint32 index,
 	const sint32 value)
 {
-	pimpl_->set_3d_user_data(object_ptr, index, value);
+	pimpl_->api_set_3d_user_data(object_ptr, index, value);
 }
 
 void OalSoundSys::Get3DPosition(
@@ -3974,7 +3969,7 @@ void OalSoundSys::Get3DPosition(
 	float& y,
 	float& z)
 {
-	pimpl_->get_3d_position(object_ptr, x, y, z);
+	pimpl_->api_get_3d_position(object_ptr, x, y, z);
 }
 
 void OalSoundSys::Get3DVelocity(
@@ -3983,7 +3978,7 @@ void OalSoundSys::Get3DVelocity(
 	float& dy_per_ms,
 	float& dz_per_ms)
 {
-	pimpl_->get_3d_velocity(object_ptr, dx_per_ms, dy_per_ms, dz_per_ms);
+	pimpl_->api_get_3d_velocity(object_ptr, dx_per_ms, dy_per_ms, dz_per_ms);
 }
 
 void OalSoundSys::Get3DOrientation(
@@ -3995,50 +3990,50 @@ void OalSoundSys::Get3DOrientation(
 	float& y_up,
 	float& z_up)
 {
-	pimpl_->get_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
+	pimpl_->api_get_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
 }
 
 sint32 OalSoundSys::Get3DUserData(
 	LH3DPOBJECT object_ptr,
 	const uint32 index)
 {
-	return pimpl_->get_3d_user_data(object_ptr, index);
+	return pimpl_->api_get_3d_user_data(object_ptr, index);
 }
 
 LH3DSAMPLE OalSoundSys::Allocate3DSampleHandle(
 	LHPROVIDER driver_id)
 {
-	return pimpl_->allocate_3d_sample(driver_id);
+	return pimpl_->api_allocate_3d_sample_handle(driver_id);
 }
 
 void OalSoundSys::Release3DSampleHandle(
 	LH3DSAMPLE sample_handle)
 {
-	return pimpl_->release_3d_sample(sample_handle);
+	return pimpl_->api_release_3d_sample_handle(sample_handle);
 }
 
 void OalSoundSys::Stop3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	pimpl_->stop_3d_sample(sample_handle);
+	pimpl_->api_stop_3d_sample(sample_handle);
 }
 
 void OalSoundSys::Start3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	pimpl_->start_3d_sample(sample_handle);
+	pimpl_->api_start_3d_sample(sample_handle);
 }
 
 void OalSoundSys::Resume3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	pimpl_->resume_3d_sample(sample_handle);
+	pimpl_->api_resume_3d_sample(sample_handle);
 }
 
 void OalSoundSys::End3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	pimpl_->end_3d_sample(sample_handle);
+	pimpl_->api_end_3d_sample(sample_handle);
 }
 
 sint32 OalSoundSys::Init3DSampleFromAddress(
@@ -4049,7 +4044,7 @@ sint32 OalSoundSys::Init3DSampleFromAddress(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->initialize_3d_sample_from_address(sample_handle, ptr, length, wave_format, playback_rate, filter_data_ptr);
+	return pimpl_->api_initialize_3d_sample_from_address(sample_handle, ptr, length, wave_format, playback_rate, filter_data_ptr);
 }
 
 sint32 OalSoundSys::Init3DSampleFromFile(
@@ -4059,33 +4054,33 @@ sint32 OalSoundSys::Init3DSampleFromFile(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->initialize_3d_sample_from_file(sample_handle, storage_ptr, block, playback_rate, filter_data_ptr);
+	return pimpl_->api_initialize_3d_sample_from_file(sample_handle, storage_ptr, block, playback_rate, filter_data_ptr);
 }
 
 sint32 OalSoundSys::Get3DSampleVolume(
 	LH3DSAMPLE sample_handle)
 {
-	return pimpl_->get_3d_sample_volume(sample_handle);
+	return pimpl_->api_get_3d_sample_volume(sample_handle);
 }
 
 void OalSoundSys::Set3DSampleVolume(
 	LH3DSAMPLE sample_handle,
 	const sint32 volume)
 {
-	pimpl_->set_3d_sample_volume(sample_handle, volume);
+	pimpl_->api_set_3d_sample_volume(sample_handle, volume);
 }
 
 uint32 OalSoundSys::Get3DSampleStatus(
 	LH3DSAMPLE sample_handle)
 {
-	return pimpl_->get_3d_sample_status(sample_handle);
+	return pimpl_->api_get_3d_sample_status(sample_handle);
 }
 
 void OalSoundSys::Set3DSampleMsPosition(
 	LHSAMPLE sample_handle,
 	const sint32 milliseconds)
 {
-	pimpl_->set_3d_sample_ms_position(sample_handle, milliseconds);
+	pimpl_->api_set_3d_sample_ms_position(sample_handle, milliseconds);
 }
 
 sint32 OalSoundSys::Set3DSampleInfo(
@@ -4103,7 +4098,7 @@ void OalSoundSys::Set3DSampleDistances(
 	const float max_distance,
 	const float min_distance)
 {
-	pimpl_->set_3d_sample_distances(sample_handle, max_distance, min_distance);
+	pimpl_->api_set_3d_sample_distances(sample_handle, max_distance, min_distance);
 }
 
 void OalSoundSys::Set3DSamplePreference(
@@ -4122,14 +4117,15 @@ void OalSoundSys::Set3DSampleLoopBlock(
 	const sint32 loop_end_offset,
 	const bool is_enable)
 {
-	pimpl_->set_3d_sample_loop_block(sample_handle, loop_begin_offset, loop_end_offset, is_enable);
+	pimpl_->api_set_3d_sample_loop_block(
+		sample_handle, loop_begin_offset, loop_end_offset, is_enable);
 }
 
 void OalSoundSys::Set3DSampleLoop(
 	LH3DSAMPLE sample_handle,
 	const bool is_enable)
 {
-	pimpl_->set_3d_sample_loop(sample_handle, is_enable);
+	pimpl_->api_set_3d_sample_loop(sample_handle, is_enable);
 }
 
 void OalSoundSys::Set3DSampleObstruction(
@@ -4167,13 +4163,13 @@ float OalSoundSys::Get3DSampleOcclusion(
 LHSAMPLE OalSoundSys::AllocateSampleHandle(
 	LHDIGDRIVER driver_ptr)
 {
-	return pimpl_->allocate_sample(driver_ptr);
+	return pimpl_->api_allocate_sample_handle(driver_ptr);
 }
 
 void OalSoundSys::ReleaseSampleHandle(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->deallocate_sample(sample_handle);
+	pimpl_->api_release_sample_handle(sample_handle);
 }
 
 void OalSoundSys::InitSample(
@@ -4185,51 +4181,51 @@ void OalSoundSys::InitSample(
 void OalSoundSys::StopSample(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->stop_sample(sample_handle);
+	pimpl_->api_stop_sample(sample_handle);
 }
 
 void OalSoundSys::StartSample(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->start_sample(sample_handle);
+	pimpl_->api_start_sample(sample_handle);
 }
 
 void OalSoundSys::ResumeSample(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->resume_sample(sample_handle);
+	pimpl_->api_resume_sample(sample_handle);
 }
 
 void OalSoundSys::EndSample(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->end_sample(sample_handle);
+	pimpl_->api_end_sample(sample_handle);
 }
 
 void OalSoundSys::SetSampleVolume(
 	LHSAMPLE sample_handle,
 	const sint32 volume)
 {
-	pimpl_->set_sample_volume(sample_handle, volume);
+	pimpl_->api_set_sample_volume(sample_handle, volume);
 }
 
 void OalSoundSys::SetSamplePan(
 	LHSAMPLE sample_handle,
 	const sint32 pan)
 {
-	pimpl_->set_sample_pan(sample_handle, pan);
+	pimpl_->api_set_sample_pan(sample_handle, pan);
 }
 
 sint32 OalSoundSys::GetSampleVolume(
 	LHSAMPLE sample_handle)
 {
-	return pimpl_->get_sample_volume(sample_handle);
+	return pimpl_->api_get_sample_volume(sample_handle);
 }
 
 sint32 OalSoundSys::GetSamplePan(
 	LHSAMPLE sample_handle)
 {
-	return pimpl_->get_sample_pan(sample_handle);
+	return pimpl_->api_get_sample_pan(sample_handle);
 }
 
 void OalSoundSys::SetSampleUserData(
@@ -4237,7 +4233,7 @@ void OalSoundSys::SetSampleUserData(
 	const uint32 index,
 	const sint32 value)
 {
-	pimpl_->set_sample_user_data(sample_handle, index, value);
+	pimpl_->api_set_sample_user_data(sample_handle, index, value);
 }
 
 void OalSoundSys::GetDirectSoundInfo(
@@ -4282,7 +4278,8 @@ sint32 OalSoundSys::InitSampleFromFile(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->initialize_sample_from_file(sample_handle, storage_ptr, block, playback_rate, filter_data_ptr);
+	return pimpl_->api_initialize_sample_from_file(
+		sample_handle, storage_ptr, block, playback_rate, filter_data_ptr);
 }
 
 void OalSoundSys::SetSampleLoopBlock(
@@ -4291,34 +4288,35 @@ void OalSoundSys::SetSampleLoopBlock(
 	const sint32 loop_end_offset,
 	const bool is_enable)
 {
-	pimpl_->set_sample_loop_block(sample_handle, loop_begin_offset, loop_end_offset, is_enable);
+	pimpl_->api_set_sample_loop_block(
+		sample_handle, loop_begin_offset, loop_end_offset, is_enable);
 }
 
 void OalSoundSys::SetSampleLoop(
 	LHSAMPLE sample_handle,
 	const bool is_enable)
 {
-	pimpl_->set_sample_loop(sample_handle, is_enable);
+	pimpl_->api_set_sample_loop(sample_handle, is_enable);
 }
 
 void OalSoundSys::SetSampleMsPosition(
 	LHSAMPLE sample_handle,
 	const sint32 milliseconds)
 {
-	pimpl_->set_sample_ms_position(sample_handle, milliseconds);
+	pimpl_->api_set_sample_ms_position(sample_handle, milliseconds);
 }
 
 sint32 OalSoundSys::GetSampleUserData(
 	LHSAMPLE sample_handle,
 	const uint32 index)
 {
-	return pimpl_->get_sample_user_data(sample_handle, index);
+	return pimpl_->api_get_sample_user_data(sample_handle, index);
 }
 
 uint32 OalSoundSys::GetSampleStatus(
 	LHSAMPLE sample_handle)
 {
-	return pimpl_->get_sample_status(sample_handle);
+	return pimpl_->api_get_sample_status(sample_handle);
 }
 
 LHSTREAM OalSoundSys::OpenStream(
@@ -4328,14 +4326,15 @@ LHSTREAM OalSoundSys::OpenStream(
 	const char* storage_ptr,
 	const sint32 storage_size)
 {
-	return pimpl_->open_stream(file_name, file_offset, driver_ptr, storage_ptr, storage_size);
+	return pimpl_->api_open_stream(
+		file_name, file_offset, driver_ptr, storage_ptr, storage_size);
 }
 
 void OalSoundSys::SetStreamLoop(
 	LHSTREAM stream_ptr,
 	const bool is_enable)
 {
-	pimpl_->set_stream_loop(stream_ptr, is_enable);
+	pimpl_->set_set_stream_loop(stream_ptr, is_enable);
 }
 
 void OalSoundSys::SetStreamPlaybackRate(
@@ -4350,7 +4349,7 @@ void OalSoundSys::SetStreamMsPosition(
 	LHSTREAM stream_ptr,
 	const sint32 milliseconds)
 {
-	pimpl_->set_stream_position_ms(stream_ptr, milliseconds);
+	pimpl_->api_set_stream_ms_position(stream_ptr, milliseconds);
 }
 
 void OalSoundSys::SetStreamUserData(
@@ -4358,33 +4357,33 @@ void OalSoundSys::SetStreamUserData(
 	const uint32 index,
 	const sint32 value)
 {
-	pimpl_->set_stream_user_data(stream_ptr, index,value);
+	pimpl_->api_set_stream_user_data(stream_ptr, index,value);
 }
 
 sint32 OalSoundSys::GetStreamUserData(
 	LHSTREAM stream_ptr,
 	const uint32 index)
 {
-	return pimpl_->get_stream_user_data(stream_ptr, index);
+	return pimpl_->api_get_stream_user_data(stream_ptr, index);
 }
 
 void OalSoundSys::CloseStream(
 	LHSTREAM stream_ptr)
 {
-	pimpl_->close_stream(stream_ptr);
+	pimpl_->api_close_stream(stream_ptr);
 }
 
 void OalSoundSys::StartStream(
 	LHSTREAM stream_ptr)
 {
-	pimpl_->start_stream(stream_ptr);
+	pimpl_->api_start_stream(stream_ptr);
 }
 
 void OalSoundSys::PauseStream(
 	LHSTREAM stream_ptr,
 	const sint32 is_enable)
 {
-	pimpl_->pause_stream(stream_ptr, is_enable);
+	pimpl_->api_pause_stream(stream_ptr, is_enable);
 }
 
 void OalSoundSys::ResetStream(
@@ -4397,32 +4396,32 @@ void OalSoundSys::SetStreamVolume(
 	LHSTREAM stream_ptr,
 	const sint32 volume)
 {
-	pimpl_->set_stream_volume(stream_ptr, volume);
+	pimpl_->api_set_stream_volume(stream_ptr, volume);
 }
 
 void OalSoundSys::SetStreamPan(
 	LHSTREAM stream_ptr,
 	const sint32 pan)
 {
-	pimpl_->set_stream_pan(stream_ptr, pan);
+	pimpl_->api_set_stream_pan(stream_ptr, pan);
 }
 
 sint32 OalSoundSys::GetStreamVolume(
 	LHSTREAM stream_ptr)
 {
-	return pimpl_->set_stream_volume(stream_ptr);
+	return pimpl_->api_set_stream_volume(stream_ptr);
 }
 
 sint32 OalSoundSys::GetStreamPan(
 	LHSTREAM stream_ptr)
 {
-	return pimpl_->get_stream_pan(stream_ptr);
+	return pimpl_->api_get_stream_pan(stream_ptr);
 }
 
 uint32 OalSoundSys::GetStreamStatus(
 	LHSTREAM stream_ptr)
 {
-	return pimpl_->get_stream_status(stream_ptr);
+	return pimpl_->api_get_stream_status(stream_ptr);
 }
 
 sint32 OalSoundSys::GetStreamBufferParam(
@@ -4463,7 +4462,7 @@ sint32 OalSoundSys::DecompressASI(
 	uint32& dst_wav_size,
 	LTLENGTHYCB callback)
 {
-	return pimpl_->decode_mp3(src_data_ptr, src_data_size, file_name_ext, dst_wav_ptr, dst_wav_size, callback);
+	return pimpl_->api_decode_mp3(src_data_ptr, src_data_size, file_name_ext, dst_wav_ptr, dst_wav_size, callback);
 }
 
 uint32 OalSoundSys::GetThreadedSoundTicks()
@@ -4479,7 +4478,7 @@ bool OalSoundSys::HasOnBoardMemory()
 void OalSoundSys::handle_focus_lost(
 	const bool is_focus_lost)
 {
-	pimpl_->handle_focus_lost(is_focus_lost);
+	pimpl_->api_handle_focus_lost(is_focus_lost);
 }
 
 OalSoundSys& OalSoundSys::get_singleton()
