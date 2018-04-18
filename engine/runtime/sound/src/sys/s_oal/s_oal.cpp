@@ -191,9 +191,9 @@ struct OalSoundSys::Impl
 		{
 			switch (status_)
 			{
-			case Sample::Status::failed:
-			case Sample::Status::paused:
-			case Sample::Status::stopped:
+			case Status::failed:
+			case Status::paused:
+			case Status::stopped:
 				return status_;
 
 			default:
@@ -202,27 +202,27 @@ struct OalSoundSys::Impl
 
 			auto oal_state = ALint{};
 
-			::alGetSourcei(oal_sources_[Sample::left_index], AL_SOURCE_STATE, &oal_state);
+			::alGetSourcei(oal_sources_[left_index], AL_SOURCE_STATE, &oal_state);
 
-			auto status = Sample::Status::none;
+			auto status = Status::none;
 
 			switch (oal_state)
 			{
 			case AL_INITIAL:
 			case AL_STOPPED:
-				status = Sample::Status::stopped;
+				status = Status::stopped;
 				break;
 
 			case AL_PAUSED:
-				status = Sample::Status::paused;
+				status = Status::paused;
 				break;
 
 			case AL_PLAYING:
-				status = Sample::Status::playing;
+				status = Status::playing;
 				break;
 
 			default:
-				status = Sample::Status::failed;
+				status = Status::failed;
 				break;
 			}
 
@@ -249,9 +249,9 @@ struct OalSoundSys::Impl
 
 			switch (status)
 			{
-			case Sample::Status::failed:
-			case Sample::Status::paused:
-			case Sample::Status::stopped:
+			case Status::failed:
+			case Status::paused:
+			case Status::stopped:
 				return;
 
 			default:
@@ -260,21 +260,21 @@ struct OalSoundSys::Impl
 
 			::alSourcePausev(oal_source_count_, oal_sources_.data());
 
-			status_ = Sample::Status::paused;
+			status_ = Status::paused;
 		}
 
 		void start()
 		{
 			const auto status = get_status();
 
-			if (status == Sample::Status::failed)
+			if (status == Status::failed)
 			{
 				return;
 			}
 
 			::alSourcePlayv(oal_source_count_, oal_sources_.data());
 
-			status_ = Sample::Status::playing;
+			status_ = Status::playing;
 		}
 
 		void resume()
@@ -283,8 +283,8 @@ struct OalSoundSys::Impl
 
 			switch (status)
 			{
-			case Sample::Status::failed:
-			case Sample::Status::playing:
+			case Status::failed:
+			case Status::playing:
 				return;
 
 			default:
@@ -293,7 +293,7 @@ struct OalSoundSys::Impl
 
 			::alSourcePlayv(oal_source_count_, oal_sources_.data());
 
-			status_ = Sample::Status::playing;
+			status_ = Status::playing;
 		}
 
 		void end()
@@ -302,8 +302,8 @@ struct OalSoundSys::Impl
 
 			switch (status)
 			{
-			case Sample::Status::failed:
-			case Sample::Status::stopped:
+			case Status::failed:
+			case Status::stopped:
 				return;
 
 			default:
@@ -312,7 +312,7 @@ struct OalSoundSys::Impl
 
 			::alSourceStopv(oal_source_count_, oal_sources_.data());
 
-			status_ = Sample::Status::stopped;
+			status_ = Status::stopped;
 		}
 
 		void set_volume(
@@ -327,7 +327,7 @@ struct OalSoundSys::Impl
 
 			volume_ = new_volume;
 
-			if (status_ == Sample::Status::failed)
+			if (status_ == Status::failed)
 			{
 				return;
 			}
@@ -351,7 +351,7 @@ struct OalSoundSys::Impl
 
 			pan_ = new_pan;
 
-			if (status_ == Sample::Status::failed)
+			if (status_ == Status::failed)
 			{
 				return;
 			}
@@ -368,15 +368,15 @@ struct OalSoundSys::Impl
 			{
 				// Left channel is at full volume; right channels is attenuated.
 
-				oal_pans_[Sample::left_index] = ltjs::AudioUtils::gain_max;
-				oal_pans_[Sample::right_index] = std::abs(oal_pan);
+				oal_pans_[left_index] = ltjs::AudioUtils::gain_max;
+				oal_pans_[right_index] = std::abs(oal_pan);
 			}
 			else
 			{
 				// Right channel is at full volume; lrft channels is attenuated.
 
-				oal_pans_[Sample::left_index] = std::abs(oal_pan);
-				oal_pans_[Sample::right_index] = ltjs::AudioUtils::gain_max;
+				oal_pans_[left_index] = std::abs(oal_pan);
+				oal_pans_[right_index] = ltjs::AudioUtils::gain_max;
 			}
 
 			update_volume_and_pan();
@@ -470,7 +470,7 @@ struct OalSoundSys::Impl
 		{
 			static_cast<void>(filter_data_ptr);
 
-			if (status_ == Sample::Status::failed)
+			if (status_ == Status::failed)
 			{
 				return false;
 			}
@@ -524,7 +524,7 @@ struct OalSoundSys::Impl
 
 			if (is_stream_)
 			{
-				auto processed_buffers = Sample::OalBuffers{};
+				auto processed_buffers = OalBuffers{};
 
 				for (auto i = 0; i < oal_source_count_; ++i)
 				{
@@ -590,10 +590,10 @@ struct OalSoundSys::Impl
 				}
 
 				// Left channel.
-				::alSource3f(oal_sources_[Sample::left_index], AL_POSITION, -1.0F, 0.0F, 0.0F);
+				::alSource3f(oal_sources_[left_index], AL_POSITION, -1.0F, 0.0F, 0.0F);
 
 				// Right channel.
-				::alSource3f(oal_sources_[Sample::right_index], AL_POSITION, 1.0F, 0.0F, 0.0F);
+				::alSource3f(oal_sources_[right_index], AL_POSITION, 1.0F, 0.0F, 0.0F);
 			}
 
 			if (oal_has_effect_slot)
@@ -608,11 +608,11 @@ struct OalSoundSys::Impl
 
 			if (!oal_is_succeed())
 			{
-				status_ = Sample::Status::failed;
+				status_ = Status::failed;
 				return false;
 			}
 
-			status_ = Sample::Status::stopped;
+			status_ = Status::stopped;
 
 			return true;
 		}
@@ -632,7 +632,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (status_ == Sample::Status::failed)
+			if (status_ == Status::failed)
 			{
 				return false;
 			}
@@ -736,14 +736,14 @@ struct OalSoundSys::Impl
 
 			is_looping_ = is_enable;
 
-			if (status_ == Sample::Status::failed)
+			if (status_ == Status::failed)
 			{
 				return;
 			}
 
 			const auto status_before_stop = get_status();
 
-			if (status_before_stop == Sample::Status::failed)
+			if (status_before_stop == Status::failed)
 			{
 				return;
 			}
@@ -758,7 +758,7 @@ struct OalSoundSys::Impl
 
 			if (sample_offset < 0)
 			{
-				status_ = Sample::Status::failed;
+				status_ = Status::failed;
 				return;
 			}
 
@@ -814,31 +814,31 @@ struct OalSoundSys::Impl
 				}
 			}
 
-			if (status_before_stop == Sample::Status::playing)
+			if (status_before_stop == Status::playing)
 			{
 				::alSourcePlayv(2, oal_sources_.data());
 			}
 
 			if (!oal_is_succeed())
 			{
-				status_ = Sample::Status::failed;
+				status_ = Status::failed;
 				return;
 			}
 
-			if (status_before_stop == Sample::Status::playing)
+			if (status_before_stop == Status::playing)
 			{
-				status_ = Sample::Status::playing;
+				status_ = Status::playing;
 			}
 			else
 			{
-				status_ = Sample::Status::paused;
+				status_ = Status::paused;
 			}
 		}
 
 		void set_sample_ms_position(
 			const sint32 milliseconds)
 		{
-			if (status_ == Sample::Status::failed)
+			if (status_ == Status::failed)
 			{
 				return;
 			}
