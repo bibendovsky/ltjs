@@ -188,8 +188,7 @@ struct OalSoundSys::Impl
 			oal_buffer_format_{std::move(that.oal_buffer_format_)},
 			oal_volume_{std::move(that.oal_volume_)},
 			oal_pans_{std::move(that.oal_pans_)},
-			is_3d_{std::move(that.is_3d_)},
-			is_stream_{std::move(that.is_stream_)},
+			type_{std::move(that.type_)},
 			oal_source_count_{std::move(that.oal_source_count_)},
 			oal_are_buffers_created_{std::move(that.oal_are_buffers_created_)},
 			oal_are_sources_created_{std::move(that.oal_are_sources_created_)}
@@ -201,6 +200,22 @@ struct OalSoundSys::Impl
 		~Sample()
 		{
 			destroy();
+		}
+
+
+		bool is_2d() const
+		{
+			return type_ == Type::stereo;
+		}
+
+		bool is_3d() const
+		{
+			return type_ == Type::surround;
+		}
+
+		bool is_stream() const
+		{
+			return type_ == Type::stream;
 		}
 
 		Status get_status()
@@ -432,17 +447,17 @@ struct OalSoundSys::Impl
 
 			reset();
 
-			if ((!is_stream_ && storage_size == 0) || !validate_wave_format_ex(wave_format) || playback_rate <= 0)
+			if ((!is_stream() && storage_size == 0) || !validate_wave_format_ex(wave_format) || playback_rate <= 0)
 			{
 				return false;
 			}
 
-			if (is_3d_ && wave_format.channel_count_ != 1)
+			if (is_3d() && wave_format.channel_count_ != 1)
 			{
 				return false;
 			}
 
-			if (!is_stream_ && !storage_ptr && data_.empty())
+			if (!is_stream() && !storage_ptr && data_.empty())
 			{
 				return false;
 			}
@@ -477,7 +492,7 @@ struct OalSoundSys::Impl
 				::alSourcei(oal_sources_[i], AL_BUFFER, AL_NONE);
 			}
 
-			if (is_stream_)
+			if (is_stream())
 			{
 				auto processed_buffers = OalBuffers{};
 
@@ -496,7 +511,7 @@ struct OalSoundSys::Impl
 				}
 			}
 
-			if (!is_stream_)
+			if (!is_stream())
 			{
 				::alBufferData(
 					oal_buffers_[0],
@@ -510,7 +525,7 @@ struct OalSoundSys::Impl
 			{
 				const auto oal_source = oal_sources_[i];
 
-				if (!is_stream_)
+				if (!is_stream())
 				{
 					::alSourcei(oal_source, AL_BUFFER, oal_buffers_[0]);
 				}
@@ -524,7 +539,7 @@ struct OalSoundSys::Impl
 					::alSourcef(oal_source, AL_PITCH, 1.0F);
 				}
 
-				if (is_3d_)
+				if (is_3d())
 				{
 					::alSourcef(oal_source, AL_GAIN, ltjs::AudioUtils::gain_max);
 				}
@@ -535,7 +550,7 @@ struct OalSoundSys::Impl
 				::alSourcef(oal_source, AL_MAX_DISTANCE, ltjs::AudioUtils::ds_default_max_distance);
 			}
 
-			if (!is_3d_)
+			if (!is_3d())
 			{
 				update_volume_and_pan();
 
@@ -833,8 +848,7 @@ struct OalSoundSys::Impl
 			oal_buffer_format_{},
 			oal_volume_{},
 			oal_pans_{},
-			is_3d_{},
-			is_stream_{},
+			type_{type},
 			oal_source_count_{},
 			oal_are_buffers_created_{},
 			oal_are_sources_created_{}
@@ -842,21 +856,12 @@ struct OalSoundSys::Impl
 			switch (type)
 			{
 			case Type::stereo:
-				is_3d_ = false;
-				is_stream_ = false;
+			case Type::stream:
 				oal_source_count_ = 2;
 				break;
 
 			case Type::surround:
-				is_3d_ = true;
-				is_stream_ = false;
 				oal_source_count_ = 1;
-				break;
-
-			case Type::stream:
-				is_3d_ = false;
-				is_stream_ = true;
-				oal_source_count_ = 2;
 				break;
 
 			default:
@@ -868,8 +873,7 @@ struct OalSoundSys::Impl
 
 
 	private:
-		bool is_3d_;
-		bool is_stream_;
+		Type type_;
 
 		// 2D: two sources.
 		// 3D: one source.
