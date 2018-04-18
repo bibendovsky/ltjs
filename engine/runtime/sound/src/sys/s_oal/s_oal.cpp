@@ -916,6 +916,253 @@ struct OalSoundSys::Impl
 
 		OalBuffers oal_queued_buffers_;
 		OalBuffers oal_unqueued_buffers_;
+
+
+		void uninitialize()
+		{
+			is_open_ = false;
+
+			decoder_.close();
+			file_substream_.close();
+			file_stream_.close();
+
+			sample_.destroy();
+		}
+
+		bool initialize()
+		{
+			uninitialize();
+
+			sample_.is_stream_ = true;
+			sample_.oal_source_count_ = 2;
+			sample_.reset();
+			sample_.create();
+
+			return sample_.status_ != Sample::Status::failed;
+		}
+
+		void reset()
+		{
+			is_playing_ = {};
+			mix_size_ = {};
+			data_size_ = {};
+			data_offset_ = {};
+
+			oal_queued_buffers_.clear();
+			oal_queued_buffers_.reserve(Sample::oal_max_buffer_count);
+
+			oal_unqueued_buffers_.clear();
+			oal_unqueued_buffers_.reserve(Sample::oal_max_buffer_count);
+			oal_unqueued_buffers_.assign(sample_.oal_buffers_.cbegin(), sample_.oal_buffers_.cend());
+		}
+
+		int fill_mix_buffer()
+		{
+			const auto is_looping = sample_.is_looping_;
+
+			const auto data_begin_offset = static_cast<int>(
+				is_looping && sample_.has_loop_block_ ? sample_.loop_begin_ : 0);
+
+			auto data_end_offset = static_cast<int>(
+				is_looping && sample_.has_loop_block_ ? sample_.loop_end_ : data_size_);
+
+			auto mix_offset = 0;
+
+			while (mix_offset < mix_size_)
+			{
+				const auto data_remain_size = data_end_offset - data_offset_;
+
+				if (data_remain_size == 0)
+				{
+					if (is_looping)
+					{
+						data_offset_ = data_begin_offset;
+
+						const auto sample_offset = data_begin_offset / sample_.format_.block_align_;
+
+						if (!decoder_.set_position(sample_offset))
+						{
+							break;
+						}
+
+						continue;
+					}
+					else
+					{
+						break;
+					}
+				}
+
+				const auto mix_remain_size = mix_size_ - mix_offset;
+				const auto to_decode_size = std::min(data_remain_size, mix_remain_size);
+
+				if (to_decode_size == 0)
+				{
+					break;
+				}
+
+				const auto decoded_size = decoder_.decode(&mix_buffer_[mix_offset], to_decode_size);
+
+				if (decoded_size > 0)
+				{
+					mix_offset += decoded_size;
+					data_offset_ += decoded_size;
+				}
+				else
+				{
+					if (decoded_size == 0)
+					{
+						// Adjust the actual data size if necessary.
+						//
+						const auto actual_data_size = decoder_.get_decoded_size();
+
+						if (data_size_ != actual_data_size)
+						{
+							data_size_ = actual_data_size;
+
+							if (!is_looping)
+							{
+								data_end_offset = actual_data_size;
+							}
+						}
+					}
+
+					std::uninitialized_fill_n(mix_buffer_.begin() + mix_offset, mix_size_ - mix_offset, std::uint8_t{});
+
+					break;
+				}
+			}
+
+			return mix_offset;
+		}
+
+		//
+		// Fills a stream with data.
+		//
+		// Returns:
+		//    - "true" - if stream is processed.
+		//    - "false" - if stream is not processed (paused, failed, etc).
+		//
+		bool mix()
+		{
+			if (sample_.status_ == Sample::Status::none || sample_.status_ == Sample::Status::failed)
+			{
+				return false;
+			}
+
+			const auto is_sample_playing = (sample_.status_ == Sample::Status::playing);
+
+			if (is_playing_ && !is_sample_playing)
+			{
+				sample_.status_ = Sample::Status::playing;
+			}
+			else if (!is_playing_ && is_sample_playing)
+			{
+				sample_.status_ = Sample::Status::paused;
+
+				::alSourcePausev(2, sample_.oal_sources_.data());
+
+				return false;
+			}
+			else if (!is_playing_ && !is_sample_playing)
+			{
+				return false;
+			}
+
+			auto oal_processed = ALint{};
+			auto oal_queued = ALint{};
+
+			::alGetSourcei(sample_.oal_sources_[0], AL_BUFFERS_PROCESSED, &oal_processed);
+			::alGetSourcei(sample_.oal_sources_[0], AL_BUFFERS_QUEUED, &oal_queued);
+
+			if (oal_processed > 0)
+			{
+				auto buffers = Sample::OalBuffers{};
+				const auto old_size = oal_unqueued_buffers_.size();
+
+				oal_unqueued_buffers_.resize(
+					old_size + std::min(oal_processed, Sample::oal_max_buffer_count));
+
+				::alSourceUnqueueBuffers(
+					sample_.oal_sources_[0],
+					oal_processed,
+					&oal_unqueued_buffers_[old_size]);
+
+				::alSourceUnqueueBuffers(
+					sample_.oal_sources_[1],
+					oal_processed,
+					buffers.data());
+			}
+
+			if (!sample_.is_looping_ && data_offset_ == data_size_)
+			{
+				if (oal_queued == 0)
+				{
+					is_playing_ = false;
+					sample_.status_ = Sample::Status::paused;
+					return false;
+				}
+
+				if (oal_queued > 0)
+				{
+					return true;
+				}
+			}
+
+			auto queued_count = 0;
+
+			for (auto i = oal_queued; i < Sample::oal_max_buffer_count; ++i)
+			{
+				if (oal_unqueued_buffers_.empty())
+				{
+					break;
+				}
+
+				auto decoded_mix_size = fill_mix_buffer();
+
+				if (decoded_mix_size == 0)
+				{
+					break;
+				}
+
+				const auto oal_buffer = oal_unqueued_buffers_.back();
+				oal_unqueued_buffers_.pop_back();
+				oal_queued_buffers_.push_back(oal_buffer);
+
+				::alBufferData(
+					oal_buffer,
+					sample_.oal_buffer_format_,
+					mix_buffer_.data(),
+					mix_size_,
+					static_cast<ALsizei>(sample_.format_.sample_rate_));
+
+				for (auto j = 0; j < 2; ++j)
+				{
+					::alSourceQueueBuffers(sample_.oal_sources_[j], 1, &oal_buffer);
+				}
+
+				queued_count += 1;
+
+				if (decoded_mix_size < mix_size_)
+				{
+					break;
+				}
+			}
+
+			if (queued_count > 0)
+			{
+				auto oal_state = ALint{};
+
+				::alGetSourcei(sample_.oal_sources_[0], AL_SOURCE_STATE, &oal_state);
+
+				if (oal_state != AL_PLAYING)
+				{
+					::alSourcePlayv(2, sample_.oal_sources_.data());
+				}
+			}
+
+			return oal_processed > 0 || queued_count > 0;
+		}
 	}; // Stream
 
 	using Streams = std::vector<Stream>;
@@ -927,18 +1174,6 @@ struct OalSoundSys::Impl
 	// Utils
 	// =========================================================================
 	//
-
-	void uninitialize_stream(
-		Stream& stream)
-	{
-		stream.is_open_ = false;
-
-		stream.decoder_.close();
-		stream.file_substream_.close();
-		stream.file_stream_.close();
-
-		stream.sample_.destroy();
-	}
 
 	void destroy_streams()
 	{
@@ -960,26 +1195,11 @@ struct OalSoundSys::Impl
 
 		for (auto& stream : streams_)
 		{
-			uninitialize_stream(stream);
+			stream.uninitialize();
 		}
 
 		streams_.clear();
 		mt_open_streams_.clear();
-	}
-
-	bool initialize_stream(
-		Stream& stream)
-	{
-		uninitialize_stream(stream);
-
-		auto& sample = stream.sample_;
-
-		sample.is_stream_ = true;
-		sample.oal_source_count_ = 2;
-		sample.reset();
-		sample.create();
-
-		return sample.status_ != Sample::Status::failed;
 	}
 
 	void create_streams()
@@ -992,7 +1212,7 @@ struct OalSoundSys::Impl
 
 		for (auto& stream : streams_)
 		{
-			is_succeed &= initialize_stream(stream);
+			is_succeed &= stream.initialize();
 		}
 
 		if (!is_succeed)
@@ -1004,22 +1224,6 @@ struct OalSoundSys::Impl
 		{
 			mt_stream_thread_ = MtThread{std::bind(&Impl::stream_worker, this)};
 		}
-	}
-
-	void reset_stream(
-		Stream& stream)
-	{
-		stream.is_playing_ = {};
-		stream.mix_size_ = {};
-		stream.data_size_ = {};
-		stream.data_offset_ = {};
-
-		stream.oal_queued_buffers_.clear();
-		stream.oal_queued_buffers_.reserve(Sample::oal_max_buffer_count);
-
-		stream.oal_unqueued_buffers_.clear();
-		stream.oal_unqueued_buffers_.reserve(Sample::oal_max_buffer_count);
-		stream.oal_unqueued_buffers_.assign(stream.sample_.oal_buffers_.cbegin(), stream.sample_.oal_buffers_.cend());
 	}
 
 	Stream* get_free_stream()
@@ -1043,92 +1247,6 @@ struct OalSoundSys::Impl
 		return &(*stream_it);
 	}
 
-	int fill_stream_mix_buffer(
-		Stream& stream)
-	{
-		const auto& sample = stream.sample_;
-
-		const auto is_looping = sample.is_looping_;
-
-		const auto data_begin_offset = static_cast<int>(
-			is_looping && sample.has_loop_block_ ? sample.loop_begin_ : 0);
-
-		auto data_end_offset = static_cast<int>(
-			is_looping && sample.has_loop_block_ ? sample.loop_end_ : stream.data_size_);
-
-		auto mix_offset = 0;
-
-		while (mix_offset < stream.mix_size_)
-		{
-			const auto data_remain_size = data_end_offset - stream.data_offset_;
-
-			if (data_remain_size == 0)
-			{
-				if (is_looping)
-				{
-					stream.data_offset_ = data_begin_offset;
-
-					const auto sample_offset = data_begin_offset / stream.sample_.format_.block_align_;
-
-					if (!stream.decoder_.set_position(sample_offset))
-					{
-						break;
-					}
-
-					continue;
-				}
-				else
-				{
-					break;
-				}
-			}
-
-			const auto mix_remain_size = stream.mix_size_ - mix_offset;
-			const auto to_decode_size = std::min(data_remain_size, mix_remain_size);
-
-			if (to_decode_size == 0)
-			{
-				break;
-			}
-
-			const auto decoded_size = stream.decoder_.decode(&stream.mix_buffer_[mix_offset], to_decode_size);
-
-			if (decoded_size > 0)
-			{
-				mix_offset += decoded_size;
-				stream.data_offset_ += decoded_size;
-			}
-			else
-			{
-				if (decoded_size == 0)
-				{
-					// Adjust the actual data size if necessary.
-					//
-					const auto actual_data_size = stream.decoder_.get_decoded_size();
-
-					if (stream.data_size_ != actual_data_size)
-					{
-						stream.data_size_ = actual_data_size;
-
-						if (!is_looping)
-						{
-							data_end_offset = actual_data_size;
-						}
-					}
-				}
-
-				std::uninitialized_fill_n(
-					stream.mix_buffer_.begin() + mix_offset,
-					stream.mix_size_ - mix_offset,
-					std::uint8_t{});
-
-				break;
-			}
-		}
-
-		return mix_offset;
-	}
-
 	void mt_notify_stream()
 	{
 		MtUniqueLock cv_lock{mt_stream_cv_mutex_};
@@ -1141,137 +1259,6 @@ struct OalSoundSys::Impl
 		MtUniqueLock cv_lock{mt_stream_cv_mutex_};
 		mt_stream_cv_.wait(cv_lock, [&](){ return mt_stream_cv_flag_; });
 		mt_stream_cv_flag_ = false;
-	}
-
-	//
-	// Fills a stream with data.
-	//
-	// Returns:
-	//    - "true" - if stream is processed.
-	//    - "false" - if stream is not processed (paused, failed, etc).
-	//
-	bool mix_stream(
-		Stream& stream)
-	{
-		auto& sample = stream.sample_;
-
-		if (sample.status_ == Sample::Status::none || sample.status_ == Sample::Status::failed)
-		{
-			return false;
-		}
-
-		const auto is_sample_playing = (sample.status_ == Sample::Status::playing);
-
-		if (stream.is_playing_ && !is_sample_playing)
-		{
-			sample.status_ = Sample::Status::playing;
-		}
-		else if (!stream.is_playing_ && is_sample_playing)
-		{
-			sample.status_ = Sample::Status::paused;
-
-			::alSourcePausev(2, sample.oal_sources_.data());
-
-			return false;
-		}
-		else if (!stream.is_playing_ && !is_sample_playing)
-		{
-			return false;
-		}
-
-		auto oal_processed = ALint{};
-		auto oal_queued = ALint{};
-
-		::alGetSourcei(sample.oal_sources_[0], AL_BUFFERS_PROCESSED, &oal_processed);
-		::alGetSourcei(sample.oal_sources_[0], AL_BUFFERS_QUEUED, &oal_queued);
-
-		if (oal_processed > 0)
-		{
-			auto buffers = Sample::OalBuffers{};
-			const auto old_size = stream.oal_unqueued_buffers_.size();
-
-			stream.oal_unqueued_buffers_.resize(
-				old_size + std::min(oal_processed, Sample::oal_max_buffer_count));
-
-			::alSourceUnqueueBuffers(
-				sample.oal_sources_[0],
-				oal_processed,
-				&stream.oal_unqueued_buffers_[old_size]);
-
-			::alSourceUnqueueBuffers(
-				sample.oal_sources_[1],
-				oal_processed,
-				buffers.data());
-		}
-
-		if (!sample.is_looping_ && stream.data_offset_ == stream.data_size_)
-		{
-			if (oal_queued == 0)
-			{
-				stream.is_playing_ = false;
-				sample.status_ = Sample::Status::paused;
-				return false;
-			}
-
-			if (oal_queued > 0)
-			{
-				return true;
-			}
-		}
-
-		auto queued_count = 0;
-
-		for (auto i = oal_queued; i < Sample::oal_max_buffer_count; ++i)
-		{
-			if (stream.oal_unqueued_buffers_.empty())
-			{
-				break;
-			}
-
-			auto decoded_mix_size = fill_stream_mix_buffer(stream);
-
-			if (decoded_mix_size == 0)
-			{
-				break;
-			}
-
-			const auto oal_buffer = stream.oal_unqueued_buffers_.back();
-			stream.oal_unqueued_buffers_.pop_back();
-			stream.oal_queued_buffers_.push_back(oal_buffer);
-
-			::alBufferData(
-				oal_buffer,
-				sample.oal_buffer_format_,
-				stream.mix_buffer_.data(),
-				stream.mix_size_,
-				static_cast<ALsizei>(sample.format_.sample_rate_));
-
-			for (auto j = 0; j < 2; ++j)
-			{
-				::alSourceQueueBuffers(sample.oal_sources_[j], 1, &oal_buffer);
-			}
-
-			queued_count += 1;
-
-			if (decoded_mix_size < stream.mix_size_)
-			{
-				break;
-			}
-		}
-
-		if (queued_count > 0)
-		{
-			auto oal_state = ALint{};
-
-			::alGetSourcei(sample.oal_sources_[0], AL_SOURCE_STATE, &oal_state);
-
-			if (oal_state != AL_PLAYING)
-			{
-				::alSourcePlayv(2, sample.oal_sources_.data());
-			}
-		}
-
-		return oal_processed > 0 || queued_count > 0;
 	}
 
 	void stream_worker()
@@ -1300,7 +1287,7 @@ struct OalSoundSys::Impl
 					{
 						auto& stream = *stream_ptr;
 
-						is_mixed |= mix_stream(stream);
+						is_mixed |= stream.mix();
 
 						if (stream.sample_.status_ != Sample::Status::playing)
 						{
@@ -2724,7 +2711,7 @@ struct OalSoundSys::Impl
 			return nullptr;
 		}
 
-		reset_stream(stream);
+		stream.reset();
 
 		stream.data_size_ = decoder.get_data_size();
 
