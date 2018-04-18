@@ -145,7 +145,6 @@ struct OalSoundSys::Impl
 		sint32 loop_end_;
 		sint32 volume_;
 		sint32 pan_;
-		Status status_;
 		Data data_;
 		UserDataArray user_data_array_;
 
@@ -177,7 +176,6 @@ struct OalSoundSys::Impl
 			loop_end_{std::move(that.loop_end_)},
 			volume_{std::move(that.volume_)},
 			pan_{std::move(that.pan_)},
-			status_{std::move(that.status_)},
 			data_{std::move(that.data_)},
 			user_data_array_{std::move(that.user_data_array_)},
 			oal_buffers_{std::move(that.oal_buffers_)},
@@ -186,6 +184,7 @@ struct OalSoundSys::Impl
 			oal_volume_{std::move(that.oal_volume_)},
 			oal_pans_{std::move(that.oal_pans_)},
 			type_{std::move(that.type_)},
+			status_{std::move(that.status_)},
 			block_align_{std::move(that.block_align_)},
 			sample_rate_{std::move(that.sample_rate_)},
 			oal_source_count_{std::move(that.oal_source_count_)},
@@ -269,6 +268,33 @@ struct OalSoundSys::Impl
 			status_ = status;
 
 			return status;
+		}
+
+		bool is_playing()
+		{
+			return get_status() == Status::playing;
+		}
+
+		bool is_paused()
+		{
+			return get_status() == Status::paused;
+		}
+
+		bool is_stopped()
+		{
+			return get_status() == Status::stopped;
+		}
+
+		bool is_failed()
+		{
+			return get_status() == Status::failed;
+		}
+
+		void fail()
+		{
+			stop();
+
+			status_ = Status::failed;
 		}
 
 		void update_volume_and_pan()
@@ -850,7 +876,6 @@ struct OalSoundSys::Impl
 			loop_end_{},
 			volume_{},
 			pan_{},
-			status_{},
 			data_{},
 			user_data_array_{},
 			oal_buffers_{},
@@ -858,7 +883,8 @@ struct OalSoundSys::Impl
 			oal_buffer_format_{},
 			oal_volume_{},
 			oal_pans_{},
-			type_{type},
+			type_{},
+			status_{},
 			block_align_{},
 			sample_rate_{},
 			oal_source_count_{},
@@ -880,12 +906,15 @@ struct OalSoundSys::Impl
 				throw "Invalid type.";
 			}
 
+			type_ = type;
+
 			create();
 		}
 
 
 	private:
 		Type type_;
+		Status status_;
 
 		int block_align_;
 		int sample_rate_;
@@ -1201,7 +1230,7 @@ struct OalSoundSys::Impl
 
 			sample_.reset();
 
-			return sample_.status_ != Sample::Status::failed;
+			return !sample_.is_failed();
 		}
 
 		void reset()
@@ -1308,28 +1337,24 @@ struct OalSoundSys::Impl
 		//
 		bool mix()
 		{
-			if (sample_.status_ == Sample::Status::none || sample_.status_ == Sample::Status::failed)
+			if (sample_.is_failed())
 			{
 				return false;
 			}
 
-			const auto is_sample_playing = (sample_.status_ == Sample::Status::playing);
+			const auto is_sample_playing = sample_.is_playing();
 
-			if (is_playing_ && !is_sample_playing)
+			if (!is_playing_)
 			{
-				sample_.status_ = Sample::Status::playing;
-			}
-			else if (!is_playing_ && is_sample_playing)
-			{
-				sample_.status_ = Sample::Status::paused;
-
-				::alSourcePausev(2, sample_.oal_sources_.data());
-
-				return false;
-			}
-			else if (!is_playing_ && !is_sample_playing)
-			{
-				return false;
+				if (is_sample_playing)
+				{
+					sample_.pause();
+					return false;
+				}
+				else
+				{
+					return false;
+				}
 			}
 
 			auto oal_processed = ALint{};
@@ -1362,7 +1387,7 @@ struct OalSoundSys::Impl
 				if (oal_queued == 0)
 				{
 					is_playing_ = false;
-					sample_.status_ = Sample::Status::paused;
+					sample_.pause();
 					return false;
 				}
 
@@ -1414,13 +1439,9 @@ struct OalSoundSys::Impl
 
 			if (queued_count > 0)
 			{
-				auto oal_state = ALint{};
-
-				::alGetSourcei(sample_.oal_sources_[0], AL_SOURCE_STATE, &oal_state);
-
-				if (oal_state != AL_PLAYING)
+				if (!sample_.is_playing())
 				{
-					::alSourcePlayv(2, sample_.oal_sources_.data());
+					sample_.resume();
 				}
 			}
 
@@ -1552,7 +1573,7 @@ struct OalSoundSys::Impl
 
 						is_mixed |= stream.mix();
 
-						if (stream.sample_.status_ != Sample::Status::playing)
+						if (!stream.sample_.is_playing())
 						{
 							paused_count += 1;
 						}
@@ -2377,7 +2398,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
-		if (sample.status_ == Sample::Status::failed)
+		if (sample.is_failed())
 		{
 			return false;
 		}
@@ -2487,7 +2508,7 @@ struct OalSoundSys::Impl
 
 		if (!oal_is_succeed())
 		{
-			sample.status_ = Sample::Status::failed;
+			sample.fail();
 			return;
 		}
 	}
@@ -3189,7 +3210,7 @@ struct OalSoundSys::Impl
 
 		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
 
-		if (stream.sample_.status_ != Sample::Status::playing)
+		if (!stream.sample_.is_playing())
 		{
 			return LS_STOPPED;
 		}
@@ -3500,7 +3521,7 @@ struct OalSoundSys::Impl
 
 		sample.volume_ = new_volume;
 
-		if (sample.status_ == Sample::Status::failed)
+		if (sample.is_failed())
 		{
 			return;
 		}
