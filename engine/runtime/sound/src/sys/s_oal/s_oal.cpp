@@ -283,7 +283,7 @@ struct OalSoundSys::Impl
 			}
 		}
 
-		void stop()
+		void pause()
 		{
 			const auto status = get_status();
 
@@ -303,7 +303,7 @@ struct OalSoundSys::Impl
 			status_ = Status::paused;
 		}
 
-		void start()
+		void play()
 		{
 			const auto status = get_status();
 
@@ -336,7 +336,7 @@ struct OalSoundSys::Impl
 			status_ = Status::playing;
 		}
 
-		void end()
+		void stop()
 		{
 			const auto status = get_status();
 
@@ -2708,7 +2708,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_ptr);
 
-		sample.stop();
+		sample.pause();
 	}
 
 	void api_start_sample(
@@ -2721,7 +2721,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_ptr);
 
-		sample.start();
+		sample.play();
 	}
 
 	void api_resume_sample(
@@ -2747,7 +2747,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_ptr);
 
-		sample.end();
+		sample.stop();
 	}
 
 	sint32 api_get_sample_volume(
@@ -3578,7 +3578,7 @@ struct OalSoundSys::Impl
 		auto& object_3d = *static_cast<Object3d*>(sample_handle);
 		auto& sample = object_3d.sample_;
 
-		sample.stop();
+		sample.pause();
 	}
 
 	void api_start_3d_sample(
@@ -3592,7 +3592,7 @@ struct OalSoundSys::Impl
 		auto& object_3d = *static_cast<Object3d*>(sample_handle);
 		auto& sample = object_3d.sample_;
 
-		sample.start();
+		sample.play();
 	}
 
 	void api_resume_3d_sample(
@@ -3620,7 +3620,7 @@ struct OalSoundSys::Impl
 		auto& object_3d = *static_cast<Object3d*>(sample_handle);
 		auto& sample = object_3d.sample_;
 
-		sample.end();
+		sample.stop();
 	}
 
 	sint32 api_initialize_3d_sample_from_address(
