@@ -141,8 +141,6 @@ struct OalSoundSys::Impl
 
 		ul::WaveFormatEx format_;
 
-		bool is_3d_;
-		bool is_stream_;
 		bool is_looping_;
 		bool has_loop_block_;
 		sint32 loop_begin_;
@@ -152,10 +150,6 @@ struct OalSoundSys::Impl
 		Status status_;
 		Data data_;
 		UserDataArray user_data_array_;
-
-		// 2D: two sources.
-		// 3D: one source.
-		int oal_source_count_;
 
 		// 2D and 3D: 0 - non-loop block; 1 - pre-loop [0..loop_start); 2 - loop [loop_start..loop_end].
 		// Stream: 0, 1, 2 - queue.
@@ -180,8 +174,6 @@ struct OalSoundSys::Impl
 			Sample&& that)
 			:
 			format_{std::move(that.format_)},
-			is_3d_{std::move(that.is_3d_)},
-			is_stream_{std::move(that.is_stream_)},
 			is_looping_{std::move(that.is_looping_)},
 			has_loop_block_{std::move(that.has_loop_block_)},
 			loop_begin_{std::move(that.loop_begin_)},
@@ -191,17 +183,24 @@ struct OalSoundSys::Impl
 			status_{std::move(that.status_)},
 			data_{std::move(that.data_)},
 			user_data_array_{std::move(that.user_data_array_)},
-			oal_source_count_{std::move(that.oal_source_count_)},
 			oal_buffers_{std::move(that.oal_buffers_)},
 			oal_sources_{std::move(that.oal_sources_)},
 			oal_buffer_format_{std::move(that.oal_buffer_format_)},
 			oal_volume_{std::move(that.oal_volume_)},
 			oal_pans_{std::move(that.oal_pans_)},
+			is_3d_{std::move(that.is_3d_)},
+			is_stream_{std::move(that.is_stream_)},
+			oal_source_count_{std::move(that.oal_source_count_)},
 			oal_are_buffers_created_{std::move(that.oal_are_buffers_created_)},
 			oal_are_sources_created_{std::move(that.oal_are_sources_created_)}
 		{
 			that.oal_are_sources_created_ = false;
 			that.oal_are_sources_created_ = false;
+		}
+
+		~Sample()
+		{
+			destroy();
 		}
 
 		Status get_status()
@@ -413,67 +412,6 @@ struct OalSoundSys::Impl
 			oal_buffer_format_ = AL_NONE;
 			oal_volume_ = ltjs::AudioUtils::gain_max;
 			oal_pans_.fill(ltjs::AudioUtils::gain_max);
-		}
-
-		void create()
-		{
-			if (oal_source_count_ <= 0 || oal_source_count_ > oal_max_sources)
-			{
-				throw "Invalid source count.";
-			}
-
-			oal_clear_error();
-
-			::alGenBuffers(oal_max_buffer_count, oal_buffers_.data());
-
-			if (oal_is_succeed())
-			{
-				oal_are_buffers_created_ = true;
-			}
-
-			::alGenSources(oal_source_count_, oal_sources_.data());
-
-			if (oal_is_succeed())
-			{
-				oal_are_sources_created_ = true;
-			}
-
-			if (!oal_is_succeed())
-			{
-				destroy();
-
-				status_ = Status::failed;
-
-				return;
-			}
-
-			status_ = {};
-		}
-
-		void destroy()
-		{
-			if (oal_source_count_ <= 0 || oal_source_count_ > oal_max_sources)
-			{
-				throw "Invalid source count.";
-			}
-
-			if (oal_are_sources_created_)
-			{
-				oal_are_sources_created_ = false;
-
-				::alSourceStopv(oal_source_count_, oal_sources_.data());
-				::alDeleteSources(oal_source_count_, oal_sources_.data());
-			}
-
-			if (oal_are_buffers_created_)
-			{
-				oal_are_buffers_created_ = false;
-
-				::alDeleteBuffers(oal_max_buffer_count, oal_buffers_.data());
-			}
-
-			status_ = {};
-			oal_source_count_ = {};
 		}
 
 		bool initialize_sample_from_address_generic(
@@ -881,8 +819,6 @@ struct OalSoundSys::Impl
 			const Type type)
 			:
 			format_{},
-			is_3d_{},
-			is_stream_{},
 			is_looping_{},
 			has_loop_block_{},
 			loop_begin_{},
@@ -892,12 +828,14 @@ struct OalSoundSys::Impl
 			status_{},
 			data_{},
 			user_data_array_{},
-			oal_source_count_{},
 			oal_buffers_{},
 			oal_sources_{},
 			oal_buffer_format_{},
 			oal_volume_{},
 			oal_pans_{},
+			is_3d_{},
+			is_stream_{},
+			oal_source_count_{},
 			oal_are_buffers_created_{},
 			oal_are_sources_created_{}
 		{
@@ -924,13 +862,127 @@ struct OalSoundSys::Impl
 			default:
 				throw "Invalid type.";
 			}
+
+			create();
 		}
 
 
 	private:
+		bool is_3d_;
+		bool is_stream_;
+
+		// 2D: two sources.
+		// 3D: one source.
+		int oal_source_count_;
+
 		bool oal_are_buffers_created_;
 		bool oal_are_sources_created_;
+
+
+		void create()
+		{
+			if (oal_source_count_ <= 0 || oal_source_count_ > oal_max_sources)
+			{
+				throw "Invalid source count.";
+			}
+
+			auto is_succeed = true;
+
+			oal_clear_error();
+
+			::alGenBuffers(oal_max_buffer_count, oal_buffers_.data());
+
+			if (oal_is_succeed())
+			{
+				oal_are_buffers_created_ = true;
+			}
+			else
+			{
+				is_succeed = false;
+				assert(!"alGenBuffers");
+			}
+
+			::alGenSources(oal_source_count_, oal_sources_.data());
+
+			if (oal_is_succeed())
+			{
+				oal_are_sources_created_ = true;
+			}
+			else
+			{
+				is_succeed = false;
+				assert(!"alGenSources");
+			}
+
+			if (!is_succeed)
+			{
+				destroy();
+
+				status_ = Status::failed;
+
+				return;
+			}
+
+			status_ = {};
+		}
+
+		void destroy()
+		{
+			if (oal_source_count_ <= 0 || oal_source_count_ > oal_max_sources)
+			{
+				throw "Invalid source count.";
+			}
+
+			if (oal_are_sources_created_)
+			{
+				oal_are_sources_created_ = false;
+
+#ifdef _DEBUG
+				oal_clear_error();
+#endif // _DEBUG
+
+				::alSourceStopv(oal_source_count_, oal_sources_.data());
+
+#ifdef _DEBUG
+				if (!oal_is_succeed())
+				{
+					assert(!"alSourceStopv");
+				}
+#endif // _DEBUG
+
+				::alDeleteSources(oal_source_count_, oal_sources_.data());
+
+#ifdef _DEBUG
+				if (!oal_is_succeed())
+				{
+					assert(!"alDeleteSources");
+				}
+#endif // _DEBUG
+			}
+
+			if (oal_are_buffers_created_)
+			{
+				oal_are_buffers_created_ = false;
+
+#ifdef _DEBUG
+				oal_clear_error();
+#endif // _DEBUG
+
+				::alDeleteBuffers(oal_max_buffer_count, oal_buffers_.data());
+
+#ifdef _DEBUG
+				if (!oal_is_succeed())
+				{
+					assert(!"alDeleteBuffers");
+				}
+#endif // _DEBUG
+			}
+
+			status_ = {};
+			oal_source_count_ = {};
+		}
 	}; // Sample
+
 
 	class X2dSample :
 		public Sample
@@ -1086,6 +1138,7 @@ struct OalSoundSys::Impl
 	}; // Object3d
 
 	using Objects3d = std::list<Object3d>;
+	using Object3dUPtr = std::unique_ptr<Object3d>;
 
 
 	static constexpr auto max_streams = 16;
@@ -1120,17 +1173,14 @@ struct OalSoundSys::Impl
 			file_substream_.close();
 			file_stream_.close();
 
-			sample_.destroy();
+			sample_.reset();
 		}
 
 		bool initialize()
 		{
 			uninitialize();
 
-			sample_.is_stream_ = true;
-			sample_.oal_source_count_ = 2;
 			sample_.reset();
-			sample_.create();
 
 			return sample_.status_ != Sample::Status::failed;
 		}
@@ -2142,19 +2192,7 @@ struct OalSoundSys::Impl
 
 	void remove_samples()
 	{
-		for (auto& sample : samples_2d_)
-		{
-			sample.destroy();
-		}
-
-		samples_2d_ .clear();
-
-
-		for (auto& object_3d : objects_3d_)
-		{
-			object_3d.sample_.destroy();
-		}
-
+		samples_2d_.clear();
 		objects_3d_.clear();
 	}
 
@@ -2213,7 +2251,8 @@ struct OalSoundSys::Impl
 		is_succeed = true;
 		master_volume_ = ltjs::AudioUtils::lt_max_volume;
 		oal_master_gain_ = ltjs::AudioUtils::gain_max;
-		reset_3d_object(listener_3d_);
+		listener_3d_uptr_ = std::make_unique<Object3d>();
+		reset_3d_object(*listener_3d_uptr_.get());
 
 		return true;
 	}
@@ -2225,6 +2264,8 @@ struct OalSoundSys::Impl
 		destroy_streams();
 
 		remove_samples();
+
+		listener_3d_uptr_ = {};
 
 		oal_destroy_context();
 		oal_close_device();
@@ -2520,7 +2561,6 @@ struct OalSoundSys::Impl
 #endif // USE_EAX20_HARDWARE_FILTERS
 
 		clock_base_ = Clock::now();
-		listener_3d_.is_listener_ = true;
 
 		return LS_OK;
 	}
@@ -2620,14 +2660,7 @@ struct OalSoundSys::Impl
 
 		samples_2d_.emplace_back();
 
-		auto& sample = samples_2d_.back();
-		sample.is_3d_ = false;
-		sample.is_stream_ = false;
-		sample.oal_source_count_ = 2;
-
-		sample.create();
-
-		return &sample;
+		return &samples_2d_.back();
 	}
 
 	void api_release_sample_handle(
@@ -2638,14 +2671,10 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		auto& sample = *static_cast<Sample*>(sample_ptr);
-
-		sample.destroy();
-
 		samples_2d_.remove_if(
-			[=](const auto& sample)
+			[&](const auto& sample)
 			{
-				return &sample == sample_ptr;
+				return std::addressof(sample) == sample_ptr;
 			}
 		);
 	}
@@ -3195,7 +3224,7 @@ struct OalSoundSys::Impl
 	{
 		static_cast<void>(provider_id);
 
-		return &listener_3d_;
+		return listener_3d_uptr_.get();
 	}
 
 	void api_close_3d_listener(
@@ -3208,17 +3237,19 @@ struct OalSoundSys::Impl
 		LH3DPOBJECT listener_ptr,
 		const float doppler_factor)
 	{
-		if (listener_ptr != &listener_3d_)
+		if (listener_ptr != listener_3d_uptr_.get())
 		{
 			return;
 		}
 
-		if (listener_3d_.doppler_factor_ == doppler_factor)
+		auto& listener = *listener_3d_uptr_.get();
+
+		if (listener.doppler_factor_ == doppler_factor)
 		{
 			return;
 		}
 
-		listener_3d_.doppler_factor_ = doppler_factor;
+		listener.doppler_factor_ = doppler_factor;
 
 		::alDopplerFactor(doppler_factor);
 	}
@@ -3407,16 +3438,7 @@ struct OalSoundSys::Impl
 
 		objects_3d_.emplace_back();
 
-		auto& object_3d = objects_3d_.back();
-
-		auto& sample = object_3d.sample_;
-		sample.is_3d_ = true;
-		sample.is_stream_ = false;
-		sample.oal_source_count_ = 1;
-
-		sample.create();
-
-		return &object_3d;
+		return &objects_3d_.back();
 	}
 
 	void api_release_3d_sample_handle(
@@ -3427,14 +3449,10 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-
-		object_3d.sample_.destroy();
-
 		objects_3d_.remove_if(
 			[&](const auto& object_3d_item)
 			{
-				return &object_3d_item == &object_3d;
+				return std::addressof(object_3d_item) == sample_handle;
 			}
 		);
 	}
@@ -3847,7 +3865,7 @@ struct OalSoundSys::Impl
 	float oal_master_gain_;
 	bool is_mute_;
 	X2dSamples samples_2d_;
-	Object3d listener_3d_;
+	Object3dUPtr listener_3d_uptr_;
 	Objects3d objects_3d_;
 	Streams streams_;
 	MtThread mt_stream_thread_;
