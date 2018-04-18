@@ -429,7 +429,7 @@ struct OalSoundSys::Impl
 			oal_pans_.fill(ltjs::AudioUtils::gain_max);
 		}
 
-		bool initialize_sample_from_address_generic(
+		bool initialize_from_address_generic(
 			const void* storage_ptr,
 			const uint32 storage_size,
 			const ul::WaveFormatEx& wave_format,
@@ -587,7 +587,7 @@ struct OalSoundSys::Impl
 			return true;
 		}
 
-		bool initialize_sample_from_file_generic(
+		bool initialize_from_file_generic(
 			ltjs::AudioDecoder& audio_decoder,
 			const void* storage_ptr,
 			const sint32 playback_rate,
@@ -646,7 +646,7 @@ struct OalSoundSys::Impl
 
 			const auto wave_format = audio_decoder.get_wave_format_ex();
 
-			const auto result = initialize_sample_from_address_generic(
+			const auto result = initialize_from_address_generic(
 				nullptr,
 				decoded_size,
 				wave_format,
@@ -658,7 +658,7 @@ struct OalSoundSys::Impl
 			return result;
 		}
 
-		void set_sample_loop_block(
+		void set_loop_block(
 			const sint32 loop_begin_offset,
 			const sint32 loop_end_offset,
 			const bool is_enable)
@@ -696,7 +696,7 @@ struct OalSoundSys::Impl
 			}
 		}
 
-		void set_sample_loop(
+		void set_loop(
 			const bool is_enable)
 		{
 			if (is_looping_ == is_enable)
@@ -805,7 +805,7 @@ struct OalSoundSys::Impl
 			}
 		}
 
-		void set_sample_ms_position(
+		void set_ms_position(
 			const sint32 milliseconds)
 		{
 			if (status_ == Status::failed)
@@ -2367,7 +2367,7 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
-		if (!sample.initialize_sample_from_address_generic(
+		if (!sample.initialize_from_address_generic(
 			storage_ptr,
 			storage_size,
 			wave_format,
@@ -2834,7 +2834,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
-		return sample.initialize_sample_from_file_generic(
+		return sample.initialize_from_file_generic(
 			audio_decoder_, storage_ptr, playback_rate, filter_data_ptr, oal_is_supports_eax20_filter_, oal_effect_slot_);
 	}
 
@@ -2851,7 +2851,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
-		sample.set_sample_loop_block(loop_begin_offset, loop_end_offset, is_enable);
+		sample.set_loop_block(loop_begin_offset, loop_end_offset, is_enable);
 	}
 
 	void api_set_sample_loop(
@@ -2865,7 +2865,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
-		sample.set_sample_loop(is_enable);
+		sample.set_loop(is_enable);
 	}
 
 	void api_set_sample_ms_position(
@@ -2879,7 +2879,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = *static_cast<Sample*>(sample_handle);
 
-		sample.set_sample_ms_position(milliseconds);
+		sample.set_ms_position(milliseconds);
 	}
 
 	uint32 api_get_sample_status(
@@ -2953,7 +2953,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = stream.sample_;
 
-		const auto initialize_sample_result = sample.initialize_sample_from_address_generic(
+		const auto initialize_sample_result = sample.initialize_from_address_generic(
 			nullptr,
 			0,
 			format,
@@ -3625,7 +3625,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = object_3d.sample_;
 
-		return sample.initialize_sample_from_address_generic(
+		return sample.initialize_from_address_generic(
 			storage_ptr,
 			storage_size,
 			wave_format,
@@ -3655,7 +3655,7 @@ struct OalSoundSys::Impl
 
 		auto& sample = object_3d.sample_;
 
-		return sample.initialize_sample_from_file_generic(
+		return sample.initialize_from_file_generic(
 			audio_decoder_, storage_ptr, playback_rate, filter_data_ptr, oal_is_supports_eax20_filter_, oal_effect_slot_);
 	}
 
@@ -3701,7 +3701,7 @@ struct OalSoundSys::Impl
 		auto& object_3d = *static_cast<Object3d*>(sample_handle);
 		auto& sample = object_3d.sample_;
 
-		sample.set_sample_ms_position(milliseconds);
+		sample.set_ms_position(milliseconds);
 	}
 
 	void api_set_3d_sample_loop_block(
@@ -3718,7 +3718,7 @@ struct OalSoundSys::Impl
 		auto& object_3d = *static_cast<Object3d*>(sample_handle);
 		auto& sample = object_3d.sample_;
 
-		sample.set_sample_loop_block(loop_begin_offset, loop_end_offset, is_enable);
+		sample.set_loop_block(loop_begin_offset, loop_end_offset, is_enable);
 	}
 
 	void api_set_3d_sample_loop(
@@ -3733,7 +3733,7 @@ struct OalSoundSys::Impl
 		auto& object_3d = *static_cast<Object3d*>(sample_handle);
 		auto& sample = object_3d.sample_;
 
-		sample.set_sample_loop(is_enable);
+		sample.set_loop(is_enable);
 	}
 
 	bool api_set_eax20_filter(
