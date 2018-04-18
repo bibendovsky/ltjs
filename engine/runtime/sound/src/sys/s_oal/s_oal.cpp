@@ -106,8 +106,9 @@ struct OalSoundSys::Impl
 		}
 	}; // Orientation3d
 
-	struct Sample
+	class Sample
 	{
+	public:
 		enum class Status
 		{
 			none,
@@ -118,13 +119,15 @@ struct OalSoundSys::Impl
 		}; // Status
 
 		static constexpr auto oal_max_buffer_count = 3;
+		static constexpr auto oal_max_sources = 2;
+		static constexpr auto oal_max_pans = 2;
 
 		static constexpr auto left_index = 0;
 		static constexpr auto right_index = 1;
 
 		using Data = std::vector<std::uint8_t>;
-		using OalPans = std::array<float, 2>;
-		using OalSources = std::array<ALuint, 2>;
+		using OalPans = std::array<float, oal_max_pans>;
+		using OalSources = std::array<ALuint, oal_max_sources>;
 		using OalBuffers = std::array<ALuint, oal_max_buffer_count>;
 
 
@@ -158,6 +161,31 @@ struct OalSoundSys::Impl
 		float oal_volume_;
 		OalPans oal_pans_;
 
+
+		Sample()
+			:
+			format_{},
+			is_3d_{},
+			is_stream_{},
+			is_looping_{},
+			has_loop_block_{},
+			loop_begin_{},
+			loop_end_{},
+			volume_{},
+			pan_{},
+			status_{},
+			data_{},
+			user_data_array_{},
+			oal_source_count_{},
+			oal_buffers_{},
+			oal_sources_{},
+			oal_buffer_format_{},
+			oal_volume_{},
+			oal_pans_{},
+			oal_are_buffers_created_{},
+			oal_are_sources_created_{}
+		{
+		}
 
 		Status get_status()
 		{
@@ -372,48 +400,69 @@ struct OalSoundSys::Impl
 
 		void create()
 		{
+			if (oal_source_count_ <= 0 || oal_source_count_ > oal_max_sources)
+			{
+				throw "Invalid source count.";
+			}
+
 			oal_clear_error();
 
-			::alGenBuffers(Sample::oal_max_buffer_count, oal_buffers_.data());
+			::alGenBuffers(oal_max_buffer_count, oal_buffers_.data());
+
+			if (oal_is_succeed())
+			{
+				oal_are_buffers_created_ = true;
+			}
+
 			::alGenSources(oal_source_count_, oal_sources_.data());
+
+			if (oal_is_succeed())
+			{
+				oal_are_sources_created_ = true;
+			}
 
 			if (!oal_is_succeed())
 			{
 				destroy();
 
-				status_ = Sample::Status::failed;
+				status_ = Status::failed;
 
 				return;
 			}
 
-			status_ = Sample::Status::none;
+			status_ = {};
 		}
 
 		void destroy()
 		{
-			for (auto& oal_source : oal_sources_)
+			if (oal_source_count_ <= 0 || oal_source_count_ > oal_max_sources)
 			{
-				if (oal_source != AL_NONE)
-				{
-					::alSourceStop(oal_source);
-					::alSourcei(oal_source, AL_BUFFER, AL_NONE);
-					::alDeleteSources(1, &oal_source);
-					oal_source = AL_NONE;
-				}
+				throw "Invalid source count.";
 			}
 
-			for (auto& oal_buffer : oal_buffers_)
+			if (oal_are_sources_created_)
 			{
-				if (oal_buffer != AL_NONE)
-				{
-					::alDeleteBuffers(1, &oal_buffer);
-					oal_buffer = AL_NONE;
-				}
+				oal_are_sources_created_ = false;
+
+				::alSourceStopv(oal_source_count_, oal_sources_.data());
+				::alDeleteSources(oal_source_count_, oal_sources_.data());
 			}
 
-			status_ = Sample::Status::none;
-			oal_source_count_ = 0;
+			if (oal_are_buffers_created_)
+			{
+				oal_are_buffers_created_ = false;
+
+				::alDeleteBuffers(oal_max_buffer_count, oal_buffers_.data());
+			}
+
+			status_ = {};
+			oal_source_count_ = {};
 		}
+
+
+	private:
+		bool oal_are_buffers_created_;
+		bool oal_are_sources_created_;
 	}; // Sample
 
 	using Samples = std::list<Sample>;
