@@ -139,8 +139,6 @@ struct OalSoundSys::Impl
 		using OalBuffers = std::array<ALuint, oal_max_buffer_count>;
 
 
-		ul::WaveFormatEx format_;
-
 		bool is_looping_;
 		bool has_loop_block_;
 		sint32 loop_begin_;
@@ -173,7 +171,6 @@ struct OalSoundSys::Impl
 		Sample(
 			Sample&& that)
 			:
-			format_{std::move(that.format_)},
 			is_looping_{std::move(that.is_looping_)},
 			has_loop_block_{std::move(that.has_loop_block_)},
 			loop_begin_{std::move(that.loop_begin_)},
@@ -189,6 +186,8 @@ struct OalSoundSys::Impl
 			oal_volume_{std::move(that.oal_volume_)},
 			oal_pans_{std::move(that.oal_pans_)},
 			type_{std::move(that.type_)},
+			block_align_{std::move(that.block_align_)},
+			sample_rate_{std::move(that.sample_rate_)},
 			oal_source_count_{std::move(that.oal_source_count_)},
 			oal_are_buffers_created_{std::move(that.oal_are_buffers_created_)},
 			oal_are_sources_created_{std::move(that.oal_are_sources_created_)}
@@ -216,6 +215,16 @@ struct OalSoundSys::Impl
 		bool is_stream() const
 		{
 			return type_ == Type::stream;
+		}
+
+		int get_block_align() const
+		{
+			return block_align_;
+		}
+
+		int get_sample_rate() const
+		{
+			return sample_rate_;
 		}
 
 		Status get_status()
@@ -415,7 +424,8 @@ struct OalSoundSys::Impl
 
 		void reset()
 		{
-			format_ = {};
+			block_align_ = {};
+			sample_rate_ = {};
 
 			is_looping_ = {};
 			has_loop_block_ = {};
@@ -462,13 +472,14 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			format_ = wave_format;
+			block_align_ = wave_format.block_align_;
+			sample_rate_ = static_cast<int>(wave_format.sample_rate_);
 
-			const auto has_pitch = (static_cast<int>(format_.sample_rate_) != playback_rate);
+			const auto has_pitch = (static_cast<int>(sample_rate_) != playback_rate);
 
 			const auto pitch = (
 				has_pitch ?
-				static_cast<float>(playback_rate) / static_cast<float>(format_.sample_rate_) :
+				static_cast<float>(playback_rate) / static_cast<float>(sample_rate_) :
 				1.0F);
 
 			oal_buffer_format_ = get_oal_buffer_format(wave_format);
@@ -518,7 +529,7 @@ struct OalSoundSys::Impl
 					oal_buffer_format_,
 					data_.data(),
 					static_cast<ALsizei>(data_.size()),
-					static_cast<ALsizei>(format_.sample_rate_));
+					static_cast<ALsizei>(sample_rate_));
 			}
 
 			for (auto i = 0; i < oal_source_count_; ++i)
@@ -664,7 +675,7 @@ struct OalSoundSys::Impl
 			const bool is_enable)
 		{
 			const auto data_size = static_cast<int>(data_.size());
-			const auto sample_size = format_.block_align_;
+			const auto sample_size = block_align_;
 
 			auto new_start = loop_begin_offset;
 
@@ -746,14 +757,14 @@ struct OalSoundSys::Impl
 						oal_buffer_format_,
 						data_.data(),
 						static_cast<ALsizei>(loop_begin_),
-						static_cast<ALsizei>(format_.sample_rate_));
+						static_cast<ALsizei>(sample_rate_));
 
 					::alBufferData(
 						oal_buffers_[2],
 						oal_buffer_format_,
 						&data_[loop_begin_],
 						static_cast<ALsizei>(loop_end_ - loop_begin_),
-						static_cast<ALsizei>(format_.sample_rate_));
+						static_cast<ALsizei>(sample_rate_));
 
 					for (auto i = 0; i < oal_source_count_; ++i)
 					{
@@ -813,8 +824,8 @@ struct OalSoundSys::Impl
 				return;
 			}
 
-			const auto sample_offset = static_cast<int>((format_.sample_rate_ * milliseconds) / 1000LL);
-			const auto data_offset = sample_offset * format_.block_align_;
+			const auto sample_offset = static_cast<int>((sample_rate_ * milliseconds) / 1000LL);
+			const auto data_offset = sample_offset * block_align_;
 			const auto data_size = static_cast<int>(data_.size());
 
 			if (data_offset > data_size)
@@ -833,7 +844,6 @@ struct OalSoundSys::Impl
 		Sample(
 			const Type type)
 			:
-			format_{},
 			is_looping_{},
 			has_loop_block_{},
 			loop_begin_{},
@@ -849,6 +859,8 @@ struct OalSoundSys::Impl
 			oal_volume_{},
 			oal_pans_{},
 			type_{type},
+			block_align_{},
+			sample_rate_{},
 			oal_source_count_{},
 			oal_are_buffers_created_{},
 			oal_are_sources_created_{}
@@ -874,6 +886,9 @@ struct OalSoundSys::Impl
 
 	private:
 		Type type_;
+
+		int block_align_;
+		int sample_rate_;
 
 		// 2D: two sources.
 		// 3D: one source.
@@ -1226,7 +1241,7 @@ struct OalSoundSys::Impl
 					{
 						data_offset_ = data_begin_offset;
 
-						const auto sample_offset = data_begin_offset / sample_.format_.block_align_;
+						const auto sample_offset = data_begin_offset / sample_.get_block_align();
 
 						if (!decoder_.set_position(sample_offset))
 						{
@@ -1382,7 +1397,7 @@ struct OalSoundSys::Impl
 					sample_.oal_buffer_format_,
 					mix_buffer_.data(),
 					mix_size_,
-					static_cast<ALsizei>(sample_.format_.sample_rate_));
+					static_cast<ALsizei>(sample_.get_sample_rate()));
 
 				for (auto j = 0; j < 2; ++j)
 				{
@@ -3016,11 +3031,13 @@ struct OalSoundSys::Impl
 
 		MtMutexGuard mt_stream_lock{mt_stream_mutex_};
 
-		const auto& format = stream.sample_.format_;
+		const auto& sample = stream.sample_;
+		const auto block_align = sample.get_block_align();
+		const auto sample_rate = sample.get_sample_rate();
 
-		auto position = static_cast<int>((milliseconds * format.sample_rate_) / 1000LL);
-		position /= format.block_align_;
-		position *= format.block_align_;
+		auto position = static_cast<int>((milliseconds * sample_rate) / 1000LL);
+		position /= block_align;
+		position *= block_align;
 
 		if (position > stream.data_size_)
 		{
