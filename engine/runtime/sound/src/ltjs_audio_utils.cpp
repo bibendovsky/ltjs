@@ -354,7 +354,10 @@ sint32 AudioUtils::decode_mp3(
 		return false;
 	}
 
-	if (!audio_decoder.open(&memory_stream))
+	auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
+	open_parameters.stream_ptr_ = &memory_stream;
+
+	if (!audio_decoder.open(open_parameters))
 	{
 		return false;
 	}

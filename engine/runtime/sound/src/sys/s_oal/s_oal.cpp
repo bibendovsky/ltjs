@@ -221,7 +221,7 @@ struct OalSoundSys::Impl
 			return block_align_;
 		}
 
-		int get_sample_rate() const
+		int get_dst_sample_rate() const
 		{
 			return sample_rate_;
 		}
@@ -658,7 +658,10 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!audio_decoder.open(&memory_stream))
+			auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
+			open_parameters.stream_ptr_ = &memory_stream;
+
+			if (!audio_decoder.open(open_parameters))
 			{
 				return false;
 			}
@@ -1422,7 +1425,7 @@ struct OalSoundSys::Impl
 					sample_.oal_buffer_format_,
 					mix_buffer_.data(),
 					mix_size_,
-					static_cast<ALsizei>(sample_.get_sample_rate()));
+					static_cast<ALsizei>(sample_.get_dst_sample_rate()));
 
 				for (auto j = 0; j < 2; ++j)
 				{
@@ -2969,7 +2972,10 @@ struct OalSoundSys::Impl
 
 		auto& decoder = stream.decoder_;
 
-		if (!decoder.open(&stream.file_substream_))
+		auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
+		open_parameters.stream_ptr_ = &stream.file_substream_;
+
+		if (!decoder.open(open_parameters))
 		{
 			return nullptr;
 		}
@@ -2978,8 +2984,8 @@ struct OalSoundSys::Impl
 
 		stream.data_size_ = decoder.get_data_size();
 
-		const auto sample_size = decoder.get_sample_size();
-		const auto sample_rate = decoder.get_sample_rate();
+		const auto sample_size = decoder.get_dst_sample_size();
+		const auto sample_rate = decoder.get_dst_sample_rate();
 		const auto mix_sample_count = (Stream::mix_size_ms * sample_rate) / 1000;
 		stream.mix_size_ = mix_sample_count * sample_size;
 
@@ -3054,7 +3060,7 @@ struct OalSoundSys::Impl
 
 		const auto& sample = stream.sample_;
 		const auto block_align = sample.get_block_align();
-		const auto sample_rate = sample.get_sample_rate();
+		const auto sample_rate = sample.get_dst_sample_rate();
 
 		auto position = static_cast<int>((milliseconds * sample_rate) / 1000LL);
 		position /= block_align;
