@@ -109,6 +109,14 @@ struct OalSoundSys::Impl
 	class Sample
 	{
 	public:
+		enum class Type
+		{
+			none,
+			stereo,
+			surround,
+			stream,
+		}; // Type
+
 		enum class Status
 		{
 			none,
@@ -162,29 +170,38 @@ struct OalSoundSys::Impl
 		OalPans oal_pans_;
 
 
-		Sample()
+		Sample(
+			const Sample& that) = delete;
+
+		Sample& operator=(
+			const Sample& that) = delete;
+
+		Sample(
+			Sample&& that)
 			:
-			format_{},
-			is_3d_{},
-			is_stream_{},
-			is_looping_{},
-			has_loop_block_{},
-			loop_begin_{},
-			loop_end_{},
-			volume_{},
-			pan_{},
-			status_{},
-			data_{},
-			user_data_array_{},
-			oal_source_count_{},
-			oal_buffers_{},
-			oal_sources_{},
-			oal_buffer_format_{},
-			oal_volume_{},
-			oal_pans_{},
-			oal_are_buffers_created_{},
-			oal_are_sources_created_{}
+			format_{std::move(that.format_)},
+			is_3d_{std::move(that.is_3d_)},
+			is_stream_{std::move(that.is_stream_)},
+			is_looping_{std::move(that.is_looping_)},
+			has_loop_block_{std::move(that.has_loop_block_)},
+			loop_begin_{std::move(that.loop_begin_)},
+			loop_end_{std::move(that.loop_end_)},
+			volume_{std::move(that.volume_)},
+			pan_{std::move(that.pan_)},
+			status_{std::move(that.status_)},
+			data_{std::move(that.data_)},
+			user_data_array_{std::move(that.user_data_array_)},
+			oal_source_count_{std::move(that.oal_source_count_)},
+			oal_buffers_{std::move(that.oal_buffers_)},
+			oal_sources_{std::move(that.oal_sources_)},
+			oal_buffer_format_{std::move(that.oal_buffer_format_)},
+			oal_volume_{std::move(that.oal_volume_)},
+			oal_pans_{std::move(that.oal_pans_)},
+			oal_are_buffers_created_{std::move(that.oal_are_buffers_created_)},
+			oal_are_sources_created_{std::move(that.oal_are_sources_created_)}
 		{
+			that.oal_are_sources_created_ = false;
+			that.oal_are_sources_created_ = false;
 		}
 
 		Status get_status()
@@ -859,16 +876,154 @@ struct OalSoundSys::Impl
 		}
 
 
+	protected:
+		Sample(
+			const Type type)
+			:
+			format_{},
+			is_3d_{},
+			is_stream_{},
+			is_looping_{},
+			has_loop_block_{},
+			loop_begin_{},
+			loop_end_{},
+			volume_{},
+			pan_{},
+			status_{},
+			data_{},
+			user_data_array_{},
+			oal_source_count_{},
+			oal_buffers_{},
+			oal_sources_{},
+			oal_buffer_format_{},
+			oal_volume_{},
+			oal_pans_{},
+			oal_are_buffers_created_{},
+			oal_are_sources_created_{}
+		{
+			switch (type)
+			{
+			case Type::stereo:
+				is_3d_ = false;
+				is_stream_ = false;
+				oal_source_count_ = 2;
+				break;
+
+			case Type::surround:
+				is_3d_ = true;
+				is_stream_ = false;
+				oal_source_count_ = 1;
+				break;
+
+			case Type::stream:
+				is_3d_ = false;
+				is_stream_ = true;
+				oal_source_count_ = 2;
+				break;
+
+			default:
+				throw "Invalid type.";
+			}
+		}
+
+
 	private:
 		bool oal_are_buffers_created_;
 		bool oal_are_sources_created_;
 	}; // Sample
 
-	using Samples = std::list<Sample>;
-
-
-	struct Object3d
+	class X2dSample :
+		public Sample
 	{
+	public:
+		X2dSample()
+			:
+			Sample{Type::stereo}
+		{
+		}
+
+		X2dSample(
+			const X2dSample& that) = delete;
+
+		X2dSample& operator=(
+			const X2dSample& that) = delete;
+
+		X2dSample(
+			X2dSample&& that)
+			:
+			Sample{std::move(that)}
+		{
+		}
+
+		~X2dSample()
+		{
+		}
+	}; // X2dSample
+
+	class X3dSample :
+		public Sample
+	{
+	public:
+		X3dSample()
+			:
+			Sample{Type::surround}
+		{
+		}
+
+		X3dSample(
+			const X3dSample& that) = delete;
+
+		X3dSample& operator=(
+			const X3dSample& that) = delete;
+
+		X3dSample(
+			X3dSample&& that)
+			:
+			Sample{std::move(that)}
+		{
+		}
+
+		~X3dSample()
+		{
+		}
+	}; // X3dSample
+
+	class StreamSample :
+		public Sample
+	{
+	public:
+		StreamSample()
+			:
+			Sample{Type::stream}
+		{
+		}
+
+		StreamSample(
+			const StreamSample& that) = delete;
+
+		StreamSample& operator=(
+			const StreamSample& that) = delete;
+
+		StreamSample(
+			StreamSample&& that)
+			:
+			Sample{std::move(that)}
+		{
+		}
+
+		~StreamSample()
+		{
+		}
+	}; // StreamSample
+
+	using X2dSamples = std::list<X2dSample>;
+	using X3dSamples = std::list<X3dSample>;
+	using StreamSamples = std::list<StreamSample>;
+
+
+	class Object3d
+	{
+	public:
 		bool is_listener_;
 		float min_distance_;
 		float max_distance_;
@@ -877,8 +1032,47 @@ struct OalSoundSys::Impl
 		Orientation3d orientation_;
 		float doppler_factor_;
 		UserDataArray user_data_;
-		Sample sample_;
+		X3dSample sample_;
 
+
+		Object3d()
+			:
+			is_listener_{},
+			min_distance_{},
+			max_distance_{},
+			position_{},
+			velocity_{},
+			orientation_{},
+			doppler_factor_{},
+			user_data_{},
+			sample_{}
+		{
+		}
+
+		Object3d(
+			const Object3d& that) = delete;
+
+		Object3d& operator=(
+			const Object3d& that) = delete;
+
+		Object3d(
+			Object3d&& that)
+			:
+			is_listener_{std::move(that.is_listener_)},
+			min_distance_{std::move(that.min_distance_)},
+			max_distance_{std::move(that.max_distance_)},
+			position_{std::move(that.position_)},
+			velocity_{std::move(that.velocity_)},
+			orientation_{std::move(that.orientation_)},
+			doppler_factor_{std::move(that.doppler_factor_)},
+			user_data_{std::move(that.user_data_)},
+			sample_{std::move(that.sample_)}
+		{
+		}
+
+		~Object3d()
+		{
+		}
 
 		void reset()
 		{
@@ -908,7 +1102,7 @@ struct OalSoundSys::Impl
 		int mix_size_;
 		int data_size_;
 		int data_offset_;
-		Sample sample_;
+		StreamSample sample_;
 		ul::FileStream file_stream_;
 		ul::Substream file_substream_;
 		ltjs::AudioDecoder decoder_;
@@ -1953,7 +2147,7 @@ struct OalSoundSys::Impl
 			sample.destroy();
 		}
 
-		samples_2d_= {};
+		samples_2d_ .clear();
 
 
 		for (auto& object_3d : objects_3d_)
@@ -1961,7 +2155,7 @@ struct OalSoundSys::Impl
 			object_3d.sample_.destroy();
 		}
 
-		objects_3d_ = {};
+		objects_3d_.clear();
 	}
 
 	void update_listener_gain()
@@ -3652,7 +3846,7 @@ struct OalSoundSys::Impl
 	sint32 master_volume_;
 	float oal_master_gain_;
 	bool is_mute_;
-	Samples samples_2d_;
+	X2dSamples samples_2d_;
 	Object3d listener_3d_;
 	Objects3d objects_3d_;
 	Streams streams_;
