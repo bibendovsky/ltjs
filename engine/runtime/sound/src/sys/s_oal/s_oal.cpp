@@ -54,6 +54,8 @@ struct OalSoundSys::Impl
 	static constexpr auto max_user_data_index = max_user_data_count - 1;
 	using UserDataArray = std::array<sint32, max_user_data_count>;
 
+	using OalContextAttributes = std::vector<ALCint>;
+
 
 	struct Vector3d
 	{
@@ -2189,13 +2191,12 @@ struct OalSoundSys::Impl
 
 	bool oal_create_context()
 	{
-		static const ALint attribs[] =
-		{
+		const auto attributes = OalContextAttributes{
 			ALC_MAX_AUXILIARY_SENDS, default_aux_sends,
 			0, 0,
-		}; // attribs
+		}; // attributes
 
-		oal_context_ = ::alcCreateContext(oal_device_, attribs);
+		oal_context_ = ::alcCreateContext(oal_device_, attributes.data());
 
 		if (!oal_context_)
 		{
@@ -2207,6 +2208,51 @@ struct OalSoundSys::Impl
 		{
 			error_message_ = "OAL: Failed to make a context current.";
 			return false;
+		}
+
+		return true;
+	}
+
+	bool oal_get_context_attributes()
+	{
+		auto attributes_size = ALCint{};
+
+		::alcGetIntegerv(oal_device_, ALC_ATTRIBUTES_SIZE, 1, &attributes_size);
+
+		if (!oal_is_succeed())
+		{
+			error_message_ = "OAL: Failed to get context attributes size.";
+			return false;
+		}
+
+		auto attributes = OalContextAttributes{};
+		attributes.resize(attributes_size);
+
+		::alcGetIntegerv(oal_device_, ALC_ALL_ATTRIBUTES, attributes_size, attributes.data());
+
+		if (!oal_is_succeed())
+		{
+			error_message_ = "OAL: Failed to get context attributes.";
+			return false;
+		}
+
+		const auto attribute_count = attributes_size / 2;
+
+		for (auto i = 0; i < attribute_count; ++i)
+		{
+			const auto attribute_index = i * 2;
+			const auto attribute_id = attributes[attribute_index + 0];
+			const auto attribute_value = attributes[attribute_index + 1];
+
+			switch (attribute_id)
+			{
+			case ALC_FREQUENCY:
+				oal_context_sample_rate_ = attribute_value;
+				break;
+
+			default:
+				break;
+			}
 		}
 
 		return true;
@@ -2271,6 +2317,11 @@ struct OalSoundSys::Impl
 		}
 
 		if (!oal_create_context())
+		{
+			return false;
+		}
+
+		if (!oal_get_context_attributes())
 		{
 			return false;
 		}
@@ -3852,6 +3903,7 @@ struct OalSoundSys::Impl
 	String oal_vendor_string_;
 	String oal_renderer_string_;
 	ExtensionsStrings oal_extentions_strings_;
+	int oal_context_sample_rate_;
 
 	OalVersion oal_efx_version_;
 	bool oal_has_efx_;
