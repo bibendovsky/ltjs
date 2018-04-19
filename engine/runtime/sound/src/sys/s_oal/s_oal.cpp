@@ -37,6 +37,8 @@ struct OalSoundSys::Impl
 
 	static constexpr auto pan_center = 64;
 
+	static constexpr auto default_pitch = 1.0F;
+
 
 	using String = std::string;
 	using ExtensionsStrings = std::vector<String>;
@@ -147,6 +149,7 @@ struct OalSoundSys::Impl
 		sint32 loop_end_;
 		sint32 volume_;
 		sint32 pan_;
+		float pitch_;
 		Data data_;
 		UserDataArray user_data_array_;
 
@@ -178,6 +181,7 @@ struct OalSoundSys::Impl
 			loop_end_{std::move(that.loop_end_)},
 			volume_{std::move(that.volume_)},
 			pan_{std::move(that.pan_)},
+			pitch_{std::move(that.pitch_)},
 			data_{std::move(that.data_)},
 			user_data_array_{std::move(that.user_data_array_)},
 			oal_buffers_{std::move(that.oal_buffers_)},
@@ -461,6 +465,7 @@ struct OalSoundSys::Impl
 			loop_end_ = {};
 			volume_ = ltjs::AudioUtils::lt_max_volume;
 			pan_ = pan_center;
+			pitch_ = default_pitch;
 
 			oal_buffer_format_ = AL_NONE;
 			oal_volume_ = ltjs::AudioUtils::gain_max;
@@ -505,10 +510,10 @@ struct OalSoundSys::Impl
 
 			const auto has_pitch = (static_cast<int>(sample_rate_) != playback_rate);
 
-			const auto pitch = (
-				has_pitch ?
-				static_cast<float>(playback_rate) / static_cast<float>(sample_rate_) :
-				1.0F);
+			if (has_pitch)
+			{
+				pitch_ = static_cast<float>(playback_rate) / static_cast<float>(sample_rate_);
+			}
 
 			oal_buffer_format_ = get_oal_buffer_format(wave_format);
 
@@ -569,14 +574,7 @@ struct OalSoundSys::Impl
 					::alSourcei(oal_source, AL_BUFFER, oal_buffers_[0]);
 				}
 
-				if (has_pitch)
-				{
-					::alSourcef(oal_source, AL_PITCH, pitch);
-				}
-				else
-				{
-					::alSourcef(oal_source, AL_PITCH, 1.0F);
-				}
+				::alSourcef(oal_source, AL_PITCH, pitch_);
 
 				if (is_3d())
 				{
