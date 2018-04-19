@@ -1241,8 +1241,6 @@ struct OalSoundSys::Impl
 	using Object3dUPtr = std::unique_ptr<Object3d>;
 
 
-	static constexpr auto max_streams = 16;
-
 	struct Stream
 	{
 		static constexpr auto mix_size_ms = 20;
@@ -1587,7 +1585,7 @@ struct OalSoundSys::Impl
 		}
 	}; // Stream
 
-	using Streams = std::vector<Stream>;
+	using Streams = std::list<Stream>;
 	using OpenStreams = std::list<Stream*>;
 
 
@@ -1599,11 +1597,6 @@ struct OalSoundSys::Impl
 
 	void destroy_streams()
 	{
-		if (streams_.empty())
-		{
-			return;
-		}
-
 		mt_is_stop_stream_worker_ = true;
 
 		mt_notify_stream();
@@ -1628,45 +1621,7 @@ struct OalSoundSys::Impl
 	{
 		destroy_streams();
 
-		streams_.resize(max_streams);
-
-		auto is_succeed = true;
-
-		for (auto& stream : streams_)
-		{
-			is_succeed &= stream.initialize();
-		}
-
-		if (!is_succeed)
-		{
-			destroy_streams();
-		}
-
-		if (is_succeed)
-		{
-			mt_stream_thread_ = MtThread{std::bind(&Impl::stream_worker, this)};
-		}
-	}
-
-	Stream* get_free_stream()
-	{
-		auto stream_end = streams_.end();
-
-		auto stream_it = std::find_if(
-			streams_.begin(),
-			stream_end,
-			[](const auto& stream)
-			{
-				return !stream.is_open_;
-			}
-		);
-
-		if (stream_it == stream_end)
-		{
-			return nullptr;
-		}
-
-		return &(*stream_it);
+		mt_stream_thread_ = MtThread{std::bind(&Impl::stream_worker, this)};
 	}
 
 	void mt_notify_stream()
@@ -2908,7 +2863,7 @@ struct OalSoundSys::Impl
 		samples_2d_.remove_if(
 			[&](const auto& sample)
 			{
-				return std::addressof(sample) == sample_ptr;
+				return &sample == sample_ptr;
 			}
 		);
 	}
@@ -3137,19 +3092,19 @@ struct OalSoundSys::Impl
 		static_cast<void>(storage_ptr);
 		static_cast<void>(storage_size);
 
-		if (!file_name || driver_ptr != oal_device_ || streams_.empty())
+		if (!file_name || driver_ptr != oal_device_)
 		{
 			return nullptr;
 		}
 
-		auto free_stream_ptr = get_free_stream();
+		streams_.emplace_back();
 
-		if (!free_stream_ptr)
+		auto& stream = streams_.back();
+
+		if (!stream.initialize())
 		{
 			return nullptr;
 		}
-
-		auto& stream = *free_stream_ptr;
 
 		if (!stream.file_stream_.open(file_name, ul::Stream::OpenMode::read))
 		{
@@ -3171,23 +3126,9 @@ struct OalSoundSys::Impl
 			return nullptr;
 		}
 
-		stream.reset();
-
-		stream.data_size_ = decoder.get_data_size();
+		const auto sample_rate = decoder.get_dst_sample_rate();
 
 		auto& sample = stream.sample_;
-
-		const auto sample_rate = decoder.get_dst_sample_rate();
-		stream.mix_sample_size_ = decoder.get_dst_sample_size();
-		stream.mix_sample_count_ = static_cast<int>(sample.pitch_ * (Stream::mix_size_ms * sample_rate) / 1000);
-		stream.mix_size_ = stream.mix_sample_count_ * stream.mix_sample_size_;
-
-		stream.mix_mono_buffer_.resize(stream.mix_size_);
-
-		if (stream.sample_.is_mono())
-		{
-			stream.mix_stereo_buffer_.resize(stream.mix_size_ * 2);
-		}
 
 		auto format = decoder.get_wave_format_ex();
 
@@ -3203,6 +3144,21 @@ struct OalSoundSys::Impl
 		if (!initialize_sample_result)
 		{
 			return nullptr;
+		}
+
+		stream.reset();
+
+		stream.data_size_ = decoder.get_data_size();
+
+		stream.mix_sample_size_ = decoder.get_dst_sample_size();
+		stream.mix_sample_count_ = static_cast<int>(sample.pitch_ * (Stream::mix_size_ms * sample_rate) / 1000);
+		stream.mix_size_ = stream.mix_sample_count_ * stream.mix_sample_size_;
+
+		stream.mix_mono_buffer_.resize(stream.mix_size_);
+
+		if (stream.sample_.is_mono())
+		{
+			stream.mix_stereo_buffer_.resize(stream.mix_size_ * 2);
 		}
 
 		stream.is_open_ = true;
@@ -3238,7 +3194,14 @@ struct OalSoundSys::Impl
 			);
 		}
 
-		::alSourceStopv(2, stream.sample_.oal_sources_.data());
+		stream.uninitialize();
+
+		streams_.remove_if(
+			[&](const auto& item)
+			{
+				return &item == &stream;
+			}
+		);
 	}
 
 	void api_set_stream_ms_position(
@@ -3696,7 +3659,7 @@ struct OalSoundSys::Impl
 		objects_3d_.remove_if(
 			[&](const auto& object_3d_item)
 			{
-				return std::addressof(object_3d_item) == sample_handle;
+				return &object_3d_item == sample_handle;
 			}
 		);
 	}
