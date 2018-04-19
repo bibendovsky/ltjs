@@ -191,6 +191,8 @@ struct OalSoundSys::Impl
 			oal_pans_{std::move(that.oal_pans_)},
 			type_{std::move(that.type_)},
 			status_{std::move(that.status_)},
+			channel_count_{std::move(that.channel_count_)},
+			bit_depth_{std::move(that.bit_depth_)},
 			block_align_{std::move(that.block_align_)},
 			sample_rate_{std::move(that.sample_rate_)},
 			oal_source_count_{std::move(that.oal_source_count_)},
@@ -220,6 +222,26 @@ struct OalSoundSys::Impl
 		bool is_stream() const
 		{
 			return type_ == Type::stream;
+		}
+
+		bool is_mono() const
+		{
+			return channel_count_ == 1;
+		}
+
+		bool is_stereo() const
+		{
+			return channel_count_ == 2;
+		}
+
+		int get_channel_count() const
+		{
+			return channel_count_;
+		}
+
+		int get_bit_depth() const
+		{
+			return bit_depth_;
 		}
 
 		int get_block_align() const
@@ -293,7 +315,7 @@ struct OalSoundSys::Impl
 
 		bool is_failed()
 		{
-			return get_status() == Status::failed;
+			return status_ == Status::failed;
 		}
 
 		void fail()
@@ -305,7 +327,12 @@ struct OalSoundSys::Impl
 
 		void update_volume_and_pan()
 		{
-			for (auto i = 0; i < 2; ++i)
+			if (is_stream())
+			{
+				return;
+			}
+
+			for (auto i = 0; i < oal_source_count_; ++i)
 			{
 				auto& oal_source = oal_sources_[i];
 
@@ -423,7 +450,7 @@ struct OalSoundSys::Impl
 
 			pan_ = new_pan;
 
-			if (status_ == Status::failed)
+			if (is_failed() || is_stereo())
 			{
 				return;
 			}
@@ -456,6 +483,8 @@ struct OalSoundSys::Impl
 
 		void reset()
 		{
+			channel_count_ = {};
+			bit_depth_ = {};
 			block_align_ = {};
 			sample_rate_ = {};
 
@@ -505,6 +534,8 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
+			channel_count_ = wave_format.channel_count_;
+			bit_depth_ = wave_format.bit_depth_;
 			block_align_ = wave_format.block_align_;
 			sample_rate_ = static_cast<int>(wave_format.sample_rate_);
 
@@ -515,7 +546,14 @@ struct OalSoundSys::Impl
 				pitch_ = static_cast<float>(playback_rate) / static_cast<float>(sample_rate_);
 			}
 
-			oal_buffer_format_ = get_oal_buffer_format(wave_format);
+			if (type_ != Type::stream)
+			{
+				oal_buffer_format_ = get_oal_buffer_format(wave_format);
+			}
+			else
+			{
+				oal_buffer_format_ = get_oal_buffer_format(2, wave_format.bit_depth_);
+			}
 
 			if (storage_ptr)
 			{
@@ -576,31 +614,37 @@ struct OalSoundSys::Impl
 
 				::alSourcef(oal_source, AL_PITCH, pitch_);
 
-				if (is_3d())
+				if (!is_2d())
 				{
 					::alSourcef(oal_source, AL_GAIN, ltjs::AudioUtils::gain_max);
 				}
 
-				::alSourcei(oal_source, AL_LOOPING, AL_FALSE);
+				if (!is_stream())
+				{
+					::alSourcei(oal_source, AL_LOOPING, AL_FALSE);
 
-				::alSourcef(oal_source, AL_REFERENCE_DISTANCE, ltjs::AudioUtils::ds_default_min_distance);
-				::alSourcef(oal_source, AL_MAX_DISTANCE, ltjs::AudioUtils::ds_default_max_distance);
+					::alSourcef(oal_source, AL_REFERENCE_DISTANCE, ltjs::AudioUtils::ds_default_min_distance);
+					::alSourcef(oal_source, AL_MAX_DISTANCE, ltjs::AudioUtils::ds_default_max_distance);
+				}
 			}
 
 			if (!is_3d())
 			{
 				update_volume_and_pan();
 
-				for (auto i = 0; i < 2; ++i)
+				for (auto i = 0; i < channel_count_; ++i)
 				{
 					::alSourcei(oal_sources_[i], AL_SOURCE_RELATIVE, AL_TRUE);
 				}
 
-				// Left channel.
-				::alSource3f(oal_sources_[left_index], AL_POSITION, -1.0F, 0.0F, 0.0F);
+				if (!is_stream())
+				{
+					// Left channel.
+					::alSource3f(oal_sources_[left_index], AL_POSITION, -1.0F, 0.0F, 0.0F);
 
-				// Right channel.
-				::alSource3f(oal_sources_[right_index], AL_POSITION, 1.0F, 0.0F, 0.0F);
+					// Right channel.
+					::alSource3f(oal_sources_[right_index], AL_POSITION, 1.0F, 0.0F, 0.0F);
+				}
 			}
 
 			if (oal_has_effect_slot)
@@ -897,8 +941,11 @@ struct OalSoundSys::Impl
 			switch (type)
 			{
 			case Type::stereo:
-			case Type::stream:
 				oal_source_count_ = 2;
+				break;
+
+			case Type::stream:
+				oal_source_count_ = 1;
 				break;
 
 			case Type::surround:
@@ -919,6 +966,8 @@ struct OalSoundSys::Impl
 		Type type_;
 		Status status_;
 
+		int channel_count_;
+		int bit_depth_;
 		int block_align_;
 		int sample_rate_;
 
@@ -1204,13 +1253,16 @@ struct OalSoundSys::Impl
 		bool is_open_;
 		bool is_playing_;
 		int mix_size_;
+		int mix_sample_size_;
+		int mix_sample_count_;
 		int data_size_;
 		int data_offset_;
 		StreamSample sample_;
 		ul::FileStream file_stream_;
 		ul::Substream file_substream_;
 		ltjs::AudioDecoder decoder_;
-		MixBuffer mix_buffer_;
+		MixBuffer mix_mono_buffer_;
+		MixBuffer mix_stereo_buffer_;
 
 		OalBuffers oal_queued_buffers_;
 		OalBuffers oal_unqueued_buffers_;
@@ -1240,6 +1292,8 @@ struct OalSoundSys::Impl
 		{
 			is_playing_ = {};
 			mix_size_ = {};
+			mix_sample_size_ = {};
+			mix_sample_count_ = {};
 			data_size_ = {};
 			data_offset_ = {};
 
@@ -1249,6 +1303,78 @@ struct OalSoundSys::Impl
 			oal_unqueued_buffers_.clear();
 			oal_unqueued_buffers_.reserve(Sample::oal_max_buffer_count);
 			oal_unqueued_buffers_.assign(sample_.oal_buffers_.cbegin(), sample_.oal_buffers_.cend());
+		}
+
+		void fill_mix_stereo_buffer_u8(
+			const int byte_offset)
+		{
+			const auto sample_count = byte_offset / mix_sample_size_;
+			const auto oal_left_volume_scale = sample_.oal_volume_ * sample_.oal_pans_[0];
+			const auto oal_right_volume_scale = sample_.oal_volume_ * sample_.oal_pans_[1];
+
+			const auto src_buffer = mix_mono_buffer_.data();
+			auto dst_buffer = mix_stereo_buffer_.data();
+
+			auto dst_index = 0;
+
+			for (auto i = 0; i < sample_count; ++i)
+			{
+				const auto oal_gain = ((src_buffer[i] - 128) / 128.0F);
+				const auto oal_left_gain = oal_gain * oal_left_volume_scale;
+				const auto oal_right_gain = oal_gain * oal_right_volume_scale;
+
+				const auto left_volume_u8 = static_cast<std::uint8_t>(ul::Algorithm::clamp(
+					static_cast<int>((oal_left_gain * 128.0F) + 128.5F), 0, 255));
+
+				const auto right_volume_u8 = static_cast<std::uint8_t>(ul::Algorithm::clamp(
+					static_cast<int>((oal_right_gain * 128.0F) + 128.5F), 0, 255));
+
+				dst_buffer[dst_index++] = left_volume_u8;
+				dst_buffer[dst_index++] = right_volume_u8;
+			}
+
+			const auto remain_sample_count = mix_sample_count_ - sample_count;
+
+			if (remain_sample_count > 0)
+			{
+				std::uninitialized_fill_n(&dst_buffer[dst_index], remain_sample_count * 2, std::uint8_t{});
+			}
+		}
+
+		void fill_mix_stereo_buffer_i16(
+			const int byte_offset)
+		{
+			const auto sample_count = byte_offset / mix_sample_size_;
+			const auto oal_left_volume_scale = sample_.oal_volume_ * sample_.oal_pans_[0];
+			const auto oal_right_volume_scale = sample_.oal_volume_ * sample_.oal_pans_[1];
+
+			const auto src_buffer = reinterpret_cast<const std::int16_t*>(mix_mono_buffer_.data());
+			auto dst_buffer = reinterpret_cast<std::int16_t*>(mix_stereo_buffer_.data());
+
+			auto dst_index = 0;
+
+			for (auto i = 0; i < sample_count; ++i)
+			{
+				const auto oal_gain = src_buffer[i] / 32768.0F;
+				const auto oal_left_gain = oal_gain * oal_left_volume_scale;
+				const auto oal_right_gain = oal_gain * oal_right_volume_scale;
+
+				const auto left_volume_i16 = static_cast<std::int16_t>(ul::Algorithm::clamp(
+					static_cast<int>(oal_left_gain * 32768.0F), -32768, 32767));
+
+				const auto right_volume_i16 = static_cast<std::int16_t>(ul::Algorithm::clamp(
+					static_cast<int>(oal_right_gain * 32768.0F), -32768, 32768));
+
+				dst_buffer[dst_index++] = left_volume_i16;
+				dst_buffer[dst_index++] = right_volume_i16;
+			}
+
+			const auto remain_sample_count = mix_sample_count_ - sample_count;
+
+			if (remain_sample_count > 0)
+			{
+				std::uninitialized_fill_n(&dst_buffer[dst_index], remain_sample_count * 2, std::int16_t{});
+			}
 		}
 
 		int fill_mix_buffer()
@@ -1296,7 +1422,7 @@ struct OalSoundSys::Impl
 					break;
 				}
 
-				const auto decoded_size = decoder_.decode(&mix_buffer_[mix_offset], to_decode_size);
+				const auto decoded_size = decoder_.decode(&mix_mono_buffer_[mix_offset], to_decode_size);
 
 				if (decoded_size > 0)
 				{
@@ -1322,8 +1448,25 @@ struct OalSoundSys::Impl
 						}
 					}
 
-					std::uninitialized_fill_n(mix_buffer_.begin() + mix_offset, mix_size_ - mix_offset, std::uint8_t{});
+					std::uninitialized_fill_n(mix_mono_buffer_.begin() + mix_offset, mix_size_ - mix_offset, std::uint8_t{});
 
+					break;
+				}
+			}
+
+			if (sample_.is_mono())
+			{
+				switch (sample_.get_bit_depth())
+				{
+				case 8:
+					fill_mix_stereo_buffer_u8(mix_offset);
+					break;
+
+				case 16:
+					fill_mix_stereo_buffer_i16(mix_offset);
+					break;
+
+				default:
 					break;
 				}
 			}
@@ -1378,11 +1521,6 @@ struct OalSoundSys::Impl
 					sample_.oal_sources_[0],
 					oal_processed,
 					&oal_unqueued_buffers_[old_size]);
-
-				::alSourceUnqueueBuffers(
-					sample_.oal_sources_[1],
-					oal_processed,
-					buffers.data());
 			}
 
 			if (!sample_.is_looping_ && data_offset_ == data_size_)
@@ -1423,14 +1561,11 @@ struct OalSoundSys::Impl
 				::alBufferData(
 					oal_buffer,
 					sample_.oal_buffer_format_,
-					mix_buffer_.data(),
-					mix_size_,
-					static_cast<ALsizei>(sample_.get_dst_sample_rate()));
+					(sample_.is_stereo() ? mix_mono_buffer_.data() : mix_stereo_buffer_.data()),
+					mix_size_ * (sample_.is_stereo() ? 1 : 2),
+					sample_.get_dst_sample_rate());
 
-				for (auto j = 0; j < 2; ++j)
-				{
-					::alSourceQueueBuffers(sample_.oal_sources_[j], 1, &oal_buffer);
-				}
+				::alSourceQueueBuffers(sample_.oal_sources_[0], 1, &oal_buffer);
 
 				queued_count += 1;
 
@@ -2395,12 +2530,13 @@ struct OalSoundSys::Impl
 	}
 
 	static ALenum get_oal_buffer_format(
-		const ul::WaveFormatEx& wave_format)
+		const int channel_count,
+		const int bit_depth)
 	{
-		switch (wave_format.channel_count_)
+		switch (channel_count)
 		{
 		case 1:
-			switch (wave_format.bit_depth_)
+			switch (bit_depth)
 			{
 			case 8:
 				return AL_FORMAT_MONO8;
@@ -2416,7 +2552,7 @@ struct OalSoundSys::Impl
 
 
 		case 2:
-			switch (wave_format.bit_depth_)
+			switch (bit_depth)
 			{
 			case 8:
 				return AL_FORMAT_STEREO8;
@@ -2433,6 +2569,12 @@ struct OalSoundSys::Impl
 		default:
 			return AL_NONE;
 		}
+	}
+
+	static ALenum get_oal_buffer_format(
+		const ul::WaveFormatEx& wave_format)
+	{
+		return get_oal_buffer_format(wave_format.channel_count_, wave_format.bit_depth_);
 	}
 
 	sint32 initialize_sample_generic(
@@ -3033,16 +3175,21 @@ struct OalSoundSys::Impl
 
 		stream.data_size_ = decoder.get_data_size();
 
-		const auto sample_size = decoder.get_dst_sample_size();
-		const auto sample_rate = decoder.get_dst_sample_rate();
-		const auto mix_sample_count = (Stream::mix_size_ms * sample_rate) / 1000;
-		stream.mix_size_ = mix_sample_count * sample_size;
+		auto& sample = stream.sample_;
 
-		stream.mix_buffer_.resize(stream.mix_size_);
+		const auto sample_rate = decoder.get_dst_sample_rate();
+		stream.mix_sample_size_ = decoder.get_dst_sample_size();
+		stream.mix_sample_count_ = static_cast<int>(sample.pitch_ * (Stream::mix_size_ms * sample_rate) / 1000);
+		stream.mix_size_ = stream.mix_sample_count_ * stream.mix_sample_size_;
+
+		stream.mix_mono_buffer_.resize(stream.mix_size_);
+
+		if (stream.sample_.is_mono())
+		{
+			stream.mix_stereo_buffer_.resize(stream.mix_size_ * 2);
+		}
 
 		auto format = decoder.get_wave_format_ex();
-
-		auto& sample = stream.sample_;
 
 		const auto initialize_sample_result = sample.initialize_from_address_generic(
 			nullptr,
