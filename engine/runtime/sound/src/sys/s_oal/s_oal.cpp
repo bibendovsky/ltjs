@@ -212,6 +212,7 @@ struct OalSoundSys::Impl
 			oal_volume_{std::move(that.oal_volume_)},
 			oal_pans_{std::move(that.oal_pans_)},
 			type_{std::move(that.type_)},
+			storage_type_{std::move(that.storage_type_)},
 			status_{std::move(that.status_)},
 			channel_count_{std::move(that.channel_count_)},
 			bit_depth_{std::move(that.bit_depth_)},
@@ -533,12 +534,23 @@ struct OalSoundSys::Impl
 
 			if (storage_ptr)
 			{
+				storage_type_ = StorageType::internal_buffer;
+
 				data_.resize(storage_size);
 
 				std::uninitialized_copy_n(
 					static_cast<const std::uint8_t*>(storage_ptr),
 					storage_size,
 					data_.begin());
+			}
+
+			if (is_stream())
+			{
+				storage_type_ = StorageType::decoder;
+			}
+			else
+			{
+				storage_type_ = StorageType::internal_buffer;
 			}
 
 			if (!is_stream())
@@ -899,9 +911,13 @@ struct OalSoundSys::Impl
 
 						const auto sample_offset = data_begin_offset / get_block_align();
 
-						if (is_stream() && !decoder_.set_position(sample_offset))
+						if (storage_type_ == StorageType::decoder)
 						{
-							break;
+							if (!decoder_.set_position(sample_offset))
+							{
+								fail();
+								break;
+							}
 						}
 
 						continue;
@@ -922,11 +938,11 @@ struct OalSoundSys::Impl
 
 				auto decoded_size = 0;
 
-				if (is_stream())
+				if (storage_type_ == StorageType::decoder)
 				{
 					decoded_size = decoder_.decode(&mix_mono_buffer_[mix_offset], to_decode_size);
 				}
-				else
+				else if (storage_type_ == StorageType::internal_buffer)
 				{
 					decoded_size = std::min(to_decode_size, data_end_offset - data_offset_);
 
@@ -934,6 +950,11 @@ struct OalSoundSys::Impl
 						data_.cbegin() + data_offset_,
 						decoded_size,
 						mix_mono_buffer_.begin() + mix_offset);
+				}
+				else
+				{
+					fail();
+					break;
 				}
 
 				if (decoded_size > 0)
@@ -960,6 +981,7 @@ struct OalSoundSys::Impl
 						}
 					}
 
+					// TODO Use the appropriate value for 8 bit depth.
 					std::uninitialized_fill_n(mix_mono_buffer_.begin() + mix_offset, mix_size_ - mix_offset, std::uint8_t{});
 
 					break;
@@ -1021,6 +1043,7 @@ struct OalSoundSys::Impl
 			auto oal_queued = ALint{};
 
 			::alGetSourcei(oal_source_, AL_BUFFERS_PROCESSED, &oal_processed);
+			assert(oal_is_succeed());
 			::alGetSourcei(oal_source_, AL_BUFFERS_QUEUED, &oal_queued);
 			assert(oal_is_succeed());
 
@@ -1146,6 +1169,7 @@ struct OalSoundSys::Impl
 			oal_volume_{},
 			oal_pans_{},
 			type_{},
+			storage_type_{},
 			status_{},
 			block_align_{},
 			sample_rate_{},
@@ -1175,6 +1199,7 @@ struct OalSoundSys::Impl
 
 	private:
 		Type type_;
+		StorageType storage_type_;
 		Status status_;
 
 		int channel_count_;
