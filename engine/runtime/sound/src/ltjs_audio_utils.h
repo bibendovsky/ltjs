@@ -37,11 +37,6 @@ struct AudioUtils
 	static constexpr auto ds_pan_center = 0;
 	static constexpr auto ds_max_pan_side_delta = ds_max_pan - ds_pan_center;
 
-	static constexpr auto gain_min = 0.0F;
-	static constexpr auto gain_max = 1.0F;
-	static constexpr auto gain_max_delta = gain_max - gain_min;
-	static constexpr auto gain_center = gain_min + (gain_max_delta / 2.0F);
-
 	static constexpr auto ds_default_min_distance = 1.0F;
 	static constexpr auto ds_default_max_distance = 1'000'000'000.0F;
 
