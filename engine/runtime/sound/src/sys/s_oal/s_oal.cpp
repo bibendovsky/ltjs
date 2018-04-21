@@ -33,7 +33,6 @@ struct OalSoundSys::Impl
 {
 	static constexpr auto min_aux_sends = 1;
 	static constexpr auto default_aux_sends = 2;
-	static constexpr auto default_doppler_factor = 1.0F;
 
 	static constexpr auto pan_center = 64;
 
@@ -59,56 +58,195 @@ struct OalSoundSys::Impl
 	using OalContextAttributes = std::vector<ALCint>;
 
 
-	struct Vector3d
+	class Vector3d
 	{
-		float x_;
-		float y_;
-		float z_;
+	public:
+		Vector3d()
+			:
+			items_{}
+		{
+		}
 
+		Vector3d(
+			const float x,
+			const float y,
+			const float z)
+			:
+			items_{x, y, z}
+		{
+		}
+
+
+		float& operator[](
+			const int index)
+		{
+			return items_[index];
+		}
+
+		float operator[](
+			const int index) const
+		{
+			return items_[index];
+		}
 
 		bool operator==(
 			const Vector3d& that) const
 		{
-			return x_ == that.x_ && y_ == that.y_ && z_ == that.z_;
+			return items_ == that.items_;
 		}
 
-		static Vector3d to_oal(
-			const Vector3d& vector_3d)
+
+		bool has_nan() const
 		{
-			return {vector_3d.x_, vector_3d.y_, -vector_3d.z_};
+			return std::any_of(
+				items_.cbegin(),
+				items_.cend(),
+				[](const auto item)
+				{
+					return std::isnan(item);
+				}
+			);
 		}
+
+		Vector3d to_lhs() const
+		{
+			return {items_[0], items_[1], -items_[2]};
+		}
+
+		const float* get_c_array() const
+		{
+			return items_.data();
+		}
+
+
+	private:
+		using Items = std::array<float, 3>;
+
+
+		Items items_;
 	}; // Vector3d
 
-	struct Orientation3d
+	class Orientation3d
 	{
-		Vector3d at_;
-		Vector3d up_;
+	public:
+		Orientation3d()
+			:
+			items_{}
+		{
+		}
 
+		Orientation3d(
+			const float at_x,
+			const float at_y,
+			const float at_z,
+			const float up_x,
+			const float up_y,
+			const float up_z)
+			:
+			items_{at_x, at_y, at_z, up_x, up_y, up_z}
+		{
+		}
+
+		Orientation3d(
+			const Vector3d& at,
+			const Vector3d& up)
+			:
+			items_{at[0], at[1], at[2], up[0], up[1], up[2]}
+		{
+		}
+
+
+		float& operator[](
+			const int index)
+		{
+			return items_[index];
+		}
+
+		float operator[](
+			const int index) const
+		{
+			return items_[index];
+		}
 
 		bool operator==(
 			const Orientation3d& that) const
 		{
-			return at_ == that.at_ && up_ == that.up_;
+			return items_ == that.items_;
 		}
 
-		static Orientation3d to_oal(
-			const Orientation3d& direction_3d)
+
+		Vector3d& get_at()
 		{
-			return {Vector3d::to_oal(direction_3d.at_), Vector3d::to_oal(direction_3d.up_)};
+			return *reinterpret_cast<Vector3d*>(&items_[0]);
 		}
 
-		static const Orientation3d& get_listener_defaults()
+		const Vector3d& get_at() const
 		{
-			static const auto direction_3d = Orientation3d{{0.0F, 0.0F, 1.0F}, {0.0F, 1.0F, 0.0F}};
-			return direction_3d;
+			return *reinterpret_cast<const Vector3d*>(&items_[0]);
 		}
 
-		static const Orientation3d& get_object_defaults()
+		Vector3d& get_up()
 		{
-			static const auto direction_3d = Orientation3d{};
-			return direction_3d;
+			return *reinterpret_cast<Vector3d*>(&items_[3]);
 		}
+
+		const Vector3d& get_up() const
+		{
+			return *reinterpret_cast<const Vector3d*>(&items_[3]);
+		}
+
+
+		bool has_nan() const
+		{
+			return std::any_of(
+				items_.cbegin(),
+				items_.cend(),
+				[](const auto item)
+				{
+					return std::isnan(item);
+				}
+			);
+		}
+
+		Orientation3d to_lhs() const
+		{
+			return {items_[0], items_[1], -items_[2], items_[3], items_[4], -items_[5]};
+		}
+
+		const float* get_c_array() const
+		{
+			return items_.data();
+		}
+
+
+	private:
+		using Items = std::array<float, 6>;
+
+		Items items_;
 	}; // Orientation3d
+
+
+	static const float min_doppler_factor;
+	static const float max_doppler_factor;
+	static const float default_3d_doppler_factor;
+
+	static const float min_min_distance;
+	static const float max_min_distance;
+	static const float default_3d_min_distance;
+
+	static const float min_max_distance;
+	static const float max_max_distance;
+	static const float default_3d_max_distance;
+
+	static const float min_gain;
+	static const float max_gain;
+	static const float default_gain;
+
+	static const Vector3d default_3d_position;
+	static const Vector3d default_3d_velocity;
+	static const Vector3d default_3d_direction;
+	static const Orientation3d default_3d_orientation;
+
 
 	class StreamingSource
 	{
@@ -116,10 +254,16 @@ struct OalSoundSys::Impl
 		enum class Type
 		{
 			none,
-			panning_uncompressed,
-			spatial_uncompressed,
-			panning_compressed,
+			panning,
+			spatial,
 		}; // Type
+
+		enum class SpatialType
+		{
+			none,
+			source,
+			listener,
+		}; // SpatialType
 
 		enum class StorageType
 		{
@@ -138,9 +282,6 @@ struct OalSoundSys::Impl
 
 		struct OpenParameters
 		{
-			bool is_spatial_;
-			bool is_listener_;
-
 			bool is_file_;
 			const char* file_name_;
 			uint32 file_offset_;
@@ -193,7 +334,7 @@ struct OalSoundSys::Impl
 		ALuint oal_source_;
 
 		ALenum oal_buffer_format_;
-		float oal_volume_;
+		float oal_gain_;
 		OalPans oal_pans_;
 
 
@@ -211,6 +352,98 @@ struct OalSoundSys::Impl
 		OalQueueBuffers oal_queued_buffers_;
 		OalQueueBuffers oal_unqueued_buffers_;
 
+		sint32 master_3d_listener_volume_;
+		float oal_master_3d_listener_gain_;
+		bool is_3d_listener_muted_;
+
+		float doppler_factor_;
+		float min_distance_;
+		float max_distance_;
+		Vector3d position_;
+		Vector3d velocity_;
+		Vector3d direction_;
+		Orientation3d orientation_;
+
+
+		StreamingSource(
+			const Type type,
+			const SpatialType spatial_type)
+			:
+			is_looping_{},
+			has_loop_block_{},
+			loop_begin_{},
+			loop_end_{},
+			volume_{},
+			pan_{},
+			data_{},
+			user_data_array_{},
+			oal_buffers_{},
+			oal_source_{},
+			oal_buffer_format_{},
+			oal_gain_{},
+			oal_pans_{},
+			is_playing_{},
+			mix_size_{},
+			mix_sample_count_{},
+			data_size_{},
+			data_offset_{},
+			file_stream_{},
+			file_substream_{},
+			decoder_{},
+			mix_mono_buffer_{},
+			mix_stereo_buffer_{},
+			oal_queued_buffers_{},
+			oal_unqueued_buffers_{},
+			type_{},
+			storage_type_{},
+			status_{},
+			block_align_{},
+			sample_rate_{},
+			oal_are_buffers_created_{},
+			oal_is_source_created_{},
+			master_3d_listener_volume_{},
+			oal_master_3d_listener_gain_{},
+			is_3d_listener_muted_{},
+			doppler_factor_{},
+			min_distance_{},
+			max_distance_{},
+			position_{},
+			velocity_{},
+			direction_{},
+			orientation_{}
+		{
+			switch (type)
+			{
+			case Type::panning:
+				break;
+
+			case Type::spatial:
+				break;
+
+			default:
+				throw "Invalid type.";
+			}
+
+			switch (spatial_type)
+			{
+			case SpatialType::none:
+				break;
+
+			case SpatialType::source:
+				break;
+
+			case SpatialType::listener:
+				break;
+
+			default:
+				throw "Invalid spatial type.";
+			}
+
+			type_ = type;
+			spatial_type_ = spatial_type;
+
+			create();
+		}
 
 		StreamingSource(
 			const StreamingSource& that) = delete;
@@ -233,7 +466,7 @@ struct OalSoundSys::Impl
 			oal_buffers_{std::move(that.oal_buffers_)},
 			oal_source_{std::move(that.oal_source_)},
 			oal_buffer_format_{std::move(that.oal_buffer_format_)},
-			oal_volume_{std::move(that.oal_volume_)},
+			oal_gain_{std::move(that.oal_gain_)},
 			oal_pans_{std::move(that.oal_pans_)},
 			is_playing_{std::move(that.is_playing_)},
 			mix_size_{std::move(that.mix_size_)},
@@ -255,7 +488,17 @@ struct OalSoundSys::Impl
 			block_align_{std::move(that.block_align_)},
 			sample_rate_{std::move(that.sample_rate_)},
 			oal_are_buffers_created_{std::move(that.oal_are_buffers_created_)},
-			oal_is_source_created_{std::move(that.oal_is_source_created_)}
+			oal_is_source_created_{std::move(that.oal_is_source_created_)},
+			master_3d_listener_volume_{std::move(that.master_3d_listener_volume_)},
+			oal_master_3d_listener_gain_{std::move(that.oal_master_3d_listener_gain_)},
+			is_3d_listener_muted_{std::move(that.is_3d_listener_muted_)},
+			doppler_factor_{std::move(that.doppler_factor_)},
+			min_distance_{std::move(that.min_distance_)},
+			max_distance_{std::move(that.max_distance_)},
+			position_{std::move(that.position_)},
+			velocity_{std::move(that.velocity_)},
+			direction_{std::move(that.direction_)},
+			orientation_{std::move(that.orientation_)}
 		{
 			that.oal_are_buffers_created_ = false;
 			that.oal_is_source_created_ = false;
@@ -267,19 +510,19 @@ struct OalSoundSys::Impl
 		}
 
 
-		bool is_2d() const
+		bool is_panning() const
 		{
-			return type_ == Type::panning_uncompressed;
+			return type_ == Type::panning;
 		}
 
-		bool is_3d() const
+		bool is_spatial() const
 		{
-			return type_ == Type::spatial_uncompressed;
+			return type_ == Type::spatial;
 		}
 
-		bool is_stream() const
+		bool is_listener() const
 		{
-			return type_ == Type::panning_compressed;
+			return spatial_type_ == SpatialType::listener;
 		}
 
 		bool is_mono() const
@@ -418,6 +661,11 @@ struct OalSoundSys::Impl
 		void set_volume(
 			const sint32 volume)
 		{
+			if (!is_panning())
+			{
+				return;
+			}
+
 			const auto new_volume = ltjs::AudioUtils::clamp_lt_volume(volume);
 
 			if (new_volume == volume_)
@@ -434,12 +682,17 @@ struct OalSoundSys::Impl
 
 			const auto oal_volume = ltjs::AudioUtils::lt_volume_to_gain(new_volume);
 
-			oal_volume_ = oal_volume;
+			oal_gain_ = oal_volume;
 		}
 
 		void set_pan(
 			const sint32 pan)
 		{
+			if (!is_panning())
+			{
+				return;
+			}
+
 			const auto new_pan = ltjs::AudioUtils::clamp_lt_pan(pan);
 
 			if (pan_ == new_pan)
@@ -460,13 +713,13 @@ struct OalSoundSys::Impl
 			{
 				// Left and right channels are at full volume.
 
-				oal_pans_.fill(ltjs::AudioUtils::gain_max);
+				oal_pans_.fill(default_gain);
 			}
 			else if (new_pan < ltjs::AudioUtils::lt_pan_center)
 			{
 				// Left channel is at full volume; right channels is attenuated.
 
-				oal_pans_[left_index] = ltjs::AudioUtils::gain_max;
+				oal_pans_[left_index] = default_gain;
 				oal_pans_[right_index] = std::abs(oal_pan);
 			}
 			else
@@ -474,7 +727,7 @@ struct OalSoundSys::Impl
 				// Right channel is at full volume; lrft channels is attenuated.
 
 				oal_pans_[left_index] = std::abs(oal_pan);
-				oal_pans_[right_index] = ltjs::AudioUtils::gain_max;
+				oal_pans_[right_index] = default_gain;
 			}
 		}
 
@@ -508,11 +761,86 @@ struct OalSoundSys::Impl
 			loop_end_ = {};
 			volume_ = ltjs::AudioUtils::lt_max_volume;
 			pan_ = pan_center;
-			pitch_ = default_pitch;
+		}
 
+		void oal_reset_common()
+		{
+			pitch_ = default_pitch;
 			oal_buffer_format_ = AL_NONE;
-			oal_volume_ = ltjs::AudioUtils::gain_max;
-			oal_pans_.fill(ltjs::AudioUtils::gain_max);
+			oal_gain_ = default_gain;
+			oal_pans_.fill(default_gain);
+
+			::alSourceStop(oal_source_);
+			::alSourcei(oal_source_, AL_BUFFER, AL_NONE);
+			::alSourcef(oal_source_, AL_PITCH, default_pitch);
+			::alSourcef(oal_source_, AL_GAIN, default_gain);
+		}
+
+		void oal_reset_spatial()
+		{
+			if (!is_spatial())
+			{
+				return;
+			}
+
+			oal_gain_ = default_gain;
+			master_3d_listener_volume_ = ltjs::AudioUtils::lt_max_volume;
+			oal_master_3d_listener_gain_ = default_gain;
+			is_3d_listener_muted_ = false;
+
+			doppler_factor_ = default_3d_doppler_factor;
+			min_distance_ = default_3d_min_distance;
+			max_distance_ = default_3d_max_distance;
+			position_ = default_3d_position;
+			velocity_ = default_3d_velocity;
+			direction_ = default_3d_direction;
+			orientation_ = default_3d_orientation;
+
+			oal_clear_error();
+
+			if (is_listener())
+			{
+				const auto oal_position = position_.to_lhs();
+				const auto oal_velocity = velocity_.to_lhs();
+				const auto oal_orientation = orientation_.to_lhs();
+
+				::alListenerf(AL_GAIN, oal_gain_);
+				assert(oal_is_succeed());
+				::alDopplerFactor(doppler_factor_);
+				assert(oal_is_succeed());
+				::alListenerfv(AL_POSITION, oal_position.get_c_array());
+				assert(oal_is_succeed());
+				::alListenerfv(AL_VELOCITY, oal_velocity.get_c_array());
+				assert(oal_is_succeed());
+				::alListenerfv(AL_ORIENTATION, oal_orientation.get_c_array());
+				assert(oal_is_succeed());
+			}
+			else
+			{
+				const auto oal_position = position_.to_lhs();
+				const auto oal_velocity = velocity_.to_lhs();
+				const auto oal_direction = direction_.to_lhs();
+
+				::alSourcef(oal_source_, AL_GAIN, oal_gain_);
+				assert(oal_is_succeed());
+				::alSourcei(oal_source_, AL_SOURCE_RELATIVE, AL_FALSE);
+				assert(oal_is_succeed());
+				::alSourcef(oal_source_, AL_REFERENCE_DISTANCE, min_distance_);
+				assert(oal_is_succeed());
+				::alSourcef(oal_source_, AL_MAX_DISTANCE, max_distance_);
+				assert(oal_is_succeed());
+				::alSourcefv(oal_source_, AL_POSITION, oal_position.get_c_array());
+				assert(oal_is_succeed());
+				::alSourcefv(oal_source_, AL_VELOCITY, oal_velocity.get_c_array());
+				assert(oal_is_succeed());
+				::alSourcefv(oal_source_, AL_DIRECTION, oal_direction.get_c_array());
+				assert(oal_is_succeed());
+			}
+
+			if (!oal_is_succeed())
+			{
+				fail();
+			}
 		}
 
 		void open_set_wave_format_internal(
@@ -592,26 +920,26 @@ struct OalSoundSys::Impl
 
 			auto& decoder = *parameters.mapped_decoder_;
 
-			const auto open_decoder_result = decoder.open(decoder_parameters);
-
-			if (!open_decoder_result)
+			if (!decoder.open(decoder_parameters))
 			{
 				return false;
 			}
 
-			data_.resize(data_size_);
+			const auto max_decoded_size = decoder.get_data_size();
 
-			const auto decoded_size = decoder.decode(data_.data(), data_size_);
+			data_.resize(max_decoded_size);
+
+			const auto decoded_size = decoder.decode(data_.data(), max_decoded_size);
 
 			if (decoded_size <= 0)
 			{
 				return false;
 			}
 
-			storage_type_ = StorageType::decoder;
-			data_size_ = decoder_.get_data_size();
+			storage_type_ = StorageType::internal_buffer;
+			data_size_ = decoded_size;
 
-			open_set_wave_format_internal(decoder_.get_wave_format_ex());
+			open_set_wave_format_internal(decoder.get_wave_format_ex());
 
 			return true;
 		}
@@ -648,6 +976,14 @@ struct OalSoundSys::Impl
 		bool open_initialize_internal(
 			const OpenParameters& parameters)
 		{
+			if (is_spatial() && !is_mono())
+			{
+				return false;
+			}
+
+			oal_reset_common();
+			oal_reset_spatial();
+
 			const auto has_pitch = (parameters.playback_rate_ > 0 && sample_rate_ != parameters.playback_rate_);
 
 			if (has_pitch)
@@ -655,34 +991,33 @@ struct OalSoundSys::Impl
 				pitch_ = static_cast<float>(parameters.playback_rate_) / static_cast<float>(sample_rate_);
 			}
 
-			if (type_ == Type::spatial_uncompressed)
-			{
-				oal_buffer_format_ = get_oal_buffer_format(channel_count_, bit_depth_);
-			}
-			else
-			{
-				oal_buffer_format_ = get_oal_buffer_format(2, bit_depth_);
-			}
-
 			mix_sample_count_ = static_cast<int>((pitch_ * mix_size_ms * sample_rate_) / 1000.0F);
 			mix_size_ = mix_sample_count_ * block_align_;
 
 			mix_mono_buffer_.resize(mix_size_);
 
-			if (!is_3d() && is_mono())
+			if (is_spatial())
 			{
-				mix_stereo_buffer_.resize(mix_size_ * 2);
+				oal_buffer_format_ = get_oal_buffer_format(channel_count_, bit_depth_);
 			}
+			else
+			{
+				if (is_mono())
+				{
+					mix_stereo_buffer_.resize(mix_size_ * 2);
+				}
 
+				oal_buffer_format_ = get_oal_buffer_format(2, bit_depth_);
+			}
 
 			oal_clear_error();
 
 			::alSourceStop(oal_source_);
 			::alSourcei(oal_source_, AL_BUFFER, AL_NONE);
 			::alSourcef(oal_source_, AL_PITCH, pitch_);
-			::alSourcef(oal_source_, AL_GAIN, ltjs::AudioUtils::gain_max);
+			::alSourcef(oal_source_, AL_GAIN, default_gain);
 
-			if (is_3d())
+			if (is_spatial())
 			{
 				const auto zero_vector = Vector3d{};
 
@@ -693,7 +1028,7 @@ struct OalSoundSys::Impl
 				::alSourcef(oal_source_, AL_MAX_DISTANCE, ltjs::AudioUtils::ds_default_max_distance);
 			}
 
-			::alSourcei(oal_source_, AL_SOURCE_RELATIVE, is_3d() ? AL_FALSE : AL_TRUE);
+			::alSourcei(oal_source_, AL_SOURCE_RELATIVE, is_spatial() ? AL_FALSE : AL_TRUE);
 
 			if (parameters.oal_has_effect_slot_)
 			{
@@ -843,8 +1178,8 @@ struct OalSoundSys::Impl
 			const int byte_offset)
 		{
 			const auto sample_count = byte_offset / block_align_;
-			const auto oal_left_volume_scale = oal_volume_ * oal_pans_[0];
-			const auto oal_right_volume_scale = oal_volume_ * oal_pans_[1];
+			const auto oal_left_volume_scale = oal_gain_ * oal_pans_[0];
+			const auto oal_right_volume_scale = oal_gain_ * oal_pans_[1];
 
 			const auto src_buffer = mix_mono_buffer_.data();
 			auto dst_buffer = mix_stereo_buffer_.data();
@@ -879,8 +1214,8 @@ struct OalSoundSys::Impl
 			const int byte_offset)
 		{
 			const auto sample_count = byte_offset / block_align_;
-			const auto oal_left_volume_scale = oal_volume_ * oal_pans_[0];
-			const auto oal_right_volume_scale = oal_volume_ * oal_pans_[1];
+			const auto oal_left_volume_scale = oal_gain_ * oal_pans_[0];
+			const auto oal_right_volume_scale = oal_gain_ * oal_pans_[1];
 
 			const auto src_buffer = reinterpret_cast<const std::int16_t*>(mix_mono_buffer_.data());
 			auto dst_buffer = reinterpret_cast<std::int16_t*>(mix_stereo_buffer_.data());
@@ -988,7 +1323,7 @@ struct OalSoundSys::Impl
 				}
 				else
 				{
-					if (decoded_size == 0 && is_stream())
+					if (decoded_size == 0 && storage_type_ == StorageType::decoder)
 					{
 						// Adjust the actual data size if necessary.
 						//
@@ -1012,7 +1347,7 @@ struct OalSoundSys::Impl
 				}
 			}
 
-			if (!is_3d() && is_mono())
+			if (!is_spatial() && is_mono())
 			{
 				switch (get_bit_depth())
 				{
@@ -1127,7 +1462,7 @@ struct OalSoundSys::Impl
 				auto buffer_size = mix_size_;
 				auto buffer_data = mix_mono_buffer_.data();
 
-				if (!is_3d() && is_mono())
+				if (!is_spatial() && is_mono())
 				{
 					buffer_size *= 2;
 					buffer_data = mix_stereo_buffer_.data();
@@ -1174,67 +1509,353 @@ struct OalSoundSys::Impl
 			return oal_processed > 0 || queued_count > 0;
 		}
 
-
-	protected:
-		StreamingSource(
-			const Type type)
-			:
-			is_looping_{},
-			has_loop_block_{},
-			loop_begin_{},
-			loop_end_{},
-			volume_{},
-			pan_{},
-			data_{},
-			user_data_array_{},
-			oal_buffers_{},
-			oal_source_{},
-			oal_buffer_format_{},
-			oal_volume_{},
-			oal_pans_{},
-			is_playing_{},
-			mix_size_{},
-			mix_sample_count_{},
-			data_size_{},
-			data_offset_{},
-			file_stream_{},
-			file_substream_{},
-			decoder_{},
-			mix_mono_buffer_{},
-			mix_stereo_buffer_{},
-			oal_queued_buffers_{},
-			oal_unqueued_buffers_{},
-			type_{},
-			storage_type_{},
-			status_{},
-			block_align_{},
-			sample_rate_{},
-			oal_are_buffers_created_{},
-			oal_is_source_created_{}
+		void set_master_3d_listener_volume(
+			const sint32 lt_volume)
 		{
-			switch (type)
+			if (!is_spatial() && !is_listener())
 			{
-			case Type::panning_uncompressed:
-				break;
-
-			case Type::panning_compressed:
-				break;
-
-			case Type::spatial_uncompressed:
-				break;
-
-			default:
-				throw "Invalid type.";
+				return;
 			}
 
-			type_ = type;
+			const auto new_lt_volume = ltjs::AudioUtils::clamp_lt_volume(lt_volume);
 
-			create();
+			if (new_lt_volume == master_3d_listener_volume_)
+			{
+				return;
+			}
+
+			master_3d_listener_volume_ = new_lt_volume;
+
+			if (is_failed())
+			{
+				return;
+			}
+
+			oal_master_3d_listener_gain_ = ltjs::AudioUtils::lt_volume_to_gain(master_3d_listener_volume_);
+
+			if (is_3d_listener_muted_)
+			{
+				::alListenerf(AL_GAIN, min_gain);
+				assert(oal_is_succeed());
+			}
+			else
+			{
+				const auto oal_gain = oal_gain_ * oal_master_3d_listener_gain_;
+
+				::alListenerf(AL_GAIN, oal_gain);
+				assert(oal_is_succeed());
+			}
+		}
+
+		void mute_3d_listener(
+			const bool is_muted)
+		{
+			if (!is_spatial() && !is_listener())
+			{
+				return;
+			}
+
+			if (is_muted == is_3d_listener_muted_)
+			{
+				return;
+			}
+
+			is_3d_listener_muted_ = is_muted;
+
+
+			if (is_failed())
+			{
+				return;
+			}
+
+			if (is_3d_listener_muted_)
+			{
+				::alListenerf(AL_GAIN, min_gain);
+				assert(oal_is_succeed());
+			}
+			else
+			{
+				const auto oal_gain = oal_gain_ * oal_master_3d_listener_gain_;
+
+				::alListenerf(AL_GAIN, oal_gain);
+				assert(oal_is_succeed());
+			}
+		}
+
+		void set_3d_volume(
+			const sint32 lt_volume)
+		{
+			if (!is_spatial())
+			{
+				return;
+			}
+
+			const auto new_lt_volume = ltjs::AudioUtils::clamp_lt_volume(lt_volume);
+
+			if (new_lt_volume == volume_)
+			{
+				return;
+			}
+
+			volume_ = new_lt_volume;
+
+			if (is_failed())
+			{
+				return;
+			}
+
+			oal_gain_ = ltjs::AudioUtils::lt_volume_to_gain(volume_);
+
+			if (is_listener())
+			{
+				if (is_3d_listener_muted_)
+				{
+					oal_gain_ = {};
+				}
+				else
+				{
+					oal_gain_ *= oal_master_3d_listener_gain_;
+				}
+
+				::alListenerf(AL_GAIN, oal_gain_);
+				assert(oal_is_succeed());
+			}
+			else
+			{
+				::alSourcef(oal_source_, AL_GAIN, oal_gain_);
+				assert(oal_is_succeed());
+			}
+		}
+
+		sint32 get_3d_volume() const
+		{
+			return volume_;
+		}
+
+		void set_3d_doppler_factor(
+			const float doppler_factor)
+		{
+			if (!is_spatial() || !is_listener() || std::isnan(doppler_factor))
+			{
+				return;
+			}
+
+			const auto new_doppler_factor = ul::Algorithm::clamp(
+				doppler_factor, min_doppler_factor, max_doppler_factor);
+
+			if (new_doppler_factor == doppler_factor_)
+			{
+				return;
+			}
+
+			doppler_factor_ = new_doppler_factor;
+
+			if (is_failed())
+			{
+				return;
+			}
+
+			::alDopplerFactor(doppler_factor_);
+			assert(oal_is_succeed());
+		}
+
+		float get_3d_doppler_factor() const
+		{
+			return doppler_factor_;
+		}
+
+		void set_3d_distances(
+			const float min_distance,
+			const float max_distance)
+		{
+			if (!is_spatial() || is_listener() || std::isnan(min_distance) || std::isnan(max_distance))
+			{
+				return;
+			}
+
+			if (min_distance >= max_distance)
+			{
+				return;
+			}
+
+			const auto new_min_distance = ul::Algorithm::clamp(min_distance, min_min_distance, min_max_distance);
+			const auto new_max_distance = ul::Algorithm::clamp(max_distance, max_min_distance, max_max_distance);
+
+			if (new_min_distance == min_distance_ && new_max_distance == max_distance_)
+			{
+				return;
+			}
+
+			min_distance_ = new_min_distance;
+			max_distance_ = new_max_distance;
+
+			if (is_failed())
+			{
+				return;
+			}
+
+			::alSourcef(oal_source_, AL_REFERENCE_DISTANCE, min_distance_);
+			assert(oal_is_succeed());
+			::alSourcef(oal_source_, AL_MAX_DISTANCE, max_distance_);
+			assert(oal_is_succeed());
+		}
+
+		float get_3d_min_distance() const
+		{
+			return min_distance_;
+		}
+
+		float get_3d_max_distance() const
+		{
+			return max_distance_;
+		}
+
+		void set_3d_position(
+			const Vector3d& position)
+		{
+			if (!is_spatial() || position.has_nan())
+			{
+				return;
+			}
+
+			if (position == position_)
+			{
+				return;
+			}
+
+			position_ = position;
+
+			if (is_failed())
+			{
+				return;
+			}
+
+			const auto& oal_position = position_.to_lhs();
+			const auto oal_position_c_array = oal_position.get_c_array();
+
+			if (is_listener())
+			{
+				::alListenerfv(AL_POSITION, oal_position_c_array);
+				assert(oal_is_succeed());
+			}
+			else
+			{
+				::alSourcefv(oal_source_, AL_POSITION, oal_position_c_array);
+				assert(oal_is_succeed());
+			}
+		}
+
+		const Vector3d& get_3d_position() const
+		{
+			return position_;
+		}
+
+		void set_3d_velocity(
+			const Vector3d& velocity)
+		{
+			if (!is_spatial() || velocity.has_nan())
+			{
+				return;
+			}
+
+			if (velocity == velocity_)
+			{
+				return;
+			}
+
+			velocity_ = velocity;
+
+			if (is_failed())
+			{
+				return;
+			}
+
+			const auto& oal_velocity = velocity_.to_lhs();
+			const auto oal_velocity_c_array = oal_velocity.get_c_array();
+
+			if (is_listener())
+			{
+				::alListenerfv(AL_VELOCITY, oal_velocity_c_array);
+				assert(oal_is_succeed());
+			}
+			else
+			{
+				::alSourcefv(oal_source_, AL_VELOCITY, oal_velocity_c_array);
+				assert(oal_is_succeed());
+			}
+		}
+
+		const Vector3d& get_3d_velocity() const
+		{
+			return velocity_;
+		}
+
+		void set_3d_direction(
+			const Vector3d& direction)
+		{
+			if (!is_spatial() || is_listener() || direction.has_nan())
+			{
+				return;
+			}
+
+			if (direction == direction_)
+			{
+				return;
+			}
+
+			direction_ = direction;
+
+			if (is_failed())
+			{
+				return;
+			}
+
+			const auto& oal_direction = direction_.to_lhs();
+
+			::alSourcefv(oal_source_, AL_DIRECTION, oal_direction.get_c_array());
+			assert(oal_is_succeed());
+		}
+
+		const Vector3d& get_3d_direction() const
+		{
+			return direction_;
+		}
+
+		void set_3d_orientation(
+			const Orientation3d& orientation)
+		{
+			if (!is_spatial() || !is_listener() || orientation.has_nan())
+			{
+				return;
+			}
+
+			if (orientation == orientation_)
+			{
+				return;
+			}
+
+			orientation_ = orientation;
+
+			if (is_failed())
+			{
+				return;
+			}
+
+			const auto& oal_orientation = orientation_.to_lhs();
+
+			::alListenerfv(AL_ORIENTATION, oal_orientation.get_c_array());
+			assert(oal_is_succeed());
+		}
+
+		const Orientation3d& get_3d_orientation() const
+		{
+			return orientation_;
 		}
 
 
 	private:
 		Type type_;
+		SpatialType spatial_type_;
 		StorageType storage_type_;
 		Status status_;
 
@@ -1249,6 +1870,12 @@ struct OalSoundSys::Impl
 
 		void create()
 		{
+			if (is_listener())
+			{
+				oal_reset_spatial();
+				return;
+			}
+
 			auto is_succeed = true;
 
 			oal_clear_error();
@@ -1291,6 +1918,11 @@ struct OalSoundSys::Impl
 
 		void destroy()
 		{
+			if (is_listener())
+			{
+				return;
+			}
+
 			if (oal_is_source_created_)
 			{
 				oal_is_source_created_ = false;
@@ -1345,166 +1977,9 @@ struct OalSoundSys::Impl
 	}; // StreamingSource
 
 
-	class PanningUncompressedStreamingSource :
-		public StreamingSource
-	{
-	public:
-		PanningUncompressedStreamingSource()
-			:
-			StreamingSource{Type::panning_uncompressed}
-		{
-		}
-
-		PanningUncompressedStreamingSource(
-			const PanningUncompressedStreamingSource& that) = delete;
-
-		PanningUncompressedStreamingSource& operator=(
-			const PanningUncompressedStreamingSource& that) = delete;
-
-		PanningUncompressedStreamingSource(
-			PanningUncompressedStreamingSource&& that)
-			:
-			StreamingSource{std::move(that)}
-		{
-		}
-
-		~PanningUncompressedStreamingSource()
-		{
-		}
-	}; // PanningUncompressedStreamingSource
-
-	class SurroundUncompressedStreamingSource :
-		public StreamingSource
-	{
-	public:
-		SurroundUncompressedStreamingSource()
-			:
-			StreamingSource{Type::spatial_uncompressed}
-		{
-		}
-
-		SurroundUncompressedStreamingSource(
-			const SurroundUncompressedStreamingSource& that) = delete;
-
-		SurroundUncompressedStreamingSource& operator=(
-			const SurroundUncompressedStreamingSource& that) = delete;
-
-		SurroundUncompressedStreamingSource(
-			SurroundUncompressedStreamingSource&& that)
-			:
-			StreamingSource{std::move(that)}
-		{
-		}
-
-		~SurroundUncompressedStreamingSource()
-		{
-		}
-	}; // SurroundUncompressedStreamingSource
-
-	class PanningCompressedStreamingSource :
-		public StreamingSource
-	{
-	public:
-		PanningCompressedStreamingSource()
-			:
-			StreamingSource{Type::panning_compressed}
-		{
-		}
-
-		PanningCompressedStreamingSource(
-			const PanningCompressedStreamingSource& that) = delete;
-
-		PanningCompressedStreamingSource& operator=(
-			const PanningCompressedStreamingSource& that) = delete;
-
-		PanningCompressedStreamingSource(
-			PanningCompressedStreamingSource&& that)
-			:
-			StreamingSource{std::move(that)}
-		{
-		}
-
-		~PanningCompressedStreamingSource()
-		{
-		}
-	}; // PanningCompressedStreamingSource
-
-	using Samples = std::list<PanningUncompressedStreamingSource>;
-	using OpenSamples = std::list<PanningUncompressedStreamingSource*>;
-
-
-	class Object3d
-	{
-	public:
-		bool is_listener_;
-		float min_distance_;
-		float max_distance_;
-		Vector3d position_;
-		Vector3d velocity_;
-		Orientation3d orientation_;
-		float doppler_factor_;
-		UserDataArray user_data_;
-		SurroundUncompressedStreamingSource source_;
-
-
-		Object3d()
-			:
-			is_listener_{},
-			min_distance_{},
-			max_distance_{},
-			position_{},
-			velocity_{},
-			orientation_{},
-			doppler_factor_{},
-			user_data_{},
-			source_{}
-		{
-		}
-
-		Object3d(
-			const Object3d& that) = delete;
-
-		Object3d& operator=(
-			const Object3d& that) = delete;
-
-		Object3d(
-			Object3d&& that)
-			:
-			is_listener_{std::move(that.is_listener_)},
-			min_distance_{std::move(that.min_distance_)},
-			max_distance_{std::move(that.max_distance_)},
-			position_{std::move(that.position_)},
-			velocity_{std::move(that.velocity_)},
-			orientation_{std::move(that.orientation_)},
-			doppler_factor_{std::move(that.doppler_factor_)},
-			user_data_{std::move(that.user_data_)},
-			source_{std::move(that.source_)}
-		{
-		}
-
-		~Object3d()
-		{
-		}
-
-		void reset()
-		{
-			min_distance_ = ltjs::AudioUtils::ds_default_min_distance;
-			max_distance_ = ltjs::AudioUtils::ds_default_max_distance;
-			position_ = {};
-			velocity_ = {};
-			orientation_ = (is_listener_ ? Orientation3d::get_listener_defaults() : Orientation3d::get_object_defaults());
-			doppler_factor_ = ltjs::AudioUtils::ds_default_doppler_factor;
-		}
-	}; // Object3d
-
-	using Objects3d = std::list<Object3d>;
-	using Object3dUPtr = std::unique_ptr<Object3d>;
-	using Open3dObjects = std::list<SurroundUncompressedStreamingSource*>;
-
-
-	using Streams = std::list<PanningCompressedStreamingSource>;
-	using OpenStreams = std::list<PanningCompressedStreamingSource*>;
-
+	using StreamingSourceUPtr = std::unique_ptr<StreamingSource>;
+	using Sources = std::list<StreamingSource>;
+	using OpenSources = std::list<StreamingSource*>;
 
 
 	// =========================================================================
@@ -2363,20 +2838,6 @@ struct OalSoundSys::Impl
 		objects_3d_.clear();
 	}
 
-	void update_listener_gain()
-	{
-		if (is_mute_)
-		{
-			::alListenerf(AL_GAIN, ltjs::AudioUtils::gain_min);
-			assert(oal_is_succeed());
-		}
-		else
-		{
-			::alListenerf(AL_GAIN, oal_master_gain_);
-			assert(oal_is_succeed());
-		}
-	}
-
 	bool wave_out_open_internal()
 	{
 		auto is_succeed = false;
@@ -2424,9 +2885,10 @@ struct OalSoundSys::Impl
 
 		is_succeed = true;
 		master_volume_ = ltjs::AudioUtils::lt_max_volume;
-		oal_master_gain_ = ltjs::AudioUtils::gain_max;
-		listener_3d_uptr_ = std::make_unique<Object3d>();
-		reset_3d_object(*listener_3d_uptr_.get());
+		oal_master_gain_ = default_gain;
+
+		listener_3d_uptr_ = std::make_unique<StreamingSource>(
+			StreamingSource::Type::spatial, StreamingSource::SpatialType::listener);
 
 		return true;
 	}
@@ -2540,95 +3002,6 @@ struct OalSoundSys::Impl
 		stream.is_looping_ = is_enable;
 	}
 
-	void reset_3d_object(
-		Object3d& object_3d)
-	{
-		auto& sample = object_3d.source_;
-		const auto oal_source = sample.oal_source_;
-
-		object_3d.reset();
-		oal_clear_error();
-
-
-		if (!object_3d.is_listener_)
-		{
-			::alSourceStop(oal_source);
-			assert(oal_is_succeed());
-			::alSourcei(oal_source, AL_BUFFER, AL_NONE);
-			assert(oal_is_succeed());
-			::alSourcei(oal_source, AL_SOURCE_RELATIVE, AL_FALSE);
-			assert(oal_is_succeed());
-		}
-
-		// Doppler factor.
-		//
-		if (object_3d.is_listener_)
-		{
-			::alDopplerFactor(object_3d.doppler_factor_);
-			assert(oal_is_succeed());
-		}
-
-		// Minimum/Maximum distance.
-		//
-		if (!object_3d.is_listener_)
-		{
-			::alSourcef(oal_source, AL_REFERENCE_DISTANCE, object_3d.min_distance_);
-			::alSourcef(oal_source, AL_MAX_DISTANCE, object_3d.max_distance_);
-			assert(oal_is_succeed());
-		}
-
-		// Position.
-		//
-		const auto oal_position = Vector3d::to_oal(object_3d.position_);
-		const auto oal_position_ptr = reinterpret_cast<const ALfloat*>(&oal_position);
-
-		if (object_3d.is_listener_)
-		{
-			::alListenerfv(AL_POSITION, oal_position_ptr);
-			assert(oal_is_succeed());
-		}
-		else
-		{
-			::alSourcefv(oal_source, AL_POSITION, oal_position_ptr);
-			assert(oal_is_succeed());
-		}
-
-
-		// Velocity.
-		//
-		const auto oal_velocity = Vector3d::to_oal(object_3d.velocity_);
-		const auto oal_velocity_ptr = reinterpret_cast<const ALfloat*>(&oal_velocity);
-
-		if (object_3d.is_listener_)
-		{
-			::alListenerfv(AL_VELOCITY, oal_velocity_ptr);
-			assert(oal_is_succeed());
-		}
-		else
-		{
-			::alSourcefv(oal_source, AL_VELOCITY, oal_velocity_ptr);
-			assert(oal_is_succeed());
-		}
-
-
-		// Orientaion.
-		//
-		if (object_3d.is_listener_)
-		{
-			const auto oal_orientation = Orientation3d::to_oal(object_3d.orientation_);
-			const auto oal_orientation_ptr = reinterpret_cast<const ALfloat*>(&oal_orientation);
-
-			::alListenerfv(AL_ORIENTATION, oal_orientation_ptr);
-			assert(oal_is_succeed());
-		}
-
-		if (!oal_is_succeed())
-		{
-			sample.fail();
-			return;
-		}
-	}
-
 	void uninitialize_eax20_filter()
 	{
 		if (oal_effect_slot_ != AL_EFFECTSLOT_NULL)
@@ -2695,41 +3068,6 @@ struct OalSoundSys::Impl
 		}
 
 		oal_is_supports_eax20_filter_ = true;
-	}
-
-	void mt_add_sample(
-		PanningUncompressedStreamingSource& source)
-	{
-		mt_open_samples_.emplace_back(&source);
-	}
-
-	void mt_remove_sample(
-		PanningUncompressedStreamingSource& source)
-	{
-		mt_open_samples_.remove_if(
-			[&](const auto& item)
-			{
-				return &source == item;
-			}
-		);
-	}
-
-
-	void mt_add_3d_sample(
-		SurroundUncompressedStreamingSource& source)
-	{
-		mt_open_3d_objects_.emplace_back(&source);
-	}
-
-	void mt_remove_3d_sample(
-		SurroundUncompressedStreamingSource& source)
-	{
-		mt_open_3d_objects_.remove_if(
-			[&](const auto& item)
-			{
-				return &source == item;
-			}
-		);
 	}
 
 	//
@@ -2822,23 +3160,7 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		const auto new_master_volume = ltjs::AudioUtils::clamp_lt_volume(master_volume);
-
-		if (master_volume_ == new_master_volume)
-		{
-			return;
-		}
-
-		master_volume_ = new_master_volume;
-
-
-		const auto oal_gain =
-			static_cast<ALfloat>(new_master_volume - ltjs::AudioUtils::lt_min_volume) /
-			static_cast<ALfloat>(ltjs::AudioUtils::lt_max_volume_delta);
-
-		oal_master_gain_ = oal_gain;
-
-		update_listener_gain();
+		listener_3d_uptr_->set_master_3d_listener_volume(master_volume);
 	}
 
 	LHSAMPLE api_allocate_sample_handle(
@@ -2849,16 +3171,12 @@ struct OalSoundSys::Impl
 			return nullptr;
 		}
 
-		samples_.emplace_back();
+		samples_.emplace_back(StreamingSource::Type::panning, StreamingSource::SpatialType::none);
 
 		auto& source = samples_.back();
 
-		source.reset();
-
-		{
-			MtMutexGuard lock{mt_samples_mutex_};
-			mt_add_sample(source);
-		}
+		MtMutexGuard lock{mt_samples_mutex_};
+		mt_open_samples_.emplace_back(&source);
 
 		return &source;
 	}
@@ -2871,10 +3189,25 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		auto& source = *static_cast<PanningUncompressedStreamingSource*>(sample_ptr);
+		auto& source = *static_cast<StreamingSource*>(sample_ptr);
 
-		MtMutexGuard lock{mt_samples_mutex_};
-		mt_remove_sample(source);
+		{
+			MtMutexGuard lock{mt_samples_mutex_};
+
+			mt_open_samples_.remove_if(
+				[&](const auto& item)
+				{
+				return &source == item;
+				}
+			);
+		}
+
+		samples_.remove_if(
+			[&](const auto& item)
+			{
+			return &source == &item;
+			}
+		);
 	}
 
 	sint32 api_init_sample_from_address(
@@ -2909,11 +3242,13 @@ struct OalSoundSys::Impl
 		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
 		open_parameters.oal_has_effect_slot_ = oal_effect_slot_;
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		if (!source.open(open_parameters))
 		{
-			return false;
+			MtMutexGuard lock{mt_samples_mutex_};
+
+			if (!source.open(open_parameters))
+			{
+				return false;
+			}
 		}
 
 		mt_notify_stream();
@@ -2952,11 +3287,13 @@ struct OalSoundSys::Impl
 		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
 		open_parameters.oal_has_effect_slot_ = oal_effect_slot_;
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		if (!source.open(open_parameters))
 		{
-			return false;
+			MtMutexGuard lock{mt_samples_mutex_};
+
+			if (!source.open(open_parameters))
+			{
+				return false;
+			}
 		}
 
 		mt_notify_stream();
@@ -2972,11 +3309,12 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
 
-		sample.pause();
+		{
+			MtMutexGuard lock{mt_samples_mutex_};
+			sample.pause();
+		}
 
 		mt_notify_stream();
 	}
@@ -2989,12 +3327,14 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
 
-		sample.stop();
-		sample.resume();
+		{
+			MtMutexGuard lock{mt_samples_mutex_};
+
+			sample.stop();
+			sample.resume();
+		}
 
 		mt_notify_stream();
 	}
@@ -3007,11 +3347,12 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
 
-		sample.resume();
+		{
+			MtMutexGuard lock{mt_samples_mutex_};
+			sample.resume();
+		}
 
 		mt_notify_stream();
 	}
@@ -3024,9 +3365,9 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		sample.stop();
 	}
@@ -3039,9 +3380,9 @@ struct OalSoundSys::Impl
 			return {};
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		return sample.volume_;
 	}
@@ -3055,9 +3396,9 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		sample.set_volume(volume);
 	}
@@ -3070,9 +3411,9 @@ struct OalSoundSys::Impl
 			return {};
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		return sample.pan_;
 	}
@@ -3086,9 +3427,9 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		sample.set_pan(pan);
 	}
@@ -3102,9 +3443,10 @@ struct OalSoundSys::Impl
 			return {};
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
 
 		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		return sample.user_data_array_[index];
 	}
@@ -3119,9 +3461,9 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		sample.user_data_array_[index] = value;
 	}
@@ -3137,9 +3479,9 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		sample.set_loop_block(loop_begin_offset, loop_end_offset, is_enable);
 	}
@@ -3153,9 +3495,9 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		sample.set_loop(is_enable);
 	}
@@ -3169,9 +3511,9 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		sample.set_ms_position(milliseconds);
 	}
@@ -3184,9 +3526,9 @@ struct OalSoundSys::Impl
 			return {};
 		}
 
-		MtMutexGuard lock{mt_samples_mutex_};
-
 		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
 
 		if (sample.is_failed())
 		{
@@ -3211,7 +3553,7 @@ struct OalSoundSys::Impl
 			return nullptr;
 		}
 
-		streams_.emplace_back();
+		streams_.emplace_back(StreamingSource::Type::panning, StreamingSource::SpatialType::none);
 
 		auto& source = streams_.back();
 
@@ -3261,7 +3603,7 @@ struct OalSoundSys::Impl
 			mt_open_streams_.remove_if(
 				[&](const auto& item)
 				{
-					return item == &stream;
+					return &stream == item;
 				}
 			);
 		}
@@ -3269,7 +3611,7 @@ struct OalSoundSys::Impl
 		streams_.remove_if(
 			[&](const auto& item)
 			{
-				return &item == &stream;
+				return &stream == &item;
 			}
 		);
 	}
@@ -3341,10 +3683,12 @@ struct OalSoundSys::Impl
 
 		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
 
-		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+		{
+			MtMutexGuard mt_stream_lock{mt_streams_mutex_};
 
-		stream.is_playing_ = true;
-		stream.data_offset_ = 0;
+			stream.stop();
+			stream.resume();
+		}
 
 		mt_notify_stream();
 	}
@@ -3360,14 +3704,20 @@ struct OalSoundSys::Impl
 
 		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
 
-		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-		stream.is_playing_ = (is_enable != 0);
-
-		if (stream.is_playing_)
 		{
-			mt_notify_stream();
+			MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+			if (is_enable)
+			{
+				stream.pause();
+			}
+			else
+			{
+				stream.resume();
+			}
 		}
+
+		mt_notify_stream();
 	}
 
 	void api_set_stream_volume(
@@ -3402,7 +3752,7 @@ struct OalSoundSys::Impl
 		stream.set_pan(pan);
 	}
 
-	sint32 api_set_stream_volume(
+	sint32 api_get_stream_volume(
 		LHSTREAM stream_ptr)
 	{
 		if (!stream_ptr)
@@ -3444,12 +3794,7 @@ struct OalSoundSys::Impl
 
 		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
 
-		if (!stream.is_playing())
-		{
-			return LS_STOPPED;
-		}
-
-		return LS_PLAYING;
+		return stream.is_playing() ? LS_PLAYING : LS_STOPPED;
 	}
 
 	sint32 api_decode_mp3(
@@ -3520,15 +3865,7 @@ struct OalSoundSys::Impl
 
 		auto& listener = *listener_3d_uptr_.get();
 
-		if (listener.doppler_factor_ == doppler_factor)
-		{
-			return;
-		}
-
-		listener.doppler_factor_ = doppler_factor;
-
-		::alDopplerFactor(doppler_factor);
-		assert(oal_is_succeed());
+		listener.set_3d_doppler_factor(doppler_factor);
 	}
 
 	void api_set_3d_position(
@@ -3542,32 +3879,11 @@ struct OalSoundSys::Impl
 			return;
 		}
 
+		auto& source = *static_cast<StreamingSource*>(object_ptr);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(object_ptr);
-
-		const auto new_position = Vector3d{x, y, z};
-
-		if (object_3d.position_ == new_position)
-		{
-			return;
-		}
-
-		object_3d.position_ = new_position;
-
-		const auto oal_position = Vector3d::to_oal(new_position);
-		const auto oal_position_ptr = reinterpret_cast<const ALfloat*>(&oal_position);
-
-		if (object_3d.is_listener_)
-		{
-			::alListenerfv(AL_POSITION, oal_position_ptr);
-			assert(oal_is_succeed());
-		}
-		else
-		{
-			::alSourcefv(object_3d.source_.oal_source_, AL_POSITION, oal_position_ptr);
-			assert(oal_is_succeed());
-		}
+		source.set_3d_position({x, y, z});
 	}
 
 	void api_set_3d_velocity_vector(
@@ -3581,32 +3897,11 @@ struct OalSoundSys::Impl
 			return;
 		}
 
+		auto& source = *static_cast<StreamingSource*>(object_ptr);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(object_ptr);
-
-		const auto new_velocity = Vector3d{dx_per_s, dy_per_s, dz_per_s};
-
-		if (object_3d.velocity_ == new_velocity)
-		{
-			return;
-		}
-
-		object_3d.velocity_ = new_velocity;
-
-		const auto oal_velocity = Vector3d::to_oal(new_velocity);
-		const auto oal_velocity_ptr = reinterpret_cast<const ALfloat*>(&oal_velocity);
-
-		if (object_3d.is_listener_)
-		{
-			::alListenerfv(AL_VELOCITY, oal_velocity_ptr);
-			assert(oal_is_succeed());
-		}
-		else
-		{
-			::alSourcefv(object_3d.source_.oal_source_, AL_VELOCITY, oal_velocity_ptr);
-			assert(oal_is_succeed());
-		}
+		source.set_3d_velocity({dx_per_s, dy_per_s, dz_per_s});
 	}
 
 	void api_set_3d_orientation(
@@ -3623,23 +3918,11 @@ struct OalSoundSys::Impl
 			return;
 		}
 
+		auto& source = *static_cast<StreamingSource*>(object_ptr);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(object_ptr);
-
-		const auto new_direction_ = Orientation3d{{x_face, y_face, z_face}, {x_up, y_up, z_up}};
-
-		if (object_3d.orientation_ == new_direction_)
-		{
-			return;
-		}
-
-		object_3d.orientation_ = new_direction_;
-
-		const auto oal_orientation = Orientation3d::to_oal(new_direction_);
-
-		::alListenerfv(AL_ORIENTATION, reinterpret_cast<const ALfloat*>(&oal_orientation));
-		assert(oal_is_succeed());
+		source.set_3d_orientation({x_face, y_face, z_face, x_up, y_up, z_up});
 	}
 
 	void api_get_3d_position(
@@ -3648,22 +3931,24 @@ struct OalSoundSys::Impl
 		float& y,
 		float& z)
 	{
-		x = 0.0F;
-		y = 0.0F;
-		z = 0.0F;
-
 		if (!object_ptr)
 		{
+			x = 0.0F;
+			y = 0.0F;
+			z = 0.0F;
+
 			return;
 		}
 
+		const auto& source = *static_cast<const StreamingSource*>(object_ptr);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+		const auto& position = source.get_3d_position();
 
-		x = object_3d.position_.x_;
-		y = object_3d.position_.y_;
-		z = object_3d.position_.z_;
+		x = position[0];
+		y = position[1];
+		z = position[2];
 	}
 
 	void api_get_3d_velocity(
@@ -3672,22 +3957,24 @@ struct OalSoundSys::Impl
 		float& dy_per_ms,
 		float& dz_per_ms)
 	{
-		dx_per_ms = 0.0F;
-		dy_per_ms = 0.0F;
-		dz_per_ms = 0.0F;
-
 		if (!object_ptr)
 		{
+			dx_per_ms = 0.0F;
+			dy_per_ms = 0.0F;
+			dz_per_ms = 0.0F;
+
 			return;
 		}
 
+		const auto& source = *static_cast<const StreamingSource*>(object_ptr);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+		const auto& velocity = source.get_3d_velocity();
 
-		dx_per_ms = object_3d.velocity_.x_;
-		dy_per_ms = object_3d.velocity_.y_;
-		dz_per_ms = object_3d.velocity_.z_;
+		dx_per_ms = velocity[0];
+		dy_per_ms = velocity[1];
+		dz_per_ms = velocity[2];
 	}
 
 	void api_get_3d_orientation(
@@ -3699,30 +3986,32 @@ struct OalSoundSys::Impl
 		float& y_up,
 		float& z_up)
 	{
-		x_face = 0.0F;
-		y_face = 0.0F;
-		z_face = 0.0F;
-
-		x_up = 0.0F;
-		y_up = 0.0F;
-		z_up = 0.0F;
-
 		if (!object_ptr)
 		{
+			x_face = 0.0F;
+			y_face = 0.0F;
+			z_face = 0.0F;
+
+			x_up = 0.0F;
+			y_up = 0.0F;
+			z_up = 0.0F;
+
 			return;
 		}
 
+		const auto& source = *static_cast<const StreamingSource*>(object_ptr);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(object_ptr);
+		const auto& orientation = source.get_3d_orientation();
 
-		x_face = object_3d.orientation_.at_.x_;
-		y_face = object_3d.orientation_.at_.y_;
-		z_face = object_3d.orientation_.at_.z_;
+		x_face = orientation[0];
+		y_face = orientation[1];
+		z_face = orientation[2];
 
-		x_up = object_3d.orientation_.up_.x_;
-		y_up = object_3d.orientation_.up_.y_;
-		z_up = object_3d.orientation_.up_.z_;
+		x_up = orientation[3];
+		y_up = orientation[4];
+		z_up = orientation[5];
 	}
 
 	LH3DSAMPLE api_allocate_3d_sample_handle(
@@ -3730,19 +4019,16 @@ struct OalSoundSys::Impl
 	{
 		static_cast<void>(provider_id);
 
-		objects_3d_.emplace_back();
+		objects_3d_.emplace_back(StreamingSource::Type::spatial, StreamingSource::SpatialType::source);
 
-		auto& object_3d = objects_3d_.back();
-		auto& source = object_3d.source_;
-
-		source.reset();
+		auto& source = objects_3d_.back();
 
 		{
 			MtMutexGuard lock{mt_3d_objects_mutex_};
-			mt_add_3d_sample(source);
+			mt_open_3d_objects_.emplace_back(&source);
 		}
 
-		return &object_3d;
+		return &source;
 	}
 
 	void api_release_3d_sample_handle(
@@ -3753,18 +4039,23 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& source = object_3d.source_;
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
 		{
 			MtMutexGuard lock{mt_3d_objects_mutex_};
-			mt_remove_3d_sample(source);
+
+			mt_open_3d_objects_.remove_if(
+				[&](const auto& item)
+				{
+					return &source == item;
+				}
+			);
 		}
 
 		objects_3d_.remove_if(
 			[&](const auto& item)
 			{
-				return &object_3d == &item;
+				return &source == &item;
 			}
 		);
 	}
@@ -3773,37 +4064,11 @@ struct OalSoundSys::Impl
 		LH3DSAMPLE sample_handle,
 		const sint32 volume)
 	{
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-
-		if (object_3d.is_listener_)
-		{
-			return;
-		}
-
-		const auto new_volume = ltjs::AudioUtils::clamp_lt_volume(volume);
-
-		auto& sample = object_3d.source_;
-
-		if (sample.volume_ == new_volume)
-		{
-			return;
-		}
-
-		sample.volume_ = new_volume;
-
-		if (sample.is_failed())
-		{
-			return;
-		}
-
-		const auto oal_volume = ltjs::AudioUtils::lt_volume_to_gain(new_volume);
-
-		sample.oal_volume_ = oal_volume;
-
-		::alSourcef(sample.oal_source_, AL_GAIN, oal_volume);
-		assert(oal_is_succeed());
+		source.set_3d_volume(volume);
 	}
 
 	void api_set_3d_sample_distances(
@@ -3811,28 +4076,16 @@ struct OalSoundSys::Impl
 		const float max_distance,
 		const float min_distance)
 	{
-		if (!sample_handle || max_distance <= 0.0F || min_distance <= 0.0F || max_distance < min_distance)
+		if (!sample_handle)
 		{
 			return;
 		}
+
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-
-		if (object_3d.min_distance_ == min_distance && object_3d.max_distance_ == max_distance)
-		{
-			return;
-		}
-
-		object_3d.min_distance_ = min_distance;
-		object_3d.max_distance_ = max_distance;
-
-		auto& sample = object_3d.source_;
-
-		::alSourcef(sample.oal_source_, AL_REFERENCE_DISTANCE, min_distance);
-		::alSourcef(sample.oal_source_, AL_MAX_DISTANCE, max_distance);
-		assert(oal_is_succeed());
+		source.set_3d_distances(min_distance, max_distance);
 	}
 
 	void api_set_3d_user_data(
@@ -3845,11 +4098,11 @@ struct OalSoundSys::Impl
 			return;
 		}
 
+		auto& source = *static_cast<StreamingSource*>(object_ptr);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(object_ptr);
-
-		object_3d.user_data_[index] = value;
+		source.user_data_array_[index] = value;
 	}
 
 	sint32 api_get_3d_user_data(
@@ -3861,11 +4114,11 @@ struct OalSoundSys::Impl
 			return {};
 		}
 
+		auto& source = *static_cast<StreamingSource*>(object_ptr);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(object_ptr);
-
-		return object_3d.user_data_[index];
+		return source.user_data_array_[index];
 	}
 
 	void api_stop_3d_sample(
@@ -3876,12 +4129,13 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_3d_objects_mutex_};
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& sample = object_3d.source_;
+		{
+			MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		sample.pause();
+			source.pause();
+		}
 
 		mt_notify_stream();
 	}
@@ -3894,13 +4148,14 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_3d_objects_mutex_};
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& sample = object_3d.source_;
+		{
+			MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		sample.stop();
-		sample.resume();
+			source.stop();
+			source.resume();
+		}
 
 		mt_notify_stream();
 	}
@@ -3913,12 +4168,13 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_3d_objects_mutex_};
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& sample = object_3d.source_;
+		{
+			MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		sample.resume();
+			source.resume();
+		}
 
 		mt_notify_stream();
 	}
@@ -3931,12 +4187,13 @@ struct OalSoundSys::Impl
 			return;
 		}
 
-		MtMutexGuard lock{mt_3d_objects_mutex_};
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& sample = object_3d.source_;
+		{
+			MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		sample.stop();
+			source.stop();
+		}
 
 		mt_notify_stream();
 	}
@@ -3956,8 +4213,7 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& source = object_3d.source_;
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
 		if (source.is_failed())
 		{
@@ -3966,7 +4222,6 @@ struct OalSoundSys::Impl
 
 		auto open_parameters = StreamingSource::OpenParameters{};
 
-		open_parameters.is_spatial_ = true;
 		open_parameters.is_memory_ = true;
 		open_parameters.memory_ptr_ = storage_ptr;
 		open_parameters.memory_size_ = storage_size;
@@ -4002,8 +4257,7 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& source = object_3d.source_;
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
 		if (source.is_failed())
 		{
@@ -4012,7 +4266,6 @@ struct OalSoundSys::Impl
 
 		auto open_parameters = StreamingSource::OpenParameters{};
 
-		open_parameters.is_spatial_ = true;
 		open_parameters.is_mapped_file_ = true;
 		open_parameters.mapped_decoder_ = &audio_decoder_;
 		open_parameters.mapped_storage_ptr = storage_ptr;
@@ -4040,12 +4293,11 @@ struct OalSoundSys::Impl
 			return {};
 		}
 
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& sample = object_3d.source_;
-
-		return sample.volume_;
+		return source.get_3d_volume();
 	}
 
 	uint32 api_get_3d_sample_status(
@@ -4056,14 +4308,11 @@ struct OalSoundSys::Impl
 			return LS_STOPPED;
 		}
 
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& sample = object_3d.source_;
-
-		const auto status = sample.get_status();
-
-		return status == StreamingSource::Status::playing ? LS_PLAYING : LS_STOPPED;
+		return source.is_playing() ? LS_PLAYING : LS_STOPPED;
 	}
 
 	void api_set_3d_sample_ms_position(
@@ -4075,12 +4324,11 @@ struct OalSoundSys::Impl
 			return;
 		}
 
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& sample = object_3d.source_;
-
-		sample.set_ms_position(milliseconds);
+		source.set_ms_position(milliseconds);
 	}
 
 	void api_set_3d_sample_loop_block(
@@ -4094,12 +4342,11 @@ struct OalSoundSys::Impl
 			return;
 		}
 
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& sample = object_3d.source_;
-
-		sample.set_loop_block(loop_begin_offset, loop_end_offset, is_enable);
+		source.set_loop_block(loop_begin_offset, loop_end_offset, is_enable);
 	}
 
 	void api_set_3d_sample_loop(
@@ -4111,12 +4358,11 @@ struct OalSoundSys::Impl
 			return;
 		}
 
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
+
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
-		auto& object_3d = *static_cast<Object3d*>(sample_handle);
-		auto& sample = object_3d.source_;
-
-		sample.set_loop(is_enable);
+		source.set_loop(is_enable);
 	}
 
 	bool api_set_eax20_filter(
@@ -4169,9 +4415,7 @@ struct OalSoundSys::Impl
 	void api_handle_focus_lost(
 		const bool is_focus_lost)
 	{
-		is_mute_ = is_focus_lost;
-
-		update_listener_gain();
+		listener_3d_uptr_->mute_3d_listener(is_focus_lost);
 	}
 
 	//
@@ -4253,18 +4497,18 @@ struct OalSoundSys::Impl
 	float oal_master_gain_;
 	bool is_mute_;
 
-	Samples samples_;
+	Sources samples_;
 	MtMutex mt_samples_mutex_;
-	OpenSamples mt_open_samples_;
+	OpenSources mt_open_samples_;
 
-	Object3dUPtr listener_3d_uptr_;
-	Objects3d objects_3d_;
+	StreamingSourceUPtr listener_3d_uptr_;
+	Sources objects_3d_;
 	MtMutex mt_3d_objects_mutex_;
-	Open3dObjects mt_open_3d_objects_;
+	OpenSources mt_open_3d_objects_;
 
-	Streams streams_;
+	Sources streams_;
 	MtMutex mt_streams_mutex_;
-	OpenStreams mt_open_streams_;
+	OpenSources mt_open_streams_;
 
 	MtThread mt_sound_thread_;
 	MtCondVar mt_sound_cv_;
@@ -4274,6 +4518,27 @@ struct OalSoundSys::Impl
 	bool mt_sound_cv_flag_;
 }; // OalSoundSys::Impl
 
+
+const float OalSoundSys::Impl::min_doppler_factor = 0.0F;
+const float OalSoundSys::Impl::max_doppler_factor = 10.0F;
+const float OalSoundSys::Impl::default_3d_doppler_factor = 1.0F;
+
+const float OalSoundSys::Impl::min_min_distance = 0.0F;
+const float OalSoundSys::Impl::max_min_distance = std::numeric_limits<float>::max();
+const float OalSoundSys::Impl::default_3d_min_distance = 1.0F;
+
+const float OalSoundSys::Impl::min_max_distance = 0.0F;
+const float OalSoundSys::Impl::max_max_distance = std::numeric_limits<float>::max();
+const float OalSoundSys::Impl::default_3d_max_distance = 1'000'000'000.0F;
+
+const float OalSoundSys::Impl::min_gain = 0.0F;
+const float OalSoundSys::Impl::max_gain = std::numeric_limits<float>::max();
+const float OalSoundSys::Impl::default_gain = 1.0F;
+
+const OalSoundSys::Impl::Vector3d OalSoundSys::Impl::default_3d_position = {};
+const OalSoundSys::Impl::Vector3d OalSoundSys::Impl::default_3d_velocity = {};
+const OalSoundSys::Impl::Vector3d OalSoundSys::Impl::default_3d_direction = {};
+const OalSoundSys::Impl::Orientation3d OalSoundSys::Impl::default_3d_orientation = {{0.0F, 0.0F, 1.0F}, {0.0F, 1.0F, 0.0}};
 
 const OalSoundSys::Impl::EfxReverbPresets OalSoundSys::Impl::efx_reverb_presets =
 {{
@@ -5039,7 +5304,7 @@ void OalSoundSys::SetStreamPan(
 sint32 OalSoundSys::GetStreamVolume(
 	LHSTREAM stream_ptr)
 {
-	return pimpl_->api_set_stream_volume(stream_ptr);
+	return pimpl_->api_get_stream_volume(stream_ptr);
 }
 
 sint32 OalSoundSys::GetStreamPan(
