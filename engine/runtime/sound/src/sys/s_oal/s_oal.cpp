@@ -2405,11 +2405,6 @@ struct OalSoundSys::Impl
 	static constexpr auto oal_efx_ref_version = OalVersion{1, 0};
 
 
-	const char* api_last_error() const
-	{
-		return error_message_.c_str();
-	}
-
 	static void oal_clear_error()
 	{
 		static_cast<void>(::alGetError());
@@ -2986,22 +2981,6 @@ struct OalSoundSys::Impl
 		return get_oal_buffer_format(wave_format.channel_count_, wave_format.bit_depth_);
 	}
 
-	void set_set_stream_loop(
-		LHSTREAM stream_ptr,
-		const bool is_enable)
-	{
-		if (!stream_ptr)
-		{
-			return;
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-		stream.is_looping_ = is_enable;
-	}
-
 	void uninitialize_eax20_filter()
 	{
 		if (oal_effect_slot_ != AL_EFFECTSLOT_NULL)
@@ -3081,6 +3060,34 @@ struct OalSoundSys::Impl
 	// =========================================================================
 	//
 
+	bool api_init()
+	{
+		ltjs::AudioDecoder::initialize_current_thread();
+		ltjs::AudioUtils::initialize();
+
+		return true;
+	}
+
+	void api_term()
+	{
+	}
+
+	void* api_get_dd_interface(
+		const uint dd_interface_id)
+	{
+		static_cast<void>(dd_interface_id);
+
+		return {};
+	}
+
+	void api_lock()
+	{
+	}
+
+	void api_unlock()
+	{
+	}
+
 	sint32 api_startup()
 	{
 #ifdef USE_EAX20_HARDWARE_FILTERS
@@ -3106,6 +3113,41 @@ struct OalSoundSys::Impl
 		const auto time_diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_diff).count();
 
 		return static_cast<std::uint32_t>(time_diff_ms % max_uint32_t);
+	}
+
+	sint32 api_set_preference(
+		const uint32 index,
+		const sint32 value)
+	{
+		static_cast<void>(index);
+		static_cast<void>(value);
+
+		return LS_ERROR;
+	}
+
+	sint32 api_get_preference(
+		const uint32 index)
+	{
+		static_cast<void>(index);
+
+		return {};
+	}
+
+	void api_mem_free_lock(
+		void* storage_ptr)
+	{
+		ltjs::AudioUtils::deallocate(storage_ptr);
+	}
+
+	void* api_mem_alloc_lock(
+		const uint32 storage_size)
+	{
+		return ltjs::AudioUtils::allocate(storage_size);
+	}
+
+	const char* api_last_error() const
+	{
+		return error_message_.c_str();
 	}
 
 	sint32 api_wave_out_open(
@@ -3140,17 +3182,6 @@ struct OalSoundSys::Impl
 		wave_out_close_internal();
 	}
 
-	sint32 api_get_digital_master_volume(
-		LHDIGDRIVER driver_ptr) const
-	{
-		if (!driver_ptr || driver_ptr != oal_device_)
-		{
-			return {};
-		}
-
-		return master_volume_;
-	}
-
 	void api_set_digital_master_volume(
 		LHDIGDRIVER driver_ptr,
 		const sint32 master_volume)
@@ -3163,652 +3194,117 @@ struct OalSoundSys::Impl
 		listener_3d_uptr_->set_master_3d_listener_volume(master_volume);
 	}
 
-	LHSAMPLE api_allocate_sample_handle(
+	sint32 api_get_digital_master_volume(
+		LHDIGDRIVER driver_ptr) const
+	{
+		if (!driver_ptr || driver_ptr != oal_device_)
+		{
+			return {};
+		}
+
+		return master_volume_;
+	}
+
+	sint32 api_digital_handle_release(
 		LHDIGDRIVER driver_ptr)
 	{
-		if (driver_ptr != oal_device_)
-		{
-			return nullptr;
-		}
+		static_cast<void>(driver_ptr);
 
-		samples_.emplace_back(StreamingSource::Type::panning, StreamingSource::SpatialType::none);
-
-		auto& source = samples_.back();
-
-		MtMutexGuard lock{mt_samples_mutex_};
-		mt_open_samples_.emplace_back(&source);
-
-		return &source;
+		return {};
 	}
 
-	void api_release_sample_handle(
-		LHSAMPLE sample_ptr)
+	sint32 api_digital_handle_reacquire(
+		LHDIGDRIVER driver_ptr)
 	{
-		if (!sample_ptr)
-		{
-			return;
-		}
+		static_cast<void>(driver_ptr);
 
-		auto& source = *static_cast<StreamingSource*>(sample_ptr);
-
-		{
-			MtMutexGuard lock{mt_samples_mutex_};
-
-			mt_open_samples_.remove_if(
-				[&](const auto& item)
-				{
-				return &source == item;
-				}
-			);
-		}
-
-		samples_.remove_if(
-			[&](const auto& item)
-			{
-			return &source == &item;
-			}
-		);
+		return {};
 	}
 
-	sint32 api_init_sample_from_address(
-		LHSAMPLE sample_handle,
-		const void* storage_ptr,
-		const uint32 storage_size,
-		const ul::WaveFormatEx& wave_format,
-		const sint32 playback_rate,
-		const LTSOUNDFILTERDATA* filter_data_ptr)
+#ifdef USE_EAX20_HARDWARE_FILTERS
+	bool api_set_eax20_filter(
+		const bool is_enable,
+		const LTSOUNDFILTERDATA& filter_data)
 	{
-		static_cast<void>(filter_data_ptr);
-
-		if (!sample_handle)
+		if (filter_data.uiFilterType != FilterReverb || !oal_is_supports_eax20_filter_)
 		{
 			return false;
 		}
 
-		auto& source = *static_cast<StreamingSource*>(sample_handle);
+		const auto& lt_reverb = *reinterpret_cast<const LTFILTERREVERB*>(filter_data.pSoundFilter);
 
-		if (source.is_failed())
+		lt_reverb_to_efx_reverb(lt_reverb, oal_efx_eax_reverb_properties_);
+
+		oal_clear_error();
+
+		oal_update_reverb_effect();
+
+		const auto oal_effect = (is_enable ? oal_effect_ : oal_null_effect_);
+		alAuxiliaryEffectSloti_(oal_effect_slot_, AL_EFFECTSLOT_EFFECT, oal_effect);
+
+		if (!oal_is_succeed())
 		{
 			return false;
 		}
-
-		auto open_parameters = StreamingSource::OpenParameters{};
-
-		open_parameters.is_memory_ = true;
-		open_parameters.memory_ptr_ = storage_ptr;
-		open_parameters.memory_size_ = storage_size;
-		open_parameters.memory_wave_format_ = wave_format;
-		open_parameters.playback_rate_ = playback_rate;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_has_effect_slot_ = oal_effect_slot_;
-
-		{
-			MtMutexGuard lock{mt_samples_mutex_};
-
-			if (!source.open(open_parameters))
-			{
-				return false;
-			}
-		}
-
-		mt_notify_stream();
 
 		return true;
 	}
 
-	sint32 api_init_sample_from_file(
-		LHSAMPLE sample_handle,
-		const void* storage_ptr,
-		const sint32 block,
-		const sint32 playback_rate,
-		const LTSOUNDFILTERDATA* filter_data_ptr)
+	bool api_supports_eax20_filter() const
 	{
-		static_cast<void>(block);
-		static_cast<void>(filter_data_ptr);
+		return oal_is_supports_eax20_filter_;
+	}
 
+	bool api_set_eax20_buffer_settings(
+		LHSAMPLE sample_handle,
+		const LTSOUNDFILTERDATA& filter_data)
+	{
 		if (!sample_handle)
 		{
 			return false;
 		}
 
-		auto& source = *static_cast<StreamingSource*>(sample_handle);
-
-		if (source.is_failed())
-		{
-			return false;
-		}
-
-		auto open_parameters = StreamingSource::OpenParameters{};
-
-		open_parameters.is_mapped_file_ = true;
-		open_parameters.mapped_decoder_ = &audio_decoder_;
-		open_parameters.mapped_storage_ptr = storage_ptr;
-		open_parameters.playback_rate_ = playback_rate;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_has_effect_slot_ = oal_effect_slot_;
-
-		{
-			MtMutexGuard lock{mt_samples_mutex_};
-
-			if (!source.open(open_parameters))
-			{
-				return false;
-			}
-		}
-
-		mt_notify_stream();
+		static_cast<void>(filter_data);
 
 		return true;
 	}
+#endif // USE_EAX20_HARDWARE_FILTERS
 
-	void api_stop_sample(
-		LHSAMPLE sample_ptr)
+	void api_set_3d_provider_min_buffers(
+		const uint32 buffer_count)
 	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
-
-		{
-			MtMutexGuard lock{mt_samples_mutex_};
-			sample.pause();
-		}
-
-		mt_notify_stream();
+		static_cast<void>(buffer_count);
 	}
 
-	void api_start_sample(
-		LHSAMPLE sample_ptr)
+	sint32 api_open_3d_provider(
+		LHPROVIDER provider_id)
 	{
-		if (!sample_ptr)
+		switch (provider_id)
 		{
-			return;
-		}
+		case SOUND3DPROVIDERID_DS3D_SOFTWARE:
+		case SOUND3DPROVIDERID_DS3D_HARDWARE:
+		case SOUND3DPROVIDERID_DS3D_DEFAULT:
+			return true;
 
-		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
-
-		{
-			MtMutexGuard lock{mt_samples_mutex_};
-
-			sample.stop();
-			sample.resume();
-		}
-
-		mt_notify_stream();
-	}
-
-	void api_resume_sample(
-		LHSAMPLE sample_ptr)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
-
-		{
-			MtMutexGuard lock{mt_samples_mutex_};
-			sample.resume();
-		}
-
-		mt_notify_stream();
-	}
-
-	void api_end_sample(
-		LHSAMPLE sample_ptr)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		sample.stop();
-	}
-
-	sint32 api_get_sample_volume(
-		LHSAMPLE sample_ptr)
-	{
-		if (!sample_ptr)
-		{
-			return {};
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		return sample.volume_;
-	}
-
-	void api_set_sample_volume(
-		LHSAMPLE sample_ptr,
-		const sint32 volume)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		sample.set_volume(volume);
-	}
-
-	sint32 api_get_sample_pan(
-		LHSAMPLE sample_ptr)
-	{
-		if (!sample_ptr)
-		{
-			return {};
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		return sample.pan_;
-	}
-
-	void api_set_sample_pan(
-		LHSAMPLE sample_ptr,
-		const sint32 pan)
-	{
-		if (!sample_ptr)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		sample.set_pan(pan);
-	}
-
-	sint32 api_get_sample_user_data(
-		LHSAMPLE sample_handle,
-		const uint32 index)
-	{
-		if (!sample_handle || index > max_user_data_index)
-		{
-			return {};
-		}
-
-
-		auto& sample = *static_cast<StreamingSource*>(sample_handle);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		return sample.user_data_array_[index];
-	}
-
-	void api_set_sample_user_data(
-		LHSAMPLE sample_handle,
-		const uint32 index,
-		const sint32 value)
-	{
-		if (!sample_handle || index > max_user_data_index)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_handle);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		sample.user_data_array_[index] = value;
-	}
-
-	void api_set_sample_loop_block(
-		LHSAMPLE sample_handle,
-		const sint32 loop_begin_offset,
-		const sint32 loop_end_offset,
-		const bool is_enable)
-	{
-		if (!sample_handle)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_handle);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		sample.set_loop_block(loop_begin_offset, loop_end_offset, is_enable);
-	}
-
-	void api_set_sample_loop(
-		LHSAMPLE sample_handle,
-		const bool is_enable)
-	{
-		if (!sample_handle)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_handle);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		sample.set_loop(is_enable);
-	}
-
-	void api_set_sample_ms_position(
-		LHSAMPLE sample_handle,
-		const sint32 milliseconds)
-	{
-		if (!sample_handle)
-		{
-			return;
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_handle);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		sample.set_ms_position(milliseconds);
-	}
-
-	uint32 api_get_sample_status(
-		LHSAMPLE sample_handle)
-	{
-		if (!sample_handle)
-		{
-			return {};
-		}
-
-		auto& sample = *static_cast<StreamingSource*>(sample_handle);
-
-		MtMutexGuard lock{mt_samples_mutex_};
-
-		if (sample.is_failed())
-		{
-			return LS_ERROR;
-		}
-
-		return sample.is_playing() ? LS_PLAYING : LS_STOPPED;
-	}
-
-	LHSTREAM api_open_stream(
-		const char* file_name,
-		const uint32 file_offset,
-		LHDIGDRIVER driver_ptr,
-		const char* storage_ptr,
-		const sint32 storage_size)
-	{
-		static_cast<void>(storage_ptr);
-		static_cast<void>(storage_size);
-
-		if (!file_name || driver_ptr != oal_device_)
-		{
-			return nullptr;
-		}
-
-		streams_.emplace_back(StreamingSource::Type::panning, StreamingSource::SpatialType::none);
-
-		auto& source = streams_.back();
-
-		if (source.is_failed())
-		{
-			streams_.pop_back();
-			return nullptr;
-		}
-
-		auto open_parameters = StreamingSource::OpenParameters{};
-
-		open_parameters.is_file_ = true;
-		open_parameters.file_name_ = file_name;
-		open_parameters.file_offset_ = file_offset;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_has_effect_slot_ = oal_effect_slot_;
-
-		if (!source.open(open_parameters))
-		{
-			streams_.pop_back();
+		default:
 			return false;
 		}
-
-		{
-			MtMutexGuard lock{mt_streams_mutex_};
-			mt_open_streams_.emplace_back(&source);
-		}
-
-		mt_notify_stream();
-
-		return &source;
 	}
 
-	void api_close_stream(
-		LHSTREAM stream_ptr)
+	void api_close_3d_provider(
+		LHPROVIDER provider_id)
 	{
-		if (!stream_ptr)
-		{
-			return;
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		{
-			MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-			mt_open_streams_.remove_if(
-				[&](const auto& item)
-				{
-					return &stream == item;
-				}
-			);
-		}
-
-		streams_.remove_if(
-			[&](const auto& item)
-			{
-				return &stream == &item;
-			}
-		);
+		static_cast<void>(provider_id);
 	}
 
-	void api_set_stream_ms_position(
-		LHSTREAM stream_ptr,
-		const sint32 milliseconds)
+	void api_set_3d_provider_preference(
+		LHPROVIDER provider_id,
+		const char* name,
+		const void* value)
 	{
-		if (!stream_ptr || milliseconds < 0)
-		{
-			return;
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-		const auto block_align = stream.get_block_align();
-		const auto sample_rate = stream.get_dst_sample_rate();
-
-		auto position = static_cast<int>((milliseconds * sample_rate) / 1000LL);
-		position /= block_align;
-		position *= block_align;
-
-		if (position > stream.data_size_)
-		{
-			return;
-		}
-
-		stream.data_offset_ = position;
-	}
-
-	void api_set_stream_user_data(
-		LHSTREAM stream_ptr,
-		const uint32 index,
-		const sint32 value)
-	{
-		if (!stream_ptr || index > max_user_data_index)
-		{
-			return;
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		stream.user_data_array_[index] = value;
-	}
-
-	sint32 api_get_stream_user_data(
-		LHSTREAM stream_ptr,
-		const uint32 index)
-	{
-		if (!stream_ptr || index > max_user_data_index)
-		{
-			return {};
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		return stream.user_data_array_[index];
-	}
-
-	void api_start_stream(
-		LHSTREAM stream_ptr)
-	{
-		if (!stream_ptr)
-		{
-			return;
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		{
-			MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-			stream.stop();
-			stream.resume();
-		}
-
-		mt_notify_stream();
-	}
-
-	void api_pause_stream(
-		LHSTREAM stream_ptr,
-		const sint32 is_enable)
-	{
-		if (!stream_ptr)
-		{
-			return;
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		{
-			MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-			if (is_enable)
-			{
-				stream.pause();
-			}
-			else
-			{
-				stream.resume();
-			}
-		}
-
-		mt_notify_stream();
-	}
-
-	void api_set_stream_volume(
-		LHSTREAM stream_ptr,
-		const sint32 volume)
-	{
-		if (!stream_ptr)
-		{
-			return;
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-		stream.set_volume(volume);
-	}
-
-	void api_set_stream_pan(
-		LHSTREAM stream_ptr,
-		const sint32 pan)
-	{
-		if (!stream_ptr)
-		{
-			return;
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-		stream.set_pan(pan);
-	}
-
-	sint32 api_get_stream_volume(
-		LHSTREAM stream_ptr)
-	{
-		if (!stream_ptr)
-		{
-			return {};
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-		return stream.volume_;
-	}
-
-	sint32 api_get_stream_pan(
-		LHSTREAM stream_ptr)
-	{
-		if (!stream_ptr)
-		{
-			return {};
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-		return stream.pan_;
-	}
-
-	uint32 api_get_stream_status(
-		LHSTREAM stream_ptr)
-	{
-		if (!stream_ptr)
-		{
-			return LS_ERROR;
-		}
-
-		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
-
-		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
-
-		return stream.is_playing() ? LS_PLAYING : LS_STOPPED;
-	}
-
-	sint32 api_decode_mp3(
-		const void* src_data_ptr,
-		const uint32 src_data_size,
-		const char* file_name_ext,
-		void*& ds_wav_ptr,
-		uint32& ds_wav_size,
-		LTLENGTHYCB callback)
-	{
-		static_cast<void>(file_name_ext);
-		static_cast<void>(callback);
-
-		return ltjs::AudioUtils::decode_mp3(audio_decoder_, src_data_ptr, src_data_size, ds_wav_ptr, ds_wav_size);
+		static_cast<void>(provider_id);
+		static_cast<void>(name);
+		static_cast<void>(value);
 	}
 
 	void api_get_3d_provider_attribute(
@@ -3840,6 +3336,27 @@ struct OalSoundSys::Impl
 		int_value = 255;
 	}
 
+	sint32 api_enumerate_3d_providers(
+		LHPROENUM& index,
+		LHPROVIDER& id,
+		const char*& name)
+	{
+		const auto current_index = index++;
+
+		id = 0;
+		name = nullptr;
+
+		if (current_index < 0 || current_index > 0)
+		{
+			return false;
+		}
+
+		id = SOUND3DPROVIDERID_DS3D_HARDWARE;
+		name = "OpenAL";
+
+		return true;
+	}
+
 	LH3DPOBJECT api_open_3d_listener(
 		LHPROVIDER provider_id)
 	{
@@ -3866,6 +3383,10 @@ struct OalSoundSys::Impl
 		auto& listener = *listener_3d_uptr_.get();
 
 		listener.set_3d_doppler_factor(doppler_factor);
+	}
+
+	void api_commit_deferred()
+	{
 	}
 
 	void api_set_3d_position(
@@ -3923,6 +3444,23 @@ struct OalSoundSys::Impl
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
 		source.set_3d_orientation({x_face, y_face, z_face, x_up, y_up, z_up});
+	}
+
+	void api_set_3d_user_data(
+		LH3DPOBJECT object_ptr,
+		const uint32 index,
+		const sint32 value)
+	{
+		if (!object_ptr || index > max_user_data_index)
+		{
+			return;
+		}
+
+		auto& source = *static_cast<StreamingSource*>(object_ptr);
+
+		MtMutexGuard lock{mt_3d_objects_mutex_};
+
+		source.user_data_array_[index] = value;
 	}
 
 	void api_get_3d_position(
@@ -4014,6 +3552,22 @@ struct OalSoundSys::Impl
 		z_up = orientation[5];
 	}
 
+	sint32 api_get_3d_user_data(
+		LH3DPOBJECT object_ptr,
+		const uint32 index)
+	{
+		if (!object_ptr || index > max_user_data_index)
+		{
+			return {};
+		}
+
+		auto& source = *static_cast<StreamingSource*>(object_ptr);
+
+		MtMutexGuard lock{mt_3d_objects_mutex_};
+
+		return source.user_data_array_[index];
+	}
+
 	LH3DSAMPLE api_allocate_3d_sample_handle(
 		LHPROVIDER provider_id)
 	{
@@ -4058,67 +3612,6 @@ struct OalSoundSys::Impl
 				return &source == &item;
 			}
 		);
-	}
-
-	void api_set_3d_sample_volume(
-		LH3DSAMPLE sample_handle,
-		const sint32 volume)
-	{
-		auto& source = *static_cast<StreamingSource*>(sample_handle);
-
-		MtMutexGuard lock{mt_3d_objects_mutex_};
-
-		source.set_3d_volume(volume);
-	}
-
-	void api_set_3d_sample_distances(
-		LH3DSAMPLE sample_handle,
-		const float max_distance,
-		const float min_distance)
-	{
-		if (!sample_handle)
-		{
-			return;
-		}
-
-		auto& source = *static_cast<StreamingSource*>(sample_handle);
-
-		MtMutexGuard lock{mt_3d_objects_mutex_};
-
-		source.set_3d_distances(min_distance, max_distance);
-	}
-
-	void api_set_3d_user_data(
-		LH3DPOBJECT object_ptr,
-		const uint32 index,
-		const sint32 value)
-	{
-		if (!object_ptr || index > max_user_data_index)
-		{
-			return;
-		}
-
-		auto& source = *static_cast<StreamingSource*>(object_ptr);
-
-		MtMutexGuard lock{mt_3d_objects_mutex_};
-
-		source.user_data_array_[index] = value;
-	}
-
-	sint32 api_get_3d_user_data(
-		LH3DPOBJECT object_ptr,
-		const uint32 index)
-	{
-		if (!object_ptr || index > max_user_data_index)
-		{
-			return {};
-		}
-
-		auto& source = *static_cast<StreamingSource*>(object_ptr);
-
-		MtMutexGuard lock{mt_3d_objects_mutex_};
-
-		return source.user_data_array_[index];
 	}
 
 	void api_stop_3d_sample(
@@ -4300,6 +3793,17 @@ struct OalSoundSys::Impl
 		return source.get_3d_volume();
 	}
 
+	void api_set_3d_sample_volume(
+		LH3DSAMPLE sample_handle,
+		const sint32 volume)
+	{
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_3d_objects_mutex_};
+
+		source.set_3d_volume(volume);
+	}
+
 	uint32 api_get_3d_sample_status(
 		LH3DSAMPLE sample_handle)
 	{
@@ -4329,6 +3833,43 @@ struct OalSoundSys::Impl
 		MtMutexGuard lock{mt_3d_objects_mutex_};
 
 		source.set_ms_position(milliseconds);
+	}
+
+	sint32 api_set_3d_sample_info(
+		LH3DSAMPLE sample_handle,
+		const LTSOUNDINFO& sound_info)
+	{
+		static_cast<void>(sample_handle);
+		static_cast<void>(sound_info);
+
+		return {};
+	}
+
+	void api_set_3d_sample_distances(
+		LH3DSAMPLE sample_handle,
+		const float max_distance,
+		const float min_distance)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_3d_objects_mutex_};
+
+		source.set_3d_distances(min_distance, max_distance);
+	}
+
+	void api_set_3d_sample_preference(
+		LH3DSAMPLE sample_handle,
+		const char* name,
+		const void* value)
+	{
+		static_cast<void>(sample_handle);
+		static_cast<void>(name);
+		static_cast<void>(value);
 	}
 
 	void api_set_3d_sample_loop_block(
@@ -4365,51 +3906,783 @@ struct OalSoundSys::Impl
 		source.set_loop(is_enable);
 	}
 
-	bool api_set_eax20_filter(
-		const bool is_enable,
-		const LTSOUNDFILTERDATA& filter_data)
+	void api_set_3d_sample_obstruction(
+		LH3DSAMPLE sample_handle,
+		const float obstruction)
 	{
-		if (filter_data.uiFilterType != FilterReverb || !oal_is_supports_eax20_filter_)
-		{
-			return false;
-		}
-
-		const auto& lt_reverb = *reinterpret_cast<const LTFILTERREVERB*>(filter_data.pSoundFilter);
-
-		lt_reverb_to_efx_reverb(lt_reverb, oal_efx_eax_reverb_properties_);
-
-		oal_clear_error();
-
-		oal_update_reverb_effect();
-
-		const auto oal_effect = (is_enable ? oal_effect_ : oal_null_effect_);
-		alAuxiliaryEffectSloti_(oal_effect_slot_, AL_EFFECTSLOT_EFFECT, oal_effect);
-
-		if (!oal_is_succeed())
-		{
-			return false;
-		}
-
-		return true;
+		static_cast<void>(sample_handle);
+		static_cast<void>(obstruction);
 	}
 
-	bool api_supports_eax20_filter() const
+	float api_get_3d_sample_obstruction(
+		LH3DSAMPLE sample_handle)
 	{
-		return oal_is_supports_eax20_filter_;
+		static_cast<void>(sample_handle);
+
+		return {};
 	}
 
-	bool api_set_eax20_buffer_settings(
+	void api_set_3d_sample_occlusion(
+		LH3DSAMPLE sample_handle,
+		const float occlusion)
+	{
+		static_cast<void>(sample_handle);
+		static_cast<void>(occlusion);
+	}
+
+	float api_get_3d_sample_occlusion(
+		LH3DSAMPLE sample_handle)
+	{
+		static_cast<void>(sample_handle);
+
+		return {};
+	}
+
+	LHSAMPLE api_allocate_sample_handle(
+		LHDIGDRIVER driver_ptr)
+	{
+		if (driver_ptr != oal_device_)
+		{
+			return nullptr;
+		}
+
+		samples_.emplace_back(StreamingSource::Type::panning, StreamingSource::SpatialType::none);
+
+		auto& source = samples_.back();
+
+		MtMutexGuard lock{mt_samples_mutex_};
+		mt_open_samples_.emplace_back(&source);
+
+		return &source;
+	}
+
+	void api_release_sample_handle(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& source = *static_cast<StreamingSource*>(sample_ptr);
+
+		{
+			MtMutexGuard lock{mt_samples_mutex_};
+
+			mt_open_samples_.remove_if(
+				[&](const auto& item)
+				{
+				return &source == item;
+				}
+			);
+		}
+
+		samples_.remove_if(
+			[&](const auto& item)
+			{
+			return &source == &item;
+			}
+		);
+	}
+
+	void api_init_sample(
+		LHSAMPLE sample_handle)
+	{
+		static_cast<void>(sample_handle);
+	}
+
+	void api_stop_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		{
+			MtMutexGuard lock{mt_samples_mutex_};
+			sample.pause();
+		}
+
+		mt_notify_stream();
+	}
+
+	void api_start_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		{
+			MtMutexGuard lock{mt_samples_mutex_};
+
+			sample.stop();
+			sample.resume();
+		}
+
+		mt_notify_stream();
+	}
+
+	void api_resume_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		{
+			MtMutexGuard lock{mt_samples_mutex_};
+			sample.resume();
+		}
+
+		mt_notify_stream();
+	}
+
+	void api_end_sample(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		sample.stop();
+	}
+
+	sint32 api_get_sample_volume(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return {};
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		return sample.volume_;
+	}
+
+	void api_set_sample_volume(
+		LHSAMPLE sample_ptr,
+		const sint32 volume)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		sample.set_volume(volume);
+	}
+
+	sint32 api_get_sample_pan(
+		LHSAMPLE sample_ptr)
+	{
+		if (!sample_ptr)
+		{
+			return {};
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		return sample.pan_;
+	}
+
+	void api_set_sample_pan(
+		LHSAMPLE sample_ptr,
+		const sint32 pan)
+	{
+		if (!sample_ptr)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_ptr);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		sample.set_pan(pan);
+	}
+
+	void api_set_sample_user_data(
 		LHSAMPLE sample_handle,
-		const LTSOUNDFILTERDATA& filter_data)
+		const uint32 index,
+		const sint32 value)
 	{
+		if (!sample_handle || index > max_user_data_index)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		sample.user_data_array_[index] = value;
+	}
+
+	void api_get_direct_sound_info(
+		LHSAMPLE sample_handle,
+		PTDIRECTSOUND& ds_instance,
+		PTDIRECTSOUNDBUFFER& ds_buffer)
+	{
+		static_cast<void>(sample_handle);
+
+		ds_instance = nullptr;
+		ds_buffer = nullptr;
+	}
+
+	void api_set_sample_reverb(
+		LHSAMPLE sample_handle,
+		const float reverb_level,
+		const float reverb_reflect_time,
+		const float reverb_decay_time)
+	{
+		static_cast<void>(sample_handle);
+		static_cast<void>(reverb_level);
+		static_cast<void>(reverb_reflect_time);
+		static_cast<void>(reverb_decay_time);
+	}
+
+	sint32 api_init_sample_from_address(
+		LHSAMPLE sample_handle,
+		const void* storage_ptr,
+		const uint32 storage_size,
+		const ul::WaveFormatEx& wave_format,
+		const sint32 playback_rate,
+		const LTSOUNDFILTERDATA* filter_data_ptr)
+	{
+		static_cast<void>(filter_data_ptr);
+
 		if (!sample_handle)
 		{
 			return false;
 		}
 
-		static_cast<void>(filter_data);
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
+
+		if (source.is_failed())
+		{
+			return false;
+		}
+
+		auto open_parameters = StreamingSource::OpenParameters{};
+
+		open_parameters.is_memory_ = true;
+		open_parameters.memory_ptr_ = storage_ptr;
+		open_parameters.memory_size_ = storage_size;
+		open_parameters.memory_wave_format_ = wave_format;
+		open_parameters.playback_rate_ = playback_rate;
+		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_parameters.oal_has_effect_slot_ = oal_effect_slot_;
+
+		{
+			MtMutexGuard lock{mt_samples_mutex_};
+
+			if (!source.open(open_parameters))
+			{
+				return false;
+			}
+		}
+
+		mt_notify_stream();
 
 		return true;
+	}
+
+	sint32 api_init_sample_from_file(
+		LHSAMPLE sample_handle,
+		const void* storage_ptr,
+		const sint32 block,
+		const sint32 playback_rate,
+		const LTSOUNDFILTERDATA* filter_data_ptr)
+	{
+		static_cast<void>(block);
+		static_cast<void>(filter_data_ptr);
+
+		if (!sample_handle)
+		{
+			return false;
+		}
+
+		auto& source = *static_cast<StreamingSource*>(sample_handle);
+
+		if (source.is_failed())
+		{
+			return false;
+		}
+
+		auto open_parameters = StreamingSource::OpenParameters{};
+
+		open_parameters.is_mapped_file_ = true;
+		open_parameters.mapped_decoder_ = &audio_decoder_;
+		open_parameters.mapped_storage_ptr = storage_ptr;
+		open_parameters.playback_rate_ = playback_rate;
+		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_parameters.oal_has_effect_slot_ = oal_effect_slot_;
+
+		{
+			MtMutexGuard lock{mt_samples_mutex_};
+
+			if (!source.open(open_parameters))
+			{
+				return false;
+			}
+		}
+
+		mt_notify_stream();
+
+		return true;
+	}
+
+	void api_set_sample_loop_block(
+		LHSAMPLE sample_handle,
+		const sint32 loop_begin_offset,
+		const sint32 loop_end_offset,
+		const bool is_enable)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		sample.set_loop_block(loop_begin_offset, loop_end_offset, is_enable);
+	}
+
+	void api_set_sample_loop(
+		LHSAMPLE sample_handle,
+		const bool is_enable)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		sample.set_loop(is_enable);
+	}
+
+	void api_set_sample_ms_position(
+		LHSAMPLE sample_handle,
+		const sint32 milliseconds)
+	{
+		if (!sample_handle)
+		{
+			return;
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		sample.set_ms_position(milliseconds);
+	}
+
+	sint32 api_get_sample_user_data(
+		LHSAMPLE sample_handle,
+		const uint32 index)
+	{
+		if (!sample_handle || index > max_user_data_index)
+		{
+			return {};
+		}
+
+
+		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		return sample.user_data_array_[index];
+	}
+
+	uint32 api_get_sample_status(
+		LHSAMPLE sample_handle)
+	{
+		if (!sample_handle)
+		{
+			return {};
+		}
+
+		auto& sample = *static_cast<StreamingSource*>(sample_handle);
+
+		MtMutexGuard lock{mt_samples_mutex_};
+
+		if (sample.is_failed())
+		{
+			return LS_ERROR;
+		}
+
+		return sample.is_playing() ? LS_PLAYING : LS_STOPPED;
+	}
+
+	LHSTREAM api_open_stream(
+		const char* file_name,
+		const uint32 file_offset,
+		LHDIGDRIVER driver_ptr,
+		const char* storage_ptr,
+		const sint32 storage_size)
+	{
+		static_cast<void>(storage_ptr);
+		static_cast<void>(storage_size);
+
+		if (!file_name || driver_ptr != oal_device_)
+		{
+			return nullptr;
+		}
+
+		streams_.emplace_back(StreamingSource::Type::panning, StreamingSource::SpatialType::none);
+
+		auto& source = streams_.back();
+
+		if (source.is_failed())
+		{
+			streams_.pop_back();
+			return nullptr;
+		}
+
+		auto open_parameters = StreamingSource::OpenParameters{};
+
+		open_parameters.is_file_ = true;
+		open_parameters.file_name_ = file_name;
+		open_parameters.file_offset_ = file_offset;
+		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_parameters.oal_has_effect_slot_ = oal_effect_slot_;
+
+		if (!source.open(open_parameters))
+		{
+			streams_.pop_back();
+			return false;
+		}
+
+		{
+			MtMutexGuard lock{mt_streams_mutex_};
+			mt_open_streams_.emplace_back(&source);
+		}
+
+		mt_notify_stream();
+
+		return &source;
+	}
+
+	void set_set_stream_loop(
+		LHSTREAM stream_ptr,
+		const bool is_enable)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+		stream.is_looping_ = is_enable;
+	}
+
+	void api_set_stream_playback_rate(
+		LHSTREAM stream_ptr,
+		const sint32 rate)
+	{
+		static_cast<void>(stream_ptr);
+		static_cast<void>(rate);
+	}
+
+	void api_set_stream_ms_position(
+		LHSTREAM stream_ptr,
+		const sint32 milliseconds)
+	{
+		if (!stream_ptr || milliseconds < 0)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+		const auto block_align = stream.get_block_align();
+		const auto sample_rate = stream.get_dst_sample_rate();
+
+		auto position = static_cast<int>((milliseconds * sample_rate) / 1000LL);
+		position /= block_align;
+		position *= block_align;
+
+		if (position > stream.data_size_)
+		{
+			return;
+		}
+
+		stream.data_offset_ = position;
+	}
+
+	void api_set_stream_user_data(
+		LHSTREAM stream_ptr,
+		const uint32 index,
+		const sint32 value)
+	{
+		if (!stream_ptr || index > max_user_data_index)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		stream.user_data_array_[index] = value;
+	}
+
+	sint32 api_get_stream_user_data(
+		LHSTREAM stream_ptr,
+		const uint32 index)
+	{
+		if (!stream_ptr || index > max_user_data_index)
+		{
+			return {};
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		return stream.user_data_array_[index];
+	}
+
+	void api_close_stream(
+		LHSTREAM stream_ptr)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		{
+			MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+			mt_open_streams_.remove_if(
+				[&](const auto& item)
+				{
+					return &stream == item;
+				}
+			);
+		}
+
+		streams_.remove_if(
+			[&](const auto& item)
+			{
+				return &stream == &item;
+			}
+		);
+	}
+
+	void api_start_stream(
+		LHSTREAM stream_ptr)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		{
+			MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+			stream.stop();
+			stream.resume();
+		}
+
+		mt_notify_stream();
+	}
+
+	void api_pause_stream(
+		LHSTREAM stream_ptr,
+		const sint32 is_enable)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		{
+			MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+			if (is_enable)
+			{
+				stream.pause();
+			}
+			else
+			{
+				stream.resume();
+			}
+		}
+
+		mt_notify_stream();
+	}
+
+	void api_reset_stream(
+		LHSTREAM stream_ptr)
+	{
+		static_cast<void>(stream_ptr);
+	}
+
+	void api_set_stream_volume(
+		LHSTREAM stream_ptr,
+		const sint32 volume)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+		stream.set_volume(volume);
+	}
+
+	void api_set_stream_pan(
+		LHSTREAM stream_ptr,
+		const sint32 pan)
+	{
+		if (!stream_ptr)
+		{
+			return;
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+		stream.set_pan(pan);
+	}
+
+	sint32 api_get_stream_volume(
+		LHSTREAM stream_ptr)
+	{
+		if (!stream_ptr)
+		{
+			return {};
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+		return stream.volume_;
+	}
+
+	sint32 api_get_stream_pan(
+		LHSTREAM stream_ptr)
+	{
+		if (!stream_ptr)
+		{
+			return {};
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+		return stream.pan_;
+	}
+
+	uint32 api_get_stream_status(
+		LHSTREAM stream_ptr)
+	{
+		if (!stream_ptr)
+		{
+			return LS_ERROR;
+		}
+
+		auto& stream = *static_cast<StreamingSource*>(stream_ptr);
+
+		MtMutexGuard mt_stream_lock{mt_streams_mutex_};
+
+		return stream.is_playing() ? LS_PLAYING : LS_STOPPED;
+	}
+
+	sint32 api_get_stream_buffer_param(
+		LHSTREAM stream_ptr,
+		const uint32 index)
+	{
+		static_cast<void>(stream_ptr);
+		static_cast<void>(index);
+
+		return {};
+	}
+
+	void api_clear_stream_buffer(
+		LHSTREAM stream_ptr,
+		const bool is_clear_data_queue)
+	{
+		static_cast<void>(stream_ptr);
+		static_cast<void>(is_clear_data_queue);
+	}
+
+	sint32 api_decompress_adpcm(
+		const LTSOUNDINFO& sound_info,
+		void*& dst_data,
+		uint32& dst_size)
+	{
+		static_cast<void>(sound_info);
+		static_cast<void>(dst_data);
+		static_cast<void>(dst_size);
+
+		return {};
+	}
+
+	sint32 api_decode_asi(
+		const void* src_data_ptr,
+		const uint32 src_data_size,
+		const char* file_name_ext,
+		void*& ds_wav_ptr,
+		uint32& ds_wav_size,
+		LTLENGTHYCB callback)
+	{
+		static_cast<void>(file_name_ext);
+		static_cast<void>(callback);
+
+		return ltjs::AudioUtils::decode_mp3(audio_decoder_, src_data_ptr, src_data_size, ds_wav_ptr, ds_wav_size);
+	}
+
+	uint32 api_get_threaded_sound_ticks()
+	{
+		return {};
+	}
+
+	bool api_has_on_board_memory()
+	{
+		return {};
 	}
 
 	void api_handle_focus_lost(
@@ -4590,30 +4863,28 @@ OalSoundSys::~OalSoundSys()
 
 bool OalSoundSys::Init()
 {
-	ltjs::AudioDecoder::initialize_current_thread();
-	ltjs::AudioUtils::initialize();
-
-	return true;
+	return pimpl_->api_init();
 }
 
 void OalSoundSys::Term()
 {
+	pimpl_->api_term();
 }
 
 void* OalSoundSys::GetDDInterface(
 	const uint dd_interface_id)
 {
-	static_cast<void>(dd_interface_id);
-
-	return {};
+	return pimpl_->api_get_dd_interface(dd_interface_id);
 }
 
 void OalSoundSys::Lock()
 {
+	pimpl_->api_lock();
 }
 
 void OalSoundSys::Unlock()
 {
+	pimpl_->api_unlock();
 }
 
 sint32 OalSoundSys::Startup()
@@ -4635,30 +4906,25 @@ sint32 OalSoundSys::SetPreference(
 	const uint32 index,
 	const sint32 value)
 {
-	static_cast<void>(index);
-	static_cast<void>(value);
-
-	return LS_ERROR;
+	return pimpl_->api_set_preference(index, value);
 }
 
 sint32 OalSoundSys::GetPreference(
 	const uint32 index)
 {
-	static_cast<void>(index);
-
-	return {};
+	return pimpl_->api_get_preference(index);
 }
 
 void OalSoundSys::MemFreeLock(
 	void* storage_ptr)
 {
-	ltjs::AudioUtils::deallocate(storage_ptr);
+	pimpl_->api_mem_free_lock(storage_ptr);
 }
 
 void* OalSoundSys::MemAllocLock(
 	const uint32 storage_size)
 {
-	return ltjs::AudioUtils::allocate(storage_size);
+	return pimpl_->api_mem_alloc_lock(storage_size);
 }
 
 const char* OalSoundSys::LastError()
@@ -4697,17 +4963,13 @@ sint32 OalSoundSys::GetDigitalMasterVolume(
 sint32 OalSoundSys::DigitalHandleRelease(
 	LHDIGDRIVER driver_ptr)
 {
-	static_cast<void>(driver_ptr);
-
-	return {};
+	return pimpl_->api_digital_handle_release(driver_ptr);
 }
 
 sint32 OalSoundSys::DigitalHandleReacquire(
 	LHDIGDRIVER driver_ptr)
 {
-	static_cast<void>(driver_ptr);
-
-	return {};
+	return pimpl_->api_digital_handle_reacquire(driver_ptr);
 }
 
 #ifdef USE_EAX20_HARDWARE_FILTERS
@@ -4734,28 +4996,19 @@ bool OalSoundSys::SetEAX20BufferSettings(
 void OalSoundSys::Set3DProviderMinBuffers(
 	const uint32 buffer_count)
 {
-	static_cast<void>(buffer_count);
+	pimpl_->api_set_3d_provider_min_buffers(buffer_count);
 }
 
 sint32 OalSoundSys::Open3DProvider(
 	LHPROVIDER provider_id)
 {
-	switch (provider_id)
-	{
-	case SOUND3DPROVIDERID_DS3D_SOFTWARE:
-	case SOUND3DPROVIDERID_DS3D_HARDWARE:
-	case SOUND3DPROVIDERID_DS3D_DEFAULT:
-		return true;
-
-	default:
-		return false;
-	}
+	return pimpl_->api_open_3d_provider(provider_id);
 }
 
 void OalSoundSys::Close3DProvider(
 	LHPROVIDER provider_id)
 {
-	static_cast<void>(provider_id);
+	pimpl_->api_close_3d_provider(provider_id);
 }
 
 void OalSoundSys::Set3DProviderPreference(
@@ -4763,9 +5016,7 @@ void OalSoundSys::Set3DProviderPreference(
 	const char* name,
 	const void* value)
 {
-	static_cast<void>(provider_id);
-	static_cast<void>(name);
-	static_cast<void>(value);
+	pimpl_->api_set_3d_provider_preference(provider_id, name, value);
 }
 
 void OalSoundSys::Get3DProviderAttribute(
@@ -4781,20 +5032,7 @@ sint32 OalSoundSys::Enumerate3DProviders(
 	LHPROVIDER& id,
 	const char*& name)
 {
-	const auto current_index = index++;
-
-	id = 0;
-	name = nullptr;
-
-	if (current_index < 0 || current_index > 0)
-	{
-		return false;
-	}
-
-	id = SOUND3DPROVIDERID_DS3D_HARDWARE;
-	name = "OpenAL";
-
-	return true;
+	return pimpl_->api_enumerate_3d_providers(index, id, name);
 }
 
 LH3DPOBJECT OalSoundSys::Open3DListener(
@@ -4818,6 +5056,7 @@ void OalSoundSys::SetListenerDoppler(
 
 void OalSoundSys::CommitDeferred()
 {
+	pimpl_->api_commit_deferred();
 }
 
 void OalSoundSys::Set3DPosition(
@@ -4982,10 +5221,7 @@ sint32 OalSoundSys::Set3DSampleInfo(
 	LH3DSAMPLE sample_handle,
 	const LTSOUNDINFO& sound_info)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(sound_info);
-
-	return {};
+	return pimpl_->api_set_3d_sample_info(sample_handle, sound_info);
 }
 
 void OalSoundSys::Set3DSampleDistances(
@@ -5001,9 +5237,7 @@ void OalSoundSys::Set3DSamplePreference(
 	const char* name,
 	const void* value)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(name);
-	static_cast<void>(value);
+	pimpl_->api_set_3d_sample_preference(sample_handle, name, value);
 }
 
 void OalSoundSys::Set3DSampleLoopBlock(
@@ -5027,32 +5261,26 @@ void OalSoundSys::Set3DSampleObstruction(
 	LH3DSAMPLE sample_handle,
 	const float obstruction)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(obstruction);
+	pimpl_->api_set_3d_sample_obstruction(sample_handle, obstruction);
 }
 
 float OalSoundSys::Get3DSampleObstruction(
 	LH3DSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
-
-	return {};
+	return pimpl_->api_get_3d_sample_obstruction(sample_handle);
 }
 
 void OalSoundSys::Set3DSampleOcclusion(
 	LH3DSAMPLE sample_handle,
 	const float occlusion)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(occlusion);
+	pimpl_->api_set_3d_sample_occlusion(sample_handle, occlusion);
 }
 
 float OalSoundSys::Get3DSampleOcclusion(
 	LH3DSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
-
-	return {};
+	return pimpl_->api_get_3d_sample_occlusion(sample_handle);
 }
 
 LHSAMPLE OalSoundSys::AllocateSampleHandle(
@@ -5070,7 +5298,7 @@ void OalSoundSys::ReleaseSampleHandle(
 void OalSoundSys::InitSample(
 	LHSAMPLE sample_handle)
 {
-	static_cast<void>(sample_handle);
+	pimpl_->api_init_sample(sample_handle);
 }
 
 void OalSoundSys::StopSample(
@@ -5136,10 +5364,7 @@ void OalSoundSys::GetDirectSoundInfo(
 	PTDIRECTSOUND& ds_instance,
 	PTDIRECTSOUNDBUFFER& ds_buffer)
 {
-	static_cast<void>(sample_handle);
-
-	ds_instance = nullptr;
-	ds_buffer = nullptr;
+	pimpl_->api_get_direct_sound_info(sample_handle, ds_instance, ds_buffer);
 }
 
 void OalSoundSys::SetSampleReverb(
@@ -5148,10 +5373,7 @@ void OalSoundSys::SetSampleReverb(
 	const float reverb_reflect_time,
 	const float reverb_decay_time)
 {
-	static_cast<void>(sample_handle);
-	static_cast<void>(reverb_level);
-	static_cast<void>(reverb_reflect_time);
-	static_cast<void>(reverb_decay_time);
+	pimpl_->api_set_sample_reverb(sample_handle, reverb_level, reverb_reflect_time, reverb_decay_time);
 }
 
 sint32 OalSoundSys::InitSampleFromAddress(
@@ -5236,8 +5458,7 @@ void OalSoundSys::SetStreamPlaybackRate(
 	LHSTREAM stream_ptr,
 	const sint32 rate)
 {
-	static_cast<void>(stream_ptr);
-	static_cast<void>(rate);
+	pimpl_->api_set_stream_playback_rate(stream_ptr, rate);
 }
 
 void OalSoundSys::SetStreamMsPosition(
@@ -5284,7 +5505,7 @@ void OalSoundSys::PauseStream(
 void OalSoundSys::ResetStream(
 	LHSTREAM stream_ptr)
 {
-	static_cast<void>(stream_ptr);
+	pimpl_->api_reset_stream(stream_ptr);
 }
 
 void OalSoundSys::SetStreamVolume(
@@ -5323,18 +5544,14 @@ sint32 OalSoundSys::GetStreamBufferParam(
 	LHSTREAM stream_ptr,
 	const uint32 index)
 {
-	static_cast<void>(stream_ptr);
-	static_cast<void>(index);
-
-	return {};
+	return pimpl_->api_get_stream_buffer_param(stream_ptr, index);
 }
 
 void OalSoundSys::ClearStreamBuffer(
 	LHSTREAM stream_ptr,
 	const bool is_clear_data_queue)
 {
-	static_cast<void>(stream_ptr);
-	static_cast<void>(is_clear_data_queue);
+	pimpl_->api_clear_stream_buffer(stream_ptr, is_clear_data_queue);
 }
 
 sint32 OalSoundSys::DecompressADPCM(
@@ -5342,11 +5559,7 @@ sint32 OalSoundSys::DecompressADPCM(
 	void*& dst_data,
 	uint32& dst_size)
 {
-	static_cast<void>(sound_info);
-	static_cast<void>(dst_data);
-	static_cast<void>(dst_size);
-
-	return {};
+	return pimpl_->api_decompress_adpcm(sound_info, dst_data, dst_size);
 }
 
 sint32 OalSoundSys::DecompressASI(
@@ -5357,17 +5570,17 @@ sint32 OalSoundSys::DecompressASI(
 	uint32& dst_wav_size,
 	LTLENGTHYCB callback)
 {
-	return pimpl_->api_decode_mp3(src_data_ptr, src_data_size, file_name_ext, dst_wav_ptr, dst_wav_size, callback);
+	return pimpl_->api_decode_asi(src_data_ptr, src_data_size, file_name_ext, dst_wav_ptr, dst_wav_size, callback);
 }
 
 uint32 OalSoundSys::GetThreadedSoundTicks()
 {
-	return {};
+	return pimpl_->api_get_threaded_sound_ticks();
 }
 
 bool OalSoundSys::HasOnBoardMemory()
 {
-	return {};
+	return pimpl_->api_has_on_board_memory();
 }
 
 void OalSoundSys::handle_focus_lost(
