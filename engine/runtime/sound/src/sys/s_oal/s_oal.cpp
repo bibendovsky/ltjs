@@ -108,7 +108,7 @@ struct OalSoundSys::Impl
 			);
 		}
 
-		Vector3d to_lhs() const
+		Vector3d to_rhs() const
 		{
 			return {items_[0], items_[1], -items_[2]};
 		}
@@ -208,7 +208,7 @@ struct OalSoundSys::Impl
 			);
 		}
 
-		Orientation3d to_lhs() const
+		Orientation3d to_rhs() const
 		{
 			return {items_[0], items_[1], -items_[2], items_[3], items_[4], -items_[5]};
 		}
@@ -800,9 +800,9 @@ struct OalSoundSys::Impl
 
 			if (is_listener())
 			{
-				const auto oal_position = position_.to_lhs();
-				const auto oal_velocity = velocity_.to_lhs();
-				const auto oal_orientation = orientation_.to_lhs();
+				const auto oal_position = position_.to_rhs();
+				const auto oal_velocity = velocity_.to_rhs();
+				const auto oal_orientation = orientation_.to_rhs();
 
 				::alListenerf(AL_GAIN, oal_gain_);
 				assert(oal_is_succeed());
@@ -817,9 +817,9 @@ struct OalSoundSys::Impl
 			}
 			else
 			{
-				const auto oal_position = position_.to_lhs();
-				const auto oal_velocity = velocity_.to_lhs();
-				const auto oal_direction = direction_.to_lhs();
+				const auto oal_position = position_.to_rhs();
+				const auto oal_velocity = velocity_.to_rhs();
+				const auto oal_direction = direction_.to_rhs();
 
 				::alSourcef(oal_source_, AL_GAIN, oal_gain_);
 				assert(oal_is_succeed());
@@ -1730,7 +1730,7 @@ struct OalSoundSys::Impl
 				return;
 			}
 
-			const auto& oal_position = position_.to_lhs();
+			const auto& oal_position = position_.to_rhs();
 			const auto oal_position_c_array = oal_position.get_c_array();
 
 			if (is_listener())
@@ -1770,7 +1770,7 @@ struct OalSoundSys::Impl
 				return;
 			}
 
-			const auto& oal_velocity = velocity_.to_lhs();
+			const auto& oal_velocity = velocity_.to_rhs();
 			const auto oal_velocity_c_array = oal_velocity.get_c_array();
 
 			if (is_listener())
@@ -1810,7 +1810,7 @@ struct OalSoundSys::Impl
 				return;
 			}
 
-			const auto& oal_direction = direction_.to_lhs();
+			const auto& oal_direction = direction_.to_rhs();
 
 			::alSourcefv(oal_source_, AL_DIRECTION, oal_direction.get_c_array());
 			assert(oal_is_succeed());
@@ -1841,7 +1841,7 @@ struct OalSoundSys::Impl
 				return;
 			}
 
-			const auto& oal_orientation = orientation_.to_lhs();
+			const auto& oal_orientation = orientation_.to_rhs();
 
 			::alListenerfv(AL_ORIENTATION, oal_orientation.get_c_array());
 			assert(oal_is_succeed());
