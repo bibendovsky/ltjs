@@ -1175,29 +1175,76 @@ struct OalSoundSys::Impl
 			data_offset_ = data_offset;
 		}
 
-		void fill_mix_stereo_buffer_u8(
+
+		template<int TBitDepth>
+		struct MonoToStereoSample
+		{
+		}; // MonoToStereoSample
+
+		template<>
+		struct MonoToStereoSample<8>
+		{
+			using Value = std::uint8_t;
+
+			static constexpr auto silence = Value{0x80};
+
+			static float to_gain(
+				const Value value)
+			{
+				return (value - 128) / 128.0F;
+			}
+
+			static Value to_volume(
+				const float gain)
+			{
+				return static_cast<Value>(ul::Algorithm::clamp(static_cast<int>((gain * 128.0F) + 128.5F), 0, 255));
+			}
+		}; // MonoToStereoSample<8>
+
+		template<>
+		struct MonoToStereoSample<16>
+		{
+			using Value = std::int16_t;
+
+			static constexpr auto silence = Value{0};
+
+			static float to_gain(
+				const Value value)
+			{
+				return value / 32768.0F;
+			}
+
+			static Value to_volume(
+				const float gain)
+			{
+				return static_cast<Value>(ul::Algorithm::clamp(static_cast<int>(gain * 32768.0F), -32768, 32767));
+			}
+		}; // MonoToStereoSample<16>
+
+
+		template<int TBitDepth>
+		void mix_mono_to_stereo(
 			const int byte_offset)
 		{
+			using Sample = MonoToStereoSample<TBitDepth>;
+
 			const auto sample_count = byte_offset / block_align_;
 			const auto oal_left_volume_scale = oal_pans_[0];
 			const auto oal_right_volume_scale = oal_pans_[1];
 
-			const auto src_buffer = mix_mono_buffer_.data();
-			auto dst_buffer = mix_stereo_buffer_.data();
+			const auto src_buffer = reinterpret_cast<const Sample::Value*>(mix_mono_buffer_.data());
+			auto dst_buffer = reinterpret_cast<Sample::Value*>(mix_stereo_buffer_.data());
 
 			auto dst_index = 0;
 
 			for (auto i = 0; i < sample_count; ++i)
 			{
-				const auto oal_gain = ((src_buffer[i] - 128) / 128.0F);
+				const auto oal_gain = Sample::to_gain(src_buffer[i]);
 				const auto oal_left_gain = oal_gain * oal_left_volume_scale;
 				const auto oal_right_gain = oal_gain * oal_right_volume_scale;
 
-				const auto left_volume_u8 = static_cast<std::uint8_t>(ul::Algorithm::clamp(
-					static_cast<int>((oal_left_gain * 128.0F) + 128.5F), 0, 255));
-
-				const auto right_volume_u8 = static_cast<std::uint8_t>(ul::Algorithm::clamp(
-					static_cast<int>((oal_right_gain * 128.0F) + 128.5F), 0, 255));
+				const auto left_volume_u8 = Sample::to_volume(oal_left_gain);
+				const auto right_volume_u8 = Sample::to_volume(oal_right_gain);
 
 				dst_buffer[dst_index++] = left_volume_u8;
 				dst_buffer[dst_index++] = right_volume_u8;
@@ -1207,47 +1254,14 @@ struct OalSoundSys::Impl
 
 			if (remain_sample_count > 0)
 			{
-				std::uninitialized_fill_n(&dst_buffer[dst_index], remain_sample_count * 2, std::uint8_t{});
+				std::uninitialized_fill_n(
+					reinterpret_cast<Sample::Value*>(&dst_buffer[dst_index]),
+					remain_sample_count * 2,
+					Sample::silence);
 			}
 		}
 
-		void fill_mix_stereo_buffer_i16(
-			const int byte_offset)
-		{
-			const auto sample_count = byte_offset / block_align_;
-			const auto oal_left_volume_scale = oal_pans_[0];
-			const auto oal_right_volume_scale = oal_pans_[1];
-
-			const auto src_buffer = reinterpret_cast<const std::int16_t*>(mix_mono_buffer_.data());
-			auto dst_buffer = reinterpret_cast<std::int16_t*>(mix_stereo_buffer_.data());
-
-			auto dst_index = 0;
-
-			for (auto i = 0; i < sample_count; ++i)
-			{
-				const auto oal_gain = src_buffer[i] / 32768.0F;
-				const auto oal_left_gain = oal_gain * oal_left_volume_scale;
-				const auto oal_right_gain = oal_gain * oal_right_volume_scale;
-
-				const auto left_volume_i16 = static_cast<std::int16_t>(ul::Algorithm::clamp(
-					static_cast<int>(oal_left_gain * 32768.0F), -32768, 32767));
-
-				const auto right_volume_i16 = static_cast<std::int16_t>(ul::Algorithm::clamp(
-					static_cast<int>(oal_right_gain * 32768.0F), -32768, 32768));
-
-				dst_buffer[dst_index++] = left_volume_i16;
-				dst_buffer[dst_index++] = right_volume_i16;
-			}
-
-			const auto remain_sample_count = mix_sample_count_ - sample_count;
-
-			if (remain_sample_count > 0)
-			{
-				std::uninitialized_fill_n(&dst_buffer[dst_index], remain_sample_count * 2, std::int16_t{});
-			}
-		}
-
-		int fill_mix_buffer()
+		int mix_fill_buffer()
 		{
 			const auto is_looping = is_looping_;
 
@@ -1347,40 +1361,24 @@ struct OalSoundSys::Impl
 
 			if (!is_spatial() && is_mono())
 			{
-				auto silence_value = std::uint8_t{};
-
 				switch (get_bit_depth())
 				{
 				case 8:
-					silence_value = 0x80;
-					fill_mix_stereo_buffer_u8(mix_offset);
+					mix_mono_to_stereo<8>(mix_offset);
 					break;
 
 				case 16:
-					silence_value = 0;
-					fill_mix_stereo_buffer_i16(mix_offset);
+					mix_mono_to_stereo<16>(mix_offset);
 					break;
 
 				default:
 					return 0;
-				}
-
-				if (mix_offset != mix_size_)
-				{
-					std::uninitialized_fill_n(mix_mono_buffer_.begin() + mix_offset, mix_size_ - mix_offset, silence_value);
 				}
 			}
 
 			return mix_offset;
 		}
 
-		//
-		// Fills a stream with data.
-		//
-		// Returns:
-		//    - "true" - if stream is processed.
-		//    - "false" - if stream is not processed (paused, failed, etc).
-		//
 		void mix()
 		{
 			if (is_failed())
@@ -1455,7 +1453,7 @@ struct OalSoundSys::Impl
 					break;
 				}
 
-				auto decoded_mix_size = fill_mix_buffer();
+				auto decoded_mix_size = mix_fill_buffer();
 
 				if (decoded_mix_size == 0)
 				{
