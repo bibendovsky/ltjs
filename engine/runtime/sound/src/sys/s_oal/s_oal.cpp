@@ -1341,27 +1341,33 @@ struct OalSoundSys::Impl
 						}
 					}
 
-					// TODO Use the appropriate value for 8 bit depth.
-					std::uninitialized_fill_n(mix_mono_buffer_.begin() + mix_offset, mix_size_ - mix_offset, std::uint8_t{});
-
 					break;
 				}
 			}
 
 			if (!is_spatial() && is_mono())
 			{
+				auto silence_value = std::uint8_t{};
+
 				switch (get_bit_depth())
 				{
 				case 8:
+					silence_value = 0x80;
 					fill_mix_stereo_buffer_u8(mix_offset);
 					break;
 
 				case 16:
+					silence_value = 0;
 					fill_mix_stereo_buffer_i16(mix_offset);
 					break;
 
 				default:
-					break;
+					return 0;
+				}
+
+				if (mix_offset != mix_size_)
+				{
+					std::uninitialized_fill_n(mix_mono_buffer_.begin() + mix_offset, mix_size_ - mix_offset, silence_value);
 				}
 			}
 
