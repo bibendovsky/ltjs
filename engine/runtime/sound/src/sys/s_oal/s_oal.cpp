@@ -1169,13 +1169,13 @@ struct OalSoundSys::Impl
 
 
 	private:
-		template<int TBitDepth>
+		template<int TBitDepth, typename TDummy = void>
 		struct MonoToStereoSample
 		{
 		}; // MonoToStereoSample
 
-		template<>
-		struct MonoToStereoSample<8>
+		template<typename TDummy>
+		struct MonoToStereoSample<8, TDummy>
 		{
 			using Value = std::uint8_t;
 
@@ -1194,8 +1194,8 @@ struct OalSoundSys::Impl
 			}
 		}; // MonoToStereoSample<8>
 
-		template<>
-		struct MonoToStereoSample<16>
+		template<typename TDummy>
+		struct MonoToStereoSample<16, TDummy>
 		{
 			using Value = std::int16_t;
 
@@ -1760,8 +1760,8 @@ struct OalSoundSys::Impl
 			const auto oal_left_pan = oal_pans_[0];
 			const auto oal_right_pan = oal_pans_[1];
 
-			const auto src_buffer = reinterpret_cast<const Sample::Value*>(mix_mono_buffer_.data());
-			auto dst_buffer = reinterpret_cast<Sample::Value*>(mix_stereo_buffer_.data());
+			const auto src_buffer = reinterpret_cast<const typename Sample::Value*>(mix_mono_buffer_.data());
+			auto dst_buffer = reinterpret_cast<typename Sample::Value*>(mix_stereo_buffer_.data());
 
 			auto dst_index = 0;
 
@@ -1783,7 +1783,7 @@ struct OalSoundSys::Impl
 			if (remain_sample_count > 0)
 			{
 				std::uninitialized_fill_n(
-					reinterpret_cast<Sample::Value*>(&dst_buffer[dst_index]),
+					reinterpret_cast<typename Sample::Value*>(&dst_buffer[dst_index]),
 					remain_sample_count * 2,
 					Sample::silence);
 			}
@@ -4600,7 +4600,7 @@ struct OalSoundSys::Impl
 		if (!source.open(open_parameters))
 		{
 			streams_.pop_back();
-			return false;
+			return nullptr;
 		}
 
 		{
