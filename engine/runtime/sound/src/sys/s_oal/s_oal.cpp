@@ -680,9 +680,10 @@ struct OalSoundSys::Impl
 				return;
 			}
 
-			const auto oal_volume = ltjs::AudioUtils::lt_volume_to_gain(new_volume);
+			oal_gain_ = ltjs::AudioUtils::lt_volume_to_gain(new_volume);
 
-			oal_gain_ = oal_volume;
+			::alSourcef(oal_source_, AL_GAIN, oal_gain_);
+			assert(oal_is_succeed());
 		}
 
 		void set_pan(
@@ -1178,8 +1179,8 @@ struct OalSoundSys::Impl
 			const int byte_offset)
 		{
 			const auto sample_count = byte_offset / block_align_;
-			const auto oal_left_volume_scale = oal_gain_ * oal_pans_[0];
-			const auto oal_right_volume_scale = oal_gain_ * oal_pans_[1];
+			const auto oal_left_volume_scale = oal_pans_[0];
+			const auto oal_right_volume_scale = oal_pans_[1];
 
 			const auto src_buffer = mix_mono_buffer_.data();
 			auto dst_buffer = mix_stereo_buffer_.data();
@@ -1214,8 +1215,8 @@ struct OalSoundSys::Impl
 			const int byte_offset)
 		{
 			const auto sample_count = byte_offset / block_align_;
-			const auto oal_left_volume_scale = oal_gain_ * oal_pans_[0];
-			const auto oal_right_volume_scale = oal_gain_ * oal_pans_[1];
+			const auto oal_left_volume_scale = oal_pans_[0];
+			const auto oal_right_volume_scale = oal_pans_[1];
 
 			const auto src_buffer = reinterpret_cast<const std::int16_t*>(mix_mono_buffer_.data());
 			auto dst_buffer = reinterpret_cast<std::int16_t*>(mix_stereo_buffer_.data());
