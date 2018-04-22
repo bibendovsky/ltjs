@@ -175,27 +175,6 @@ struct OalSoundSys::Impl
 		}
 
 
-		Vector3d& get_at()
-		{
-			return *reinterpret_cast<Vector3d*>(&items_[0]);
-		}
-
-		const Vector3d& get_at() const
-		{
-			return *reinterpret_cast<const Vector3d*>(&items_[0]);
-		}
-
-		Vector3d& get_up()
-		{
-			return *reinterpret_cast<Vector3d*>(&items_[3]);
-		}
-
-		const Vector3d& get_up() const
-		{
-			return *reinterpret_cast<const Vector3d*>(&items_[3]);
-		}
-
-
 		bool has_nan() const
 		{
 			return std::any_of(
