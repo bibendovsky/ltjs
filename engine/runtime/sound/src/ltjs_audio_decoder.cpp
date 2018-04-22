@@ -22,6 +22,8 @@ struct AudioDecoder::Impl
 {
 	using AVInputFormatPtr = AVInputFormat*;
 
+	using Parameters = OpenParameters;
+
 
 	enum class State
 	{
@@ -37,8 +39,6 @@ struct AudioDecoder::Impl
 	}; // State
 
 
-	static constexpr int dst_bit_depth = 16;
-	static constexpr AVSampleFormat ff_dst_sample_format = AV_SAMPLE_FMT_S16;
 	static constexpr int max_ff_io_buffer_size = 4096;
 
 
@@ -53,10 +53,13 @@ struct AudioDecoder::Impl
 		ff_stream_index_{},
 		state_{},
 		stream_ptr_{},
-		channel_count_{},
-		sample_rate_{},
-		sample_size_{},
-		sample_count_{},
+		src_channel_count_{},
+		src_sample_rate_{},
+		dst_channel_count_{},
+		dst_bit_depth_{},
+		dst_sample_rate_{},
+		dst_sample_size_{},
+		dst_sample_count_{},
 		frame_size_{},
 		frame_offset_{},
 		decoded_size_{},
@@ -78,22 +81,16 @@ struct AudioDecoder::Impl
 	}
 
 	bool open(
-		ul::Stream* stream_ptr)
+		const OpenParameters& parameters)
 	{
 		close();
 
-		if (!stream_ptr || !stream_ptr->is_open() || !stream_ptr->is_readable() || !stream_ptr->is_seekable())
+		if (!parameters.validate())
 		{
 			return false;
 		}
 
-		if (!initialize_io(stream_ptr))
-		{
-			close();
-			return false;
-		}
-
-		if (!open())
+		if (!open_internal(parameters))
 		{
 			close();
 			return false;
@@ -115,10 +112,13 @@ struct AudioDecoder::Impl
 		ff_stream_index_ = -1;
 		state_ = {};
 		stream_ptr_ = {};
-		channel_count_ = {};
-		sample_rate_ = {};
-		sample_size_ = {};
-		sample_count_ = {};
+		src_channel_count_ = {};
+		src_sample_rate_ = {};
+		dst_channel_count_ = {};
+		dst_bit_depth_ = {};
+		dst_sample_rate_ = {};
+		dst_sample_size_ = {};
+		dst_sample_count_ = {};
 		frame_size_ = {};
 		frame_offset_ = {};
 		decoded_size_ = {};
@@ -234,7 +234,7 @@ struct AudioDecoder::Impl
 					else
 					{
 						frame_offset_ = 0;
-						frame_size_ = ff_frame_->nb_samples * sample_size_;
+						frame_size_ = ff_frame_->nb_samples * dst_sample_size_;
 						state_ = State::output_frame;
 					}
 				}
@@ -266,7 +266,7 @@ struct AudioDecoder::Impl
 			{
 				auto max_src_count = is_flushing_ ? 0 : ff_frame_->nb_samples;
 
-				const auto max_dst_count = (buffer_size - decoded_size) / sample_size_;
+				const auto max_dst_count = (buffer_size - decoded_size) / dst_sample_size_;
 
 				if (max_dst_count == 0)
 				{
@@ -291,7 +291,7 @@ struct AudioDecoder::Impl
 
 				if (converted_count > 0)
 				{
-					const auto converted_size = converted_count * sample_size_;
+					const auto converted_size = converted_count * dst_sample_size_;
 
 					max_src_count = 0;
 					decoded_size += converted_size;
@@ -378,12 +378,12 @@ struct AudioDecoder::Impl
 	bool set_position(
 		const int sample_offset)
 	{
-		if (!is_open() || is_failed() || sample_offset < 0 || sample_offset >= sample_count_)
+		if (!is_open() || is_failed() || sample_offset < 0 || sample_offset >= dst_sample_count_)
 		{
 			return false;
 		}
 
-		if (sample_count_ == 0)
+		if (dst_sample_count_ == 0)
 		{
 			return true;
 		}
@@ -397,7 +397,11 @@ struct AudioDecoder::Impl
 
 		const auto start_timestamp = normalize_pts(ff_format_context_->start_time);
 		const auto time_base = ff_format_context_->streams[ff_stream_index_]->time_base;
-		const auto sample_timestamp = (sample_offset * time_base.den) / (sample_rate_ * time_base.num);
+
+		const auto sample_timestamp =
+			(sample_offset * static_cast<long long>(time_base.den)) /
+			(dst_sample_rate_ * static_cast<long long>(time_base.num));
+
 		const auto timestamp = start_timestamp + sample_timestamp;
 
 		const auto ff_result = ::av_seek_frame(
@@ -415,7 +419,7 @@ struct AudioDecoder::Impl
 		state_ = State::read_packet;
 		is_draining_ = false;
 		is_flushing_ = false;
-		decoded_offset_ = sample_offset * sample_size_;
+		decoded_offset_ = sample_offset * dst_sample_size_;
 
 		return true;
 	}
@@ -450,19 +454,29 @@ struct AudioDecoder::Impl
 		return is_open() && ff_codec_context_->codec_id == AV_CODEC_ID_MP3;
 	}
 
-	int get_channel_count() const
+	int get_src_channel_count() const
 	{
-		return channel_count_;
+		return src_channel_count_;
 	}
 
-	int get_bit_depth() const
+	int get_src_sample_rate() const
 	{
-		return dst_bit_depth;
+		return src_sample_rate_;
 	}
 
-	int get_sample_rate() const
+	int get_dst_channel_count() const
 	{
-		return sample_rate_;
+		return dst_channel_count_;
+	}
+
+	int get_dst_bit_depth() const
+	{
+		return dst_bit_depth_;
+	}
+
+	int get_dst_sample_rate() const
+	{
+		return dst_sample_rate_;
 	}
 
 	ul::WaveFormatEx get_wave_format_ex() const
@@ -475,28 +489,28 @@ struct AudioDecoder::Impl
 
 		auto result = ul::WaveFormatEx{};
 		result.tag_ = ul::WaveFormatTag::pcm;
-		result.channel_count_ = static_cast<std::uint16_t>(channel_count_);
-		result.bit_depth_ = static_cast<std::uint16_t>(dst_bit_depth);
-		result.sample_rate_ = static_cast<std::uint32_t>(sample_rate_);
-		result.block_align_ = static_cast<std::uint16_t>(sample_size_);
+		result.channel_count_ = static_cast<std::uint16_t>(dst_channel_count_);
+		result.bit_depth_ = static_cast<std::uint16_t>(dst_bit_depth_);
+		result.sample_rate_ = static_cast<std::uint32_t>(dst_sample_rate_);
+		result.block_align_ = static_cast<std::uint16_t>(dst_sample_size_);
 		result.avg_bytes_per_sec_ = result.block_align_ * result.sample_rate_;
 
 		return result;
 	}
 
-	int get_sample_size() const
+	int get_dst_sample_size() const
 	{
-		return sample_size_;
+		return dst_sample_size_;
 	}
 
 	int get_sample_count() const
 	{
-		return sample_count_;
+		return dst_sample_count_;
 	}
 
 	int get_data_size() const
 	{
-		return sample_size_ * sample_count_;
+		return dst_sample_size_ * dst_sample_count_;
 	}
 
 	int get_decoded_size() const
@@ -565,8 +579,8 @@ struct AudioDecoder::Impl
 		return stream.set_position(offset, api_whence);
 	}
 
-	bool initialize_io(
-		ul::Stream* stream_ptr)
+	bool open_internal(
+		const OpenParameters& parameters)
 	{
 		ff_io_buffer_ = static_cast<std::uint8_t*>(::av_malloc(max_ff_io_buffer_size));
 
@@ -589,13 +603,8 @@ struct AudioDecoder::Impl
 			return false;
 		}
 
-		stream_ptr_ = stream_ptr;
+		stream_ptr_ = parameters.stream_ptr_;
 
-		return true;
-	}
-
-	bool open()
-	{
 		auto ff_result = 0;
 		auto has_data = false;
 		auto is_succeed = false;
@@ -702,12 +711,79 @@ struct AudioDecoder::Impl
 			}
 		}
 
-		channel_count_ = ff_codec_context_->channels;
-		sample_size_ = channel_count_ * (dst_bit_depth / 8);
 
-		sample_rate_ = ff_codec_context_->sample_rate;
+		// Sample format.
+		//
+		const auto src_sample_format = ff_codec_context_->sample_fmt;
 
-		const auto ff_src_sample_format = ff_codec_context_->sample_fmt;
+		auto dst_sample_format = AV_SAMPLE_FMT_NONE;
+
+		if (parameters.dst_bit_depth_ > 0)
+		{
+			switch (parameters.dst_bit_depth_)
+			{
+			case 8:
+				dst_bit_depth_ = 8;
+				dst_sample_format = AV_SAMPLE_FMT_U8;
+				break;
+
+			case 16:
+				dst_bit_depth_ = 16;
+				dst_sample_format = AV_SAMPLE_FMT_S16;
+				break;
+
+			default:
+				return false;
+			}
+		}
+		else
+		{
+			switch (src_sample_format)
+			{
+			case AV_SAMPLE_FMT_U8:
+			case AV_SAMPLE_FMT_U8P:
+				dst_bit_depth_ = 8;
+				dst_sample_format = AV_SAMPLE_FMT_U8;
+				break;
+
+			default:
+				dst_bit_depth_ = 16;
+				dst_sample_format = AV_SAMPLE_FMT_S16;
+				break;
+			}
+		}
+
+
+		// Channel count.
+		//
+		src_channel_count_ = ff_codec_context_->channels;
+
+		if (parameters.dst_channel_count_ > 0)
+		{
+			dst_channel_count_ = parameters.dst_channel_count_;
+		}
+		else
+		{
+			dst_channel_count_ = src_channel_count_;
+		}
+
+
+		// Sample rate.
+		//
+		src_sample_rate_ = ff_codec_context_->sample_rate;
+
+		if (parameters.dst_sample_rate_ > 0)
+		{
+			dst_sample_rate_ = parameters.dst_sample_rate_;
+		}
+		else
+		{
+			dst_sample_rate_ = src_sample_rate_;
+		}
+
+		// Sample size.
+		//
+		dst_sample_size_ = dst_channel_count_ * (dst_bit_depth_ / 8);
 
 		auto need_converter = false;
 
@@ -717,30 +793,34 @@ struct AudioDecoder::Impl
 		if (has_data)
 		{
 			auto sample_count = stream->duration - normalize_pts(stream->start_time);
-			sample_count *= sample_rate_;
+			sample_count *= dst_sample_rate_;
 			sample_count /= stream->time_base.den;
-			sample_count += sample_size_ - 1;
-			sample_count /= sample_size_;
-			sample_count *= sample_size_;
-			sample_count_ = static_cast<int>(sample_count);
+			sample_count += dst_sample_size_ - 1;
+			sample_count /= dst_sample_size_;
+			sample_count *= dst_sample_size_;
+			dst_sample_count_ = static_cast<int>(sample_count);
 
-			decoded_size_ = sample_count_ * sample_size_;
+			decoded_size_ = dst_sample_count_ * dst_sample_size_;
 
-			need_converter = (ff_src_sample_format != ff_dst_sample_format);
+			need_converter = (
+				src_sample_format != dst_sample_format ||
+				src_channel_count_ != dst_channel_count_ ||
+				src_sample_rate_ != dst_sample_rate_);
 		}
 
 		if (need_converter)
 		{
-			const auto channel_layout = ::av_get_default_channel_layout(channel_count_);
+			const auto src_channel_layout = ::av_get_default_channel_layout(src_channel_count_);
+			const auto dst_channel_layout = ::av_get_default_channel_layout(dst_channel_count_);
 
 			ff_swr_context_ = ::swr_alloc_set_opts(
 				ff_swr_context_,
-				channel_layout,
-				ff_dst_sample_format,
-				sample_rate_,
-				channel_layout,
-				ff_src_sample_format,
-				sample_rate_,
+				dst_channel_layout,
+				dst_sample_format,
+				dst_sample_rate_,
+				src_channel_layout,
+				src_sample_format,
+				src_sample_rate_,
 				0,
 				nullptr);
 
@@ -786,7 +866,8 @@ struct AudioDecoder::Impl
 
 		::avcodec_flush_buffers(ff_codec_context_);
 
-		const auto ff_result = ::av_seek_frame(ff_format_context_, ff_stream_index_, start_timestamp, AVSEEK_FLAG_FRAME);
+		const auto ff_result = ::av_seek_frame(
+			ff_format_context_, ff_stream_index_, start_timestamp, AVSEEK_FLAG_FRAME);
 
 		if (ff_result < 0)
 		{
@@ -841,10 +922,13 @@ struct AudioDecoder::Impl
 	int ff_stream_index_;
 	State state_;
 	ul::Stream* stream_ptr_;
-	int channel_count_;
-	int sample_rate_;
-	int sample_size_;
-	int sample_count_;
+	int src_channel_count_;
+	int src_sample_rate_;
+	int dst_channel_count_;
+	int dst_bit_depth_;
+	int dst_sample_rate_;
+	int dst_sample_size_;
+	int dst_sample_count_;
 	int frame_size_;
 	int frame_offset_;
 	int decoded_size_;
@@ -854,9 +938,20 @@ struct AudioDecoder::Impl
 }; // AudioDecoder::Impl
 
 
-constexpr int AudioDecoder::Impl::dst_bit_depth;
-constexpr AVSampleFormat AudioDecoder::Impl::ff_dst_sample_format;
 constexpr int AudioDecoder::Impl::max_ff_io_buffer_size;
+
+
+bool AudioDecoder::OpenParameters::validate() const
+{
+	return
+		(dst_channel_count_ == 0 || dst_channel_count_ == 1 || dst_channel_count_ == 2) &&
+		(dst_bit_depth_ == 0 || dst_bit_depth_ == 8 || dst_bit_depth_ == 16) &&
+		dst_sample_rate_ >= 0 &&
+		stream_ptr_ != nullptr &&
+		stream_ptr_->is_open() &&
+		stream_ptr_->is_readable() &&
+		stream_ptr_->is_seekable();
+}
 
 
 AudioDecoder::AudioDecoder() :
@@ -865,11 +960,11 @@ AudioDecoder::AudioDecoder() :
 }
 
 AudioDecoder::AudioDecoder(
-	ul::Stream* stream_ptr)
+	const OpenParameters& parameters)
 	:
 	AudioDecoder{}
 {
-	static_cast<void>(open(stream_ptr));
+	static_cast<void>(open(parameters));
 }
 
 AudioDecoder::AudioDecoder(
@@ -884,9 +979,9 @@ AudioDecoder::~AudioDecoder()
 }
 
 bool AudioDecoder::open(
-	ul::Stream* stream_ptr)
+	const OpenParameters& parameters)
 {
-	return pimpl_->open(stream_ptr);
+	return pimpl_->open(parameters);
 }
 
 void AudioDecoder::close()
@@ -937,24 +1032,34 @@ bool AudioDecoder::is_mp3() const
 	return pimpl_->is_mp3();
 }
 
-int AudioDecoder::get_channel_count() const
+int AudioDecoder::get_src_channel_count() const
 {
-	return pimpl_->get_channel_count();
+	return pimpl_->get_src_channel_count();
 }
 
-int AudioDecoder::get_bit_depth() const
+int AudioDecoder::get_src_sample_rate() const
 {
-	return pimpl_->get_bit_depth();
+	return pimpl_->get_src_sample_rate();
 }
 
-int AudioDecoder::get_sample_rate() const
+int AudioDecoder::get_dst_channel_count() const
 {
-	return pimpl_->get_sample_rate();
+	return pimpl_->get_dst_channel_count();
 }
 
-int AudioDecoder::get_sample_size() const
+int AudioDecoder::get_dst_bit_depth() const
 {
-	return pimpl_->get_sample_size();
+	return pimpl_->get_dst_bit_depth();
+}
+
+int AudioDecoder::get_dst_sample_rate() const
+{
+	return pimpl_->get_dst_sample_rate();
+}
+
+int AudioDecoder::get_dst_sample_size() const
+{
+	return pimpl_->get_dst_sample_size();
 }
 
 ul::WaveFormatEx AudioDecoder::get_wave_format_ex() const

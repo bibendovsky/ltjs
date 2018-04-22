@@ -18,6 +18,35 @@ namespace ul = bibendovsky::spul;
 class AudioDecoder final
 {
 public:
+	struct OpenParameters
+	{
+		// An output channel count.
+		// Set to zero to skip convertion.
+		int dst_channel_count_;
+
+		// An output bit depth.
+		// Set to zero to skip convertion.
+		int dst_bit_depth_;
+
+		// An output sample rate.
+		// Set to zero to skip convertion.
+		int dst_sample_rate_;
+
+		// An input data stream.
+		ul::Stream* stream_ptr_;
+
+
+		//
+		// Validates all parameters.
+		//
+		// Returns:
+		//    - "true" if all parameters are valid.
+		//    - "false" otherwise.
+		//
+		bool validate() const;
+	}; // OpenParameters
+
+
 	//
 	// Creates an uninitialized instance.
 	//
@@ -27,10 +56,10 @@ public:
 	// Creates an initialized instance.
 	//
 	// Parameters:
-	//    - stream_ptr - an input data stream.
+	//    - parameters - a set of parameters.
 	//
 	explicit AudioDecoder(
-		ul::Stream* stream_ptr);
+		const OpenParameters& parameters);
 
 	AudioDecoder(
 		const AudioDecoder& that) = delete;
@@ -55,7 +84,7 @@ public:
 	//    - "false" on error.
 	//
 	bool open(
-		ul::Stream* stream_ptr);
+		const OpenParameters& parameters);
 
 	//
 	// Uninitializes the instance.
@@ -145,40 +174,58 @@ public:
 	bool is_mp3() const;
 
 	//
-	// Gets a channel count.
+	// Gets an input channel count.
 	//
 	// Returns:
 	//    - Channel count.
 	//    - Zero on error.
 	//
-	int get_channel_count() const;
+	int get_src_channel_count() const;
 
 	//
-	// Gets a bit depth.
-	//
-	// Returns:
-	//    - A bit depth.
-	//    - Zero on error.
-	//
-	int get_bit_depth() const;
-
-	//
-	// Gets a sample rate.
+	// Gets an input sample rate.
 	//
 	// Returns:
 	//    - Sample rate.
 	//    - Zero on error.
 	//
-	int get_sample_rate() const;
+	int get_src_sample_rate() const;
 
 	//
-	// Gets a sample size.
+	// Gets an output channel count.
+	//
+	// Returns:
+	//    - Channel count.
+	//    - Zero on error.
+	//
+	int get_dst_channel_count() const;
+
+	//
+	// Gets an output bit depth.
+	//
+	// Returns:
+	//    - A bit depth.
+	//    - Zero on error.
+	//
+	int get_dst_bit_depth() const;
+
+	//
+	// Gets an output sample rate.
+	//
+	// Returns:
+	//    - Sample rate.
+	//    - Zero on error.
+	//
+	int get_dst_sample_rate() const;
+
+	//
+	// Gets an output sample size.
 	//
 	// Returns:
 	//    - Sample size.
 	//    - Zero on error.
 	//
-	int get_sample_size() const;
+	int get_dst_sample_size() const;
 
 	//
 	// Gets audio parameters in WAVEFORMATEX-compatible structure.

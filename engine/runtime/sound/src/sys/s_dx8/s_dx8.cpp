@@ -208,17 +208,20 @@ bool WaveFile::Open(
 		return false;
 	}
 
-	if (!audio_decoder_.open(&file_substream_))
+	auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
+	open_parameters.stream_ptr_ = &file_substream_;
+
+	if (!audio_decoder_.open(open_parameters))
 	{
 		return false;
 	}
 
-	if (audio_decoder_.get_bit_depth() != default_bit_depth)
+	if (audio_decoder_.get_dst_bit_depth() != default_bit_depth)
 	{
 		return false;
 	}
 
-	if (audio_decoder_.get_channel_count() > max_channel_count)
+	if (audio_decoder_.get_dst_channel_count() > max_channel_count)
 	{
 		return false;
 	}
@@ -304,7 +307,7 @@ std::uint32_t WaveFile::Read(
 			return 0;
 		}
 
-		const auto sample_size = audio_decoder_.get_sample_size();
+		const auto sample_size = audio_decoder_.get_dst_sample_size();
 		const auto sample_offset = new_decoded_size / sample_size;
 
 		if (!audio_decoder_.set_position(sample_offset))
@@ -2886,7 +2889,10 @@ S32	CDx8SoundSys::Init3DSampleFromFile(
 
 	auto memory_stream = ul::MemoryStream{pFile_image, wave_size, ul::Stream::OpenMode::read};
 
-	if (!audio_decoder_.open(&memory_stream))
+	auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
+	open_parameters.stream_ptr_ = &memory_stream;
+
+	if (!audio_decoder_.open(open_parameters))
 	{
 		return false;
 	}
@@ -3425,7 +3431,10 @@ S32	CDx8SoundSys::InitSampleFromFile(
 
 	auto memory_stream = ul::MemoryStream{pFile_image, wave_size, ul::Stream::OpenMode::read};
 
-	if (!audio_decoder_.open(&memory_stream))
+	auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
+	open_parameters.stream_ptr_ = &memory_stream;
+
+	if (!audio_decoder_.open(open_parameters))
 	{
 		return false;
 	}

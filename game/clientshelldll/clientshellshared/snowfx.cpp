@@ -328,10 +328,9 @@ bool CSnowFX::UpdateAirspaces( void )
 	if( cameraDistSq > m_fMaxDrawDistSq )
 	{
 		// camera is farther away than the max draw distance for this volume, so kill all the airspaces
-		std::set<CSnowFXAirspace*>::iterator it = activeAirspaces.begin();
-		for( ; it != activeAirspaces.end(); it++ )
+		while (!activeAirspaces.empty())
 		{
-			(*it)->Deactivate();
+			(*activeAirspaces.begin())->Deactivate();
 		}
 
 		// don't test any of the airspaces directly
