@@ -1374,11 +1374,11 @@ struct OalSoundSys::Impl
 		//    - "true" - if stream is processed.
 		//    - "false" - if stream is not processed (paused, failed, etc).
 		//
-		bool mix()
+		void mix()
 		{
 			if (is_failed())
 			{
-				return false;
+				return;
 			}
 
 			const auto is_sample_playing = (status_ == Status::playing);
@@ -1390,11 +1390,11 @@ struct OalSoundSys::Impl
 					::alSourcePause(oal_source_);
 					assert(oal_is_succeed());
 					status_ = Status::stopped;
-					return false;
+					return;
 				}
 				else
 				{
-					return false;
+					return;
 				}
 			}
 
@@ -1430,12 +1430,12 @@ struct OalSoundSys::Impl
 					::alSourcePause(oal_source_);
 					assert(oal_is_succeed());
 					status_ = Status::stopped;
-					return false;
+					return;
 				}
 
 				if (oal_queued > 0)
 				{
-					return true;
+					return;
 				}
 			}
 
@@ -1495,7 +1495,7 @@ struct OalSoundSys::Impl
 
 				if (is_failed())
 				{
-					return false;
+					return;
 				}
 
 				if (oal_status != Status::playing)
@@ -1505,8 +1505,6 @@ struct OalSoundSys::Impl
 					status_ = Status::playing;
 				}
 			}
-
-			return oal_processed > 0 || queued_count > 0;
 		}
 
 		void set_master_3d_listener_volume(
@@ -2031,8 +2029,6 @@ struct OalSoundSys::Impl
 
 		while (!mt_is_stop_sound_worker_)
 		{
-			auto is_mixed = false;
-
 			auto are_samples_idle = false;
 
 			{
@@ -2052,7 +2048,7 @@ struct OalSoundSys::Impl
 					{
 						auto& stream = *stream_ptr;
 
-						is_mixed |= stream.mix();
+						stream.mix();
 
 						if (!stream.is_playing())
 						{
@@ -2087,7 +2083,7 @@ struct OalSoundSys::Impl
 					{
 						auto& stream = *stream_ptr;
 
-						is_mixed |= stream.mix();
+						stream.mix();
 
 						if (!stream.is_playing())
 						{
@@ -2122,7 +2118,7 @@ struct OalSoundSys::Impl
 					{
 						auto& stream = *stream_ptr;
 
-						is_mixed |= stream.mix();
+						stream.mix();
 
 						if (!stream.is_playing())
 						{
@@ -2141,7 +2137,7 @@ struct OalSoundSys::Impl
 			{
 				mt_wait_for_stream_cv();
 			}
-			else if (!is_mixed)
+			else
 			{
 				std::this_thread::sleep_for(sleep_delay);
 			}
