@@ -52,7 +52,7 @@ public:
 	// Parameters:
 	//    - c - a character to convert.
 	//
-	static void to_lower_ascii_i(
+	static void to_lower_i(
 		char& c);
 
 	//
@@ -61,7 +61,7 @@ public:
 	// Parameters:
 	//    - string - a string to convert.
 	//
-	static void to_lower_ascii_i(
+	static void to_lower_i(
 		char* const string);
 
 	//
@@ -71,7 +71,7 @@ public:
 	//    - string - a string to convert.
 	//    - string_length - a length of the string.
 	//
-	static void to_lower_ascii_i(
+	static void to_lower_i(
 		char* const string,
 		const int string_length);
 
@@ -81,7 +81,7 @@ public:
 	// Parameters:
 	//    - string - a string to convert.
 	//
-	static void to_lower_ascii_i(
+	static void to_lower_i(
 		std::string& string);
 
 	//
@@ -93,7 +93,7 @@ public:
 	// Returns:
 	//    A converted character.
 	//
-	static char to_lower_ascii(
+	static char to_lower(
 		const char c);
 
 	//
@@ -105,7 +105,7 @@ public:
 	// Returns:
 	//    A converted string.
 	//
-	static std::string to_lower_ascii(
+	static std::string to_lower(
 		const char* const string);
 
 	//
@@ -118,7 +118,7 @@ public:
 	// Returns:
 	//    A converted string.
 	//
-	static std::string to_lower_ascii(
+	static std::string to_lower(
 		const char* const string,
 		const int string_length);
 
@@ -131,7 +131,7 @@ public:
 	// Returns:
 	//    A converted string.
 	//
-	static std::string to_lower_ascii(
+	static std::string to_lower(
 		const std::string& string);
 
 
@@ -141,7 +141,7 @@ public:
 	// Parameters:
 	//    - c - a character to convert.
 	//
-	static void to_upper_ascii_i(
+	static void to_upper_i(
 		char& c);
 
 	//
@@ -150,7 +150,7 @@ public:
 	// Parameters:
 	//    - string - a string to convert.
 	//
-	static void to_upper_ascii_i(
+	static void to_upper_i(
 		char* const string);
 
 	// Makes a string uppercase inplace.
@@ -159,7 +159,7 @@ public:
 	//    - string - a string to convert.
 	//    - string_length - a length of the string.
 	//
-	static void to_upper_ascii_i(
+	static void to_upper_i(
 		char* const string,
 		const int string_length);
 
@@ -169,7 +169,7 @@ public:
 	// Parameters:
 	//    - string - a string to convert.
 	//
-	static void to_upper_ascii_i(
+	static void to_upper_i(
 		std::string& string);
 
 	//
@@ -181,7 +181,7 @@ public:
 	// Returns:
 	//    A converted character.
 	//
-	static char to_upper_ascii(
+	static char to_upper(
 		const char c);
 
 	//
@@ -193,7 +193,7 @@ public:
 	// Returns:
 	//    A converted string.
 	//
-	static std::string to_upper_ascii(
+	static std::string to_upper(
 		const char* const string);
 
 	//
@@ -206,7 +206,7 @@ public:
 	// Returns:
 	//    A converted string.
 	//
-	static std::string to_upper_ascii(
+	static std::string to_upper(
 		const char* const string,
 		const int string_length);
 
@@ -219,7 +219,7 @@ public:
 	// Returns:
 	//    A converted string.
 	//
-	static std::string to_upper_ascii(
+	static std::string to_upper(
 		const std::string& string);
 
 

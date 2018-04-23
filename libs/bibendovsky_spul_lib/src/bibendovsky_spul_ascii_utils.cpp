@@ -50,7 +50,7 @@ struct AsciiUtils::Detail
 		const char c);
 
 
-	static constexpr void to_lower_ascii_i(
+	static constexpr void to_lower_i(
 		char& c)
 	{
 		if (c < 'A' || c > 'Z')
@@ -61,7 +61,7 @@ struct AsciiUtils::Detail
 		c += 'a' - 'A';
 	}
 
-	static constexpr void to_upper_ascii_i(
+	static constexpr void to_upper_i(
 		char& c)
 	{
 		if (c < 'a' || c > 'z')
@@ -96,13 +96,13 @@ struct AsciiUtils::Detail
 }; // Detail
 
 
-void AsciiUtils::to_lower_ascii_i(
+void AsciiUtils::to_lower_i(
 	char& c)
 {
-	Detail::to_lower_ascii_i(c);
+	Detail::to_lower_i(c);
 }
 
-void AsciiUtils::to_lower_ascii_i(
+void AsciiUtils::to_lower_i(
 	char* const string)
 {
 	if (!string)
@@ -110,10 +110,10 @@ void AsciiUtils::to_lower_ascii_i(
 		return;
 	}
 
-	Detail::change_case_ascii_i(string, Detail::to_lower_ascii_i);
+	Detail::change_case_ascii_i(string, Detail::to_lower_i);
 }
 
-void AsciiUtils::to_lower_ascii_i(
+void AsciiUtils::to_lower_i(
 	char* const string,
 	const int string_length)
 {
@@ -122,10 +122,10 @@ void AsciiUtils::to_lower_ascii_i(
 		return;
 	}
 
-	Detail::change_case_ascii_i(string, string_length, Detail::to_lower_ascii_i);
+	Detail::change_case_ascii_i(string, string_length, Detail::to_lower_i);
 }
 
-void AsciiUtils::to_lower_ascii_i(
+void AsciiUtils::to_lower_i(
 	std::string& string)
 {
 	if (string.empty())
@@ -133,18 +133,18 @@ void AsciiUtils::to_lower_ascii_i(
 		return;
 	}
 
-	Detail::change_case_ascii_i(&string[0], static_cast<int>(string.length()), Detail::to_lower_ascii_i);
+	Detail::change_case_ascii_i(&string[0], static_cast<int>(string.length()), Detail::to_lower_i);
 }
 
-char AsciiUtils::to_lower_ascii(
+char AsciiUtils::to_lower(
 	const char c)
 {
 	auto result = c;
-	Detail::to_lower_ascii_i(result);
+	Detail::to_lower_i(result);
 	return result;
 }
 
-std::string AsciiUtils::to_lower_ascii(
+std::string AsciiUtils::to_lower(
 	const char* const string)
 {
 	if (!string || *string == '\0')
@@ -153,11 +153,11 @@ std::string AsciiUtils::to_lower_ascii(
 	}
 
 	auto result = std::string{string};
-	Detail::change_case_ascii_i(&result[0], static_cast<int>(result.length()), Detail::to_lower_ascii_i);
+	Detail::change_case_ascii_i(&result[0], static_cast<int>(result.length()), Detail::to_lower_i);
 	return result;
 }
 
-std::string AsciiUtils::to_lower_ascii(
+std::string AsciiUtils::to_lower(
 	const char* const string,
 	const int string_length)
 {
@@ -167,23 +167,23 @@ std::string AsciiUtils::to_lower_ascii(
 	}
 
 	auto result = std::string{string, static_cast<std::size_t>(string_length)};
-	Detail::change_case_ascii_i(&result[0], string_length, Detail::to_lower_ascii_i);
+	Detail::change_case_ascii_i(&result[0], string_length, Detail::to_lower_i);
 	return result;
 }
 
-std::string AsciiUtils::to_lower_ascii(
+std::string AsciiUtils::to_lower(
 	const std::string& string)
 {
-	return to_lower_ascii(string.c_str(), static_cast<int>(string.length()));
+	return to_lower(string.c_str(), static_cast<int>(string.length()));
 }
 
-void AsciiUtils::to_upper_ascii_i(
+void AsciiUtils::to_upper_i(
 	char& c)
 {
-	Detail::to_upper_ascii_i(c);
+	Detail::to_upper_i(c);
 }
 
-void AsciiUtils::to_upper_ascii_i(
+void AsciiUtils::to_upper_i(
 	char* const string)
 {
 	if (!string)
@@ -191,10 +191,10 @@ void AsciiUtils::to_upper_ascii_i(
 		return;
 	}
 
-	Detail::change_case_ascii_i(string, Detail::to_upper_ascii_i);
+	Detail::change_case_ascii_i(string, Detail::to_upper_i);
 }
 
-void AsciiUtils::to_upper_ascii_i(
+void AsciiUtils::to_upper_i(
 	char* const string,
 	const int string_length)
 {
@@ -203,10 +203,10 @@ void AsciiUtils::to_upper_ascii_i(
 		return;
 	}
 
-	Detail::change_case_ascii_i(string, string_length, Detail::to_upper_ascii_i);
+	Detail::change_case_ascii_i(string, string_length, Detail::to_upper_i);
 }
 
-void AsciiUtils::to_upper_ascii_i(
+void AsciiUtils::to_upper_i(
 	std::string& string)
 {
 	if (string.empty())
@@ -214,18 +214,18 @@ void AsciiUtils::to_upper_ascii_i(
 		return;
 	}
 
-	Detail::change_case_ascii_i(&string[0], static_cast<int>(string.length()), Detail::to_upper_ascii_i);
+	Detail::change_case_ascii_i(&string[0], static_cast<int>(string.length()), Detail::to_upper_i);
 }
 
-char AsciiUtils::to_upper_ascii(
+char AsciiUtils::to_upper(
 	const char c)
 {
 	auto result = c;
-	Detail::to_upper_ascii_i(result);
+	Detail::to_upper_i(result);
 	return result;
 }
 
-std::string AsciiUtils::to_upper_ascii(
+std::string AsciiUtils::to_upper(
 	const char* const string)
 {
 	if (!string)
@@ -234,11 +234,11 @@ std::string AsciiUtils::to_upper_ascii(
 	}
 
 	auto result = std::string{string};
-	Detail::change_case_ascii_i(&result[0], static_cast<int>(result.length()), Detail::to_upper_ascii_i);
+	Detail::change_case_ascii_i(&result[0], static_cast<int>(result.length()), Detail::to_upper_i);
 	return result;
 }
 
-std::string AsciiUtils::to_upper_ascii(
+std::string AsciiUtils::to_upper(
 	const char* const string,
 	const int string_length)
 {
@@ -248,14 +248,14 @@ std::string AsciiUtils::to_upper_ascii(
 	}
 
 	auto result = std::string{string, static_cast<std::size_t>(string_length)};
-	Detail::change_case_ascii_i(&result[0], string_length, Detail::to_upper_ascii_i);
+	Detail::change_case_ascii_i(&result[0], string_length, Detail::to_upper_i);
 	return result;
 }
 
-std::string AsciiUtils::to_upper_ascii(
+std::string AsciiUtils::to_upper(
 	const std::string& string)
 {
-	return to_upper_ascii(string.c_str(), static_cast<int>(string.length()));
+	return to_upper(string.c_str(), static_cast<int>(string.length()));
 }
 
 
