@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(ltjs_lith_tech VERSION 0.0.1 LANGUAGES CXX)
 
+option(LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
+
 include(ltjs_common)
 
 include_directories(
@@ -289,6 +291,7 @@ set(
     ../../shared/src/varsetter.h
     ../../shared/src/version_info.h
     ../../sound/src/iltsound.h
+	../../sound/src/ltjs_dmusic_manager.h
     ../../sound/src/soundbuffer.h
     ../../sound/src/sounddata.h
     ../../sound/src/soundinstance.h
@@ -475,6 +478,7 @@ set(
     ../../shared/src/sys/win/dstreamopenqueuemgr.cpp
     ../../shared/src/transformlt_impl.cpp
     ../../shared/src/version_info.cpp
+	../../sound/src/ltjs_dmusic_manager.cpp
     ../../sound/src/soundbuffer.cpp
     ../../sound/src/sounddata.cpp
     ../../sound/src/soundinstance.cpp
@@ -551,6 +555,13 @@ target_compile_definitions(
     PRIVATE MODEL_SUPPORT_ABC
     PRIVATE $<$<CONFIG:DEBUG>:D3D_DEBUG_INFO>
 )
+
+if (LTJS_USE_DIRECT_MUSIC8)
+	target_compile_definitions(
+		ltjs_lith_tech
+		PRIVATE LTJS_USE_DIRECT_MUSIC8
+	)
+endif ()
 
 set_target_properties(
     ltjs_lith_tech

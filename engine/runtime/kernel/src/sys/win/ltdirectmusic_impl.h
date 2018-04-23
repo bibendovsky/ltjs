@@ -12,6 +12,9 @@
 #define __LTDIRECTMUSIC_IMPL_H__
 
 
+#ifdef LTJS_USE_DIRECT_MUSIC8
+
+
 #ifndef __DMUSICI_H__
 #include <dmusici.h>
 #define __DMUSICI_H__
@@ -1059,6 +1062,10 @@ private:
 	uint32	m_nPaused;
 	CPauseState m_cCurPauseState;
 };
+
+
+#endif // LTJS_USE_DIRECT_MUSIC8
+
 
 #endif // __LTDIRECTMUSIC_IMPL_H__
 
