@@ -12,6 +12,16 @@
 #include "ltjs_dmusic_manager.h"
 
 
+// output error to console
+extern void LTDMConOutError(char *pMsg, ...);
+
+// output warning to console
+extern void LTDMConOutWarning(char *pMsg, ...);
+
+// output message to console
+extern void LTDMConOutMsg(int nLevel, char *pMsg, ...);
+
+
 namespace ltjs
 {
 
@@ -27,7 +37,9 @@ class DMusicManager::Impl
 public:
 	Impl()
 		:
-		sound_sys_{}
+		sound_sys_{},
+		is_initialized_{},
+		is_level_initialized_{}
 	{
 	}
 
@@ -40,7 +52,9 @@ public:
 	Impl(
 		Impl&& that)
 		:
-		sound_sys_{std::move(that.sound_sys_)}
+		sound_sys_{std::move(that.sound_sys_)},
+		is_initialized_{std::move(that.is_initialized_)},
+		is_level_initialized_{std::move(that.is_level_initialized_)}
 	{
 	}
 
@@ -55,14 +69,45 @@ public:
 
 	LTRESULT api_init()
 	{
+		::LTDMConOutMsg(3, "DMusicManager: Init\n");
+
+		if (is_initialized_)
+		{
+			::LTDMConOutError("DMusicManager: Already initialized.\n");
+			return LT_ERROR;
+		}
+
 		sound_sys_ = GetSoundSys();
 
-		return sound_sys_ != nullptr ? LT_OK : LT_ERROR;
+		if (!sound_sys_)
+		{
+			::LTDMConOutError("DMusicManager: No sound system.\n");
+			return LT_ERROR;
+		}
+
+		is_initialized_ = true;
+
+		return LT_OK;
 	}
 
 	LTRESULT api_term()
 	{
+		::LTDMConOutMsg(3, "DMusicManager: Term\n");
+
+		if (!is_initialized_)
+		{
+			::LTDMConOutWarning("DMusicManager: Already uninitialized.");
+			return LT_OK;
+		}
+
+		if (is_level_initialized_)
+		{
+			api_term_level();
+		}
+
 		sound_sys_ = nullptr;
+
+		is_initialized_ = false;
 
 		return LT_OK;
 	}
@@ -74,12 +119,6 @@ public:
 		const char* define2,
 		const char* define3)
 	{
-		static_cast<void>(working_directory);
-		static_cast<void>(control_file_name);
-		static_cast<void>(define1);
-		static_cast<void>(define2);
-		static_cast<void>(define3);
-
 		return LT_ERROR;
 	}
 
@@ -226,6 +265,9 @@ public:
 
 private:
 	ILTSoundSys* sound_sys_;
+
+	bool is_initialized_;
+	bool is_level_initialized_;
 
 
 	static const std::string enact_invalid_name;
@@ -419,11 +461,17 @@ extern signed int g_CV_LTDMConsoleOutput;
 #endif // !NOLITHTECH
 
 
-void LTDMConOutWarning(
-	char* pMsg,
-	...)
+namespace
 {
-	if (::g_CV_LTDMConsoleOutput < 2)
+
+
+void ltdm_console_output(
+	const int level,
+	const CONCOLOR color,
+	const char* const message,
+	va_list args_ptr)
+{
+	if (::g_CV_LTDMConsoleOutput < level)
 	{
 		return;
 	}
@@ -431,11 +479,7 @@ void LTDMConOutWarning(
 	char msg[500];
 	*msg = '\0';
 
-	va_list marker;
-
-	va_start(marker, pMsg);
-	::LTVSNPrintF(msg, sizeof(msg), pMsg, marker);
-	va_end(marker);
+	::LTVSNPrintF(msg, sizeof(msg), message, args_ptr);
 
 #ifndef NOLITHTECH
 	if (msg[::strlen(msg) - 1] == '\n')
@@ -443,41 +487,63 @@ void LTDMConOutWarning(
 		msg[::strlen(msg) - 1] = '\0';
 	}
 
-	::con_PrintString(CONRGB(0, 255, 128), 0, msg);
+	::con_PrintString(color, 0, msg);
 #else
-	::DebugConsoleOutput(msg, 0, 255, 0);
+	::DebugConsoleOutput(msg, PValue_GetR(color), PValue_GetG(color), PValue_GetB(color));
 #endif // !NOLITHTECH
 }
 
-void LTDMConOutMsg(
-	const int nLevel,
-	char *pMsg,
+
+} // namespace
+
+
+void LTDMConOutError(
+	char* message,
 	...)
 {
-	if (::g_CV_LTDMConsoleOutput < nLevel)
-	{
-		return;
-	}
-
-	char msg[500];
-	*msg = '\0';
+#ifndef NOLITHTECH
+	const auto color = CONRGB(255, 0, 128);
+#else
+	const auto color = CONRGB(255, 0, 0);
+#endif
 
 	va_list marker;
-
-	va_start(marker, pMsg);
-	::LTVSNPrintF(msg, sizeof(msg), pMsg, marker);
+	va_start(marker, message);
+	ltdm_console_output(0, color, message, marker);
 	va_end(marker);
+}
 
+void LTDMConOutWarning(
+	char* message,
+	...)
+{
 #ifndef NOLITHTECH
-	if (msg[::strlen(msg) - 1] == '\n')
-	{
-		msg[::strlen(msg) - 1] = '\0';
-	}
-
-	::con_PrintString(CONRGB(128, 255, 128), 0, msg);
+	const auto color = CONRGB(0, 255, 128);
 #else
-	::DebugConsoleOutput(msg, 0, 0, 0);
-#endif // !NOLITHTECH
+	const auto color = CONRGB(0, 255, 0);
+#endif
+
+	va_list marker;
+	va_start(marker, message);
+	ltdm_console_output(2, color, message, marker);
+	va_end(marker);
+}
+
+void LTDMConOutMsg(
+	const int level,
+	char *message,
+	...)
+{
+#ifndef NOLITHTECH
+	const auto color = CONRGB(128, 255, 128);
+#else
+	const auto color = CONRGB(0, 0, 0);
+#endif
+
+	va_list marker;
+	va_start(marker, message);
+	ltdm_console_output(level, color, message, marker);
+	va_end(marker);
 }
 
 
