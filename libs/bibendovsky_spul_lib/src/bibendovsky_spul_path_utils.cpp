@@ -60,6 +60,11 @@ bool PathUtils::is_separator(
 	return c == '\\' || c == '/';
 }
 
+const std::string& PathUtils::get_separator_list()
+{
+	static const auto separator_list = std::string{"\\/"};
+	return separator_list;
+}
 
 bool PathUtils::is_ends_with_separator(
 	const char* const path_utf8)
@@ -83,6 +88,41 @@ bool PathUtils::is_ends_with_separator(
 	}
 
 	return is_separator(path_utf8.back());
+}
+
+bool PathUtils::has_any_separator(
+	const char* const path_utf8)
+{
+	if (!path_utf8)
+	{
+		return false;
+	}
+
+	for (auto i = std::string::size_type{}; ; ++i)
+	{
+		const auto c = path_utf8[i];
+
+		switch (c)
+		{
+		case '\0':
+			return false;
+
+		case '\\':
+		case '/':
+			return true;
+
+		default:
+			break;
+		}
+	}
+
+	return false;
+}
+
+bool PathUtils::has_any_separator(
+	const std::string& path_utf8)
+{
+	return path_utf8.find_first_of(get_separator_list()) != std::string::npos;
 }
 
 void PathUtils::normalize_i(

@@ -53,6 +53,9 @@ namespace spul
 class PathUtils
 {
 public:
+	PathUtils() = delete;
+
+
 	//
 	// Gets a path separator for the current platform.
 	//
@@ -74,6 +77,15 @@ public:
 	//
 	static bool is_separator(
 		const char c);
+
+
+	//
+	// Gets a string with all valid (in our context) path separators for any platform.
+	//
+	// Returns:
+	//    - A string with separators.
+	//
+	static const std::string& get_separator_list();
 
 
 	//
@@ -100,6 +112,33 @@ public:
 	//    - "false" otherwise.
 	//
 	static bool is_ends_with_separator(
+		const std::string& path_utf8);
+
+
+	//
+	// Checks if a path contains any valid path separator.
+	//
+	// Parameters:
+	//    - path_utf8 - a path.
+	//
+	// Returns:
+	//    - "true" if a path contains a separator.
+	//    - "false" otherwise.
+	//
+	static bool has_any_separator(
+		const char* const path_utf8);
+
+	//
+	// Checks if a path contains any valid path separator.
+	//
+	// Parameters:
+	//    - path_utf8 - a path.
+	//
+	// Returns:
+	//    - "true" if a path contains a separator.
+	//    - "false" otherwise.
+	//
+	static bool has_any_separator(
 		const std::string& path_utf8);
 
 
@@ -280,10 +319,6 @@ public:
 	//
 	static std::string get_file_extension(
 		const std::string& path_utf8);
-
-
-private:
-	PathUtils() = delete;
 }; // PathUtils
 
 
