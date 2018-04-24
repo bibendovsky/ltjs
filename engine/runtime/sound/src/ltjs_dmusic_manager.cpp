@@ -5,10 +5,14 @@
 
 
 #include <string>
+#include <unordered_map>
 #include <utility>
+#include "bibendovsky_spul_path_utils.h"
+#include "bibendovsky_spul_scope_guard.h"
 #include "console.h"
 #include "ltpvalue.h"
 #include "soundmgr.h"
+#include "ltdirectmusiccontrolfile.h"
 #include "ltjs_dmusic_manager.h"
 
 
@@ -39,7 +43,13 @@ public:
 		:
 		sound_sys_{},
 		is_initialized_{},
-		is_level_initialized_{}
+		is_level_initialized_{},
+		working_directory_{},
+		control_file_name_{},
+		intensity_count_{},
+		initial_intensity_{},
+		initial_volume_{},
+		volume_offset_{}
 	{
 	}
 
@@ -54,12 +64,21 @@ public:
 		:
 		sound_sys_{std::move(that.sound_sys_)},
 		is_initialized_{std::move(that.is_initialized_)},
-		is_level_initialized_{std::move(that.is_level_initialized_)}
+		is_level_initialized_{std::move(that.is_level_initialized_)},
+		working_directory_{std::move(that.working_directory_)},
+		control_file_name_{std::move(that.control_file_name_)},
+		intensity_count_{std::move(that.intensity_count_)},
+		initial_intensity_{std::move(that.initial_intensity_)},
+		initial_volume_{std::move(that.initial_volume_)},
+		volume_offset_{std::move(that.volume_offset_)}
 	{
+		that.is_initialized_ = false;
+		that.is_level_initialized_ = false;
 	}
 
 	~Impl()
 	{
+		assert(!is_initialized_ && !is_level_initialized_);
 	}
 
 
@@ -69,11 +88,13 @@ public:
 
 	LTRESULT api_init()
 	{
-		::LTDMConOutMsg(3, "DMusicManager: Init\n");
+		const auto method_name = "DMusicManager::Init";
+
+		::LTDMConOutMsg(3, "%s.\n", method_name);
 
 		if (is_initialized_)
 		{
-			::LTDMConOutError("DMusicManager: Already initialized.\n");
+			::LTDMConOutError("%s: Already initialized.\n", method_name);
 			return LT_ERROR;
 		}
 
@@ -81,7 +102,7 @@ public:
 
 		if (!sound_sys_)
 		{
-			::LTDMConOutError("DMusicManager: No sound system.\n");
+			::LTDMConOutError("%s: No sound system.\n", method_name);
 			return LT_ERROR;
 		}
 
@@ -92,11 +113,13 @@ public:
 
 	LTRESULT api_term()
 	{
-		::LTDMConOutMsg(3, "DMusicManager: Term\n");
+		const auto method_name = "DMusicManager::Term";
+
+		::LTDMConOutMsg(3, "%s.\n", method_name);
 
 		if (!is_initialized_)
 		{
-			::LTDMConOutWarning("DMusicManager: Already uninitialized.");
+			::LTDMConOutWarning("%s: Already uninitialized.\n", method_name);
 			return LT_OK;
 		}
 
@@ -119,11 +142,116 @@ public:
 		const char* define2,
 		const char* define3)
 	{
-		return LT_ERROR;
+		const auto method_name = "DMusicManager::InitLevel";
+
+		::LTDMConOutMsg(
+			3,
+			"%s: working dir=%s control file=%s define1=%s define2=%s define3=%s\n",
+			method_name, working_directory, control_file_name, define1, define2, define3);
+
+		if (!is_initialized_)
+		{
+			::LTDMConOutError("%s: Not initialized.", method_name);
+			return LT_ERROR;
+		}
+
+		if (is_level_initialized_)
+		{
+			::LTDMConOutError("%s::InitLevel: Already initialized.", method_name);
+			return LT_ERROR;
+		}
+
+		if (!working_directory)
+		{
+			::LTDMConOutError("%s::InitLevel: No working directory.", method_name);
+			return LT_ERROR;
+		}
+
+		if (!control_file_name)
+		{
+			::LTDMConOutError("%s::InitLevel: No control file.", method_name);
+			return LT_ERROR;
+		}
+
+		working_directory_ = working_directory;
+		control_file_name_ = control_file_name;
+
+		auto control_file_path = control_file_name_;
+
+		if (!ul::PathUtils::has_any_separator(control_file_name))
+		{
+			control_file_path = ul::PathUtils::append(working_directory_, control_file_name_);
+		}
+
+#ifdef NOLITHTECH
+		auto control_file = CControlFileMgrRezFile{m_sRezFileName};
+#else
+		auto control_file = CControlFileMgrDStream{};
+#endif // NOLITHTECH
+
+		control_file.AddDefine(define1);
+		control_file.AddDefine(define2);
+		control_file.AddDefine(define3);
+
+		if (!control_file.Init(control_file_path.c_str()))
+		{
+			::LTDMConOutError("%s: Failed to open a control file.", method_name);
+			return LT_ERROR;
+		}
+
+		auto guard_control_file = ul::ScopeGuard
+		{
+			[&]()
+			{
+				control_file.Term();
+			}
+		};
+
+		intensity_count_ = 0;
+		initial_intensity_ = 0;
+		initial_volume_ = 0;
+		volume_offset_ = 0;
+
+		static_cast<void>(control_file.GetKeyVal(nullptr, "NUMINTENSITIES", intensity_count_));
+		static_cast<void>(control_file.GetKeyVal(nullptr, "INITIALINTENSITY", initial_intensity_));
+		static_cast<void>(control_file.GetKeyVal(nullptr, "INITIALVOLUME", initial_volume_));
+		static_cast<void>(control_file.GetKeyVal(nullptr, "VOLUMEOFFSET", volume_offset_));
+
+		if (intensity_count_ <= 0 || intensity_count_ > max_intensity)
+		{
+			::LTDMConOutError("%s: Invalid intensity count: %d", method_name, intensity_count_);
+			return LT_ERROR;
+		}
+
+		read_intensities(control_file);
+		read_transitions(control_file);
+
+		is_level_initialized_ = true;
+
+		return LT_OK;
 	}
 
 	LTRESULT api_term_level()
 	{
+		const auto method_name = "DMusicManager::TermLevel";
+
+		if (!is_initialized_)
+		{
+			::LTDMConOutError("%s: Not initialized.", method_name);
+			return LT_ERROR;
+		}
+
+		if (!is_level_initialized_)
+		{
+			::LTDMConOutError("%s: Already terminated.", method_name);
+			return LT_OK;
+		}
+
+		working_directory_.clear();
+		control_file_name_.clear();
+
+		is_level_initialized_ = false;
+
 		return LT_OK;
 	}
 
@@ -264,10 +392,51 @@ public:
 
 
 private:
+	static constexpr auto max_intensity = 255;
+
+
+	using Strings = std::vector<std::string>;
+
+
+	struct Intensity
+	{
+		int number_;
+		int loop_count_;
+		int next_number_;
+		Strings segments_names_;
+	}; // Intensity
+
+	using Intensities = std::vector<Intensity>;
+
+
+	struct TransitionMapKey
+	{
+		static constexpr int encode(
+			const int from_number,
+			const int to_number)
+		{
+			return (1'000 * from_number) + to_number;
+		}
+	}; // TransitionMapKey
+
+	using TransitionMap = std::unordered_map<int, std::string>;
+
+
 	ILTSoundSys* sound_sys_;
 
 	bool is_initialized_;
 	bool is_level_initialized_;
+
+	std::string working_directory_;
+	std::string control_file_name_;
+
+	int intensity_count_;
+	int initial_intensity_;
+	int initial_volume_;
+	int volume_offset_;
+
+	Intensities intensities_;
+	TransitionMap transition_map_;
 
 
 	static const std::string enact_invalid_name;
@@ -285,6 +454,207 @@ private:
 	static const std::string enact_grid_name;
 	static const std::string enact_segment_name;
 	static const std::string enact_marker_name;
+
+
+	void read_intensities(
+		CControlFileMgr& control_file)
+	{
+		intensities_.clear();
+		intensities_.resize(intensity_count_ + 1);
+
+		auto segments_names = Strings{};
+
+		auto key_ptr = control_file.GetKey(nullptr, "INTENSITY");
+
+		while (key_ptr)
+		{
+			// Intensity number.
+			//
+			auto word_ptr = key_ptr->GetFirstWord();
+
+			if (!word_ptr) 
+			{
+				key_ptr = key_ptr->NextWithSameName();
+				continue;
+			}
+
+			auto intensity_number = 0;
+
+			word_ptr->GetVal(intensity_number);
+
+			if (intensity_number <= 0 || intensity_number > intensity_count_)
+			{
+				key_ptr = key_ptr->NextWithSameName();
+				continue;
+			}
+
+
+			// Loop count.
+			//
+			word_ptr = word_ptr->Next();
+
+			if (!word_ptr) 
+			{
+				key_ptr = key_ptr->NextWithSameName();
+				continue;
+			}
+
+			auto loop_count = -1;
+			word_ptr->GetVal(loop_count);
+
+
+			// Next intensity number.
+			//
+			word_ptr = word_ptr->Next();
+
+			if (!word_ptr) 
+			{
+				key_ptr = key_ptr->NextWithSameName();
+				continue;
+			}
+
+			auto next_intensity_number = 0;
+			word_ptr->GetVal(next_intensity_number);
+
+
+			// Segment name list.
+			//
+			word_ptr = word_ptr->Next();
+
+			if (!word_ptr) 
+			{
+				key_ptr = key_ptr->NextWithSameName();
+				continue;
+			}
+
+			segments_names.clear();
+
+			while (word_ptr)
+			{
+				const auto segment_name = word_ptr->GetVal();
+				segments_names.emplace_back(segment_name);
+				word_ptr = word_ptr->Next();
+			}
+
+
+			// Add intensity.
+			//
+			auto& intensity = intensities_[intensity_number];
+			intensity.number_ = intensity_number;
+			intensity.loop_count_ = loop_count;
+			intensity.next_number_ = next_intensity_number;
+			intensity.segments_names_ = segments_names;
+
+
+			// Move to next key.
+			//
+			key_ptr = key_ptr->NextWithSameName();
+		}
+	}
+
+	void read_transitions(
+		CControlFileMgr& control_file)
+	{
+		transition_map_.clear();
+
+		auto segment_name = std::string{};
+
+		auto pKey = control_file.GetKey(nullptr, "TRANSITION");
+
+		while (pKey)
+		{
+			// From number.
+			//
+			auto word_ptr = pKey->GetFirstWord();
+
+			if (!word_ptr)
+			{
+				pKey = pKey->NextWithSameName();
+				continue;
+			}
+
+			auto from_number = 0;
+			word_ptr->GetVal(from_number);
+
+			if (from_number <= 0 || from_number > intensity_count_)
+			{
+				pKey = pKey->NextWithSameName();
+				continue;
+			}
+
+
+			// To number.
+			//
+			word_ptr = word_ptr->Next();
+
+			if (!word_ptr) 
+			{
+				pKey = pKey->NextWithSameName();
+				continue;
+			}
+
+			auto to_number = 0;
+			word_ptr->GetVal(to_number);
+
+			if (to_number <= 0 || to_number > intensity_count_)
+			{
+				pKey = pKey->NextWithSameName();
+				continue;
+			}
+
+
+			// When to enact.
+			//
+			word_ptr = word_ptr->Next();
+
+			if (!word_ptr) 
+			{
+				pKey = pKey->NextWithSameName();
+				continue;
+			}
+
+			const auto enact_string = word_ptr->GetVal();
+			static_cast<void>(enact_string);
+
+
+			// Transition type.
+			//
+			word_ptr = word_ptr->Next();
+
+			if (!word_ptr) 
+			{
+				pKey = pKey->NextWithSameName();
+				continue;
+			}
+
+			const auto transition_type_string = word_ptr->GetVal();
+			static_cast<void>(transition_type_string);
+
+
+			// Segment name.
+			//
+			segment_name.clear();
+
+			word_ptr = word_ptr->Next();
+
+			if (word_ptr)
+			{
+				segment_name = word_ptr->GetVal();
+			}
+
+
+			// Map transition.
+			//
+			const auto transition_key = TransitionMapKey::encode(from_number, to_number);
+
+			transition_map_.emplace(transition_key, segment_name);
+
+
+			// Move to next key.
+			//
+			pKey = pKey->NextWithSameName();
+		}
+	}
 }; // DMusicManager::Impl
 
 
