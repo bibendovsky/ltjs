@@ -223,8 +223,15 @@ public:
 			return LT_ERROR;
 		}
 
-		read_intensities(control_file);
-		read_transitions(control_file);
+		if (!read_intensities(control_file))
+		{
+			return LT_ERROR;
+		}
+
+		if (!read_transitions(control_file))
+		{
+			return LT_ERROR;
+		}
 
 		is_level_initialized_ = true;
 
@@ -246,6 +253,9 @@ public:
 			::LTDMConOutError("%s: Already terminated.", method_name);
 			return LT_OK;
 		}
+
+		intensities_.clear();
+		transition_map_.clear();
 
 		working_directory_.clear();
 		control_file_name_.clear();
@@ -456,7 +466,7 @@ private:
 	static const std::string enact_marker_name;
 
 
-	void read_intensities(
+	bool read_intensities(
 		CControlFileMgr& control_file)
 	{
 		intensities_.clear();
@@ -472,10 +482,10 @@ private:
 			//
 			auto word_ptr = key_ptr->GetFirstWord();
 
-			if (!word_ptr) 
+			if (!word_ptr)
 			{
-				key_ptr = key_ptr->NextWithSameName();
-				continue;
+				::LTDMConOutError("%s: Expected intensity number.", "DMusicManager");
+				return false;
 			}
 
 			auto intensity_number = 0;
@@ -484,8 +494,8 @@ private:
 
 			if (intensity_number <= 0 || intensity_number > intensity_count_)
 			{
-				key_ptr = key_ptr->NextWithSameName();
-				continue;
+				::LTDMConOutError("%s: Invalid intensity number: %d", "DMusicManager", intensity_number);
+				return false;
 			}
 
 
@@ -493,10 +503,10 @@ private:
 			//
 			word_ptr = word_ptr->Next();
 
-			if (!word_ptr) 
+			if (!word_ptr)
 			{
-				key_ptr = key_ptr->NextWithSameName();
-				continue;
+				::LTDMConOutError("%s: Expected loop count.", "DMusicManager");
+				return false;
 			}
 
 			auto loop_count = -1;
@@ -507,10 +517,10 @@ private:
 			//
 			word_ptr = word_ptr->Next();
 
-			if (!word_ptr) 
+			if (!word_ptr)
 			{
-				key_ptr = key_ptr->NextWithSameName();
-				continue;
+				::LTDMConOutError("%s: Expected next intensity number.", "DMusicManager");
+				return false;
 			}
 
 			auto next_intensity_number = 0;
@@ -521,10 +531,10 @@ private:
 			//
 			word_ptr = word_ptr->Next();
 
-			if (!word_ptr) 
+			if (!word_ptr)
 			{
-				key_ptr = key_ptr->NextWithSameName();
-				continue;
+				::LTDMConOutError("%s: Expected segment name list.", "DMusicManager");
+				return false;
 			}
 
 			segments_names.clear();
@@ -550,9 +560,11 @@ private:
 			//
 			key_ptr = key_ptr->NextWithSameName();
 		}
+
+		return true;
 	}
 
-	void read_transitions(
+	bool read_transitions(
 		CControlFileMgr& control_file)
 	{
 		transition_map_.clear();
@@ -569,8 +581,8 @@ private:
 
 			if (!word_ptr)
 			{
-				pKey = pKey->NextWithSameName();
-				continue;
+				::LTDMConOutError("%s: Expected transition intensity number \"from\".", "DMusicManager");
+				return false;
 			}
 
 			auto from_number = 0;
@@ -578,8 +590,11 @@ private:
 
 			if (from_number <= 0 || from_number > intensity_count_)
 			{
-				pKey = pKey->NextWithSameName();
-				continue;
+				::LTDMConOutError(
+					"%s: Invalid transition intensity number \"from\": %d",
+					"DMusicManager", from_number);
+
+				return false;
 			}
 
 
@@ -587,10 +602,10 @@ private:
 			//
 			word_ptr = word_ptr->Next();
 
-			if (!word_ptr) 
+			if (!word_ptr)
 			{
-				pKey = pKey->NextWithSameName();
-				continue;
+				::LTDMConOutError("%s: Expected transition intensity number \"to\".", "DMusicManager");
+				return false;
 			}
 
 			auto to_number = 0;
@@ -598,8 +613,11 @@ private:
 
 			if (to_number <= 0 || to_number > intensity_count_)
 			{
-				pKey = pKey->NextWithSameName();
-				continue;
+				::LTDMConOutError(
+					"%s: Invalid transition intensity number \"to\": %d",
+					"DMusicManager", to_number);
+
+				return false;
 			}
 
 
@@ -607,10 +625,10 @@ private:
 			//
 			word_ptr = word_ptr->Next();
 
-			if (!word_ptr) 
+			if (!word_ptr)
 			{
-				pKey = pKey->NextWithSameName();
-				continue;
+				::LTDMConOutError("%s: Expected transition enact type.", "DMusicManager");
+				return false;
 			}
 
 			const auto enact_string = word_ptr->GetVal();
@@ -621,10 +639,10 @@ private:
 			//
 			word_ptr = word_ptr->Next();
 
-			if (!word_ptr) 
+			if (!word_ptr)
 			{
-				pKey = pKey->NextWithSameName();
-				continue;
+				::LTDMConOutError("%s: Expected transition type.", "DMusicManager");
+				return false;
 			}
 
 			const auto transition_type_string = word_ptr->GetVal();
@@ -654,6 +672,8 @@ private:
 			//
 			pKey = pKey->NextWithSameName();
 		}
+
+		return true;
 	}
 }; // DMusicManager::Impl
 
