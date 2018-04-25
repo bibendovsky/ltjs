@@ -15,6 +15,7 @@
 #include "soundmgr.h"
 #include "ltdirectmusiccontrolfile.h"
 #include "ltjs_dmusic_manager.h"
+#include "ltjs_dmusic_segment.h"
 
 
 #ifndef NOLITHTECH
@@ -225,6 +226,22 @@ public:
 		if (!read_transitions(control_file))
 		{
 			return LT_ERROR;
+		}
+
+		for (const auto& intensity : intensities_)
+		{
+			for (const auto& segment_name : intensity.segments_names_)
+			{
+				auto segment_path = ul::PathUtils::normalize(ul::PathUtils::append(working_directory_, segment_name));
+
+				auto segment = DMusicSegment{};
+
+				if (!segment.open(segment_path))
+				{
+					log_error("Failed to load a segment: %s", segment_name.c_str());
+					return LT_ERROR;
+				}
+			}
 		}
 
 		is_level_initialized_ = true;

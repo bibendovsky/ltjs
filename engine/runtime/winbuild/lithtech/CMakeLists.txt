@@ -292,6 +292,7 @@ set(
     ../../shared/src/version_info.h
     ../../sound/src/iltsound.h
 	../../sound/src/ltjs_dmusic_manager.h
+	../../sound/src/ltjs_dmusic_segment.h
     ../../sound/src/soundbuffer.h
     ../../sound/src/sounddata.h
     ../../sound/src/soundinstance.h
@@ -479,6 +480,7 @@ set(
     ../../shared/src/transformlt_impl.cpp
     ../../shared/src/version_info.cpp
 	../../sound/src/ltjs_dmusic_manager.cpp
+	../../sound/src/ltjs_dmusic_segment.cpp
     ../../sound/src/soundbuffer.cpp
     ../../sound/src/sounddata.cpp
     ../../sound/src/soundinstance.cpp
