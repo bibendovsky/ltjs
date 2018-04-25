@@ -409,7 +409,7 @@ public:
 
 
 private:
-	static constexpr auto max_intensity = 255;
+	static constexpr auto max_intensity = 999;
 
 
 	using Strings = std::vector<std::string>;
