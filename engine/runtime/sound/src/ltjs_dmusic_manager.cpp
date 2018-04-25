@@ -4,6 +4,7 @@
 #ifndef LTJS_USE_DIRECT_MUSIC8
 
 
+#include <cstdio>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -16,14 +17,11 @@
 #include "ltjs_dmusic_manager.h"
 
 
-// output error to console
-extern void LTDMConOutError(char *pMsg, ...);
-
-// output warning to console
-extern void LTDMConOutWarning(char *pMsg, ...);
-
-// output message to console
-extern void LTDMConOutMsg(int nLevel, char *pMsg, ...);
+#ifndef NOLITHTECH
+extern int32 g_CV_LTDMConsoleOutput;
+#else
+extern signed int g_CV_LTDMConsoleOutput;
+#endif // !NOLITHTECH
 
 
 namespace ltjs
@@ -41,6 +39,7 @@ class DMusicManager::Impl
 public:
 	Impl()
 		:
+		method_name_{},
 		sound_sys_{},
 		is_initialized_{},
 		is_level_initialized_{},
@@ -62,6 +61,7 @@ public:
 	Impl(
 		Impl&& that)
 		:
+		method_name_{std::move(that.method_name_)},
 		sound_sys_{std::move(that.sound_sys_)},
 		is_initialized_{std::move(that.is_initialized_)},
 		is_level_initialized_{std::move(that.is_level_initialized_)},
@@ -88,13 +88,13 @@ public:
 
 	LTRESULT api_init()
 	{
-		const auto method_name = "DMusicManager::Init";
+		log_info(3, "");
 
-		::LTDMConOutMsg(3, "%s.\n", method_name);
+		log_error("Just a test...");
 
 		if (is_initialized_)
 		{
-			::LTDMConOutError("%s: Already initialized.\n", method_name);
+			log_error("Already initialized.");
 			return LT_ERROR;
 		}
 
@@ -102,7 +102,7 @@ public:
 
 		if (!sound_sys_)
 		{
-			::LTDMConOutError("%s: No sound system.\n", method_name);
+			log_error("No sound system.");
 			return LT_ERROR;
 		}
 
@@ -113,13 +113,11 @@ public:
 
 	LTRESULT api_term()
 	{
-		const auto method_name = "DMusicManager::Term";
-
-		::LTDMConOutMsg(3, "%s.\n", method_name);
+		log_info(3, "");
 
 		if (!is_initialized_)
 		{
-			::LTDMConOutWarning("%s: Already uninitialized.\n", method_name);
+			log_warning("Already uninitialized.");
 			return LT_OK;
 		}
 
@@ -142,34 +140,32 @@ public:
 		const char* define2,
 		const char* define3)
 	{
-		const auto method_name = "DMusicManager::InitLevel";
-
-		::LTDMConOutMsg(
+		log_info(
 			3,
-			"%s: working dir=%s control file=%s define1=%s define2=%s define3=%s\n",
-			method_name, working_directory, control_file_name, define1, define2, define3);
+			"working dir=%s control file=%s define1=%s define2=%s define3=%s",
+			working_directory, control_file_name, define1, define2, define3);
 
 		if (!is_initialized_)
 		{
-			::LTDMConOutError("%s: Not initialized.", method_name);
+			log_error("Not initialized.");
 			return LT_ERROR;
 		}
 
 		if (is_level_initialized_)
 		{
-			::LTDMConOutError("%s::InitLevel: Already initialized.", method_name);
+			log_error("Already initialized.");
 			return LT_ERROR;
 		}
 
 		if (!working_directory)
 		{
-			::LTDMConOutError("%s::InitLevel: No working directory.", method_name);
+			log_error("No working directory.");
 			return LT_ERROR;
 		}
 
 		if (!control_file_name)
 		{
-			::LTDMConOutError("%s::InitLevel: No control file.", method_name);
+			log_error("No control file.");
 			return LT_ERROR;
 		}
 
@@ -195,7 +191,7 @@ public:
 
 		if (!control_file.Init(control_file_path.c_str()))
 		{
-			::LTDMConOutError("%s: Failed to open a control file.", method_name);
+			log_error("Failed to open a control file.");
 			return LT_ERROR;
 		}
 
@@ -219,7 +215,7 @@ public:
 
 		if (intensity_count_ <= 0 || intensity_count_ > max_intensity)
 		{
-			::LTDMConOutError("%s: Invalid intensity count: %d", method_name, intensity_count_);
+			log_error("Invalid intensity count: %d", intensity_count_);
 			return LT_ERROR;
 		}
 
@@ -240,17 +236,15 @@ public:
 
 	LTRESULT api_term_level()
 	{
-		const auto method_name = "DMusicManager::TermLevel";
-
 		if (!is_initialized_)
 		{
-			::LTDMConOutError("%s: Not initialized.", method_name);
+			log_error("Not initialized.");
 			return LT_ERROR;
 		}
 
 		if (!is_level_initialized_)
 		{
-			::LTDMConOutError("%s: Already terminated.", method_name);
+			log_error("Already terminated.");
 			return LT_OK;
 		}
 
@@ -401,6 +395,13 @@ public:
 	// =========================================================================
 
 
+	void set_method_name(
+		const char* const method_name)
+	{
+		method_name_ = method_name;
+	}
+
+
 private:
 	static constexpr auto max_intensity = 255;
 
@@ -431,6 +432,8 @@ private:
 
 	using TransitionMap = std::unordered_map<int, std::string>;
 
+
+	const char* method_name_;
 
 	ILTSoundSys* sound_sys_;
 
@@ -466,6 +469,105 @@ private:
 	static const std::string enact_marker_name;
 
 
+	void log_message(
+		const int level,
+		const CONCOLOR color,
+		const char* const message,
+		va_list args_ptr)
+	{
+		if (!message || ::g_CV_LTDMConsoleOutput < level)
+		{
+			return;
+		}
+
+		constexpr auto max_message_size = 1024;
+
+		char dst_message[max_message_size];
+		*dst_message = '\0';
+
+		static_cast<void>(::strcat(dst_message, "DMusicManager"));
+
+		if (method_name_)
+		{
+			static_cast<void>(::strcat(dst_message, "::"));
+			static_cast<void>(::strcat(dst_message, method_name_));
+		}
+
+		static_cast<void>(::strcat(dst_message, ": "));
+
+		const auto prefix_length = ::strlen(dst_message);
+
+		const auto written_size = ::vsnprintf(dst_message + prefix_length, max_message_size - prefix_length, message, args_ptr);
+
+		if (written_size <= 0)
+		{
+			return;
+		}
+
+#ifndef NOLITHTECH
+		const auto dst_message_length = ::strlen(dst_message);
+
+		if (dst_message[dst_message_length] == '\n')
+		{
+			dst_message[dst_message_length] = '\0';
+		}
+
+		::con_PrintString(color, 0, dst_message);
+#else
+		::DebugConsoleOutput(dst_message, ::PValue_GetR(color), ::PValue_GetG(color), ::PValue_GetB(color));
+#endif // !NOLITHTECH
+	}
+
+	void log_error(
+		const char* const message,
+		...)
+	{
+#ifndef NOLITHTECH
+		const auto color = CONRGB(255, 0, 128);
+#else
+		const auto color = CONRGB(255, 0, 0);
+#endif // !NOLITHTECH
+
+		va_list marker;
+		va_start(marker, message);
+		log_message(0, color, message, marker);
+		va_end(marker);
+	}
+
+	void log_warning(
+		const char* const message,
+		...)
+	{
+#ifndef NOLITHTECH
+		const auto color = CONRGB(0, 255, 128);
+#else
+		const auto color = CONRGB(0, 255, 0);
+#endif // !NOLITHTECH
+
+		va_list marker;
+		va_start(marker, message);
+		log_message(2, color, message, marker);
+		va_end(marker);
+	}
+
+	void log_info(
+		const int level,
+		const char* const message,
+		...)
+	{
+#ifndef NOLITHTECH
+		const auto color = CONRGB(128, 255, 128);
+#else
+		const auto color = CONRGB(0, 0, 0);
+#endif // !NOLITHTECH
+
+		va_list marker;
+		va_start(marker, message);
+		log_message(level, color, message, marker);
+		va_end(marker);
+	}
+
+
 	bool read_intensities(
 		CControlFileMgr& control_file)
 	{
@@ -484,7 +586,7 @@ private:
 
 			if (!word_ptr)
 			{
-				::LTDMConOutError("%s: Expected intensity number.", "DMusicManager");
+				log_error("Expected intensity number.");
 				return false;
 			}
 
@@ -494,7 +596,7 @@ private:
 
 			if (intensity_number <= 0 || intensity_number > intensity_count_)
 			{
-				::LTDMConOutError("%s: Invalid intensity number: %d", "DMusicManager", intensity_number);
+				log_error("Invalid intensity number: %d", intensity_number);
 				return false;
 			}
 
@@ -505,7 +607,7 @@ private:
 
 			if (!word_ptr)
 			{
-				::LTDMConOutError("%s: Expected loop count.", "DMusicManager");
+				log_error("Expected loop count.");
 				return false;
 			}
 
@@ -519,7 +621,7 @@ private:
 
 			if (!word_ptr)
 			{
-				::LTDMConOutError("%s: Expected next intensity number.", "DMusicManager");
+				log_error("Expected next intensity number.");
 				return false;
 			}
 
@@ -533,7 +635,7 @@ private:
 
 			if (!word_ptr)
 			{
-				::LTDMConOutError("%s: Expected segment name list.", "DMusicManager");
+				log_error("Expected segment name list.");
 				return false;
 			}
 
@@ -581,7 +683,7 @@ private:
 
 			if (!word_ptr)
 			{
-				::LTDMConOutError("%s: Expected transition intensity number \"from\".", "DMusicManager");
+				log_error("Expected transition intensity number \"from\".");
 				return false;
 			}
 
@@ -590,10 +692,7 @@ private:
 
 			if (from_number <= 0 || from_number > intensity_count_)
 			{
-				::LTDMConOutError(
-					"%s: Invalid transition intensity number \"from\": %d",
-					"DMusicManager", from_number);
-
+				log_error("Invalid transition intensity number \"from\": %d", from_number);
 				return false;
 			}
 
@@ -604,7 +703,7 @@ private:
 
 			if (!word_ptr)
 			{
-				::LTDMConOutError("%s: Expected transition intensity number \"to\".", "DMusicManager");
+				log_error("Expected transition intensity number \"to\".");
 				return false;
 			}
 
@@ -613,10 +712,7 @@ private:
 
 			if (to_number <= 0 || to_number > intensity_count_)
 			{
-				::LTDMConOutError(
-					"%s: Invalid transition intensity number \"to\": %d",
-					"DMusicManager", to_number);
-
+				log_error("Invalid transition intensity number \"to\": %d", to_number);
 				return false;
 			}
 
@@ -627,7 +723,7 @@ private:
 
 			if (!word_ptr)
 			{
-				::LTDMConOutError("%s: Expected transition enact type.", "DMusicManager");
+				log_error("Expected transition enact type.");
 				return false;
 			}
 
@@ -641,7 +737,7 @@ private:
 
 			if (!word_ptr)
 			{
-				::LTDMConOutError("%s: Expected transition type.", "DMusicManager");
+				log_error("Expected transition type.");
 				return false;
 			}
 
@@ -714,11 +810,13 @@ DMusicManager::~DMusicManager()
 
 LTRESULT DMusicManager::Init()
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_init();
 }
 
 LTRESULT DMusicManager::Term()
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_term();
 }
 
@@ -729,39 +827,46 @@ LTRESULT DMusicManager::InitLevel(
 	const char* define2,
 	const char* define3)
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_init_level(working_directory, control_file_name, define1, define2, define3);
 }
 
 LTRESULT DMusicManager::TermLevel()
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_term_level();
 }
 
 LTRESULT DMusicManager::Play()
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_play();
 }
 
 LTRESULT DMusicManager::Stop(
 	const LTDMEnactTypes start_type)
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_stop(start_type);
 }
 
 LTRESULT DMusicManager::Pause(
 	const LTDMEnactTypes start_type)
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_pause(start_type);
 }
 
 LTRESULT DMusicManager::UnPause()
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_unpause();
 }
 
 LTRESULT DMusicManager::SetVolume(
 	const long volume)
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_set_volume(volume);
 }
 
@@ -769,6 +874,7 @@ LTRESULT DMusicManager::ChangeIntensity(
 	const int new_intensity,
 	const LTDMEnactTypes start_type)
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_change_intensity(new_intensity, start_type);
 }
 
@@ -776,6 +882,7 @@ LTRESULT DMusicManager::PlaySecondary(
 	const char* segment_name,
 	const LTDMEnactTypes start_type)
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_play_secondary(segment_name, start_type);
 }
 
@@ -783,6 +890,7 @@ LTRESULT DMusicManager::StopSecondary(
 	const char* segment_name,
 	const LTDMEnactTypes start_type)
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_stop_secondary(segment_name, start_type);
 }
 
@@ -791,6 +899,7 @@ LTRESULT DMusicManager::PlayMotif(
 	const char* motif_name,
 	const LTDMEnactTypes start_type)
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_play_motif(style_name, motif_name, start_type);
 }
 
@@ -799,17 +908,20 @@ LTRESULT DMusicManager::StopMotif(
 	const char* motif_name,
 	const LTDMEnactTypes start_type)
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_stop_motif(style_name, motif_name, start_type);
 }
 
 int DMusicManager::GetCurIntensity()
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_get_cur_intensity();
 }
 
 LTDMEnactTypes DMusicManager::StringToEnactType(
 	const char* name)
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_string_to_enact_type(name);
 }
 
@@ -817,124 +929,36 @@ void DMusicManager::EnactTypeToString(
 	LTDMEnactTypes type,
 	char* name)
 {
+	pimpl_->set_method_name(__func__);
 	pimpl_->api_enact_type_to_string(type, name);
 }
 
 int DMusicManager::GetNumIntensities()
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_get_num_intensities();
 }
 
 int DMusicManager::GetInitialIntensity()
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_get_initial_intensity();
 }
 
 int DMusicManager::GetInitialVolume()
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_get_initial_volume();
 }
 
 int DMusicManager::GetVolumeOffset()
 {
+	pimpl_->set_method_name(__func__);
 	return pimpl_->api_get_volume_offset();
 }
 
 
 } // ltjs
-
-
-#ifndef NOLITHTECH
-extern int32 g_CV_LTDMConsoleOutput;
-#else
-extern signed int g_CV_LTDMConsoleOutput;
-#endif // !NOLITHTECH
-
-
-namespace
-{
-
-
-void ltdm_console_output(
-	const int level,
-	const CONCOLOR color,
-	const char* const message,
-	va_list args_ptr)
-{
-	if (::g_CV_LTDMConsoleOutput < level)
-	{
-		return;
-	}
-
-	char msg[500];
-	*msg = '\0';
-
-	::LTVSNPrintF(msg, sizeof(msg), message, args_ptr);
-
-#ifndef NOLITHTECH
-	if (msg[::strlen(msg) - 1] == '\n')
-	{
-		msg[::strlen(msg) - 1] = '\0';
-	}
-
-	::con_PrintString(color, 0, msg);
-#else
-	::DebugConsoleOutput(msg, PValue_GetR(color), PValue_GetG(color), PValue_GetB(color));
-#endif // !NOLITHTECH
-}
-
-
-} // namespace
-
-
-void LTDMConOutError(
-	char* message,
-	...)
-{
-#ifndef NOLITHTECH
-	const auto color = CONRGB(255, 0, 128);
-#else
-	const auto color = CONRGB(255, 0, 0);
-#endif
-
-	va_list marker;
-	va_start(marker, message);
-	ltdm_console_output(0, color, message, marker);
-	va_end(marker);
-}
-
-void LTDMConOutWarning(
-	char* message,
-	...)
-{
-#ifndef NOLITHTECH
-	const auto color = CONRGB(0, 255, 128);
-#else
-	const auto color = CONRGB(0, 255, 0);
-#endif
-
-	va_list marker;
-	va_start(marker, message);
-	ltdm_console_output(2, color, message, marker);
-	va_end(marker);
-}
-
-void LTDMConOutMsg(
-	const int level,
-	char *message,
-	...)
-{
-#ifndef NOLITHTECH
-	const auto color = CONRGB(128, 255, 128);
-#else
-	const auto color = CONRGB(0, 0, 0);
-#endif
-
-	va_list marker;
-	va_start(marker, message);
-	ltdm_console_output(level, color, message, marker);
-	va_end(marker);
-}
 
 
 #endif LTJS_USE_DIRECT_MUSIC8

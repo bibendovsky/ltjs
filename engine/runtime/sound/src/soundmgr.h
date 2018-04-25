@@ -54,10 +54,14 @@ extern ILTSoundSys* SoundSys( bool bTerminate = false );
 #include "soundbuffer.h"
 #endif
 
+#ifdef LTJS_USE_DIRECT_MUSIC8
 #ifndef __DMUSICI_H__
 #include <dmusici.h>
 #define __DMUSICI_H__
 #endif
+#else
+#include "dsound.h"
+#endif // LTJS_USE_DIRECT_MUSIC8
 
 #ifndef __SOUNDINSTANCE_H__
 #include "soundinstance.h"
@@ -175,8 +179,12 @@ public:
 //	===========================================================================
 
 	LPDIRECTSOUND8 GetDirectSound( );
+
+#ifdef LTJS_USE_DIRECT_MUSIC8
 	IDirectMusicPerformance8* GetDirectMusicPerformance( );
 	IDirectMusic* GetDirectMusic();
+#endif // LTJS_USE_DIRECT_MUSIC8
+
 	LHDIGDRIVER	GetDigDriver( ) const { return m_hDigDriver; }
 
 //	===========================================================================
