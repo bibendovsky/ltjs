@@ -123,7 +123,12 @@ bool RiffReader::descend(
 		return false;
 	}
 
-	return descend_internal(type);
+	if (!descend_internal(type))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool RiffReader::ascend()
@@ -196,7 +201,8 @@ bool RiffReader::find_and_descend(
 
 		const auto& chunk = chunks_.back();
 
-		if (chunk.chunk_.id_ == id)
+		if (chunk.chunk_.id_ == id &&
+			(type != 0 ? chunk.chunk_.type_ == type : true))
 		{
 			return true;
 		}
@@ -256,11 +262,6 @@ bool RiffReader::descend_internal(
 	const auto chunk_id = Endian::little(buffer[0]);
 	auto chunk_size = Endian::little(buffer[1]);
 	const auto chunk_type = (has_type ? Endian::little(buffer[2]) : 0);
-
-	if (has_type && chunk_type != type)
-	{
-		return false;
-	}
 
 	if (chunk_id == 0 || (is_root && chunk_id != RiffFourCcs::riff))
 	{
