@@ -90,8 +90,6 @@ public:
 	{
 		log_info(3, "");
 
-		log_error("Just a test...");
-
 		if (is_initialized_)
 		{
 			log_error("Already initialized.");
@@ -332,6 +330,8 @@ public:
 		static_cast<void>(motif_name);
 		static_cast<void>(start_type);
 
+		log_error(unsupported_method_message);
+
 		return LT_ERROR;
 	}
 
@@ -344,6 +344,8 @@ public:
 		static_cast<void>(motif_name);
 		static_cast<void>(start_type);
 
+		log_error(unsupported_method_message);
+
 		return LT_ERROR;
 	}
 
@@ -355,6 +357,8 @@ public:
 	LTDMEnactTypes api_string_to_enact_type(
 		const char* name)
 	{
+		log_error(unsupported_method_message);
+
 		return LTDMEnactInvalid;
 	}
 
@@ -362,6 +366,8 @@ public:
 		LTDMEnactTypes type,
 		char* name)
 	{
+		log_error(unsupported_method_message);
+
 		if (!name)
 		{
 			return;
@@ -452,21 +458,7 @@ private:
 	TransitionMap transition_map_;
 
 
-	static const std::string enact_invalid_name;
-	static const std::string enact_default_name;
-	static const std::string enact_immediatly_name;
-	static const std::string enact_immediately_name;
-	static const std::string enact_immediate_name;
-	static const std::string enact_next_beat_name;
-	static const std::string enact_next_measure_name;
-	static const std::string enact_next_grid_name;
-	static const std::string enact_next_segment_name;
-	static const std::string enact_next_marker_name;
-	static const std::string enact_beat_name;
-	static const std::string enact_measure_name;
-	static const std::string enact_grid_name;
-	static const std::string enact_segment_name;
-	static const std::string enact_marker_name;
+	static const char* const unsupported_method_message;
 
 
 	void log_message(
@@ -774,21 +766,7 @@ private:
 }; // DMusicManager::Impl
 
 
-const std::string DMusicManager::Impl::enact_invalid_name = "Invalid";
-const std::string DMusicManager::Impl::enact_default_name = "Default";
-const std::string DMusicManager::Impl::enact_immediatly_name = "Immediatly";
-const std::string DMusicManager::Impl::enact_immediately_name = "Immediately";
-const std::string DMusicManager::Impl::enact_immediate_name = "Immediate";
-const std::string DMusicManager::Impl::enact_next_beat_name = "NextBeat";
-const std::string DMusicManager::Impl::enact_next_measure_name = "NextMeasure";
-const std::string DMusicManager::Impl::enact_next_grid_name = "NextGrid";
-const std::string DMusicManager::Impl::enact_next_segment_name = "NextSegment";
-const std::string DMusicManager::Impl::enact_next_marker_name = "NextMarker";
-const std::string DMusicManager::Impl::enact_beat_name = "Beat";
-const std::string DMusicManager::Impl::enact_measure_name = "Measure";
-const std::string DMusicManager::Impl::enact_grid_name = "Grid";
-const std::string DMusicManager::Impl::enact_segment_name = "Segment";
-const std::string DMusicManager::Impl::enact_marker_name = "Marker";
+const char* const DMusicManager::Impl::unsupported_method_message = "Unsupported method.";
 
 
 DMusicManager::DMusicManager()
