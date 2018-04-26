@@ -47,23 +47,23 @@ class EncodingUtils
 {
 public:
 	//
-	// Converts UTF-8 encoded string to wide string.
+	// Converts UTF-8 string to a wide string.
 	//
 	// Parameters:
-	//    - string_utf8 - UTF-8 encoded string.
+	//    - utf8_string - UTF-8 string.
 	//
 	// Returns:
 	//    Wide string.
 	//    Empty string on error.
 	//
 	static std::wstring utf8_to_wide(
-		const std::string& string_utf8);
+		const std::string& utf8_string);
 
 	//
-	// Converts UTF-8 encoded string to wide string.
+	// Converts UTF-8 string to a wide string.
 	//
 	// Parameters:
-	//    - string_utf8 - UTF-8 encoded string.
+	//    - utf8_string - UTF-8 string.
 	//    - is_succeed - success flag.
 	//
 	// Returns:
@@ -71,27 +71,27 @@ public:
 	//    Empty string on error.
 	//
 	static std::wstring utf8_to_wide(
-		const std::string& string_utf8,
+		const std::string& utf8_string,
 		bool& is_succeed);
 
 	//
-	// Converts a wide string to UTF-8 encoded one.
+	// Converts a wide string to UTF-8 string.
 	//
 	// Parameters:
-	//    - string_wide - wide string.
+	//    - wide_string - a wide string.
 	//
 	// Returns:
 	//    UTF-8 string.
 	//    Empty string on error.
 	//
 	static std::string wide_to_utf8(
-		const std::wstring& string_wide);
+		const std::wstring& wide_string);
 
 	//
-	// Converts a wide string to UTF-8 encoded one.
+	// Converts a wide string to UTF-8 string.
 	//
 	// Parameters:
-	//    - string_wide - wide string.
+	//    - wide_string - a wide string.
 	//    - is_succeed - success flag.
 	//
 	// Returns:
@@ -99,7 +99,64 @@ public:
 	//    Empty string on error.
 	//
 	static std::string wide_to_utf8(
-		const std::wstring& string_wide,
+		const std::wstring& wide_string,
+		bool& is_succeed);
+
+
+	//
+	// Converts UTF-8 string to UTF-16 string.
+	//
+	// Parameters:
+	//    - utf8_string - UTF-8 string.
+	//
+	// Returns:
+	//    UTF-16 string.
+	//    Empty string on error.
+	//
+	static std::u16string utf8_to_utf16(
+		const std::string& utf8_string);
+
+	//
+	// Converts UTF-8 string to UTF-16 string.
+	//
+	// Parameters:
+	//    - utf8_string - UTF-8 string.
+	//    - is_succeed - success flag.
+	//
+	// Returns:
+	//    UTF-16 string.
+	//    Empty string on error.
+	//
+	static std::u16string utf8_to_utf16(
+		const std::string& utf8_string,
+		bool& is_succeed);
+
+	//
+	// Converts UTF-16 string to UTF-8 string.
+	//
+	// Parameters:
+	//    - utf16_string - UTF-16 string.
+	//
+	// Returns:
+	//    UTF-8 string.
+	//    Empty string on error.
+	//
+	static std::string utf16_to_utf8(
+		const std::u16string& utf16_string);
+
+	//
+	// Converts UTF-16 string to UTF-8 string.
+	//
+	// Parameters:
+	//    - utf16_string - a wide string.
+	//    - is_succeed - success flag.
+	//
+	// Returns:
+	//    UTF-8 string.
+	//    Empty string on error.
+	//
+	static std::string utf16_to_utf8(
+		const std::u16string& utf16_string,
 		bool& is_succeed);
 
 

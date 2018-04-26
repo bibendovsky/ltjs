@@ -229,7 +229,7 @@ RiffReader::Chunk RiffReader::get_current_chunk() const
 bool RiffReader::descend_internal(
 	const FourCc& type)
 {
-	const auto has_type = (type != 0);
+	auto has_type = (type != 0);
 	const auto is_root = chunks_.empty();
 
 	const auto header_size = 8 + (has_type ? 4 : 0);
@@ -260,13 +260,25 @@ bool RiffReader::descend_internal(
 	}
 
 	const auto chunk_id = Endian::little(buffer[0]);
-	auto chunk_size = Endian::little(buffer[1]);
-	const auto chunk_type = (has_type ? Endian::little(buffer[2]) : 0);
 
 	if (chunk_id == 0 || (is_root && chunk_id != RiffFourCcs::riff))
 	{
 		return false;
 	}
+
+	if (!has_type && (chunk_id == RiffFourCcs::riff || chunk_id == RiffFourCcs::list))
+	{
+		has_type = true;
+
+		if (stream_ptr_->read(buffer + 2, 4) != 4)
+		{
+			return false;
+		}
+	}
+
+	auto chunk_size = Endian::little(buffer[1]);
+	const auto chunk_type = (has_type ? Endian::little(buffer[2]) : 0);
+
 
 	if (has_type)
 	{
