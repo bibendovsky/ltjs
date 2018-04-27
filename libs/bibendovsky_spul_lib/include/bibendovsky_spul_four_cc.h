@@ -69,7 +69,7 @@ public:
 	//    - value - a numeric value.
 	//
 	constexpr explicit FourCc(
-		const std::uint32_t value)
+		const Value value)
 		:
 		value_{value}
 	{
@@ -135,7 +135,7 @@ public:
 	// Converts FourCC to a string.
 	//
 	// Returns:
-	//    A string representation of FourCC.
+	//    - A string representation of FourCC.
 	//
 	std::string to_string() const
 	{
@@ -154,14 +154,14 @@ public:
 	// Compares two FourCC for equality.
 	//
 	// Returns:
-	//    "true" if two values are equal.
-	//    "false" otherwise.
+	//    - "true" if two values are equal.
+	//    - "false" otherwise.
 	//
 	static constexpr bool are_equal(
-		const FourCc& a,
-		const FourCc& b)
+		const FourCc& lhs,
+		const FourCc& rhs)
 	{
-		return a.value_ == b.value_;
+		return lhs.value_ == rhs.value_;
 	}
 
 
@@ -170,23 +170,23 @@ private:
 }; // FourCc
 
 
-} // spul
-} // bibendovsky
-
-
 constexpr bool operator==(
-	const bibendovsky::spul::FourCc& a,
-	const bibendovsky::spul::FourCc& b)
+	const FourCc& lhs,
+	const FourCc& rhs)
 {
-	return bibendovsky::spul::FourCc::are_equal(a, b);
+	return FourCc::are_equal(lhs, rhs);
 }
 
 constexpr bool operator!=(
-	const bibendovsky::spul::FourCc& a,
-	const bibendovsky::spul::FourCc& b)
+	const FourCc& lhs,
+	const FourCc& rhs)
 {
-	return !(a == b);
+	return !(lhs == rhs);
 }
+
+
+} // spul
+} // bibendovsky
 
 
 #endif // !BIBENDOVSKY_SPUL_FOUR_CC_INCLUDED

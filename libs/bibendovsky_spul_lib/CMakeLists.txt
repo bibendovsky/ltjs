@@ -31,6 +31,7 @@ set(
 	include/bibendovsky_spul_stream.h
 	include/bibendovsky_spul_substream.h
 	include/bibendovsky_spul_utf8_utils.h
+	include/bibendovsky_spul_uuid.h
 	include/bibendovsky_spul_wave_format.h
 	include/bibendovsky_spul_wave_format_utils.h
 	include/bibendovsky_spul_wave_format_tag.h
@@ -57,6 +58,7 @@ set(
 	src/bibendovsky_spul_stream.cpp
 	src/bibendovsky_spul_substream.cpp
 	src/bibendovsky_spul_utf8_utils.cpp
+	src/bibendovsky_spul_uuid.cpp
 	src/bibendovsky_spul_wave_format.cpp
 	src/bibendovsky_spul_wave_format_tag.cpp
 	src/bibendovsky_spul_wave_format_utils.cpp

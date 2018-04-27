@@ -44,11 +44,6 @@ namespace spul
 void WaveformatUtils::endian(
 	WaveFormat& format)
 {
-	if (Endian::is_little())
-	{
-		return;
-	}
-
 	Endian::swap_i(format.tag_);
 	Endian::swap_i(format.channel_count_);
 	Endian::swap_i(format.sample_rate_);
@@ -59,11 +54,6 @@ void WaveformatUtils::endian(
 void WaveformatUtils::endian(
 	PcmWaveFormat& format)
 {
-	if (Endian::is_little())
-	{
-		return;
-	}
-
 	Endian::swap_i(format.tag_);
 	Endian::swap_i(format.channel_count_);
 	Endian::swap_i(format.sample_rate_);
@@ -75,11 +65,6 @@ void WaveformatUtils::endian(
 void WaveformatUtils::endian(
 	WaveFormatEx& format)
 {
-	if (Endian::is_little())
-	{
-		return;
-	}
-
 	Endian::swap_i(format.tag_);
 	Endian::swap_i(format.channel_count_);
 	Endian::swap_i(format.sample_rate_);
@@ -98,7 +83,10 @@ bool WaveformatUtils::read(
 		return false;
 	}
 
-	endian(format);
+	if (!Endian::is_little())
+	{
+		endian(format);
+	}
 
 	return true;
 }
@@ -112,7 +100,10 @@ bool WaveformatUtils::read(
 		return false;
 	}
 
-	endian(format);
+	if (!Endian::is_little())
+	{
+		endian(format);
+	}
 
 	return true;
 }
@@ -126,7 +117,10 @@ bool WaveformatUtils::read(
 		return false;
 	}
 
-	endian(format);
+	if (!Endian::is_little())
+	{
+		endian(format);
+	}
 
 	return true;
 }

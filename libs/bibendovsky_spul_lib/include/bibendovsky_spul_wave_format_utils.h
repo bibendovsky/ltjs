@@ -51,7 +51,7 @@ class WaveformatUtils
 {
 public:
 	//
-	// Swaps byte order on big-endian platform of all fields.
+	// Swaps byte order of all fields.
 	//
 	// Parameters:
 	//    - format - a format buffer.
@@ -60,7 +60,7 @@ public:
 		WaveFormat& format);
 
 	//
-	// Swaps byte order on big-endian platform of all fields.
+	// Swaps byte order of all fields.
 	//
 	// Parameters:
 	//    - format - a format buffer.
@@ -69,7 +69,7 @@ public:
 		PcmWaveFormat& format);
 
 	//
-	// Swaps byte order on big-endian platform of all fields.
+	// Swaps byte order of all fields.
 	//
 	// Parameters:
 	//    - format - a format buffer.
@@ -79,7 +79,7 @@ public:
 
 
 	//
-	// Reads WaveFormat structure from a stream.
+	// Reads WaveFormat structure in little-endian format from a stream.
 	//
 	// Parameters:
 	//    - stream_ptr - a stream to read the data from.
@@ -94,7 +94,7 @@ public:
 		WaveFormat& format);
 
 	//
-	// Reads PcmWaveFormat structure from a stream.
+	// Reads PcmWaveFormat structure in little-endian format from a stream.
 	//
 	// Parameters:
 	//    - stream_ptr - a stream to read the data from.
@@ -109,7 +109,7 @@ public:
 		PcmWaveFormat& format);
 
 	//
-	// Reads WaveFormatEx structure from a stream.
+	// Reads WaveFormatEx structure in little-endian format from a stream.
 	//
 	// Parameters:
 	//    - stream_ptr - a stream to read the data from.

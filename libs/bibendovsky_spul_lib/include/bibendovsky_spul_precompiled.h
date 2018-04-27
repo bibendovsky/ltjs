@@ -49,6 +49,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cstddef>
 #include <cstdint>
+#include <array>
 #include <algorithm>
 #include <codecvt>
 #include <fstream>
@@ -81,6 +82,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 #include "bibendovsky_spul_stream.h"
 #include "bibendovsky_spul_substream.h"
 #include "bibendovsky_spul_utf8_utils.h"
+#include "bibendovsky_spul_uuid.h"
 #include "bibendovsky_spul_wave_format.h"
 #include "bibendovsky_spul_wave_format_tag.h"
 #include "bibendovsky_spul_wave_format_utils.h"
