@@ -1,6 +1,7 @@
 #include "bdefs.h"
 #include "ltjs_dmusic_segment.h"
 #include <cstdint>
+#include <array>
 #include <utility>
 #include <vector>
 #include "bibendovsky_spul_enum_flags.h"
@@ -10,6 +11,7 @@
 #include "bibendovsky_spul_riff_four_ccs.h"
 #include "bibendovsky_spul_riff_reader.h"
 #include "bibendovsky_spul_scope_guard.h"
+#include "bibendovsky_spul_uuid.h"
 #include "client_filemgr.h"
 
 
@@ -138,20 +140,101 @@ private:
 				return false;
 			}
 
-			ul::Endian::little_i(repeat_count_);
-			ul::Endian::little_i(length_);
-			ul::Endian::little_i(play_start_);
-			ul::Endian::little_i(loop_start_);
-			ul::Endian::little_i(loop_end_);
-			ul::Endian::little_i(resolution_);
-			ul::Endian::little_i(ref_length_);
-			ul::Endian::little_i(flags_);
-			ul::Endian::little_i(reserved_);
+			if (!ul::Endian::is_little())
+			{
+				ul::Endian::little_i(repeat_count_);
+				ul::Endian::little_i(length_);
+				ul::Endian::little_i(play_start_);
+				ul::Endian::little_i(loop_start_);
+				ul::Endian::little_i(loop_end_);
+				ul::Endian::little_i(resolution_);
+				ul::Endian::little_i(ref_length_);
+				ul::Endian::little_i(flags_);
+				ul::Endian::little_i(reserved_);
+			}
 
 			return true;
 		}
 	}; // IoHeader8
+
+	enum class IoTrackType8
+	{
+		none,
+		tempo,
+		time_signature,
+		wave,
+	}; // IoTrackType8
+
+	struct IoTrackHeader8
+	{
+		static constexpr auto packed_size = 32;
+
+
+		ul::Uuid guid_;
+		std::uint32_t position_;
+		std::uint32_t group_;
+		ul::FourCc chunk_id_;
+		ul::FourCc list_type_;
+
+
+		IoTrackHeader8()
+		{
+			static_assert(sizeof(IoTrackHeader8) == packed_size, "Invalid structure size.");
+		}
+
+
+		bool read(
+			ul::Stream& stream)
+		{
+			if (stream.read(this, packed_size) != packed_size)
+			{
+				return false;
+			}
+
+			guid_.endian(ul::Uuid::EndianType::little_mixed);
+
+			if (!ul::Endian::is_little())
+			{
+				ul::Endian::little_i(position_);
+				ul::Endian::little_i(group_);
+				ul::Endian::little_i(chunk_id_);
+				ul::Endian::little_i(list_type_);
+			}
+
+			return true;
+		}
+
+		IoTrackType8 get_type() const
+		{
+			if (guid_ == clsid_tempo_track)
+			{
+				return IoTrackType8::tempo;
+			}
+			else if (guid_ == clsid_time_sig_track)
+			{
+				return IoTrackType8::time_signature;
+			}
+			else if (guid_ == clsid_wave_track)
+			{
+				return IoTrackType8::wave;
+			}
+			else
+			{
+				return IoTrackType8::none;
+			}
+		}
+	}; // IoTrackHeader8
 #pragma pack(pop)
+
+
+	// Tempo track CLSID.
+	static const ul::Uuid clsid_tempo_track;
+
+	// Time signature track CLSID.
+	static const ul::Uuid clsid_time_sig_track;
+
+	// Wave track CLSID.
+	static const ul::Uuid clsid_wave_track;
 
 
 	std::string error_message_;
@@ -195,12 +278,84 @@ private:
 		return true;
 	}
 
-	bool read_track(
-		ul::RiffReader& riff_reader)
+	bool read_tempo_track()
 	{
-		if (!riff_reader.find_and_descend(ul::FourCc{"trkh"}))
+		return true;
+	}
+
+	bool read_time_signature_track()
+	{
+		return true;
+	}
+
+	bool read_wave_track()
+	{
+		return true;
+	}
+
+	bool read_track()
+	{
+		if (!riff_reader_.find_and_descend(ul::FourCc{"trkh"}))
 		{
 			error_message_ = "No track header.";
+			return false;
+		}
+
+		auto header_chunk = riff_reader_.get_current_chunk();
+
+		if (header_chunk.size_ < IoTrackHeader8::packed_size)
+		{
+			error_message_ = "Invalid track header size.";
+			return false;
+		}
+
+		auto track_header = IoTrackHeader8{};
+
+		if (!track_header.read(header_chunk.data_stream_))
+		{
+			error_message_ = "Failed to read track's header.";
+			return false;
+		}
+
+		const auto track_type = track_header.get_type();
+
+		switch (track_type)
+		{
+		case IoTrackType8::tempo:
+			if (!read_tempo_track())
+			{
+				return false;
+			}
+			break;
+
+		case IoTrackType8::time_signature:
+			if (!read_time_signature_track())
+			{
+				return false;
+			}
+			break;
+
+		case IoTrackType8::wave:
+			if (!read_wave_track())
+			{
+				return false;
+			}
+			break;
+
+		default:
+			error_message_ = "Unsupported track type.";
+			return false;
+		}
+
+		if (track_header.chunk_id_ == 0 && track_header.list_type_ == 0)
+		{
+			error_message_ = "Expected track's chunk id or chunk type.";
+			return false;
+		}
+
+		if (!riff_reader_.ascend())
+		{
+			error_message_ = "RIFF error.";
 			return false;
 		}
 
@@ -222,15 +377,8 @@ private:
 				break;
 			}
 
-			if (!riff_reader_.find_and_descend(ul::FourCc{"trkh"}))
+			if (!read_track())
 			{
-				error_message_ = "No track header.";
-				return false;
-			}
-
-			if (!riff_reader_.ascend())
-			{
-				error_message_ = "RIFF error.";
 				return false;
 			}
 
@@ -337,6 +485,11 @@ private:
 		io_header_ = {};
 	}
 }; // DMusicSegment::Impl
+
+
+const ul::Uuid DMusicSegment::Impl::clsid_tempo_track = ul::Uuid{"D2AC2885-B39B-11D1-8704-00600893B1BD"};
+const ul::Uuid DMusicSegment::Impl::clsid_time_sig_track = ul::Uuid{"D2AC2888-B39B-11D1-8704-00600893B1BD"};
+const ul::Uuid DMusicSegment::Impl::clsid_wave_track = ul::Uuid{"EED36461-9EA5-11D3-9BD1-0080C7150A74"};
 
 
 DMusicSegment::DMusicSegment()
