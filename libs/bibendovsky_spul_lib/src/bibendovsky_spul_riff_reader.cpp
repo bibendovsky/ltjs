@@ -138,7 +138,8 @@ bool RiffReader::ascend()
 		return false;
 	}
 
-	const auto previous_chunk = chunks_.back();
+	const auto previous_chunk_aligned_size = chunks_.back().chunk_.aligned_size_;
+
 	chunks_.pop_back();
 
 	if (chunks_.empty())
@@ -147,10 +148,12 @@ bool RiffReader::ascend()
 		{
 			return false;
 		}
+
+		return true;
 	}
 
 	auto& chunk = chunks_.back();
-	chunk.current_position_ += previous_chunk.chunk_.aligned_size_;
+	chunk.current_position_ += previous_chunk_aligned_size;
 
 	const auto set_result = stream_ptr_->set_position(chunk.current_position_);
 
