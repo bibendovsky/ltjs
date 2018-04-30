@@ -73,6 +73,8 @@ public:
 	bool api_open(
 		const std::string& file_name)
 	{
+		error_message_.clear();
+
 		close_internal();
 
 		if (!open_internal(file_name))
@@ -96,6 +98,9 @@ public:
 
 
 private:
+	static constexpr auto all_flags_on = std::uint32_t{0xFFFFFFFF};
+
+
 	using Buffer = std::vector<std::uint8_t>;
 
 
@@ -103,16 +108,32 @@ private:
 	using IoReferenceTime8 = std::int64_t;
 
 
-#pragma pack(push, 1)
+	struct ValidFlags8 :
+		ul::EnumFlagsT<std::uint32_t>
+	{
+		ValidFlags8(const Value flags = none)
+			:
+			EnumFlagsT<std::uint32_t>{flags}
+		{
+		}
+
+		enum : Value
+		{
+			file_name = 0B0001'0000,
+		}; // Value
+	}; // Flags
+
+
 	struct IoSegmentHeader8
 	{
-		static constexpr auto packed_size = 40;
+		static constexpr auto class_size = 40;
 
 
 		struct Flags :
 			ul::EnumFlagsT<std::uint32_t>
 		{
-			Flags(const Value flags = none) :
+			Flags(const Value flags = none)
+				:
 				EnumFlagsT<std::uint32_t>{flags}
 			{
 			}
@@ -147,13 +168,13 @@ private:
 			flags_{},
 			reserved_{}
 		{
-			static_assert(packed_size == sizeof(IoSegmentHeader8), "Invalid structure size.");
+			static_assert(class_size == sizeof(IoSegmentHeader8), "Invalid class size.");
 		}
 
 		bool read(
-			ul::Stream& stream)
+			ul::StreamPtr stream_ptr)
 		{
-			if (stream.read(this, packed_size) != packed_size)
+			if (stream_ptr->read(this, class_size) != class_size)
 			{
 				return false;
 			}
@@ -173,6 +194,56 @@ private:
 
 			return true;
 		}
+
+		bool validate(
+			std::string& error_message) const
+		{
+			if (repeat_count_ != 0)
+			{
+				error_message = "Expected zero repeat count.";
+				return false;
+			}
+
+			if (mt_length_ < 0)
+			{
+				error_message = "Negative music length.";
+				return false;
+			}
+
+			if (mt_play_start_ < 0)
+			{
+				error_message = "Negative music play start.";
+				return false;
+			}
+
+			if (mt_loop_start_ != 0)
+			{
+				error_message = "Expected zero music loop start.";
+				return false;
+			}
+
+			if (mt_loop_end_ != 0)
+			{
+				error_message = "Expected zero music loop end.";
+				return false;
+			}
+
+			// Skip resolution.
+
+			if (rt_length_ < 0)
+			{
+				error_message = "Negative reference length.";
+				return false;
+			}
+
+			if (!(flags_ == 0 || flags_ == Flags::is_reference_length))
+			{
+				error_message = "Unexpected set of flags.";
+				return false;
+			}
+
+			return true;
+		}
 	}; // IoSegmentHeader8
 
 	enum class IoTrackType8
@@ -186,7 +257,7 @@ private:
 
 	struct IoTempoItem8
 	{
-		static constexpr auto packed_size = 12;
+		static constexpr auto class_size = 16;
 
 
 		IoMusicTime8 time_;
@@ -198,7 +269,7 @@ private:
 			time_{},
 			tempo_{}
 		{
-			static_assert(packed_size == sizeof(IoTempoItem8), "Invalid structure size.");
+			static_assert(class_size == sizeof(IoTempoItem8), "Invalid class size.");
 		}
 
 		bool read(
@@ -209,7 +280,7 @@ private:
 				return false;
 			}
 
-			if (stream_ptr->read(this, packed_size) != packed_size)
+			if (stream_ptr->read(this, class_size) != class_size)
 			{
 				return false;
 			}
@@ -222,11 +293,29 @@ private:
 
 			return true;
 		}
+
+		bool validate(
+			std::string& error_message) const
+		{
+			if (time_ < 0)
+			{
+				error_message = "Negative music time.";
+				return false;
+			}
+
+			if (tempo_ < 0.0)
+			{
+				error_message = "Negative tempo.";
+				return false;
+			}
+
+			return true;
+		}
 	}; // IoTempoItem8
 
 	struct IoTimeSignatureItem8
 	{
-		static constexpr auto packed_size = 8;
+		static constexpr auto class_size = 8;
 
 
 		IoMusicTime8 time_;
@@ -242,7 +331,7 @@ private:
 			beat_{},
 			grids_per_beat_{}
 		{
-			static_assert(packed_size == sizeof(IoTimeSignatureItem8), "Invalid structure size.");
+			static_assert(class_size == sizeof(IoTimeSignatureItem8), "Invalid class size.");
 		}
 
 		bool read(
@@ -253,7 +342,7 @@ private:
 				return false;
 			}
 
-			if (stream_ptr->read(this, packed_size) != packed_size)
+			if (stream_ptr->read(this, class_size) != class_size)
 			{
 				return false;
 			}
@@ -268,11 +357,30 @@ private:
 
 			return true;
 		}
+
+		bool validate(
+			std::string& error_message) const
+		{
+			if (time_ < 0)
+			{
+				error_message = "Negative music time.";
+				return false;
+			}
+
+			// Skip beats per measure.
+
+			// Skip beat.
+
+			// Skip grids per beat.
+
+			return true;
+		}
+
 	}; // IoTimeSignatureItem8
 
 	struct IoSequenceItem8
 	{
-		static constexpr auto packed_size = 17;
+		static constexpr auto class_size = 20;
 
 
 		IoMusicTime8 mt_time_;
@@ -294,7 +402,7 @@ private:
 			byte_1_{},
 			byte_2_{}
 		{
-			static_assert(packed_size == sizeof(IoSequenceItem8), "Invalid structure size.");
+			static_assert(class_size == sizeof(IoSequenceItem8), "Invalid class size.");
 		}
 
 		bool read(
@@ -324,11 +432,49 @@ private:
 
 			return true;
 		}
+
+		bool validate(
+			std::string& error_message) const
+		{
+			if (mt_time_ < 0)
+			{
+				error_message = "Negative music time.";
+				return false;
+			}
+
+			if (mt_duration_ != 0)
+			{
+				error_message = "Expected zero music duration.";
+				return false;
+			}
+
+			// Skip channel.
+
+			if (status_ != 0)
+			{
+				error_message = "Expected zero MIDI status.";
+				return false;
+			}
+
+			if (byte_1_ != 0)
+			{
+				error_message = "Expected zero first byte of the MIDI data.";
+				return false;
+			}
+
+			if (byte_2_ != 0)
+			{
+				error_message = "Expected zero second byte of the MIDI data.";
+				return false;
+			}
+
+			return true;
+		}
 	}; // IoSequenceItem8
 
 	struct IoCurveItem8
 	{
-		static constexpr auto packed_size = 32;
+		static constexpr auto class_size = 32;
 
 
 		IoMusicTime8 mt_start_;
@@ -364,7 +510,7 @@ private:
 			param_type_{},
 			merge_index_{}
 		{
-			static_assert(packed_size == sizeof(IoCurveItem8), "Invalid structure size.");
+			static_assert(class_size == sizeof(IoCurveItem8), "Invalid class size.");
 		}
 
 
@@ -376,7 +522,7 @@ private:
 				return false;
 			}
 
-			if (stream_ptr->read(this, packed_size) != packed_size)
+			if (stream_ptr->read(this, class_size) != class_size)
 			{
 				return false;
 			}
@@ -401,15 +547,105 @@ private:
 
 			return true;
 		}
+
+		bool validate(
+			std::string& error_message) const
+		{
+			if (mt_start_ < 0)
+			{
+				error_message = "Negative music time.";
+				return false;
+			}
+
+			if (mt_duration_ != 0)
+			{
+				error_message = "Expected zero music duration.";
+				return false;
+			}
+
+			if (mt_reset_duration_ < 0)
+			{
+				error_message = "Negative music reset duration.";
+				return false;
+			}
+
+			// Skip channel.
+
+			if (offset_ < 0)
+			{
+				error_message = "Negative music offset.";
+				return false;
+			}
+
+			if (start_value_ != 0)
+			{
+				error_message = "Expected zero start value.";
+				return false;
+			}
+
+			if (end_value_ != 0)
+			{
+				error_message = "Expected zero end value.";
+				return false;
+			}
+
+			if (reset_value_ < 0)
+			{
+				error_message = "Negative zero reset value.";
+				return false;
+			}
+
+			// Skip type.
+
+			if (curve_shape_ != 0)
+			{
+				error_message = "Expected linear curve shape.";
+				return false;
+			}
+
+			if (cc_data_ != 0)
+			{
+				error_message = "Expected zero CC data.";
+				return false;
+			}
+
+			if (flags_ != 0)
+			{
+				error_message = "Expected zero flags.";
+				return false;
+			}
+
+			// Skip param type.
+
+			// Skip merge index_.
+
+			return true;
+		}
 	}; // IoCurveItem8
 
 	struct IoWaveTrackHeader8
 	{
-		static constexpr auto packed_size = 8;
+		static constexpr auto class_size = 8;
+
+
+		struct Flags :
+			ul::EnumFlagsT<std::uint32_t>
+		{
+			Flags(const Value flags = none)
+				:
+				EnumFlagsT<std::uint32_t>{flags}
+			{
+			}
+
+			enum : Value
+			{
+				persist_control = 0B0010,
+			}; // Value
+		}; // Flags
 
 
 		std::int32_t volume_;
-		std::uint32_t flags_;
+		Flags flags_;
 
 
 		IoWaveTrackHeader8()
@@ -417,7 +653,7 @@ private:
 			volume_{},
 			flags_{}
 		{
-			static_assert(packed_size == sizeof(IoWaveTrackHeader8), "Invalid structure size.");
+			static_assert(class_size == sizeof(IoWaveTrackHeader8), "Invalid class size.");
 		}
 
 		bool read(
@@ -428,7 +664,7 @@ private:
 				return false;
 			}
 
-			if (stream_ptr->read(this, packed_size) != packed_size)
+			if (stream_ptr->read(this, class_size) != class_size)
 			{
 				return false;
 			}
@@ -441,11 +677,29 @@ private:
 
 			return true;
 		}
+
+		bool validate(
+			std::string& error_message) const
+		{
+			if (volume_ > 0)
+			{
+				error_message = "Positive volume.";
+				return false;
+			}
+
+			if (flags_ != Flags::persist_control)
+			{
+				error_message = "Expected persistent variation control info.";
+				return false;
+			}
+
+			return true;
+		}
 	}; // IoWaveTrackHeader8
 
 	struct IoWavePartHeader8
 	{
-		static constexpr auto packed_size = 24;
+		static constexpr auto class_size = 24;
 
 
 		std::int32_t volume_;
@@ -465,7 +719,7 @@ private:
 			flags_{},
 			index_{}
 		{
-			static_assert(packed_size == sizeof(IoWavePartHeader8), "Invalid structure size.");
+			static_assert(class_size == sizeof(IoWavePartHeader8), "Invalid class size.");
 		}
 
 		bool read(
@@ -476,7 +730,7 @@ private:
 				return false;
 			}
 
-			if (stream_ptr->read(this, packed_size) != packed_size)
+			if (stream_ptr->read(this, class_size) != class_size)
 			{
 				return false;
 			}
@@ -493,11 +747,46 @@ private:
 
 			return true;
 		}
-	}; // IoWaveTrackHeader8
+
+		bool validate(
+			std::string& error_message) const
+		{
+			// In theory this must be negative. On practice it can be zero.
+			if (volume_ > 0)
+			{
+				error_message = "Positive volume.";
+				return false;
+			}
+
+			if (variations_ == 0)
+			{
+				error_message = "Expected at least one variation.";
+				return false;
+			}
+
+			// Skip channel.
+
+			if (lock_to_part_ != 0)
+			{
+				error_message = "Expected zero lock to part.";
+				return false;
+			}
+
+			// Skip flags.
+
+			if (index_ != 0)
+			{
+				error_message = "Expected zero index.";
+				return false;
+			}
+
+			return true;
+		}
+	}; // IoWavePartHeader8
 
 	struct IoWaveItemHeader8
 	{
-		static constexpr auto packed_size = 60;
+		static constexpr auto class_size = 64;
 
 
 		std::int32_t volume_;
@@ -515,7 +804,7 @@ private:
 
 		IoWaveItemHeader8()
 		{
-			static_assert(packed_size == sizeof(IoWaveItemHeader8), "Invalid structure size.");
+			static_assert(class_size == sizeof(IoWaveItemHeader8), "Invalid class size.");
 		}
 
 		bool read(
@@ -526,7 +815,7 @@ private:
 				return false;
 			}
 
-			if (stream_ptr->read(this, packed_size) != packed_size)
+			if (stream_ptr->read(this, class_size) != class_size)
 			{
 				return false;
 			}
@@ -548,20 +837,89 @@ private:
 
 			return true;
 		}
+
+		bool validate(
+			std::string& error_message) const
+		{
+			// In theory this must be negative. On practice it can be zero.
+			if (volume_ > 0)
+			{
+				error_message = "Positive volume.";
+				return false;
+			}
+
+			if (pitch_ != 0)
+			{
+				error_message = "Expected zero pitch.";
+				return false;
+			}
+
+			if (variations_ == 0)
+			{
+				error_message = "Expected at least one variation.";
+				return false;
+			}
+
+			if (rt_time_ < 0)
+			{
+				error_message = "Negative reference time.";
+				return false;
+			}
+
+			if (rt_start_offset_ != 0)
+			{
+				error_message = "Expected zero reference start offset.";
+				return false;
+			}
+
+			// Skip reserved.
+
+			if (rt_duration_ < 0)
+			{
+				error_message = "Negative reference duration.";
+				return false;
+			}
+
+			if (mt_logical_time < 0)
+			{
+				error_message = "Negative logical music time.";
+				return false;
+			}
+
+			if (loop_start_ != 0)
+			{
+				error_message = "Expected zero loop start.";
+				return false;
+			}
+
+			if (loop_end_ != 0)
+			{
+				error_message = "Expected zero loop end.";
+				return false;
+			}
+
+			if (flags_ != 0)
+			{
+				error_message = "Expected zero flags.";
+				return false;
+			}
+
+			return true;
+		}
 	}; // IoWaveItemHeader8
 
 	struct IoReference8
 	{
-		static constexpr auto packed_size = 20;
+		static constexpr auto class_size = 20;
 
 
 		ul::Uuid clsid_;
-		std::uint32_t valid_data_;
+		ValidFlags8 valid_data_;
 
 
 		IoReference8()
 		{
-			static_assert(packed_size == sizeof(IoReference8), "Invalid structure size.");
+			static_assert(class_size == sizeof(IoReference8), "Invalid class size.");
 		}
 
 		bool read(
@@ -572,7 +930,7 @@ private:
 				return false;
 			}
 
-			if (stream_ptr->read(this, packed_size) != packed_size)
+			if (stream_ptr->read(this, class_size) != class_size)
 			{
 				return false;
 			}
@@ -586,11 +944,29 @@ private:
 
 			return true;
 		}
+
+		bool validate(
+			std::string& error_message) const
+		{
+			if (clsid_ != clsid_sound_wave)
+			{
+				error_message = "Expected DirectSound wave CLSID.";
+				return false;
+			}
+
+			if ((valid_data_ & ValidFlags8::file_name) == 0)
+			{
+				error_message = "Expected file name flag.";
+				return false;
+			}
+
+			return true;
+		}
 	}; // IoReference8
 
 	struct IoTrackHeader8
 	{
-		static constexpr auto packed_size = 32;
+		static constexpr auto class_size = 32;
 
 
 		ul::Uuid guid_;
@@ -602,14 +978,14 @@ private:
 
 		IoTrackHeader8()
 		{
-			static_assert(sizeof(IoTrackHeader8) == packed_size, "Invalid structure size.");
+			static_assert(sizeof(IoTrackHeader8) == class_size, "Invalid class size.");
 		}
 
 
 		bool read(
 			ul::Stream& stream)
 		{
-			if (stream.read(this, packed_size) != packed_size)
+			if (stream.read(this, class_size) != class_size)
 			{
 				return false;
 			}
@@ -650,8 +1026,32 @@ private:
 				return IoTrackType8::none;
 			}
 		}
+
+		bool validate(
+			std::string& error_message) const
+		{
+			if (!(guid_ == clsid_tempo_track ||
+				guid_ == clsid_time_sig_track ||
+				guid_ == clsid_sequence_track ||
+				guid_ == clsid_wave_track))
+			{
+				error_message = "Unsupported track type.";
+				return false;
+			}
+
+			// Skip position.
+
+			// Skip group.
+
+			if (chunk_id_ == 0 && list_type_ == 0)
+			{
+				error_message = "Expected chunk id or list type.";
+				return false;
+			}
+
+			return true;
+		}
 	}; // IoTrackHeader8
-#pragma pack(pop)
 
 
 	using IoTempoItems = std::vector<IoTempoItem8>;
@@ -722,6 +1122,9 @@ private:
 	// Wave track CLSID.
 	static const ul::Uuid clsid_wave_track;
 
+	// Wave CLSID.
+	static const ul::Uuid clsid_sound_wave;
+
 
 	std::string error_message_;
 	Buffer file_image_;
@@ -741,17 +1144,15 @@ private:
 
 		auto io_header_chunk = riff_reader_.get_current_chunk();
 
-		if (io_header_chunk.size_ < IoSegmentHeader8::packed_size)
+		if (!io_segment_header_.read(&io_header_chunk.data_stream_))
 		{
-			error_message_ = "Invalid header size.";
+			error_message_ = "Failed to read a header.";
 			return false;
 		}
 
-		auto& io_header_stream = io_header_chunk.data_stream_;
-
-		if (!io_segment_header_.read(io_header_stream))
+		if (!io_segment_header_.validate(error_message_))
 		{
-			error_message_ = "Failed to read a header.";
+			error_message_ = "Failed to validate a segment header: " + error_message_;
 			return false;
 		}
 
@@ -784,6 +1185,12 @@ private:
 		if (!item.read(&chunk.data_stream_))
 		{
 			error_message_ = "Failed to read a tempo track item.";
+			return false;
+		}
+
+		if (!item.validate(error_message_))
+		{
+			error_message_ = "Failed to validate a tempo track item: " + error_message_;
 			return false;
 		}
 
@@ -826,6 +1233,12 @@ private:
 			if (!item.read(&chunk.data_stream_))
 			{
 				error_message_ = "Failed to read a time signature item.";
+				return false;
+			}
+
+			if (!item.validate(error_message_))
+			{
+				error_message_ = "Failed to validate a time signature item: " + error_message_;
 				return false;
 			}
 
@@ -891,6 +1304,12 @@ private:
 			return false;
 		}
 
+		if (!sequence.event_.validate(error_message_))
+		{
+			error_message_ = "Failed to validate a sequence item: " + error_message_;
+			return false;
+		}
+
 		// Ascend "evtl".
 		//
 		if (!riff_reader_.ascend())
@@ -913,6 +1332,12 @@ private:
 		if (!sequence.curve_.read(&curl_chunk.data_stream_))
 		{
 			error_message_ = "Failed to read a curve item.";
+			return false;
+		}
+
+		if (!sequence.curve_.validate(error_message_))
+		{
+			error_message_ = "Failed to validate a curve item: " + error_message_;
 			return false;
 		}
 
@@ -978,6 +1403,12 @@ private:
 			return false;
 		}
 
+		if (!wave.header_.validate(error_message_))
+		{
+			error_message_ = "Failed to validate a wave track header: " + error_message_;
+			return false;
+		}
+
 		// Ascend "wath".
 		//
 		if (!riff_reader_.ascend())
@@ -1011,6 +1442,12 @@ private:
 			if (!part_item.header_.read(&part_header_chunk.data_stream_))
 			{
 				error_message_ = "Failed to read a wave part header.";
+				return false;
+			}
+
+			if (!part_item.header_.validate(error_message_))
+			{
+				error_message_ = "Failed to validate a wave part header: " + error_message_;
 				return false;
 			}
 
@@ -1053,7 +1490,13 @@ private:
 
 				if (!wave_item.header_.read(&waih_chunk.data_stream_))
 				{
-					error_message_ = "Failed to read wave item header..";
+					error_message_ = "Failed to read wave item header.";
+					return false;
+				}
+
+				if (!wave_item.header_.validate(error_message_))
+				{
+					error_message_ = "Failed to validate a wave item header: " + error_message_;
 					return false;
 				}
 
@@ -1089,6 +1532,12 @@ private:
 				if (!reference.header_.read(&refh_chunk.data_stream_))
 				{
 					error_message_ = "Failed to read a reference header.";
+					return false;
+				}
+
+				if (!reference.header_.validate(error_message_))
+				{
+					error_message_ = "Failed to validate a reference header: " + error_message_;
 					return false;
 				}
 
@@ -1220,6 +1669,12 @@ private:
 			return false;
 		}
 
+		if (!header.validate(error_message_))
+		{
+			error_message_ = "Failed to validate track's header: " + error_message_;
+			return false;
+		}
+
 		// Ascend "trkh".
 		//
 		if (!riff_reader_.ascend())
@@ -1262,12 +1717,6 @@ private:
 
 		default:
 			error_message_ = "Unsupported track type.";
-			return false;
-		}
-
-		if (header.chunk_id_ == 0 && header.list_type_ == 0)
-		{
-			error_message_ = "Expected track's chunk id or chunk type.";
 			return false;
 		}
 
@@ -1390,7 +1839,6 @@ private:
 
 	void close_internal()
 	{
-		error_message_.clear();
 		file_image_.clear();
 		riff_reader_.close();
 		memory_stream_.close();
@@ -1404,6 +1852,7 @@ const ul::Uuid DMusicSegment::Impl::clsid_tempo_track = ul::Uuid{"D2AC2885-B39B-
 const ul::Uuid DMusicSegment::Impl::clsid_time_sig_track = ul::Uuid{"D2AC2888-B39B-11D1-8704-00600893B1BD"};
 const ul::Uuid DMusicSegment::Impl::clsid_sequence_track = ul::Uuid{"D2AC2886-B39B-11D1-8704-00600893B1BD"};
 const ul::Uuid DMusicSegment::Impl::clsid_wave_track = ul::Uuid{"EED36461-9EA5-11D3-9BD1-0080C7150A74"};
+const ul::Uuid DMusicSegment::Impl::clsid_sound_wave = ul::Uuid{"8A667154-F9CB-11D2-AD8A-0060B0575ABC"};
 
 
 DMusicSegment::DMusicSegment()
