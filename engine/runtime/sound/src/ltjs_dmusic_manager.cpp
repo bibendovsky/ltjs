@@ -4,6 +4,12 @@
 #ifndef LTJS_USE_DIRECT_MUSIC8
 
 
+#ifdef _DEBUG
+#define LTJS_DMUSIC_CHECK_ALL_MUSICS
+#define LTJS_NOLF2_DMUSIC_CHECK_ALL_MUSICS
+#endif // _DEBUG
+
+
 #include <cstdio>
 #include <string>
 #include <unordered_map>
@@ -106,6 +112,10 @@ public:
 		}
 
 		is_initialized_ = true;
+
+#ifdef LTJS_DMUSIC_CHECK_ALL_MUSICS
+		test_all_musics();
+#endif // LTJS_DMUSIC_CHECK_ALL_MUSICS
 
 		return LT_OK;
 	}
@@ -238,7 +248,10 @@ public:
 
 				if (!segment.open(segment_path))
 				{
-					log_error("Failed to load a segment: %s", segment_name.c_str());
+					log_error("Failed to load a segment: \"%s\". %s",
+						segment_name.c_str(),
+						segment.get_error_message().c_str());
+
 					return LT_ERROR;
 				}
 			}
@@ -477,6 +490,65 @@ private:
 
 	static const char* const unsupported_method_message;
 
+
+#ifdef LTJS_NOLF2_DMUSIC_CHECK_ALL_MUSICS
+	void test_nolf2_all_music()
+	{
+		static const char* const nolf2_music_control_file_paths[] =
+		{
+			"Music\\Cinematics\\Cinematics.txt",
+			"Music\\India\\India.txt",
+			"Music\\India\\Low\\India.txt",
+			"Music\\Island\\Island.txt",
+			"Music\\Island\\IslandL.txt",
+			"Music\\Island\\Low\\Island.txt",
+			"Music\\Island\\Low\\IslandL.txt",
+			"Music\\Japan\\Japan.txt",
+			"Music\\Japan\\Low\\Japan.txt",
+			"Music\\Japan\\Low\\Melvin.txt",
+			"Music\\Japan\\Low\\Ohio.txt",
+			"Music\\Japan\\Melvin.txt",
+			"Music\\Japan\\Ohio.txt",
+			"Music\\Siberia\\Low\\Siberia.txt",
+			"Music\\Siberia\\Siberia.txt",
+			"Music\\Underwater\\Antarctica.txt",
+			"Music\\Underwater\\Low\\Antarctica.txt",
+			"Music\\Underwater\\Low\\Underwater.txt",
+			"Music\\Underwater\\Underwater.txt",
+			"Music\\Unity\\Bicycle.txt",
+			"Music\\Unity\\Low\\Bicycle.txt",
+			"Music\\Unity\\Low\\Unity.txt",
+			"Music\\Unity\\Unity.txt",
+		}; // nolf2_music_control_file_paths
+
+		for (auto control_file_path : nolf2_music_control_file_paths)
+		{
+			const auto working_directory = ul::PathUtils::get_parent_path(control_file_path);
+			const auto control_file_name = ul::PathUtils::get_file_name(control_file_path);
+
+			const auto init_result = api_init_level(
+				working_directory.c_str(),
+				control_file_name,
+				nullptr,
+				nullptr,
+				nullptr);
+
+			if (init_result == LT_OK)
+			{
+				static_cast<void>(api_term_level());
+			}
+		}
+	}
+#endif // LTJS_NOLF2_DMUSIC_CHECK_ALL_MUSICS
+
+#ifdef LTJS_DMUSIC_CHECK_ALL_MUSICS
+	void test_all_musics()
+	{
+#ifdef LTJS_NOLF2_DMUSIC_CHECK_ALL_MUSICS
+		test_nolf2_all_music();
+#endif // LTJS_NOLF2_DMUSIC_CHECK_ALL_MUSICS
+	}
+#endif // LTJS_DMUSIC_CHECK_ALL_MUSICS
 
 	void log_message(
 		const int level,
