@@ -673,7 +673,11 @@ private:
 
 			auto intensity_number = 0;
 
-			word_ptr->GetVal(intensity_number);
+			if (!word_ptr->GetVal(intensity_number))
+			{
+				log_error("Failed to read an intensity number.");
+				return false;
+			}
 
 			if (intensity_number <= 0 || intensity_number > intensity_count_)
 			{
@@ -692,8 +696,19 @@ private:
 				return false;
 			}
 
-			auto loop_count = -1;
-			word_ptr->GetVal(loop_count);
+			auto loop_count = 0;
+
+			if (!word_ptr->GetVal(loop_count))
+			{
+				log_error("Failed to read a loop count.");
+				return false;
+			}
+
+			if (loop_count != 0)
+			{
+				log_error("Expected zero loop count.");
+				return false;
+			}
 
 
 			// Next intensity number.
@@ -707,7 +722,12 @@ private:
 			}
 
 			auto next_intensity_number = 0;
-			word_ptr->GetVal(next_intensity_number);
+
+			if (!word_ptr->GetVal(next_intensity_number))
+			{
+				log_error("Failed to read a next intensity number.");
+				return false;
+			}
 
 
 			// Segment name list.
@@ -769,7 +789,12 @@ private:
 			}
 
 			auto from_number = 0;
-			word_ptr->GetVal(from_number);
+
+			if (!word_ptr->GetVal(from_number))
+			{
+				log_error("Failed to read a transition intensity number.");
+				return false;
+			}
 
 			if (from_number <= 0 || from_number > intensity_count_)
 			{
@@ -789,7 +814,12 @@ private:
 			}
 
 			auto to_number = 0;
-			word_ptr->GetVal(to_number);
+
+			if (!word_ptr->GetVal(to_number))
+			{
+				log_error("Failed to read a transition intensity number.");
+				return false;
+			}
 
 			if (to_number <= 0 || to_number > intensity_count_)
 			{
@@ -808,8 +838,13 @@ private:
 				return false;
 			}
 
-			const auto enact_string = word_ptr->GetVal();
-			static_cast<void>(enact_string);
+			const auto enact_string = std::string{word_ptr->GetVal()};
+
+			if (enact_string != "MEASURE")
+			{
+				log_error("Expected MEASURE transition enact type.");
+				return false;
+			}
 
 
 			// Transition type.
@@ -822,8 +857,13 @@ private:
 				return false;
 			}
 
-			const auto transition_type_string = word_ptr->GetVal();
-			static_cast<void>(transition_type_string);
+			const auto transition_type_string = std::string{word_ptr->GetVal()};
+
+			if (transition_type_string != "MANUAL")
+			{
+				log_error("Expected MANUAL transition type.");
+				return false;
+			}
 
 
 			// Segment name.
