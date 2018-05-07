@@ -1,13 +1,24 @@
 #include "bdefs.h"
+
+
+#ifdef _DEBUG
+#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+#endif // _DEBUG
+
+
 #include "ltjs_dmusic_segment.h"
 #include <cstdint>
 #include <array>
+#include <fstream>
+#include <string>
 #include <utility>
 #include <vector>
+#include "bibendovsky_spul_ascii_utils.h"
 #include "bibendovsky_spul_enum_flags.h"
 #include "bibendovsky_spul_endian.h"
 #include "bibendovsky_spul_four_cc.h"
 #include "bibendovsky_spul_memory_stream.h"
+#include "bibendovsky_spul_path_utils.h"
 #include "bibendovsky_spul_riff_four_ccs.h"
 #include "bibendovsky_spul_riff_reader.h"
 #include "bibendovsky_spul_scope_guard.h"
@@ -43,6 +54,10 @@ public:
 		riff_reader_{},
 		io_segment_header_{},
 		io_tracks_{}
+#ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+		,
+		debug_filebuf_{}
+#endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 	{
 	}
 
@@ -61,6 +76,10 @@ public:
 		riff_reader_{std::move(that.riff_reader_)},
 		io_segment_header_{std::move(that.io_segment_header_)},
 		io_tracks_{std::move(that.io_tracks_)}
+#ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+		,
+		debug_filebuf_{std::move(that.debug_filebuf_)}
+#endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 	{
 	}
 
@@ -1834,6 +1853,10 @@ private:
 			return false;
 		}
 
+#ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+		debug_dump_structure(file_name);
+#endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+
 		return true;
 	}
 
@@ -1845,6 +1868,75 @@ private:
 		io_segment_header_ = {};
 		io_tracks_.clear();
 	}
+
+
+	// ======================================================================
+	// Debug stuff
+	//
+
+#ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+	std::filebuf debug_filebuf_;
+
+
+	void debug_write_string(
+		const std::string& string)
+	{
+		if (string.empty())
+		{
+			return;
+		}
+
+		static_cast<void>(debug_filebuf_.sputn(string.data(), string.length()));
+	}
+
+	void debug_write_line(
+		const std::string& string)
+	{
+		debug_write_string(string);
+		static_cast<void>(debug_filebuf_.sputc('\n'));
+	}
+
+	void debug_write_line()
+	{
+		static_cast<void>(debug_filebuf_.sputc('\n'));
+	}
+
+	void debug_dump_structure(
+		const std::string& file_name)
+	{
+		auto file_path = ul::PathUtils::get_parent_path(file_name);
+		std::replace(file_path.begin(), file_path.end(), '\\', '_');
+		std::replace(file_path.begin(), file_path.end(), '/', '_');
+		ul::AsciiUtils::to_lower_i(file_path);
+		file_path = "ltjs_dbg_dmus001_" + file_path + ".txt";
+
+		static_cast<void>(debug_filebuf_.open(file_path, std::ios_base::out | std::ios_base::binary | std::ios_base::app));
+
+		if (!debug_filebuf_.is_open())
+		{
+			return;
+		}
+
+
+		debug_write_line();
+		debug_write_line("=============================================================================");
+		debug_write_line(file_name);
+		debug_write_line("-----------------------------------------------------------------------------");
+
+		debug_write_line("Header:");
+		debug_write_line("\tmt_length_: " + std::to_string(io_segment_header_.mt_length_));
+		debug_write_line("\tmt_play_start_: " + std::to_string(io_segment_header_.mt_play_start_));
+		debug_write_line("\trt_length_: " + std::to_string(io_segment_header_.rt_length_));
+
+		debug_write_line("=============================================================================");
+
+		debug_filebuf_.close();
+	}
+#endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+
+	//
+	// Debug stuff
+	// ======================================================================
 }; // DMusicSegment::Impl
 
 
