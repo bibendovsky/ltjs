@@ -492,79 +492,6 @@ private:
 	static const char* const unsupported_method_message;
 
 
-#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
-	using DebugControlFilePaths = std::vector<std::string>;
-
-	void debug_test_all_musics(
-		const DebugControlFilePaths& control_file_names)
-	{
-		for (auto control_file_path : control_file_names)
-		{
-			const auto working_directory = ul::PathUtils::get_parent_path(control_file_path);
-			const auto control_file_name = ul::PathUtils::get_file_name(control_file_path);
-
-			const auto init_result = api_init_level(
-				working_directory.c_str(),
-				control_file_name.c_str(),
-				nullptr,
-				nullptr,
-				nullptr);
-
-			if (init_result == LT_OK)
-			{
-				static_cast<void>(api_term_level());
-			}
-		}
-	}
-#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
-
-#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
-	static const DebugControlFilePaths& debug_get_control_file_paths_nolf2()
-	{
-		static const DebugControlFilePaths nolf2_music_control_file_paths =
-		{
-			"Music\\Cinematics\\Cinematics.txt",
-			"Music\\India\\India.txt",
-			"Music\\India\\Low\\India.txt",
-			"Music\\Island\\Island.txt",
-			"Music\\Island\\IslandL.txt",
-			"Music\\Island\\Low\\Island.txt",
-			"Music\\Island\\Low\\IslandL.txt",
-			"Music\\Japan\\Japan.txt",
-			"Music\\Japan\\Low\\Japan.txt",
-			"Music\\Japan\\Low\\Melvin.txt",
-			"Music\\Japan\\Low\\Ohio.txt",
-			"Music\\Japan\\Melvin.txt",
-			"Music\\Japan\\Ohio.txt",
-			"Music\\Siberia\\Low\\Siberia.txt",
-			"Music\\Siberia\\Siberia.txt",
-			"Music\\Underwater\\Antarctica.txt",
-			"Music\\Underwater\\Low\\Antarctica.txt",
-			"Music\\Underwater\\Low\\Underwater.txt",
-			"Music\\Underwater\\Underwater.txt",
-			"Music\\Unity\\Bicycle.txt",
-			"Music\\Unity\\Low\\Bicycle.txt",
-			"Music\\Unity\\Low\\Unity.txt",
-			"Music\\Unity\\Unity.txt",
-		}; // nolf2_music_control_file_paths
-
-		return nolf2_music_control_file_paths;
-	}
-#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
-
-#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
-	void debug_test_all_musics()
-	{
-		log_info(3, "DEBUG: BEGIN Testing all musics.");
-
-#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
-		debug_test_all_musics(debug_get_control_file_paths_nolf2());
-#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
-
-		log_info(3, "DEBUG: END Testing all musics.");
-	}
-#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
-
 	void log_message(
 		const int level,
 		const CONCOLOR color,
@@ -907,6 +834,88 @@ private:
 
 		return true;
 	}
+
+
+	// ======================================================================
+	// Debug stuff
+	//
+
+#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+	using DebugControlFilePaths = std::vector<std::string>;
+
+	void debug_test_all_musics(
+		const DebugControlFilePaths& control_file_names)
+	{
+		for (auto control_file_path : control_file_names)
+		{
+			const auto working_directory = ul::PathUtils::get_parent_path(control_file_path);
+			const auto control_file_name = ul::PathUtils::get_file_name(control_file_path);
+
+			const auto init_result = api_init_level(
+				working_directory.c_str(),
+				control_file_name.c_str(),
+				nullptr,
+				nullptr,
+				nullptr);
+
+			if (init_result == LT_OK)
+			{
+				static_cast<void>(api_term_level());
+			}
+		}
+	}
+#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+
+#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
+	static const DebugControlFilePaths& debug_get_control_file_paths_nolf2()
+	{
+		static const DebugControlFilePaths nolf2_music_control_file_paths =
+		{
+			"Music\\Cinematics\\Cinematics.txt",
+			"Music\\India\\India.txt",
+			"Music\\India\\Low\\India.txt",
+			"Music\\Island\\Island.txt",
+			"Music\\Island\\IslandL.txt",
+			"Music\\Island\\Low\\Island.txt",
+			"Music\\Island\\Low\\IslandL.txt",
+			"Music\\Japan\\Japan.txt",
+			"Music\\Japan\\Low\\Japan.txt",
+			"Music\\Japan\\Low\\Melvin.txt",
+			"Music\\Japan\\Low\\Ohio.txt",
+			"Music\\Japan\\Melvin.txt",
+			"Music\\Japan\\Ohio.txt",
+			"Music\\Siberia\\Low\\Siberia.txt",
+			"Music\\Siberia\\Siberia.txt",
+			"Music\\Underwater\\Antarctica.txt",
+			"Music\\Underwater\\Low\\Antarctica.txt",
+			"Music\\Underwater\\Low\\Underwater.txt",
+			"Music\\Underwater\\Underwater.txt",
+			"Music\\Unity\\Bicycle.txt",
+			"Music\\Unity\\Low\\Bicycle.txt",
+			"Music\\Unity\\Low\\Unity.txt",
+			"Music\\Unity\\Unity.txt",
+		}; // nolf2_music_control_file_paths
+
+		return nolf2_music_control_file_paths;
+	}
+#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
+
+#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+	void debug_test_all_musics()
+	{
+		log_info(3, "DEBUG: BEGIN Testing all musics.");
+
+#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
+		debug_test_all_musics(debug_get_control_file_paths_nolf2());
+#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
+
+		log_info(3, "DEBUG: END Testing all musics.");
+	}
+#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+
+	//
+	// Debug stuff
+	// ======================================================================
 }; // DMusicManager::Impl
 
 
