@@ -5,8 +5,8 @@
 
 
 #ifdef _DEBUG
-#define LTJS_DMUSIC_CHECK_ALL_MUSICS
-#define LTJS_NOLF2_DMUSIC_CHECK_ALL_MUSICS
+#define LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+#define LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
 #endif // _DEBUG
 
 
@@ -14,6 +14,7 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 #include "bibendovsky_spul_path_utils.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "console.h"
@@ -113,9 +114,9 @@ public:
 
 		is_initialized_ = true;
 
-#ifdef LTJS_DMUSIC_CHECK_ALL_MUSICS
-		test_all_musics();
-#endif // LTJS_DMUSIC_CHECK_ALL_MUSICS
+#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+		debug_test_all_musics();
+#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
 
 		return LT_OK;
 	}
@@ -491,10 +492,36 @@ private:
 	static const char* const unsupported_method_message;
 
 
-#ifdef LTJS_NOLF2_DMUSIC_CHECK_ALL_MUSICS
-	void test_nolf2_all_music()
+#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+	using DebugControlFilePaths = std::vector<std::string>;
+
+	void debug_test_all_musics(
+		const DebugControlFilePaths& control_file_names)
 	{
-		static const char* const nolf2_music_control_file_paths[] =
+		for (auto control_file_path : control_file_names)
+		{
+			const auto working_directory = ul::PathUtils::get_parent_path(control_file_path);
+			const auto control_file_name = ul::PathUtils::get_file_name(control_file_path);
+
+			const auto init_result = api_init_level(
+				working_directory.c_str(),
+				control_file_name.c_str(),
+				nullptr,
+				nullptr,
+				nullptr);
+
+			if (init_result == LT_OK)
+			{
+				static_cast<void>(api_term_level());
+			}
+		}
+	}
+#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+
+#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
+	static const DebugControlFilePaths& debug_get_control_file_paths_nolf2()
+	{
+		static const DebugControlFilePaths nolf2_music_control_file_paths =
 		{
 			"Music\\Cinematics\\Cinematics.txt",
 			"Music\\India\\India.txt",
@@ -521,34 +548,22 @@ private:
 			"Music\\Unity\\Unity.txt",
 		}; // nolf2_music_control_file_paths
 
-		for (auto control_file_path : nolf2_music_control_file_paths)
-		{
-			const auto working_directory = ul::PathUtils::get_parent_path(control_file_path);
-			const auto control_file_name = ul::PathUtils::get_file_name(control_file_path);
-
-			const auto init_result = api_init_level(
-				working_directory.c_str(),
-				control_file_name,
-				nullptr,
-				nullptr,
-				nullptr);
-
-			if (init_result == LT_OK)
-			{
-				static_cast<void>(api_term_level());
-			}
-		}
+		return nolf2_music_control_file_paths;
 	}
-#endif // LTJS_NOLF2_DMUSIC_CHECK_ALL_MUSICS
+#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
 
-#ifdef LTJS_DMUSIC_CHECK_ALL_MUSICS
-	void test_all_musics()
+#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+	void debug_test_all_musics()
 	{
-#ifdef LTJS_NOLF2_DMUSIC_CHECK_ALL_MUSICS
-		test_nolf2_all_music();
-#endif // LTJS_NOLF2_DMUSIC_CHECK_ALL_MUSICS
+		log_info(3, "DEBUG: BEGIN Testing all musics.");
+
+#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
+		debug_test_all_musics(debug_get_control_file_paths_nolf2());
+#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
+
+		log_info(3, "DEBUG: END Testing all musics.");
 	}
-#endif // LTJS_DMUSIC_CHECK_ALL_MUSICS
+#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
 
 	void log_message(
 		const int level,
