@@ -2,7 +2,7 @@
 
 
 #ifdef _DEBUG
-#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+//#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 #endif // _DEBUG
 
 
@@ -321,15 +321,15 @@ private:
 		bool validate(
 			std::string& error_message) const
 		{
-			if (time_ != 16)
+			if (time_ < 0)
 			{
-				error_message = "Unsupported time value.";
+				error_message = "Negative music time.";
 				return false;
 			}
 
-			if (tempo_ != 0.0)
+			if (tempo_ < 1.0)
 			{
-				error_message = "Unsupported tempo value.";
+				error_message = "Invalid tempo value.";
 				return false;
 			}
 
@@ -1270,21 +1270,46 @@ private:
 			return false;
 		}
 
-		track.tempos_.emplace_back();
-		auto& item = track.tempos_.back();
-
 		auto chunk = riff_reader_.get_current_chunk();
 
-		if (!item.read(&chunk.data_stream_))
+		auto item_size = std::uint32_t{};
+
+		if (chunk.data_stream_.read(&item_size, 4) != 4)
 		{
-			error_message_ = "Failed to read a tempo track item.";
+			error_message_ = "Failed to read a size of a tempo item.";
 			return false;
 		}
 
-		if (!item.validate(error_message_))
+		ul::Endian::little_i(item_size);
+
+		const auto item_count = static_cast<int>((chunk.size_ - 4) / item_size);
+		const auto item_remain_size = item_size - IoTempoItem8::class_size;
+
+		for (auto i = 0; i < item_count; ++i)
 		{
-			error_message_ = "Failed to validate a tempo track item: " + error_message_;
-			return false;
+			track.tempos_.emplace_back();
+			auto& item = track.tempos_.back();
+
+			if (!item.read(&chunk.data_stream_))
+			{
+				error_message_ = "Failed to read a tempo track item.";
+				return false;
+			}
+
+			if (!item.validate(error_message_))
+			{
+				error_message_ = "Failed to validate a tempo track item: " + error_message_;
+				return false;
+			}
+
+			if (item_remain_size > 0)
+			{
+				if (chunk.data_stream_.skip(item_remain_size) < 0)
+				{
+					error_message_ = "Seek error.";
+					return false;
+				}
+			}
 		}
 
 		// Ascend "tetr".
