@@ -2,7 +2,7 @@
 
 
 #ifdef _DEBUG
-//#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 #endif // _DEBUG
 
 
@@ -2149,19 +2149,19 @@ private:
 
 				for (auto i_part = 0; i_part < n_parts; ++i_part)
 				{
-					debug_write_line("\t\t\t\tPart " + std::to_string(i_part) + ":");
+					debug_write_line("\t\tPart " + std::to_string(i_part) + ":");
 					const auto& part = wave.parts_[i_part];
 
 					// Header.
 					//
-					debug_write_line("\t\t\t\t\tHeader:");
+					debug_write_line("\t\t\tHeader:");
 					const auto& part_header = part.header_;
-					debug_write_line("\t\t\t\t\t\tvolume_: " + std::to_string(part_header.volume_));
-					debug_write_line("\t\t\t\t\t\tvariations_: " + std::to_string(part_header.variations_) + " (" + debug_flags_to_string(part_header.variations_) + ")");
-					debug_write_line("\t\t\t\t\t\tchannel_: " + std::to_string(part_header.channel_));
-					debug_write_line("\t\t\t\t\t\tlock_to_part_: " + std::to_string(part_header.lock_to_part_));
-					debug_write_line("\t\t\t\t\t\tflags_: " + std::to_string(part_header.flags_) + " (" + debug_flags_to_string(part_header.flags_) + ")");
-					debug_write_line("\t\t\t\t\t\tindex_: " + std::to_string(part_header.index_));
+					debug_write_line("\t\t\t\tvolume_: " + std::to_string(part_header.volume_));
+					debug_write_line("\t\t\t\tvariations_: " + std::to_string(part_header.variations_) + " (" + debug_flags_to_string(part_header.variations_) + ")");
+					debug_write_line("\t\t\t\tchannel_: " + std::to_string(part_header.channel_));
+					debug_write_line("\t\t\t\tlock_to_part_: " + std::to_string(part_header.lock_to_part_));
+					debug_write_line("\t\t\t\tflags_: " + std::to_string(part_header.flags_) + " (" + debug_flags_to_string(part_header.flags_) + ")");
+					debug_write_line("\t\t\t\tindex_: " + std::to_string(part_header.index_));
 
 
 					// Parts.
@@ -2171,24 +2171,24 @@ private:
 					for (auto i_item = 0; i_item < n_items; ++i_item)
 					{
 						debug_write_line();
-						debug_write_line("\t\t\t\t\t\t\tItem " + std::to_string(i_item) + ":");
+						debug_write_line("\t\t\tItem " + std::to_string(i_item) + ":");
 						const auto& item = part.items_[i_item];
 
 						// Header.
 						//
-						debug_write_line("\t\t\t\t\t\t\t\tHeader:");
+						debug_write_line("\t\t\t\tHeader:");
 						const auto& item_header = item.header_;
-						debug_write_line("\t\t\t\t\t\t\t\t\tvolume_: " + std::to_string(item_header.volume_));
-						debug_write_line("\t\t\t\t\t\t\t\t\tpitch_: " + std::to_string(item_header.pitch_));
-						debug_write_line("\t\t\t\t\t\t\t\t\tvariations_: " + std::to_string(item_header.variations_) + " (" + debug_flags_to_string(item_header.variations_) + ")");
-						debug_write_line("\t\t\t\t\t\t\t\t\trt_time_: " + std::to_string(item_header.rt_time_));
-						debug_write_line("\t\t\t\t\t\t\t\t\trt_start_offset_: " + std::to_string(item_header.rt_start_offset_));
-						debug_write_line("\t\t\t\t\t\t\t\t\trt_reserved_: " + std::to_string(item_header.rt_reserved_));
-						debug_write_line("\t\t\t\t\t\t\t\t\trt_duration_: " + std::to_string(item_header.rt_duration_));
-						debug_write_line("\t\t\t\t\t\t\t\t\tmt_logical_time: " + std::to_string(item_header.mt_logical_time));
-						debug_write_line("\t\t\t\t\t\t\t\t\tloop_start_: " + std::to_string(item_header.loop_start_));
-						debug_write_line("\t\t\t\t\t\t\t\t\tloop_end_: " + std::to_string(item_header.loop_end_));
-						debug_write_line("\t\t\t\t\t\t\t\t\tflags_: " + std::to_string(item_header.flags_) + " (" + debug_flags_to_string(item_header.flags_) + ")");
+						debug_write_line("\t\t\t\t\tvolume_: " + std::to_string(item_header.volume_));
+						debug_write_line("\t\t\t\t\tpitch_: " + std::to_string(item_header.pitch_));
+						debug_write_line("\t\t\t\t\tvariations_: " + std::to_string(item_header.variations_) + " (" + debug_flags_to_string(item_header.variations_) + ")");
+						debug_write_line("\t\t\t\t\trt_time_: " + std::to_string(item_header.rt_time_));
+						debug_write_line("\t\t\t\t\trt_start_offset_: " + std::to_string(item_header.rt_start_offset_));
+						debug_write_line("\t\t\t\t\trt_reserved_: " + std::to_string(item_header.rt_reserved_));
+						debug_write_line("\t\t\t\t\trt_duration_: " + std::to_string(item_header.rt_duration_));
+						debug_write_line("\t\t\t\t\tmt_logical_time: " + std::to_string(item_header.mt_logical_time));
+						debug_write_line("\t\t\t\t\tloop_start_: " + std::to_string(item_header.loop_start_));
+						debug_write_line("\t\t\t\t\tloop_end_: " + std::to_string(item_header.loop_end_));
+						debug_write_line("\t\t\t\t\tflags_: " + std::to_string(item_header.flags_) + " (" + debug_flags_to_string(item_header.flags_) + ")");
 
 						// References.
 						//
@@ -2197,20 +2197,20 @@ private:
 						for (auto i_ref = 0; i_ref < n_refs; ++i_ref)
 						{
 							debug_write_line();
-							debug_write_line("\t\t\t\t\t\t\t\tReference " + std::to_string(i_ref) + ":");
+							debug_write_line("\t\t\t\tReference " + std::to_string(i_ref) + ":");
 							const auto& ref = item.references_[i_ref];
 
 							// Header.
 							//
-							debug_write_line("\t\t\t\t\t\t\t\t\tHeader: ");
+							debug_write_line("\t\t\t\t\tHeader: ");
 							const auto& ref_header = ref.header_;
-							debug_write_line("\t\t\t\t\t\t\t\t\t\tclsid_: " + ref_header.clsid_.to_string());
-							debug_write_line("\t\t\t\t\t\t\t\t\t\tvalid_data_: " + std::to_string(ref_header.valid_data_) + " (" + debug_flags_to_string(ref_header.valid_data_) + ")");
+							debug_write_line("\t\t\t\t\t\tclsid_: " + ref_header.clsid_.to_string());
+							debug_write_line("\t\t\t\t\t\tvalid_data_: " + std::to_string(ref_header.valid_data_) + " (" + debug_flags_to_string(ref_header.valid_data_) + ")");
 
 							// File name.
 							//
-							debug_write_line("\t\t\t\t\t\t\t\t\tFile name:");
-							debug_write_line("\t\t\t\t\t\t\t\t\t\t\"" + ul::EncodingUtils::utf16_to_utf8(ref.u16_file_name_) + "\"");
+							debug_write_line("\t\t\t\t\tFile name:");
+							debug_write_line("\t\t\t\t\t\t\"" + ul::EncodingUtils::utf16_to_utf8(ref.u16_file_name_) + "\"");
 						}
 					}
 				}
