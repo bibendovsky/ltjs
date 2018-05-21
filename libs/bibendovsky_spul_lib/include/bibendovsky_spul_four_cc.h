@@ -139,6 +139,11 @@ public:
 	//
 	std::string to_string() const
 	{
+		if (value_ == 0)
+		{
+			return {};
+		}
+
 		const char string_buffer[4] =
 		{
 			static_cast<char>((value_ >> 0) & 0xFF),

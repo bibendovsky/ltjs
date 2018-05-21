@@ -97,7 +97,7 @@ if (BIBENDOVSKY_SPUL_USE_PCH)
 	if (MSVC)
 		target_compile_definitions(
 			bibendovsky_spul_lib
-			PRIVATE -DBIBENDOVSKY_SPUL_USE_PCH
+			PRIVATE BIBENDOVSKY_SPUL_USE_PCH
 		)
 
 		target_compile_options(
