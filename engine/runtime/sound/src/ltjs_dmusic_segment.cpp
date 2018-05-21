@@ -11,11 +11,13 @@
 #include <array>
 #include <fstream>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 #include "bibendovsky_spul_ascii_utils.h"
-#include "bibendovsky_spul_enum_flags.h"
+#include "bibendovsky_spul_encoding_utils.h"
 #include "bibendovsky_spul_endian.h"
+#include "bibendovsky_spul_enum_flags.h"
 #include "bibendovsky_spul_four_cc.h"
 #include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_path_utils.h"
@@ -23,7 +25,6 @@
 #include "bibendovsky_spul_riff_reader.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "bibendovsky_spul_uuid.h"
-#include "bibendovsky_spul_encoding_utils.h"
 #include "client_filemgr.h"
 
 
@@ -1921,6 +1922,33 @@ private:
 		static_cast<void>(debug_filebuf_.sputc('\n'));
 	}
 
+	template<int TBitCount>
+	std::string debug_flags_to_string(
+		const std::uint32_t flags)
+	{
+		auto result = std::string(std::string::size_type{TBitCount}, '0');
+
+		if (flags != 0)
+		{
+			for (auto i = 0; i < TBitCount; ++i)
+			{
+				if ((flags & (1 << i)) != 0)
+				{
+					result[TBitCount - i - 1] = '1';
+				}
+			}
+		}
+
+		return result;
+	}
+
+	template<typename T>
+	std::string debug_flags_to_string(
+		const T& flags)
+	{
+		return debug_flags_to_string<static_cast<int>(sizeof(T) * 8)>(static_cast<std::uint32_t>(flags));
+	}
+
 	void debug_dump_structure(
 		const std::string& file_name)
 	{
@@ -1943,10 +1971,197 @@ private:
 		debug_write_line(file_name);
 		debug_write_line("-----------------------------------------------------------------------------");
 
+		// Header.
+		//
 		debug_write_line("Header:");
+		debug_write_line("\trepeat_count_: " + std::to_string(io_segment_header_.repeat_count_));
 		debug_write_line("\tmt_length_: " + std::to_string(io_segment_header_.mt_length_));
 		debug_write_line("\tmt_play_start_: " + std::to_string(io_segment_header_.mt_play_start_));
+		debug_write_line("\tmt_loop_start_: " + std::to_string(io_segment_header_.mt_loop_start_));
+		debug_write_line("\tmt_loop_end_: " + std::to_string(io_segment_header_.mt_loop_end_));
 		debug_write_line("\trt_length_: " + std::to_string(io_segment_header_.rt_length_));
+
+		debug_write_line("\tflags_: " + std::to_string(io_segment_header_.flags_) + " (" +
+			debug_flags_to_string(io_segment_header_.flags_) + ")");
+
+		// Tracks.
+		//
+		auto n_tracks = static_cast<int>(io_tracks_.size());
+
+		for (auto i_track = 0; i_track < n_tracks; ++i_track)
+		{
+			debug_write_line();
+			debug_write_line("Track " + std::to_string(i_track) + ":");
+
+			const auto& track = io_tracks_[i_track];
+
+			const auto& track_header = track.header_;
+			debug_write_line("\tHeader:");
+			debug_write_line("\t\tguid_: " + track_header.guid_.to_string());
+			debug_write_line("\t\tposition_: " + std::to_string(track_header.position_));
+			debug_write_line("\t\tgroup_: " + std::to_string(track_header.group_) + " (" + debug_flags_to_string(track_header.group_) + ")");
+			debug_write_line("\t\tchunk_id_: " + std::to_string(track_header.chunk_id_) + " (\"" + track_header.chunk_id_.to_string() + "\")");
+			debug_write_line("\t\tlist_type_: " + std::to_string(track_header.list_type_) + " (\"" + track_header.list_type_.to_string() + "\")");
+
+			// Sequences.
+			//
+			const auto n_sequences = static_cast<int>(track.sequences_.size());
+
+			for (auto i_sequence = 0; i_sequence < n_sequences; ++i_sequence)
+			{
+				debug_write_line();
+				debug_write_line("\tSequence " + std::to_string(i_sequence) + ":");
+				const auto& sequence = track.sequences_[i_sequence];
+
+				const auto& e = sequence.event_;
+				debug_write_line("\t\tEvent:");
+				debug_write_line("\t\t\tmt_time_: " + std::to_string(e.mt_time_));
+				debug_write_line("\t\t\tmt_duration_: " + std::to_string(e.mt_duration_));
+				debug_write_line("\t\t\tchannel_: " + std::to_string(e.channel_));
+				debug_write_line("\t\t\toffset_: " + std::to_string(e.offset_));
+				debug_write_line("\t\t\tstatus_: " + std::to_string(static_cast<int>(e.status_)));
+				debug_write_line("\t\t\tbyte_1_: " + std::to_string(static_cast<int>(e.byte_1_)));
+				debug_write_line("\t\t\tbyte_2_: " + std::to_string(static_cast<int>(e.byte_2_)));
+
+				const auto& curve = sequence.curve_;
+				debug_write_line("\t\tCurve:");
+				debug_write_line("\t\t\tmt_start_: " + std::to_string(curve.mt_start_));
+				debug_write_line("\t\t\tmt_duration_: " + std::to_string(curve.mt_duration_));
+				debug_write_line("\t\t\tmt_reset_duration_: " + std::to_string(curve.mt_reset_duration_));
+				debug_write_line("\t\t\tchannel_: " + std::to_string(curve.channel_));
+				debug_write_line("\t\t\toffset_: " + std::to_string(curve.offset_));
+				debug_write_line("\t\t\tstart_value_: " + std::to_string(curve.start_value_));
+				debug_write_line("\t\t\tend_value_: " + std::to_string(curve.end_value_));
+				debug_write_line("\t\t\treset_value_: " + std::to_string(curve.reset_value_));
+				debug_write_line("\t\t\ttype_: " + std::to_string(static_cast<int>(curve.type_)));
+				debug_write_line("\t\t\tcurve_shape_: " + std::to_string(static_cast<int>(curve.curve_shape_)));
+				debug_write_line("\t\t\tcc_data_: " + std::to_string(static_cast<int>(curve.cc_data_)));
+				debug_write_line("\t\t\tflags_: " + std::to_string(static_cast<int>(curve.flags_)) + " (" + debug_flags_to_string(curve.flags_) + ")");
+				debug_write_line("\t\t\tparam_type_: " + std::to_string(curve.param_type_));
+				debug_write_line("\t\t\tmerge_index_: " + std::to_string(curve.merge_index_));
+			}
+
+			// Tempos.
+			//
+			const auto n_tempos = static_cast<int>(track.tempos_.size());
+
+			for (auto i_tempo = 0; i_tempo < n_tempos; ++i_tempo)
+			{
+				debug_write_line();
+				debug_write_line("\tTempo " + std::to_string(i_tempo) + ":");
+
+				const auto& tempo = track.tempos_[i_tempo];
+				debug_write_line("\t\ttime_: " + std::to_string(tempo.time_));
+				debug_write_line("\t\ttempo_: " + std::to_string(tempo.tempo_));
+			}
+
+			// Time signatures.
+			//
+			const auto n_times = static_cast<int>(track.times_.size());
+
+			for (auto i_time = 0; i_time < n_times; ++i_time)
+			{
+				debug_write_line();
+				debug_write_line("\tTime signature " + std::to_string(i_time) + ":");
+
+				const auto& time = track.times_[i_time];
+				debug_write_line("\t\ttime_: " + std::to_string(time.time_));
+				debug_write_line("\t\tbeats_per_measure_: " + std::to_string(static_cast<int>(time.beats_per_measure_)));
+				debug_write_line("\t\tbeat_: " + std::to_string(static_cast<int>(time.beat_)));
+				debug_write_line("\t\tgrids_per_beat_: " + std::to_string(time.grids_per_beat_));
+			}
+
+			// Waves.
+			//
+			const auto n_waves = static_cast<int>(track.waves_.size());
+
+			for (auto i_wave = 0; i_wave < n_waves; ++i_wave)
+			{
+				debug_write_line();
+				debug_write_line("\tWave " + std::to_string(i_wave) + ":");
+
+				const auto& wave = track.waves_[i_wave];
+
+				// Header.
+				//
+				const auto& wave_header = wave.header_;
+				debug_write_line("\t\tHeader:");
+				debug_write_line("\t\t\tvolume_: " + std::to_string(wave_header.volume_));
+				debug_write_line("\t\t\tflags_: " + std::to_string(wave_header.flags_) + " (" + debug_flags_to_string(wave_header.flags_) + ")");
+
+				// Parts.
+				//
+				const auto n_parts = static_cast<int>(wave.parts_.size());
+
+				for (auto i_part = 0; i_part < n_parts; ++i_part)
+				{
+					debug_write_line("\t\t\t\tPart " + std::to_string(i_part) + ":");
+					const auto& part = wave.parts_[i_part];
+
+					// Header.
+					//
+					debug_write_line("\t\t\t\t\tHeader:");
+					const auto& part_header = part.header_;
+					debug_write_line("\t\t\t\t\t\tvolume_: " + std::to_string(part_header.volume_));
+					debug_write_line("\t\t\t\t\t\tvariations_: " + std::to_string(part_header.variations_) + " (" + debug_flags_to_string(part_header.variations_) + ")");
+					debug_write_line("\t\t\t\t\t\tchannel_: " + std::to_string(part_header.channel_));
+					debug_write_line("\t\t\t\t\t\tlock_to_part_: " + std::to_string(part_header.lock_to_part_));
+					debug_write_line("\t\t\t\t\t\tflags_: " + std::to_string(part_header.flags_) + " (" + debug_flags_to_string(part_header.flags_) + ")");
+					debug_write_line("\t\t\t\t\t\tindex_: " + std::to_string(part_header.index_));
+
+
+					// Parts.
+					//
+					const auto n_items = static_cast<int>(part.items_.size());
+
+					for (auto i_item = 0; i_item < n_items; ++i_item)
+					{
+						debug_write_line();
+						debug_write_line("\t\t\t\t\t\t\tItem " + std::to_string(i_item) + ":");
+						const auto& item = part.items_[i_item];
+
+						// Header.
+						//
+						debug_write_line("\t\t\t\t\t\t\t\tHeader:");
+						const auto& item_header = item.header_;
+						debug_write_line("\t\t\t\t\t\t\t\t\tvolume_: " + std::to_string(item_header.volume_));
+						debug_write_line("\t\t\t\t\t\t\t\t\tpitch_: " + std::to_string(item_header.pitch_));
+						debug_write_line("\t\t\t\t\t\t\t\t\tvariations_: " + std::to_string(item_header.variations_) + " (" + debug_flags_to_string(item_header.variations_) + ")");
+						debug_write_line("\t\t\t\t\t\t\t\t\trt_time_: " + std::to_string(item_header.rt_time_));
+						debug_write_line("\t\t\t\t\t\t\t\t\trt_start_offset_: " + std::to_string(item_header.rt_start_offset_));
+						debug_write_line("\t\t\t\t\t\t\t\t\trt_reserved_: " + std::to_string(item_header.rt_reserved_));
+						debug_write_line("\t\t\t\t\t\t\t\t\trt_duration_: " + std::to_string(item_header.rt_duration_));
+						debug_write_line("\t\t\t\t\t\t\t\t\tmt_logical_time: " + std::to_string(item_header.mt_logical_time));
+						debug_write_line("\t\t\t\t\t\t\t\t\tloop_start_: " + std::to_string(item_header.loop_start_));
+						debug_write_line("\t\t\t\t\t\t\t\t\tloop_end_: " + std::to_string(item_header.loop_end_));
+						debug_write_line("\t\t\t\t\t\t\t\t\tflags_: " + std::to_string(item_header.flags_) + " (" + debug_flags_to_string(item_header.flags_) + ")");
+
+						// References.
+						//
+						const auto n_refs = static_cast<int>(item.references_.size());
+
+						for (auto i_ref = 0; i_ref < n_refs; ++i_ref)
+						{
+							debug_write_line();
+							debug_write_line("\t\t\t\t\t\t\t\tReference " + std::to_string(i_ref) + ":");
+							const auto& ref = item.references_[i_ref];
+
+							// Header.
+							//
+							debug_write_line("\t\t\t\t\t\t\t\t\tHeader: ");
+							const auto& ref_header = ref.header_;
+							debug_write_line("\t\t\t\t\t\t\t\t\t\tclsid_: " + ref_header.clsid_.to_string());
+							debug_write_line("\t\t\t\t\t\t\t\t\t\tvalid_data_: " + std::to_string(ref_header.valid_data_) + " (" + debug_flags_to_string(ref_header.valid_data_) + ")");
+
+							// File name.
+							//
+							debug_write_line("\t\t\t\t\t\t\t\t\tFile name:");
+							debug_write_line("\t\t\t\t\t\t\t\t\t\t\"" + ul::EncodingUtils::utf16_to_utf8(ref.u16_file_name_) + "\"");
+						}
+					}
+				}
+			}
+		}
 
 		debug_write_line("=============================================================================");
 

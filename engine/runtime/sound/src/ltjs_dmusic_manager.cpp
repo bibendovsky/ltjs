@@ -858,9 +858,15 @@ private:
 				nullptr,
 				nullptr);
 
+			auto is_failed = false;
+
 			if (init_result == LT_OK)
 			{
 				static_cast<void>(api_term_level());
+			}
+			else
+			{
+				is_failed = true;
 			}
 		}
 	}
