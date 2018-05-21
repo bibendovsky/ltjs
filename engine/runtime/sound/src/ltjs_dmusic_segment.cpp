@@ -2,7 +2,7 @@
 
 
 #ifdef _DEBUG
-#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+//#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 #endif // _DEBUG
 
 
@@ -248,7 +248,11 @@ private:
 				return false;
 			}
 
-			// Skip resolution.
+			if (resolution_ != 0)
+			{
+				error_message = "Expected zero resolution.";
+				return false;
+			}
 
 			if (rt_length_ < 0)
 			{
@@ -317,15 +321,15 @@ private:
 		bool validate(
 			std::string& error_message) const
 		{
-			if (time_ < 0)
+			if (time_ != 16)
 			{
-				error_message = "Negative music time.";
+				error_message = "Unsupported time value.";
 				return false;
 			}
 
-			if (tempo_ < 0.0)
+			if (tempo_ != 0.0)
 			{
-				error_message = "Negative tempo.";
+				error_message = "Unsupported tempo value.";
 				return false;
 			}
 
@@ -381,37 +385,29 @@ private:
 		bool validate(
 			std::string& error_message) const
 		{
-			if (time_ < 0)
+			if (time_ != 8)
 			{
-				error_message = "Negative music time.";
+				error_message = "Unsupported music time value.";
 				return false;
 			}
 
-			// Skip beats per measure.
-
-			// Beat.
-			//
-			const auto beat = (beat_ > 0 ? beat_ : 256);
-
-			switch (beat)
+			if (beats_per_measure_ != 0)
 			{
-			case 1:
-			case 2:
-			case 4:
-			case 8:
-			case 16:
-			case 32:
-			case 64:
-			case 128:
-			case 256:
-				break;
-
-			default:
-				error_message = "Invalid beat value.";
+				error_message = "Unsupported beats per measure value.";
 				return false;
 			}
 
-			// Skip grids per beat.
+			if (beat_ != 0)
+			{
+				error_message = "Unsupported beat value.";
+				return false;
+			}
+
+			if (grids_per_beat_ != 0)
+			{
+				error_message = "Unsupported grids per beat value.";
+				return false;
+			}
 
 			return true;
 		}
@@ -476,9 +472,9 @@ private:
 		bool validate(
 			std::string& error_message) const
 		{
-			if (mt_time_ < 0)
+			if (mt_time_ != 20)
 			{
-				error_message = "Negative music time.";
+				error_message = "Unsupported music time value.";
 				return false;
 			}
 
@@ -488,7 +484,17 @@ private:
 				return false;
 			}
 
-			// Skip channel.
+			if (channel_ != 0)
+			{
+				error_message = "Expected zero channel.";
+				return false;
+			}
+
+			if (offset_ != 0)
+			{
+				error_message = "Expected zero offset.";
+				return false;
+			}
 
 			if (status_ != 0)
 			{
@@ -591,9 +597,9 @@ private:
 		bool validate(
 			std::string& error_message) const
 		{
-			if (mt_start_ < 0)
+			if (mt_start_ != 32)
 			{
-				error_message = "Negative music time.";
+				error_message = "Unsupported music time value.";
 				return false;
 			}
 
@@ -629,13 +635,40 @@ private:
 				return false;
 			}
 
-			if (reset_value_ < 0)
+			//
+			// There are six curve types defined in dmusici.h:
+			// #define DMUS_CURVET_PBCURVE      0x03   /* Pitch bend curve. */
+			// #define DMUS_CURVET_CCCURVE      0x04   /* Control change curve. */
+			// #define DMUS_CURVET_MATCURVE     0x05   /* Mono aftertouch curve. */
+			// #define DMUS_CURVET_PATCURVE     0x06   /* Poly aftertouch curve. */
+			// #define DMUS_CURVET_RPNCURVE     0x07   /* RPN curve with curve type in wParamType. */
+			// #define DMUS_CURVET_NRPNCURVE    0x08   /* NRPN curve with curve type in wParamType. */
+			//
+			// What means those three values in condition below is mystery.
+			//
+			// Also, debug dumps shows equality between "reset_value_" and "type_".
+			//
+			constexpr auto magic_number_01 = std::uint8_t{0x48};
+			constexpr auto magic_number_02 = std::uint8_t{0x58};
+			constexpr auto magic_number_03 = std::uint8_t{0x7F};
+
+			if (!(reset_value_ == magic_number_01 || reset_value_ == magic_number_02 || reset_value_ == magic_number_03))
 			{
-				error_message = "Negative zero reset value.";
+				error_message = "Unsupported reset value.";
 				return false;
 			}
 
-			// Skip type.
+			if (!(type_ == magic_number_01 || type_ == magic_number_02 || type_ == magic_number_03))
+			{
+				error_message = "Unsupported type value.";
+				return false;
+			}
+
+			if (reset_value_ != type_)
+			{
+				error_message = "Unsupported combination of reset value and type value.";
+				return false;
+			}
 
 			if (curve_shape_ != 0)
 			{
@@ -655,9 +688,17 @@ private:
 				return false;
 			}
 
-			// Skip param type.
+			if (!(param_type_ == 260 || param_type_ == 1028))
+			{
+				error_message = "Unsupported param type.";
+				return false;
+			}
 
-			// Skip merge index_.
+			if (!(merge_index_ == 7 || merge_index_ == 11))
+			{
+				error_message = "Unsupported merge index.";
+				return false;
+			}
 
 			return true;
 		}
@@ -721,9 +762,9 @@ private:
 		bool validate(
 			std::string& error_message) const
 		{
-			if (volume_ > 0)
+			if (volume_ != 0)
 			{
-				error_message = "Positive volume.";
+				error_message = "Expected zero volume.";
 				return false;
 			}
 
@@ -792,9 +833,9 @@ private:
 			std::string& error_message) const
 		{
 			// In theory this must be negative. On practice it can be zero.
-			if (volume_ > 0)
+			if (volume_ != 0)
 			{
-				error_message = "Positive volume.";
+				error_message = "Expected zero volume.";
 				return false;
 			}
 
@@ -882,9 +923,9 @@ private:
 			std::string& error_message) const
 		{
 			// In theory this must be negative. On practice it can be zero.
-			if (volume_ > 0)
+			if (volume_ != 0)
 			{
-				error_message = "Positive volume.";
+				error_message = "Expected zero volume.";
 				return false;
 			}
 
@@ -912,7 +953,11 @@ private:
 				return false;
 			}
 
-			// Skip reserved.
+			if (rt_reserved_ != 0)
+			{
+				error_message = "Expected zero reserved reference time.";
+				return false;
+			}
 
 			if (rt_duration_ < 0)
 			{
@@ -1079,9 +1124,17 @@ private:
 				return false;
 			}
 
-			// Skip position.
+			if (position_ != 0)
+			{
+				error_message = "Expected zero position.";
+				return false;
+			}
 
-			// Skip group.
+			if (!(group_ == 1 || group_ == all_flags_on))
+			{
+				error_message = "Unsupported group value.";
+				return false;
+			}
 
 			if (chunk_id_ == 0 && list_type_ == 0)
 			{
@@ -1979,6 +2032,7 @@ private:
 		debug_write_line("\tmt_play_start_: " + std::to_string(io_segment_header_.mt_play_start_));
 		debug_write_line("\tmt_loop_start_: " + std::to_string(io_segment_header_.mt_loop_start_));
 		debug_write_line("\tmt_loop_end_: " + std::to_string(io_segment_header_.mt_loop_end_));
+		debug_write_line("\tresolution_: " + std::to_string(io_segment_header_.resolution_));
 		debug_write_line("\trt_length_: " + std::to_string(io_segment_header_.rt_length_));
 
 		debug_write_line("\tflags_: " + std::to_string(io_segment_header_.flags_) + " (" +
