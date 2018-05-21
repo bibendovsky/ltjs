@@ -388,7 +388,27 @@ private:
 
 			// Skip beats per measure.
 
-			// Skip beat.
+			// Beat.
+			//
+			const auto beat = (beat_ > 0 ? beat_ : 256);
+
+			switch (beat)
+			{
+			case 1:
+			case 2:
+			case 4:
+			case 8:
+			case 16:
+			case 32:
+			case 64:
+			case 128:
+			case 256:
+				break;
+
+			default:
+				error_message = "Invalid beat value.";
+				return false;
+			}
 
 			// Skip grids per beat.
 
