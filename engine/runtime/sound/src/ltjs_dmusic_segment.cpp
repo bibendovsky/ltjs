@@ -385,27 +385,39 @@ private:
 		bool validate(
 			std::string& error_message) const
 		{
-			if (time_ != 8)
+			if (time_ < 0)
 			{
-				error_message = "Unsupported music time value.";
+				error_message = "Negative music time.";
 				return false;
 			}
 
-			if (beats_per_measure_ != 0)
+			if (beats_per_measure_ == 0)
 			{
-				error_message = "Unsupported beats per measure value.";
+				error_message = "Zero beats per measure.";
 				return false;
 			}
 
-			if (beat_ != 0)
+			switch (beat_)
 			{
-				error_message = "Unsupported beat value.";
+			case 0: // 1 / 256
+			case 1:
+			case 2:
+			case 4:
+			case 8:
+			case 16:
+			case 32:
+			case 64:
+			case 128:
+				break;
+
+			default:
+				error_message = "Invalid beat value.";
 				return false;
 			}
 
-			if (grids_per_beat_ != 0)
+			if (grids_per_beat_ == 0)
 			{
-				error_message = "Unsupported grids per beat value.";
+				error_message = "Zero grids per beat.";
 				return false;
 			}
 
@@ -1282,6 +1294,12 @@ private:
 
 		ul::Endian::little_i(item_size);
 
+		if (item_size < IoTempoItem8::class_size)
+		{
+			error_message_ = "Invalid size of a tempo item.";
+			return false;
+		}
+
 		const auto item_count = static_cast<int>((chunk.size_ - 4) / item_size);
 		const auto item_remain_size = item_size - IoTempoItem8::class_size;
 
@@ -1336,28 +1354,54 @@ private:
 			return false;
 		}
 
-		while (true)
+		if (riff_reader_.find_and_descend(ul::FourCc{"tims"}))
 		{
-			if (!riff_reader_.find_and_descend(ul::FourCc{"tims"}))
-			{
-				break;
-			}
-
-			track.times_.emplace_back();
-			auto& item = track.times_.back();
-
 			auto chunk = riff_reader_.get_current_chunk();
 
-			if (!item.read(&chunk.data_stream_))
+			auto item_size = std::uint32_t{};
+
+			if (chunk.data_stream_.read(&item_size, 4) != 4)
 			{
-				error_message_ = "Failed to read a time signature item.";
+				error_message_ = "Failed to read size of a time signature item.";
 				return false;
 			}
 
-			if (!item.validate(error_message_))
+			ul::Endian::little_i(item_size);
+
+			if (item_size < IoTimeSignatureItem8::class_size)
 			{
-				error_message_ = "Failed to validate a time signature item: " + error_message_;
+				error_message_ = "Invalid size of a time signature item.";
 				return false;
+			}
+
+			const auto item_count = static_cast<int>((chunk.size_ - 4) / item_size);
+			const auto item_remain_size = item_size - IoTimeSignatureItem8::class_size;
+
+			for (auto i = 0; i < item_count; ++i)
+			{
+				track.times_.emplace_back();
+				auto& item = track.times_.back();
+
+				if (!item.read(&chunk.data_stream_))
+				{
+					error_message_ = "Failed to read a time signature item.";
+					return false;
+				}
+
+				if (!item.validate(error_message_))
+				{
+					error_message_ = "Failed to validate a time signature item: " + error_message_;
+					return false;
+				}
+
+				if (item_remain_size > 0)
+				{
+					if (chunk.data_stream_.skip(item_remain_size) < 0)
+					{
+						error_message_ = "Seek error.";
+						return false;
+					}
+				}
 			}
 
 			// Ascend "tims".
