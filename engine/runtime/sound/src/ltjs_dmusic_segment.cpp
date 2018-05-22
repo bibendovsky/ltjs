@@ -484,9 +484,9 @@ private:
 		bool validate(
 			std::string& error_message) const
 		{
-			if (mt_time_ != 20)
+			if (mt_time_ < 20)
 			{
-				error_message = "Unsupported music time value.";
+				error_message = "Negative music time.";
 				return false;
 			}
 
@@ -530,9 +530,33 @@ private:
 		}
 	}; // IoSequenceItem8
 
+	using IoSequenceItems8 = std::vector<IoSequenceItem8>;
+
+
 	struct IoCurveItem8
 	{
 		static constexpr auto class_size = 32;
+
+		enum class Type :
+			std::uint8_t
+		{
+			pitch_bend = 0x03,
+			control_change = 0x04,
+			mono_aftertouch = 0x05,
+			poly_aftertouch = 0x06,
+			rpn = 0x07,
+			nrpn = 0x08,
+		}; // Type
+
+		enum class Shape :
+			std::uint8_t
+		{
+			linear = 0,
+			instant = 1,
+			exponential = 2,
+			logarithmic = 3,
+			sine = 4,
+		}; // Type
 
 
 		IoMusicTime8 mt_start_;
@@ -543,8 +567,8 @@ private:
 		std::int16_t start_value_;
 		std::int16_t end_value_;
 		std::int16_t reset_value_;
-		std::uint8_t type_;
-		std::uint8_t curve_shape_;
+		Type type_;
+		Shape curve_shape_;
 		std::uint8_t cc_data_;
 		std::uint8_t flags_;
 		std::uint16_t param_type_;
@@ -609,90 +633,63 @@ private:
 		bool validate(
 			std::string& error_message) const
 		{
-			if (mt_start_ != 32)
+			if (mt_start_ != 0)
 			{
-				error_message = "Unsupported music time value.";
+				error_message = "Expected zero music time.";
 				return false;
 			}
 
-			if (mt_duration_ != 0)
+			if (mt_duration_ <= 0)
 			{
-				error_message = "Expected zero music duration.";
+				error_message = "Expected positive music duration.";
 				return false;
 			}
 
-			if (mt_reset_duration_ < 0)
+			if (mt_reset_duration_ != 0)
 			{
-				error_message = "Negative music reset duration.";
+				error_message = "Expected zero music reset duration.";
 				return false;
 			}
 
 			// Skip channel.
 
-			if (offset_ < 0)
+			if (offset_ != 0)
 			{
-				error_message = "Negative music offset.";
+				error_message = "Expected zero music offset.";
 				return false;
 			}
 
-			if (start_value_ != 0)
+			if (start_value_ <= 0)
 			{
-				error_message = "Expected zero start value.";
+				error_message = "Expected positive start value.";
 				return false;
 			}
 
-			if (end_value_ != 0)
+			if (end_value_ <= 0)
 			{
-				error_message = "Expected zero end value.";
+				error_message = "Expected positive end value.";
 				return false;
 			}
 
-			//
-			// There are six curve types defined in dmusici.h:
-			// #define DMUS_CURVET_PBCURVE      0x03   /* Pitch bend curve. */
-			// #define DMUS_CURVET_CCCURVE      0x04   /* Control change curve. */
-			// #define DMUS_CURVET_MATCURVE     0x05   /* Mono aftertouch curve. */
-			// #define DMUS_CURVET_PATCURVE     0x06   /* Poly aftertouch curve. */
-			// #define DMUS_CURVET_RPNCURVE     0x07   /* RPN curve with curve type in wParamType. */
-			// #define DMUS_CURVET_NRPNCURVE    0x08   /* NRPN curve with curve type in wParamType. */
-			//
-			// What means those three values in condition below is mystery.
-			//
-			// Also, debug dumps shows equality between "reset_value_" and "type_".
-			//
-			constexpr auto magic_number_01 = std::uint8_t{0x48};
-			constexpr auto magic_number_02 = std::uint8_t{0x58};
-			constexpr auto magic_number_03 = std::uint8_t{0x7F};
-
-			if (!(reset_value_ == magic_number_01 || reset_value_ == magic_number_02 || reset_value_ == magic_number_03))
+			if (reset_value_ != 0)
 			{
-				error_message = "Unsupported reset value.";
+				error_message = "Expected zero reset value.";
 				return false;
 			}
 
-			if (!(type_ == magic_number_01 || type_ == magic_number_02 || type_ == magic_number_03))
+			if (type_ != Type::control_change)
 			{
-				error_message = "Unsupported type value.";
+				error_message = "Expected continuous controller curve type.";
 				return false;
 			}
 
-			if (reset_value_ != type_)
+			if (!(curve_shape_ == Shape::instant || curve_shape_ == Shape::sine))
 			{
-				error_message = "Unsupported combination of reset value and type value.";
+				error_message = "Expected instant curve shape.";
 				return false;
 			}
 
-			if (curve_shape_ != 0)
-			{
-				error_message = "Expected linear curve shape.";
-				return false;
-			}
-
-			if (cc_data_ != 0)
-			{
-				error_message = "Expected zero CC data.";
-				return false;
-			}
+			// Skip CC data.
 
 			if (flags_ != 0)
 			{
@@ -700,21 +697,24 @@ private:
 				return false;
 			}
 
-			if (!(param_type_ == 260 || param_type_ == 1028))
+			if (param_type_ != 0)
 			{
-				error_message = "Unsupported param type.";
+				error_message = "Expected zero param type.";
 				return false;
 			}
 
-			if (!(merge_index_ == 7 || merge_index_ == 11))
+			if (merge_index_ != 0)
 			{
-				error_message = "Unsupported merge index.";
+				error_message = "Expected zero merge index.";
 				return false;
 			}
 
 			return true;
 		}
 	}; // IoCurveItem8
+
+	using IoCurveItems8 = std::vector<IoCurveItem8>;
+
 
 	struct IoWaveTrackHeader8
 	{
@@ -1164,8 +1164,8 @@ private:
 
 	struct IoSequenceItem
 	{
-		IoSequenceItem8 event_;
-		IoCurveItem8 curve_;
+		IoSequenceItems8 events_;
+		IoCurveItems8 curves_;
 	}; // IoSequenceItem
 
 	using IoSequenceItems = std::vector<IoSequenceItem>;
@@ -1460,16 +1460,50 @@ private:
 
 		auto evtl_chunk = riff_reader_.get_current_chunk();
 
-		if (!sequence.event_.read(&evtl_chunk.data_stream_))
+		auto evtl_item_size = std::uint32_t{};
+
+		if (evtl_chunk.data_stream_.read(&evtl_item_size, 4) != 4)
 		{
-			error_message_ = "Failed to read a sequence item.";
+			error_message_ = "Failed to read a size of a sequence item.";
 			return false;
 		}
 
-		if (!sequence.event_.validate(error_message_))
+		ul::Endian::little_i(evtl_item_size);
+
+		if (evtl_item_size < IoSequenceItem8::class_size)
 		{
-			error_message_ = "Failed to validate a sequence item: " + error_message_;
+			error_message_ = "Invalid size of a sequence item.";
 			return false;
+		}
+
+		const auto evtl_item_count = static_cast<int>((evtl_chunk.size_ - 4) / evtl_item_size);
+		const auto evtl_item_remain_size = evtl_item_size - IoSequenceItem8::class_size;
+
+		for (auto i = 0; i < evtl_item_count; ++i)
+		{
+			sequence.events_.emplace_back();
+			auto& event = sequence.events_.back();
+
+			if (!event.read(&evtl_chunk.data_stream_))
+			{
+				error_message_ = "Failed to read a sequence item.";
+				return false;
+			}
+
+			if (!event.validate(error_message_))
+			{
+				error_message_ = "Failed to validate a sequence item: " + error_message_;
+				return false;
+			}
+
+			if (evtl_item_remain_size > 0)
+			{
+				if (evtl_chunk.data_stream_.skip(evtl_item_remain_size) < 0)
+				{
+					error_message_ = "Seek error.";
+					return false;
+				}
+			}
 		}
 
 		// Ascend "evtl".
@@ -1491,16 +1525,50 @@ private:
 
 		auto curl_chunk = riff_reader_.get_current_chunk();
 
-		if (!sequence.curve_.read(&curl_chunk.data_stream_))
+		auto curl_item_size = std::uint32_t{};
+
+		if (curl_chunk.data_stream_.read(&curl_item_size, 4) != 4)
 		{
-			error_message_ = "Failed to read a curve item.";
+			error_message_ = "Failed to read a size of a curve item.";
 			return false;
 		}
 
-		if (!sequence.curve_.validate(error_message_))
+		ul::Endian::little_i(curl_item_size);
+
+		if (curl_item_size < IoCurveItem8::class_size)
 		{
-			error_message_ = "Failed to validate a curve item: " + error_message_;
+			error_message_ = "Invalid size of a curve item.";
 			return false;
+		}
+
+		const auto curl_item_count = static_cast<int>((curl_chunk.size_ - 4) / curl_item_size);
+		const auto curl_item_remain_size = curl_item_size - IoCurveItem8::class_size;
+
+		for (auto i = 0; i < curl_item_count; ++i)
+		{
+			sequence.curves_.emplace_back();
+			auto& curve = sequence.curves_.back();
+
+			if (!curve.read(&curl_chunk.data_stream_))
+			{
+				error_message_ = "Failed to read a curve item.";
+				return false;
+			}
+
+			if (!curve.validate(error_message_))
+			{
+				error_message_ = "Failed to validate a curve item: " + error_message_;
+				return false;
+			}
+
+			if (curl_item_remain_size > 0)
+			{
+				if (curl_chunk.data_stream_.skip(curl_item_remain_size) < 0)
+				{
+					error_message_ = "Seek error.";
+					return false;
+				}
+			}
 		}
 
 		// Ascend "curl".
@@ -2136,32 +2204,48 @@ private:
 				debug_write_line("\tSequence " + std::to_string(i_sequence) + ":");
 				const auto& sequence = track.sequences_[i_sequence];
 
-				const auto& e = sequence.event_;
-				debug_write_line("\t\tEvent:");
-				debug_write_line("\t\t\tmt_time_: " + std::to_string(e.mt_time_));
-				debug_write_line("\t\t\tmt_duration_: " + std::to_string(e.mt_duration_));
-				debug_write_line("\t\t\tchannel_: " + std::to_string(e.channel_));
-				debug_write_line("\t\t\toffset_: " + std::to_string(e.offset_));
-				debug_write_line("\t\t\tstatus_: " + std::to_string(static_cast<int>(e.status_)));
-				debug_write_line("\t\t\tbyte_1_: " + std::to_string(static_cast<int>(e.byte_1_)));
-				debug_write_line("\t\t\tbyte_2_: " + std::to_string(static_cast<int>(e.byte_2_)));
+				// Event item.
+				//
+				const auto n_events = static_cast<int>(sequence.events_.size());
 
-				const auto& curve = sequence.curve_;
-				debug_write_line("\t\tCurve:");
-				debug_write_line("\t\t\tmt_start_: " + std::to_string(curve.mt_start_));
-				debug_write_line("\t\t\tmt_duration_: " + std::to_string(curve.mt_duration_));
-				debug_write_line("\t\t\tmt_reset_duration_: " + std::to_string(curve.mt_reset_duration_));
-				debug_write_line("\t\t\tchannel_: " + std::to_string(curve.channel_));
-				debug_write_line("\t\t\toffset_: " + std::to_string(curve.offset_));
-				debug_write_line("\t\t\tstart_value_: " + std::to_string(curve.start_value_));
-				debug_write_line("\t\t\tend_value_: " + std::to_string(curve.end_value_));
-				debug_write_line("\t\t\treset_value_: " + std::to_string(curve.reset_value_));
-				debug_write_line("\t\t\ttype_: " + std::to_string(static_cast<int>(curve.type_)));
-				debug_write_line("\t\t\tcurve_shape_: " + std::to_string(static_cast<int>(curve.curve_shape_)));
-				debug_write_line("\t\t\tcc_data_: " + std::to_string(static_cast<int>(curve.cc_data_)));
-				debug_write_line("\t\t\tflags_: " + std::to_string(static_cast<int>(curve.flags_)) + " (" + debug_flags_to_string(curve.flags_) + ")");
-				debug_write_line("\t\t\tparam_type_: " + std::to_string(curve.param_type_));
-				debug_write_line("\t\t\tmerge_index_: " + std::to_string(curve.merge_index_));
+				for (auto i_event = 0; i_event < n_events; ++i_event)
+				{
+					const auto& event = sequence.events_[i_event];
+					debug_write_line();
+					debug_write_line("\t\tEvent " + std::to_string(i_event) + ":");
+					debug_write_line("\t\t\tmt_time_: " + std::to_string(event.mt_time_));
+					debug_write_line("\t\t\tmt_duration_: " + std::to_string(event.mt_duration_));
+					debug_write_line("\t\t\tchannel_: " + std::to_string(event.channel_));
+					debug_write_line("\t\t\toffset_: " + std::to_string(event.offset_));
+					debug_write_line("\t\t\tstatus_: " + std::to_string(static_cast<int>(event.status_)));
+					debug_write_line("\t\t\tbyte_1_: " + std::to_string(static_cast<int>(event.byte_1_)));
+					debug_write_line("\t\t\tbyte_2_: " + std::to_string(static_cast<int>(event.byte_2_)));
+				}
+
+				// Curve item.
+				//
+				const auto n_curves = static_cast<int>(sequence.curves_.size());
+
+				for (auto i_curve = 0; i_curve < n_curves; ++i_curve)
+				{
+					const auto& curve = sequence.curves_[i_curve];
+					debug_write_line();
+					debug_write_line("\t\tCurve " + std::to_string(i_curve) + ":");
+					debug_write_line("\t\t\tmt_start_: " + std::to_string(curve.mt_start_));
+					debug_write_line("\t\t\tmt_duration_: " + std::to_string(curve.mt_duration_));
+					debug_write_line("\t\t\tmt_reset_duration_: " + std::to_string(curve.mt_reset_duration_));
+					debug_write_line("\t\t\tchannel_: " + std::to_string(curve.channel_));
+					debug_write_line("\t\t\toffset_: " + std::to_string(curve.offset_));
+					debug_write_line("\t\t\tstart_value_: " + std::to_string(curve.start_value_));
+					debug_write_line("\t\t\tend_value_: " + std::to_string(curve.end_value_));
+					debug_write_line("\t\t\treset_value_: " + std::to_string(curve.reset_value_));
+					debug_write_line("\t\t\ttype_: " + std::to_string(static_cast<int>(curve.type_)));
+					debug_write_line("\t\t\tcurve_shape_: " + std::to_string(static_cast<int>(curve.curve_shape_)));
+					debug_write_line("\t\t\tcc_data_: " + std::to_string(static_cast<int>(curve.cc_data_)));
+					debug_write_line("\t\t\tflags_: " + std::to_string(static_cast<int>(curve.flags_)) + " (" + debug_flags_to_string(curve.flags_) + ")");
+					debug_write_line("\t\t\tparam_type_: " + std::to_string(curve.param_type_));
+					debug_write_line("\t\t\tmerge_index_: " + std::to_string(curve.merge_index_));
+				}
 			}
 
 			// Tempos.
