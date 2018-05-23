@@ -1173,7 +1173,7 @@ private:
 	struct IoReference
 	{
 		IoReference8 header_;
-		std::u16string u16_file_name_;
+		std::string file_name_u8_;
 	}; // IoReference
 
 	using IoReferences = std::vector<IoReference>;
@@ -1822,10 +1822,12 @@ private:
 				// Without '\0'.
 				const auto file_name_length = file_name_size / 2;
 
-				reference.u16_file_name_.resize(file_name_length);
+				auto file_name_u16 = std::u16string(
+					static_cast<std::u16string::size_type>(file_name_length),
+					std::u16string::value_type{});
 
 				const auto file_name_result = file_chunk.data_stream_.read(
-					&reference.u16_file_name_[0], file_name_size);
+					&file_name_u16[0], file_name_size);
 
 				if (file_name_result != file_name_size)
 				{
@@ -1836,14 +1838,16 @@ private:
 				if (!ul::Endian::is_little())
 				{
 					std::for_each(
-						reference.u16_file_name_.begin(),
-						reference.u16_file_name_.end(),
+						file_name_u16.begin(),
+						file_name_u16.end(),
 						[](auto& c)
 						{
 							ul::Endian::swap_i(c);
 						}
 					);
 				}
+
+				reference.file_name_u8_ = ul::EncodingUtils::utf16_to_utf8(file_name_u16);
 
 				// Ascend "file".
 				//
@@ -2389,7 +2393,7 @@ private:
 							// File name.
 							//
 							debug_write_line("\t\t\t\t\tFile name:");
-							debug_write_line("\t\t\t\t\t\t\"" + ul::EncodingUtils::utf16_to_utf8(ref.u16_file_name_) + "\"");
+							debug_write_line("\t\t\t\t\t\t\"" + ref.file_name_u8_ + "\"");
 						}
 					}
 				}
