@@ -26,16 +26,17 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 //
-// A substream wrapper for a stream.
+// A substream wrapper for a file stream.
 //
 
 
-#ifndef BIBENDOVSKY_SPUL_SUBSTREAM_INCLUDED
-#define BIBENDOVSKY_SPUL_SUBSTREAM_INCLUDED
+#ifndef BIBENDOVSKY_SPUL_FILE_SUBSTREAM_INCLUDED
+#define BIBENDOVSKY_SPUL_FILE_SUBSTREAM_INCLUDED
 
 
 #include "bibendovsky_spul_enum_flags.h"
-#include "bibendovsky_spul_stream.h"
+#include "bibendovsky_spul_file_stream.h"
+#include "bibendovsky_spul_substream.h"
 
 
 namespace bibendovsky
@@ -45,24 +46,16 @@ namespace spul
 
 
 //
-// A substream wrapper for a stream.
+// A substream wrapper for a file stream.
 //
-class Substream :
+class FileSubstream :
 	public Stream
 {
 public:
-	enum class SyncPositionOnRead
-	{
-		none,
-		enable,
-		disable,
-	}; // SyncPositionOnRead
-
-
 	//
 	// Constructs an uninitialized substream.
 	//
-	Substream();
+	FileSubstream();
 
 	//
 	// Constructs a substream.
@@ -75,10 +68,24 @@ public:
 	// Notes:
 	//    - A size of the substream will be substruction of the underlying stream size and the offset.
 	//
-	Substream(
-		StreamPtr stream_ptr,
-		const Position offset,
-		const SyncPositionOnRead sync_position_on_read = SyncPositionOnRead::enable);
+	FileSubstream(
+		const char* const file_name_utf8,
+		const Position offset);
+
+	//
+	// Constructs a substream.
+	//
+	// Parameters:
+	//    - stream - an underlying stream instance.
+	//    - offset - a beginning position in the underlying stream.
+	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
+	//
+	// Notes:
+	//    - A size of the substream will be substruction of the underlying stream size and the offset.
+	//
+	FileSubstream(
+		const std::string& file_name_utf8,
+		const Position offset);
 
 	//
 	// Constructs a substream.
@@ -90,19 +97,39 @@ public:
 	//      Pass a negative value to use remaining size of the underlying stream.
 	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
 	//
-	Substream(
-		StreamPtr stream_ptr,
+	FileSubstream(
+		const char* const file_name_utf8,
 		const Position offset,
-		const Position size,
-		const SyncPositionOnRead sync_position_on_read = SyncPositionOnRead::enable);
+		const Position size);
 
-	Substream(
-		const Substream& that) = default;
+	//
+	// Constructs a substream.
+	//
+	// Parameters:
+	//    - stream - an underlying stream instance.
+	//    - offset - a beginning position in the underlying stream.
+	//    - size - a size of the substream.
+	//      Pass a negative value to use remaining size of the underlying stream.
+	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
+	//
+	FileSubstream(
+		const std::string& file_name_utf8,
+		const Position offset,
+		const Position size);
 
-	Substream& operator=(
-		const Substream& that) = default;
+	FileSubstream(
+		const FileSubstream& that) = default;
 
-	~Substream() override;
+	FileSubstream& operator=(
+		const FileSubstream& that) = default;
+
+	FileSubstream(
+		FileSubstream&& that) noexcept;
+
+	FileSubstream& operator=(
+		FileSubstream&& that) = delete;
+
+	~FileSubstream() override;
 
 
 	//
@@ -121,9 +148,12 @@ public:
 	//    - A size of the substream is a substruction of the underlying stream size and the provided offset.
 	//
 	bool open(
-		StreamPtr stream,
-		const Position offset,
-		const SyncPositionOnRead sync_position_on_read = SyncPositionOnRead::enable);
+		const char* const file_name_utf8,
+		const Position offset);
+
+	bool open(
+		const std::string& file_name_utf8,
+		const Position offset);
 
 	//
 	// Initializes a substream.
@@ -140,10 +170,14 @@ public:
 	//    - "false" otherwise.
 	//
 	bool open(
-		StreamPtr stream,
+		const char* const file_name_utf8,
 		const Position offset,
-		const Position size,
-		const SyncPositionOnRead sync_position_on_read = SyncPositionOnRead::enable);
+		const Position size);
+
+	bool open(
+		const std::string& file_name_utf8,
+		const Position offset,
+		const Position size);
 
 
 protected:
@@ -151,30 +185,8 @@ protected:
 
 
 private:
-	struct Flags :
-		public EnumFlags
-	{
-		Flags(
-			const Value flags = none)
-			:
-			EnumFlags{flags}
-		{
-		}
-
-		enum : Value
-		{
-			is_open = 0B0001,
-			is_failed = 0B0010,
-		}; // enum
-	}; // Flags
-
-
-	Flags flags_;
-	StreamPtr stream_ptr_; // An underlying stream.
-	Position begin_position_; // A beginning position in the underlying stream.
-	Position current_position_; // Internal current position.
-	Position end_position_; // Internal end position.
-	SyncPositionOnRead sync_position_on_read_; // Controls synchronization of a position of the underlying stream on read.
+	FileStream file_stream_;
+	Substream substream_;
 
 
 	bool do_is_open() const override;
@@ -206,18 +218,17 @@ private:
 	Position do_get_size() override;
 
 	bool open_internal(
-		StreamPtr stream_ptr,
+		const char* const file_name_utf8,
 		const Position offset,
-		const Position size,
-		const SyncPositionOnRead sync_position_on_read);
-}; // Substream
+		const Position size);
+}; // FileSubstream
 
 
-using SubstreamPtr = Substream*;
+using FileSubstreamPtr = FileSubstream*;
 
 
 } // spul
 } // bibendovsky
 
 
-#endif // !BIBENDOVSKY_SPUL_SUBSTREAM_INCLUDED
+#endif // !BIBENDOVSKY_SPUL_FILE_SUBSTREAM_INCLUDED

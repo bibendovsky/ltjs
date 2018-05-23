@@ -57,21 +57,23 @@ Substream::Substream()
 
 Substream::Substream(
 	StreamPtr stream_ptr,
-	const Position offset)
+	const Position offset,
+	const SyncPositionOnRead sync_position_on_read)
 	:
 	Substream{}
 {
-	static_cast<void>(open_internal(stream_ptr, offset, -1));
+	static_cast<void>(open_internal(stream_ptr, offset, -1, sync_position_on_read));
 }
 
 Substream::Substream(
 	StreamPtr stream_ptr,
 	const Position offset,
-	const Position size)
+	const Position size,
+	const SyncPositionOnRead sync_position_on_read)
 	:
 	Substream{}
 {
-	static_cast<void>(open_internal(stream_ptr, offset, size));
+	static_cast<void>(open_internal(stream_ptr, offset, size, sync_position_on_read));
 }
 
 Substream::~Substream()
@@ -81,19 +83,21 @@ Substream::~Substream()
 
 bool Substream::open(
 	StreamPtr stream,
-	const Position offset)
+	const Position offset,
+	const SyncPositionOnRead sync_position_on_read)
 {
 	close_internal();
-	return open_internal(stream, offset, -1);
+	return open_internal(stream, offset, -1, sync_position_on_read);
 }
 
 bool Substream::open(
 	StreamPtr stream,
 	const Position offset,
-	const Position size)
+	const Position size,
+	const SyncPositionOnRead sync_position_on_read)
 {
 	close_internal();
-	return open_internal(stream, offset, size);
+	return open_internal(stream, offset, size, sync_position_on_read);
 }
 
 bool Substream::do_is_open() const
@@ -152,12 +156,15 @@ int Substream::do_read(
 
 	const auto read_count = std::min(static_cast<Position>(count), remain_size);
 
-	const auto set_result = stream_ptr_->set_position(current_position_);
-
-	if (!set_result)
+	if (sync_position_on_read_ == SyncPositionOnRead::enable)
 	{
-		flags_.set(Flags::is_failed);
-		return false;
+		const auto set_result = stream_ptr_->set_position(current_position_);
+
+		if (!set_result)
+		{
+			flags_.set(Flags::is_failed);
+			return false;
+		}
 	}
 
 	const auto read_result = stream_ptr_->read(buffer, static_cast<int>(read_count));
@@ -267,7 +274,8 @@ void Substream::close_internal()
 bool Substream::open_internal(
 	StreamPtr stream_ptr,
 	const Position offset,
-	const Position size)
+	const Position size,
+	const SyncPositionOnRead sync_position_on_read)
 {
 	if (!stream_ptr ||
 		!stream_ptr->is_open() ||
@@ -276,6 +284,16 @@ bool Substream::open_internal(
 		!stream_ptr->is_seekable() ||
 		offset < 0)
 	{
+		return false;
+	}
+
+	switch (sync_position_on_read)
+	{
+	case SyncPositionOnRead::disable:
+	case SyncPositionOnRead::enable:
+		break;
+
+	default:
 		return false;
 	}
 
@@ -293,6 +311,7 @@ bool Substream::open_internal(
 	begin_position_ = offset;
 	current_position_ = offset;
 	end_position_ = end_position;
+	sync_position_on_read_ = sync_position_on_read;
 
 	return true;
 }

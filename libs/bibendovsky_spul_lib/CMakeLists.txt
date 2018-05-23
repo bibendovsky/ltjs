@@ -20,6 +20,7 @@ set(
 	include/bibendovsky_spul_endian.h
 	include/bibendovsky_spul_enum_flags.h
 	include/bibendovsky_spul_file_stream.h
+	include/bibendovsky_spul_file_substream.h
 	include/bibendovsky_spul_four_cc.h
 	include/bibendovsky_spul_memory_stream.h
 	include/bibendovsky_spul_path_utils.h
@@ -47,6 +48,7 @@ set(
 	src/bibendovsky_spul_endian.cpp
 	src/bibendovsky_spul_enum_flags.cpp
 	src/bibendovsky_spul_file_stream.cpp
+	src/bibendovsky_spul_file_substream.cpp
 	src/bibendovsky_spul_four_cc.cpp
 	src/bibendovsky_spul_memory_stream.cpp
 	src/bibendovsky_spul_path_utils.cpp
