@@ -1591,6 +1591,27 @@ private:
 		return true;
 	}
 
+	bool validate_wave_track(
+		const IoTrack& track)
+	{
+		if (track.waves_.empty())
+		{
+			error_message_ = "Expected at least one wave.";
+			return false;
+		}
+
+		for (const auto& wave : track.waves_)
+		{
+			if (wave.parts_.empty())
+			{
+				error_message_ = "Expected at least one wave item.";
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	//
 	// "wavt" (list) - wave track list
 	//     "wath" - wave track header
@@ -1872,6 +1893,11 @@ private:
 		if (!riff_reader_.ascend())
 		{
 			error_message_ = "RIFF error.";
+			return false;
+		}
+
+		if (!validate_wave_track(track))
+		{
 			return false;
 		}
 
