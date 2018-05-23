@@ -31,6 +31,7 @@ set(
 	include/bibendovsky_spul_scope_guard.h
 	include/bibendovsky_spul_stream.h
 	include/bibendovsky_spul_substream.h
+	include/bibendovsky_spul_un_value.h
 	include/bibendovsky_spul_utf8_utils.h
 	include/bibendovsky_spul_uuid.h
 	include/bibendovsky_spul_wave_format.h
@@ -59,6 +60,7 @@ set(
 	src/bibendovsky_spul_scope_guard.cpp
 	src/bibendovsky_spul_stream.cpp
 	src/bibendovsky_spul_substream.cpp
+	src/bibendovsky_spul_un_value.cpp
 	src/bibendovsky_spul_utf8_utils.cpp
 	src/bibendovsky_spul_uuid.cpp
 	src/bibendovsky_spul_wave_format.cpp
