@@ -57,7 +57,8 @@ public:
 		memory_stream_{},
 		riff_reader_{},
 		io_segment_header_{},
-		io_tracks_{}
+		io_tracks_{},
+		wave_cache_{}
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 		,
 		debug_filebuf_{}
@@ -79,7 +80,8 @@ public:
 		memory_stream_{std::move(that.memory_stream_)},
 		riff_reader_{std::move(that.riff_reader_)},
 		io_segment_header_{std::move(that.io_segment_header_)},
-		io_tracks_{std::move(that.io_tracks_)}
+		io_tracks_{std::move(that.io_tracks_)},
+		wave_cache_{std::move(that.wave_cache_)}
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 		,
 		debug_filebuf_{std::move(that.debug_filebuf_)}
