@@ -21,6 +21,7 @@
 #include "ltpvalue.h"
 #include "soundmgr.h"
 #include "ltdirectmusiccontrolfile.h"
+#include "ltjs_audio_decoder.h"
 #include "ltjs_dmusic_manager.h"
 #include "ltjs_dmusic_segment.h"
 
@@ -111,6 +112,8 @@ public:
 			log_error("No sound system.");
 			return LT_ERROR;
 		}
+
+		ltjs::AudioDecoder::initialize_current_thread();
 
 		is_initialized_ = true;
 
