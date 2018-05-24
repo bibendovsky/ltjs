@@ -101,12 +101,32 @@ struct AudioDecoder::Impl
 
 	void close()
 	{
+		::swr_free(&ff_swr_context_);
 		::avcodec_free_context(&ff_codec_context_);
 		::avformat_close_input(&ff_format_context_);
 		::av_frame_free(&ff_frame_);
+
+		auto is_free_io_buffer = true;
+
+		if (ff_io_context_ && ff_io_context_->buffer)
+		{
+			if (ff_io_context_->buffer != ff_io_buffer_)
+			{
+				is_free_io_buffer = false;
+				::av_freep(&ff_io_context_->buffer);
+			}
+		}
+
 		::avio_context_free(&ff_io_context_);
-		::av_freep(&ff_io_buffer_);
-		::swr_free(&ff_swr_context_);
+
+		if (is_free_io_buffer)
+		{
+			::av_freep(&ff_io_buffer_);
+		}
+		else
+		{
+			ff_io_buffer_ = nullptr;
+		}
 
 		ff_codec_ = {};
 		ff_stream_index_ = -1;
