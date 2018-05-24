@@ -61,12 +61,11 @@ public:
 	// Constructs a substream.
 	//
 	// Parameters:
-	//    - stream - an underlying stream instance.
-	//    - offset - a beginning position in the underlying stream.
-	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
+	//    - file_name_utf8 - a file name in UTF-8.
+	//    - offset - a beginning position in the file.
 	//
 	// Notes:
-	//    - A size of the substream will be substruction of the underlying stream size and the offset.
+	//    - A size of the substream is substruction of the file size and the offset.
 	//
 	FileSubstream(
 		const char* const file_name_utf8,
@@ -76,12 +75,11 @@ public:
 	// Constructs a substream.
 	//
 	// Parameters:
-	//    - stream - an underlying stream instance.
-	//    - offset - a beginning position in the underlying stream.
-	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
+	//    - file_name_utf8 - a file name in UTF-8.
+	//    - offset - a beginning position in the file.
 	//
 	// Notes:
-	//    - A size of the substream will be substruction of the underlying stream size and the offset.
+	//    - A size of the substream is substruction of the file size and the offset.
 	//
 	FileSubstream(
 		const std::string& file_name_utf8,
@@ -91,11 +89,10 @@ public:
 	// Constructs a substream.
 	//
 	// Parameters:
-	//    - stream - an underlying stream instance.
-	//    - offset - a beginning position in the underlying stream.
+	//    - file_name_utf8 - a file name in UTF-8.
+	//    - offset - a beginning position in the file.
 	//    - size - a size of the substream.
-	//      Pass a negative value to use remaining size of the underlying stream.
-	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
+	//      Pass a negative value to use remaining size of the file.
 	//
 	FileSubstream(
 		const char* const file_name_utf8,
@@ -106,11 +103,10 @@ public:
 	// Constructs a substream.
 	//
 	// Parameters:
-	//    - stream - an underlying stream instance.
-	//    - offset - a beginning position in the underlying stream.
+	//    - file_name_utf8 - a file name in UTF-8.
+	//    - offset - a beginning position in the file.
 	//    - size - a size of the substream.
-	//      Pass a negative value to use remaining size of the underlying stream.
-	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
+	//      Pass a negative value to use remaining size of the file.
 	//
 	FileSubstream(
 		const std::string& file_name_utf8,
@@ -136,21 +132,34 @@ public:
 	// Initializes a substream.
 	//
 	// Parameters:
-	//    - stream - an underlying stream instance.
-	//    - offset - a beginning position in the underlying stream.
-	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
+	//    - file_name_utf8 - a file name in UTF-8.
+	//    - offset - a beginning position in the file.
 	//
 	// Returns:
 	//    - "true" on success.
 	//    - "false" otherwise.
 	//
 	// Notes:
-	//    - A size of the substream is a substruction of the underlying stream size and the provided offset.
+	//    - A size of the substream is a substruction of the file size and the provided offset.
 	//
 	bool open(
 		const char* const file_name_utf8,
 		const Position offset);
 
+	//
+	// Initializes a substream.
+	//
+	// Parameters:
+	//    - file_name_utf8 - a file name in UTF-8.
+	//    - offset - a beginning position in the file.
+	//
+	// Returns:
+	//    - "true" on success.
+	//    - "false" otherwise.
+	//
+	// Notes:
+	//    - A size of the substream is a substruction of the file size and the provided offset.
+	//
 	bool open(
 		const std::string& file_name_utf8,
 		const Position offset);
@@ -159,11 +168,10 @@ public:
 	// Initializes a substream.
 	//
 	// Parameters:
-	//    - stream - an underlying stream instance.
-	//    - offset - a beginning position in the underlying stream.
+	//    - file_name_utf8 - a file name in UTF-8.
+	//    - offset - a beginning position in the file.
 	//    - size - a size of the substream.
-	//      Pass a negative value to use remaining size of the underlying stream.
-	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
+	//      Pass a negative value to use remaining size of the file.
 	//
 	// Returns:
 	//    - "true" on success.
@@ -174,6 +182,19 @@ public:
 		const Position offset,
 		const Position size);
 
+	//
+	// Initializes a substream.
+	//
+	// Parameters:
+	//    - file_name_utf8 - a file name in UTF-8.
+	//    - offset - a beginning position in the file.
+	//    - size - a size of the substream.
+	//      Pass a negative value to use remaining size of the file.
+	//
+	// Returns:
+	//    - "true" on success.
+	//    - "false" otherwise.
+	//
 	bool open(
 		const std::string& file_name_utf8,
 		const Position offset,
