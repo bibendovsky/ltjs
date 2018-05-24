@@ -1621,12 +1621,6 @@ private:
 
 			const auto& part = wave.parts_.front();
 
-			if (part.items_.empty())
-			{
-				error_message_ = "Expected at least one wave item.";
-				return false;
-			}
-
 			for (const auto& item : part.items_)
 			{
 				if (item.references_.size() != 1)
