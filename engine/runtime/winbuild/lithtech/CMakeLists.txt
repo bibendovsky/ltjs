@@ -5,7 +5,11 @@ option(LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
 
 include(ltjs_common)
 
+find_package(LTJS_FFmpeg REQUIRED 2.8.11)
+
+
 include_directories(
+	${LTJS_FFMPEG_INCLUDE_DIR}
     .
     ../../../../directx/include
     ../../../../libs/bibendovsky_spul_lib/include
@@ -291,6 +295,7 @@ set(
     ../../shared/src/varsetter.h
     ../../shared/src/version_info.h
     ../../sound/src/iltsound.h
+	../../sound/src/ltjs_audio_decoder.h
 	../../sound/src/ltjs_dmusic_manager.h
 	../../sound/src/ltjs_dmusic_segment.h
     ../../sound/src/soundbuffer.h
@@ -479,6 +484,7 @@ set(
     ../../shared/src/sys/win/dstreamopenqueuemgr.cpp
     ../../shared/src/transformlt_impl.cpp
     ../../shared/src/version_info.cpp
+	../../sound/src/ltjs_audio_decoder.cpp
 	../../sound/src/ltjs_dmusic_manager.cpp
 	../../sound/src/ltjs_dmusic_segment.cpp
     ../../sound/src/soundbuffer.cpp
@@ -525,6 +531,7 @@ if (MSVC)
         ../../shared/src/compress.cpp
         ../../shared/src/interface_linkage.cpp
         ../../shared/src/modellt_impl.cpp
+		../../sound/src/ltjs_audio_decoder.cpp
         PROPERTIES
             # Precompiled Header (None)
             COMPILE_FLAGS -Y-
@@ -594,6 +601,12 @@ if (MSVC)
         winmm
     )
 endif ()
+
+list(
+	APPEND
+	libs
+	${LTJS_FFMPEG_LIBRARY}
+)
 
 if (NOT MSVC)
     set(

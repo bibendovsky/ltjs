@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 #include "bibendovsky_spul_ascii_utils.h"
@@ -24,8 +25,10 @@
 #include "bibendovsky_spul_riff_four_ccs.h"
 #include "bibendovsky_spul_riff_reader.h"
 #include "bibendovsky_spul_scope_guard.h"
+#include "bibendovsky_spul_un_value.h"
 #include "bibendovsky_spul_uuid.h"
 #include "client_filemgr.h"
+#include "ltjs_audio_decoder.h"
 
 
 namespace ltjs
@@ -118,11 +121,13 @@ public:
 
 
 private:
+	static constexpr auto max_lt_wave_size = std::uint32_t{8 * 1'024 * 1'024};
+
 	static constexpr auto all_flags_on = std::uint32_t{0xFFFFFFFF};
 
 
 	using Buffer = std::vector<std::uint8_t>;
-
+	using WaveCache = std::vector<ul::UnValue<std::uint8_t>>;
 
 	using IoMusicTime8 = std::int32_t;
 	using IoReferenceTime8 = std::int64_t;
@@ -1174,6 +1179,8 @@ private:
 	{
 		IoReference8 header_;
 		std::string file_name_u8_;
+		ul::MemoryStream file_stream_;
+		ltjs::AudioDecoder audio_decoder_;
 	}; // IoReference
 
 	using IoReferences = std::vector<IoReference>;
@@ -1232,11 +1239,13 @@ private:
 
 
 	std::string error_message_;
+	std::string working_dir_;
 	Buffer file_image_;
 	ul::MemoryStream memory_stream_;
 	ul::RiffReader riff_reader_;
 	IoSegmentHeader8 io_segment_header_;
 	IoTracks io_tracks_;
+	WaveCache wave_cache_;
 
 
 	bool read_io_segment_header()
@@ -1602,9 +1611,166 @@ private:
 
 		for (const auto& wave : track.waves_)
 		{
-			if (wave.parts_.empty())
+			if (wave.parts_.size() != 1)
+			{
+				error_message_ = "Expected one wave part.";
+				return false;
+			}
+
+			const auto& part = wave.parts_.front();
+
+			if (part.items_.empty())
 			{
 				error_message_ = "Expected at least one wave item.";
+				return false;
+			}
+
+			for (const auto& item : part.items_)
+			{
+				if (item.references_.size() != 1)
+				{
+					error_message_ = "Expected one reference.";
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool cache_waves(
+		IoTrack& track)
+	{
+		struct CacheItem
+		{
+			int offset_;
+			int size_;
+			ILTStream* lt_stream_;
+		}; // CacheItem
+
+		using FileNameLtFileIdMap = std::unordered_map<std::string, CacheItem>;
+
+		auto map = FileNameLtFileIdMap{};
+
+		auto scope_guard = ul::ScopeGuard{
+			[&]()
+			{
+				for (auto& map_item : map)
+				{
+					auto& cache_item = map_item.second;
+
+					if (cache_item.lt_stream_)
+					{
+						cache_item.lt_stream_->Release();
+						cache_item.lt_stream_ = nullptr;
+					}
+				}
+			}
+		};
+
+		// Evaluate total wave size.
+		//
+		auto current_offset = 0;
+
+		auto& items = track.waves_.front().parts_.front().items_;
+
+		for (auto& item : items)
+		{
+			auto& reference = item.references_.front();
+
+			const auto file_name_lc = ul::AsciiUtils::to_lower(reference.file_name_u8_);
+
+			auto map_it = map.find(file_name_lc);
+
+			if (map_it != map.end())
+			{
+				continue;
+			}
+
+			map_it = map.insert({file_name_lc, CacheItem{}}).first;
+
+			auto& cache_item = map_it->second;
+
+			const auto file_path = ul::PathUtils::append(working_dir_, reference.file_name_u8_);
+
+			auto file_ref = FileRef{};
+			file_ref.m_FileType = FILE_ANYFILE;
+			file_ref.m_pFilename = file_path.c_str();
+
+			cache_item.lt_stream_ = client_file_manager->OpenFile(&file_ref);
+
+			if (!cache_item.lt_stream_)
+			{
+				error_message_ = "Failed to open: \"" + file_path + "\".";
+				return false;
+			}
+
+			const auto lt_file_size = cache_item.lt_stream_->GetLen();
+
+			if (lt_file_size > max_lt_wave_size)
+			{
+				error_message_ = "Wave file is too big (max size: " + std::to_string(max_lt_wave_size) + " bytes).";
+				return false;
+			}
+
+			cache_item.size_ = static_cast<int>(lt_file_size);
+			cache_item.offset_ = current_offset;
+
+			current_offset += cache_item.size_;
+		}
+
+		// Load all files into the cache.
+		//
+		wave_cache_.clear();
+		wave_cache_.resize(current_offset);
+
+		for (auto& map_item : map)
+		{
+			auto& cache_item = map_item.second;
+
+			const auto lt_result = cache_item.lt_stream_->Read(&wave_cache_[cache_item.offset_], cache_item.size_);
+
+			if (lt_result != LT_OK)
+			{
+				error_message_ = "Failed to load a wave file.";
+				return false;
+			}
+
+			cache_item.lt_stream_->Release();
+			cache_item.lt_stream_ = nullptr;
+		}
+
+
+		// Open memory stream and audio decoder.
+		//
+		for (auto& item : items)
+		{
+			auto& reference = item.references_.front();
+
+			const auto file_name_lc = ul::AsciiUtils::to_lower(reference.file_name_u8_);
+
+			auto map_it = map.find(file_name_lc);
+			auto& cache_item = map_it->second;
+
+			const auto open_result = reference.file_stream_.open(
+				&wave_cache_[cache_item.offset_], cache_item.size_, ul::Stream::OpenMode::read);
+
+			if (!open_result)
+			{
+				error_message_ = "Failed to open a memory stream for \"" + reference.file_name_u8_ + "\".";
+				return false;
+			}
+
+			auto decoder_param = ltjs::AudioDecoder::OpenParameters{};
+			decoder_param.dst_bit_depth_ = 16;
+			decoder_param.dst_channel_count_ = 2;
+			decoder_param.stream_ptr_ = &reference.file_stream_;
+
+			auto& audio_decoder = reference.audio_decoder_;
+
+			if (!audio_decoder.open(decoder_param))
+			{
+				error_message_ = "Failed to open an audio decoder for \"" + reference.file_name_u8_ + "\".";
 				return false;
 			}
 		}
@@ -1905,6 +2071,11 @@ private:
 			return false;
 		}
 
+		if (!cache_waves(track))
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -2077,6 +2248,8 @@ private:
 		{
 			return false;
 		}
+
+		working_dir_ = ul::PathUtils::get_parent_path(file_name);
 
 		if (!riff_reader_.open(&memory_stream_, ul::FourCc{"DMSG"}))
 		{
