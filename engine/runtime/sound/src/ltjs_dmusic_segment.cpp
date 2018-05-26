@@ -1247,6 +1247,51 @@ private:
 	using IoTracks = std::vector<IoTrack>;
 
 
+	using VariationMaskList = std::vector<std::uint32_t>;
+
+	struct WaveItem
+	{
+		int offset_; // bytes
+		int length_; // bytes
+
+		VariationMaskList variation_masks_;
+		ul::MemoryStream stream_;
+		ltjs::AudioDecoder decoder_;
+	}; // WaveItem
+
+	using WaveItems = std::vector<WaveItem>;
+
+	struct ActiveWaveItem
+	{
+		bool is_started_;
+		bool is_finished_;
+		int offset_; // bytes
+		WaveItem* item_ptr_;
+	}; // ActiveWaveItem
+
+	using ActiveWaveItems = std::vector<ActiveWaveItem>;
+
+	struct Waves
+	{
+		std::uint32_t channel_;
+		std::uint32_t variation_masks_;
+		int last_variation_index_;
+		bool is_variation_no_repeat_;
+
+		WaveItems items_;
+		ActiveWaveItems ref_active_items_;
+		ActiveWaveItems active_items_;
+	}; // Waves
+
+	struct Segment
+	{
+		int offset_; // bytes
+		int length_; // bytes
+
+		Waves waves_;
+	}; // Segment
+
+
 	// Tempo track CLSID.
 	static const ul::Uuid clsid_tempo_track;
 
@@ -1272,6 +1317,7 @@ private:
 	IoTracks io_tracks_;
 	WaveCache wave_cache_;
 	int max_sample_rate_;
+	Segment segment_;
 
 
 	bool read_io_segment_header()
