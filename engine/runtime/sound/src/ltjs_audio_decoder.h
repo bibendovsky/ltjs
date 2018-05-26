@@ -68,7 +68,10 @@ public:
 		const AudioDecoder& that) = delete;
 
 	AudioDecoder(
-		AudioDecoder&& that);
+		AudioDecoder&& that) noexcept;
+
+	AudioDecoder& operator=(
+		AudioDecoder&& that) noexcept;
 
 	~AudioDecoder();
 

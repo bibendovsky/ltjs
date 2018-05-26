@@ -988,10 +988,21 @@ AudioDecoder::AudioDecoder(
 }
 
 AudioDecoder::AudioDecoder(
-	AudioDecoder&& that)
+	AudioDecoder&& that) noexcept
 	:
 	pimpl_{std::move(that.pimpl_)}
 {
+}
+
+AudioDecoder& AudioDecoder::operator=(
+	AudioDecoder&& that) noexcept
+{
+	if (this != std::addressof(that))
+	{
+		pimpl_ = std::move(that.pimpl_);
+	}
+
+	return *this;
 }
 
 AudioDecoder::~AudioDecoder()
