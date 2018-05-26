@@ -32,6 +32,9 @@ public:
 
 	void close();
 
+	bool normalize_sample_rate(
+		const int sample_rate);
+
 
 	const std::string& get_error_message() const;
 

@@ -59,7 +59,8 @@ public:
 		riff_reader_{},
 		io_segment_header_{},
 		io_tracks_{},
-		wave_cache_{}
+		wave_cache_{},
+		max_sample_rate_{}
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 		,
 		debug_filebuf_{}
@@ -82,7 +83,8 @@ public:
 		riff_reader_{std::move(that.riff_reader_)},
 		io_segment_header_{std::move(that.io_segment_header_)},
 		io_tracks_{std::move(that.io_tracks_)},
-		wave_cache_{std::move(that.wave_cache_)}
+		wave_cache_{std::move(that.wave_cache_)},
+		max_sample_rate_{std::move(that.max_sample_rate_)}
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 		,
 		debug_filebuf_{std::move(that.debug_filebuf_)}
@@ -115,6 +117,22 @@ public:
 	void api_close()
 	{
 		close_internal();
+	}
+
+	bool api_normalize_sample_rate(
+		const int sample_rate)
+	{
+		if (sample_rate <= 0)
+		{
+			error_message_ = "Invalid normalization sample rate.";
+			return false;
+		}
+
+		// TODO
+
+		error_message_ = "Not imlemented.";
+
+		return false;
 	}
 
 	const std::string& api_get_error_message() const
@@ -1253,6 +1271,7 @@ private:
 	IoSegmentHeader8 io_segment_header_;
 	IoTracks io_tracks_;
 	WaveCache wave_cache_;
+	int max_sample_rate_;
 
 
 	bool read_io_segment_header()
@@ -1774,6 +1793,13 @@ private:
 				error_message_ = "Failed to open an audio decoder for \"" + reference.file_name_u8_ + "\".";
 				return false;
 			}
+
+			const auto sample_rate = audio_decoder.get_dst_sample_rate();
+
+			if (sample_rate > max_sample_rate_)
+			{
+				max_sample_rate_ = sample_rate;
+			}
 		}
 
 		return true;
@@ -2282,6 +2308,8 @@ private:
 		memory_stream_.close();
 		io_segment_header_ = {};
 		io_tracks_.clear();
+		wave_cache_.clear();
+		max_sample_rate_ = {};
 	}
 
 
@@ -2619,6 +2647,12 @@ bool DMusicSegment::open(
 void DMusicSegment::close()
 {
 	pimpl_->api_close();
+}
+
+bool DMusicSegment::normalize_sample_rate(
+	const int sample_rate)
+{
+	return pimpl_->api_normalize_sample_rate(sample_rate);
 }
 
 const std::string& DMusicSegment::get_error_message() const
