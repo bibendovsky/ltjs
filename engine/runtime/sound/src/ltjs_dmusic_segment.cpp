@@ -156,22 +156,6 @@ private:
 		static constexpr auto class_size = 40;
 
 
-		struct Flags :
-			ul::EnumFlagsT<std::uint32_t>
-		{
-			Flags(const Value flags = none)
-				:
-				EnumFlagsT<std::uint32_t>{flags}
-			{
-			}
-
-			enum : Value
-			{
-				is_reference_length = 0B0001,
-			}; // Value
-		}; // Flags
-
-
 		std::uint32_t repeat_count_;
 		IoMusicTime8 mt_length_;
 		IoMusicTime8 mt_play_start_;
@@ -179,7 +163,7 @@ private:
 		IoMusicTime8 mt_loop_end_;
 		std::uint32_t resolution_;
 		IoReferenceTime8 rt_length_;
-		Flags flags_;
+		std::uint32_t flags_;
 		std::uint32_t reserved_;
 
 
@@ -231,15 +215,15 @@ private:
 				return false;
 			}
 
-			if (mt_length_ < 0)
+			if (mt_length_ <= 0)
 			{
-				error_message = "Negative music length.";
+				error_message = "Expected positive music length.";
 				return false;
 			}
 
-			if (mt_play_start_ < 0)
+			if (mt_play_start_ != 0)
 			{
-				error_message = "Negative music play start.";
+				error_message = "Expected zero music play start.";
 				return false;
 			}
 
@@ -261,15 +245,15 @@ private:
 				return false;
 			}
 
-			if (rt_length_ < 0)
+			if (rt_length_ != 0)
 			{
-				error_message = "Negative reference length.";
+				error_message = "Expected zero reference length.";
 				return false;
 			}
 
-			if (!(flags_ == 0 || flags_ == Flags::is_reference_length))
+			if (flags_ != 0)
 			{
-				error_message = "Unexpected set of flags.";
+				error_message = "Expected zero flags.";
 				return false;
 			}
 
