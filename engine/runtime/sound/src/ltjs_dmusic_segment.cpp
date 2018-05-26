@@ -484,7 +484,7 @@ private:
 		bool validate(
 			std::string& error_message) const
 		{
-			if (mt_time_ < 20)
+			if (mt_time_ < 0)
 			{
 				error_message = "Negative music time.";
 				return false;
