@@ -44,19 +44,55 @@ if (LTJS_FFMPEG_INCLUDE_DIR)
 			REGEX "^#define[ \t]+FFMPEG_VERSION[ \t]+\"[0-9]+\.[0-9]+\.[0-9]+\"$"
 		)
 
-		string(
-			REGEX REPLACE
-			"#define[ \t]+FFMPEG_VERSION[ \t]+\"([0-9]+\.[0-9]+\.[0-9]+)\""
-			"\\1"
-			LTJS_FFMPEG_VERSION
-			"${LTJS_FFMPEG_VERSION_LINE}"
-		)
+		if (NOT LTJS_FFMPEG_VERSION_LINE)
+			file(
+				STRINGS
+				"${LTJS_FFMPEG_TMP_FFVERSION_H}"
+				LTJS_FFMPEG_VERSION_LINE
+				REGEX "^#define[ \t]+FFMPEG_VERSION[ \t]+\"[0-9]+\.[0-9]+\"$"
+			)
+
+			if (LTJS_FFMPEG_VERSION_LINE)
+				set(LTJS_FFMPEG_TMP_IS_SHORT_VERSION TRUE)
+			endif ()
+		else ()
+			unset(LTJS_FFMPEG_VERSION_LINE)
+		endif ()
+
+		if (LTJS_FFMPEG_VERSION_LINE)
+			list(LENGTH LTJS_FFMPEG_VERSION_LINE LTJS_FFMPEG_TMP_VERSION_LINE_COUNT)
+
+			if (LTJS_FFMPEG_TMP_VERSION_LINE_COUNT EQUAL 1)
+				if (LTJS_FFMPEG_TMP_IS_SHORT_VERSION)
+					string(
+						REGEX REPLACE
+						"#define[ \t]+FFMPEG_VERSION[ \t]+\"([0-9]+\.[0-9]+)\""
+						"\\1"
+						LTJS_FFMPEG_VERSION
+						"${LTJS_FFMPEG_VERSION_LINE}"
+					)
+
+					set(LTJS_FFMPEG_VERSION "${LTJS_FFMPEG_VERSION}.0")
+				else ()
+					string(
+						REGEX REPLACE
+						"#define[ \t]+FFMPEG_VERSION[ \t]+\"([0-9]+\.[0-9]+\.[0-9]+)\""
+						"\\1"
+						LTJS_FFMPEG_VERSION
+						"${LTJS_FFMPEG_VERSION_LINE}"
+					)
+				endif ()
+			else ()
+				unset(LTJS_FFMPEG_VERSION_LINE)
+			endif ()
+		endif ()
 	else ()
 		unset(LTJS_FFMPEG_VERSION_LINE)
 	endif ()
 
 	if (LTJS_FFMPEG_VERSION_LINE)
-		set(LTJS_FFMPEG_TMP_IS_INCS_FOUND "TRUE")
+		set(LTJS_FFMPEG_TMP_IS_INCS_FOUND TRUE)
+		unset(LTJS_FFMPEG_VERSION_LINE)
 	else ()
 		message("Failed to detect FFmpeg version.")
 	endif ()
