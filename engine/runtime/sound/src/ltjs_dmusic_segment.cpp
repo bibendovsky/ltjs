@@ -795,11 +795,19 @@ private:
 		static constexpr auto class_size = 24;
 
 
+		enum class VariationType :
+			std::uint32_t
+		{
+			random = 1,
+			no_repeat = 3,
+		}; // VariationType
+
+
 		std::int32_t volume_;
 		std::uint32_t variations_;
 		std::uint32_t channel_;
 		std::uint32_t lock_to_part_;
-		std::uint32_t flags_;
+		VariationType flags_;
 		std::uint32_t index_;
 
 
@@ -865,7 +873,11 @@ private:
 				return false;
 			}
 
-			// Skip flags.
+			if (!(flags_ == VariationType::random || flags_ == VariationType::no_repeat))
+			{
+				error_message = "Unsupported variation type.";
+				return false;
+			}
 
 			if (index_ != 0)
 			{
