@@ -7,6 +7,7 @@
 
 
 #include "ltjs_dmusic_segment.h"
+#include <cmath>
 #include <cstdint>
 #include <array>
 #include <fstream>
@@ -321,6 +322,14 @@ private:
 			if (tempo_ < 1.0)
 			{
 				error_message = "Invalid tempo value.";
+				return false;
+			}
+
+			auto tempo_int = 0.0;
+
+			if (std::modf(tempo_, &tempo_int) != 0.0)
+			{
+				error_message = "Expected integer tempo value.";
 				return false;
 			}
 
