@@ -685,7 +685,7 @@ private:
 
 			if (!(curve_shape_ == Shape::instant || curve_shape_ == Shape::sine))
 			{
-				error_message = "Expected instant curve shape.";
+				error_message = "Expected instant or sine curve shape.";
 				return false;
 			}
 
