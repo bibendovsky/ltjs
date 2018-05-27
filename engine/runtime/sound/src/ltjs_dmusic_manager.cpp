@@ -57,7 +57,8 @@ public:
 		intensity_count_{},
 		initial_intensity_{},
 		initial_volume_{},
-		volume_offset_{}
+		volume_offset_{},
+		sample_rate_{}
 	{
 	}
 
@@ -79,7 +80,8 @@ public:
 		intensity_count_{std::move(that.intensity_count_)},
 		initial_intensity_{std::move(that.initial_intensity_)},
 		initial_volume_{std::move(that.initial_volume_)},
-		volume_offset_{std::move(that.volume_offset_)}
+		volume_offset_{std::move(that.volume_offset_)},
+		sample_rate_{std::move(that.sample_rate_)}
 	{
 		that.is_initialized_ = false;
 		that.is_level_initialized_ = false;
@@ -220,11 +222,13 @@ public:
 		initial_intensity_ = 0;
 		initial_volume_ = 0;
 		volume_offset_ = 0;
+		sample_rate_ = 0;
 
 		static_cast<void>(control_file.GetKeyVal(nullptr, "NUMINTENSITIES", intensity_count_));
 		static_cast<void>(control_file.GetKeyVal(nullptr, "INITIALINTENSITY", initial_intensity_));
 		static_cast<void>(control_file.GetKeyVal(nullptr, "INITIALVOLUME", initial_volume_));
 		static_cast<void>(control_file.GetKeyVal(nullptr, "VOLUMEOFFSET", volume_offset_));
+		static_cast<void>(control_file.GetKeyVal(nullptr, "SYNTHSAMPLERATE", sample_rate_));
 
 		if (intensity_count_ <= 0 || intensity_count_ > max_intensity)
 		{
@@ -250,7 +254,7 @@ public:
 
 				auto segment = DMusicSegment{};
 
-				if (!segment.open(segment_path))
+				if (!segment.open(segment_path, sample_rate_))
 				{
 					log_error("Failed to load a segment: \"%s\". %s",
 						segment_name.c_str(),
@@ -487,6 +491,7 @@ private:
 	int initial_intensity_;
 	int initial_volume_;
 	int volume_offset_;
+	int sample_rate_;
 
 	Intensities intensities_;
 	TransitionMap transition_map_;

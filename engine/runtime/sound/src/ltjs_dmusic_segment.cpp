@@ -57,10 +57,9 @@ public:
 		file_image_{},
 		memory_stream_{},
 		riff_reader_{},
-		io_segment_header_{},
-		io_tracks_{},
 		wave_cache_{},
-		max_sample_rate_{}
+		sample_rate_{},
+		segment_{}
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 		,
 		debug_filebuf_{}
@@ -81,10 +80,9 @@ public:
 		file_image_{std::move(that.file_image_)},
 		memory_stream_{std::move(that.memory_stream_)},
 		riff_reader_{std::move(that.riff_reader_)},
-		io_segment_header_{std::move(that.io_segment_header_)},
-		io_tracks_{std::move(that.io_tracks_)},
 		wave_cache_{std::move(that.wave_cache_)},
-		max_sample_rate_{std::move(that.max_sample_rate_)}
+		sample_rate_{std::move(that.sample_rate_)},
+		segment_{std::move(that.segment_)}
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 		,
 		debug_filebuf_{std::move(that.debug_filebuf_)}
@@ -99,11 +97,20 @@ public:
 
 
 	bool api_open(
-		const std::string& file_name)
+		const std::string& file_name,
+		const int sample_rate)
 	{
 		error_message_.clear();
 
 		close_internal();
+
+		if (sample_rate <= 0)
+		{
+			error_message_ = "Invalid sample rate.";
+			return false;
+		}
+
+		sample_rate_ = sample_rate;
 
 		if (!open_internal(file_name))
 		{
@@ -143,8 +150,11 @@ public:
 
 private:
 	static constexpr auto max_lt_wave_size = std::uint32_t{8 * 1'024 * 1'024};
-
 	static constexpr auto all_flags_on = std::uint32_t{0xFFFFFFFF};
+	static constexpr auto channel_count = 2;
+	static constexpr auto bit_depth = 16;
+	static constexpr auto default_qbpm = 120; // quarter beats per minute
+	static constexpr auto units_per_quarter_beat = 768;
 
 
 	using Buffer = std::vector<std::uint8_t>;
@@ -1265,7 +1275,7 @@ private:
 	{
 		bool is_started_;
 		bool is_finished_;
-		int offset_; // bytes
+		int mix_offset_; // bytes
 		WaveItem* item_ptr_;
 	}; // ActiveWaveItem
 
@@ -1285,7 +1295,7 @@ private:
 
 	struct Segment
 	{
-		int offset_; // bytes
+		int mix_offset_; // bytes
 		int length_; // bytes
 
 		Waves waves_;
@@ -1313,14 +1323,13 @@ private:
 	Buffer file_image_;
 	ul::MemoryStream memory_stream_;
 	ul::RiffReader riff_reader_;
-	IoSegmentHeader8 io_segment_header_;
-	IoTracks io_tracks_;
 	WaveCache wave_cache_;
-	int max_sample_rate_;
+	int sample_rate_;
 	Segment segment_;
 
 
-	bool read_io_segment_header()
+	bool read_io_segment_header(
+		IoSegmentHeader8& io_segment_header)
 	{
 		if (!riff_reader_.find_and_descend(ul::FourCc{"segh"}))
 		{
@@ -1330,13 +1339,13 @@ private:
 
 		auto io_header_chunk = riff_reader_.get_current_chunk();
 
-		if (!io_segment_header_.read(&io_header_chunk.data_stream_))
+		if (!io_segment_header.read(&io_header_chunk.data_stream_))
 		{
 			error_message_ = "Failed to read a header.";
 			return false;
 		}
 
-		if (!io_segment_header_.validate(error_message_))
+		if (!io_segment_header.validate(error_message_))
 		{
 			error_message_ = "Failed to validate a segment header: " + error_message_;
 			return false;
@@ -1828,8 +1837,9 @@ private:
 			}
 
 			auto decoder_param = ltjs::AudioDecoder::OpenParameters{};
-			decoder_param.dst_bit_depth_ = 16;
-			decoder_param.dst_channel_count_ = 2;
+			decoder_param.dst_bit_depth_ = bit_depth;
+			decoder_param.dst_channel_count_ = channel_count;
+			decoder_param.dst_sample_rate_ = sample_rate_;
 			decoder_param.stream_ptr_ = &reference.file_stream_;
 
 			auto& audio_decoder = reference.audio_decoder_;
@@ -1842,9 +1852,9 @@ private:
 
 			const auto sample_rate = audio_decoder.get_dst_sample_rate();
 
-			if (sample_rate > max_sample_rate_)
+			if (sample_rate > sample_rate_)
 			{
-				max_sample_rate_ = sample_rate;
+				sample_rate_ = sample_rate;
 			}
 		}
 
@@ -2152,7 +2162,8 @@ private:
 		return true;
 	}
 
-	bool read_track()
+	bool read_track(
+		IoTracks& io_tracks)
 	{
 		if (!riff_reader_.find_and_descend(ul::FourCc{"trkh"}))
 		{
@@ -2162,8 +2173,8 @@ private:
 
 		auto header_chunk = riff_reader_.get_current_chunk();
 
-		io_tracks_.emplace_back();
-		auto& track = io_tracks_.back();
+		io_tracks.emplace_back();
+		auto& track = io_tracks.back();
 
 		auto& header = track.header_;
 
@@ -2227,13 +2238,16 @@ private:
 		return true;
 	}
 
-	bool read_tracks()
+	bool read_tracks(
+		const IoSegmentHeader8& io_segment_header)
 	{
 		if (!riff_reader_.find_and_descend(ul::RiffFourCcs::list, ul::FourCc{"trkl"}))
 		{
 			error_message_ = "No track list chunk.";
 			return false;
 		}
+
+		auto io_tracks = IoTracks{};
 
 		while (true)
 		{
@@ -2242,7 +2256,7 @@ private:
 				break;
 			}
 
-			if (!read_track())
+			if (!read_track(io_tracks))
 			{
 				return false;
 			}
@@ -2259,6 +2273,8 @@ private:
 			error_message_ = "RIFF error.";
 			return false;
 		}
+
+		convert_tracks_to_native(io_segment_header, io_tracks);
 
 		return true;
 	}
@@ -2314,6 +2330,160 @@ private:
 		return true;
 	}
 
+	void convert_tracks_to_native(
+		const IoSegmentHeader8& io_segment_header,
+		IoTracks& io_tracks)
+	{
+		// Get quarter beats per minute.
+		//
+		auto qbpm = default_qbpm;
+
+		for (const auto& io_track : io_tracks)
+		{
+			if (io_track.tempos_.empty())
+			{
+				continue;
+			}
+
+			qbpm = static_cast<int>(io_track.tempos_.front().tempo_);
+
+			break;
+		}
+
+		// Calculate bytes per one music time unit.
+		//
+		// qbps = quarter_beats_per_second = qbpm / 60
+		// units_per_second = qbps * units_per_quarter_beat = qbps * 768
+		// seconds_per_unit = 1 / units_per_second = 60 / (qbpm * 768)
+		// bytes_per_unit = sample_rate * sample_size * seconds_per_unit
+		// bytes_per_unit = (60 * sample_rate * sample_size) / (qbpm * 768)
+		//
+		const auto sample_size = channel_count * (bit_depth / 8);
+		const auto bpu_num = 60LL * sample_rate_ * sample_size; // numerator
+		const auto bpu_den = static_cast<long long>(default_qbpm * units_per_quarter_beat); // denominator
+
+
+		segment_.mix_offset_ = 0;
+
+		// Calculate a segment length.
+		//
+		auto segment_length = (bpu_num * io_segment_header.mt_length_) / bpu_den;
+		segment_length += sample_size - 1;
+		segment_length /= sample_size;
+		segment_length *= sample_size;
+
+		segment_.length_ = static_cast<int>(segment_length);
+
+
+		// Find the wave track.
+		//
+		auto wave_track_index = -1;
+		const auto n_io_tracks = static_cast<int>(io_tracks.size());
+
+		for (auto i = 0; i < n_io_tracks; ++i)
+		{
+			const auto& io_track = io_tracks[i];
+			const auto& io_waves = io_track.waves_;
+
+			if (!io_waves.empty() && !io_waves.front().parts_.empty())
+			{
+				wave_track_index = i;
+				break;
+			}
+		}
+
+		if (wave_track_index < 0)
+		{
+			io_tracks.clear();
+			return;
+		}
+
+		// Add wave items.
+		//
+		auto& waves = segment_.waves_;
+		auto& io_wave_part = io_tracks[wave_track_index].waves_.front().parts_.front();
+		const auto& io_wave_part_header = io_wave_part.header_;
+
+		waves.channel_ = io_wave_part_header.channel_;
+		waves.is_variation_no_repeat_ = (io_wave_part_header.flags_ == IoWavePartHeader8::VariationType::no_repeat);
+		waves.last_variation_index_ = -1;
+		waves.variation_masks_ = io_wave_part_header.variations_;
+
+		for (auto& io_wave_item : io_wave_part.items_)
+		{
+			waves.items_.emplace_back();
+			auto& wave_item = waves.items_.back();
+
+			const auto& io_wave_item_header = io_wave_item.header_;
+
+			// Setup variations list.
+			//
+			if (io_wave_item_header.variations_ != all_flags_on)
+			{
+				wave_item.variation_masks_.reserve(31);
+
+				for (auto i = 0; i < 32; ++i)
+				{
+					const auto mask = 1U << i;
+
+					if ((io_wave_item_header.variations_ & mask) != 0)
+					{
+						wave_item.variation_masks_.emplace_back(mask);
+					}
+				}
+			}
+
+			// Calculate the length.
+			//
+			auto item_length = (bpu_num * io_wave_item_header.rt_duration_) / bpu_den;
+			item_length += sample_size - 1;
+			item_length /= sample_size;
+			item_length *= sample_size;
+
+			wave_item.length_ = static_cast<int>(item_length);
+
+			// Steal the stream and the decoder.
+			//
+			auto& io_wave_ref = io_wave_item.references_.front();
+			wave_item.stream_ = std::move(io_wave_ref.file_stream_);
+			wave_item.decoder_ = std::move(io_wave_ref.audio_decoder_);
+		}
+
+		// Setup reference active item list.
+		//
+		const auto item_count = static_cast<int>(waves.items_.size());
+
+		waves.ref_active_items_.resize(item_count);
+		waves.active_items_.reserve(item_count);
+
+		for (auto i = 0; i < item_count; ++i)
+		{
+			auto& active_item = waves.ref_active_items_[i];
+
+			active_item.item_ptr_ = &waves.items_[i];
+
+			// Calculate mix offset.
+			//
+			auto mix_offset = (bpu_num * io_wave_part.items_[i].header_.mt_logical_time) / bpu_den;
+			mix_offset += sample_size - 1;
+			mix_offset /= sample_size;
+			mix_offset *= sample_size;
+
+			active_item.mix_offset_ = static_cast<int>(mix_offset);
+		}
+
+		// Sort the list (from latest to the earliest).
+		//
+		std::sort(
+			waves.ref_active_items_.begin(),
+			waves.ref_active_items_.end(),
+			[](const auto& lhs, const auto& rhs)
+			{
+				return lhs.mix_offset_ >= rhs.mix_offset_;
+			}
+		);
+	}
+
 	bool open_internal(
 		const std::string& file_name)
 	{
@@ -2330,12 +2500,14 @@ private:
 			return false;
 		}
 
-		if (!read_io_segment_header())
+		auto io_segment_header = IoSegmentHeader8{};
+
+		if (!read_io_segment_header(io_segment_header))
 		{
 			return false;
 		}
 
-		if (!read_tracks())
+		if (!read_tracks(io_segment_header))
 		{
 			return false;
 		}
@@ -2352,10 +2524,9 @@ private:
 		file_image_.clear();
 		riff_reader_.close();
 		memory_stream_.close();
-		io_segment_header_ = {};
-		io_tracks_.clear();
 		wave_cache_.clear();
-		max_sample_rate_ = {};
+		sample_rate_ = {};
+		segment_ = {};
 	}
 
 
@@ -2685,20 +2856,15 @@ DMusicSegment::~DMusicSegment()
 }
 
 bool DMusicSegment::open(
-	const std::string& file_name)
+	const std::string& file_name,
+	const int sample_rate)
 {
-	return pimpl_->api_open(file_name);
+	return pimpl_->api_open(file_name, sample_rate);
 }
 
 void DMusicSegment::close()
 {
 	pimpl_->api_close();
-}
-
-bool DMusicSegment::normalize_sample_rate(
-	const int sample_rate)
-{
-	return pimpl_->api_normalize_sample_rate(sample_rate);
 }
 
 const std::string& DMusicSegment::get_error_message() const
