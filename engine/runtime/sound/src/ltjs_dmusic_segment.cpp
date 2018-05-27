@@ -2,7 +2,7 @@
 
 
 #ifdef _DEBUG
-//#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 #endif // _DEBUG
 
 
@@ -2239,15 +2239,14 @@ private:
 	}
 
 	bool read_tracks(
-		const IoSegmentHeader8& io_segment_header)
+		const IoSegmentHeader8& io_segment_header,
+		IoTracks& io_tracks)
 	{
 		if (!riff_reader_.find_and_descend(ul::RiffFourCcs::list, ul::FourCc{"trkl"}))
 		{
 			error_message_ = "No track list chunk.";
 			return false;
 		}
-
-		auto io_tracks = IoTracks{};
 
 		while (true)
 		{
@@ -2507,13 +2506,15 @@ private:
 			return false;
 		}
 
-		if (!read_tracks(io_segment_header))
+		auto io_tracks = IoTracks{};
+
+		if (!read_tracks(io_segment_header, io_tracks))
 		{
 			return false;
 		}
 
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
-		debug_dump_structure(file_name);
+		debug_dump_structure(file_name, io_segment_header, io_tracks);
 #endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 
 		return true;
@@ -2589,7 +2590,9 @@ private:
 	}
 
 	void debug_dump_structure(
-		const std::string& file_name)
+		const std::string& file_name,
+		const IoSegmentHeader8& io_segment_header,
+		const IoTracks& io_tracks)
 	{
 		auto file_path = ul::PathUtils::get_parent_path(file_name);
 		std::replace(file_path.begin(), file_path.end(), '\\', '_');
@@ -2613,27 +2616,27 @@ private:
 		// Header.
 		//
 		debug_write_line("Header:");
-		debug_write_line("\trepeat_count_: " + std::to_string(io_segment_header_.repeat_count_));
-		debug_write_line("\tmt_length_: " + std::to_string(io_segment_header_.mt_length_));
-		debug_write_line("\tmt_play_start_: " + std::to_string(io_segment_header_.mt_play_start_));
-		debug_write_line("\tmt_loop_start_: " + std::to_string(io_segment_header_.mt_loop_start_));
-		debug_write_line("\tmt_loop_end_: " + std::to_string(io_segment_header_.mt_loop_end_));
-		debug_write_line("\tresolution_: " + std::to_string(io_segment_header_.resolution_));
-		debug_write_line("\trt_length_: " + std::to_string(io_segment_header_.rt_length_));
+		debug_write_line("\trepeat_count_: " + std::to_string(io_segment_header.repeat_count_));
+		debug_write_line("\tmt_length_: " + std::to_string(io_segment_header.mt_length_));
+		debug_write_line("\tmt_play_start_: " + std::to_string(io_segment_header.mt_play_start_));
+		debug_write_line("\tmt_loop_start_: " + std::to_string(io_segment_header.mt_loop_start_));
+		debug_write_line("\tmt_loop_end_: " + std::to_string(io_segment_header.mt_loop_end_));
+		debug_write_line("\tresolution_: " + std::to_string(io_segment_header.resolution_));
+		debug_write_line("\trt_length_: " + std::to_string(io_segment_header.rt_length_));
 
-		debug_write_line("\tflags_: " + std::to_string(io_segment_header_.flags_) + " (" +
-			debug_flags_to_string(io_segment_header_.flags_) + ")");
+		debug_write_line("\tflags_: " + std::to_string(io_segment_header.flags_) + " (" +
+			debug_flags_to_string(io_segment_header.flags_) + ")");
 
 		// Tracks.
 		//
-		auto n_tracks = static_cast<int>(io_tracks_.size());
+		auto n_tracks = static_cast<int>(io_tracks.size());
 
 		for (auto i_track = 0; i_track < n_tracks; ++i_track)
 		{
 			debug_write_line();
 			debug_write_line("Track " + std::to_string(i_track) + ":");
 
-			const auto& track = io_tracks_[i_track];
+			const auto& track = io_tracks[i_track];
 
 			const auto& track_header = track.header_;
 			debug_write_line("\tHeader:");
@@ -2762,7 +2765,7 @@ private:
 					debug_write_line("\t\t\t\tvariations_: " + std::to_string(part_header.variations_) + " (" + debug_flags_to_string(part_header.variations_) + ")");
 					debug_write_line("\t\t\t\tchannel_: " + std::to_string(part_header.channel_));
 					debug_write_line("\t\t\t\tlock_to_part_: " + std::to_string(part_header.lock_to_part_));
-					debug_write_line("\t\t\t\tflags_: " + std::to_string(part_header.flags_) + " (" + debug_flags_to_string(part_header.flags_) + ")");
+					debug_write_line("\t\t\t\tflags_: " + std::to_string(static_cast<uint32_t>(part_header.flags_)) + " (" + debug_flags_to_string(part_header.flags_) + ")");
 					debug_write_line("\t\t\t\tindex_: " + std::to_string(part_header.index_));
 
 
