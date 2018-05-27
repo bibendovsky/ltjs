@@ -2,7 +2,7 @@
 
 
 #ifdef _DEBUG
-#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+//#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 #endif // _DEBUG
 
 
@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <array>
 #include <fstream>
+#include <random>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -53,6 +54,7 @@ class DMusicSegment::Impl final
 public:
 	Impl()
 		:
+		is_open_{},
 		error_message_{},
 		file_image_{},
 		memory_stream_{},
@@ -76,6 +78,7 @@ public:
 	Impl(
 		Impl&& that)
 		:
+		is_open_{std::move(that.is_open_)},
 		error_message_{std::move(that.error_message_)},
 		file_image_{std::move(that.file_image_)},
 		memory_stream_{std::move(that.memory_stream_)},
@@ -126,6 +129,17 @@ public:
 		close_internal();
 	}
 
+	bool api_rewind()
+	{
+		if (!is_open_)
+		{
+			error_message_ = "Not open.";
+			return false;
+		}
+
+		return rewind();
+	}
+
 	bool api_normalize_sample_rate(
 		const int sample_rate)
 	{
@@ -155,6 +169,7 @@ private:
 	static constexpr auto bit_depth = 16;
 	static constexpr auto default_qbpm = 120; // quarter beats per minute
 	static constexpr auto units_per_quarter_beat = 768;
+	static constexpr auto default_variation_mask = std::uint32_t{1};
 
 
 	using Buffer = std::vector<std::uint8_t>;
@@ -1257,40 +1272,43 @@ private:
 	using IoTracks = std::vector<IoTrack>;
 
 
-	using VariationMaskList = std::vector<std::uint32_t>;
-
 	struct WaveItem
 	{
-		int offset_; // bytes
 		int length_; // bytes
+		std::uint32_t variation_masks_;
 
-		VariationMaskList variation_masks_;
 		ul::MemoryStream stream_;
 		ltjs::AudioDecoder decoder_;
 	}; // WaveItem
 
 	using WaveItems = std::vector<WaveItem>;
 
-	struct ActiveWaveItem
+	struct Object
 	{
 		bool is_started_;
 		bool is_finished_;
 		int mix_offset_; // bytes
+		int decode_offset_; // bytes
 		WaveItem* item_ptr_;
-	}; // ActiveWaveItem
+	}; // Object
 
-	using ActiveWaveItems = std::vector<ActiveWaveItem>;
+	using Objects = std::vector<Object>;
+
+	using VariationMaskList = std::vector<std::uint32_t>;
 
 	struct Waves
 	{
 		std::uint32_t channel_;
-		std::uint32_t variation_masks_;
+		std::uint32_t current_variation_mask_;
+		std::uint32_t variation_count_;
+		VariationMaskList variation_mask_list_;
 		int last_variation_index_;
 		bool is_variation_no_repeat_;
 
 		WaveItems items_;
-		ActiveWaveItems ref_active_items_;
-		ActiveWaveItems active_items_;
+		Objects objects_template_;
+		Objects active_objects_;
+		Objects inactive_objects_;
 	}; // Waves
 
 	struct Segment
@@ -1318,6 +1336,7 @@ private:
 	static const ul::Uuid clsid_sound_wave;
 
 
+	bool is_open_;
 	std::string error_message_;
 	std::string working_dir_;
 	Buffer file_image_;
@@ -2406,8 +2425,45 @@ private:
 		waves.channel_ = io_wave_part_header.channel_;
 		waves.is_variation_no_repeat_ = (io_wave_part_header.flags_ == IoWavePartHeader8::VariationType::no_repeat);
 		waves.last_variation_index_ = -1;
-		waves.variation_masks_ = io_wave_part_header.variations_;
+		waves.current_variation_mask_ = 0;
+		waves.variation_count_ = 0;
 
+		// Initialize variations.
+		//
+		if (io_wave_part_header.variations_ == all_flags_on)
+		{
+			waves.variation_count_ = 1;
+
+			waves.variation_mask_list_.reserve(waves.variation_count_);
+			waves.variation_mask_list_.emplace_back(default_variation_mask);
+		}
+		else
+		{
+			for (auto i = 0; i < 32; ++i)
+			{
+				const auto mask = 1U << i;
+
+				if ((io_wave_part_header.variations_ & mask) != 0)
+				{
+					waves.variation_count_ += 1;
+				}
+			}
+
+			waves.variation_mask_list_.reserve(waves.variation_count_);
+
+			for (auto i = 0; i < 32; ++i)
+			{
+				const auto mask = 1U << i;
+
+				if ((io_wave_part_header.variations_ & mask) != 0)
+				{
+					waves.variation_mask_list_.emplace_back(mask);
+				}
+			}
+		}
+
+		// Initialize the items.
+		//
 		for (auto& io_wave_item : io_wave_part.items_)
 		{
 			waves.items_.emplace_back();
@@ -2415,22 +2471,7 @@ private:
 
 			const auto& io_wave_item_header = io_wave_item.header_;
 
-			// Setup variations list.
-			//
-			if (io_wave_item_header.variations_ != all_flags_on)
-			{
-				wave_item.variation_masks_.reserve(31);
-
-				for (auto i = 0; i < 32; ++i)
-				{
-					const auto mask = 1U << i;
-
-					if ((io_wave_item_header.variations_ & mask) != 0)
-					{
-						wave_item.variation_masks_.emplace_back(mask);
-					}
-				}
-			}
+			wave_item.variation_masks_ = io_wave_item_header.variations_;
 
 			// Calculate the length.
 			//
@@ -2452,14 +2493,12 @@ private:
 		//
 		const auto item_count = static_cast<int>(waves.items_.size());
 
-		waves.ref_active_items_.resize(item_count);
-		waves.active_items_.reserve(item_count);
+		waves.objects_template_.resize(item_count);
+		waves.active_objects_.reserve(item_count);
 
 		for (auto i = 0; i < item_count; ++i)
 		{
-			auto& active_item = waves.ref_active_items_[i];
-
-			active_item.item_ptr_ = &waves.items_[i];
+			auto& active_item = waves.objects_template_[i];
 
 			// Calculate mix offset.
 			//
@@ -2469,13 +2508,18 @@ private:
 			mix_offset *= sample_size;
 
 			active_item.mix_offset_ = static_cast<int>(mix_offset);
+
+			// Set the reset of the fields.
+			//
+			active_item.decode_offset_ = 0;
+			active_item.item_ptr_ = &waves.items_[i];
 		}
 
 		// Sort the list (from latest to the earliest).
 		//
 		std::sort(
-			waves.ref_active_items_.begin(),
-			waves.ref_active_items_.end(),
+			waves.objects_template_.begin(),
+			waves.objects_template_.end(),
 			[](const auto& lhs, const auto& rhs)
 			{
 				return lhs.mix_offset_ >= rhs.mix_offset_;
@@ -2513,6 +2557,10 @@ private:
 			return false;
 		}
 
+		rewind();
+
+		is_open_ = true;
+
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 		debug_dump_structure(file_name, io_segment_header, io_tracks);
 #endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
@@ -2522,12 +2570,89 @@ private:
 
 	void close_internal()
 	{
+		is_open_ = {};
 		file_image_.clear();
 		riff_reader_.close();
 		memory_stream_.close();
 		wave_cache_.clear();
 		sample_rate_ = {};
 		segment_ = {};
+	}
+
+	bool rewind()
+	{
+		segment_.mix_offset_ = {};
+
+		auto& waves = segment_.waves_;
+
+		waves.active_objects_.clear();
+		waves.inactive_objects_ = waves.objects_template_;
+
+		for (auto& item : waves.items_)
+		{
+			if (!item.decoder_.rewind())
+			{
+				error_message_ = "Failed to rewind an audio decoder.";
+				close_internal();
+				return false;
+			}
+		}
+
+
+		// Select a random variation.
+		//
+		if (waves.variation_count_ > 0)
+		{
+			auto variation_index = -1;
+
+			if (waves.variation_count_ > 1)
+			{
+				while (true)
+				{
+					variation_index = get_random_value(waves.variation_count_ - 1);
+
+					if (waves.is_variation_no_repeat_)
+					{
+						if (waves.last_variation_index_ >= 0)
+						{
+							if (variation_index != waves.last_variation_index_)
+							{
+								break;
+							}
+						}
+						else
+						{
+							break;
+						}
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				variation_index = 0;
+			}
+
+			waves.last_variation_index_ = variation_index;
+			waves.current_variation_mask_ = waves.variation_mask_list_[variation_index];
+		}
+
+		return true;
+	}
+
+	static int get_random_value(
+		const int max_value)
+	{
+		static std::random_device random_device{};
+		static auto random_engine = std::mt19937{random_device()};
+		static auto random_dist = std::uniform_int_distribution<int>{};
+
+		const auto random_value = random_dist(random_engine);
+
+		return random_value % max_value;
 	}
 
 
@@ -2868,6 +2993,11 @@ bool DMusicSegment::open(
 void DMusicSegment::close()
 {
 	pimpl_->api_close();
+}
+
+bool DMusicSegment::rewind()
+{
+	return pimpl_->api_rewind();
 }
 
 const std::string& DMusicSegment::get_error_message() const

@@ -33,6 +33,8 @@ public:
 
 	void close();
 
+	bool rewind();
+
 
 	const std::string& get_error_message() const;
 
