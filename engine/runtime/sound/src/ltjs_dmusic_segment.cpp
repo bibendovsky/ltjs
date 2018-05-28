@@ -3,12 +3,14 @@
 
 #ifdef _DEBUG
 //#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+//#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_WAVES
 #endif // _DEBUG
 
 
 #include "ltjs_dmusic_segment.h"
 #include <cmath>
 #include <cstdint>
+#include <algorithm>
 #include <array>
 #include <fstream>
 #include <random>
@@ -21,6 +23,7 @@
 #include "bibendovsky_spul_encoding_utils.h"
 #include "bibendovsky_spul_endian.h"
 #include "bibendovsky_spul_enum_flags.h"
+#include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_four_cc.h"
 #include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_path_utils.h"
@@ -29,6 +32,9 @@
 #include "bibendovsky_spul_scope_guard.h"
 #include "bibendovsky_spul_un_value.h"
 #include "bibendovsky_spul_uuid.h"
+#include "bibendovsky_spul_wave_format.h"
+#include "bibendovsky_spul_wave_format_utils.h"
+#include "bibendovsky_spul_wave_four_ccs.h"
 #include "client_filemgr.h"
 #include "ltjs_audio_decoder.h"
 
@@ -140,20 +146,36 @@ public:
 		return rewind();
 	}
 
-	bool api_normalize_sample_rate(
-		const int sample_rate)
+	int api_mix(
+		const int src_decode_size,
+		std::int16_t* dst_decode_buffer,
+		float* dst_mix_buffer)
 	{
-		if (sample_rate <= 0)
+		if (!is_open_)
 		{
-			error_message_ = "Invalid normalization sample rate.";
-			return false;
+			error_message_ = "Not open.";
+			return -1;
 		}
 
-		// TODO
+		if (src_decode_size < 0)
+		{
+			error_message_ = "Invalid a source decode size.";
+			return -1;
+		}
 
-		error_message_ = "Not imlemented.";
+		if (!dst_decode_buffer)
+		{
+			error_message_ = "No decode buffer.";
+			return -1;
+		}
 
-		return false;
+		if (!dst_mix_buffer)
+		{
+			error_message_ = "No mix buffer.";
+			return -1;
+		}
+
+		return mix(src_decode_size, dst_decode_buffer, dst_mix_buffer);
 	}
 
 	const std::string& api_get_error_message() const
@@ -2378,7 +2400,7 @@ private:
 		//
 		const auto sample_size = channel_count * (bit_depth / 8);
 		const auto bpu_num = 60LL * sample_rate_ * sample_size; // numerator
-		const auto bpu_den = static_cast<long long>(default_qbpm * units_per_quarter_beat); // denominator
+		const auto bpu_den = static_cast<long long>(qbpm * units_per_quarter_beat); // denominator
 
 
 		segment_.mix_offset_ = 0;
@@ -2565,6 +2587,10 @@ private:
 		debug_dump_structure(file_name, io_segment_header, io_tracks);
 #endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 
+#ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_WAVES
+		debug_dump_waves(file_name);
+#endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_WAVES
+
 		return true;
 	}
 
@@ -2641,6 +2667,136 @@ private:
 		}
 
 		return true;
+	}
+
+	int mix(
+		const int src_decode_size,
+		std::int16_t* dst_decode_buffer,
+		float* dst_mix_buffer)
+	{
+		if (segment_.mix_offset_ == segment_.length_)
+		{
+			return 0;
+		}
+
+		const auto sample_size_per_channel = bit_depth / 8;
+		const auto sample_size = channel_count * sample_size_per_channel;
+		auto decode_size = (src_decode_size / sample_size) * sample_size;
+
+		if ((segment_.mix_offset_ + decode_size) > segment_.length_)
+		{
+			decode_size = segment_.length_ - segment_.mix_offset_;
+		}
+
+		if (segment_.waves_.items_.empty())
+		{
+			segment_.mix_offset_ += decode_size;
+			return decode_size;
+		}
+
+		const auto variation_mask = segment_.waves_.current_variation_mask_;
+
+		// Update lists.
+		//
+		auto& actives = segment_.waves_.active_objects_;
+		auto& inactives = segment_.waves_.inactive_objects_;
+
+		while (!inactives.empty())
+		{
+			const auto& inactive = inactives.back();
+
+			if ((inactive.item_ptr_->variation_masks_ & variation_mask) == 0)
+			{
+				inactives.pop_back();
+				continue;
+			}
+
+			if (inactive.mix_offset_ >= (segment_.mix_offset_ + decode_size))
+			{
+				break;
+			}
+
+			actives.emplace_back(inactive);
+			inactives.pop_back();
+		}
+
+		// Process active objects.
+		//
+		for (auto& active : actives)
+		{
+			auto mix_offset = 0;
+			auto to_decode_size = decode_size;
+
+			if (!active.is_started_)
+			{
+				active.is_started_ = true;
+
+				if (active.mix_offset_ > segment_.mix_offset_)
+				{
+					mix_offset = active.mix_offset_ - segment_.mix_offset_;
+					to_decode_size -= mix_offset;
+				}
+			}
+
+			const auto active_remain_size = active.item_ptr_->length_ - active.decode_offset_;
+
+			if (to_decode_size > active_remain_size)
+			{
+				to_decode_size = active_remain_size;
+			}
+
+			const auto decoded_size = active.item_ptr_->decoder_.decode(dst_decode_buffer, to_decode_size);
+
+			if (decoded_size > 0)
+			{
+				const auto mix_index = mix_offset / sample_size_per_channel;
+				const auto sample_count = decoded_size / sample_size_per_channel;
+
+				auto decode_buffer = static_cast<const std::int16_t*>(dst_decode_buffer);
+				auto mix_buffer = static_cast<float*>(dst_mix_buffer) + mix_index;
+
+				for (auto i = 0; i < sample_count; ++i)
+				{
+					mix_buffer[i] += decode_buffer[i] / 32768.0F;
+				}
+
+				active.decode_offset_ += decoded_size;
+
+				if (active.decode_offset_ == active.item_ptr_->length_)
+				{
+					active.is_finished_ = true;
+				}
+			}
+			else
+			{
+				active.is_finished_ = true;
+			}
+		}
+
+		// Remove finished objects.
+		//
+		{
+			auto begin_it = actives.begin();
+			auto end_it = actives.end();
+
+			auto new_end_it = std::remove_if(
+				actives.begin(),
+				actives.end(),
+				[](const auto& item)
+				{
+					return item.is_finished_;
+				}
+			);
+
+			if (new_end_it != end_it)
+			{
+				actives.resize(new_end_it - begin_it);
+			}
+		}
+
+		segment_.mix_offset_ += decode_size;
+
+		return decode_size;
 	}
 
 	static int get_random_value(
@@ -2953,6 +3109,110 @@ private:
 	}
 #endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 
+#ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_WAVES
+	// TODO Apply low-pass filter.
+	void debug_dump_waves(
+		const std::string& file_name)
+	{
+		const auto wave_prefix_size =
+			4 + 4 + 4 + // "RIFF"<size>"WAVE"
+			4 + 4 + ul::PcmWaveFormat::class_size + // "fmt "<size><data>
+			4 + 4 + // "data"<size>
+			0;
+
+		auto file_path = file_name;
+		std::replace(file_path.begin(), file_path.end(), '\\', '_');
+		std::replace(file_path.begin(), file_path.end(), '/', '_');
+		std::replace(file_path.begin(), file_path.end(), '.', '_');
+		ul::AsciiUtils::to_lower_i(file_path);
+		file_path = "ltjs_dbg_dmus002_" + file_path + ".wav";
+
+		auto debug_file = ul::FileStream{file_path, ul::Stream::OpenMode::write};
+
+		if (!debug_file.is_open())
+		{
+			return;
+		}
+
+		if (!debug_file.set_position(wave_prefix_size))
+		{
+			return;
+		}
+
+		const auto max_sample_count = 4096;
+		const auto max_buffer_size = max_sample_count * channel_count;
+		const auto max_decode_size = max_buffer_size * (bit_depth / 8);
+
+		using BufferS16 = std::vector<std::int16_t>;
+		using MixBufferF = std::vector<float>;
+
+		auto decode_buffer = BufferS16{};
+		decode_buffer.resize(max_buffer_size);
+
+		auto write_buffer = BufferS16{};
+		write_buffer.resize(max_buffer_size);
+
+		auto mix_buffer = MixBufferF{};
+		mix_buffer.resize(max_buffer_size);
+
+		rewind();
+
+		auto total_decoded_size = 0;
+
+		while (true)
+		{
+			std::fill(mix_buffer.begin(), mix_buffer.end(), 0.0F);
+
+			const auto decoded_size = mix(max_decode_size, decode_buffer.data(), mix_buffer.data());
+
+			if (decoded_size <= 0)
+			{
+				break;
+			}
+
+			const auto sample_count = decoded_size / (bit_depth / 8);
+
+			for (auto i = 0; i < sample_count; ++i)
+			{
+				write_buffer[i] = ul::Endian::little(static_cast<std::int16_t>(mix_buffer[i] * 32768.0F));
+			}
+
+			debug_file.write(write_buffer.data(), decoded_size);
+
+			total_decoded_size += decoded_size;
+		}
+
+		static_cast<void>(debug_file.set_position(0));
+
+		const auto riff_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::RiffFourCcs::riff));
+		const auto riff_size_le = ul::Endian::little(static_cast<std::uint32_t>(wave_prefix_size + total_decoded_size - 8));
+		const auto wave_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::WaveFourCcs::wave));
+		const auto fmt_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::WaveFourCcs::fmt));
+		const auto fmt_size_le = ul::Endian::little(static_cast<std::uint32_t>(ul::PcmWaveFormat::class_size));
+		const auto data_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::WaveFourCcs::data));
+		const auto data_size_le = ul::Endian::little(static_cast<std::uint32_t>(total_decoded_size));
+
+		auto waveformat = ul::PcmWaveFormat{};
+		waveformat.tag_ = ul::WaveFormatTag::pcm;
+		waveformat.bit_depth_ = bit_depth;
+		waveformat.channel_count_ = channel_count;
+		waveformat.sample_rate_ = sample_rate_;
+		waveformat.block_align_ = waveformat.channel_count_ * (waveformat.bit_depth_ / 8);
+		waveformat.avg_bytes_per_sec_ = waveformat.block_align_ * waveformat.sample_rate_;
+
+		static_cast<void>(debug_file.write(&riff_id_le, 4));
+		static_cast<void>(debug_file.write(&riff_size_le, 4));
+		static_cast<void>(debug_file.write(&wave_id_le, 4));
+		static_cast<void>(debug_file.write(&fmt_id_le, 4));
+		static_cast<void>(debug_file.write(&fmt_size_le, 4));
+		static_cast<void>(ul::WaveformatUtils::write(waveformat, &debug_file));
+		static_cast<void>(debug_file.write(&data_id_le, 4));
+		static_cast<void>(debug_file.write(&data_size_le, 4));
+
+		debug_file.close();
+	}
+#endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_WAVES
+
 	//
 	// Debug stuff
 	// ======================================================================
@@ -2998,6 +3258,14 @@ void DMusicSegment::close()
 bool DMusicSegment::rewind()
 {
 	return pimpl_->api_rewind();
+}
+
+int DMusicSegment::mix(
+	const int src_decode_size,
+	std::int16_t* dst_decode_buffer,
+	float* dst_mix_buffer)
+{
+	return pimpl_->api_mix(src_decode_size, dst_decode_buffer, dst_mix_buffer);
 }
 
 const std::string& DMusicSegment::get_error_message() const

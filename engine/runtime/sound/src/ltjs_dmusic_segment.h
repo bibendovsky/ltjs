@@ -2,6 +2,7 @@
 #define LTJS_DMUSIC_SEGMENT_INCLUDED
 
 
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -34,6 +35,11 @@ public:
 	void close();
 
 	bool rewind();
+
+	int mix(
+		const int src_decode_size,
+		std::int16_t* dst_decode_buffer,
+		float* dst_mix_buffer);
 
 
 	const std::string& get_error_message() const;
