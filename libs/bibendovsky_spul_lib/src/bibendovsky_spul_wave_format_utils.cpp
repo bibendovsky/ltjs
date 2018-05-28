@@ -41,6 +41,42 @@ namespace spul
 {
 
 
+struct WaveformatUtils::Detail
+{
+	template<typename T>
+	static bool generic_write(
+		const T& format,
+		StreamPtr stream_ptr)
+	{
+		if (!stream_ptr || !stream_ptr->is_writable())
+		{
+			return false;
+		}
+
+		if (Endian::is_little())
+		{
+			if (stream_ptr->write(&format, T::class_size) != T::class_size)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		auto format_be = format;
+
+		endian(format_be);
+
+		if (stream_ptr->write(&format_be, T::class_size) != T::class_size)
+		{
+			return false;
+		}
+
+		return true;
+	}
+}; // WaveformatUtils::Detail
+
+
 void WaveformatUtils::endian(
 	WaveFormat& format)
 {
@@ -78,7 +114,7 @@ bool WaveformatUtils::read(
 	StreamPtr stream_ptr,
 	WaveFormat& format)
 {
-	if (stream_ptr->read(&format, WaveFormat::packed_size) != WaveFormat::packed_size)
+	if (stream_ptr->read(&format, WaveFormat::class_size) != WaveFormat::class_size)
 	{
 		return false;
 	}
@@ -95,7 +131,24 @@ bool WaveformatUtils::read(
 	StreamPtr stream_ptr,
 	PcmWaveFormat& format)
 {
-	if (stream_ptr->read(&format, PcmWaveFormat::packed_size) != PcmWaveFormat::packed_size)
+	if (stream_ptr->read(&format, PcmWaveFormat::class_size) != PcmWaveFormat::class_size)
+	{
+		return false;
+	}
+
+	if (!Endian::is_little())
+{
+		endian(format);
+	}
+
+	return true;
+}
+
+bool WaveformatUtils::read(
+	StreamPtr stream_ptr,
+	WaveFormatEx& format)
+{
+	if (stream_ptr->read(&format, WaveFormatEx::class_size) != WaveFormatEx::class_size)
 	{
 		return false;
 	}
@@ -108,21 +161,25 @@ bool WaveformatUtils::read(
 	return true;
 }
 
-bool WaveformatUtils::read(
-	StreamPtr stream_ptr,
-	WaveFormatEx& format)
+bool WaveformatUtils::write(
+	const WaveFormat& format,
+	StreamPtr stream_ptr)
 {
-	if (stream_ptr->read(&format, WaveFormatEx::packed_size) != WaveFormatEx::packed_size)
-	{
-		return false;
-	}
+	return Detail::generic_write<WaveFormat>(format, stream_ptr);
+}
 
-	if (!Endian::is_little())
-	{
-		endian(format);
-	}
+bool WaveformatUtils::write(
+	const PcmWaveFormat& format,
+	StreamPtr stream_ptr)
+{
+	return Detail::generic_write<PcmWaveFormat>(format, stream_ptr);
+}
 
-	return true;
+bool WaveformatUtils::write(
+	const WaveFormatEx& format,
+	StreamPtr stream_ptr)
+{
+	return Detail::generic_write<WaveFormatEx>(format, stream_ptr);
 }
 
 

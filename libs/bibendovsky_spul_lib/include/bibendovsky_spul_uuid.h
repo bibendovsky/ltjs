@@ -52,11 +52,11 @@ class Uuid
 {
 public:
 	// A size of the class.
-	static constexpr auto packed_size = 16;
+	static constexpr auto class_size = 16;
 
 
 	// An array of bytes which represents the UUID value.
-	using Array = std::array<std::uint8_t, packed_size>;
+	using Array = std::array<std::uint8_t, class_size>;
 
 
 	// String representation formats.
@@ -138,7 +138,7 @@ public:
 	// Construct UUID by a byte array.
 	//
 	explicit Uuid(
-		const std::uint8_t (&value)[packed_size]);
+		const std::uint8_t (&value)[class_size]);
 
 	//
 	// Construct UUID instance from a string.

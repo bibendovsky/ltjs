@@ -349,7 +349,7 @@ Uuid::Uuid(
 }
 
 Uuid::Uuid(
-	const std::uint8_t (&value)[packed_size])
+	const std::uint8_t (&value)[class_size])
 	:
 	value_{
 		value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7],
@@ -446,7 +446,7 @@ bool Uuid::read(
 		return false;
 	}
 
-	if (stream_ptr->read(value_.data(), packed_size) != packed_size)
+	if (stream_ptr->read(value_.data(), class_size) != class_size)
 	{
 		return false;
 	}

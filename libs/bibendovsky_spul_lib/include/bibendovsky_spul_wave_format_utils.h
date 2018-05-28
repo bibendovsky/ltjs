@@ -124,7 +124,56 @@ public:
 		WaveFormatEx& format);
 
 
+	//
+	// Writes WaveFormat structure in little-endian format into a stream.
+	//
+	// Parameters:
+	//    - format - a format to write.
+	//    - stream_ptr - a stream to write the data to.
+	//
+	// Returns:
+	//    "true" on success.
+	//    "false" otherwise.
+	//
+	static bool write(
+		const WaveFormat& format,
+		StreamPtr stream_ptr);
+
+	//
+	// Writes PcmWaveFormat structure in little-endian format into a stream.
+	//
+	// Parameters:
+	//    - format - a format buffer.
+	//    - stream_ptr - a stream to read the data from.
+	//
+	// Returns:
+	//    "true" on success.
+	//    "false" otherwise.
+	//
+	static bool write(
+		const PcmWaveFormat& format,
+		StreamPtr stream_ptr);
+
+	//
+	// Writes WaveFormatEx structure in little-endian format into a stream.
+	//
+	// Parameters:
+	//    - format - a format buffer.
+	//    - stream_ptr - a stream to read the data from.
+	//
+	// Returns:
+	//    "true" on success.
+	//    "false" otherwise.
+	//
+	static bool write(
+		const WaveFormatEx& format,
+		StreamPtr stream_ptr);
+
+
 private:
+	struct Detail;
+
+
 	WaveformatUtils() = delete;
 }; // WaveformatUtils
 

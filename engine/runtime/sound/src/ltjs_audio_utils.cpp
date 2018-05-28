@@ -372,7 +372,7 @@ sint32 AudioUtils::decode_mp3(
 	const auto header_size =
 		4 + 4 + // "RIFF" + size
 		4 + // WAVE
-		4 + 4 + ul::WaveFormatEx::packed_size + // "fmt " + size + format_size
+		4 + 4 + ul::WaveFormatEx::class_size + // "fmt " + size + format_size
 		4 + 4 + // "data" + size
 		0;
 
@@ -417,12 +417,12 @@ sint32 AudioUtils::decode_mp3(
 	header[7] = ' ';
 	header += 8;
 
-	*reinterpret_cast<std::uint32_t*>(header) = ul::WaveFormatEx::packed_size;
+	*reinterpret_cast<std::uint32_t*>(header) = ul::WaveFormatEx::class_size;
 	header += 4;
 
 	const auto wave_format_ex = audio_decoder.get_wave_format_ex();
 	*reinterpret_cast<ul::WaveFormatEx*>(header) = wave_format_ex;
-	header += ul::WaveFormatEx::packed_size;
+	header += ul::WaveFormatEx::class_size;
 
 	// fill in DATA chunk
 	header[0] = 'd';
@@ -461,7 +461,7 @@ int AudioUtils::extract_wave_size(
 
 	constexpr auto min_riff_size =
 		4 + // "WAVE"
-		4 + 4 + ul::PcmWaveFormat::packed_size + // "fmt " + size + pcm_wave_format
+		4 + 4 + ul::PcmWaveFormat::class_size + // "fmt " + size + pcm_wave_format
 		4 + 4 + 1 + // "data" + size + min_data_size
 		0;
 
