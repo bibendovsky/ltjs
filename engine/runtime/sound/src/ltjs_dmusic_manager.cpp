@@ -246,19 +246,36 @@ public:
 			return LT_ERROR;
 		}
 
-		for (const auto& intensity : intensities_)
+		for (auto& intensity : intensities_)
 		{
-			for (const auto& segment_name : intensity.segments_names_)
+			const auto n_segments = static_cast<int>(intensity.segments_names_.size());
+
+			intensity.segments_.resize(n_segments);
+
+			for (auto i_segment = 0; i_segment < n_segments; ++i_segment)
 			{
+				const auto& segment_name = intensity.segments_names_[i_segment];
+
 				auto segment_path = ul::PathUtils::normalize(ul::PathUtils::append(working_directory_, segment_name));
 
-				auto segment = DMusicSegment{};
+				auto& segment = intensity.segments_[i_segment];
 
 				if (!segment.open(segment_path, sample_rate_))
 				{
 					log_error("Failed to load a segment: \"%s\". %s",
 						segment_name.c_str(),
 						segment.get_error_message().c_str());
+
+					return LT_ERROR;
+				}
+			}
+
+			if (intensity.number_ == intensity.next_number_ && n_segments == 1)
+			{
+				if (!intensity.segments_.front().is_silence())
+				{
+					log_error("Cycled intensity \"%d\" with one segment must be a silence.",
+						intensity.number_);
 
 					return LT_ERROR;
 				}
@@ -451,6 +468,7 @@ private:
 
 
 	using Strings = std::vector<std::string>;
+	using Segments = std::vector<DMusicSegment>;
 
 
 	struct Intensity
@@ -459,6 +477,7 @@ private:
 		int loop_count_;
 		int next_number_;
 		Strings segments_names_;
+		Segments segments_;
 	}; // Intensity
 
 	using Intensities = std::vector<Intensity>;

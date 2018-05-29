@@ -3267,6 +3267,17 @@ DMusicSegment::DMusicSegment(
 {
 }
 
+DMusicSegment& DMusicSegment::operator=(
+	DMusicSegment&& that)
+{
+	if (this != std::addressof(that))
+	{
+		pimpl_ = std::move(that.pimpl_);
+	}
+
+	return *this;
+}
+
 DMusicSegment::~DMusicSegment()
 {
 }

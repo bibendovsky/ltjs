@@ -25,6 +25,9 @@ public:
 	DMusicSegment(
 		DMusicSegment&& that);
 
+	DMusicSegment& operator=(
+		DMusicSegment&& that);
+
 	~DMusicSegment();
 
 
