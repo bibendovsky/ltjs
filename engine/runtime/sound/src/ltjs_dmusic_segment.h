@@ -41,6 +41,12 @@ public:
 		std::int16_t* dst_decode_buffer,
 		float* dst_mix_buffer);
 
+	int get_length() const;
+
+	bool is_finished() const;
+
+	bool is_silence() const;
+
 
 	const std::string& get_error_message() const;
 

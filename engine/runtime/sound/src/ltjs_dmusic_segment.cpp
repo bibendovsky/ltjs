@@ -3,7 +3,7 @@
 
 #ifdef _DEBUG
 //#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
-#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_WAVES
+//#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_WAVES
 #endif // _DEBUG
 
 
@@ -176,6 +176,21 @@ public:
 		}
 
 		return mix(src_decode_size, dst_decode_buffer, dst_mix_buffer);
+	}
+
+	int api_get_length() const
+	{
+		return segment_.length_;
+	}
+
+	bool api_is_finished() const
+	{
+		return segment_.is_finished_;
+	}
+
+	bool api_is_silence() const
+	{
+		return segment_.waves_.items_.empty();
 	}
 
 	const std::string& api_get_error_message() const
@@ -1335,6 +1350,8 @@ private:
 
 	struct Segment
 	{
+		bool is_finished_;
+
 		int mix_offset_; // bytes
 		int length_; // bytes
 
@@ -2403,6 +2420,7 @@ private:
 		const auto bpu_den = static_cast<long long>(qbpm * units_per_quarter_beat); // denominator
 
 
+		segment_.is_finished_ = false;
 		segment_.mix_offset_ = 0;
 
 		// Calculate a segment length.
@@ -2607,6 +2625,7 @@ private:
 
 	bool rewind()
 	{
+		segment_.is_finished_ = false;
 		segment_.mix_offset_ = {};
 
 		auto& waves = segment_.waves_;
@@ -2680,6 +2699,7 @@ private:
 		{
 			if (segment_.waves_.active_objects_.empty())
 			{
+				segment_.is_finished_ = true;
 				return 0;
 			}
 		}
@@ -3274,6 +3294,21 @@ int DMusicSegment::mix(
 	float* dst_mix_buffer)
 {
 	return pimpl_->api_mix(src_decode_size, dst_decode_buffer, dst_mix_buffer);
+}
+
+int DMusicSegment::get_length() const
+{
+	return pimpl_->api_get_length();
+}
+
+bool DMusicSegment::is_finished() const
+{
+	return pimpl_->api_is_finished();
+}
+
+bool DMusicSegment::is_silence() const
+{
+	return pimpl_->api_is_silence();
 }
 
 const std::string& DMusicSegment::get_error_message() const
