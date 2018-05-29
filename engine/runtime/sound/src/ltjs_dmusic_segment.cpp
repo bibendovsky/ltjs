@@ -3,7 +3,7 @@
 
 #ifdef _DEBUG
 //#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
-//#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_WAVES
+#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_WAVES
 #endif // _DEBUG
 
 
@@ -2674,18 +2674,26 @@ private:
 		std::int16_t* dst_decode_buffer,
 		float* dst_mix_buffer)
 	{
-		if (segment_.mix_offset_ == segment_.length_)
+		const auto is_overlapping = (segment_.mix_offset_ >= segment_.length_);
+
+		if (is_overlapping)
 		{
-			return 0;
+			if (segment_.waves_.active_objects_.empty())
+			{
+				return 0;
+			}
 		}
 
 		const auto sample_size_per_channel = bit_depth / 8;
 		const auto sample_size = channel_count * sample_size_per_channel;
 		auto decode_size = (src_decode_size / sample_size) * sample_size;
 
-		if ((segment_.mix_offset_ + decode_size) > segment_.length_)
+		if (!is_overlapping)
 		{
-			decode_size = segment_.length_ - segment_.mix_offset_;
+			if ((segment_.mix_offset_ + decode_size) > segment_.length_)
+			{
+				decode_size = segment_.length_ - segment_.mix_offset_;
+			}
 		}
 
 		if (segment_.waves_.items_.empty())
