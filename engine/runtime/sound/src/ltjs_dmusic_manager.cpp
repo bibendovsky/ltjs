@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include "bibendovsky_spul_ascii_utils.h"
 #include "bibendovsky_spul_path_utils.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "console.h"
@@ -58,7 +59,10 @@ public:
 		initial_intensity_{},
 		initial_volume_{},
 		volume_offset_{},
-		sample_rate_{}
+		sample_rate_{},
+		intensities_{},
+		transition_map_{},
+		segment_cache_{}
 	{
 	}
 
@@ -81,7 +85,10 @@ public:
 		initial_intensity_{std::move(that.initial_intensity_)},
 		initial_volume_{std::move(that.initial_volume_)},
 		volume_offset_{std::move(that.volume_offset_)},
-		sample_rate_{std::move(that.sample_rate_)}
+		sample_rate_{std::move(that.sample_rate_)},
+		intensities_{std::move(that.intensities_)},
+		transition_map_{std::move(that.transition_map_)},
+		segment_cache_{std::move(that.segment_cache_)}
 	{
 		that.is_initialized_ = false;
 		that.is_level_initialized_ = false;
@@ -258,18 +265,14 @@ public:
 			{
 				const auto& segment_name = intensity.segments_names_[i_segment];
 
-				auto segment_path = ul::PathUtils::normalize(ul::PathUtils::append(working_directory_, segment_name));
+				auto segment = cache_segment(segment_name);
 
-				auto& segment = intensity.segments_[i_segment];
-
-				if (!segment.open(segment_path, sample_rate_))
+				if (!segment)
 				{
-					log_error("Failed to load an intensity segment: \"%s\". %s",
-						segment_name.c_str(),
-						segment.get_error_message().c_str());
-
 					return LT_ERROR;
 				}
+
+				intensity.segments_[i_segment] = segment;
 			}
 		}
 
@@ -284,16 +287,16 @@ public:
 				continue;
 			}
 
-			auto segment_path = ul::PathUtils::normalize(ul::PathUtils::append(working_directory_, transition_value.segment_name_));
+			const auto segment_name = transition_value.segment_name_;
 
-			if (!transition_value.segment_.open(segment_path, sample_rate_))
+			auto segment = cache_segment(segment_name);
+
+			if (!segment)
 			{
-				log_error("Failed to load a transition segment: \"%s\". %s",
-					transition_value.segment_name_.c_str(),
-					transition_value.segment_.get_error_message().c_str());
-
 				return LT_ERROR;
 			}
+
+			transition_item.second.segment_ = segment;
 		}
 
 		is_level_initialized_ = true;
@@ -482,7 +485,7 @@ private:
 
 
 	using Strings = std::vector<std::string>;
-	using Segments = std::vector<DMusicSegment>;
+	using SegmentPtrList = std::vector<DMusicSegment*>;
 
 
 	struct Intensity
@@ -491,7 +494,7 @@ private:
 		int loop_count_;
 		int next_number_;
 		Strings segments_names_;
-		Segments segments_;
+		SegmentPtrList segments_;
 	}; // Intensity
 
 	using Intensities = std::vector<Intensity>;
@@ -510,7 +513,7 @@ private:
 	struct TransitionMapValue
 	{
 		std::string segment_name_;
-		DMusicSegment segment_;
+		DMusicSegment* segment_;
 
 
 		TransitionMapValue()
@@ -522,6 +525,8 @@ private:
 	}; // TransitionMapValue
 
 	using TransitionMap = std::unordered_map<int, TransitionMapValue>;
+
+	using SegmentCache = std::unordered_map<std::string, DMusicSegment>;
 
 
 	const char* method_name_;
@@ -542,6 +547,7 @@ private:
 
 	Intensities intensities_;
 	TransitionMap transition_map_;
+	SegmentCache segment_cache_;
 
 
 	static const char* const unsupported_method_message;
@@ -891,6 +897,35 @@ private:
 		}
 
 		return true;
+	}
+
+	DMusicSegment* cache_segment(
+		const std::string& segment_name)
+	{
+		const auto segment_name_lc = ul::AsciiUtils::to_lower(segment_name);
+
+		auto found_segment_it = segment_cache_.find(segment_name_lc);
+
+		if (found_segment_it != segment_cache_.cend())
+		{
+			return &found_segment_it->second;
+		}
+
+		auto segment = DMusicSegment{};
+		auto segment_path = ul::PathUtils::normalize(ul::PathUtils::append(working_directory_, segment_name));
+
+		if (!segment.open(segment_path, sample_rate_))
+		{
+			log_error("Failed to load a segment: \"%s\". %s",
+				segment_name.c_str(),
+				segment.get_error_message().c_str());
+
+			return nullptr;
+		}
+
+		auto cache_item_it = segment_cache_.emplace(segment_name_lc, std::move(segment)).first;
+
+		return &cache_item_it->second;
 	}
 
 
