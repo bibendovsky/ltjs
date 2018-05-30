@@ -271,17 +271,6 @@ public:
 					return LT_ERROR;
 				}
 			}
-
-			if (intensity.number_ == intensity.next_number_ && n_segments == 1)
-			{
-				if (!intensity.segments_.front().is_silence())
-				{
-					log_error("Cycled intensity \"%d\" with one segment must be a silence.",
-						intensity.number_);
-
-					return LT_ERROR;
-				}
-			}
 		}
 
 		// Load all intensities for transitions.

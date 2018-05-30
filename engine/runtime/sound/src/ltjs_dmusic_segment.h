@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 
 namespace ltjs
@@ -14,6 +15,18 @@ namespace ltjs
 class DMusicSegment final
 {
 public:
+	struct Wave
+	{
+		int length_; // (in bytes)
+		int mix_offset_; // (int bytes)
+		std::uint32_t variations_;
+		const void* data_;
+		int data_size_;
+	}; // Wave
+
+	using Waves = std::vector<Wave>;
+
+
 	DMusicSegment();
 
 	DMusicSegment(
@@ -37,18 +50,14 @@ public:
 
 	void close();
 
-	bool rewind();
-
-	int mix(
-		const int src_decode_size,
-		std::int16_t* dst_decode_buffer,
-		float* dst_mix_buffer);
 
 	int get_length() const;
 
-	bool is_finished() const;
+	std::uint32_t get_current_variations() const;
 
-	bool is_silence() const;
+	const Waves& get_waves() const;
+
+	std::uint32_t select_next_variation();
 
 
 	const std::string& get_error_message() const;
