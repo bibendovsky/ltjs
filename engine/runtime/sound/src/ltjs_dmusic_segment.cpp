@@ -150,6 +150,11 @@ public:
 		return length_;
 	}
 
+	int api_get_channel() const
+	{
+		return channel_;
+	}
+
 	int api_get_current_variations() const
 	{
 		return current_variation_;
@@ -2947,6 +2952,11 @@ void DMusicSegment::close()
 int DMusicSegment::get_length() const
 {
 	return pimpl_->api_get_length();
+}
+
+int DMusicSegment::get_channel() const
+{
+	return pimpl_->api_get_channel();
 }
 
 std::uint32_t DMusicSegment::get_current_variations() const

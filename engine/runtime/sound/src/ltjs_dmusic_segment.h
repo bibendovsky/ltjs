@@ -18,7 +18,7 @@ public:
 	struct Wave
 	{
 		int length_; // (in bytes)
-		int mix_offset_; // (int bytes)
+		int mix_offset_; // (in bytes)
 		std::uint32_t variations_;
 		const void* data_;
 		int data_size_;
@@ -52,6 +52,8 @@ public:
 
 
 	int get_length() const;
+
+	int get_channel() const;
 
 	std::uint32_t get_current_variations() const;
 
