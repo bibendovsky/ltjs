@@ -2,6 +2,7 @@
 
 
 #ifdef _DEBUG
+// Make sure to delete ltjs_dbg_dmus001_*.txt before the dump to avoid appending new data after the old one.
 //#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 #endif // _DEBUG
 
@@ -11,7 +12,6 @@
 #include <cstdint>
 #include <algorithm>
 #include <array>
-#include <fstream>
 #include <random>
 #include <string>
 #include <type_traits>
@@ -74,7 +74,7 @@ public:
 		is_variation_no_repeat_{}
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 		,
-		debug_filebuf_{}
+		debug_001_stream_{}
 #endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 	{
 	}
@@ -104,7 +104,7 @@ public:
 		is_variation_no_repeat_{std::move(that.is_variation_no_repeat_)}
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 		,
-		debug_filebuf_{std::move(that.debug_filebuf_)}
+		debug_001_stream_{std::move(that.debug_001_stream_)}
 #endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 	{
 	}
@@ -2595,8 +2595,14 @@ private:
 	//
 
 #ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
-	std::filebuf debug_filebuf_;
+	ul::FileStream debug_001_stream_;
 
+
+	void debug_write_new_line()
+	{
+		static const char escape_n = '\n';
+		static_cast<void>(debug_001_stream_.write(&escape_n, 1));
+	}
 
 	void debug_write_string(
 		const std::string& string)
@@ -2606,19 +2612,19 @@ private:
 			return;
 		}
 
-		static_cast<void>(debug_filebuf_.sputn(string.data(), string.length()));
+		static_cast<void>(debug_001_stream_.write(string.data(), string.length()));
 	}
 
 	void debug_write_line(
 		const std::string& string)
 	{
 		debug_write_string(string);
-		static_cast<void>(debug_filebuf_.sputc('\n'));
+		debug_write_new_line();
 	}
 
 	void debug_write_line()
 	{
-		static_cast<void>(debug_filebuf_.sputc('\n'));
+		debug_write_new_line();
 	}
 
 	template<int TBitCount>
@@ -2659,9 +2665,7 @@ private:
 		ul::AsciiUtils::to_lower_i(file_path);
 		file_path = "ltjs_dbg_dmus001_" + file_path + ".txt";
 
-		static_cast<void>(debug_filebuf_.open(file_path, std::ios_base::out | std::ios_base::binary | std::ios_base::app));
-
-		if (!debug_filebuf_.is_open())
+		if (!debug_001_stream_.open(file_path, ul::Stream::OpenMode::write | ul::Stream::OpenMode::at_the_end))
 		{
 			return;
 		}
@@ -2883,7 +2887,7 @@ private:
 
 		debug_write_line("=============================================================================");
 
-		debug_filebuf_.close();
+		debug_001_stream_.close();
 	}
 #endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 
