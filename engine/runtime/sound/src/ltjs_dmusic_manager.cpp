@@ -246,6 +246,8 @@ public:
 			return LT_ERROR;
 		}
 
+		// Load all segments for intensities.
+		//
 		for (auto& intensity : intensities_)
 		{
 			const auto n_segments = static_cast<int>(intensity.segments_names_.size());
@@ -262,7 +264,7 @@ public:
 
 				if (!segment.open(segment_path, sample_rate_))
 				{
-					log_error("Failed to load a segment: \"%s\". %s",
+					log_error("Failed to load an intensity segment: \"%s\". %s",
 						segment_name.c_str(),
 						segment.get_error_message().c_str());
 
@@ -279,6 +281,29 @@ public:
 
 					return LT_ERROR;
 				}
+			}
+		}
+
+		// Load all intensities for transitions.
+		//
+		for (auto& transition_item : transition_map_)
+		{
+			auto& transition_value = transition_item.second;
+
+			if (transition_value.segment_name_.empty())
+			{
+				continue;
+			}
+
+			auto segment_path = ul::PathUtils::normalize(ul::PathUtils::append(working_directory_, transition_value.segment_name_));
+
+			if (!transition_value.segment_.open(segment_path, sample_rate_))
+			{
+				log_error("Failed to load a transition segment: \"%s\". %s",
+					transition_value.segment_name_.c_str(),
+					transition_value.segment_.get_error_message().c_str());
+
+				return LT_ERROR;
 			}
 		}
 
@@ -493,7 +518,21 @@ private:
 		}
 	}; // TransitionMapKey
 
-	using TransitionMap = std::unordered_map<int, std::string>;
+	struct TransitionMapValue
+	{
+		std::string segment_name_;
+		DMusicSegment segment_;
+
+
+		TransitionMapValue()
+			:
+			segment_name_{},
+			segment_{}
+		{
+		}
+	}; // TransitionMapValue
+
+	using TransitionMap = std::unordered_map<int, TransitionMapValue>;
 
 
 	const char* method_name_;
@@ -851,7 +890,10 @@ private:
 			//
 			const auto transition_key = TransitionMapKey::encode(from_number, to_number);
 
-			transition_map_.emplace(transition_key, segment_name);
+			auto transition_value = TransitionMapValue{};
+			transition_value.segment_name_ = segment_name;
+
+			transition_map_.emplace(transition_key, std::move(transition_value));
 
 
 			// Move to next key.

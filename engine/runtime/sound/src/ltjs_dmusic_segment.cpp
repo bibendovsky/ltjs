@@ -638,6 +638,22 @@ private:
 			sine = 4,
 		}; // Type
 
+		struct Flags :
+			ul::EnumFlagsT<std::uint8_t>
+		{
+			Flags(const Value flags = none)
+				:
+				EnumFlagsT<std::uint8_t>{flags}
+			{
+			}
+
+			enum : Value
+			{
+				reset = 0B0000'0001,
+				start_from_current = 0B0000'0010,
+			}; // Value
+		}; // Flags
+
 
 		IoMusicTime8 mt_start_;
 		IoMusicTime8 mt_duration_;
@@ -650,7 +666,7 @@ private:
 		Type type_;
 		Shape curve_shape_;
 		std::uint8_t cc_data_;
-		std::uint8_t flags_;
+		Flags flags_;
 		std::uint16_t param_type_;
 		std::uint16_t merge_index_;
 
@@ -725,9 +741,9 @@ private:
 				return false;
 			}
 
-			if (mt_reset_duration_ != 0)
+			if (mt_reset_duration_ < 0)
 			{
-				error_message = "Expected zero music reset duration.";
+				error_message = "Negative music reset duration.";
 				return false;
 			}
 
@@ -739,21 +755,21 @@ private:
 				return false;
 			}
 
-			if (start_value_ <= 0)
+			if (start_value_ < 0)
 			{
-				error_message = "Expected positive start value.";
+				error_message = "Negative start value.";
 				return false;
 			}
 
-			if (end_value_ <= 0)
+			if (end_value_ < 0)
 			{
-				error_message = "Expected positive end value.";
+				error_message = "Negative end value.";
 				return false;
 			}
 
-			if (reset_value_ != 0)
+			if (reset_value_ < 0)
 			{
-				error_message = "Expected zero reset value.";
+				error_message = "Negative reset value.";
 				return false;
 			}
 
@@ -763,17 +779,19 @@ private:
 				return false;
 			}
 
-			if (!(curve_shape_ == Shape::instant || curve_shape_ == Shape::sine))
+			if (!(curve_shape_ == Shape::instant ||
+				curve_shape_ == Shape::sine ||
+				curve_shape_ == Shape::exponential))
 			{
-				error_message = "Expected instant or sine curve shape.";
+				error_message = "Unsupported curve shape.";
 				return false;
 			}
 
 			// Skip CC data.
 
-			if (flags_ != 0)
+			if (!(flags_ == Flags::none || flags_ == Flags::reset || flags_ == Flags::start_from_current))
 			{
-				error_message = "Expected zero flags.";
+				error_message = "Unsupported flags.";
 				return false;
 			}
 
@@ -1834,8 +1852,8 @@ private:
 
 			if (!cache_item.lt_stream_)
 			{
-				error_message_ = "Failed to open: \"" + file_path + "\".";
-				return false;
+				// TODO warning
+				continue;
 			}
 
 			const auto lt_file_size = cache_item.lt_stream_->GetLen();
@@ -1861,6 +1879,11 @@ private:
 		{
 			auto& cache_item = map_item.second;
 
+			if (!cache_item.lt_stream_)
+			{
+				continue;
+			}
+
 			const auto lt_result = cache_item.lt_stream_->Read(&wave_cache_[cache_item.offset_], cache_item.size_);
 
 			if (lt_result != LT_OK)
@@ -1884,6 +1907,11 @@ private:
 
 			auto map_it = map.find(file_name_lc);
 			auto& cache_item = map_it->second;
+
+			if (cache_item.size_ <= 0)
+			{
+				continue;
+			}
 
 			const auto open_result = reference.file_stream_.open(
 				&wave_cache_[cache_item.offset_], cache_item.size_, ul::Stream::OpenMode::read);
