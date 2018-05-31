@@ -11,11 +11,14 @@
 
 
 #include <cstdio>
+#include <algorithm>
+#include <list>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 #include "bibendovsky_spul_ascii_utils.h"
+#include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_path_utils.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "console.h"
@@ -62,7 +65,20 @@ public:
 		sample_rate_{},
 		intensities_{},
 		transition_map_{},
-		segment_cache_{}
+		segment_cache_{},
+		mix_offset_{},
+		mix_sample_count_{},
+		mix_s16_size_{},
+		mix_f_size_{},
+		current_intensity_index_{},
+		current_segment_index_{},
+		current_segment_{},
+		transition_segment_{},
+		active_waves_{},
+		inactive_waves_{},
+		decoder_buffer_{},
+		device_buffer_{},
+		mix_buffer_{}
 	{
 	}
 
@@ -88,7 +104,20 @@ public:
 		sample_rate_{std::move(that.sample_rate_)},
 		intensities_{std::move(that.intensities_)},
 		transition_map_{std::move(that.transition_map_)},
-		segment_cache_{std::move(that.segment_cache_)}
+		segment_cache_{std::move(that.segment_cache_)},
+		mix_offset_{std::move(that.mix_offset_)},
+		mix_sample_count_{std::move(that.mix_sample_count_)},
+		mix_s16_size_{std::move(that.mix_s16_size_)},
+		mix_f_size_{std::move(that.mix_f_size_)},
+		current_intensity_index_{std::move(that.current_intensity_index_)},
+		current_segment_index_{std::move(that.current_segment_index_)},
+		current_segment_{std::move(that.current_segment_)},
+		transition_segment_{std::move(that.transition_segment_)},
+		active_waves_{std::move(that.active_waves_)},
+		inactive_waves_{std::move(that.inactive_waves_)},
+		decoder_buffer_{std::move(that.decoder_buffer_)},
+		device_buffer_{std::move(that.device_buffer_)},
+		mix_buffer_{std::move(that.mix_buffer_)}
 	{
 		that.is_initialized_ = false;
 		that.is_level_initialized_ = false;
@@ -299,6 +328,26 @@ public:
 			transition_item.second.segment_ = segment;
 		}
 
+		mix_offset_ = 0;
+		mix_sample_count_ = (channel_count * sample_rate_ * mix_size_ms) / 1000;
+		mix_s16_size_ = mix_sample_count_ * byte_depth;
+		mix_f_size_ = mix_sample_count_ * byte_depth_f;
+
+		current_intensity_index_ = {};
+		current_segment_index_ = {};
+		current_segment_ = {};
+		transition_segment_ = {};
+		active_waves_.clear();
+		inactive_waves_.clear();
+		decoder_buffer_.resize(mix_sample_count_);
+		device_buffer_.resize(mix_sample_count_);
+		mix_buffer_.resize(mix_sample_count_);
+
+		while (true)
+		{
+			mix();
+		}
+
 		is_level_initialized_ = true;
 
 		return LT_OK;
@@ -481,6 +530,15 @@ public:
 
 
 private:
+	static constexpr auto channel_count = 2;
+	static constexpr auto bit_depth = 16;
+	static constexpr auto byte_depth = bit_depth / 8;
+	static constexpr auto byte_depth_f = static_cast<int>(sizeof(float));
+	static constexpr auto sample_size = channel_count * byte_depth;
+
+	// Size of decoder buffer, mix buffer and device buffer in milliseconds.
+	static constexpr auto mix_size_ms = 50;
+
 	static constexpr auto max_intensity = 999;
 
 
@@ -529,6 +587,54 @@ private:
 	using SegmentCache = std::unordered_map<std::string, DMusicSegment>;
 
 
+	struct Wave
+	{
+		bool is_started_;
+		bool is_finished_;
+		std::uint32_t channel_;
+		int decoded_offset_; // (int bytes)
+		int length_; // (in bytes)
+		std::int64_t mix_offset_; // (in bytes)
+		ul::MemoryStream stream_;
+		ltjs::AudioDecoder decoder_;
+
+
+		Wave()
+			:
+			is_started_{},
+			is_finished_{},
+			channel_{},
+			decoded_offset_{},
+			length_{},
+			mix_offset_{},
+			stream_{},
+			decoder_{}
+		{
+		}
+	}; // Wave
+
+	struct Segment
+	{
+		std::int64_t begin_mix_offset_;
+		std::int64_t end_mix_offset_;
+		DMusicSegment* d_segment_;
+
+
+		Segment()
+			:
+			begin_mix_offset_{},
+			end_mix_offset_{},
+			d_segment_{}
+		{
+		}
+	}; // Segment
+
+	using Waves = std::list<Wave>;
+
+	using BufferS16 = std::vector<std::int16_t>;
+	using BufferF = std::vector<float>;
+
+
 	const char* method_name_;
 
 	ILTSoundSys* sound_sys_;
@@ -548,6 +654,23 @@ private:
 	Intensities intensities_;
 	TransitionMap transition_map_;
 	SegmentCache segment_cache_;
+
+	int mix_sample_count_;
+	int mix_s16_size_;
+	int mix_f_size_;
+	std::int64_t mix_offset_;
+
+	int current_intensity_index_; // (one-based)
+	int current_segment_index_;
+	Segment current_segment_;
+	Segment transition_segment_;
+
+	Waves active_waves_;
+	Waves inactive_waves_;
+
+	BufferS16 decoder_buffer_;
+	BufferS16 device_buffer_;
+	BufferF mix_buffer_;
 
 
 	static const char* const unsupported_method_message;
@@ -926,6 +1049,215 @@ private:
 		auto cache_item_it = segment_cache_.emplace(segment_name_lc, std::move(segment)).first;
 
 		return &cache_item_it->second;
+	}
+
+	void mix()
+	{
+		std::uninitialized_fill(mix_buffer_.begin(), mix_buffer_.end(), 0.0F);
+
+		auto mix_offset = 0;
+		auto end_mix_offset = mix_offset_ + mix_s16_size_;
+
+		while (mix_offset < mix_s16_size_)
+		{
+			const auto remain_mix_size = mix_s16_size_ - mix_offset;
+
+			if (current_intensity_index_ == 0)
+			{
+				current_intensity_index_ = initial_intensity_;
+				current_segment_index_ = 0;
+				current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_.front();
+				current_segment_.begin_mix_offset_ = mix_offset_ + mix_offset;
+				current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + current_segment_.d_segment_->get_length();
+				transition_segment_ = {};
+
+				queue_waves(mix_offset);
+			}
+
+			for (auto i_wave = inactive_waves_.begin(); i_wave != inactive_waves_.end(); )
+			{
+				auto i = i_wave;
+				auto i_next = ++i_wave;
+
+				const auto adjusted_mix_offset = mix_offset_ + mix_offset;
+
+				if (i->mix_offset_ >= adjusted_mix_offset && i->mix_offset_ < (adjusted_mix_offset + i->length_))
+				{
+					active_waves_.emplace_back(std::move(*i));
+					inactive_waves_.erase(i);
+				}
+
+				i_wave = i_next;
+			}
+
+			for (auto& wave : active_waves_)
+			{
+				auto additional_mix_offset = 0;
+
+				if (!wave.is_started_)
+				{
+					wave.is_started_ = true;
+
+					if (wave.mix_offset_ < (mix_offset_ + mix_offset))
+					{
+						additional_mix_offset = static_cast<int>(mix_offset_ - wave.mix_offset_ - mix_offset);
+						wave.decoded_offset_ = additional_mix_offset;
+					}
+
+					auto decoder_param = ltjs::AudioDecoder::OpenParameters{};
+					decoder_param.dst_bit_depth_ = bit_depth;
+					decoder_param.dst_channel_count_ = channel_count;
+					decoder_param.dst_sample_rate_ = sample_rate_;
+					decoder_param.stream_ptr_ = &wave.stream_;
+
+					if (!wave.decoder_.open(decoder_param))
+					{
+						wave.is_finished_ = true;
+						continue;
+					}
+
+				}
+
+				auto remain_size = wave.length_ - wave.decoded_offset_;
+
+				if (remain_size > remain_mix_size)
+				{
+					remain_size = remain_mix_size;
+				}
+
+				remain_size /= byte_depth;
+				remain_size *= byte_depth;
+
+				const auto decoded_size = wave.decoder_.decode(decoder_buffer_.data(), remain_size);
+
+				if (decoded_size > 0)
+				{
+					const auto sample_count = decoded_size / byte_depth;
+					const auto adjusted_decoded_size = sample_count * byte_depth;
+
+					for (auto i = 0; i < sample_count; ++i)
+					{
+						mix_buffer_[i + additional_mix_offset] += decoder_buffer_[i] / 32768.0F;
+					}
+
+					wave.decoded_offset_ += adjusted_decoded_size;
+
+					if (wave.decoded_offset_ == wave.length_)
+					{
+						wave.is_finished_ = true;
+					}
+				}
+				else
+				{
+					wave.is_finished_ = true;
+				}
+			}
+
+			std::remove_if(
+				active_waves_.begin(),
+				active_waves_.end(),
+				[](const auto& item)
+				{
+					return item.is_finished_;
+				}
+			);
+
+			if (current_segment_.end_mix_offset_ <= end_mix_offset)
+			{
+				select_next_segment(mix_offset);
+
+				mix_offset = static_cast<int>(end_mix_offset - current_segment_.end_mix_offset_);
+			}
+			else
+			{
+				mix_offset = mix_s16_size_;
+			}
+		}
+
+		mix_offset_ += mix_s16_size_;
+	}
+
+	void queue_waves(
+		const int additional_mix_offset)
+	{
+		auto d_segment = current_segment_.d_segment_;
+
+		const auto channel = d_segment->get_channel();
+		const auto variation = d_segment->select_next_variation();
+		const auto& segment_waves = d_segment->get_waves();
+
+		current_segment_.begin_mix_offset_ = mix_offset_;
+		current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + d_segment->get_length();
+
+		for (const auto& segment_wave : segment_waves)
+		{
+			auto wave = Wave{};
+			wave.length_ = segment_wave.length_;
+			wave.channel_ = channel;
+			wave.mix_offset_ = mix_offset_ + additional_mix_offset + segment_wave.mix_offset_;
+
+			if (!wave.stream_.open(segment_wave.data_, segment_wave.data_size_))
+			{
+				continue;
+			}
+
+			inactive_waves_.emplace_back(std::move(wave));
+		}
+	}
+
+	void select_next_segment(
+		const int additional_mix_offset)
+	{
+		if (transition_segment_.d_segment_)
+		{
+			current_intensity_index_ = intensities_[current_intensity_index_].next_number_;
+			current_segment_index_ = 0;
+			current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_.front();
+			current_segment_.begin_mix_offset_ = mix_offset_ + additional_mix_offset;
+			current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + current_segment_.d_segment_->get_length();
+
+			transition_segment_.d_segment_ = nullptr;
+		}
+		else
+		{
+			const auto& intensity = intensities_[current_intensity_index_];
+
+			const auto& segments = intensity.segments_;
+			const auto segment_count = static_cast<int>(segments.size());
+
+			if (current_segment_index_ == (segment_count - 1))
+			{
+				const auto transition_key = TransitionMapKey::encode(intensity.number_, intensity.next_number_);
+
+				auto map_it = transition_map_.find(transition_key);
+
+				if (map_it != transition_map_.cend() && map_it->second.segment_)
+				{
+					transition_segment_.d_segment_ = map_it->second.segment_;
+
+					current_segment_.d_segment_ = transition_segment_.d_segment_;
+					current_segment_.begin_mix_offset_ = mix_offset_ + additional_mix_offset;
+					current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + current_segment_.d_segment_->get_length();
+				}
+				else
+				{
+					current_intensity_index_ = intensities_[current_intensity_index_].next_number_;
+					current_segment_index_ = 0;
+					current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_[current_segment_index_];
+				}
+			}
+			else
+			{
+				current_segment_index_ += 1;
+
+				current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_[current_segment_index_];
+
+				current_segment_.begin_mix_offset_ = mix_offset_ + additional_mix_offset;
+				current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + current_segment_.d_segment_->get_length();
+			}
+		}
+
+		queue_waves(additional_mix_offset);
 	}
 
 
