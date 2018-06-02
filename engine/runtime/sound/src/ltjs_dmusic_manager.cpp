@@ -343,7 +343,7 @@ public:
 		device_buffer_.resize(mix_sample_count_);
 		mix_buffer_.resize(mix_sample_count_);
 
-		static_cast<void>(select_next_segment(0));
+		select_next_segment(0);
 
 		while (true)
 		{
@@ -1065,6 +1065,11 @@ private:
 
 		while (mix_offset < mix_s16_size_)
 		{
+			if (current_intensity_index_ == 0 && active_waves_.empty() && inactive_waves_.empty())
+			{
+				return false;
+			}
+
 			const auto remain_mix_size = mix_s16_size_ - mix_offset;
 
 			for (auto i_wave = inactive_waves_.begin(); i_wave != inactive_waves_.end(); )
@@ -1155,15 +1160,13 @@ private:
 				}
 			);
 
-			if (current_segment_.end_mix_offset_ <= end_mix_offset)
+			if (current_intensity_index_ > 0 && current_segment_.end_mix_offset_ <= end_mix_offset)
 			{
-				if (!select_next_segment(mix_offset))
-				{
-					mix_offset_ += mix_s16_size_;
-					return false;
-				}
+				const auto adjusted_mix_offset = mix_offset;
 
 				mix_offset = static_cast<int>(end_mix_offset - current_segment_.end_mix_offset_);
+
+				select_next_segment(adjusted_mix_offset);
 			}
 			else
 			{
@@ -1209,23 +1212,29 @@ private:
 		}
 	}
 
-	bool select_next_segment(
+	void select_next_segment(
 		const int additional_mix_offset)
 	{
 		if (current_intensity_index_ == 0)
 		{
-			return false;
+			return;
 		}
 
 		if (current_intensity_index_ < 0)
 		{
-			if (initial_intensity_ <= 0)
-			{
-				return false;
-			}
+			// Fresh start.
+			//
+
+			active_waves_.clear();
+			inactive_waves_.clear();
 
 			current_intensity_index_ = initial_intensity_;
 			current_segment_index_ = 0;
+
+			if (current_intensity_index_ == 0)
+			{
+				return;
+			}
 
 			current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_.front();
 
@@ -1234,11 +1243,14 @@ private:
 		}
 		else if (transition_segment_.d_segment_)
 		{
+			// From a transition segment to the next intensity.
+			//
+
 			current_intensity_index_ = intensities_[current_intensity_index_].next_number_;
 
 			if (current_intensity_index_ == 0)
 			{
-				return false;
+				return;
 			}
 
 			current_segment_index_ = 0;
@@ -1250,6 +1262,9 @@ private:
 		}
 		else
 		{
+			// From a current intensity to the next segment or the next intensity.
+			//
+
 			const auto& intensity = intensities_[current_intensity_index_];
 
 			const auto& segments = intensity.segments_;
@@ -1257,12 +1272,19 @@ private:
 
 			if (current_segment_index_ == (segment_count - 1))
 			{
+				// The last segment.
+				//
+
+				// At-first, check for a transition segment.
+				//
 				const auto transition_key = TransitionMapKey::encode(intensity.number_, intensity.next_number_);
 
 				auto map_it = transition_map_.find(transition_key);
 
 				if (map_it != transition_map_.cend() && map_it->second.segment_)
 				{
+					// Has transition segment. Use it.
+					//
 					transition_segment_.d_segment_ = map_it->second.segment_;
 
 					current_segment_.d_segment_ = transition_segment_.d_segment_;
@@ -1271,11 +1293,14 @@ private:
 				}
 				else
 				{
+					// Does not have transition segment. Move to the next intensity.
+					//
+
 					current_intensity_index_ = intensities_[current_intensity_index_].next_number_;
 
 					if (current_intensity_index_ == 0)
 					{
-						return false;
+						return;
 					}
 
 					current_segment_index_ = 0;
@@ -1284,6 +1309,9 @@ private:
 			}
 			else
 			{
+				// Not the last segment. Move to the next segment.
+				//
+
 				current_segment_index_ += 1;
 
 				current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_[current_segment_index_];
@@ -1293,9 +1321,9 @@ private:
 			}
 		}
 
+		// Finally, queue the items of the current segment.
+		//
 		queue_waves(additional_mix_offset);
-
-		return true;
 	}
 
 
