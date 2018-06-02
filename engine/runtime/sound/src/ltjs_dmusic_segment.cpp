@@ -2483,6 +2483,17 @@ private:
 				wave.data_size_ = io_wave_ref.data_size_;
 			}
 		}
+
+		// Order wave items by mix offset.
+		//
+		std::sort(
+			waves_.begin(),
+			waves_.end(),
+			[](const auto& lhs, const auto& rhs)
+			{
+				return lhs.mix_offset_ < rhs.mix_offset_;
+			}
+		);
 	}
 
 	bool open_internal(
