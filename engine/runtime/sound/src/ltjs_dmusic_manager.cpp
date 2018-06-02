@@ -70,10 +70,11 @@ public:
 		mix_sample_count_{},
 		mix_s16_size_{},
 		mix_f_size_{},
+		enforce_intensity_index_{},
 		current_intensity_index_{},
 		current_segment_index_{},
 		current_segment_{},
-		transition_segment_{},
+		transition_d_segment_{},
 		active_waves_{},
 		inactive_waves_{},
 		decoder_buffer_{},
@@ -109,10 +110,11 @@ public:
 		mix_sample_count_{std::move(that.mix_sample_count_)},
 		mix_s16_size_{std::move(that.mix_s16_size_)},
 		mix_f_size_{std::move(that.mix_f_size_)},
+		enforce_intensity_index_{std::move(that.enforce_intensity_index_)},
 		current_intensity_index_{std::move(that.current_intensity_index_)},
 		current_segment_index_{std::move(that.current_segment_index_)},
 		current_segment_{std::move(that.current_segment_)},
-		transition_segment_{std::move(that.transition_segment_)},
+		transition_d_segment_{std::move(that.transition_d_segment_)},
 		active_waves_{std::move(that.active_waves_)},
 		inactive_waves_{std::move(that.inactive_waves_)},
 		decoder_buffer_{std::move(that.decoder_buffer_)},
@@ -336,7 +338,7 @@ public:
 		current_intensity_index_ = -1;
 		current_segment_index_ = {};
 		current_segment_ = {};
-		transition_segment_ = {};
+		transition_d_segment_ = {};
 		active_waves_.clear();
 		inactive_waves_.clear();
 		decoder_buffer_.resize(mix_sample_count_);
@@ -665,10 +667,22 @@ private:
 	int mix_f_size_;
 	std::int64_t mix_offset_;
 
-	int current_intensity_index_; // (one-based)
+	// -1 - don't enforce.
+	// 0 - don't queue any items anymore.
+	// 1..n - the enforced intensity index.
+	int enforce_intensity_index_;
+
+	// -1 - fresh start.
+	// 0 - don't queue any items anymore.
+	// 1..n - the intensity index.
+	int current_intensity_index_;
+
+	// -1 - select first.
+	// 0..n - select next.
 	int current_segment_index_;
+
 	Segment current_segment_;
-	Segment transition_segment_;
+	DMusicSegment* transition_d_segment_;
 
 	Waves active_waves_;
 	Waves inactive_waves_;
@@ -1212,9 +1226,28 @@ private:
 		}
 	}
 
+	void set_current_segment_offsets(
+		const int additional_mix_offset)
+	{
+		current_segment_.begin_mix_offset_ = mix_offset_ + additional_mix_offset;
+		current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + current_segment_.d_segment_->get_length();
+	}
+
 	void select_next_segment(
 		const int additional_mix_offset)
 	{
+		if (enforce_intensity_index_ >= 0)
+		{
+			// TODO Activate a fading for active waves.
+			//
+
+			current_intensity_index_ = enforce_intensity_index_;
+			current_segment_index_ = -1;
+			transition_d_segment_ = nullptr;
+
+			enforce_intensity_index_ = -1;
+		}
+
 		if (current_intensity_index_ == 0)
 		{
 			return;
@@ -1237,11 +1270,11 @@ private:
 			}
 
 			current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_.front();
+			set_current_segment_offsets(additional_mix_offset);
 
-			current_segment_.begin_mix_offset_ = mix_offset_ + additional_mix_offset;
-			current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + current_segment_.d_segment_->get_length();
+			transition_d_segment_ = nullptr;
 		}
-		else if (transition_segment_.d_segment_)
+		else if (transition_d_segment_)
 		{
 			// From a transition segment to the next intensity.
 			//
@@ -1255,10 +1288,9 @@ private:
 
 			current_segment_index_ = 0;
 			current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_.front();
-			current_segment_.begin_mix_offset_ = mix_offset_ + additional_mix_offset;
-			current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + current_segment_.d_segment_->get_length();
+			set_current_segment_offsets(additional_mix_offset);
 
-			transition_segment_.d_segment_ = nullptr;
+			transition_d_segment_ = nullptr;
 		}
 		else
 		{
@@ -1270,7 +1302,7 @@ private:
 			const auto& segments = intensity.segments_;
 			const auto segment_count = static_cast<int>(segments.size());
 
-			if (current_segment_index_ == (segment_count - 1))
+			if (current_segment_index_ >= 0 && current_segment_index_ == (segment_count - 1))
 			{
 				// The last segment.
 				//
@@ -1285,11 +1317,10 @@ private:
 				{
 					// Has transition segment. Use it.
 					//
-					transition_segment_.d_segment_ = map_it->second.segment_;
+					transition_d_segment_ = map_it->second.segment_;
 
-					current_segment_.d_segment_ = transition_segment_.d_segment_;
-					current_segment_.begin_mix_offset_ = mix_offset_ + additional_mix_offset;
-					current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + current_segment_.d_segment_->get_length();
+					current_segment_.d_segment_ = transition_d_segment_;
+					set_current_segment_offsets(additional_mix_offset);
 				}
 				else
 				{
@@ -1305,6 +1336,7 @@ private:
 
 					current_segment_index_ = 0;
 					current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_.front();
+					set_current_segment_offsets(additional_mix_offset);
 				}
 			}
 			else
@@ -1312,12 +1344,17 @@ private:
 				// Not the last segment. Move to the next segment.
 				//
 
-				current_segment_index_ += 1;
+				if (current_segment_index_ < 0)
+				{
+					current_segment_index_ = 0;
+				}
+				else
+				{
+					current_segment_index_ += 1;
+				}
 
 				current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_[current_segment_index_];
-
-				current_segment_.begin_mix_offset_ = mix_offset_ + additional_mix_offset;
-				current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + current_segment_.d_segment_->get_length();
+				set_current_segment_offsets(additional_mix_offset);
 			}
 		}
 
