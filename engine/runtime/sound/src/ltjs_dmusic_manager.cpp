@@ -7,6 +7,9 @@
 #ifdef _DEBUG
 #define LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
 #define LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
+
+#define LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+#define LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2
 #endif // _DEBUG
 
 
@@ -18,9 +21,14 @@
 #include <utility>
 #include <vector>
 #include "bibendovsky_spul_ascii_utils.h"
+#include "bibendovsky_spul_endian.h"
+#include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_path_utils.h"
+#include "bibendovsky_spul_riff_four_ccs.h"
 #include "bibendovsky_spul_scope_guard.h"
+#include "bibendovsky_spul_wave_format_utils.h"
+#include "bibendovsky_spul_wave_four_ccs.h"
 #include "console.h"
 #include "ltpvalue.h"
 #include "soundmgr.h"
@@ -75,8 +83,7 @@ public:
 		current_segment_index_{},
 		current_segment_{},
 		transition_d_segment_{},
-		active_waves_{},
-		inactive_waves_{},
+		waves_{},
 		decoder_buffer_{},
 		device_buffer_{},
 		mix_buffer_{}
@@ -115,8 +122,7 @@ public:
 		current_segment_index_{std::move(that.current_segment_index_)},
 		current_segment_{std::move(that.current_segment_)},
 		transition_d_segment_{std::move(that.transition_d_segment_)},
-		active_waves_{std::move(that.active_waves_)},
-		inactive_waves_{std::move(that.inactive_waves_)},
+		waves_{std::move(that.waves_)},
 		decoder_buffer_{std::move(that.decoder_buffer_)},
 		device_buffer_{std::move(that.device_buffer_)},
 		mix_buffer_{std::move(that.mix_buffer_)}
@@ -331,29 +337,29 @@ public:
 		}
 
 		mix_offset_ = 0;
-		mix_sample_count_ = (channel_count * sample_rate_ * mix_size_ms) / 1000;
-		mix_s16_size_ = mix_sample_count_ * byte_depth;
+
+		const auto mix_sample_size = byte_depth * channel_count;
+
+		mix_s16_size_ = (mix_sample_size * sample_rate_ * mix_size_ms) / 1000;
+		mix_s16_size_ += mix_sample_size - 1;
+		mix_s16_size_ /= mix_sample_size;
+		mix_s16_size_ *= mix_sample_size;
+
+		mix_sample_count_ = mix_s16_size_ / byte_depth;
 		mix_f_size_ = mix_sample_count_ * byte_depth_f;
 
 		current_intensity_index_ = -1;
 		current_segment_index_ = {};
 		current_segment_ = {};
 		transition_d_segment_ = {};
-		active_waves_.clear();
-		inactive_waves_.clear();
+		waves_.clear();
 		decoder_buffer_.resize(mix_sample_count_);
 		device_buffer_.resize(mix_sample_count_);
 		mix_buffer_.resize(mix_sample_count_);
 
-		select_next_segment(0);
-
-		while (true)
-		{
-			if (!mix())
-			{
-				break;
-			}
-		}
+#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+		dbg_002_is_active_ = false;
+#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
 
 		is_level_initialized_ = true;
 
@@ -374,11 +380,36 @@ public:
 			return LT_OK;
 		}
 
-		intensities_.clear();
-		transition_map_.clear();
-
 		working_directory_.clear();
 		control_file_name_.clear();
+
+		intensity_count_ = 0;
+		initial_intensity_ = 0;
+		initial_volume_ = 0;
+		volume_offset_ = 0;
+		sample_rate_ = 0;
+
+		intensities_.clear();
+		transition_map_.clear();
+		segment_cache_.clear();
+
+		mix_sample_count_ = 0;
+		mix_s16_size_ = 0;
+		mix_f_size_ = 0;
+		mix_offset_ = 0;
+
+		enforce_intensity_index_ = -1;
+		current_intensity_index_ = -1;
+		current_segment_index_ = -1;
+
+		current_segment_ = {};
+		transition_d_segment_ = nullptr;
+
+		waves_.clear();
+
+		decoder_buffer_.clear();
+		device_buffer_.clear();
+		mix_buffer_.clear();
 
 		is_level_initialized_ = false;
 
@@ -544,7 +575,8 @@ private:
 	static constexpr auto sample_size = channel_count * byte_depth;
 
 	// Size of decoder buffer, mix buffer and device buffer in milliseconds.
-	static constexpr auto mix_size_ms = 50;
+	//static constexpr auto mix_size_ms = 50;
+	static constexpr auto mix_size_ms = 77;
 
 	static constexpr auto max_intensity = 999;
 
@@ -596,10 +628,11 @@ private:
 
 	struct Wave
 	{
+		bool is_active_;
 		bool is_started_;
 		bool is_finished_;
 		std::uint32_t channel_;
-		int decoded_offset_; // (int bytes)
+		int decoded_offset_; // (in bytes)
 		int length_; // (in bytes)
 		std::int64_t mix_offset_; // (in bytes)
 		ul::MemoryStream stream_;
@@ -608,6 +641,7 @@ private:
 
 		Wave()
 			:
+			is_active_{},
 			is_started_{},
 			is_finished_{},
 			channel_{},
@@ -669,7 +703,7 @@ private:
 
 	// -1 - don't enforce.
 	// 0 - don't queue any items anymore.
-	// 1..n - the enforced intensity index.
+	// 1..n - set a new intensity index.
 	int enforce_intensity_index_;
 
 	// -1 - fresh start.
@@ -684,8 +718,7 @@ private:
 	Segment current_segment_;
 	DMusicSegment* transition_d_segment_;
 
-	Waves active_waves_;
-	Waves inactive_waves_;
+	Waves waves_;
 
 	BufferS16 decoder_buffer_;
 	BufferS16 device_buffer_;
@@ -1070,131 +1103,167 @@ private:
 		return &cache_item_it->second;
 	}
 
+	//
+	// Mixes the segments.
+	//
+	// Returns:
+	//    - "true" - if there is more data available.
+	//    - "false" - this is a last data block.
+	//
 	bool mix()
 	{
 		std::uninitialized_fill(mix_buffer_.begin(), mix_buffer_.end(), 0.0F);
 
-		auto mix_offset = 0;
-		auto end_mix_offset = mix_offset_ + mix_s16_size_;
+		auto mix_delta_offset = 0;
 
-		while (mix_offset < mix_s16_size_)
+		while (true)
 		{
-			if (current_intensity_index_ == 0 && active_waves_.empty() && inactive_waves_.empty())
+			if (current_intensity_index_ < 0 || enforce_intensity_index_ >= 0)
 			{
-				return false;
+				// Fresh start or enforced intensity.
+				//
+
+				// TODO
+				// Fade remaining items and remove inactive ones if intensity is enforced.
+
+				select_next_segment(mix_delta_offset);
+				continue;
 			}
 
-			const auto remain_mix_size = mix_s16_size_ - mix_offset;
-
-			for (auto i_wave = inactive_waves_.begin(); i_wave != inactive_waves_.end(); )
+			if (current_intensity_index_ == 0)
 			{
-				auto i = i_wave;
-				auto i_next = ++i_wave;
-
-				const auto adjusted_mix_offset = mix_offset_ + mix_offset;
-
-				if (i->mix_offset_ >= adjusted_mix_offset && i->mix_offset_ < (adjusted_mix_offset + i->length_))
-				{
-					active_waves_.emplace_back(std::move(*i));
-					inactive_waves_.erase(i);
-				}
-
-				i_wave = i_next;
+				// No more segments.
+				// Just playback queued items.
+				//
+				break;
 			}
 
-			for (auto& wave : active_waves_)
+			if (current_segment_.end_mix_offset_ >= mix_offset_ &&
+				current_segment_.end_mix_offset_ < (mix_offset_ + mix_s16_size_))
 			{
-				auto additional_mix_offset = 0;
+				// The current segment is ended in this mixing window.
+				// Select the next segment, queue items and etc.
+				//
+				mix_delta_offset = static_cast<int>(current_segment_.end_mix_offset_ - mix_offset_);
+				select_next_segment(mix_delta_offset);
+			}
+			else
+			{
+				break;
+			}
+		}
 
-				if (!wave.is_started_)
+		if (current_intensity_index_ == 0 && waves_.empty())
+		{
+			// No more segments and no queued items left.
+			//
+			return false;
+		}
+
+		for (auto& wave : waves_)
+		{
+			if (!wave.is_active_)
+			{
+				// Try to active the item.
+				//
+				if (wave.mix_offset_ >= mix_offset_ && wave.mix_offset_ < (mix_offset_ + mix_s16_size_))
 				{
-					wave.is_started_ = true;
+					// Item's mix offset inside the current mixing window. Activate it.
+					//
+					wave.is_active_ = true;
+				}
+			}
 
-					if (wave.mix_offset_ < (mix_offset_ + mix_offset))
-					{
-						additional_mix_offset = static_cast<int>(mix_offset_ - wave.mix_offset_ - mix_offset);
-						wave.decoded_offset_ = additional_mix_offset;
-					}
+			if (!wave.is_active_)
+			{
+				continue;
+			}
 
-					auto decoder_param = ltjs::AudioDecoder::OpenParameters{};
-					decoder_param.dst_bit_depth_ = bit_depth;
-					decoder_param.dst_channel_count_ = channel_count;
-					decoder_param.dst_sample_rate_ = sample_rate_;
-					decoder_param.stream_ptr_ = &wave.stream_;
+			auto mix_byte_offset = 0;
 
-					if (!wave.decoder_.open(decoder_param))
-					{
-						wave.is_finished_ = true;
-						continue;
-					}
+			if (!wave.is_started_)
+			{
+				// Initialize wave decoding.
+				//
+				wave.is_started_ = true;
 
+				// Adjust output index for mix buffer.
+				//
+				if (wave.mix_offset_ > mix_offset_)
+				{
+					mix_byte_offset = static_cast<int>(wave.mix_offset_ - mix_offset_);
 				}
 
-				auto remain_size = wave.length_ - wave.decoded_offset_;
+				auto decoder_param = ltjs::AudioDecoder::OpenParameters{};
+				decoder_param.dst_bit_depth_ = bit_depth;
+				decoder_param.dst_channel_count_ = channel_count;
+				decoder_param.dst_sample_rate_ = sample_rate_;
+				decoder_param.stream_ptr_ = &wave.stream_;
 
-				if (remain_size > remain_mix_size)
+				if (!wave.decoder_.open(decoder_param))
 				{
-					remain_size = remain_mix_size;
+					wave.is_finished_ = true;
+					continue;
+				}
+			}
+
+			auto remain_size = wave.length_ - wave.decoded_offset_;
+
+			if (remain_size > (mix_s16_size_ - mix_byte_offset))
+			{
+				remain_size = mix_s16_size_ - mix_byte_offset;
+			}
+
+			// Always align the size by the byte depth.
+			//
+			remain_size /= byte_depth;
+			remain_size *= byte_depth;
+
+			const auto decoded_size = wave.decoder_.decode(decoder_buffer_.data(), remain_size);
+
+			if (decoded_size > 0)
+			{
+				const auto sample_count = decoded_size / byte_depth;
+				const auto adjusted_decoded_size = sample_count * byte_depth;
+				const auto mix_sample_offset = mix_byte_offset / byte_depth;
+
+				for (auto i = 0; i < sample_count; ++i)
+				{
+					mix_buffer_[i + mix_sample_offset] += decoder_buffer_[i] / 32768.0F;
 				}
 
-				remain_size /= byte_depth;
-				remain_size *= byte_depth;
+				wave.decoded_offset_ += adjusted_decoded_size;
 
-				const auto decoded_size = wave.decoder_.decode(decoder_buffer_.data(), remain_size);
-
-				if (decoded_size > 0)
-				{
-					const auto sample_count = decoded_size / byte_depth;
-					const auto adjusted_decoded_size = sample_count * byte_depth;
-
-					for (auto i = 0; i < sample_count; ++i)
-					{
-						mix_buffer_[i + additional_mix_offset] += decoder_buffer_[i] / 32768.0F;
-					}
-
-					wave.decoded_offset_ += adjusted_decoded_size;
-
-					if (wave.decoded_offset_ == wave.length_)
-					{
-						wave.is_finished_ = true;
-					}
-				}
-				else
+				if (wave.decoded_offset_ == wave.length_)
 				{
 					wave.is_finished_ = true;
 				}
 			}
-
-			std::remove_if(
-				active_waves_.begin(),
-				active_waves_.end(),
-				[](const auto& item)
-				{
-					return item.is_finished_;
-				}
-			);
-
-			if (current_intensity_index_ > 0 && current_segment_.end_mix_offset_ <= end_mix_offset)
-			{
-				const auto adjusted_mix_offset = mix_offset;
-
-				mix_offset = static_cast<int>(end_mix_offset - current_segment_.end_mix_offset_);
-
-				select_next_segment(adjusted_mix_offset);
-			}
 			else
 			{
-				mix_offset = mix_s16_size_;
+				wave.is_finished_ = true;
 			}
 		}
+
+		// Remove finished waves.
+		//
+		waves_.remove_if(
+			[](const auto& item)
+			{
+				return item.is_finished_;
+			}
+		);
 
 		mix_offset_ += mix_s16_size_;
 
 		return true;
 	}
 
+	//
+	// Queues wave items.
+	//
 	void queue_waves(
-		const int additional_mix_offset)
+		const int mix_offset_delta)
 	{
 		auto d_segment = current_segment_.d_segment_;
 
@@ -1202,54 +1271,50 @@ private:
 		const auto variation = d_segment->select_next_variation();
 		const auto& segment_waves = d_segment->get_waves();
 
-		current_segment_.begin_mix_offset_ = mix_offset_;
+		current_segment_.begin_mix_offset_ = mix_offset_ + mix_offset_delta;
 		current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + d_segment->get_length();
 
 		for (const auto& segment_wave : segment_waves)
 		{
 			if ((segment_wave.variations_ & variation) == 0)
 			{
+				// Wave does not belong to the currently selected variation.
+				//
 				continue;
 			}
 
 			auto wave = Wave{};
 			wave.length_ = segment_wave.length_;
 			wave.channel_ = channel;
-			wave.mix_offset_ = mix_offset_ + additional_mix_offset + segment_wave.mix_offset_;
+			wave.mix_offset_ = current_segment_.begin_mix_offset_ + segment_wave.mix_offset_;
 
 			if (!wave.stream_.open(segment_wave.data_, segment_wave.data_size_))
 			{
 				continue;
 			}
 
-			inactive_waves_.emplace_back(std::move(wave));
+			waves_.emplace_back(std::move(wave));
 		}
 	}
 
-	void set_current_segment_offsets(
-		const int additional_mix_offset)
-	{
-		current_segment_.begin_mix_offset_ = mix_offset_ + additional_mix_offset;
-		current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + current_segment_.d_segment_->get_length();
-	}
-
+	//
+	// Selects the next segment.
+	//
 	void select_next_segment(
-		const int additional_mix_offset)
+		const int mix_delta_offset)
 	{
-		if (enforce_intensity_index_ >= 0)
-		{
-			// TODO Activate a fading for active waves.
-			//
-
-			current_intensity_index_ = enforce_intensity_index_;
-			current_segment_index_ = -1;
-			transition_d_segment_ = nullptr;
-
-			enforce_intensity_index_ = -1;
-		}
+#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+		const auto& initial_intensity_index = (dbg_002_is_active_ ? dbg_002_initial_intensity_ : initial_intensity_);
+		auto& intensities = (dbg_002_is_active_ ? dbg_002_intensities_ : intensities_);
+#else
+		auto& initial_intensity_index = initial_intensity_;
+		auto& intensities = intensities_;
+#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
 
 		if (current_intensity_index_ == 0)
 		{
+			// No more segments.
+			//
 			return;
 		}
 
@@ -1258,10 +1323,11 @@ private:
 			// Fresh start.
 			//
 
-			active_waves_.clear();
-			inactive_waves_.clear();
+			mix_offset_ = 0;
 
-			current_intensity_index_ = initial_intensity_;
+			waves_.clear();
+
+			current_intensity_index_ = initial_intensity_index;
 			current_segment_index_ = 0;
 
 			if (current_intensity_index_ == 0)
@@ -1269,8 +1335,7 @@ private:
 				return;
 			}
 
-			current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_.front();
-			set_current_segment_offsets(additional_mix_offset);
+			current_segment_.d_segment_ = intensities[current_intensity_index_].segments_.front();
 
 			transition_d_segment_ = nullptr;
 		}
@@ -1279,7 +1344,7 @@ private:
 			// From a transition segment to the next intensity.
 			//
 
-			current_intensity_index_ = intensities_[current_intensity_index_].next_number_;
+			current_intensity_index_ = intensities[current_intensity_index_].next_number_;
 
 			if (current_intensity_index_ == 0)
 			{
@@ -1287,8 +1352,7 @@ private:
 			}
 
 			current_segment_index_ = 0;
-			current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_.front();
-			set_current_segment_offsets(additional_mix_offset);
+			current_segment_.d_segment_ = intensities[current_intensity_index_].segments_.front();
 
 			transition_d_segment_ = nullptr;
 		}
@@ -1297,7 +1361,7 @@ private:
 			// From a current intensity to the next segment or the next intensity.
 			//
 
-			const auto& intensity = intensities_[current_intensity_index_];
+			const auto& intensity = intensities[current_intensity_index_];
 
 			const auto& segments = intensity.segments_;
 			const auto segment_count = static_cast<int>(segments.size());
@@ -1307,7 +1371,7 @@ private:
 				// The last segment.
 				//
 
-				// At-first, check for a transition segment.
+				// Check for a transition segment.
 				//
 				const auto transition_key = TransitionMapKey::encode(intensity.number_, intensity.next_number_);
 
@@ -1320,14 +1384,13 @@ private:
 					transition_d_segment_ = map_it->second.segment_;
 
 					current_segment_.d_segment_ = transition_d_segment_;
-					set_current_segment_offsets(additional_mix_offset);
 				}
 				else
 				{
 					// Does not have transition segment. Move to the next intensity.
 					//
 
-					current_intensity_index_ = intensities_[current_intensity_index_].next_number_;
+					current_intensity_index_ = intensities[current_intensity_index_].next_number_;
 
 					if (current_intensity_index_ == 0)
 					{
@@ -1335,13 +1398,12 @@ private:
 					}
 
 					current_segment_index_ = 0;
-					current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_.front();
-					set_current_segment_offsets(additional_mix_offset);
+					current_segment_.d_segment_ = intensities[current_intensity_index_].segments_.front();
 				}
 			}
 			else
 			{
-				// Not the last segment. Move to the next segment.
+				// Not the last segment. Move to the next one.
 				//
 
 				if (current_segment_index_ < 0)
@@ -1353,14 +1415,13 @@ private:
 					current_segment_index_ += 1;
 				}
 
-				current_segment_.d_segment_ = intensities_[current_intensity_index_].segments_[current_segment_index_];
-				set_current_segment_offsets(additional_mix_offset);
+				current_segment_.d_segment_ = intensities[current_intensity_index_].segments_[current_segment_index_];
 			}
 		}
 
 		// Finally, queue the items of the current segment.
 		//
-		queue_waves(additional_mix_offset);
+		queue_waves(mix_delta_offset);
 	}
 
 
@@ -1390,6 +1451,10 @@ private:
 
 			if (init_result == LT_OK)
 			{
+#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+				debug_dump_custom(working_directory, control_file_name);
+#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+
 				static_cast<void>(api_term_level());
 			}
 			else
@@ -1446,6 +1511,232 @@ private:
 		log_info(3, "DEBUG: END Testing all musics.");
 	}
 #endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+
+
+#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+	bool dbg_002_is_active_;
+	int dbg_002_initial_intensity_;
+	Intensities dbg_002_intensities_;
+
+	void debug_dump_custom(
+		const std::string& working_directory,
+		const std::string& control_file_name)
+	{
+#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2
+		debug_dump_custom_nolf2(working_directory, control_file_name);
+#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2
+	}
+#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+
+#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2
+	void debug_dump_custom_nolf2(
+		const std::string& working_directory,
+		const std::string& control_file_name)
+	{
+		// TODO variations?
+
+		const auto control_file_name_lc = ul::AsciiUtils::to_lower(ul::PathUtils::append(
+			working_directory, control_file_name));
+
+		if (false)
+		{
+		}
+		else if (control_file_name_lc == "music\\island\\island.txt")
+		{
+			dbg_002_initial_intensity_ = 2;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[2].next_number_ = 0; // explore (main menu)
+		}
+		else if (control_file_name_lc == "music\\island\\islandl.txt")
+		{
+			dbg_002_initial_intensity_ = 2;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[16].next_number_ = 21; // explore
+			dbg_002_intensities_[30].next_number_ = 31; // warning
+			dbg_002_intensities_[44].next_number_ = 0; // combat
+		}
+		else if (control_file_name_lc == "music\\india\\india.txt")
+		{
+			dbg_002_initial_intensity_ = 2;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[4].next_number_ = 5; // explore
+			dbg_002_intensities_[16].next_number_ = 17; // warning
+			dbg_002_intensities_[30].next_number_ = 0; // combat
+		}
+		else if (control_file_name_lc == "music\\japan\\japan.txt")
+		{
+			dbg_002_initial_intensity_ = 2;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[12].next_number_ = 13; // explore
+			dbg_002_intensities_[22].next_number_ = 23; // warning
+			dbg_002_intensities_[40].next_number_ = 0; // combat
+		}
+		else if (control_file_name_lc == "music\\japan\\melvin.txt")
+		{
+			dbg_002_initial_intensity_ = 41;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[55].next_number_ = 13; // explore
+			dbg_002_intensities_[22].next_number_ = 23; // warning
+			dbg_002_intensities_[40].next_number_ = 0; // combat
+		}
+		else if (control_file_name_lc == "music\\japan\\ohio.txt")
+		{
+			dbg_002_initial_intensity_ = 41;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[55].next_number_ = 13; // explore
+			dbg_002_intensities_[22].next_number_ = 23; // warning
+			dbg_002_intensities_[40].next_number_ = 0; // combat
+		}
+		else if (control_file_name_lc == "music\\siberia\\siberia.txt")
+		{
+			dbg_002_initial_intensity_ = 2;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[27].next_number_ = 31; // explore
+			dbg_002_intensities_[49].next_number_ = 51; // warning
+			dbg_002_intensities_[72].next_number_ = 0; // combat
+		}
+		else if (control_file_name_lc == "music\\underwater\\antarctica.txt")
+		{
+			dbg_002_initial_intensity_ = 51;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[63].next_number_ = 10; // explore
+			dbg_002_intensities_[30].next_number_ = 31; // warning
+			dbg_002_intensities_[48].next_number_ = 0; // combat
+		}
+		else if (control_file_name_lc == "music\\underwater\\underwater.txt")
+		{
+			dbg_002_initial_intensity_ = 2;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[9].next_number_ = 10; // explore
+			dbg_002_intensities_[30].next_number_ = 31; // warning
+			dbg_002_intensities_[48].next_number_ = 0; // combat
+		}
+		else if (control_file_name_lc == "music\\unity\\bicycle.txt")
+		{
+			dbg_002_initial_intensity_ = 21;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[36].next_number_ = 41; // warning
+			dbg_002_intensities_[62].next_number_ = 0; // combat
+		}
+		else if (control_file_name_lc == "music\\unity\\unity.txt")
+		{
+			dbg_002_initial_intensity_ = 2;
+			dbg_002_intensities_ = intensities_;
+
+			dbg_002_intensities_[17].next_number_ = 21; // explore
+			dbg_002_intensities_[36].next_number_ = 41; // warning
+			dbg_002_intensities_[62].next_number_ = 0; // combat
+		}
+		else
+		{
+			return;
+		}
+
+		auto file_path = control_file_name_lc;
+		std::replace(file_path.begin(), file_path.end(), '\\', '_');
+		std::replace(file_path.begin(), file_path.end(), '.', '_');
+		file_path = "ltjs_dbg_dmus002_" + file_path + ".wav";
+
+		auto file = ul::FileStream{file_path, ul::Stream::OpenMode::write | ul::Stream::OpenMode::truncate};
+
+		if (!file.is_open())
+		{
+			return;
+		}
+
+		dbg_002_is_active_ = true;
+		current_intensity_index_ = -1;
+
+
+		const auto wave_prefix_size =
+			4 + 4 + 4 + // "RIFF"<size>"WAVE"
+			4 + 4 + ul::PcmWaveFormat::class_size + // "fmt "<size><data>
+			4 + 4 + // "data"<size>
+			0;
+
+		if (!file.set_position(wave_prefix_size))
+		{
+			return;
+		}
+
+
+		auto mix_buffer = BufferS16{};
+		mix_buffer.resize(mix_sample_count_);
+
+		auto is_finished = false;
+		auto total_decoded_size = 0;
+
+		while (!is_finished)
+		{
+			is_finished = !mix();
+
+			for (auto i = 0; i < mix_sample_count_; ++i)
+			{
+				auto sample = static_cast<int>(mix_buffer_[i] * 32768.0F);
+
+				if (sample < -32768)
+				{
+					sample = -32768;
+				}
+				else if (sample > 32767)
+				{
+					sample = 32767;
+				}
+
+				mix_buffer[i] = static_cast<std::int16_t>(sample);
+			}
+
+			if (file.write(mix_buffer.data(), mix_s16_size_) != mix_s16_size_)
+			{
+				is_finished = true;
+			}
+
+			total_decoded_size += mix_s16_size_;
+		}
+
+		static_cast<void>(file.set_position(0));
+
+		const auto riff_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::RiffFourCcs::riff));
+		const auto riff_size_le = ul::Endian::little(static_cast<std::uint32_t>(wave_prefix_size + total_decoded_size - 8));
+		const auto wave_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::WaveFourCcs::wave));
+		const auto fmt_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::WaveFourCcs::fmt));
+		const auto fmt_size_le = ul::Endian::little(static_cast<std::uint32_t>(ul::PcmWaveFormat::class_size));
+		const auto data_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::WaveFourCcs::data));
+		const auto data_size_le = ul::Endian::little(static_cast<std::uint32_t>(total_decoded_size));
+
+		auto waveformat = ul::PcmWaveFormat{};
+		waveformat.tag_ = ul::WaveFormatTag::pcm;
+		waveformat.bit_depth_ = bit_depth;
+		waveformat.channel_count_ = channel_count;
+		waveformat.sample_rate_ = sample_rate_;
+		waveformat.block_align_ = waveformat.channel_count_ * (waveformat.bit_depth_ / 8);
+		waveformat.avg_bytes_per_sec_ = waveformat.block_align_ * waveformat.sample_rate_;
+
+		static_cast<void>(file.write(&riff_id_le, 4));
+		static_cast<void>(file.write(&riff_size_le, 4));
+		static_cast<void>(file.write(&wave_id_le, 4));
+		static_cast<void>(file.write(&fmt_id_le, 4));
+		static_cast<void>(file.write(&fmt_size_le, 4));
+		static_cast<void>(ul::WaveformatUtils::write(waveformat, &file));
+		static_cast<void>(file.write(&data_id_le, 4));
+		static_cast<void>(file.write(&data_size_le, 4));
+
+		file.close();
+
+		dbg_002_is_active_ = false;
+		current_intensity_index_ = -1;
+	}
+#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2
 
 	//
 	// Debug stuff
