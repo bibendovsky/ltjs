@@ -22,7 +22,7 @@ struct AudioDecoder::Impl
 {
 	using AVInputFormatPtr = AVInputFormat*;
 
-	using Parameters = OpenParameters;
+	using Parameter = OpenParam;
 
 
 	enum class State
@@ -81,16 +81,16 @@ struct AudioDecoder::Impl
 	}
 
 	bool open(
-		const OpenParameters& parameters)
+		const OpenParam& param)
 	{
 		close();
 
-		if (!parameters.validate())
+		if (!param.validate())
 		{
 			return false;
 		}
 
-		if (!open_internal(parameters))
+		if (!open_internal(param))
 		{
 			close();
 			return false;
@@ -600,7 +600,7 @@ struct AudioDecoder::Impl
 	}
 
 	bool open_internal(
-		const OpenParameters& parameters)
+		const OpenParam& param)
 	{
 		ff_io_buffer_ = static_cast<std::uint8_t*>(::av_malloc(max_ff_io_buffer_size));
 
@@ -623,7 +623,7 @@ struct AudioDecoder::Impl
 			return false;
 		}
 
-		stream_ptr_ = parameters.stream_ptr_;
+		stream_ptr_ = param.stream_ptr_;
 
 		auto ff_result = 0;
 		auto has_data = false;
@@ -738,9 +738,9 @@ struct AudioDecoder::Impl
 
 		auto dst_sample_format = AV_SAMPLE_FMT_NONE;
 
-		if (parameters.dst_bit_depth_ > 0)
+		if (param.dst_bit_depth_ > 0)
 		{
-			switch (parameters.dst_bit_depth_)
+			switch (param.dst_bit_depth_)
 			{
 			case 8:
 				dst_bit_depth_ = 8;
@@ -778,9 +778,9 @@ struct AudioDecoder::Impl
 		//
 		src_channel_count_ = ff_codec_context_->channels;
 
-		if (parameters.dst_channel_count_ > 0)
+		if (param.dst_channel_count_ > 0)
 		{
-			dst_channel_count_ = parameters.dst_channel_count_;
+			dst_channel_count_ = param.dst_channel_count_;
 		}
 		else
 		{
@@ -792,9 +792,9 @@ struct AudioDecoder::Impl
 		//
 		src_sample_rate_ = ff_codec_context_->sample_rate;
 
-		if (parameters.dst_sample_rate_ > 0)
+		if (param.dst_sample_rate_ > 0)
 		{
-			dst_sample_rate_ = parameters.dst_sample_rate_;
+			dst_sample_rate_ = param.dst_sample_rate_;
 		}
 		else
 		{
@@ -961,7 +961,7 @@ struct AudioDecoder::Impl
 constexpr int AudioDecoder::Impl::max_ff_io_buffer_size;
 
 
-bool AudioDecoder::OpenParameters::validate() const
+bool AudioDecoder::OpenParam::validate() const
 {
 	return
 		(dst_channel_count_ == 0 || dst_channel_count_ == 1 || dst_channel_count_ == 2) &&
@@ -980,11 +980,11 @@ AudioDecoder::AudioDecoder() :
 }
 
 AudioDecoder::AudioDecoder(
-	const OpenParameters& parameters)
+	const OpenParam& param)
 	:
 	AudioDecoder{}
 {
-	static_cast<void>(open(parameters));
+	static_cast<void>(open(param));
 }
 
 AudioDecoder::AudioDecoder(
@@ -1010,9 +1010,9 @@ AudioDecoder::~AudioDecoder()
 }
 
 bool AudioDecoder::open(
-	const OpenParameters& parameters)
+	const OpenParam& param)
 {
-	return pimpl_->open(parameters);
+	return pimpl_->open(param);
 }
 
 void AudioDecoder::close()

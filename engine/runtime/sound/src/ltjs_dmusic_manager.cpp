@@ -1194,7 +1194,7 @@ private:
 					mix_byte_offset = static_cast<int>(wave.mix_offset_ - mix_offset_);
 				}
 
-				auto decoder_param = ltjs::AudioDecoder::OpenParameters{};
+				auto decoder_param = ltjs::AudioDecoder::OpenParam{};
 				decoder_param.dst_bit_depth_ = bit_depth;
 				decoder_param.dst_channel_count_ = channel_count;
 				decoder_param.dst_sample_rate_ = sample_rate_;

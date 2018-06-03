@@ -208,7 +208,7 @@ bool WaveFile::Open(
 		return false;
 	}
 
-	auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
+	auto open_parameters = ltjs::AudioDecoder::OpenParam{};
 	open_parameters.stream_ptr_ = &file_substream_;
 
 	if (!audio_decoder_.open(open_parameters))
@@ -2966,10 +2966,10 @@ S32	CDx8SoundSys::Init3DSampleFromFile(
 
 	auto memory_stream = ul::MemoryStream{pFile_image, wave_size, ul::Stream::OpenMode::read};
 
-	auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
-	open_parameters.stream_ptr_ = &memory_stream;
+	auto decoder_param = ltjs::AudioDecoder::OpenParam{};
+	decoder_param.stream_ptr_ = &memory_stream;
 
-	if (!audio_decoder_.open(open_parameters))
+	if (!audio_decoder_.open(decoder_param))
 	{
 		return false;
 	}
@@ -3508,10 +3508,10 @@ S32	CDx8SoundSys::InitSampleFromFile(
 
 	auto memory_stream = ul::MemoryStream{pFile_image, wave_size, ul::Stream::OpenMode::read};
 
-	auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
-	open_parameters.stream_ptr_ = &memory_stream;
+	auto decoder_param = ltjs::AudioDecoder::OpenParam{};
+	decoder_param.stream_ptr_ = &memory_stream;
 
-	if (!audio_decoder_.open(open_parameters))
+	if (!audio_decoder_.open(decoder_param))
 	{
 		return false;
 	}

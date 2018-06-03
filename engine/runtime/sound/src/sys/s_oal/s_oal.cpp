@@ -259,7 +259,7 @@ struct OalSoundSys::Impl
 			failed,
 		}; // Status
 
-		struct OpenParameters
+		struct OpenParam
 		{
 			bool is_file_;
 			const char* file_name_;
@@ -278,7 +278,7 @@ struct OalSoundSys::Impl
 
 			bool oal_has_effect_slot_;
 			ALuint oal_effect_slot_;
-		}; // OpenParameters
+		}; // OpenParam
 
 
 		static constexpr auto mix_size_ms = 20;
@@ -616,9 +616,9 @@ struct OalSoundSys::Impl
 		}
 
 		bool open(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
-			if (!open_internal(parameters))
+			if (!open_internal(param))
 			{
 				close_internal();
 				return false;
@@ -1526,31 +1526,31 @@ struct OalSoundSys::Impl
 		}
 
 		bool open_file_internal(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
-			if (!parameters.is_file_ || !parameters.file_name_)
+			if (!param.is_file_ || !param.file_name_)
 			{
 				return false;
 			}
 
-			const auto open_file_result = file_stream_.open(parameters.file_name_, ul::Stream::OpenMode::read);
+			const auto open_file_result = file_stream_.open(param.file_name_, ul::Stream::OpenMode::read);
 
 			if (!open_file_result)
 			{
 				return false;
 			}
 
-			const auto open_subfile_result = file_substream_.open(&file_stream_, parameters.file_offset_);
+			const auto open_subfile_result = file_substream_.open(&file_stream_, param.file_offset_);
 
 			if (!open_subfile_result)
 			{
 				return false;
 			}
 
-			auto decoder_parameters = ltjs::AudioDecoder::OpenParameters{};
-			decoder_parameters.stream_ptr_ = &file_substream_;
+			auto decoder_param = ltjs::AudioDecoder::OpenParam{};
+			decoder_param.stream_ptr_ = &file_substream_;
 
-			const auto open_decoder_result = decoder_.open(decoder_parameters);
+			const auto open_decoder_result = decoder_.open(decoder_param);
 
 			if (!open_decoder_result)
 			{
@@ -1567,33 +1567,33 @@ struct OalSoundSys::Impl
 		}
 
 		bool open_mapped_file_internal(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
-			if (!parameters.is_mapped_file_ || !parameters.mapped_storage_ptr || !parameters.mapped_decoder_)
+			if (!param.is_mapped_file_ || !param.mapped_storage_ptr || !param.mapped_decoder_)
 			{
 				return false;
 			}
 
-			const auto mapped_file_size = ltjs::AudioUtils::extract_wave_size(parameters.mapped_storage_ptr);
+			const auto mapped_file_size = ltjs::AudioUtils::extract_wave_size(param.mapped_storage_ptr);
 
 			if (mapped_file_size <= 0)
 			{
 				return false;
 			}
 
-			auto memory_stream = ul::MemoryStream{parameters.mapped_storage_ptr, mapped_file_size, ul::Stream::OpenMode::read};
+			auto memory_stream = ul::MemoryStream{param.mapped_storage_ptr, mapped_file_size, ul::Stream::OpenMode::read};
 
 			if (!memory_stream.is_open())
 			{
 				return false;
 			}
 
-			auto decoder_parameters = ltjs::AudioDecoder::OpenParameters{};
-			decoder_parameters.stream_ptr_ = &memory_stream;
+			auto decoder_param = ltjs::AudioDecoder::OpenParam{};
+			decoder_param.stream_ptr_ = &memory_stream;
 
-			auto& decoder = *parameters.mapped_decoder_;
+			auto& decoder = *param.mapped_decoder_;
 
-			if (!decoder.open(decoder_parameters))
+			if (!decoder.open(decoder_param))
 			{
 				return false;
 			}
@@ -1618,36 +1618,36 @@ struct OalSoundSys::Impl
 		}
 
 		bool open_memory_internal(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
-			if (!parameters.is_memory_ || !parameters.memory_ptr_ || parameters.memory_size_ <= 0)
+			if (!param.is_memory_ || !param.memory_ptr_ || param.memory_size_ <= 0)
 			{
 				return false;
 			}
 
-			if (!validate_wave_format_ex(parameters.memory_wave_format_))
+			if (!validate_wave_format_ex(param.memory_wave_format_))
 			{
 				return false;
 			}
 
-			data_.resize(parameters.memory_size_);
+			data_.resize(param.memory_size_);
 
 			std::uninitialized_copy_n(
-				static_cast<const std::uint8_t*>(parameters.memory_ptr_),
-				parameters.memory_size_,
+				static_cast<const std::uint8_t*>(param.memory_ptr_),
+				param.memory_size_,
 				data_.begin());
 
 			storage_type_ = StorageType::internal_buffer;
 
-			data_size_ = static_cast<int>(parameters.memory_size_);
+			data_size_ = static_cast<int>(param.memory_size_);
 
-			open_set_wave_format_internal(parameters.memory_wave_format_);
+			open_set_wave_format_internal(param.memory_wave_format_);
 
 			return true;
 		}
 
 		bool open_initialize_internal(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
 			if (is_spatial() && !is_mono())
 			{
@@ -1657,11 +1657,11 @@ struct OalSoundSys::Impl
 			oal_reset_common();
 			oal_reset_spatial();
 
-			const auto has_pitch = (parameters.playback_rate_ > 0 && sample_rate_ != parameters.playback_rate_);
+			const auto has_pitch = (param.playback_rate_ > 0 && sample_rate_ != param.playback_rate_);
 
 			if (has_pitch)
 			{
-				pitch_ = static_cast<float>(parameters.playback_rate_) / static_cast<float>(sample_rate_);
+				pitch_ = static_cast<float>(param.playback_rate_) / static_cast<float>(sample_rate_);
 			}
 
 			mix_sample_count_ = static_cast<int>((pitch_ * mix_size_ms * sample_rate_) / 1000.0F);
@@ -1687,9 +1687,9 @@ struct OalSoundSys::Impl
 
 			::alSourcef(oal_source_, AL_PITCH, pitch_);
 
-			if (parameters.oal_has_effect_slot_)
+			if (param.oal_has_effect_slot_)
 			{
-				::alSource3i(oal_source_, AL_AUXILIARY_SEND_FILTER, parameters.oal_effect_slot_, 0, AL_FILTER_NULL);
+				::alSource3i(oal_source_, AL_AUXILIARY_SEND_FILTER, param.oal_effect_slot_, 0, AL_FILTER_NULL);
 			}
 
 			if (!oal_is_succeed())
@@ -1705,27 +1705,27 @@ struct OalSoundSys::Impl
 		}
 
 		bool open_internal(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
 			reset();
 
-			if (parameters.is_file_)
+			if (param.is_file_)
 			{
-				if (!open_file_internal(parameters))
+				if (!open_file_internal(param))
 				{
 					return false;
 				}
 			}
-			else if (parameters.is_mapped_file_)
+			else if (param.is_mapped_file_)
 			{
-				if (!open_mapped_file_internal(parameters))
+				if (!open_mapped_file_internal(param))
 				{
 					return false;
 				}
 			}
-			else if (parameters.is_memory_)
+			else if (param.is_memory_)
 			{
-				if (!open_memory_internal(parameters))
+				if (!open_memory_internal(param))
 				{
 					return false;
 				}
@@ -1735,7 +1735,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!open_initialize_internal(parameters))
+			if (!open_initialize_internal(param))
 			{
 				return false;
 			}
@@ -3910,15 +3910,15 @@ struct OalSoundSys::Impl
 
 		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto open_parameters = StreamingSource::OpenParameters{};
+		auto open_param = StreamingSource::OpenParam{};
 
-		open_parameters.is_memory_ = true;
-		open_parameters.memory_ptr_ = storage_ptr;
-		open_parameters.memory_size_ = storage_size;
-		open_parameters.memory_wave_format_ = wave_format;
-		open_parameters.playback_rate_ = playback_rate;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_effect_slot_ = oal_effect_slot_;
+		open_param.is_memory_ = true;
+		open_param.memory_ptr_ = storage_ptr;
+		open_param.memory_size_ = storage_size;
+		open_param.memory_wave_format_ = wave_format;
+		open_param.playback_rate_ = playback_rate;
+		open_param.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_param.oal_effect_slot_ = oal_effect_slot_;
 
 		{
 			MtMutexGuard lock{mt_samples_mutex_};
@@ -3928,7 +3928,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!source.open(open_parameters))
+			if (!source.open(open_param))
 			{
 				return false;
 			}
@@ -3956,14 +3956,14 @@ struct OalSoundSys::Impl
 
 		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto open_parameters = StreamingSource::OpenParameters{};
+		auto open_param = StreamingSource::OpenParam{};
 
-		open_parameters.is_mapped_file_ = true;
-		open_parameters.mapped_decoder_ = &audio_decoder_;
-		open_parameters.mapped_storage_ptr = storage_ptr;
-		open_parameters.playback_rate_ = playback_rate;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_effect_slot_ = oal_effect_slot_;
+		open_param.is_mapped_file_ = true;
+		open_param.mapped_decoder_ = &audio_decoder_;
+		open_param.mapped_storage_ptr = storage_ptr;
+		open_param.playback_rate_ = playback_rate;
+		open_param.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_param.oal_effect_slot_ = oal_effect_slot_;
 
 		{
 			MtMutexGuard lock{mt_samples_mutex_};
@@ -3973,7 +3973,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!source.open(open_parameters))
+			if (!source.open(open_param))
 			{
 				return false;
 			}
@@ -4411,15 +4411,15 @@ struct OalSoundSys::Impl
 
 		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto open_parameters = StreamingSource::OpenParameters{};
+		auto open_param = StreamingSource::OpenParam{};
 
-		open_parameters.is_memory_ = true;
-		open_parameters.memory_ptr_ = storage_ptr;
-		open_parameters.memory_size_ = storage_size;
-		open_parameters.memory_wave_format_ = wave_format;
-		open_parameters.playback_rate_ = playback_rate;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_effect_slot_ = oal_effect_slot_;
+		open_param.is_memory_ = true;
+		open_param.memory_ptr_ = storage_ptr;
+		open_param.memory_size_ = storage_size;
+		open_param.memory_wave_format_ = wave_format;
+		open_param.playback_rate_ = playback_rate;
+		open_param.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_param.oal_effect_slot_ = oal_effect_slot_;
 
 		{
 			MtMutexGuard lock{mt_samples_mutex_};
@@ -4429,7 +4429,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!source.open(open_parameters))
+			if (!source.open(open_param))
 			{
 				return false;
 			}
@@ -4457,14 +4457,14 @@ struct OalSoundSys::Impl
 
 		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto open_parameters = StreamingSource::OpenParameters{};
+		auto open_param = StreamingSource::OpenParam{};
 
-		open_parameters.is_mapped_file_ = true;
-		open_parameters.mapped_decoder_ = &audio_decoder_;
-		open_parameters.mapped_storage_ptr = storage_ptr;
-		open_parameters.playback_rate_ = playback_rate;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_effect_slot_ = oal_effect_slot_;
+		open_param.is_mapped_file_ = true;
+		open_param.mapped_decoder_ = &audio_decoder_;
+		open_param.mapped_storage_ptr = storage_ptr;
+		open_param.playback_rate_ = playback_rate;
+		open_param.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_param.oal_effect_slot_ = oal_effect_slot_;
 
 		{
 			MtMutexGuard lock{mt_samples_mutex_};
@@ -4474,7 +4474,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!source.open(open_parameters))
+			if (!source.open(open_param))
 			{
 				return false;
 			}
@@ -4589,15 +4589,15 @@ struct OalSoundSys::Impl
 			return nullptr;
 		}
 
-		auto open_parameters = StreamingSource::OpenParameters{};
+		auto open_param = StreamingSource::OpenParam{};
 
-		open_parameters.is_file_ = true;
-		open_parameters.file_name_ = file_name;
-		open_parameters.file_offset_ = file_offset;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_effect_slot_ = oal_effect_slot_;
+		open_param.is_file_ = true;
+		open_param.file_name_ = file_name;
+		open_param.file_offset_ = file_offset;
+		open_param.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_param.oal_effect_slot_ = oal_effect_slot_;
 
-		if (!source.open(open_parameters))
+		if (!source.open(open_param))
 		{
 			streams_.pop_back();
 			return nullptr;
