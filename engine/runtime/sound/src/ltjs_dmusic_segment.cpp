@@ -60,6 +60,8 @@ public:
 		:
 		is_open_{},
 		error_message_{},
+		file_name_{},
+		working_dir_{},
 		file_image_{},
 		memory_stream_{},
 		riff_reader_{},
@@ -90,6 +92,8 @@ public:
 		:
 		is_open_{std::move(that.is_open_)},
 		error_message_{std::move(that.error_message_)},
+		file_name_{std::move(that.file_name_)},
+		working_dir_{std::move(that.working_dir_)},
 		file_image_{std::move(that.file_image_)},
 		memory_stream_{std::move(that.memory_stream_)},
 		riff_reader_{std::move(that.riff_reader_)},
@@ -1331,6 +1335,7 @@ private:
 
 	bool is_open_;
 	std::string error_message_;
+	std::string file_name_;
 	std::string working_dir_;
 	Buffer file_image_;
 	ul::MemoryStream memory_stream_;
@@ -2504,6 +2509,7 @@ private:
 			return false;
 		}
 
+		file_name_ = ul::PathUtils::get_file_name(file_name);
 		working_dir_ = ul::PathUtils::get_parent_path(file_name);
 
 		if (!riff_reader_.open(&memory_stream_, ul::FourCc{"DMSG"}))
@@ -2540,6 +2546,8 @@ private:
 	void close_internal()
 	{
 		is_open_ = {};
+		file_name_.clear();
+		working_dir_.clear();
 		file_image_.clear();
 		riff_reader_.close();
 		memory_stream_.close();
