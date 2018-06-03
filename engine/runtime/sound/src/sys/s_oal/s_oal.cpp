@@ -4907,6 +4907,84 @@ struct OalSoundSys::Impl
 		listener_3d_uptr_->mute_3d_listener(is_focus_lost);
 	}
 
+	GenericStreamHandle api_open_generic_stream(
+		const int sample_rate,
+		const int buffer_queue_size,
+		const int buffer_size)
+	{
+		static_cast<void>(sample_rate);
+		static_cast<void>(buffer_queue_size);
+		static_cast<void>(buffer_size);
+
+		return nullptr;
+	}
+
+	void api_close_generic_stream(
+		GenericStreamHandle stream_handle)
+	{
+		static_cast<void>(stream_handle);
+	}
+
+	bool api_get_generic_stream_buffer_queue_info(
+		GenericStreamHandle stream_handle,
+		int& queued_buffer_count,
+		int& processed_buffer_count)
+	{
+		static_cast<void>(stream_handle);
+
+		queued_buffer_count = 0;
+		processed_buffer_count = 0;
+
+		return false;
+	}
+
+	bool api_enqueue_generic_stream_data(
+		GenericStreamHandle stream_handle,
+		const void* buffer)
+	{
+		static_cast<void>(stream_handle);
+		static_cast<void>(buffer);
+
+		return false;
+	}
+
+	bool api_set_generic_stream_pause(
+		GenericStreamHandle stream_handle,
+		const bool is_pause)
+	{
+		static_cast<void>(stream_handle);
+		static_cast<void>(is_pause);
+
+		return false;
+	}
+
+	bool api_get_generic_stream_pause(
+		GenericStreamHandle stream_handle)
+	{
+		static_cast<void>(stream_handle);
+
+		return false;
+	}
+
+	bool api_set_generic_stream_volume(
+		GenericStreamHandle stream_handle,
+		const int ds_volume)
+	{
+		static_cast<void>(stream_handle);
+		static_cast<void>(ds_volume);
+
+		return false;
+	}
+
+	int api_get_generic_stream_volume(
+		GenericStreamHandle stream_handle)
+	{
+		static_cast<void>(stream_handle);
+
+		return 0;
+	}
+
+
 	//
 	// =========================================================================
 	// API
@@ -5800,6 +5878,61 @@ void OalSoundSys::handle_focus_lost(
 	const bool is_focus_lost)
 {
 	pimpl_->api_handle_focus_lost(is_focus_lost);
+}
+
+ILTSoundSys::GenericStreamHandle OalSoundSys::open_generic_stream(
+	const int sample_rate,
+	const int buffer_queue_size,
+	const int buffer_size)
+{
+	return pimpl_->api_open_generic_stream(sample_rate, buffer_queue_size, buffer_size);
+}
+
+void OalSoundSys::close_generic_stream(
+	GenericStreamHandle stream_handle)
+{
+	pimpl_->api_close_generic_stream(stream_handle);
+}
+
+bool OalSoundSys::get_generic_stream_buffer_queue_info(
+	GenericStreamHandle stream_handle,
+	int& queued_buffer_count,
+	int& processed_buffer_count)
+{
+	return pimpl_->api_get_generic_stream_buffer_queue_info(stream_handle, queued_buffer_count, processed_buffer_count);
+}
+
+bool OalSoundSys::enqueue_generic_stream_data(
+	GenericStreamHandle stream_handle,
+	const void* buffer)
+{
+	return pimpl_->api_enqueue_generic_stream_data(stream_handle, buffer);
+}
+
+bool OalSoundSys::set_generic_stream_pause(
+	GenericStreamHandle stream_handle,
+	const bool is_pause)
+{
+	return pimpl_->api_set_generic_stream_pause(stream_handle, is_pause);
+}
+
+bool OalSoundSys::get_generic_stream_pause(
+	GenericStreamHandle stream_handle)
+{
+	return pimpl_->api_get_generic_stream_pause(stream_handle);
+}
+
+bool OalSoundSys::set_generic_stream_volume(
+	GenericStreamHandle stream_handle,
+	const int ds_volume)
+{
+	return pimpl_->api_set_generic_stream_volume(stream_handle, ds_volume);
+}
+
+int OalSoundSys::get_generic_stream_volume(
+	GenericStreamHandle stream_handle)
+{
+	return pimpl_->api_get_generic_stream_volume(stream_handle);
 }
 
 OalSoundSys& OalSoundSys::get_singleton()

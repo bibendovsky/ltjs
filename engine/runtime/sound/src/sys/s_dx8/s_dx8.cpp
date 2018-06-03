@@ -2103,6 +2103,83 @@ void CDx8SoundSys::Unlock( void )
 	m_bLocked = false;
 }
 
+ILTSoundSys::GenericStreamHandle CDx8SoundSys::open_generic_stream(
+	const int sample_rate,
+	const int buffer_queue_size,
+	const int buffer_size)
+{
+	static_cast<void>(sample_rate);
+	static_cast<void>(buffer_queue_size);
+	static_cast<void>(buffer_size);
+
+	return nullptr;
+}
+
+void CDx8SoundSys::close_generic_stream(
+	GenericStreamHandle stream_handle)
+{
+	static_cast<void>(stream_handle);
+}
+
+bool CDx8SoundSys::get_generic_stream_buffer_queue_info(
+	GenericStreamHandle stream_handle,
+	int& queued_buffer_count,
+	int& processed_buffer_count)
+{
+	static_cast<void>(stream_handle);
+
+	queued_buffer_count = 0;
+	processed_buffer_count = 0;
+
+	return false;
+}
+
+bool CDx8SoundSys::enqueue_generic_stream_data(
+	GenericStreamHandle stream_handle,
+	const void* buffer)
+{
+	static_cast<void>(stream_handle);
+	static_cast<void>(buffer);
+
+	return false;
+}
+
+bool CDx8SoundSys::set_generic_stream_pause(
+	GenericStreamHandle stream_handle,
+	const bool is_pause)
+{
+	static_cast<void>(stream_handle);
+	static_cast<void>(is_pause);
+
+	return false;
+}
+
+bool CDx8SoundSys::get_generic_stream_pause(
+	GenericStreamHandle stream_handle)
+{
+	static_cast<void>(stream_handle);
+
+	return false;
+}
+
+bool CDx8SoundSys::set_generic_stream_volume(
+	GenericStreamHandle stream_handle,
+	const int ds_volume)
+{
+	static_cast<void>(stream_handle);
+	static_cast<void>(ds_volume);
+
+	return false;
+}
+
+int CDx8SoundSys::get_generic_stream_volume(
+	GenericStreamHandle stream_handle)
+{
+	static_cast<void>(stream_handle);
+
+	return 0;
+}
+
 //	===========================================================================
 //	DONE...
 
