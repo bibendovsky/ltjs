@@ -526,7 +526,7 @@ public:
 	//
 	// Parameters:
 	//    - sample_rate - destination sample rate.
-	//    - buffer_queue_size - maximum size of buffer queue.
+	//    - buffer_queue_size - maximum buffer count in the queue.
 	//    - buffer_size - a size of the buffer.
 	//                    Must be multiple of sample format.
 	//

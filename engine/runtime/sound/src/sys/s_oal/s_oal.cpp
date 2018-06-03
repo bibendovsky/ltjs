@@ -4991,6 +4991,242 @@ struct OalSoundSys::Impl
 	// =========================================================================
 
 
+	class GenericStream
+	{
+	public:
+		static constexpr auto channel_count = 2;
+		static constexpr auto bit_depth = 16;
+		static constexpr auto byte_depth = bit_depth / 8;
+		static constexpr auto sample_size = channel_count * byte_depth;
+
+		static constexpr auto default_queue_size = 4;
+
+
+		GenericStream()
+			:
+			is_open_{},
+			is_failed_{},
+			is_playing_{},
+			queue_size_{},
+			queued_count_{},
+			buffer_size_{},
+			sample_rate_{},
+			ds_volume_{},
+			oal_gain_{},
+			oal_is_source_created_{},
+			oal_are_buffers_created_{},
+			oal_source_{},
+			oal_buffers_{}
+		{
+		}
+
+		~GenericStream()
+		{
+			close();
+		}
+
+		void close()
+		{
+			is_open_ = {};
+			is_failed_ = {};
+			is_playing_ = {};
+			queue_size_ = {};
+			queued_count_ = {};
+			buffer_size_ = {};
+			sample_rate_ = {};
+			ds_volume_ = {};
+			oal_gain_ = {};
+
+			if (oal_is_source_created_)
+			{
+				oal_is_source_created_ = false;
+				::alDeleteSources(1, &oal_source_);
+			}
+
+			if (oal_are_buffers_created_)
+			{
+				oal_are_buffers_created_ = false;
+				::alDeleteBuffers(1, oal_buffers_.data());
+			}
+
+			oal_buffers_.clear();
+		}
+
+		bool open(
+			const int sample_rate,
+			const int buffer_queue_size,
+			const int buffer_size)
+		{
+			close();
+
+			if (sample_rate <= 0 ||
+				buffer_queue_size <= 0 ||
+				buffer_size <= 0 ||
+				(buffer_size % sample_size) != 0)
+			{
+				return false;
+			}
+
+			queue_size_ = buffer_queue_size;
+			queued_count_ = 0;
+			buffer_size_ = buffer_size;
+			sample_rate_ = sample_rate;
+			ds_volume_ = ltjs::AudioUtils::ds_max_volume;
+			oal_gain_ = 1.0F;
+			oal_buffers_.resize(buffer_queue_size);
+
+			if (!initialize_oal_objects())
+			{
+				close();
+				return false;
+			}
+
+			is_open_ = true;
+
+			return true;
+		}
+
+		bool set_pause(
+			const bool is_pause)
+		{
+			if (!is_open_ || is_failed_)
+			{
+				return false;
+			}
+
+			if (is_pause == !is_playing_)
+			{
+				return true;
+			}
+
+			is_playing_ = !is_pause;
+
+			if (is_playing_)
+			{
+				auto oal_state = ALint{};
+
+				::alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state);
+
+				switch (oal_state)
+				{
+				case AL_INITIAL:
+				case AL_PAUSED:
+				case AL_STOPPED:
+					::alSourcePlay(oal_source_);
+					assert(oal_is_succeed());
+					break;
+
+				case AL_PLAYING:
+					break;
+
+				default:
+					is_failed_ = true;
+					return false;
+				}
+
+				return true;
+			}
+			else
+			{
+				::alSourcePause(oal_source_);
+				assert(oal_is_succeed());
+
+				return true;
+			}
+		}
+
+		bool get_pause() const
+		{
+			return !is_playing_;
+		}
+
+		bool set_volume(
+			const int ds_volume)
+		{
+			if (!is_open_ || is_failed_)
+			{
+				return false;
+			}
+
+			const auto new_ds_volume = ltjs::AudioUtils::clamp_ds_volume(ds_volume);
+
+			if (new_ds_volume == ds_volume_)
+			{
+				return false;
+			}
+
+			oal_gain_ = ltjs::AudioUtils::ds_volume_to_gain(new_ds_volume);
+
+			::alSourcef(oal_source_, AL_GAIN, oal_gain_);
+			assert(oal_is_succeed());
+
+			return true;
+		}
+
+		int get_volume() const
+		{
+			return ds_volume_;
+		}
+
+
+	private:
+		static constexpr auto oal_buffer_format = ALenum{AL_FORMAT_STEREO16};
+
+
+		using OalBuffers = std::vector<ALuint>;
+
+
+		bool is_open_;
+		bool is_failed_;
+		bool is_playing_;
+		int queue_size_;
+		int queued_count_;
+		int buffer_size_;
+		int sample_rate_;
+		int ds_volume_;
+
+		float oal_gain_;
+
+		bool oal_is_source_created_;
+		bool oal_are_buffers_created_;
+
+		ALuint oal_source_;
+		OalBuffers oal_buffers_;
+
+
+		bool initialize_oal_objects()
+		{
+			oal_clear_error();
+
+			::alGenSources(1, &oal_source_);
+
+			if (oal_is_succeed())
+			{
+				oal_is_source_created_ = true;
+			}
+			else
+			{
+				return false;
+			}
+
+			::alGenBuffers(queue_size_, oal_buffers_.data());
+
+			if (oal_is_succeed())
+			{
+				oal_are_buffers_created_ = true;
+			}
+			else
+			{
+				return false;
+			}
+
+			::alSourcei(oal_source_, AL_SOURCE_RELATIVE, AL_TRUE);
+
+			return oal_is_succeed();
+		}
+	}; // GenericStream
+
+
 	String error_message_;
 	bool is_eax20_filters_defined_;
 
