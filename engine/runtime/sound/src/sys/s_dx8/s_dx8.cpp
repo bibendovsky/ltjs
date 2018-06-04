@@ -2105,11 +2105,9 @@ void CDx8SoundSys::Unlock( void )
 
 ILTSoundSys::GenericStreamHandle CDx8SoundSys::open_generic_stream(
 	const int sample_rate,
-	const int buffer_queue_size,
 	const int buffer_size)
 {
 	static_cast<void>(sample_rate);
-	static_cast<void>(buffer_queue_size);
 	static_cast<void>(buffer_size);
 
 	return nullptr;
@@ -2121,20 +2119,20 @@ void CDx8SoundSys::close_generic_stream(
 	static_cast<void>(stream_handle);
 }
 
-bool CDx8SoundSys::get_generic_stream_buffer_queue_info(
-	GenericStreamHandle stream_handle,
-	int& queued_buffer_count,
-	int& processed_buffer_count)
+int CDx8SoundSys::get_generic_stream_queue_size()
+{
+	return 0;
+}
+
+int CDx8SoundSys::get_generic_stream_free_buffer_count(
+	GenericStreamHandle stream_handle)
 {
 	static_cast<void>(stream_handle);
 
-	queued_buffer_count = 0;
-	processed_buffer_count = 0;
-
-	return false;
+	return 0;
 }
 
-bool CDx8SoundSys::enqueue_generic_stream_data(
+bool CDx8SoundSys::enqueue_generic_stream_buffer(
 	GenericStreamHandle stream_handle,
 	const void* buffer)
 {

@@ -526,9 +526,8 @@ public:
 	//
 	// Parameters:
 	//    - sample_rate - destination sample rate.
-	//    - buffer_queue_size - maximum buffer count in the queue.
-	//    - buffer_size - a size of the buffer.
-	//                    Must be multiple of sample format.
+	//    - buffer_size - a size of the one buffer in the queue.
+	//                    Must be multiple of the sample format.
 	//
 	// Returns:
 	//    - Non-null value on success.
@@ -540,7 +539,6 @@ public:
 	//
 	virtual GenericStreamHandle open_generic_stream(
 		const int sample_rate,
-		const int buffer_queue_size,
 		const int buffer_size) = 0;
 
 	//
@@ -556,26 +554,32 @@ public:
 		GenericStreamHandle stream_handle) = 0;
 
 	//
-	// Gets information about buffer queue for generic stream.
-	//
-	// Parameters:
-	//    - stream_handle - a handle to generic stream.
-	//    - queued_buffer_count - a queued buffer count.
-	//                            Will be set to zero on error.
-	//    - processed_buffer_count - a processed buffer count.
-	//                            Will be set to zero on error.
+	// Gets a queue size.
 	//
 	// Returns:
-	//    - "true" on sucess.
-	//    - "false" otherwise.
+	//    - A queue size.
+	//    - Zero on error.
 	//
 	// Notes:
 	//    - Thread-safe.
 	//
-	virtual bool get_generic_stream_buffer_queue_info(
-		GenericStreamHandle stream_handle,
-		int& queued_buffer_count,
-		int& processed_buffer_count) = 0;
+	virtual int get_generic_stream_queue_size() = 0;
+
+	//
+	// Gets information about buffer queue for generic stream.
+	//
+	// Parameters:
+	//    - stream_handle - a handle to generic stream.
+	//
+	// Returns:
+	//    - A free buffer count.
+	//    - Zero on error.
+	//
+	// Notes:
+	//    - Thread-safe.
+	//
+	virtual int get_generic_stream_free_buffer_count(
+		GenericStreamHandle stream_handle) = 0;
 
 	//
 	// Enqueues data for generic stream.
@@ -593,7 +597,7 @@ public:
 	//    - Thread-safe.
 	//    - Expected sample format: 16 bits signed integer, stereo.
 	//
-	virtual bool enqueue_generic_stream_data(
+	virtual bool enqueue_generic_stream_buffer(
 		GenericStreamHandle stream_handle,
 		const void* buffer) = 0;
 

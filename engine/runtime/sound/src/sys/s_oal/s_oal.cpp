@@ -4909,12 +4909,11 @@ struct OalSoundSys::Impl
 
 	GenericStreamHandle api_open_generic_stream(
 		const int sample_rate,
-		const int buffer_queue_size,
 		const int buffer_size)
 	{
 		auto generic_stream = GenericStream{};
 
-		if (!generic_stream.open(sample_rate, buffer_queue_size, buffer_size))
+		if (!generic_stream.open(sample_rate, buffer_size))
 		{
 			return nullptr;
 		}
@@ -4944,14 +4943,14 @@ struct OalSoundSys::Impl
 		);
 	}
 
-	bool api_get_generic_stream_buffer_queue_info(
-		GenericStreamHandle stream_handle,
-		int& queued_buffer_count,
-		int& processed_buffer_count)
+	int api_get_generic_stream_queue_size()
 	{
-		queued_buffer_count = 0;
-		processed_buffer_count = 0;
+		return GenericStream::queue_size;
+	}
 
+	int api_get_generic_stream_free_buffer_count(
+		GenericStreamHandle stream_handle)
+	{
 		if (!stream_handle)
 		{
 			return false;
@@ -4961,10 +4960,10 @@ struct OalSoundSys::Impl
 
 		auto& stream = *static_cast<GenericStream*>(stream_handle);
 
-		return stream.get_queue_info(queued_buffer_count, processed_buffer_count);
+		return stream.get_free_buffer_count();
 	}
 
-	bool api_enqueue_generic_stream_data(
+	bool api_enqueue_generic_stream_buffer(
 		GenericStreamHandle stream_handle,
 		const void* buffer)
 	{
@@ -5057,7 +5056,7 @@ struct OalSoundSys::Impl
 		static constexpr auto byte_depth = bit_depth / 8;
 		static constexpr auto sample_size = channel_count * byte_depth;
 
-		static constexpr auto default_queue_size = 4;
+		static constexpr auto queue_size = 3;
 
 
 		GenericStream()
@@ -5065,7 +5064,6 @@ struct OalSoundSys::Impl
 			is_open_{},
 			is_failed_{},
 			is_playing_{},
-			queue_size_{},
 			queued_count_{},
 			buffer_size_{},
 			sample_rate_{},
@@ -5090,7 +5088,6 @@ struct OalSoundSys::Impl
 			is_open_{std::move(that.is_open_)},
 			is_failed_{std::move(that.is_failed_)},
 			is_playing_{std::move(that.is_playing_)},
-			queue_size_{std::move(that.queue_size_)},
 			queued_count_{std::move(that.queued_count_)},
 			buffer_size_{std::move(that.buffer_size_)},
 			sample_rate_{std::move(that.sample_rate_)},
@@ -5116,7 +5113,6 @@ struct OalSoundSys::Impl
 			is_open_ = {};
 			is_failed_ = {};
 			is_playing_ = {};
-			queue_size_ = {};
 			queued_count_ = {};
 			buffer_size_ = {};
 			sample_rate_ = {};
@@ -5134,32 +5130,26 @@ struct OalSoundSys::Impl
 				oal_are_buffers_created_ = false;
 				::alDeleteBuffers(1, oal_buffers_.data());
 			}
-
-			oal_buffers_.clear();
 		}
 
 		bool open(
 			const int sample_rate,
-			const int buffer_queue_size,
 			const int buffer_size)
 		{
 			close();
 
 			if (sample_rate <= 0 ||
-				buffer_queue_size <= 0 ||
 				buffer_size <= 0 ||
 				(buffer_size % sample_size) != 0)
 			{
 				return false;
 			}
 
-			queue_size_ = buffer_queue_size;
 			queued_count_ = 0;
 			buffer_size_ = buffer_size;
 			sample_rate_ = sample_rate;
 			ds_volume_ = ltjs::AudioUtils::ds_max_volume;
 			oal_gain_ = 1.0F;
-			oal_buffers_.resize(buffer_queue_size);
 
 			if (!initialize_oal_objects())
 			{
@@ -5254,19 +5244,19 @@ struct OalSoundSys::Impl
 			return ds_volume_;
 		}
 
-		bool get_queue_info(
-			int& queued_count,
-			int& processed_count)
+		int get_free_buffer_count()
 		{
-			queued_count = 0;
-			processed_count = 0;
-
 			if (!is_open_ || is_failed_)
 			{
 				return false;
 			}
 
-			return sync_queue(queued_count, processed_count);
+			if (!unqueue_processed_buffers())
+			{
+				return false;
+			}
+
+			return queue_size - queued_count_;
 		}
 
 		bool enqueue_data(
@@ -5277,24 +5267,22 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			auto queued_count = 0;
-			auto processed_count = 0;
-
-			if (!sync_queue(queued_count, processed_count))
+			if (!unqueue_processed_buffers())
 			{
 				return false;
 			}
 
-			if (queued_count == queue_size_)
+			if (queued_count_ == queue_size)
 			{
 				return false;
 			}
 
-			const auto oal_free_buffer = oal_buffers_[queued_count];
+			const auto oal_free_buffer = oal_buffers_[queued_count_];
 
 			::alBufferData(oal_free_buffer, oal_buffer_format, buffer, buffer_size_, sample_rate_);
 			::alSourceQueueBuffers(oal_source_, 1, &oal_free_buffer);
 
+			queued_count_ += 1;
 
 			auto oal_state = ALint{};
 
@@ -5324,8 +5312,6 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			queued_count_ += 1;
-
 			return true;
 		}
 
@@ -5334,13 +5320,12 @@ struct OalSoundSys::Impl
 		static constexpr auto oal_buffer_format = ALenum{AL_FORMAT_STEREO16};
 
 
-		using OalBuffers = std::vector<ALuint>;
+		using OalBuffers = std::array<ALuint, queue_size>;
 
 
 		bool is_open_;
 		bool is_failed_;
 		bool is_playing_;
-		int queue_size_;
 		int queued_count_;
 		int buffer_size_;
 		int sample_rate_;
@@ -5370,7 +5355,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			::alGenBuffers(queue_size_, oal_buffers_.data());
+			::alGenBuffers(queue_size, oal_buffers_.data());
 
 			if (oal_is_succeed())
 			{
@@ -5386,14 +5371,10 @@ struct OalSoundSys::Impl
 			return oal_is_succeed();
 		}
 
-		bool sync_queue(
-			int& queued_count,
-			int& processed_count)
+		bool unqueue_processed_buffers()
 		{
-			auto oal_queued_count = ALint{};
 			auto oal_processed_count = ALint{};
 
-			::alGetSourcei(oal_source_, AL_BUFFERS_QUEUED, &oal_queued_count);
 			::alGetSourcei(oal_source_, AL_BUFFERS_PROCESSED, &oal_processed_count);
 
 			if (!oal_is_succeed())
@@ -5402,31 +5383,22 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (oal_queued_count > queued_count)
+			if (oal_processed_count == 0)
+			{
+				return true;
+			}
+
+			std::rotate(oal_buffers_.begin(), oal_buffers_.begin() + oal_processed_count, oal_buffers_.end());
+
+			queued_count_ -= oal_processed_count;
+
+			::alSourceUnqueueBuffers(oal_source_, oal_processed_count, &oal_buffers_[queue_size - oal_processed_count]);
+
+			if (!oal_is_succeed())
 			{
 				is_failed_ = true;
 				return false;
 			}
-
-			const auto unqueue_count = queued_count - oal_queued_count;
-
-			std::rotate(oal_buffers_.begin(), oal_buffers_.begin() + unqueue_count, oal_buffers_.end());
-
-			queued_count_ -= unqueue_count;
-
-			if (oal_processed_count > 0)
-			{
-				::alSourceUnqueueBuffers(oal_source_, oal_processed_count, &oal_buffers_[queue_size_ - oal_processed_count]);
-
-				if (!oal_is_succeed())
-				{
-					is_failed_ = true;
-					return false;
-				}
-			}
-
-			queued_count = oal_queued_count;
-			processed_count = oal_processed_count;
 
 			return true;
 		}
@@ -6329,10 +6301,9 @@ void OalSoundSys::handle_focus_lost(
 
 ILTSoundSys::GenericStreamHandle OalSoundSys::open_generic_stream(
 	const int sample_rate,
-	const int buffer_queue_size,
 	const int buffer_size)
 {
-	return pimpl_->api_open_generic_stream(sample_rate, buffer_queue_size, buffer_size);
+	return pimpl_->api_open_generic_stream(sample_rate, buffer_size);
 }
 
 void OalSoundSys::close_generic_stream(
@@ -6341,19 +6312,22 @@ void OalSoundSys::close_generic_stream(
 	pimpl_->api_close_generic_stream(stream_handle);
 }
 
-bool OalSoundSys::get_generic_stream_buffer_queue_info(
-	GenericStreamHandle stream_handle,
-	int& queued_buffer_count,
-	int& processed_buffer_count)
+int OalSoundSys::get_generic_stream_queue_size()
 {
-	return pimpl_->api_get_generic_stream_buffer_queue_info(stream_handle, queued_buffer_count, processed_buffer_count);
+	return pimpl_->api_get_generic_stream_queue_size();
 }
 
-bool OalSoundSys::enqueue_generic_stream_data(
+int OalSoundSys::get_generic_stream_free_buffer_count(
+	GenericStreamHandle stream_handle)
+{
+	return pimpl_->api_get_generic_stream_free_buffer_count(stream_handle);
+}
+
+bool OalSoundSys::enqueue_generic_stream_buffer(
 	GenericStreamHandle stream_handle,
 	const void* buffer)
 {
-	return pimpl_->api_enqueue_generic_stream_data(stream_handle, buffer);
+	return pimpl_->api_enqueue_generic_stream_buffer(stream_handle, buffer);
 }
 
 bool OalSoundSys::set_generic_stream_pause(

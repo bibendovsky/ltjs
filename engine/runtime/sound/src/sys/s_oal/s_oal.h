@@ -477,18 +477,17 @@ public:
 
 	GenericStreamHandle open_generic_stream(
 		const int sample_rate,
-		const int buffer_queue_size,
 		const int buffer_size) override;
 
 	void close_generic_stream(
 		GenericStreamHandle stream_handle) override;
 
-	bool get_generic_stream_buffer_queue_info(
-		GenericStreamHandle stream_handle,
-		int& queued_buffer_count,
-		int& processed_buffer_count) override;
+	int get_generic_stream_queue_size() override;
 
-	bool enqueue_generic_stream_data(
+	int get_generic_stream_free_buffer_count(
+		GenericStreamHandle stream_handle) override;
+
+	bool enqueue_generic_stream_buffer(
 		GenericStreamHandle stream_handle,
 		const void* buffer) override;
 
