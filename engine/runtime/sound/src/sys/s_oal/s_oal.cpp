@@ -4912,17 +4912,36 @@ struct OalSoundSys::Impl
 		const int buffer_queue_size,
 		const int buffer_size)
 	{
-		static_cast<void>(sample_rate);
-		static_cast<void>(buffer_queue_size);
-		static_cast<void>(buffer_size);
+		auto generic_stream = GenericStream{};
 
-		return nullptr;
+		if (!generic_stream.open(sample_rate, buffer_queue_size, buffer_size))
+		{
+			return nullptr;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		generic_streams_.emplace_back(std::move(generic_stream));
+
+		return &generic_streams_.back();
 	}
 
 	void api_close_generic_stream(
 		GenericStreamHandle stream_handle)
 	{
-		static_cast<void>(stream_handle);
+		if (!stream_handle)
+		{
+			return;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		generic_streams_.remove_if(
+			[&](const auto& item)
+			{
+				return &item == stream_handle;
+			}
+		);
 	}
 
 	bool api_get_generic_stream_buffer_queue_info(
@@ -4930,58 +4949,97 @@ struct OalSoundSys::Impl
 		int& queued_buffer_count,
 		int& processed_buffer_count)
 	{
-		static_cast<void>(stream_handle);
-
 		queued_buffer_count = 0;
 		processed_buffer_count = 0;
 
-		return false;
+		if (!stream_handle)
+		{
+			return false;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.get_queue_info(queued_buffer_count, processed_buffer_count);
 	}
 
 	bool api_enqueue_generic_stream_data(
 		GenericStreamHandle stream_handle,
 		const void* buffer)
 	{
-		static_cast<void>(stream_handle);
-		static_cast<void>(buffer);
+		if (!stream_handle)
+		{
+			return false;
+		}
 
-		return false;
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.enqueue_data(buffer);
 	}
 
 	bool api_set_generic_stream_pause(
 		GenericStreamHandle stream_handle,
 		const bool is_pause)
 	{
-		static_cast<void>(stream_handle);
-		static_cast<void>(is_pause);
+		if (!stream_handle)
+		{
+			return false;
+		}
 
-		return false;
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.set_pause(is_pause);
 	}
 
 	bool api_get_generic_stream_pause(
 		GenericStreamHandle stream_handle)
 	{
-		static_cast<void>(stream_handle);
+		if (!stream_handle)
+		{
+			return false;
+		}
 
-		return false;
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.get_pause();
 	}
 
 	bool api_set_generic_stream_volume(
 		GenericStreamHandle stream_handle,
 		const int ds_volume)
 	{
-		static_cast<void>(stream_handle);
-		static_cast<void>(ds_volume);
+		if (!stream_handle)
+		{
+			return false;
+		}
 
-		return false;
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.set_volume(ds_volume);
 	}
 
 	int api_get_generic_stream_volume(
 		GenericStreamHandle stream_handle)
 	{
-		static_cast<void>(stream_handle);
+		if (!stream_handle)
+		{
+			return false;
+		}
 
-		return 0;
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.get_volume();
 	}
 
 
@@ -5018,6 +5076,34 @@ struct OalSoundSys::Impl
 			oal_source_{},
 			oal_buffers_{}
 		{
+		}
+
+		GenericStream(
+			const GenericStream& that) = delete;
+
+		GenericStream& operator=(
+			const GenericStream& that) = delete;
+
+		GenericStream(
+			GenericStream&& that)
+			:
+			is_open_{std::move(that.is_open_)},
+			is_failed_{std::move(that.is_failed_)},
+			is_playing_{std::move(that.is_playing_)},
+			queue_size_{std::move(that.queue_size_)},
+			queued_count_{std::move(that.queued_count_)},
+			buffer_size_{std::move(that.buffer_size_)},
+			sample_rate_{std::move(that.sample_rate_)},
+			ds_volume_{std::move(that.ds_volume_)},
+			oal_gain_{std::move(that.oal_gain_)},
+			oal_is_source_created_{std::move(that.oal_is_source_created_)},
+			oal_are_buffers_created_{std::move(that.oal_are_buffers_created_)},
+			oal_source_{std::move(that.oal_source_)},
+			oal_buffers_{std::move(that.oal_buffers_)}
+		{
+			is_open_ = {};
+			oal_is_source_created_ = {};
+			oal_are_buffers_created_ = {};
 		}
 
 		~GenericStream()
@@ -5168,6 +5254,81 @@ struct OalSoundSys::Impl
 			return ds_volume_;
 		}
 
+		bool get_queue_info(
+			int& queued_count,
+			int& processed_count)
+		{
+			queued_count = 0;
+			processed_count = 0;
+
+			if (!is_open_ || is_failed_)
+			{
+				return false;
+			}
+
+			return sync_queue(queued_count, processed_count);
+		}
+
+		bool enqueue_data(
+			const void* buffer)
+		{
+			if (!is_open_ || is_failed_ || !buffer)
+			{
+				return false;
+			}
+
+			auto queued_count = 0;
+			auto processed_count = 0;
+
+			if (!sync_queue(queued_count, processed_count))
+			{
+				return false;
+			}
+
+			if (queued_count == queue_size_)
+			{
+				return false;
+			}
+
+			const auto oal_free_buffer = oal_buffers_[queued_count];
+
+			::alBufferData(oal_free_buffer, oal_buffer_format, buffer, buffer_size_, sample_rate_);
+			::alSourceQueueBuffers(oal_source_, 1, &oal_free_buffer);
+
+
+			auto oal_state = ALint{};
+
+			::alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state);
+
+			switch (oal_state)
+			{
+			case AL_INITIAL:
+			case AL_PAUSED:
+			case AL_STOPPED:
+				if (is_playing_)
+				{
+					::alSourcePlay(oal_source_);
+					assert(oal_is_succeed());
+				}
+
+				break;
+
+			case AL_PLAYING:
+			default:
+				break;
+			}
+
+			if (!oal_is_succeed())
+			{
+				is_failed_ = true;
+				return false;
+			}
+
+			queued_count_ += 1;
+
+			return true;
+		}
+
 
 	private:
 		static constexpr auto oal_buffer_format = ALenum{AL_FORMAT_STEREO16};
@@ -5224,7 +5385,54 @@ struct OalSoundSys::Impl
 
 			return oal_is_succeed();
 		}
+
+		bool sync_queue(
+			int& queued_count,
+			int& processed_count)
+		{
+			auto oal_queued_count = ALint{};
+			auto oal_processed_count = ALint{};
+
+			::alGetSourcei(oal_source_, AL_BUFFERS_QUEUED, &oal_queued_count);
+			::alGetSourcei(oal_source_, AL_BUFFERS_PROCESSED, &oal_processed_count);
+
+			if (!oal_is_succeed())
+			{
+				is_failed_ = true;
+				return false;
+			}
+
+			if (oal_queued_count > queued_count)
+			{
+				is_failed_ = true;
+				return false;
+			}
+
+			const auto unqueue_count = queued_count - oal_queued_count;
+
+			std::rotate(oal_buffers_.begin(), oal_buffers_.begin() + unqueue_count, oal_buffers_.end());
+
+			queued_count_ -= unqueue_count;
+
+			if (oal_processed_count > 0)
+			{
+				::alSourceUnqueueBuffers(oal_source_, oal_processed_count, &oal_buffers_[queue_size_ - oal_processed_count]);
+
+				if (!oal_is_succeed())
+				{
+					is_failed_ = true;
+					return false;
+				}
+			}
+
+			queued_count = oal_queued_count;
+			processed_count = oal_processed_count;
+
+			return true;
+		}
 	}; // GenericStream
+
+	using GenericStreams = std::list<GenericStream>;
 
 
 	String error_message_;
@@ -5309,6 +5517,9 @@ struct OalSoundSys::Impl
 	Sources streams_;
 	MtMutex mt_streams_mutex_;
 	OpenSources mt_open_streams_;
+
+	GenericStreams generic_streams_;
+	MtMutex mt_generic_streams_mutex_;
 
 	MtThread mt_sound_thread_;
 	MtCondVar mt_sound_cv_;
