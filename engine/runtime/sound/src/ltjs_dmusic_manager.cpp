@@ -84,11 +84,11 @@ public:
 		mix_sample_count_{},
 		mix_s16_size_{},
 		mix_f_size_{},
-		enforce_intensity_index_{},
+		enforced_intensity_index_{},
 		current_intensity_index_{},
 		current_segment_index_{},
 		current_segment_{},
-		transition_d_segment_{},
+		transition_dm_segment_{},
 		waves_{},
 		decoder_buffer_{},
 		device_buffer_{},
@@ -130,11 +130,11 @@ public:
 		mix_sample_count_{std::move(that.mix_sample_count_)},
 		mix_s16_size_{std::move(that.mix_s16_size_)},
 		mix_f_size_{std::move(that.mix_f_size_)},
-		enforce_intensity_index_{std::move(that.enforce_intensity_index_)},
+		enforced_intensity_index_{std::move(that.enforced_intensity_index_)},
 		current_intensity_index_{std::move(that.current_intensity_index_)},
 		current_segment_index_{std::move(that.current_segment_index_)},
 		current_segment_{std::move(that.current_segment_)},
-		transition_d_segment_{std::move(that.transition_d_segment_)},
+		transition_dm_segment_{std::move(that.transition_dm_segment_)},
 		waves_{std::move(that.waves_)},
 		decoder_buffer_{std::move(that.decoder_buffer_)},
 		device_buffer_{std::move(that.device_buffer_)},
@@ -380,9 +380,9 @@ public:
 		//
 		mix_offset_ = 0;
 		current_intensity_index_ = -1;
-		current_segment_index_ = {};
+		current_segment_index_ = 0;
 		current_segment_ = {};
-		transition_d_segment_ = {};
+		transition_dm_segment_ = nullptr;
 		waves_.clear();
 		decoder_buffer_.resize(mix_sample_count_);
 		device_buffer_.resize(mix_sample_count_);
@@ -449,12 +449,12 @@ public:
 		mix_f_size_ = 0;
 		mix_offset_ = 0;
 
-		enforce_intensity_index_ = -1;
+		enforced_intensity_index_ = -1;
 		current_intensity_index_ = -1;
 		current_segment_index_ = -1;
 
 		current_segment_ = {};
-		transition_d_segment_ = nullptr;
+		transition_dm_segment_ = nullptr;
 
 		waves_.clear();
 
@@ -469,13 +469,49 @@ public:
 
 	LTRESULT api_play()
 	{
-		return api_unpause();
+		if (!is_level_initialized_)
+		{
+			return LT_ERROR;
+		}
+
+		{
+			MtLockGuard mixer_lock{mt_mixer_mutex_};
+
+			enforced_intensity_index_ = initial_intensity_;
+		}
+
+		if (!sound_sys_->set_generic_stream_pause(music_stream_, false))
+		{
+			return LT_ERROR;
+		}
+
+		mt_notify_mixer();
+
+		return LT_OK;
 	}
 
 	LTRESULT api_stop(
 		const LTDMEnactTypes start_type)
 	{
-		return api_pause(start_type);
+		if (!is_level_initialized_)
+		{
+			return LT_ERROR;
+		}
+
+		if (!sound_sys_->set_generic_stream_pause(music_stream_, true))
+		{
+			return LT_ERROR;
+		}
+
+		{
+			MtLockGuard mixer_lock{mt_mixer_mutex_};
+
+			enforced_intensity_index_ = initial_intensity_;
+		}
+
+		mt_notify_mixer();
+
+		return LT_OK;
 	}
 
 	LTRESULT api_pause(
@@ -493,6 +529,8 @@ public:
 			return LT_ERROR;
 		}
 
+		mt_notify_mixer();
+
 		return LT_OK;
 	}
 
@@ -507,6 +545,8 @@ public:
 		{
 			return LT_ERROR;
 		}
+
+		mt_notify_mixer();
 
 		return LT_OK;
 	}
@@ -538,9 +578,18 @@ public:
 			return LT_ERROR;
 		}
 
-		MtLockGuard lock{mt_mixer_mutex_};
+		{
+			MtLockGuard mixer_lock{mt_mixer_mutex_};
 
-		enforce_intensity_index_ = new_intensity;
+			if (new_intensity == current_intensity_index_)
+			{
+				return LT_OK;
+			}
+
+			enforced_intensity_index_ = new_intensity;
+		}
+
+		mt_notify_mixer();
 
 		return LT_OK;
 	}
@@ -600,7 +649,7 @@ public:
 			return -1;
 		}
 
-		MtLockGuard lock{mt_mixer_mutex_};
+		MtLockGuard mixer_lock{mt_mixer_mutex_};
 
 		return current_intensity_index_;
 	}
@@ -775,14 +824,12 @@ private:
 	{
 		std::int64_t begin_mix_offset_;
 		std::int64_t end_mix_offset_;
-		DMusicSegment* d_segment_;
 
 
 		Segment()
 			:
 			begin_mix_offset_{},
-			end_mix_offset_{},
-			d_segment_{}
+			end_mix_offset_{}
 		{
 		}
 	}; // Segment
@@ -821,7 +868,7 @@ private:
 	// -1 - don't enforce.
 	// 0 - don't queue any items anymore.
 	// 1..n - set a new intensity index.
-	int enforce_intensity_index_;
+	int enforced_intensity_index_;
 
 	// -1 - fresh start.
 	// 0 - don't queue any items anymore.
@@ -833,7 +880,7 @@ private:
 	int current_segment_index_;
 
 	Segment current_segment_;
-	DMusicSegment* transition_d_segment_;
+	DMusicSegment* transition_dm_segment_;
 
 	Waves waves_;
 
@@ -1227,31 +1274,34 @@ private:
 		return &cache_item_it->second;
 	}
 
-	//
-	// Mixes the segments.
-	//
-	// Returns:
-	//    - "true" - if there is more data available.
-	//    - "false" - this is a last data block.
-	//
-	bool mix()
+	bool mix_prepare_segments()
 	{
-		std::uninitialized_fill(mix_buffer_.begin(), mix_buffer_.end(), 0.0F);
+		MtLockGuard lock{mt_mixer_mutex_};
 
 		auto mix_delta_offset = 0;
 
 		while (true)
 		{
-			if (current_intensity_index_ < 0 || enforce_intensity_index_ >= 0)
+			if (current_intensity_index_ < 0)
 			{
-				// Fresh start or enforced intensity.
+				// Fresh start.
 				//
-
-				// TODO
-				// Fade remaining items and remove inactive ones if intensity is enforced.
 
 				select_next_segment(mix_delta_offset);
 				continue;
+			}
+
+			if (enforced_intensity_index_ >= 0)
+			{
+				current_intensity_index_ = enforced_intensity_index_;
+				enforced_intensity_index_ = -1;
+
+				waves_.remove_if(
+					[&](const auto& item)
+					{
+						return item.mix_offset_ > (mix_offset_ + mix_s16_size_);
+					}
+				);
 			}
 
 			if (current_intensity_index_ == 0)
@@ -1277,7 +1327,21 @@ private:
 			}
 		}
 
-		if (current_intensity_index_ == 0 && waves_.empty())
+		return current_intensity_index_ > 0;
+	}
+
+	//
+	// Mixes the segments.
+	//
+	// Returns:
+	//    - "true" - if there is more data available.
+	//    - "false" - this is a last data block.
+	//
+	bool mix()
+	{
+		std::uninitialized_fill(mix_buffer_.begin(), mix_buffer_.end(), 0.0F);
+
+		if (!mix_prepare_segments() && waves_.empty())
 		{
 			// No more segments and no queued items left.
 			//
@@ -1389,14 +1453,24 @@ private:
 	void queue_waves(
 		const int mix_offset_delta)
 	{
-		auto d_segment = current_segment_.d_segment_;
+		if (current_intensity_index_ <= 0)
+		{
+			return;
+		}
 
-		const auto channel = d_segment->get_channel();
-		const auto variation = d_segment->select_next_variation();
-		const auto& segment_waves = d_segment->get_waves();
+		auto dm_segment = transition_dm_segment_;
+
+		if (!dm_segment)
+		{
+			dm_segment = intensities_[current_intensity_index_].segments_[current_segment_index_];
+		}
+
+		const auto channel = dm_segment->get_channel();
+		const auto variation = dm_segment->select_next_variation();
+		const auto& segment_waves = dm_segment->get_waves();
 
 		current_segment_.begin_mix_offset_ = mix_offset_ + mix_offset_delta;
-		current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + d_segment->get_length();
+		current_segment_.end_mix_offset_ = current_segment_.begin_mix_offset_ + dm_segment->get_length();
 
 		for (const auto& segment_wave : segment_waves)
 		{
@@ -1453,32 +1527,16 @@ private:
 
 			current_intensity_index_ = initial_intensity_index;
 			current_segment_index_ = 0;
-
-			if (current_intensity_index_ == 0)
-			{
-				return;
-			}
-
-			current_segment_.d_segment_ = intensities[current_intensity_index_].segments_.front();
-
-			transition_d_segment_ = nullptr;
+			transition_dm_segment_ = nullptr;
 		}
-		else if (transition_d_segment_)
+		else if (transition_dm_segment_)
 		{
 			// From a transition segment to the next intensity.
 			//
 
 			current_intensity_index_ = intensities[current_intensity_index_].next_number_;
-
-			if (current_intensity_index_ == 0)
-			{
-				return;
-			}
-
 			current_segment_index_ = 0;
-			current_segment_.d_segment_ = intensities[current_intensity_index_].segments_.front();
-
-			transition_d_segment_ = nullptr;
+			transition_dm_segment_ = nullptr;
 		}
 		else
 		{
@@ -1505,9 +1563,7 @@ private:
 				{
 					// Has transition segment. Use it.
 					//
-					transition_d_segment_ = map_it->second.segment_;
-
-					current_segment_.d_segment_ = transition_d_segment_;
+					transition_dm_segment_ = map_it->second.segment_;
 				}
 				else
 				{
@@ -1515,14 +1571,7 @@ private:
 					//
 
 					current_intensity_index_ = intensities[current_intensity_index_].next_number_;
-
-					if (current_intensity_index_ == 0)
-					{
-						return;
-					}
-
 					current_segment_index_ = 0;
-					current_segment_.d_segment_ = intensities[current_intensity_index_].segments_.front();
 				}
 			}
 			else
@@ -1538,8 +1587,6 @@ private:
 				{
 					current_segment_index_ += 1;
 				}
-
-				current_segment_.d_segment_ = intensities[current_intensity_index_].segments_[current_segment_index_];
 			}
 		}
 
@@ -1580,7 +1627,7 @@ private:
 			}
 		}
 
-		auto scale = 1.0F;
+		auto scale = 32768.0F;
 
 		if (min_amplitude != -1.0F || max_amplitude != 1.0F)
 		{
@@ -1589,7 +1636,8 @@ private:
 
 		for (auto i = 0; i < mix_sample_count_; ++i)
 		{
-			const auto sample = ul::Algorithm::clamp(static_cast<int>(mix_buffer_[i] * scale * 32768.0F), -32768, 32767);
+			const auto sample = ul::Algorithm::clamp(
+				static_cast<int>(mix_buffer_[i] * scale), -32768, 32767);
 
 			device_buffer_[i] = static_cast<std::int16_t>(sample);
 		}
@@ -1609,20 +1657,6 @@ private:
 
 				if (free_buffer_count > 0)
 				{
-					auto current_intensity_index = 0;
-
-					{
-						MtLockGuard mixer_lock{mt_mixer_mutex_};
-
-						if (enforce_intensity_index_ >= 0)
-						{
-							current_intensity_index_ = enforce_intensity_index_;
-							enforce_intensity_index_ = -1;
-						}
-
-						current_intensity_index = current_intensity_index_;
-					}
-
 					for (auto i = 0; i < free_buffer_count; ++i)
 					{
 						const auto is_last = !mix();
