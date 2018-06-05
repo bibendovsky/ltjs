@@ -15,11 +15,17 @@
 
 #include <cstdio>
 #include <algorithm>
+#include <chrono>
+#include <condition_variable>
+#include <functional>
 #include <list>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include "bibendovsky_spul_algorithm.h"
 #include "bibendovsky_spul_ascii_utils.h"
 #include "bibendovsky_spul_endian.h"
 #include "bibendovsky_spul_file_stream.h"
@@ -86,7 +92,14 @@ public:
 		waves_{},
 		decoder_buffer_{},
 		device_buffer_{},
-		mix_buffer_{}
+		mix_buffer_{},
+		music_stream_{},
+		mt_mixer_thread_{},
+		mt_mixer_cv_{},
+		mt_mixer_cv_mutex_{},
+		mt_mixer_mutex_{},
+		mt_mixer_cv_flag_{},
+		mt_is_quit_mixer_{}
 	{
 	}
 
@@ -125,7 +138,14 @@ public:
 		waves_{std::move(that.waves_)},
 		decoder_buffer_{std::move(that.decoder_buffer_)},
 		device_buffer_{std::move(that.device_buffer_)},
-		mix_buffer_{std::move(that.mix_buffer_)}
+		mix_buffer_{std::move(that.mix_buffer_)},
+		music_stream_{std::move(that.music_stream_)},
+		mt_mixer_thread_{std::move(that.mt_mixer_thread_)},
+		mt_mixer_cv_{},
+		mt_mixer_cv_mutex_{},
+		mt_mixer_mutex_{},
+		mt_mixer_cv_flag_{std::move(that.mt_mixer_cv_flag_)},
+		mt_is_quit_mixer_{std::move(that.mt_is_quit_mixer_)}
 	{
 		that.is_initialized_ = false;
 		that.is_level_initialized_ = false;
@@ -336,8 +356,8 @@ public:
 			transition_item.second.segment_ = segment;
 		}
 
-		mix_offset_ = 0;
-
+		// Initialize a music stream.
+		//
 		const auto mix_sample_size = byte_depth * channel_count;
 
 		mix_s16_size_ = (mix_sample_size * sample_rate_ * mix_size_ms) / 1000;
@@ -348,6 +368,17 @@ public:
 		mix_sample_count_ = mix_s16_size_ / byte_depth;
 		mix_f_size_ = mix_sample_count_ * byte_depth_f;
 
+		music_stream_ = sound_sys_->open_generic_stream(sample_rate_, mix_s16_size_);
+
+		if (!music_stream_)
+		{
+			log_error("Failed to initialize a music stream.");
+			return LT_ERROR;
+		}
+
+		// Initialize misc fields.
+		//
+		mix_offset_ = 0;
 		current_intensity_index_ = -1;
 		current_segment_index_ = {};
 		current_segment_ = {};
@@ -360,6 +391,12 @@ public:
 #ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
 		dbg_002_is_active_ = false;
 #endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+
+		// Multi-threading stuff.
+		//
+		mt_mixer_cv_flag_ = false;
+		mt_is_quit_mixer_ = false;
+		mt_mixer_thread_ = MtThread{std::bind(&Impl::mt_mixer_worker, this)};
 
 		is_level_initialized_ = true;
 
@@ -378,6 +415,20 @@ public:
 		{
 			log_error("Already terminated.");
 			return LT_OK;
+		}
+
+		if (mt_mixer_thread_.joinable())
+		{
+			mt_is_quit_mixer_ = true;
+			mt_notify_mixer();
+
+			mt_mixer_thread_.join();
+		}
+
+		if (music_stream_)
+		{
+			sound_sys_->close_generic_stream(music_stream_);
+			music_stream_ = nullptr;
 		}
 
 		working_directory_.clear();
@@ -418,15 +469,13 @@ public:
 
 	LTRESULT api_play()
 	{
-		return LT_ERROR;
+		return api_unpause();
 	}
 
 	LTRESULT api_stop(
 		const LTDMEnactTypes start_type)
 	{
-		static_cast<void>(start_type);
-
-		return LT_ERROR;
+		return api_pause(start_type);
 	}
 
 	LTRESULT api_pause(
@@ -434,30 +483,66 @@ public:
 	{
 		static_cast<void>(start_type);
 
-		return LT_ERROR;
+		if (!is_level_initialized_)
+		{
+			return LT_ERROR;
+		}
+
+		if (!sound_sys_->set_generic_stream_pause(music_stream_, true))
+		{
+			return LT_ERROR;
+		}
+
+		return LT_OK;
 	}
 
 	LTRESULT api_unpause()
 	{
-		return LT_ERROR;
+		if (!is_level_initialized_)
+		{
+			return LT_ERROR;
+		}
+
+		if (!sound_sys_->set_generic_stream_pause(music_stream_, false))
+		{
+			return LT_ERROR;
+		}
+
+		return LT_OK;
 	}
 
 	LTRESULT api_set_volume(
 		const long volume)
 	{
-		static_cast<void>(volume);
+		if (!is_level_initialized_)
+		{
+			return LT_ERROR;
+		}
 
-		return LT_ERROR;
+		if (!sound_sys_->set_generic_stream_volume(music_stream_, volume))
+		{
+			return LT_ERROR;
+		}
+
+		return LT_OK;
 	}
 
 	LTRESULT api_change_intensity(
 		const int new_intensity,
 		const LTDMEnactTypes start_type)
 	{
-		static_cast<void>(new_intensity);
 		static_cast<void>(start_type);
 
-		return LT_ERROR;
+		if (!is_level_initialized_)
+		{
+			return LT_ERROR;
+		}
+
+		MtLockGuard lock{mt_mixer_mutex_};
+
+		enforce_intensity_index_ = new_intensity;
+
+		return LT_OK;
 	}
 
 	LTRESULT api_play_secondary(
@@ -510,7 +595,14 @@ public:
 
 	int api_get_cur_intensity()
 	{
-		return -1;
+		if (!is_level_initialized_)
+		{
+			return -1;
+		}
+
+		MtLockGuard lock{mt_mixer_mutex_};
+
+		return current_intensity_index_;
 	}
 
 	LTDMEnactTypes api_string_to_enact_type(
@@ -537,22 +629,42 @@ public:
 
 	int api_get_num_intensities()
 	{
-		return 0;
+		if (!is_level_initialized_)
+		{
+			return 0;
+		}
+
+		return static_cast<int>(intensities_.size());
 	}
 
 	int api_get_initial_intensity()
 	{
-		return -1;
+		if (!is_level_initialized_)
+		{
+			return -1;
+		}
+
+		return initial_intensity_;
 	}
 
 	int api_get_initial_volume()
 	{
-		return 0;
+		if (!is_level_initialized_)
+		{
+			return 0;
+		}
+
+		return initial_volume_;
 	}
 
 	int api_get_volume_offset()
 	{
-		return 0;
+		if (!is_level_initialized_)
+		{
+			return 0;
+		}
+
+		return volume_offset_;
 	}
 
 	//
@@ -575,11 +687,16 @@ private:
 	static constexpr auto sample_size = channel_count * byte_depth;
 
 	// Size of decoder buffer, mix buffer and device buffer in milliseconds.
-	//static constexpr auto mix_size_ms = 50;
-	static constexpr auto mix_size_ms = 77;
+	static constexpr auto mix_size_ms = 50;
 
 	static constexpr auto max_intensity = 999;
 
+
+	using MtThread = std::thread;
+	using MtCondVar = std::condition_variable;
+	using MtMutex = std::mutex;
+	using MtLockGuard = std::lock_guard<MtMutex>;
+	using MtUniqueLock = std::unique_lock<MtMutex>;
 
 	using Strings = std::vector<std::string>;
 	using SegmentPtrList = std::vector<DMusicSegment*>;
@@ -723,6 +840,13 @@ private:
 	BufferS16 decoder_buffer_;
 	BufferS16 device_buffer_;
 	BufferF mix_buffer_;
+	ILTSoundSys::GenericStreamHandle music_stream_;
+	MtThread mt_mixer_thread_;
+	MtCondVar mt_mixer_cv_;
+	MtMutex mt_mixer_cv_mutex_;
+	MtMutex mt_mixer_mutex_;
+	bool mt_mixer_cv_flag_;
+	bool mt_is_quit_mixer_;
 
 
 	static const char* const unsupported_method_message;
@@ -1422,6 +1546,116 @@ private:
 		// Finally, queue the items of the current segment.
 		//
 		queue_waves(mix_delta_offset);
+	}
+
+	void mt_notify_mixer()
+	{
+		MtUniqueLock cv_lock{mt_mixer_cv_mutex_};
+		mt_mixer_cv_flag_ = true;
+		mt_mixer_cv_.notify_one();
+	}
+
+	void mt_wait_for_mixer_cv()
+	{
+		MtUniqueLock cv_lock{mt_mixer_cv_mutex_};
+		mt_mixer_cv_.wait(cv_lock, [&](){ return mt_mixer_cv_flag_; });
+		mt_mixer_cv_flag_ = false;
+	}
+
+	void update_device_buffer()
+	{
+		auto min_amplitude = -1.0F;
+		auto max_amplitude = 1.0F;
+
+		for (auto i = 0; i < mix_sample_count_; ++i)
+		{
+			if (mix_buffer_[i] < min_amplitude)
+			{
+				min_amplitude = mix_buffer_[i];
+			}
+
+			if (mix_buffer_[i] > max_amplitude)
+			{
+				max_amplitude = mix_buffer_[i];
+			}
+		}
+
+		auto scale = 1.0F;
+
+		if (min_amplitude != -1.0F || max_amplitude != 1.0F)
+		{
+			scale /= max_amplitude - min_amplitude;
+		}
+
+		for (auto i = 0; i < mix_sample_count_; ++i)
+		{
+			const auto sample = ul::Algorithm::clamp(static_cast<int>(mix_buffer_[i] * scale * 32768.0F), -32768, 32767);
+
+			device_buffer_[i] = static_cast<std::int16_t>(sample);
+		}
+	}
+
+	void mt_mixer_worker()
+	{
+		const auto delay = std::chrono::milliseconds{25};
+
+		while (!mt_is_quit_mixer_)
+		{
+			auto is_delay = true;
+
+			if (!sound_sys_->get_generic_stream_pause(music_stream_))
+			{
+				const auto free_buffer_count = sound_sys_->get_generic_stream_free_buffer_count(music_stream_);
+
+				if (free_buffer_count > 0)
+				{
+					auto current_intensity_index = 0;
+
+					{
+						MtLockGuard mixer_lock{mt_mixer_mutex_};
+
+						if (enforce_intensity_index_ >= 0)
+						{
+							current_intensity_index_ = enforce_intensity_index_;
+							enforce_intensity_index_ = -1;
+						}
+
+						current_intensity_index = current_intensity_index_;
+					}
+
+					for (auto i = 0; i < free_buffer_count; ++i)
+					{
+						const auto is_last = !mix();
+
+						update_device_buffer();
+
+						if (!sound_sys_->enqueue_generic_stream_buffer(music_stream_, device_buffer_.data()))
+						{
+							return;
+						}
+
+						if (is_last)
+						{
+							is_delay = false;
+							break;
+						}
+					}
+				}
+			}
+			else
+			{
+				is_delay = false;
+			}
+
+			if (is_delay)
+			{
+				std::this_thread::sleep_for(delay);
+			}
+			else
+			{
+				mt_wait_for_mixer_cv();
+			}
+		}
 	}
 
 
