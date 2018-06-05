@@ -1,5 +1,6 @@
 #include "precompile.h"
 
+#include <algorithm>
 #include "d3d_texture.h"
 #include "d3d_convar.h"
 #include "common_stuff.h"
@@ -542,10 +543,10 @@ RTexture* CTextureManager::CreateRTexture(SharedTexture* pSharedTexture, Texture
 		if ((g_Device.GetDeviceCaps()->TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP) == 0)
 			nMipsToCreate = 0;
 
-		HRESULT hResult = PD3DDEVICE->CreateCubeTexture(max(iTexWidth,iTexHeight),nMipsToCreate,NULL,iFormat,D3DPOOL_MANAGED,&pRTexture->m_pD3DCubeTexture);
+		HRESULT hResult = PD3DDEVICE->CreateCubeTexture(std::max(iTexWidth,iTexHeight),nMipsToCreate,NULL,iFormat,D3DPOOL_MANAGED,&pRTexture->m_pD3DCubeTexture);
 		if (hResult != D3D_OK) 
 		{
-			AddDebugMessage(4, "Unable to create (%d) cube texture surface.", max(iTexWidth,iTexHeight));
+			AddDebugMessage(4, "Unable to create (%d) cube texture surface.", std::max(iTexWidth,iTexHeight));
 			return NULL; 
 		}
 

@@ -34,6 +34,13 @@ function (ltjs_add_defaults)
         )
     endif ()
 
+	if (WIN32)
+		target_compile_definitions(
+			${ARGV0}
+			PRIVATE NOMINMAX
+		)
+	endif ()
+
     if (MSVC)
         target_compile_options(
             ${ARGV0}
