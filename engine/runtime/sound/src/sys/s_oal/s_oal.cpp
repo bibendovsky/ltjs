@@ -5098,9 +5098,9 @@ struct OalSoundSys::Impl
 			oal_source_{std::move(that.oal_source_)},
 			oal_buffers_{std::move(that.oal_buffers_)}
 		{
-			is_open_ = {};
-			oal_is_source_created_ = {};
-			oal_are_buffers_created_ = {};
+			that.is_open_ = {};
+			that.oal_is_source_created_ = {};
+			that.oal_are_buffers_created_ = {};
 		}
 
 		~GenericStream()
@@ -5228,7 +5228,7 @@ struct OalSoundSys::Impl
 
 			if (new_ds_volume == ds_volume_)
 			{
-				return false;
+				return true;
 			}
 
 			oal_gain_ = ltjs::AudioUtils::ds_volume_to_gain(new_ds_volume);
