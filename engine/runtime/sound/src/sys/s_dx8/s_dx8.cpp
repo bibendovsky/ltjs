@@ -144,10 +144,12 @@ public:
 		is_playing_{},
 		buffer_size_{},
 		queued_count_{},
+		ds_volume_{},
 		buffer_{},
 		buffer_queue_{},
 		ds_buffer_{},
-		win32_events_{}
+		win32_events_{},
+		mt_mutex_{}
 	{
 	}
 
@@ -159,11 +161,15 @@ public:
 		is_playing_{std::move(that.is_playing_)},
 		buffer_size_{std::move(that.buffer_size_)},
 		queued_count_{std::move(that.queued_count_)},
+		ds_volume_{std::move(that.ds_volume_)},
 		buffer_{std::move(that.buffer_)},
 		buffer_queue_{std::move(that.buffer_queue_)},
 		ds_buffer_{std::move(that.ds_buffer_)},
-		win32_events_{std::move(that.win32_events_)}
+		win32_events_{std::move(that.win32_events_)},
+		mt_mutex_{}
 	{
+		that.is_open_ = false;
+		that.ds_buffer_ = nullptr;
 	}
 
 	~GenericStream()
@@ -174,6 +180,8 @@ public:
 	static void initialize()
 	{
 		uninitialize();
+
+		mt_mixer_thread_ = MtThread{mixer_worker};
 	}
 
 	static void uninitialize()
@@ -188,8 +196,10 @@ public:
 			mt_mixer_thread_ = {};
 		}
 
-		mt_streams_to_add_ = {};
-		mt_streams_to_remove_ = {};
+		mt_stream_ptrs_to_add_.clear();
+		mt_stream_ptrs_to_remove_.clear();
+		mt_removed_stream_ptrs_.clear();
+		streams_.clear();
 	}
 
 	bool open(
@@ -212,7 +222,9 @@ public:
 			return false;
 		}
 
-		return false;
+		is_open_ = true;
+
+		return true;
 	}
 
 	void close()
@@ -237,14 +249,17 @@ public:
 		is_playing_ = false;
 		buffer_size_ = 0;
 		queued_count_ = 0;
+		ds_volume_ = 0;
 		buffer_ = {};
 		buffer_queue_ = {};
-		ds_buffer_ = {};
+		ds_buffer_ = nullptr;
 		win32_events_ = {};
 	}
 
 	bool get_pause()
 	{
+		MtLockGuard lock{mt_mutex_};
+
 		if (!is_open_ || is_failed_)
 		{
 			return false;
@@ -256,67 +271,190 @@ public:
 	bool set_pause(
 		const bool is_pause)
 	{
+		MtLockGuard lock{mt_mutex_};
+
 		if (!is_open_ || is_failed_)
 		{
 			return false;
 		}
 
+		if (is_playing_ == !is_pause)
+		{
+			return true;
+		}
+
 		is_playing_ = !is_pause;
 
-		return false;
+		auto ds_result = HRESULT{};
+
+		if (is_playing_)
+		{
+			if (!ds_restore_buffer())
+			{
+				return false;
+			}
+
+			ds_result = ds_buffer_->Play(0, 0, DSBPLAY_LOOPING);
+		}
+		else
+		{
+			ds_result = ds_buffer_->Stop();
+		}
+
+		if (FAILED(ds_result))
+		{
+			is_failed_ = true;
+			return false;
+		}
+
+		return true;
 	}
 
 	int get_volume()
 	{
+		MtLockGuard lock{mt_mutex_};
+
 		if (!is_open_ || is_failed_)
 		{
 			return 0;
 		}
 
-		return 0;
+		return ds_volume_;
 	}
 
 	bool set_volume(
 		const int ds_volume)
 	{
+		const auto new_ds_volume = ltjs::AudioUtils::clamp_ds_volume(ds_volume);
+
+		MtLockGuard lock{mt_mutex_};
+
 		if (!is_open_ || is_failed_)
 		{
 			return false;
 		}
 
-		return false;
+		if (new_ds_volume == ds_volume_)
+		{
+			return true;
+		}
+
+		ds_volume_ = new_ds_volume;
+
+		const auto ds_result = ds_buffer_->SetVolume(new_ds_volume);
+
+		if (FAILED(ds_result))
+		{
+			is_failed_ = true;
+			return false;
+		}
+
+		return true;
 	}
 
 	int get_free_buffer_count()
 	{
+		MtLockGuard lock{mt_mutex_};
+
 		if (!is_open_ || is_failed_)
 		{
 			return 0;
 		}
 
-		return 0;
+		return queue_size - queued_count_;
 	}
 
 	bool enqueue_buffer(
 		const void* buffer)
 	{
+		if (!buffer)
+		{
+			return false;
+		}
+
+		MtLockGuard lock{mt_mutex_};
+
 		if (!is_open_ || is_failed_)
 		{
 			return false;
 		}
 
-		return false;
+		if (queued_count_ == queue_size)
+		{
+			return false;
+		}
+
+		const auto src_buffer = static_cast<const std::uint8_t*>(buffer);
+		auto dst_buffer = buffer_queue_[queued_count_];
+
+		std::uninitialized_copy_n(src_buffer, buffer_size_, dst_buffer);
+
+		queued_count_ += 1;
+
+		return true;
+	}
+
+	static GenericStream* add_stream(
+		LPDIRECTSOUND8 ds8,
+		const int sample_rate,
+		const int buffer_size)
+	{
+		streams_.emplace_back();
+		auto& stream = streams_.back();
+
+		if (!stream.open(ds8, sample_rate, buffer_size))
+		{
+			streams_.pop_back();
+			return nullptr;
+		}
+
+		{
+			MtLockGuard lock{mt_mixer_mutex_};
+			mt_stream_ptrs_to_add_.emplace_back(&stream);
+		}
+
+		mt_notify_mixer();
+
+		return &stream;
+	}
+
+	static void remove_stream(
+		ILTSoundSys::GenericStreamHandle stream_handle)
+	{
+		if (!stream_handle)
+		{
+			return;
+		}
+
+		MtLockGuard lock{mt_mixer_mutex_};
+
+		mt_stream_ptrs_to_remove_.emplace_back(static_cast<GenericStream*>(stream_handle));
+
+		for (auto removed_stream_ptr : mt_removed_stream_ptrs_)
+		{
+			streams_.remove_if(
+				[&](const auto& item)
+				{
+					return &item == removed_stream_ptr;
+				}
+			);
+		}
+
+		mt_removed_stream_ptrs_.clear();
 	}
 
 
 private:
+	static constexpr auto ds_buffer_segment_count = 2;
+
+
 	using Buffer = std::vector<std::uint8_t>;
-	using BufferQueue = std::array<Buffer*, queue_size>;
+	using BufferQueue = std::array<std::uint8_t*, queue_size>;
 
 	using GenericStreams = std::list<GenericStream>;
-	using ActiveGenericStreams = std::list<GenericStream*>;
+	using GenericStreamPtrList = std::list<GenericStream*>;
 
-	using Win32Events = std::array<HANDLE, queue_size>;
+	using Win32Events = std::array<HANDLE, ds_buffer_segment_count>;
 
 	using MtThread = std::thread;
 	using MtMutex = std::mutex;
@@ -330,11 +468,15 @@ private:
 	bool is_playing_;
 	int buffer_size_;
 	int queued_count_;
+	int ds_volume_;
 	Buffer buffer_;
 	BufferQueue buffer_queue_;
 
 	LPDIRECTSOUNDBUFFER ds_buffer_;
 	Win32Events win32_events_;
+
+	MtMutex mt_mutex_;
+
 
 	static MtThread mt_mixer_thread_;
 	static MtMutex mt_mixer_mutex_;
@@ -345,8 +487,9 @@ private:
 	static bool mt_mixer_cv_flag_;
 
 	static GenericStreams streams_;
-	static ActiveGenericStreams mt_streams_to_add_;
-	static ActiveGenericStreams mt_streams_to_remove_;
+	static GenericStreamPtrList mt_stream_ptrs_to_add_;
+	static GenericStreamPtrList mt_stream_ptrs_to_remove_;
+	static GenericStreamPtrList mt_removed_stream_ptrs_;
 
 
 	bool initialize_ds_objects(
@@ -366,7 +509,7 @@ private:
 		auto ds_buffer_desc = DSBUFFERDESC{};
 		ds_buffer_desc.dwSize = static_cast<DWORD>(sizeof(DSBUFFERDESC));
 		ds_buffer_desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE;
-		ds_buffer_desc.dwBufferBytes = buffer_size_ * queue_size;
+		ds_buffer_desc.dwBufferBytes = buffer_size_ * ds_buffer_segment_count;
 		ds_buffer_desc.guid3DAlgorithm = DS3DALG_DEFAULT;
 		ds_buffer_desc.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&format);
 
@@ -377,7 +520,7 @@ private:
 			return false;
 		}
 
-		for (auto i = 0; i < queue_size; ++i)
+		for (auto i = 0; i < ds_buffer_segment_count; ++i)
 		{
 			auto win32_event = ::CreateEventW(nullptr, TRUE, FALSE, nullptr);
 
@@ -389,34 +532,139 @@ private:
 			win32_events_[i] = win32_event;
 		}
 
-		auto ds_notify = LPDIRECTSOUNDNOTIFY8{};
+		auto ds_notify8 = LPDIRECTSOUNDNOTIFY8{};
 
-		ds_result = ds_buffer_->QueryInterface(IID_IDirectSoundNotify8, reinterpret_cast<LPVOID*>(&ds_notify));
+		ds_result = ds_buffer_->QueryInterface(IID_IDirectSoundNotify8, reinterpret_cast<LPVOID*>(&ds_notify8));
 
 		if (FAILED(ds_result))
 		{
 			return false;
 		}
 
-		using DsNotifies = std::array<DSBPOSITIONNOTIFY, queue_size>;
+		using DsNotifies = std::array<DSBPOSITIONNOTIFY, ds_buffer_segment_count>;
 		auto ds_notifies = DsNotifies{};
 
-		std::generate(
-			ds_notifies.begin(),
-			ds_notifies.end(),
-			[&, i = 0]() mutable
-			{
-				return DSBPOSITIONNOTIFY{static_cast<DWORD>((buffer_size_ / 2) + (buffer_size_ * i)), win32_events_[i]};
-			}
-		);
+		for (auto i = 0; i < ds_buffer_segment_count; ++i)
+		{
+			auto& ds_notify = ds_notifies[i];
 
-		ds_result = ds_notify->SetNotificationPositions(queue_size, ds_notifies.data());
+			ds_notify.dwOffset = static_cast<DWORD>((buffer_size_ / 2) + (buffer_size_ * i));
+			ds_notify.hEventNotify = win32_events_[i];
+		}
 
-		static_cast<void>(ds_notify->Release());
+		ds_result = ds_notify8->SetNotificationPositions(ds_buffer_segment_count, ds_notifies.data());
+
+		static_cast<void>(ds_notify8->Release());
 
 		if (FAILED(ds_result))
 		{
 			return false;
+		}
+
+		buffer_.resize(buffer_size_ * queue_size);
+
+		for (auto i = 0; i < queue_size; ++i)
+		{
+			buffer_queue_[i] = &buffer_[i * buffer_size_];
+		}
+
+		return true;
+	}
+
+	bool ds_restore_buffer()
+	{
+		auto is_succeed = false;
+		auto ds_result = HRESULT{};
+
+		auto ds_status = DWORD{};
+
+		ds_result = ds_buffer_->GetStatus(&ds_status);
+
+		if (SUCCEEDED(ds_result))
+		{
+			if ((ds_status & DSBSTATUS_BUFFERLOST) != 0)
+			{
+				ds_result = ds_buffer_->Restore();
+
+				if (SUCCEEDED(ds_result))
+				{
+					is_succeed = true;
+				}
+			}
+			else
+			{
+				is_succeed = true;
+			}
+		}
+
+		if (!is_succeed)
+		{
+			is_failed_ = true;
+			return false;
+		}
+
+		return true;
+	}
+
+	bool ds_fill_segment(
+		const int segment_index)
+	{
+		if (!ds_restore_buffer())
+		{
+			return false;
+		}
+
+		auto ds_result = HRESULT{};
+
+		auto segment_offset = segment_index * buffer_size_;
+
+		auto src_buffer = (queued_count_ > 0 ? buffer_queue_.front() : nullptr);
+
+		auto buffer1 = LPVOID{};
+		auto buffer1_size = DWORD{};
+
+		auto buffer2 = LPVOID{};
+		auto buffer2_size = DWORD{};
+
+		ds_result = ds_buffer_->Lock(
+			segment_offset,
+			buffer_size_,
+			&buffer1,
+			&buffer1_size,
+			&buffer2,
+			&buffer2_size,
+			0);
+
+		if (FAILED(ds_result))
+		{
+			is_failed_ = true;
+			return false;
+		}
+
+		auto dst_buffer = static_cast<std::uint8_t*>(buffer1);
+
+		if (src_buffer)
+		{
+			std::uninitialized_copy_n(src_buffer, buffer_size_, dst_buffer);
+		}
+		else
+		{
+			std::uninitialized_fill_n(dst_buffer, buffer_size_, std::uint8_t{});
+		}
+
+		ds_result = ds_buffer_->Unlock(buffer1, buffer1_size, buffer2, buffer2_size);
+
+		if (FAILED(ds_result))
+		{
+			is_failed_ = true;
+			return false;
+		}
+
+		if (queued_count_ > 0)
+		{
+			queued_count_ -= 1;
+
+			std::rotate(buffer_queue_.begin(), buffer_queue_.begin() + 1, buffer_queue_.end());
 		}
 
 		return true;
@@ -438,34 +686,82 @@ private:
 
 	static void mixer_worker()
 	{
-		auto streams = ActiveGenericStreams{};
+		const auto delay = std::chrono::milliseconds(10);
+
+		auto stream_ptrs = GenericStreamPtrList{};
 
 		while (!mt_is_quit_mixer_)
 		{
 			{
 				MtLockGuard lock{mt_mixer_mutex_};
 
-				while (!mt_streams_to_add_.empty())
+				for (auto stream_ptr : mt_stream_ptrs_to_add_)
 				{
-					const auto stream = mt_streams_to_add_.back();
-					streams.emplace_back(stream);
+					stream_ptrs.emplace_back(stream_ptr);
 				}
 
-				while (!mt_streams_to_remove_.empty())
-				{
-					const auto stream = mt_streams_to_remove_.back();
+				mt_stream_ptrs_to_add_.clear();
 
-					streams.remove_if(
+				for (auto stream_ptr : mt_stream_ptrs_to_remove_)
+				{
+					mt_removed_stream_ptrs_.emplace_back(stream_ptr);
+
+					stream_ptrs.remove_if(
 						[&](const auto& item)
 						{
-							return item == stream;
+							return item == stream_ptr;
 						}
 					);
 				}
+
+				mt_stream_ptrs_to_remove_.clear();
 			}
 
-			if (!streams.empty())
+			if (!stream_ptrs.empty())
 			{
+				for (auto stream_ptr : stream_ptrs)
+				{
+					auto& stream = *stream_ptr;
+
+					MtLockGuard lock{stream.mt_mutex_};
+
+					if (!stream.is_open_ || stream.is_failed_ || !stream.is_playing_)
+					{
+						continue;
+					}
+
+					const auto wait_result = ::WaitForMultipleObjects(
+						static_cast<DWORD>(ds_buffer_segment_count),
+						stream.win32_events_.data(),
+						FALSE,
+						0);
+
+					if (wait_result < WAIT_OBJECT_0 || wait_result >= (WAIT_OBJECT_0 + ds_buffer_segment_count))
+					{
+						continue;
+					}
+
+					const auto active_index = static_cast<int>(wait_result - WAIT_OBJECT_0);
+
+					auto wtf = false;
+
+					if (active_index == 1)
+					{
+						wtf = true;
+					}
+
+					static_cast<void>(::ResetEvent(stream.win32_events_[active_index]));
+
+					const auto free_index = (active_index + 1) % ds_buffer_segment_count;
+
+					if (!stream.ds_fill_segment(free_index))
+					{
+						stream.is_failed_ = true;
+						continue;
+					}
+				}
+
+				std::this_thread::sleep_for(delay);
 			}
 			else
 			{
@@ -474,6 +770,20 @@ private:
 		}
 	}
 }; // GenericStream
+
+
+GenericStream::MtThread GenericStream::mt_mixer_thread_;
+GenericStream::MtMutex GenericStream::mt_mixer_mutex_;
+bool GenericStream::mt_is_quit_mixer_;
+
+GenericStream::MtCondVar GenericStream::mt_mixer_cv_;
+GenericStream::MtMutex GenericStream::mt_mixer_cv_mutex_;
+bool GenericStream::mt_mixer_cv_flag_;
+
+GenericStream::GenericStreams GenericStream::streams_;
+GenericStream::GenericStreamPtrList GenericStream::mt_stream_ptrs_to_add_;
+GenericStream::GenericStreamPtrList GenericStream::mt_stream_ptrs_to_remove_;
+GenericStream::GenericStreamPtrList GenericStream::mt_removed_stream_ptrs_;
 
 
 } // namespace
@@ -2393,6 +2703,8 @@ bool CDx8SoundSys::Init( )
 
 	g_pSoundSys = this;
 
+	GenericStream::initialize();
+
 	return true;
 
 }
@@ -2416,6 +2728,8 @@ void CDx8SoundSys::handle_focus_lost(
 
 void CDx8SoundSys::Term( )
 {
+	GenericStream::uninitialize();
+
 	// Shut down the thread
 	is_mt_shutdown_ = true;
 
@@ -2471,75 +2785,99 @@ ILTSoundSys::GenericStreamHandle CDx8SoundSys::open_generic_stream(
 	const int sample_rate,
 	const int buffer_size)
 {
-	static_cast<void>(sample_rate);
-	static_cast<void>(buffer_size);
-
-	return nullptr;
+	return GenericStream::add_stream(m_pDirectSound, sample_rate, buffer_size);
 }
 
 void CDx8SoundSys::close_generic_stream(
 	GenericStreamHandle stream_handle)
 {
-	static_cast<void>(stream_handle);
+	return GenericStream::remove_stream(stream_handle);
 }
 
 int CDx8SoundSys::get_generic_stream_queue_size()
 {
-	return 0;
+	return GenericStream::queue_size;
 }
 
 int CDx8SoundSys::get_generic_stream_free_buffer_count(
 	GenericStreamHandle stream_handle)
 {
-	static_cast<void>(stream_handle);
+	if (!stream_handle)
+	{
+		return 0;
+	}
 
-	return 0;
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.get_free_buffer_count();
 }
 
 bool CDx8SoundSys::enqueue_generic_stream_buffer(
 	GenericStreamHandle stream_handle,
 	const void* buffer)
 {
-	static_cast<void>(stream_handle);
-	static_cast<void>(buffer);
+	if (!stream_handle)
+	{
+		return false;
+	}
 
-	return false;
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.enqueue_buffer(buffer);
 }
 
 bool CDx8SoundSys::set_generic_stream_pause(
 	GenericStreamHandle stream_handle,
 	const bool is_pause)
 {
-	static_cast<void>(stream_handle);
-	static_cast<void>(is_pause);
+	if (!stream_handle)
+	{
+		return false;
+	}
 
-	return false;
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.set_pause(is_pause);
 }
 
 bool CDx8SoundSys::get_generic_stream_pause(
 	GenericStreamHandle stream_handle)
 {
-	static_cast<void>(stream_handle);
+	if (!stream_handle)
+	{
+		return false;
+	}
 
-	return false;
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.get_pause();
 }
 
 bool CDx8SoundSys::set_generic_stream_volume(
 	GenericStreamHandle stream_handle,
 	const int ds_volume)
 {
-	static_cast<void>(stream_handle);
-	static_cast<void>(ds_volume);
+	if (!stream_handle)
+	{
+		return false;
+	}
 
-	return false;
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.set_volume(ds_volume);
 }
 
 int CDx8SoundSys::get_generic_stream_volume(
 	GenericStreamHandle stream_handle)
 {
-	static_cast<void>(stream_handle);
+	if (!stream_handle)
+	{
+		return 0;
+	}
 
-	return 0;
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.get_volume();
 }
 
 //	===========================================================================
