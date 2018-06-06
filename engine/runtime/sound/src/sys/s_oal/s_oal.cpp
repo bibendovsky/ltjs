@@ -342,8 +342,7 @@ struct OalSoundSys::Impl
 			oal_source_{},
 			oal_buffer_format_{},
 			oal_buffers_{},
-			oal_queued_buffers_{},
-			oal_unqueued_buffers_{}
+			oal_queued_count_{}
 		{
 			switch (type)
 			{
@@ -431,8 +430,7 @@ struct OalSoundSys::Impl
 			oal_source_{std::move(that.oal_source_)},
 			oal_buffer_format_{std::move(that.oal_buffer_format_)},
 			oal_buffers_{std::move(that.oal_buffers_)},
-			oal_queued_buffers_{std::move(that.oal_queued_buffers_)},
-			oal_unqueued_buffers_{std::move(that.oal_unqueued_buffers_)}
+			oal_queued_count_{std::move(that.oal_queued_count_)}
 		{
 			that.oal_are_buffers_created_ = false;
 			that.oal_is_source_created_ = false;
@@ -733,32 +731,28 @@ struct OalSoundSys::Impl
 			}
 
 			auto oal_processed = ALint{};
-			auto oal_queued = ALint{};
 
 			::alGetSourcei(oal_source_, AL_BUFFERS_PROCESSED, &oal_processed);
-			assert(oal_is_succeed());
-			::alGetSourcei(oal_source_, AL_BUFFERS_QUEUED, &oal_queued);
 			assert(oal_is_succeed());
 
 			if (oal_processed > 0)
 			{
-				auto buffers = OalBuffers{};
-				const auto old_size = oal_unqueued_buffers_.size();
-
-				oal_unqueued_buffers_.resize(
-					old_size + std::min(oal_processed, oal_max_buffer_count));
+				std::rotate(oal_buffers_.begin(), oal_buffers_.begin() + oal_processed, oal_buffers_.end());
 
 				::alSourceUnqueueBuffers(
 					oal_source_,
 					oal_processed,
-					&oal_unqueued_buffers_[old_size]);
+					&oal_buffers_[oal_max_buffer_count - oal_processed]);
 
 				assert(oal_is_succeed());
+
+				oal_queued_count_ -= oal_processed;
+				assert(oal_queued_count_ >= 0);
 			}
 
 			if (!is_looping_ && data_offset_ == data_size_)
 			{
-				if (oal_queued == 0)
+				if (oal_queued_count_ == 0)
 				{
 					is_playing_ = false;
 					::alSourcePause(oal_source_);
@@ -767,31 +761,23 @@ struct OalSoundSys::Impl
 					return;
 				}
 
-				if (oal_queued > 0)
+				if (oal_queued_count_ > 0)
 				{
 					return;
 				}
 			}
 
+
 			auto queued_count = 0;
 
-			for (auto i = oal_queued; i < oal_max_buffer_count; ++i)
+			for (auto i = oal_queued_count_; i < oal_max_buffer_count; ++i)
 			{
-				if (oal_unqueued_buffers_.empty())
-				{
-					break;
-				}
-
 				auto decoded_mix_size = mix_fill_buffer();
 
 				if (decoded_mix_size == 0)
 				{
 					break;
 				}
-
-				const auto oal_buffer = oal_unqueued_buffers_.back();
-				oal_unqueued_buffers_.pop_back();
-				oal_queued_buffers_.push_back(oal_buffer);
 
 				auto buffer_size = mix_size_;
 				auto buffer_data = mix_mono_buffer_.data();
@@ -801,6 +787,8 @@ struct OalSoundSys::Impl
 					buffer_size *= 2;
 					buffer_data = mix_stereo_buffer_.data();
 				}
+
+				const auto oal_buffer = oal_buffers_[oal_queued_count_];
 
 				::alBufferData(
 					oal_buffer,
@@ -816,6 +804,7 @@ struct OalSoundSys::Impl
 				assert(oal_is_succeed());
 
 				queued_count += 1;
+				oal_queued_count_ += 1;
 
 				if (decoded_mix_size < mix_size_)
 				{
@@ -1268,8 +1257,7 @@ struct OalSoundSys::Impl
 
 		ALenum oal_buffer_format_;
 		OalBuffers oal_buffers_;
-		OalQueueBuffers oal_queued_buffers_;
-		OalQueueBuffers oal_unqueued_buffers_;
+		int oal_queued_count_;
 
 
 		void create()
@@ -1416,12 +1404,7 @@ struct OalSoundSys::Impl
 			data_size_ = {};
 			data_offset_ = {};
 
-			oal_queued_buffers_.clear();
-			oal_queued_buffers_.reserve(oal_max_buffer_count);
-
-			oal_unqueued_buffers_.clear();
-			oal_unqueued_buffers_.reserve(oal_max_buffer_count);
-			oal_unqueued_buffers_.assign(oal_buffers_.cbegin(), oal_buffers_.cend());
+			oal_queued_count_ = 0;
 
 			channel_count_ = {};
 			bit_depth_ = {};
