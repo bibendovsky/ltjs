@@ -1,8 +1,14 @@
 #include "s_dx8.h"
 #include <array>
 #include <chrono>
+#include <condition_variable>
 #include <functional>
+#include <list>
 #include <memory>
+#include <mutex>
+#include <thread>
+#include <utility>
+#include <vector>
 #include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "eax.h"
@@ -114,6 +120,364 @@ enum
 // hack to let filter information be passed between sound system and samples for EAX sound buffers
 static sint32 g_iCurrentEAXDirectSetting;
 #endif
+
+
+namespace
+{
+
+
+class GenericStream
+{
+public:
+	static constexpr auto channel_count = 2;
+	static constexpr auto bit_depth = 16;
+	static constexpr auto byte_depth = bit_depth / 8;
+	static constexpr auto sample_size = channel_count * byte_depth;
+
+	static constexpr auto queue_size = 3;
+
+
+	GenericStream()
+		:
+		is_open_{},
+		is_failed_{},
+		is_playing_{},
+		buffer_size_{},
+		queued_count_{},
+		buffer_{},
+		buffer_queue_{},
+		ds_buffer_{},
+		win32_events_{}
+	{
+	}
+
+	GenericStream(
+		GenericStream&& that)
+		:
+		is_open_{std::move(that.is_open_)},
+		is_failed_{std::move(that.is_failed_)},
+		is_playing_{std::move(that.is_playing_)},
+		buffer_size_{std::move(that.buffer_size_)},
+		queued_count_{std::move(that.queued_count_)},
+		buffer_{std::move(that.buffer_)},
+		buffer_queue_{std::move(that.buffer_queue_)},
+		ds_buffer_{std::move(that.ds_buffer_)},
+		win32_events_{std::move(that.win32_events_)}
+	{
+	}
+
+	~GenericStream()
+	{
+		close();
+	}
+
+	static void initialize()
+	{
+		uninitialize();
+	}
+
+	static void uninitialize()
+	{
+		if (mt_mixer_thread_.joinable())
+		{
+			mt_is_quit_mixer_ = true;
+			mt_notify_mixer();
+			mt_mixer_thread_.join();
+
+			mt_is_quit_mixer_ = false;
+			mt_mixer_thread_ = {};
+		}
+
+		mt_streams_to_add_ = {};
+		mt_streams_to_remove_ = {};
+	}
+
+	bool open(
+		LPDIRECTSOUND8 ds8,
+		const int sample_rate,
+		const int buffer_size)
+	{
+		close();
+
+		if (!ds8 || sample_rate <= 0 || buffer_size <= 0 || (buffer_size % sample_size) != 0)
+		{
+			return false;
+		}
+
+		buffer_size_ = buffer_size;
+
+		if (!initialize_ds_objects(ds8, sample_rate))
+		{
+			close();
+			return false;
+		}
+
+		return false;
+	}
+
+	void close()
+	{
+		if (ds_buffer_)
+		{
+			static_cast<void>(ds_buffer_->Release());
+			ds_buffer_ = nullptr;
+		}
+
+		for (auto& win32_event : win32_events_)
+		{
+			if (win32_event)
+			{
+				static_cast<void>(::CloseHandle(win32_event));
+				win32_event = nullptr;
+			}
+		}
+
+		is_open_ = false;
+		is_failed_ = false;
+		is_playing_ = false;
+		buffer_size_ = 0;
+		queued_count_ = 0;
+		buffer_ = {};
+		buffer_queue_ = {};
+		ds_buffer_ = {};
+		win32_events_ = {};
+	}
+
+	bool get_pause()
+	{
+		if (!is_open_ || is_failed_)
+		{
+			return false;
+		}
+
+		return !is_playing_;
+	}
+
+	bool set_pause(
+		const bool is_pause)
+	{
+		if (!is_open_ || is_failed_)
+		{
+			return false;
+		}
+
+		is_playing_ = !is_pause;
+
+		return false;
+	}
+
+	int get_volume()
+	{
+		if (!is_open_ || is_failed_)
+		{
+			return 0;
+		}
+
+		return 0;
+	}
+
+	bool set_volume(
+		const int ds_volume)
+	{
+		if (!is_open_ || is_failed_)
+		{
+			return false;
+		}
+
+		return false;
+	}
+
+	int get_free_buffer_count()
+	{
+		if (!is_open_ || is_failed_)
+		{
+			return 0;
+		}
+
+		return 0;
+	}
+
+	bool enqueue_buffer(
+		const void* buffer)
+	{
+		if (!is_open_ || is_failed_)
+		{
+			return false;
+		}
+
+		return false;
+	}
+
+
+private:
+	using Buffer = std::vector<std::uint8_t>;
+	using BufferQueue = std::array<Buffer*, queue_size>;
+
+	using GenericStreams = std::list<GenericStream>;
+	using ActiveGenericStreams = std::list<GenericStream*>;
+
+	using Win32Events = std::array<HANDLE, queue_size>;
+
+	using MtThread = std::thread;
+	using MtMutex = std::mutex;
+	using MtLockGuard = std::lock_guard<MtMutex>;
+	using MtUniqueLock = std::unique_lock<MtMutex>;
+	using MtCondVar = std::condition_variable;
+
+
+	bool is_open_;
+	bool is_failed_;
+	bool is_playing_;
+	int buffer_size_;
+	int queued_count_;
+	Buffer buffer_;
+	BufferQueue buffer_queue_;
+
+	LPDIRECTSOUNDBUFFER ds_buffer_;
+	Win32Events win32_events_;
+
+	static MtThread mt_mixer_thread_;
+	static MtMutex mt_mixer_mutex_;
+	static bool mt_is_quit_mixer_;
+
+	static MtCondVar mt_mixer_cv_;
+	static MtMutex mt_mixer_cv_mutex_;
+	static bool mt_mixer_cv_flag_;
+
+	static GenericStreams streams_;
+	static ActiveGenericStreams mt_streams_to_add_;
+	static ActiveGenericStreams mt_streams_to_remove_;
+
+
+	bool initialize_ds_objects(
+		LPDIRECTSOUND8 ds8,
+		const int sample_rate)
+	{
+		auto ds_result = HRESULT{};
+
+		auto format = ul::WaveFormatEx{};
+		format.tag_ = ul::WaveFormatTag::pcm;
+		format.bit_depth_ = static_cast<WORD>(bit_depth);
+		format.channel_count_ = static_cast<WORD>(channel_count);
+		format.block_align_ = static_cast<WORD>(sample_size);
+		format.sample_rate_ = sample_rate;
+		format.avg_bytes_per_sec_ = sample_rate * sample_size;
+
+		auto ds_buffer_desc = DSBUFFERDESC{};
+		ds_buffer_desc.dwSize = static_cast<DWORD>(sizeof(DSBUFFERDESC));
+		ds_buffer_desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE;
+		ds_buffer_desc.dwBufferBytes = buffer_size_ * queue_size;
+		ds_buffer_desc.guid3DAlgorithm = DS3DALG_DEFAULT;
+		ds_buffer_desc.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&format);
+
+		ds_result = ds8->CreateSoundBuffer(&ds_buffer_desc, &ds_buffer_, nullptr);
+
+		if (FAILED(ds_result))
+		{
+			return false;
+		}
+
+		for (auto i = 0; i < queue_size; ++i)
+		{
+			auto win32_event = ::CreateEventW(nullptr, TRUE, FALSE, nullptr);
+
+			if (!win32_event)
+			{
+				return false;
+			}
+
+			win32_events_[i] = win32_event;
+		}
+
+		auto ds_notify = LPDIRECTSOUNDNOTIFY8{};
+
+		ds_result = ds_buffer_->QueryInterface(IID_IDirectSoundNotify8, reinterpret_cast<LPVOID*>(&ds_notify));
+
+		if (FAILED(ds_result))
+		{
+			return false;
+		}
+
+		using DsNotifies = std::array<DSBPOSITIONNOTIFY, queue_size>;
+		auto ds_notifies = DsNotifies{};
+
+		std::generate(
+			ds_notifies.begin(),
+			ds_notifies.end(),
+			[&, i = 0]() mutable
+			{
+				return DSBPOSITIONNOTIFY{static_cast<DWORD>((buffer_size_ / 2) + (buffer_size_ * i)), win32_events_[i]};
+			}
+		);
+
+		ds_result = ds_notify->SetNotificationPositions(queue_size, ds_notifies.data());
+
+		static_cast<void>(ds_notify->Release());
+
+		if (FAILED(ds_result))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	static void mt_notify_mixer()
+	{
+		MtUniqueLock cv_lock{mt_mixer_cv_mutex_};
+		mt_mixer_cv_flag_ = true;
+		mt_mixer_cv_.notify_one();
+	}
+
+	static void mt_wait_for_mixer_cv()
+	{
+		MtUniqueLock cv_lock{mt_mixer_cv_mutex_};
+		mt_mixer_cv_.wait(cv_lock, [&](){ return mt_mixer_cv_flag_; });
+		mt_mixer_cv_flag_ = false;
+	}
+
+	static void mixer_worker()
+	{
+		auto streams = ActiveGenericStreams{};
+
+		while (!mt_is_quit_mixer_)
+		{
+			{
+				MtLockGuard lock{mt_mixer_mutex_};
+
+				while (!mt_streams_to_add_.empty())
+				{
+					const auto stream = mt_streams_to_add_.back();
+					streams.emplace_back(stream);
+				}
+
+				while (!mt_streams_to_remove_.empty())
+				{
+					const auto stream = mt_streams_to_remove_.back();
+
+					streams.remove_if(
+						[&](const auto& item)
+						{
+							return item == stream;
+						}
+					);
+				}
+			}
+
+			if (!streams.empty())
+			{
+			}
+			else
+			{
+				mt_wait_for_mixer_cv();
+			}
+		}
+	}
+}; // GenericStream
+
+
+} // namespace
+
 
 //! WaveFile
 
