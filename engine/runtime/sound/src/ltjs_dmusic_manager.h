@@ -109,7 +109,7 @@ private:
 	using ImplUPtr = std::unique_ptr<Impl>;
 
 
-	ImplUPtr pimpl_;
+	ImplUPtr impl_;
 }; // DMusicManager
 
 

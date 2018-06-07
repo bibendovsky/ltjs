@@ -87,32 +87,6 @@ public:
 	Impl& operator=(
 		const Impl& that) = delete;
 
-	Impl(
-		Impl&& that)
-		:
-		is_open_{std::move(that.is_open_)},
-		error_message_{std::move(that.error_message_)},
-		file_name_{std::move(that.file_name_)},
-		working_dir_{std::move(that.working_dir_)},
-		file_image_{std::move(that.file_image_)},
-		memory_stream_{std::move(that.memory_stream_)},
-		riff_reader_{std::move(that.riff_reader_)},
-		wave_cache_{std::move(that.wave_cache_)},
-		sample_rate_{std::move(that.sample_rate_)},
-		waves_{std::move(that.waves_)},
-		length_{std::move(that.length_)},
-		channel_{std::move(that.channel_)},
-		current_variation_{std::move(that.current_variation_)},
-		variation_list_{std::move(that.variation_list_)},
-		last_variation_index_{std::move(that.last_variation_index_)},
-		is_variation_no_repeat_{std::move(that.is_variation_no_repeat_)}
-#ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
-		,
-		debug_001_stream_{std::move(that.debug_001_stream_)}
-#endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
-	{
-	}
-
 	~Impl()
 	{
 		close_internal();
@@ -159,7 +133,7 @@ public:
 		return channel_;
 	}
 
-	int api_get_current_variations() const
+	int api_get_current_variation() const
 	{
 		return current_variation_;
 	}
@@ -173,7 +147,7 @@ public:
 	{
 		if (!is_open_)
 		{
-			return {};
+			return 0;
 		}
 
 		select_next_variation();
@@ -197,7 +171,7 @@ private:
 	static constexpr auto default_variation_mask = std::uint32_t{1};
 
 
-	using Buffer = std::vector<std::uint8_t>;
+	using Buffer = std::vector<ul::UnValue<std::uint8_t>>;
 	using WaveCache = std::vector<ul::UnValue<std::uint8_t>>;
 
 	using IoMusicTime8 = std::int32_t;
@@ -207,7 +181,8 @@ private:
 	struct ValidFlags8 :
 		ul::EnumFlagsT<std::uint32_t>
 	{
-		ValidFlags8(const Value flags = none)
+		ValidFlags8(
+			const Value flags = none)
 			:
 			EnumFlagsT<std::uint32_t>{flags}
 		{
@@ -217,10 +192,10 @@ private:
 		{
 			file_name = 0B0001'0000,
 		}; // Value
-	}; // Flags
+	}; // ValidFlags8
 
 
-	struct IoSegmentHeader8
+	struct DmIoSegmentHeader
 	{
 		static constexpr auto class_size = 40;
 
@@ -236,7 +211,7 @@ private:
 		std::uint32_t reserved_;
 
 
-		IoSegmentHeader8()
+		DmIoSegmentHeader()
 			:
 			repeat_count_{},
 			mt_length_{},
@@ -248,7 +223,7 @@ private:
 			flags_{},
 			reserved_{}
 		{
-			static_assert(class_size == sizeof(IoSegmentHeader8), "Invalid class size.");
+			static_assert(class_size == sizeof(DmIoSegmentHeader), "Invalid class size.");
 		}
 
 		bool read(
@@ -328,18 +303,18 @@ private:
 
 			return true;
 		}
-	}; // IoSegmentHeader8
+	}; // DmIoSegmentHeader
 
-	enum class IoTrackType8
+	enum class DmIoTrackType
 	{
 		none,
 		tempo,
 		time_signature,
 		sequence,
 		wave,
-	}; // IoTrackType8
+	}; // DmIoTrackType
 
-	struct IoTempoItem8
+	struct DmIoTempoItem
 	{
 		static constexpr auto class_size = 16;
 
@@ -348,12 +323,12 @@ private:
 		double tempo_;
 
 
-		IoTempoItem8()
+		DmIoTempoItem()
 			:
 			time_{},
 			tempo_{}
 		{
-			static_assert(class_size == sizeof(IoTempoItem8), "Invalid class size.");
+			static_assert(class_size == sizeof(DmIoTempoItem), "Invalid class size.");
 		}
 
 		bool read(
@@ -403,9 +378,9 @@ private:
 
 			return true;
 		}
-	}; // IoTempoItem8
+	}; // DmIoTempoItem
 
-	struct IoTimeSignatureItem8
+	struct DmIoTimeSignatureItem
 	{
 		static constexpr auto class_size = 8;
 
@@ -416,14 +391,14 @@ private:
 		std::uint16_t grids_per_beat_;
 
 
-		IoTimeSignatureItem8()
+		DmIoTimeSignatureItem()
 			:
 			time_{},
 			beats_per_measure_{},
 			beat_{},
 			grids_per_beat_{}
 		{
-			static_assert(class_size == sizeof(IoTimeSignatureItem8), "Invalid class size.");
+			static_assert(class_size == sizeof(DmIoTimeSignatureItem), "Invalid class size.");
 		}
 
 		bool read(
@@ -492,9 +467,9 @@ private:
 			return true;
 		}
 
-	}; // IoTimeSignatureItem8
+	}; // DmIoTimeSignatureItem
 
-	struct IoSequenceItem8
+	struct DmIoSequenceItem
 	{
 		static constexpr auto class_size = 20;
 
@@ -508,7 +483,7 @@ private:
 		std::uint8_t byte_2_;
 
 
-		IoSequenceItem8()
+		DmIoSequenceItem()
 			:
 			mt_time_{},
 			mt_duration_{},
@@ -518,7 +493,7 @@ private:
 			byte_1_{},
 			byte_2_{}
 		{
-			static_assert(class_size == sizeof(IoSequenceItem8), "Invalid class size.");
+			static_assert(class_size == sizeof(DmIoSequenceItem), "Invalid class size.");
 		}
 
 		bool read(
@@ -596,12 +571,12 @@ private:
 
 			return true;
 		}
-	}; // IoSequenceItem8
+	}; // DmIoSequenceItem
 
-	using IoSequenceItems8 = std::vector<IoSequenceItem8>;
+	using DmIoSequenceItems = std::vector<DmIoSequenceItem>;
 
 
-	struct IoCurveItem8
+	struct DmIoCurveItem
 	{
 		static constexpr auto class_size = 32;
 
@@ -629,7 +604,8 @@ private:
 		struct Flags :
 			ul::EnumFlagsT<std::uint8_t>
 		{
-			Flags(const Value flags = none)
+			Flags(
+				const Value flags = none)
 				:
 				EnumFlagsT<std::uint8_t>{flags}
 			{
@@ -659,7 +635,7 @@ private:
 		std::uint16_t merge_index_;
 
 
-		IoCurveItem8()
+		DmIoCurveItem()
 			:
 			mt_start_{},
 			mt_duration_{},
@@ -676,7 +652,7 @@ private:
 			param_type_{},
 			merge_index_{}
 		{
-			static_assert(class_size == sizeof(IoCurveItem8), "Invalid class size.");
+			static_assert(class_size == sizeof(DmIoCurveItem), "Invalid class size.");
 		}
 
 
@@ -797,12 +773,12 @@ private:
 
 			return true;
 		}
-	}; // IoCurveItem8
+	}; // DmIoCurveItem
 
-	using IoCurveItems8 = std::vector<IoCurveItem8>;
+	using DmIoCurveItems = std::vector<DmIoCurveItem>;
 
 
-	struct IoWaveTrackHeader8
+	struct DmIoWaveTrackHeader
 	{
 		static constexpr auto class_size = 8;
 
@@ -810,7 +786,8 @@ private:
 		struct Flags :
 			ul::EnumFlagsT<std::uint32_t>
 		{
-			Flags(const Value flags = none)
+			Flags(
+				const Value flags = none)
 				:
 				EnumFlagsT<std::uint32_t>{flags}
 			{
@@ -827,12 +804,12 @@ private:
 		Flags flags_;
 
 
-		IoWaveTrackHeader8()
+		DmIoWaveTrackHeader()
 			:
 			volume_{},
 			flags_{}
 		{
-			static_assert(class_size == sizeof(IoWaveTrackHeader8), "Invalid class size.");
+			static_assert(class_size == sizeof(DmIoWaveTrackHeader), "Invalid class size.");
 		}
 
 		bool read(
@@ -874,9 +851,9 @@ private:
 
 			return true;
 		}
-	}; // IoWaveTrackHeader8
+	}; // DmIoWaveTrackHeader
 
-	struct IoWavePartHeader8
+	struct DmIoWavePartHeader
 	{
 		static constexpr auto class_size = 24;
 
@@ -897,7 +874,7 @@ private:
 		std::uint32_t index_;
 
 
-		IoWavePartHeader8()
+		DmIoWavePartHeader()
 			:
 			volume_{},
 			variations_{},
@@ -906,7 +883,7 @@ private:
 			flags_{},
 			index_{}
 		{
-			static_assert(class_size == sizeof(IoWavePartHeader8), "Invalid class size.");
+			static_assert(class_size == sizeof(DmIoWavePartHeader), "Invalid class size.");
 		}
 
 		bool read(
@@ -973,9 +950,9 @@ private:
 
 			return true;
 		}
-	}; // IoWavePartHeader8
+	}; // DmIoWavePartHeader
 
-	struct IoWaveItemHeader8
+	struct DmIoWaveItemHeader
 	{
 		static constexpr auto class_size = 64;
 
@@ -993,9 +970,9 @@ private:
 		std::uint32_t flags_;
 
 
-		IoWaveItemHeader8()
+		DmIoWaveItemHeader()
 		{
-			static_assert(class_size == sizeof(IoWaveItemHeader8), "Invalid class size.");
+			static_assert(class_size == sizeof(DmIoWaveItemHeader), "Invalid class size.");
 		}
 
 		bool read(
@@ -1101,9 +1078,9 @@ private:
 
 			return true;
 		}
-	}; // IoWaveItemHeader8
+	}; // DmIoWaveItemHeader
 
-	struct IoReference8
+	struct DmIoReference
 	{
 		static constexpr auto class_size = 20;
 
@@ -1112,9 +1089,9 @@ private:
 		ValidFlags8 valid_data_;
 
 
-		IoReference8()
+		DmIoReference()
 		{
-			static_assert(class_size == sizeof(IoReference8), "Invalid class size.");
+			static_assert(class_size == sizeof(DmIoReference), "Invalid class size.");
 		}
 
 		bool read(
@@ -1157,9 +1134,9 @@ private:
 
 			return true;
 		}
-	}; // IoReference8
+	}; // DmIoReference
 
-	struct IoTrackHeader8
+	struct DmIoTrackHeader
 	{
 		static constexpr auto class_size = 32;
 
@@ -1171,9 +1148,9 @@ private:
 		ul::FourCc list_type_;
 
 
-		IoTrackHeader8()
+		DmIoTrackHeader()
 		{
-			static_assert(sizeof(IoTrackHeader8) == class_size, "Invalid class size.");
+			static_assert(sizeof(DmIoTrackHeader) == class_size, "Invalid class size.");
 		}
 
 
@@ -1198,27 +1175,27 @@ private:
 			return true;
 		}
 
-		IoTrackType8 get_type() const
+		DmIoTrackType get_type() const
 		{
 			if (guid_ == clsid_tempo_track)
 			{
-				return IoTrackType8::tempo;
+				return DmIoTrackType::tempo;
 			}
 			else if (guid_ == clsid_time_sig_track)
 			{
-				return IoTrackType8::time_signature;
+				return DmIoTrackType::time_signature;
 			}
 			else if (guid_ == clsid_sequence_track)
 			{
-				return IoTrackType8::sequence;
+				return DmIoTrackType::sequence;
 			}
 			else if (guid_ == clsid_wave_track)
 			{
-				return IoTrackType8::wave;
+				return DmIoTrackType::wave;
 			}
 			else
 			{
-				return IoTrackType8::none;
+				return DmIoTrackType::none;
 			}
 		}
 
@@ -1254,23 +1231,23 @@ private:
 
 			return true;
 		}
-	}; // IoTrackHeader8
+	}; // DmIoTrackHeader
 
 
-	using IoTempoItems = std::vector<IoTempoItem8>;
-	using IoTimeSignatureItems = std::vector<IoTimeSignatureItem8>;
+	using DmIoTempoItems = std::vector<DmIoTempoItem>;
+	using DmIoTimeSignatureItems = std::vector<DmIoTimeSignatureItem>;
 
 	struct IoSequenceItem
 	{
-		IoSequenceItems8 events_;
-		IoCurveItems8 curves_;
+		DmIoSequenceItems events_;
+		DmIoCurveItems curves_;
 	}; // IoSequenceItem
 
 	using IoSequenceItems = std::vector<IoSequenceItem>;
 
 	struct IoReference
 	{
-		IoReference8 header_;
+		DmIoReference header_;
 		std::string file_name_u8_;
 		int data_offset_;
 		int data_size_;
@@ -1280,7 +1257,7 @@ private:
 
 	struct IoWaveItem
 	{
-		IoWaveItemHeader8 header_;
+		DmIoWaveItemHeader header_;
 		IoReferences references_;
 	}; // IoWaveItem
 
@@ -1288,7 +1265,7 @@ private:
 
 	struct IoWavePart
 	{
-		IoWavePartHeader8 header_;
+		DmIoWavePartHeader header_;
 		IoWaveItems items_;
 
 	}; // IoWavePart
@@ -1297,7 +1274,7 @@ private:
 
 	struct IoWaveTrack
 	{
-		IoWaveTrackHeader8 header_;
+		DmIoWaveTrackHeader header_;
 		IoWaveParts parts_;
 	}; // IoWaveTrack
 
@@ -1305,9 +1282,9 @@ private:
 
 	struct IoTrack
 	{
-		IoTrackHeader8 header_;
-		IoTempoItems tempos_;
-		IoTimeSignatureItems times_;
+		DmIoTrackHeader header_;
+		DmIoTempoItems tempos_;
+		DmIoTimeSignatureItems times_;
 		IoSequenceItems sequences_;
 		IoWaveTracks waves_;
 	}; // IoTrack
@@ -1352,7 +1329,7 @@ private:
 
 
 	bool read_io_segment_header(
-		IoSegmentHeader8& io_segment_header)
+		DmIoSegmentHeader& io_segment_header)
 	{
 		if (!riff_reader_.find_and_descend(ul::FourCc{"segh"}))
 		{
@@ -1407,14 +1384,14 @@ private:
 
 		ul::Endian::little_i(item_size);
 
-		if (item_size < IoTempoItem8::class_size)
+		if (item_size < DmIoTempoItem::class_size)
 		{
 			error_message_ = "Invalid size of a tempo item.";
 			return false;
 		}
 
 		const auto item_count = static_cast<int>((chunk.size_ - 4) / item_size);
-		const auto item_remain_size = item_size - IoTempoItem8::class_size;
+		const auto item_remain_size = item_size - DmIoTempoItem::class_size;
 
 		for (auto i = 0; i < item_count; ++i)
 		{
@@ -1481,14 +1458,14 @@ private:
 
 			ul::Endian::little_i(item_size);
 
-			if (item_size < IoTimeSignatureItem8::class_size)
+			if (item_size < DmIoTimeSignatureItem::class_size)
 			{
 				error_message_ = "Invalid size of a time signature item.";
 				return false;
 			}
 
 			const auto item_count = static_cast<int>((chunk.size_ - 4) / item_size);
-			const auto item_remain_size = item_size - IoTimeSignatureItem8::class_size;
+			const auto item_remain_size = item_size - DmIoTimeSignatureItem::class_size;
 
 			for (auto i = 0; i < item_count; ++i)
 			{
@@ -1583,14 +1560,14 @@ private:
 
 		ul::Endian::little_i(evtl_item_size);
 
-		if (evtl_item_size < IoSequenceItem8::class_size)
+		if (evtl_item_size < DmIoSequenceItem::class_size)
 		{
 			error_message_ = "Invalid size of a sequence item.";
 			return false;
 		}
 
 		const auto evtl_item_count = static_cast<int>((evtl_chunk.size_ - 4) / evtl_item_size);
-		const auto evtl_item_remain_size = evtl_item_size - IoSequenceItem8::class_size;
+		const auto evtl_item_remain_size = evtl_item_size - DmIoSequenceItem::class_size;
 
 		for (auto i = 0; i < evtl_item_count; ++i)
 		{
@@ -1648,14 +1625,14 @@ private:
 
 		ul::Endian::little_i(curl_item_size);
 
-		if (curl_item_size < IoCurveItem8::class_size)
+		if (curl_item_size < DmIoCurveItem::class_size)
 		{
 			error_message_ = "Invalid size of a curve item.";
 			return false;
 		}
 
 		const auto curl_item_count = static_cast<int>((curl_chunk.size_ - 4) / curl_item_size);
-		const auto curl_item_remain_size = curl_item_size - IoCurveItem8::class_size;
+		const auto curl_item_remain_size = curl_item_size - DmIoCurveItem::class_size;
 
 		for (auto i = 0; i < curl_item_count; ++i)
 		{
@@ -2208,28 +2185,28 @@ private:
 
 		switch (track_type)
 		{
-		case IoTrackType8::tempo:
+		case DmIoTrackType::tempo:
 			if (!read_tempo_track(track))
 			{
 				return false;
 			}
 			break;
 
-		case IoTrackType8::time_signature:
+		case DmIoTrackType::time_signature:
 			if (!read_time_signature_track(track))
 			{
 				return false;
 			}
 			break;
 
-		case IoTrackType8::sequence:
+		case DmIoTrackType::sequence:
 			if (!read_sequence_track(track))
 			{
 				return false;
 			}
 			break;
 
-		case IoTrackType8::wave:
+		case DmIoTrackType::wave:
 			if (!read_wave_track(track))
 			{
 				return false;
@@ -2245,7 +2222,7 @@ private:
 	}
 
 	bool read_tracks(
-		const IoSegmentHeader8& io_segment_header,
+		const DmIoSegmentHeader& io_segment_header,
 		IoTracks& io_tracks)
 	{
 		if (!riff_reader_.find_and_descend(ul::RiffFourCcs::list, ul::FourCc{"trkl"}))
@@ -2336,7 +2313,7 @@ private:
 	}
 
 	void parse_io_tracks(
-		const IoSegmentHeader8& io_segment_header,
+		const DmIoSegmentHeader& io_segment_header,
 		IoTracks& io_tracks)
 	{
 		// Get quarter beats per minute.
@@ -2407,7 +2384,7 @@ private:
 		const auto& io_wave_part_header = io_wave_part.header_;
 
 		channel_ = io_wave_part_header.channel_;
-		is_variation_no_repeat_ = (io_wave_part_header.flags_ == IoWavePartHeader8::VariationType::no_repeat);
+		is_variation_no_repeat_ = (io_wave_part_header.flags_ == DmIoWavePartHeader::VariationType::no_repeat);
 		last_variation_index_ = -1;
 		current_variation_ = 0;
 
@@ -2518,7 +2495,7 @@ private:
 			return false;
 		}
 
-		auto io_segment_header = IoSegmentHeader8{};
+		auto io_segment_header = DmIoSegmentHeader{};
 
 		if (!read_io_segment_header(io_segment_header))
 		{
@@ -2680,7 +2657,7 @@ private:
 
 	void debug_dump_structure(
 		const std::string& file_name,
-		const IoSegmentHeader8& io_segment_header,
+		const DmIoSegmentHeader& io_segment_header,
 		const IoTracks& io_tracks)
 	{
 		auto file_path = ul::PathUtils::get_parent_path(file_name);
@@ -2930,14 +2907,14 @@ const ul::Uuid DMusicSegment::Impl::clsid_sound_wave = ul::Uuid{"8A667154-F9CB-1
 
 DMusicSegment::DMusicSegment()
 	:
-	pimpl_{std::make_unique<Impl>()}
+	impl_{std::make_unique<Impl>()}
 {
 }
 
 DMusicSegment::DMusicSegment(
 	DMusicSegment&& that)
 	:
-	pimpl_{std::move(that.pimpl_)}
+	impl_{std::move(that.impl_)}
 {
 }
 
@@ -2946,7 +2923,7 @@ DMusicSegment& DMusicSegment::operator=(
 {
 	if (this != std::addressof(that))
 	{
-		pimpl_ = std::move(that.pimpl_);
+		impl_ = std::move(that.impl_);
 	}
 
 	return *this;
@@ -2960,42 +2937,42 @@ bool DMusicSegment::open(
 	const std::string& file_name,
 	const int sample_rate)
 {
-	return pimpl_->api_open(file_name, sample_rate);
+	return impl_->api_open(file_name, sample_rate);
 }
 
 void DMusicSegment::close()
 {
-	pimpl_->api_close();
+	impl_->api_close();
 }
 
 int DMusicSegment::get_length() const
 {
-	return pimpl_->api_get_length();
+	return impl_->api_get_length();
 }
 
 int DMusicSegment::get_channel() const
 {
-	return pimpl_->api_get_channel();
+	return impl_->api_get_channel();
 }
 
-std::uint32_t DMusicSegment::get_current_variations() const
+std::uint32_t DMusicSegment::get_current_variation() const
 {
-	return pimpl_->api_get_current_variations();
+	return impl_->api_get_current_variation();
 }
 
 const DMusicSegment::Waves& DMusicSegment::get_waves() const
 {
-	return pimpl_->api_get_waves();
+	return impl_->api_get_waves();
 }
 
 std::uint32_t DMusicSegment::select_next_variation()
 {
-	return pimpl_->api_select_next_variation();
+	return impl_->api_select_next_variation();
 }
 
 const std::string& DMusicSegment::get_error_message() const
 {
-	return pimpl_->api_get_error_message();
+	return impl_->api_get_error_message();
 }
 
 

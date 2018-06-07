@@ -2014,14 +2014,14 @@ const char* const DMusicManager::Impl::unsupported_method_message = "Unsupported
 
 DMusicManager::DMusicManager()
 	:
-	pimpl_{std::make_unique<Impl>()}
+	impl_{std::make_unique<Impl>()}
 {
 }
 
 DMusicManager::DMusicManager(
 	DMusicManager&& that)
 	:
-	pimpl_{std::move(that.pimpl_)}
+	impl_{std::move(that.impl_)}
 {
 }
 
@@ -2031,14 +2031,14 @@ DMusicManager::~DMusicManager()
 
 LTRESULT DMusicManager::Init()
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_init();
+	impl_->set_method_name(__func__);
+	return impl_->api_init();
 }
 
 LTRESULT DMusicManager::Term()
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_term();
+	impl_->set_method_name(__func__);
+	return impl_->api_term();
 }
 
 LTRESULT DMusicManager::InitLevel(
@@ -2048,71 +2048,71 @@ LTRESULT DMusicManager::InitLevel(
 	const char* define2,
 	const char* define3)
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_init_level(working_directory, control_file_name, define1, define2, define3);
+	impl_->set_method_name(__func__);
+	return impl_->api_init_level(working_directory, control_file_name, define1, define2, define3);
 }
 
 LTRESULT DMusicManager::TermLevel()
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_term_level();
+	impl_->set_method_name(__func__);
+	return impl_->api_term_level();
 }
 
 LTRESULT DMusicManager::Play()
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_play();
+	impl_->set_method_name(__func__);
+	return impl_->api_play();
 }
 
 LTRESULT DMusicManager::Stop(
 	const LTDMEnactTypes start_type)
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_stop(start_type);
+	impl_->set_method_name(__func__);
+	return impl_->api_stop(start_type);
 }
 
 LTRESULT DMusicManager::Pause(
 	const LTDMEnactTypes start_type)
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_pause(start_type);
+	impl_->set_method_name(__func__);
+	return impl_->api_pause(start_type);
 }
 
 LTRESULT DMusicManager::UnPause()
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_unpause();
+	impl_->set_method_name(__func__);
+	return impl_->api_unpause();
 }
 
 LTRESULT DMusicManager::SetVolume(
 	const long volume)
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_set_volume(volume);
+	impl_->set_method_name(__func__);
+	return impl_->api_set_volume(volume);
 }
 
 LTRESULT DMusicManager::ChangeIntensity(
 	const int new_intensity,
 	const LTDMEnactTypes start_type)
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_change_intensity(new_intensity, start_type);
+	impl_->set_method_name(__func__);
+	return impl_->api_change_intensity(new_intensity, start_type);
 }
 
 LTRESULT DMusicManager::PlaySecondary(
 	const char* segment_name,
 	const LTDMEnactTypes start_type)
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_play_secondary(segment_name, start_type);
+	impl_->set_method_name(__func__);
+	return impl_->api_play_secondary(segment_name, start_type);
 }
 
 LTRESULT DMusicManager::StopSecondary(
 	const char* segment_name,
 	const LTDMEnactTypes start_type)
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_stop_secondary(segment_name, start_type);
+	impl_->set_method_name(__func__);
+	return impl_->api_stop_secondary(segment_name, start_type);
 }
 
 LTRESULT DMusicManager::PlayMotif(
@@ -2120,8 +2120,8 @@ LTRESULT DMusicManager::PlayMotif(
 	const char* motif_name,
 	const LTDMEnactTypes start_type)
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_play_motif(style_name, motif_name, start_type);
+	impl_->set_method_name(__func__);
+	return impl_->api_play_motif(style_name, motif_name, start_type);
 }
 
 LTRESULT DMusicManager::StopMotif(
@@ -2129,53 +2129,53 @@ LTRESULT DMusicManager::StopMotif(
 	const char* motif_name,
 	const LTDMEnactTypes start_type)
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_stop_motif(style_name, motif_name, start_type);
+	impl_->set_method_name(__func__);
+	return impl_->api_stop_motif(style_name, motif_name, start_type);
 }
 
 int DMusicManager::GetCurIntensity()
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_get_cur_intensity();
+	impl_->set_method_name(__func__);
+	return impl_->api_get_cur_intensity();
 }
 
 LTDMEnactTypes DMusicManager::StringToEnactType(
 	const char* name)
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_string_to_enact_type(name);
+	impl_->set_method_name(__func__);
+	return impl_->api_string_to_enact_type(name);
 }
 
 void DMusicManager::EnactTypeToString(
 	LTDMEnactTypes type,
 	char* name)
 {
-	pimpl_->set_method_name(__func__);
-	pimpl_->api_enact_type_to_string(type, name);
+	impl_->set_method_name(__func__);
+	impl_->api_enact_type_to_string(type, name);
 }
 
 int DMusicManager::GetNumIntensities()
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_get_num_intensities();
+	impl_->set_method_name(__func__);
+	return impl_->api_get_num_intensities();
 }
 
 int DMusicManager::GetInitialIntensity()
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_get_initial_intensity();
+	impl_->set_method_name(__func__);
+	return impl_->api_get_initial_intensity();
 }
 
 int DMusicManager::GetInitialVolume()
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_get_initial_volume();
+	impl_->set_method_name(__func__);
+	return impl_->api_get_initial_volume();
 }
 
 int DMusicManager::GetVolumeOffset()
 {
-	pimpl_->set_method_name(__func__);
-	return pimpl_->api_get_volume_offset();
+	impl_->set_method_name(__func__);
+	return impl_->api_get_volume_offset();
 }
 
 

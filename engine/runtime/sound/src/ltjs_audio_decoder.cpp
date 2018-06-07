@@ -975,7 +975,7 @@ bool AudioDecoder::OpenParam::validate() const
 
 
 AudioDecoder::AudioDecoder() :
-	pimpl_{new Impl{}}
+	impl_{new Impl{}}
 {
 }
 
@@ -990,7 +990,7 @@ AudioDecoder::AudioDecoder(
 AudioDecoder::AudioDecoder(
 	AudioDecoder&& that) noexcept
 	:
-	pimpl_{std::move(that.pimpl_)}
+	impl_{std::move(that.impl_)}
 {
 }
 
@@ -999,7 +999,7 @@ AudioDecoder& AudioDecoder::operator=(
 {
 	if (this != std::addressof(that))
 	{
-		pimpl_ = std::move(that.pimpl_);
+		impl_ = std::move(that.impl_);
 	}
 
 	return *this;
@@ -1012,105 +1012,105 @@ AudioDecoder::~AudioDecoder()
 bool AudioDecoder::open(
 	const OpenParam& param)
 {
-	return pimpl_->open(param);
+	return impl_->open(param);
 }
 
 void AudioDecoder::close()
 {
-	pimpl_->close();
+	impl_->close();
 }
 
 int AudioDecoder::decode(
 	void* buffer,
 	const int buffer_size)
 {
-	return pimpl_->decode(buffer, buffer_size);
+	return impl_->decode(buffer, buffer_size);
 }
 
 bool AudioDecoder::rewind()
 {
-	return pimpl_->rewind();
+	return impl_->rewind();
 }
 
 bool AudioDecoder::set_position(
 	const int sample_offset)
 {
-	return pimpl_->set_position(sample_offset);
+	return impl_->set_position(sample_offset);
 }
 
 bool AudioDecoder::is_open() const
 {
-	return pimpl_->is_open();
+	return impl_->is_open();
 }
 
 bool AudioDecoder::is_failed() const
 {
-	return pimpl_->is_failed();
+	return impl_->is_failed();
 }
 
 bool AudioDecoder::is_pcm() const
 {
-	return pimpl_->is_pcm();
+	return impl_->is_pcm();
 }
 
 bool AudioDecoder::is_ima_adpcm() const
 {
-	return pimpl_->is_ima_adpcm();
+	return impl_->is_ima_adpcm();
 }
 
 bool AudioDecoder::is_mp3() const
 {
-	return pimpl_->is_mp3();
+	return impl_->is_mp3();
 }
 
 int AudioDecoder::get_src_channel_count() const
 {
-	return pimpl_->get_src_channel_count();
+	return impl_->get_src_channel_count();
 }
 
 int AudioDecoder::get_src_sample_rate() const
 {
-	return pimpl_->get_src_sample_rate();
+	return impl_->get_src_sample_rate();
 }
 
 int AudioDecoder::get_dst_channel_count() const
 {
-	return pimpl_->get_dst_channel_count();
+	return impl_->get_dst_channel_count();
 }
 
 int AudioDecoder::get_dst_bit_depth() const
 {
-	return pimpl_->get_dst_bit_depth();
+	return impl_->get_dst_bit_depth();
 }
 
 int AudioDecoder::get_dst_sample_rate() const
 {
-	return pimpl_->get_dst_sample_rate();
+	return impl_->get_dst_sample_rate();
 }
 
 int AudioDecoder::get_dst_sample_size() const
 {
-	return pimpl_->get_dst_sample_size();
+	return impl_->get_dst_sample_size();
 }
 
 ul::WaveFormatEx AudioDecoder::get_wave_format_ex() const
 {
-	return pimpl_->get_wave_format_ex();
+	return impl_->get_wave_format_ex();
 }
 
 int AudioDecoder::get_sample_count() const
 {
-	return pimpl_->get_sample_count();
+	return impl_->get_sample_count();
 }
 
 int AudioDecoder::get_data_size() const
 {
-	return pimpl_->get_data_size();
+	return impl_->get_data_size();
 }
 
 int AudioDecoder::get_decoded_size() const
 {
-	return pimpl_->get_decoded_size();
+	return impl_->get_decoded_size();
 }
 
 void AudioDecoder::initialize_current_thread()
