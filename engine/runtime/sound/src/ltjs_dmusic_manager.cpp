@@ -2182,4 +2182,4 @@ int DMusicManager::GetVolumeOffset()
 } // ltjs
 
 
-#endif LTJS_USE_DIRECT_MUSIC8
+#endif // LTJS_USE_DIRECT_MUSIC8

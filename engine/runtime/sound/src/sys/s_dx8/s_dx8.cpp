@@ -1,4 +1,5 @@
 #include "s_dx8.h"
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <condition_variable>

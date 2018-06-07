@@ -578,6 +578,11 @@ set_target_properties(
         OUTPUT_NAME ltjs_lithtech
 )
 
+set(
+	libs
+	${LTJS_FFMPEG_LIBRARY}
+)
+
 if (MSVC)
     set_target_properties(
         ltjs_lith_tech
@@ -590,7 +595,8 @@ if (MSVC)
         ${CMAKE_SOURCE_DIR}/directx/lib/x86
     )
 
-    set(
+    list(
+		APPEND
         libs
         ${path_to_dx_libs}/ddraw.lib
         ${path_to_dx_libs}/d3dx9.lib
@@ -602,14 +608,9 @@ if (MSVC)
     )
 endif ()
 
-list(
-	APPEND
-	libs
-	${LTJS_FFMPEG_LIBRARY}
-)
-
 if (NOT MSVC)
-    set(
+    list(
+		APPEND
         libs
         d3d9
         d3dx9
@@ -619,6 +620,15 @@ if (NOT MSVC)
         winmm
         ws2_32
     )
+endif ()
+
+if (MINGW)
+	list(
+		APPEND
+		libs
+		iconv
+		z
+	)
 endif ()
 
 target_link_libraries(
