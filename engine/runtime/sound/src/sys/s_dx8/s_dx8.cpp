@@ -3063,8 +3063,10 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 		{
 			props.lRoom = pLTReverb->lRoom;
 
-#ifdef LTJS_EAX20_MULTIPLY_ATTRIBUTES
-			const auto scaled = ltjs::AudioUtils::mb_volume_to_gain(props.lRoom) * LTJS_EAX20_MULTIPLY_SCALE;
+#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
+			const auto scaled =
+				ltjs::AudioUtils::mb_volume_to_gain(props.lRoom) *
+				LTJS_EAX20_ROOM_SCALE_FACTOR;
 
 			const auto converted = ltjs::AudioUtils::gain_to_mb_volume(scaled);
 
@@ -3074,7 +3076,7 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 				ltjs::AudioUtils::eax_max_room);
 
 			props.lRoom = clamped;
-#endif // LTJS_EAX20_MULTIPLY_ATTRIBUTES
+#endif // LTJS_EAX20_SCALE_ATTRIBUTES
 		}
 		if ( uiFilterParamFlags & SET_REVERB_ROOMHF )
 		{
@@ -3096,8 +3098,10 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 		{
 			props.lReflections = pLTReverb->lReflections;
 
-#ifdef LTJS_EAX20_MULTIPLY_ATTRIBUTES
-			const auto scaled = ltjs::AudioUtils::mb_volume_to_gain(props.lReflections) * LTJS_EAX20_MULTIPLY_SCALE;
+#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
+			const auto scaled =
+				ltjs::AudioUtils::mb_volume_to_gain(props.lReflections) *
+				LTJS_EAX20_REFLECTIONS_SCALE_FACTOR;
 
 			const auto converted = ltjs::AudioUtils::gain_to_mb_volume(scaled);
 
@@ -3107,7 +3111,7 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 				ltjs::AudioUtils::eax_max_reflections);
 
 			props.lReflections = clamped;
-#endif // LTJS_EAX20_MULTIPLY_ATTRIBUTES
+#endif // LTJS_EAX20_SCALE_ATTRIBUTES
 		}
 		if ( uiFilterParamFlags & SET_REVERB_REFLECTIONSDELAY )
 		{
@@ -3117,8 +3121,10 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 		{
 			props.lReverb = pLTReverb->lReverb;
 
-#ifdef LTJS_EAX20_MULTIPLY_ATTRIBUTES
-			const auto scaled = ltjs::AudioUtils::mb_volume_to_gain(props.lReverb) * LTJS_EAX20_MULTIPLY_SCALE;
+#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
+			const auto scaled =
+				ltjs::AudioUtils::mb_volume_to_gain(props.lReverb) *
+				LTJS_EAX20_REVERB_SCALE_FACTOR;
 
 			const auto converted = ltjs::AudioUtils::gain_to_mb_volume(scaled);
 
@@ -3128,7 +3134,7 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 				ltjs::AudioUtils::eax_max_reverb);
 
 			props.lReverb = clamped;
-#endif // LTJS_EAX20_MULTIPLY_ATTRIBUTES
+#endif // LTJS_EAX20_SCALE_ATTRIBUTES
 		}
 		if ( uiFilterParamFlags & SET_REVERB_REVERBDELAY )
 		{

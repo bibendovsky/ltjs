@@ -2106,15 +2106,15 @@ struct OalSoundSys::Impl
 		const LTFILTERREVERB& lt_reverb,
 		OalReverb& oal_reverb)
 	{
-#ifdef LTJS_EAX20_MULTIPLY_ATTRIBUTES
-		const auto eax_room_factor = LTJS_EAX20_MULTIPLY_SCALE;
-		const auto eax_reflections_factor = LTJS_EAX20_MULTIPLY_SCALE;
-		const auto eax_reverb_factor = LTJS_EAX20_MULTIPLY_SCALE;
+#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
+		const auto eax_room_factor = LTJS_EAX20_ROOM_SCALE_FACTOR;
+		const auto eax_reflections_factor = LTJS_EAX20_REFLECTIONS_SCALE_FACTOR;
+		const auto eax_reverb_factor = LTJS_EAX20_REVERB_SCALE_FACTOR;
 #else
 		const auto eax_room_factor = 1.0F;
 		const auto eax_reflections_factor = 1.0F;
 		const auto eax_reverb_factor = 1.0F;
-#endif // LTJS_EAX20_MULTIPLY_ATTRIBUTES
+#endif // LTJS_EAX20_SCALE_ATTRIBUTES
 
 		oal_reverb.lt_flags_ = lt_reverb.uiFilterParamFlags;
 
@@ -5275,13 +5275,16 @@ struct OalSoundSys::Impl
 			const auto oal_free_buffer = oal_buffers_[queued_count_];
 
 			::alBufferData(oal_free_buffer, oal_buffer_format, buffer, buffer_size_, sample_rate_);
+			assert(oal_is_succeed());
 			::alSourceQueueBuffers(oal_source_, 1, &oal_free_buffer);
+			assert(oal_is_succeed());
 
 			queued_count_ += 1;
 
 			auto oal_state = ALint{};
 
 			::alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state);
+			assert(oal_is_succeed());
 
 			switch (oal_state)
 			{
