@@ -54,6 +54,15 @@ namespace ul = bibendovsky::spul;
 #define USE_EAX20_HARDWARE_FILTERS
 #endif
 
+#ifdef USE_EAX20_HARDWARE_FILTERS
+// Multiplies EAX attributes (room, reflections and reverb).
+#define LTJS_EAX20_SCALE_ATTRIBUTES
+// The multipliers.
+#define LTJS_EAX20_ROOM_SCALE_FACTOR (1.5F)
+#define LTJS_EAX20_REFLECTIONS_SCALE_FACTOR (2.5F)
+#define LTJS_EAX20_REVERB_SCALE_FACTOR (2.0F)
+#endif // USE_EAX20_HARDWARE_FILTERS
+
 typedef short			sint16;				//S16;
 typedef unsigned short	uint16;				//U16;
 typedef long			sint32;				//S32;

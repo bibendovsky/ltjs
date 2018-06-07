@@ -10,6 +10,7 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#include "bibendovsky_spul_algorithm.h"
 #include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "eax.h"
@@ -3061,6 +3062,21 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 		if ( uiFilterParamFlags & SET_REVERB_ROOM )
 		{
 			props.lRoom = pLTReverb->lRoom;
+
+#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
+			const auto scaled =
+				ltjs::AudioUtils::mb_volume_to_gain(props.lRoom) *
+				LTJS_EAX20_ROOM_SCALE_FACTOR;
+
+			const auto converted = ltjs::AudioUtils::gain_to_mb_volume(scaled);
+
+			const auto clamped = ul::Algorithm::clamp(
+				converted,
+				ltjs::AudioUtils::eax_min_room,
+				ltjs::AudioUtils::eax_max_room);
+
+			props.lRoom = clamped;
+#endif // LTJS_EAX20_SCALE_ATTRIBUTES
 		}
 		if ( uiFilterParamFlags & SET_REVERB_ROOMHF )
 		{
@@ -3081,6 +3097,21 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 		if ( uiFilterParamFlags & SET_REVERB_REFLECTIONS )
 		{
 			props.lReflections = pLTReverb->lReflections;
+
+#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
+			const auto scaled =
+				ltjs::AudioUtils::mb_volume_to_gain(props.lReflections) *
+				LTJS_EAX20_REFLECTIONS_SCALE_FACTOR;
+
+			const auto converted = ltjs::AudioUtils::gain_to_mb_volume(scaled);
+
+			const auto clamped = ul::Algorithm::clamp(
+				converted,
+				ltjs::AudioUtils::eax_min_reflections,
+				ltjs::AudioUtils::eax_max_reflections);
+
+			props.lReflections = clamped;
+#endif // LTJS_EAX20_SCALE_ATTRIBUTES
 		}
 		if ( uiFilterParamFlags & SET_REVERB_REFLECTIONSDELAY )
 		{
@@ -3089,6 +3120,21 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 		if ( uiFilterParamFlags & SET_REVERB_REVERB )
 		{
 			props.lReverb = pLTReverb->lReverb;
+
+#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
+			const auto scaled =
+				ltjs::AudioUtils::mb_volume_to_gain(props.lReverb) *
+				LTJS_EAX20_REVERB_SCALE_FACTOR;
+
+			const auto converted = ltjs::AudioUtils::gain_to_mb_volume(scaled);
+
+			const auto clamped = ul::Algorithm::clamp(
+				converted,
+				ltjs::AudioUtils::eax_min_reverb,
+				ltjs::AudioUtils::eax_max_reverb);
+
+			props.lReverb = clamped;
+#endif // LTJS_EAX20_SCALE_ATTRIBUTES
 		}
 		if ( uiFilterParamFlags & SET_REVERB_REVERBDELAY )
 		{

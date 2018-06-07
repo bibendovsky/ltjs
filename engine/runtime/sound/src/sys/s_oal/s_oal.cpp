@@ -2106,6 +2106,16 @@ struct OalSoundSys::Impl
 		const LTFILTERREVERB& lt_reverb,
 		OalReverb& oal_reverb)
 	{
+#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
+		const auto eax_room_factor = LTJS_EAX20_ROOM_SCALE_FACTOR;
+		const auto eax_reflections_factor = LTJS_EAX20_REFLECTIONS_SCALE_FACTOR;
+		const auto eax_reverb_factor = LTJS_EAX20_REVERB_SCALE_FACTOR;
+#else
+		const auto eax_room_factor = 1.0F;
+		const auto eax_reflections_factor = 1.0F;
+		const auto eax_reverb_factor = 1.0F;
+#endif // LTJS_EAX20_SCALE_ATTRIBUTES
+
 		oal_reverb.lt_flags_ = lt_reverb.uiFilterParamFlags;
 
 #ifdef USE_EAX20_HARDWARE_FILTERS
@@ -2161,7 +2171,7 @@ struct OalSoundSys::Impl
 				ltjs::AudioUtils::eax_max_room);
 
 			const auto efx_gain = ul::Algorithm::clamp(
-				ltjs::AudioUtils::ds_volume_to_gain(eax_room),
+				ltjs::AudioUtils::ds_volume_to_gain(eax_room) * eax_room_factor,
 				AL_EAXREVERB_MIN_GAIN,
 				AL_EAXREVERB_MAX_GAIN);
 
@@ -2249,7 +2259,7 @@ struct OalSoundSys::Impl
 				ltjs::AudioUtils::eax_max_reflections);
 
 			const auto efx_reflections_gain = ul::Algorithm::clamp(
-				ltjs::AudioUtils::mb_volume_to_gain(eax_reflections),
+				ltjs::AudioUtils::mb_volume_to_gain(eax_reflections) * eax_reflections_factor,
 				AL_EAXREVERB_MIN_REFLECTIONS_GAIN,
 				AL_EAXREVERB_MAX_REFLECTIONS_GAIN);
 
@@ -2293,7 +2303,7 @@ struct OalSoundSys::Impl
 				ltjs::AudioUtils::eax_max_reverb);
 
 			const auto efx_late_reverb_gain = ul::Algorithm::clamp(
-				ltjs::AudioUtils::mb_volume_to_gain(eax_reverb),
+				ltjs::AudioUtils::mb_volume_to_gain(eax_reverb) * eax_reverb_factor,
 				AL_EAXREVERB_MIN_LATE_REVERB_GAIN,
 				AL_EAXREVERB_MAX_LATE_REVERB_GAIN);
 
@@ -5265,13 +5275,16 @@ struct OalSoundSys::Impl
 			const auto oal_free_buffer = oal_buffers_[queued_count_];
 
 			::alBufferData(oal_free_buffer, oal_buffer_format, buffer, buffer_size_, sample_rate_);
+			assert(oal_is_succeed());
 			::alSourceQueueBuffers(oal_source_, 1, &oal_free_buffer);
+			assert(oal_is_succeed());
 
 			queued_count_ += 1;
 
 			auto oal_state = ALint{};
 
 			::alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state);
+			assert(oal_is_succeed());
 
 			switch (oal_state)
 			{

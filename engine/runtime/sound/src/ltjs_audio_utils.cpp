@@ -325,6 +325,17 @@ float AudioUtils::mb_volume_to_gain(
 	return Detail::mb_volume_to_gain_table[clamped_mb_volume + Detail::mb_volume_to_gain_zero_index];
 }
 
+int AudioUtils::gain_to_mb_volume(
+	const float gain)
+{
+	if (gain <= 0.000'01F)
+	{
+		return mb_min_volume;
+	}
+
+	return static_cast<int>(2'000.0F * std::log10(gain));
+}
+
 void* AudioUtils::allocate(
 	const std::size_t storage_size)
 {

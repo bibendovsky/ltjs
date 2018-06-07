@@ -224,6 +224,18 @@ struct AudioUtils
 	static float mb_volume_to_gain(
 		const int mb_volume);
 
+	//
+	// Converts a gain to a volume in millibels.
+	//
+	// Parameters:
+	//    - gain - a gain.
+	//
+	// Returns:
+	//    - A volume in millibels [mb_min_volume..mb_max_volume].
+	//
+	static int gain_to_mb_volume(
+		const float gain);
+
 
 	//
 	// Allocates a block of memory.
