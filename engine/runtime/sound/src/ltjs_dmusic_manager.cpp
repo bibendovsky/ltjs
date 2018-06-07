@@ -400,6 +400,8 @@ public:
 
 		is_level_initialized_ = true;
 
+		static_cast<void>(sound_sys_->set_generic_stream_volume(music_stream_, initial_volume_));
+
 		return LT_OK;
 	}
 
@@ -559,7 +561,7 @@ public:
 			return LT_ERROR;
 		}
 
-		if (!sound_sys_->set_generic_stream_volume(music_stream_, volume))
+		if (!sound_sys_->set_generic_stream_volume(music_stream_, volume + volume_offset_))
 		{
 			return LT_ERROR;
 		}
