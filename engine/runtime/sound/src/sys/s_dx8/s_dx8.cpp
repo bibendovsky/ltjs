@@ -145,10 +145,10 @@ public:
 		buffer_size_{},
 		queued_count_{},
 		ds_volume_{},
+		ds_segment_index_{},
 		buffer_{},
 		buffer_queue_{},
 		ds_buffer_{},
-		win32_events_{},
 		mt_mutex_{}
 	{
 	}
@@ -162,10 +162,10 @@ public:
 		buffer_size_{std::move(that.buffer_size_)},
 		queued_count_{std::move(that.queued_count_)},
 		ds_volume_{std::move(that.ds_volume_)},
+		ds_segment_index_{std::move(that.ds_segment_index_)},
 		buffer_{std::move(that.buffer_)},
 		buffer_queue_{std::move(that.buffer_queue_)},
 		ds_buffer_{std::move(that.ds_buffer_)},
-		win32_events_{std::move(that.win32_events_)},
 		mt_mutex_{}
 	{
 		that.is_open_ = false;
@@ -235,25 +235,16 @@ public:
 			ds_buffer_ = nullptr;
 		}
 
-		for (auto& win32_event : win32_events_)
-		{
-			if (win32_event)
-			{
-				static_cast<void>(::CloseHandle(win32_event));
-				win32_event = nullptr;
-			}
-		}
-
 		is_open_ = false;
 		is_failed_ = false;
 		is_playing_ = false;
 		buffer_size_ = 0;
 		queued_count_ = 0;
 		ds_volume_ = 0;
-		buffer_ = {};
-		buffer_queue_ = {};
+		ds_segment_index_ = -1;
+		buffer_.clear();
+		buffer_queue_.fill(nullptr);
 		ds_buffer_ = nullptr;
-		win32_events_ = {};
 	}
 
 	bool get_pause()
@@ -445,7 +436,7 @@ public:
 
 
 private:
-	static constexpr auto ds_buffer_segment_count = 2;
+	static constexpr auto ds_buffer_segment_count = 2 * queue_size;
 
 
 	using Buffer = std::vector<std::uint8_t>;
@@ -469,12 +460,10 @@ private:
 	int buffer_size_;
 	int queued_count_;
 	int ds_volume_;
+	int ds_segment_index_; // "-1" - must be initialized.
 	Buffer buffer_;
 	BufferQueue buffer_queue_;
-
 	LPDIRECTSOUNDBUFFER ds_buffer_;
-	Win32Events win32_events_;
-
 	MtMutex mt_mutex_;
 
 
@@ -508,53 +497,12 @@ private:
 
 		auto ds_buffer_desc = DSBUFFERDESC{};
 		ds_buffer_desc.dwSize = static_cast<DWORD>(sizeof(DSBUFFERDESC));
-		ds_buffer_desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_LOCSOFTWARE;
+		ds_buffer_desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_LOCSOFTWARE;
 		ds_buffer_desc.dwBufferBytes = buffer_size_ * ds_buffer_segment_count;
 		ds_buffer_desc.guid3DAlgorithm = DS3DALG_DEFAULT;
 		ds_buffer_desc.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&format);
 
 		ds_result = ds8->CreateSoundBuffer(&ds_buffer_desc, &ds_buffer_, nullptr);
-
-		if (FAILED(ds_result))
-		{
-			return false;
-		}
-
-		for (auto i = 0; i < ds_buffer_segment_count; ++i)
-		{
-			auto win32_event = ::CreateEventW(nullptr, TRUE, FALSE, nullptr);
-
-			if (!win32_event)
-			{
-				return false;
-			}
-
-			win32_events_[i] = win32_event;
-		}
-
-		auto ds_notify8 = LPDIRECTSOUNDNOTIFY8{};
-
-		ds_result = ds_buffer_->QueryInterface(IID_IDirectSoundNotify8, reinterpret_cast<LPVOID*>(&ds_notify8));
-
-		if (FAILED(ds_result))
-		{
-			return false;
-		}
-
-		using DsNotifies = std::array<DSBPOSITIONNOTIFY, ds_buffer_segment_count>;
-		auto ds_notifies = DsNotifies{};
-
-		for (auto i = 0; i < ds_buffer_segment_count; ++i)
-		{
-			auto& ds_notify = ds_notifies[i];
-
-			ds_notify.dwOffset = static_cast<DWORD>((buffer_size_ / 2) + (buffer_size_ * i));
-			ds_notify.hEventNotify = win32_events_[i];
-		}
-
-		ds_result = ds_notify8->SetNotificationPositions(ds_buffer_segment_count, ds_notifies.data());
-
-		static_cast<void>(ds_notify8->Release());
 
 		if (FAILED(ds_result))
 		{
@@ -617,6 +565,7 @@ private:
 		auto ds_result = HRESULT{};
 
 		auto segment_offset = segment_index * buffer_size_;
+		auto segment_size = buffer_size_;
 
 		auto src_buffer = (queued_count_ > 0 ? buffer_queue_.front() : nullptr);
 
@@ -628,14 +577,14 @@ private:
 
 		ds_result = ds_buffer_->Lock(
 			segment_offset,
-			buffer_size_,
+			segment_size,
 			&buffer1,
 			&buffer1_size,
-			&buffer2,
-			&buffer2_size,
+			nullptr,
+			nullptr,
 			0);
 
-		if (FAILED(ds_result))
+		if (FAILED(ds_result) || buffer2 || buffer2_size != 0)
 		{
 			is_failed_ = true;
 			return false;
@@ -645,14 +594,14 @@ private:
 
 		if (src_buffer)
 		{
-			std::uninitialized_copy_n(src_buffer, buffer_size_, dst_buffer);
+			std::uninitialized_copy_n(src_buffer, segment_size, dst_buffer);
 		}
 		else
 		{
-			std::uninitialized_fill_n(dst_buffer, buffer_size_, std::uint8_t{});
+			std::uninitialized_fill_n(dst_buffer, segment_size, std::uint8_t{});
 		}
 
-		ds_result = ds_buffer_->Unlock(buffer1, buffer1_size, buffer2, buffer2_size);
+		ds_result = ds_buffer_->Unlock(buffer1, buffer1_size, nullptr, 0);
 
 		if (FAILED(ds_result))
 		{
@@ -704,6 +653,8 @@ private:
 
 				for (auto stream_ptr : mt_stream_ptrs_to_remove_)
 				{
+					stream_ptr->close();
+
 					mt_removed_stream_ptrs_.emplace_back(stream_ptr);
 
 					stream_ptrs.remove_if(
@@ -730,27 +681,30 @@ private:
 						continue;
 					}
 
-					const auto wait_result = ::WaitForMultipleObjects(
-						static_cast<DWORD>(ds_buffer_segment_count),
-						stream.win32_events_.data(),
-						FALSE,
-						0);
+					auto ds_result = HRESULT{};
+					auto ds_write_offset = DWORD{};
 
-					if (wait_result < WAIT_OBJECT_0 || wait_result >= (WAIT_OBJECT_0 + ds_buffer_segment_count))
-					{
-						continue;
-					}
+					ds_result = stream.ds_buffer_->GetCurrentPosition(nullptr, &ds_write_offset);
 
-					const auto active_index = static_cast<int>(wait_result - WAIT_OBJECT_0);
-
-					static_cast<void>(::ResetEvent(stream.win32_events_[active_index]));
-
-					const auto free_index = (active_index + 1) % ds_buffer_segment_count;
-
-					if (!stream.ds_fill_segment(free_index))
+					if (FAILED(ds_result))
 					{
 						stream.is_failed_ = true;
 						continue;
+					}
+
+					const auto segment_index = static_cast<int>(ds_write_offset / stream.buffer_size_);
+					const auto segment_remain = ds_write_offset % stream.buffer_size_;
+
+					if (segment_remain >= static_cast<DWORD>(stream.buffer_size_ / 2))
+					{
+						if (stream.ds_segment_index_ != segment_index)
+						{
+							const auto write_segment_index = (segment_index + 2) % ds_buffer_segment_count;
+
+							stream.ds_fill_segment(write_segment_index);
+
+							stream.ds_segment_index_ = segment_index;
+						}
 					}
 				}
 
