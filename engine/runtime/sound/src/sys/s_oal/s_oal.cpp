@@ -5214,6 +5214,8 @@ struct OalSoundSys::Impl
 				return true;
 			}
 
+			ds_volume_ = new_ds_volume;
+
 			oal_gain_ = ltjs::AudioUtils::ds_volume_to_gain(new_ds_volume);
 
 			::alSourcef(oal_source_, AL_GAIN, oal_gain_);
