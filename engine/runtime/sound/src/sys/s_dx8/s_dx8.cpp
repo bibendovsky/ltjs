@@ -743,13 +743,6 @@ private:
 
 					const auto active_index = static_cast<int>(wait_result - WAIT_OBJECT_0);
 
-					auto wtf = false;
-
-					if (active_index == 1)
-					{
-						wtf = true;
-					}
-
 					static_cast<void>(::ResetEvent(stream.win32_events_[active_index]));
 
 					const auto free_index = (active_index + 1) % ds_buffer_segment_count;
