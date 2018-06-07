@@ -1548,7 +1548,11 @@ private:
 			const auto& segments = intensity.segments_;
 			const auto segment_count = static_cast<int>(segments.size());
 
-			if (current_segment_index_ >= 0 && current_segment_index_ == (segment_count - 1))
+			if (current_segment_index_ < 0)
+			{
+				current_segment_index_ = 0;
+			}
+			else if (current_segment_index_ >= (segment_count - 1))
 			{
 				// The last segment.
 				//
@@ -1579,14 +1583,7 @@ private:
 				// Not the last segment. Move to the next one.
 				//
 
-				if (current_segment_index_ < 0)
-				{
-					current_segment_index_ = 0;
-				}
-				else
-				{
-					current_segment_index_ += 1;
-				}
+				current_segment_index_ += 1;
 			}
 		}
 
