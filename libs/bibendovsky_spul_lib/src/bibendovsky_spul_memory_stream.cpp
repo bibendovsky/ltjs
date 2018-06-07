@@ -108,7 +108,7 @@ MemoryStream::MemoryStream(
 	MemoryStream&& that) noexcept
 	:
 	Stream{std::move(that)},
-	flags_{},
+	flags_{std::move(that.flags_)},
 	internal_buffer_{std::move(that.internal_buffer_)},
 	buffer_ptr_{std::move(that.buffer_ptr_)},
 	current_position_{std::move(that.current_position_)},

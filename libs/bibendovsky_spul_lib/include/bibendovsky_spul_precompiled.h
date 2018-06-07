@@ -49,6 +49,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cstddef>
 #include <cstdint>
+#include <array>
 #include <algorithm>
 #include <codecvt>
 #include <fstream>
@@ -72,6 +73,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 #include "bibendovsky_spul_endian.h"
 #include "bibendovsky_spul_enum_flags.h"
 #include "bibendovsky_spul_file_stream.h"
+#include "bibendovsky_spul_file_substream.h"
 #include "bibendovsky_spul_four_cc.h"
 #include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_path_utils.h"
@@ -81,6 +83,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 #include "bibendovsky_spul_stream.h"
 #include "bibendovsky_spul_substream.h"
 #include "bibendovsky_spul_utf8_utils.h"
+#include "bibendovsky_spul_uuid.h"
 #include "bibendovsky_spul_wave_format.h"
 #include "bibendovsky_spul_wave_format_tag.h"
 #include "bibendovsky_spul_wave_format_utils.h"

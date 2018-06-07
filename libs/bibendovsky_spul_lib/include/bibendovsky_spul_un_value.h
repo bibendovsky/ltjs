@@ -26,12 +26,15 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 //
-// A WAVEFORMAT-family structures.
+// Uninitialized value wrapper.
 //
 
 
-#include "bibendovsky_spul_precompiled.h"
-#include "bibendovsky_spul_wave_format.h"
+#ifndef BIBENDOVSKY_SPUL_UN_VALUE_INCLUDED
+#define BIBENDOVSKY_SPUL_UN_VALUE_INCLUDED
+
+
+#include <type_traits>
 
 
 namespace bibendovsky
@@ -40,57 +43,43 @@ namespace spul
 {
 
 
-bool operator==(
-	const WaveFormat& lhs,
-	const WaveFormat& rhs)
+template<typename T>
+class UnValue
 {
-	return
-		lhs.tag_ == rhs.tag_ &&
-		lhs.channel_count_ == rhs.channel_count_ &&
-		lhs.sample_rate_ == rhs.sample_rate_ &&
-		lhs.avg_bytes_per_sec_ == rhs.avg_bytes_per_sec_ &&
-		lhs.block_align_ == rhs.block_align_;
-}
+public:
+	using Value = T;
 
-bool operator==(
-	const PcmWaveFormat& lhs,
-	const PcmWaveFormat& rhs)
-{
-	return
-		static_cast<const WaveFormat&>(lhs) == static_cast<const WaveFormat&>(rhs) &&
-		lhs.bit_depth_ == rhs.bit_depth_;
-}
+	UnValue()
+	{
+		static_assert(!std::is_class<Value>::value, "Expected a non-class type.");
+	}
 
-bool operator==(
-	const WaveFormatEx& lhs,
-	const WaveFormatEx& rhs)
-{
-	return
-		static_cast<const PcmWaveFormat&>(lhs) == static_cast<const PcmWaveFormat&>(rhs) &&
-		lhs.extra_size_ == rhs.extra_size_;
-}
+	UnValue(
+		const Value value)
+		:
+		value_{value}
+	{
+		static_assert(!std::is_class<Value>::value, "Expected a non-class type.");
+	}
 
-bool operator!=(
-	const WaveFormat& lhs,
-	const WaveFormat& rhs)
-{
-	return !(lhs == rhs);
-}
+	operator Value&()
+	{
+		return value_;
+	}
 
-bool operator!=(
-	const PcmWaveFormat& lhs,
-	const PcmWaveFormat& rhs)
-{
-	return !(lhs == rhs);
-}
+	operator Value() const
+	{
+		return value_;
+	}
 
-bool operator!=(
-	const WaveFormatEx& lhs,
-	const WaveFormatEx& rhs)
-{
-	return !(lhs == rhs);
-}
+
+private:
+	T value_;
+}; // UnValue
 
 
 } // spul
 } // bibendovsky
+
+
+#endif // !BIBENDOVSKY_SPUL_UN_VALUE_INCLUDED

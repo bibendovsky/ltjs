@@ -22,7 +22,7 @@ struct AudioDecoder::Impl
 {
 	using AVInputFormatPtr = AVInputFormat*;
 
-	using Parameters = OpenParameters;
+	using Parameter = OpenParam;
 
 
 	enum class State
@@ -81,16 +81,16 @@ struct AudioDecoder::Impl
 	}
 
 	bool open(
-		const OpenParameters& parameters)
+		const OpenParam& param)
 	{
 		close();
 
-		if (!parameters.validate())
+		if (!param.validate())
 		{
 			return false;
 		}
 
-		if (!open_internal(parameters))
+		if (!open_internal(param))
 		{
 			close();
 			return false;
@@ -101,12 +101,32 @@ struct AudioDecoder::Impl
 
 	void close()
 	{
+		::swr_free(&ff_swr_context_);
 		::avcodec_free_context(&ff_codec_context_);
 		::avformat_close_input(&ff_format_context_);
 		::av_frame_free(&ff_frame_);
+
+		auto is_free_io_buffer = true;
+
+		if (ff_io_context_ && ff_io_context_->buffer)
+		{
+			if (ff_io_context_->buffer != ff_io_buffer_)
+			{
+				is_free_io_buffer = false;
+				::av_freep(&ff_io_context_->buffer);
+			}
+		}
+
 		::avio_context_free(&ff_io_context_);
-		::av_freep(&ff_io_buffer_);
-		::swr_free(&ff_swr_context_);
+
+		if (is_free_io_buffer)
+		{
+			::av_freep(&ff_io_buffer_);
+		}
+		else
+		{
+			ff_io_buffer_ = nullptr;
+		}
 
 		ff_codec_ = {};
 		ff_stream_index_ = -1;
@@ -580,7 +600,7 @@ struct AudioDecoder::Impl
 	}
 
 	bool open_internal(
-		const OpenParameters& parameters)
+		const OpenParam& param)
 	{
 		ff_io_buffer_ = static_cast<std::uint8_t*>(::av_malloc(max_ff_io_buffer_size));
 
@@ -603,7 +623,7 @@ struct AudioDecoder::Impl
 			return false;
 		}
 
-		stream_ptr_ = parameters.stream_ptr_;
+		stream_ptr_ = param.stream_ptr_;
 
 		auto ff_result = 0;
 		auto has_data = false;
@@ -718,9 +738,9 @@ struct AudioDecoder::Impl
 
 		auto dst_sample_format = AV_SAMPLE_FMT_NONE;
 
-		if (parameters.dst_bit_depth_ > 0)
+		if (param.dst_bit_depth_ > 0)
 		{
-			switch (parameters.dst_bit_depth_)
+			switch (param.dst_bit_depth_)
 			{
 			case 8:
 				dst_bit_depth_ = 8;
@@ -758,9 +778,9 @@ struct AudioDecoder::Impl
 		//
 		src_channel_count_ = ff_codec_context_->channels;
 
-		if (parameters.dst_channel_count_ > 0)
+		if (param.dst_channel_count_ > 0)
 		{
-			dst_channel_count_ = parameters.dst_channel_count_;
+			dst_channel_count_ = param.dst_channel_count_;
 		}
 		else
 		{
@@ -772,9 +792,9 @@ struct AudioDecoder::Impl
 		//
 		src_sample_rate_ = ff_codec_context_->sample_rate;
 
-		if (parameters.dst_sample_rate_ > 0)
+		if (param.dst_sample_rate_ > 0)
 		{
-			dst_sample_rate_ = parameters.dst_sample_rate_;
+			dst_sample_rate_ = param.dst_sample_rate_;
 		}
 		else
 		{
@@ -941,7 +961,7 @@ struct AudioDecoder::Impl
 constexpr int AudioDecoder::Impl::max_ff_io_buffer_size;
 
 
-bool AudioDecoder::OpenParameters::validate() const
+bool AudioDecoder::OpenParam::validate() const
 {
 	return
 		(dst_channel_count_ == 0 || dst_channel_count_ == 1 || dst_channel_count_ == 2) &&
@@ -955,23 +975,34 @@ bool AudioDecoder::OpenParameters::validate() const
 
 
 AudioDecoder::AudioDecoder() :
-	pimpl_{new Impl{}}
+	impl_{new Impl{}}
 {
 }
 
 AudioDecoder::AudioDecoder(
-	const OpenParameters& parameters)
+	const OpenParam& param)
 	:
 	AudioDecoder{}
 {
-	static_cast<void>(open(parameters));
+	static_cast<void>(open(param));
 }
 
 AudioDecoder::AudioDecoder(
-	AudioDecoder&& that)
+	AudioDecoder&& that) noexcept
 	:
-	pimpl_{std::move(that.pimpl_)}
+	impl_{std::move(that.impl_)}
 {
+}
+
+AudioDecoder& AudioDecoder::operator=(
+	AudioDecoder&& that) noexcept
+{
+	if (this != std::addressof(that))
+	{
+		impl_ = std::move(that.impl_);
+	}
+
+	return *this;
 }
 
 AudioDecoder::~AudioDecoder()
@@ -979,107 +1010,107 @@ AudioDecoder::~AudioDecoder()
 }
 
 bool AudioDecoder::open(
-	const OpenParameters& parameters)
+	const OpenParam& param)
 {
-	return pimpl_->open(parameters);
+	return impl_->open(param);
 }
 
 void AudioDecoder::close()
 {
-	pimpl_->close();
+	impl_->close();
 }
 
 int AudioDecoder::decode(
 	void* buffer,
 	const int buffer_size)
 {
-	return pimpl_->decode(buffer, buffer_size);
+	return impl_->decode(buffer, buffer_size);
 }
 
 bool AudioDecoder::rewind()
 {
-	return pimpl_->rewind();
+	return impl_->rewind();
 }
 
 bool AudioDecoder::set_position(
 	const int sample_offset)
 {
-	return pimpl_->set_position(sample_offset);
+	return impl_->set_position(sample_offset);
 }
 
 bool AudioDecoder::is_open() const
 {
-	return pimpl_->is_open();
+	return impl_->is_open();
 }
 
 bool AudioDecoder::is_failed() const
 {
-	return pimpl_->is_failed();
+	return impl_->is_failed();
 }
 
 bool AudioDecoder::is_pcm() const
 {
-	return pimpl_->is_pcm();
+	return impl_->is_pcm();
 }
 
 bool AudioDecoder::is_ima_adpcm() const
 {
-	return pimpl_->is_ima_adpcm();
+	return impl_->is_ima_adpcm();
 }
 
 bool AudioDecoder::is_mp3() const
 {
-	return pimpl_->is_mp3();
+	return impl_->is_mp3();
 }
 
 int AudioDecoder::get_src_channel_count() const
 {
-	return pimpl_->get_src_channel_count();
+	return impl_->get_src_channel_count();
 }
 
 int AudioDecoder::get_src_sample_rate() const
 {
-	return pimpl_->get_src_sample_rate();
+	return impl_->get_src_sample_rate();
 }
 
 int AudioDecoder::get_dst_channel_count() const
 {
-	return pimpl_->get_dst_channel_count();
+	return impl_->get_dst_channel_count();
 }
 
 int AudioDecoder::get_dst_bit_depth() const
 {
-	return pimpl_->get_dst_bit_depth();
+	return impl_->get_dst_bit_depth();
 }
 
 int AudioDecoder::get_dst_sample_rate() const
 {
-	return pimpl_->get_dst_sample_rate();
+	return impl_->get_dst_sample_rate();
 }
 
 int AudioDecoder::get_dst_sample_size() const
 {
-	return pimpl_->get_dst_sample_size();
+	return impl_->get_dst_sample_size();
 }
 
 ul::WaveFormatEx AudioDecoder::get_wave_format_ex() const
 {
-	return pimpl_->get_wave_format_ex();
+	return impl_->get_wave_format_ex();
 }
 
 int AudioDecoder::get_sample_count() const
 {
-	return pimpl_->get_sample_count();
+	return impl_->get_sample_count();
 }
 
 int AudioDecoder::get_data_size() const
 {
-	return pimpl_->get_data_size();
+	return impl_->get_data_size();
 }
 
 int AudioDecoder::get_decoded_size() const
 {
-	return pimpl_->get_decoded_size();
+	return impl_->get_decoded_size();
 }
 
 void AudioDecoder::initialize_current_thread()

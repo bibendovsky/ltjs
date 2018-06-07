@@ -7,6 +7,9 @@
 #define __LTDIRECTMUSICLOADER_H__
 
 
+#ifdef LTJS_USE_DIRECT_MUSIC8
+
+
 //can anyone tell me what the next 2 lines are??? holy balls!
 #ifndef LTDirectMusiCLTDMLoader_H
 #define __LOADER_H_
@@ -287,6 +290,9 @@ private:
 
 
 #endif //__CDMLOADER_H_
+
+
+#endif // LTJS_USE_DIRECT_MUSIC8
 
 
 #endif

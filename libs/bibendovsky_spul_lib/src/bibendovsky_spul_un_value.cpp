@@ -26,71 +26,9 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 //
-// A WAVEFORMAT-family structures.
+// Uninitialized value wrapper.
 //
 
 
 #include "bibendovsky_spul_precompiled.h"
-#include "bibendovsky_spul_wave_format.h"
-
-
-namespace bibendovsky
-{
-namespace spul
-{
-
-
-bool operator==(
-	const WaveFormat& lhs,
-	const WaveFormat& rhs)
-{
-	return
-		lhs.tag_ == rhs.tag_ &&
-		lhs.channel_count_ == rhs.channel_count_ &&
-		lhs.sample_rate_ == rhs.sample_rate_ &&
-		lhs.avg_bytes_per_sec_ == rhs.avg_bytes_per_sec_ &&
-		lhs.block_align_ == rhs.block_align_;
-}
-
-bool operator==(
-	const PcmWaveFormat& lhs,
-	const PcmWaveFormat& rhs)
-{
-	return
-		static_cast<const WaveFormat&>(lhs) == static_cast<const WaveFormat&>(rhs) &&
-		lhs.bit_depth_ == rhs.bit_depth_;
-}
-
-bool operator==(
-	const WaveFormatEx& lhs,
-	const WaveFormatEx& rhs)
-{
-	return
-		static_cast<const PcmWaveFormat&>(lhs) == static_cast<const PcmWaveFormat&>(rhs) &&
-		lhs.extra_size_ == rhs.extra_size_;
-}
-
-bool operator!=(
-	const WaveFormat& lhs,
-	const WaveFormat& rhs)
-{
-	return !(lhs == rhs);
-}
-
-bool operator!=(
-	const PcmWaveFormat& lhs,
-	const PcmWaveFormat& rhs)
-{
-	return !(lhs == rhs);
-}
-
-bool operator!=(
-	const WaveFormatEx& lhs,
-	const WaveFormatEx& rhs)
-{
-	return !(lhs == rhs);
-}
-
-
-} // spul
-} // bibendovsky
+#include "bibendovsky_spul_un_value.h"

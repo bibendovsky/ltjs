@@ -14,6 +14,10 @@
 
 #include "bdefs.h"
 
+
+#ifdef LTJS_USE_DIRECT_MUSIC8
+
+
 #include "dmusici.h"
 
 #include "lith.h"
@@ -1802,3 +1806,6 @@ STDMETHODIMP CLTDMLoader::LoadObjectFromFile(REFGUID rguidClassID,
 {
 	return E_NOTIMPL;
 }
+
+
+#endif // LTJS_USE_DIRECT_MUSIC8

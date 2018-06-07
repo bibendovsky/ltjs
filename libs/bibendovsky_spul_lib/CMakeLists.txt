@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
-project(bibendovsky_spul_lib VERSION 1.0.2 LANGUAGES CXX)
+project(bibendovsky_spul_lib VERSION 1.0.0 LANGUAGES CXX)
 
 
 option(BIBENDOVSKY_SPUL_CMAKE_ENABLE_INSTALL "Enable install (CMake)." OFF)
@@ -20,6 +20,7 @@ set(
 	include/bibendovsky_spul_endian.h
 	include/bibendovsky_spul_enum_flags.h
 	include/bibendovsky_spul_file_stream.h
+	include/bibendovsky_spul_file_substream.h
 	include/bibendovsky_spul_four_cc.h
 	include/bibendovsky_spul_memory_stream.h
 	include/bibendovsky_spul_path_utils.h
@@ -30,7 +31,9 @@ set(
 	include/bibendovsky_spul_scope_guard.h
 	include/bibendovsky_spul_stream.h
 	include/bibendovsky_spul_substream.h
+	include/bibendovsky_spul_un_value.h
 	include/bibendovsky_spul_utf8_utils.h
+	include/bibendovsky_spul_uuid.h
 	include/bibendovsky_spul_wave_format.h
 	include/bibendovsky_spul_wave_format_utils.h
 	include/bibendovsky_spul_wave_format_tag.h
@@ -46,6 +49,7 @@ set(
 	src/bibendovsky_spul_endian.cpp
 	src/bibendovsky_spul_enum_flags.cpp
 	src/bibendovsky_spul_file_stream.cpp
+	src/bibendovsky_spul_file_substream.cpp
 	src/bibendovsky_spul_four_cc.cpp
 	src/bibendovsky_spul_memory_stream.cpp
 	src/bibendovsky_spul_path_utils.cpp
@@ -56,7 +60,9 @@ set(
 	src/bibendovsky_spul_scope_guard.cpp
 	src/bibendovsky_spul_stream.cpp
 	src/bibendovsky_spul_substream.cpp
+	src/bibendovsky_spul_un_value.cpp
 	src/bibendovsky_spul_utf8_utils.cpp
+	src/bibendovsky_spul_uuid.cpp
 	src/bibendovsky_spul_wave_format.cpp
 	src/bibendovsky_spul_wave_format_tag.cpp
 	src/bibendovsky_spul_wave_format_utils.cpp
@@ -95,7 +101,7 @@ if (BIBENDOVSKY_SPUL_USE_PCH)
 	if (MSVC)
 		target_compile_definitions(
 			bibendovsky_spul_lib
-			PRIVATE -DBIBENDOVSKY_SPUL_USE_PCH
+			PRIVATE BIBENDOVSKY_SPUL_USE_PCH
 		)
 
 		target_compile_options(

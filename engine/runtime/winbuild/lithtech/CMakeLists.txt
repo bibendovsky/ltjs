@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(ltjs_lith_tech VERSION 0.0.1 LANGUAGES CXX)
 
+option(LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
+
 include(ltjs_common)
 
+find_package(LTJS_FFmpeg REQUIRED 2.8.11)
+
+
 include_directories(
+	${LTJS_FFMPEG_INCLUDE_DIR}
     .
     ../../../../directx/include
     ../../../../libs/bibendovsky_spul_lib/include
@@ -289,6 +295,9 @@ set(
     ../../shared/src/varsetter.h
     ../../shared/src/version_info.h
     ../../sound/src/iltsound.h
+	../../sound/src/ltjs_audio_decoder.h
+	../../sound/src/ltjs_dmusic_manager.h
+	../../sound/src/ltjs_dmusic_segment.h
     ../../sound/src/soundbuffer.h
     ../../sound/src/sounddata.h
     ../../sound/src/soundinstance.h
@@ -475,6 +484,9 @@ set(
     ../../shared/src/sys/win/dstreamopenqueuemgr.cpp
     ../../shared/src/transformlt_impl.cpp
     ../../shared/src/version_info.cpp
+	../../sound/src/ltjs_audio_decoder.cpp
+	../../sound/src/ltjs_dmusic_manager.cpp
+	../../sound/src/ltjs_dmusic_segment.cpp
     ../../sound/src/soundbuffer.cpp
     ../../sound/src/sounddata.cpp
     ../../sound/src/soundinstance.cpp
@@ -519,6 +531,7 @@ if (MSVC)
         ../../shared/src/compress.cpp
         ../../shared/src/interface_linkage.cpp
         ../../shared/src/modellt_impl.cpp
+		../../sound/src/ltjs_audio_decoder.cpp
         PROPERTIES
             # Precompiled Header (None)
             COMPILE_FLAGS -Y-
@@ -552,10 +565,22 @@ target_compile_definitions(
     PRIVATE $<$<CONFIG:DEBUG>:D3D_DEBUG_INFO>
 )
 
+if (LTJS_USE_DIRECT_MUSIC8)
+	target_compile_definitions(
+		ltjs_lith_tech
+		PRIVATE LTJS_USE_DIRECT_MUSIC8
+	)
+endif ()
+
 set_target_properties(
     ltjs_lith_tech
     PROPERTIES
         OUTPUT_NAME ltjs_lithtech
+)
+
+set(
+	libs
+	${LTJS_FFMPEG_LIBRARY}
 )
 
 if (MSVC)
@@ -570,7 +595,8 @@ if (MSVC)
         ${CMAKE_SOURCE_DIR}/directx/lib/x86
     )
 
-    set(
+    list(
+		APPEND
         libs
         ${path_to_dx_libs}/ddraw.lib
         ${path_to_dx_libs}/d3dx9.lib
@@ -583,7 +609,8 @@ if (MSVC)
 endif ()
 
 if (NOT MSVC)
-    set(
+    list(
+		APPEND
         libs
         d3d9
         d3dx9
@@ -593,6 +620,15 @@ if (NOT MSVC)
         winmm
         ws2_32
     )
+endif ()
+
+if (MINGW)
+	list(
+		APPEND
+		libs
+		iconv
+		z
+	)
 endif ()
 
 target_link_libraries(

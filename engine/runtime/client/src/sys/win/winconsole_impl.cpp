@@ -6,6 +6,7 @@
 
 #include "bdefs.h"
 
+#include <algorithm>
 #include "winconsole_impl.h"
 #include "consolecommands.h"
 #include "dsys_interface.h"
@@ -310,7 +311,7 @@ void CConCommandBox::AddChar( char key )
 
 void CConCommandBox::MoveCursor(int iOffset)
 {
-	m_iCursorPos = max(min(m_iCursorPos + iOffset, m_iCurLength), 0);
+	m_iCursorPos = std::max(std::min(m_iCursorPos + iOffset, m_iCurLength), 0);
 }
 
 void CConCommandBox::MoveWord( int iOffset )
@@ -1005,7 +1006,7 @@ void CConsole::SetBackgroundAlpha( float fValue )
 
 int CConsole::Scroll( int iOffset )
 {
-	m_iScrollOffset = min( max( m_iScrollOffset + iOffset, 0 ), (int)(m_TextLines.GetSize() - m_nTextLines + 1));
+	m_iScrollOffset = std::min( std::max( m_iScrollOffset + iOffset, 0 ), (int)(m_TextLines.GetSize() - m_nTextLines + 1));
 	return m_iScrollOffset;
 }
 
@@ -1467,13 +1468,13 @@ void CConsole::CalcRect( LTRect &cRect )
 		cRect.bottom = m_Rect.bottom;
 
 	// Clip the rectangle to the screen
-	cRect.right = min( cRect.right, (int)GetRenderStruct()->m_Width - 3);
-	cRect.bottom = min( cRect.bottom, (int)GetRenderStruct()->m_Height );
+	cRect.right = std::min( cRect.right, (int)GetRenderStruct()->m_Width - 3);
+	cRect.bottom = std::min( cRect.bottom, (int)GetRenderStruct()->m_Height );
 	// Restrict the rectangle to a minimum size
-	cRect.right = max( cRect.right, 160 );
-	cRect.bottom = max( cRect.bottom, m_FullFontHeight * 4 );
-	cRect.left = min( cRect.left, cRect.right - 160 );
-	cRect.top = min( cRect.top, cRect.bottom - (m_FullFontHeight * 4) );
+	cRect.right = std::max( cRect.right, 160 );
+	cRect.bottom = std::max( cRect.bottom, m_FullFontHeight * 4 );
+	cRect.left = std::min( cRect.left, cRect.right - 160 );
+	cRect.top = std::min( cRect.top, cRect.bottom - (m_FullFontHeight * 4) );
 }
 
 void CConsole::PrintString(CONCOLOR theColor, int filterLevel, const char *pMsg)

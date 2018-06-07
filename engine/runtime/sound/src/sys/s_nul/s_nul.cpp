@@ -909,6 +909,81 @@ void NulSoundSys::handle_focus_lost(
 	static_cast<void>(is_focus_lost);
 }
 
+ILTSoundSys::GenericStreamHandle NulSoundSys::open_generic_stream(
+	const int sample_rate,
+	const int buffer_size)
+{
+	static_cast<void>(sample_rate);
+	static_cast<void>(buffer_size);
+
+	return nullptr;
+}
+
+void NulSoundSys::close_generic_stream(
+	GenericStreamHandle stream_handle)
+{
+	static_cast<void>(stream_handle);
+}
+
+int NulSoundSys::get_generic_stream_queue_size()
+{
+	return 0;
+}
+
+int NulSoundSys::get_generic_stream_free_buffer_count(
+	GenericStreamHandle stream_handle)
+{
+	static_cast<void>(stream_handle);
+
+	return 0;
+}
+
+bool NulSoundSys::enqueue_generic_stream_buffer(
+	GenericStreamHandle stream_handle,
+	const void* buffer)
+{
+	static_cast<void>(stream_handle);
+	static_cast<void>(buffer);
+
+	return false;
+}
+
+bool NulSoundSys::set_generic_stream_pause(
+	GenericStreamHandle stream_handle,
+	const bool is_pause)
+{
+	static_cast<void>(stream_handle);
+	static_cast<void>(is_pause);
+
+	return false;
+}
+
+bool NulSoundSys::get_generic_stream_pause(
+	GenericStreamHandle stream_handle)
+{
+	static_cast<void>(stream_handle);
+
+	return false;
+}
+
+bool NulSoundSys::set_generic_stream_volume(
+	GenericStreamHandle stream_handle,
+	const int ds_volume)
+{
+	static_cast<void>(stream_handle);
+	static_cast<void>(ds_volume);
+
+	return false;
+}
+
+int NulSoundSys::get_generic_stream_volume(
+	GenericStreamHandle stream_handle)
+{
+	static_cast<void>(stream_handle);
+
+	return 0;
+}
+
 NulSoundSys& NulSoundSys::get_singleton()
 {
 	static auto singleton = NulSoundSys{};

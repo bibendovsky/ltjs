@@ -259,7 +259,7 @@ struct OalSoundSys::Impl
 			failed,
 		}; // Status
 
-		struct OpenParameters
+		struct OpenParam
 		{
 			bool is_file_;
 			const char* file_name_;
@@ -278,7 +278,7 @@ struct OalSoundSys::Impl
 
 			bool oal_has_effect_slot_;
 			ALuint oal_effect_slot_;
-		}; // OpenParameters
+		}; // OpenParam
 
 
 		static constexpr auto mix_size_ms = 20;
@@ -342,8 +342,7 @@ struct OalSoundSys::Impl
 			oal_source_{},
 			oal_buffer_format_{},
 			oal_buffers_{},
-			oal_queued_buffers_{},
-			oal_unqueued_buffers_{}
+			oal_queued_count_{}
 		{
 			switch (type)
 			{
@@ -431,8 +430,7 @@ struct OalSoundSys::Impl
 			oal_source_{std::move(that.oal_source_)},
 			oal_buffer_format_{std::move(that.oal_buffer_format_)},
 			oal_buffers_{std::move(that.oal_buffers_)},
-			oal_queued_buffers_{std::move(that.oal_queued_buffers_)},
-			oal_unqueued_buffers_{std::move(that.oal_unqueued_buffers_)}
+			oal_queued_count_{std::move(that.oal_queued_count_)}
 		{
 			that.oal_are_buffers_created_ = false;
 			that.oal_is_source_created_ = false;
@@ -616,9 +614,9 @@ struct OalSoundSys::Impl
 		}
 
 		bool open(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
-			if (!open_internal(parameters))
+			if (!open_internal(param))
 			{
 				close_internal();
 				return false;
@@ -733,32 +731,28 @@ struct OalSoundSys::Impl
 			}
 
 			auto oal_processed = ALint{};
-			auto oal_queued = ALint{};
 
 			::alGetSourcei(oal_source_, AL_BUFFERS_PROCESSED, &oal_processed);
-			assert(oal_is_succeed());
-			::alGetSourcei(oal_source_, AL_BUFFERS_QUEUED, &oal_queued);
 			assert(oal_is_succeed());
 
 			if (oal_processed > 0)
 			{
-				auto buffers = OalBuffers{};
-				const auto old_size = oal_unqueued_buffers_.size();
-
-				oal_unqueued_buffers_.resize(
-					old_size + std::min(oal_processed, oal_max_buffer_count));
+				std::rotate(oal_buffers_.begin(), oal_buffers_.begin() + oal_processed, oal_buffers_.end());
 
 				::alSourceUnqueueBuffers(
 					oal_source_,
 					oal_processed,
-					&oal_unqueued_buffers_[old_size]);
+					&oal_buffers_[oal_max_buffer_count - oal_processed]);
 
 				assert(oal_is_succeed());
+
+				oal_queued_count_ -= oal_processed;
+				assert(oal_queued_count_ >= 0);
 			}
 
 			if (!is_looping_ && data_offset_ == data_size_)
 			{
-				if (oal_queued == 0)
+				if (oal_queued_count_ == 0)
 				{
 					is_playing_ = false;
 					::alSourcePause(oal_source_);
@@ -767,31 +761,23 @@ struct OalSoundSys::Impl
 					return;
 				}
 
-				if (oal_queued > 0)
+				if (oal_queued_count_ > 0)
 				{
 					return;
 				}
 			}
 
+
 			auto queued_count = 0;
 
-			for (auto i = oal_queued; i < oal_max_buffer_count; ++i)
+			for (auto i = oal_queued_count_; i < oal_max_buffer_count; ++i)
 			{
-				if (oal_unqueued_buffers_.empty())
-				{
-					break;
-				}
-
 				auto decoded_mix_size = mix_fill_buffer();
 
 				if (decoded_mix_size == 0)
 				{
 					break;
 				}
-
-				const auto oal_buffer = oal_unqueued_buffers_.back();
-				oal_unqueued_buffers_.pop_back();
-				oal_queued_buffers_.push_back(oal_buffer);
 
 				auto buffer_size = mix_size_;
 				auto buffer_data = mix_mono_buffer_.data();
@@ -801,6 +787,8 @@ struct OalSoundSys::Impl
 					buffer_size *= 2;
 					buffer_data = mix_stereo_buffer_.data();
 				}
+
+				const auto oal_buffer = oal_buffers_[oal_queued_count_];
 
 				::alBufferData(
 					oal_buffer,
@@ -816,6 +804,7 @@ struct OalSoundSys::Impl
 				assert(oal_is_succeed());
 
 				queued_count += 1;
+				oal_queued_count_ += 1;
 
 				if (decoded_mix_size < mix_size_)
 				{
@@ -1268,8 +1257,7 @@ struct OalSoundSys::Impl
 
 		ALenum oal_buffer_format_;
 		OalBuffers oal_buffers_;
-		OalQueueBuffers oal_queued_buffers_;
-		OalQueueBuffers oal_unqueued_buffers_;
+		int oal_queued_count_;
 
 
 		void create()
@@ -1416,12 +1404,7 @@ struct OalSoundSys::Impl
 			data_size_ = {};
 			data_offset_ = {};
 
-			oal_queued_buffers_.clear();
-			oal_queued_buffers_.reserve(oal_max_buffer_count);
-
-			oal_unqueued_buffers_.clear();
-			oal_unqueued_buffers_.reserve(oal_max_buffer_count);
-			oal_unqueued_buffers_.assign(oal_buffers_.cbegin(), oal_buffers_.cend());
+			oal_queued_count_ = 0;
 
 			channel_count_ = {};
 			bit_depth_ = {};
@@ -1526,31 +1509,31 @@ struct OalSoundSys::Impl
 		}
 
 		bool open_file_internal(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
-			if (!parameters.is_file_ || !parameters.file_name_)
+			if (!param.is_file_ || !param.file_name_)
 			{
 				return false;
 			}
 
-			const auto open_file_result = file_stream_.open(parameters.file_name_, ul::Stream::OpenMode::read);
+			const auto open_file_result = file_stream_.open(param.file_name_, ul::Stream::OpenMode::read);
 
 			if (!open_file_result)
 			{
 				return false;
 			}
 
-			const auto open_subfile_result = file_substream_.open(&file_stream_, parameters.file_offset_);
+			const auto open_subfile_result = file_substream_.open(&file_stream_, param.file_offset_);
 
 			if (!open_subfile_result)
 			{
 				return false;
 			}
 
-			auto decoder_parameters = ltjs::AudioDecoder::OpenParameters{};
-			decoder_parameters.stream_ptr_ = &file_substream_;
+			auto decoder_param = ltjs::AudioDecoder::OpenParam{};
+			decoder_param.stream_ptr_ = &file_substream_;
 
-			const auto open_decoder_result = decoder_.open(decoder_parameters);
+			const auto open_decoder_result = decoder_.open(decoder_param);
 
 			if (!open_decoder_result)
 			{
@@ -1567,33 +1550,33 @@ struct OalSoundSys::Impl
 		}
 
 		bool open_mapped_file_internal(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
-			if (!parameters.is_mapped_file_ || !parameters.mapped_storage_ptr || !parameters.mapped_decoder_)
+			if (!param.is_mapped_file_ || !param.mapped_storage_ptr || !param.mapped_decoder_)
 			{
 				return false;
 			}
 
-			const auto mapped_file_size = ltjs::AudioUtils::extract_wave_size(parameters.mapped_storage_ptr);
+			const auto mapped_file_size = ltjs::AudioUtils::extract_wave_size(param.mapped_storage_ptr);
 
 			if (mapped_file_size <= 0)
 			{
 				return false;
 			}
 
-			auto memory_stream = ul::MemoryStream{parameters.mapped_storage_ptr, mapped_file_size, ul::Stream::OpenMode::read};
+			auto memory_stream = ul::MemoryStream{param.mapped_storage_ptr, mapped_file_size, ul::Stream::OpenMode::read};
 
 			if (!memory_stream.is_open())
 			{
 				return false;
 			}
 
-			auto decoder_parameters = ltjs::AudioDecoder::OpenParameters{};
-			decoder_parameters.stream_ptr_ = &memory_stream;
+			auto decoder_param = ltjs::AudioDecoder::OpenParam{};
+			decoder_param.stream_ptr_ = &memory_stream;
 
-			auto& decoder = *parameters.mapped_decoder_;
+			auto& decoder = *param.mapped_decoder_;
 
-			if (!decoder.open(decoder_parameters))
+			if (!decoder.open(decoder_param))
 			{
 				return false;
 			}
@@ -1618,36 +1601,36 @@ struct OalSoundSys::Impl
 		}
 
 		bool open_memory_internal(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
-			if (!parameters.is_memory_ || !parameters.memory_ptr_ || parameters.memory_size_ <= 0)
+			if (!param.is_memory_ || !param.memory_ptr_ || param.memory_size_ <= 0)
 			{
 				return false;
 			}
 
-			if (!validate_wave_format_ex(parameters.memory_wave_format_))
+			if (!validate_wave_format_ex(param.memory_wave_format_))
 			{
 				return false;
 			}
 
-			data_.resize(parameters.memory_size_);
+			data_.resize(param.memory_size_);
 
 			std::uninitialized_copy_n(
-				static_cast<const std::uint8_t*>(parameters.memory_ptr_),
-				parameters.memory_size_,
+				static_cast<const std::uint8_t*>(param.memory_ptr_),
+				param.memory_size_,
 				data_.begin());
 
 			storage_type_ = StorageType::internal_buffer;
 
-			data_size_ = static_cast<int>(parameters.memory_size_);
+			data_size_ = static_cast<int>(param.memory_size_);
 
-			open_set_wave_format_internal(parameters.memory_wave_format_);
+			open_set_wave_format_internal(param.memory_wave_format_);
 
 			return true;
 		}
 
 		bool open_initialize_internal(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
 			if (is_spatial() && !is_mono())
 			{
@@ -1657,11 +1640,11 @@ struct OalSoundSys::Impl
 			oal_reset_common();
 			oal_reset_spatial();
 
-			const auto has_pitch = (parameters.playback_rate_ > 0 && sample_rate_ != parameters.playback_rate_);
+			const auto has_pitch = (param.playback_rate_ > 0 && sample_rate_ != param.playback_rate_);
 
 			if (has_pitch)
 			{
-				pitch_ = static_cast<float>(parameters.playback_rate_) / static_cast<float>(sample_rate_);
+				pitch_ = static_cast<float>(param.playback_rate_) / static_cast<float>(sample_rate_);
 			}
 
 			mix_sample_count_ = static_cast<int>((pitch_ * mix_size_ms * sample_rate_) / 1000.0F);
@@ -1687,9 +1670,9 @@ struct OalSoundSys::Impl
 
 			::alSourcef(oal_source_, AL_PITCH, pitch_);
 
-			if (parameters.oal_has_effect_slot_)
+			if (param.oal_has_effect_slot_)
 			{
-				::alSource3i(oal_source_, AL_AUXILIARY_SEND_FILTER, parameters.oal_effect_slot_, 0, AL_FILTER_NULL);
+				::alSource3i(oal_source_, AL_AUXILIARY_SEND_FILTER, param.oal_effect_slot_, 0, AL_FILTER_NULL);
 			}
 
 			if (!oal_is_succeed())
@@ -1705,27 +1688,27 @@ struct OalSoundSys::Impl
 		}
 
 		bool open_internal(
-			const OpenParameters& parameters)
+			const OpenParam& param)
 		{
 			reset();
 
-			if (parameters.is_file_)
+			if (param.is_file_)
 			{
-				if (!open_file_internal(parameters))
+				if (!open_file_internal(param))
 				{
 					return false;
 				}
 			}
-			else if (parameters.is_mapped_file_)
+			else if (param.is_mapped_file_)
 			{
-				if (!open_mapped_file_internal(parameters))
+				if (!open_mapped_file_internal(param))
 				{
 					return false;
 				}
 			}
-			else if (parameters.is_memory_)
+			else if (param.is_memory_)
 			{
-				if (!open_memory_internal(parameters))
+				if (!open_memory_internal(param))
 				{
 					return false;
 				}
@@ -1735,7 +1718,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!open_initialize_internal(parameters))
+			if (!open_initialize_internal(param))
 			{
 				return false;
 			}
@@ -3910,15 +3893,15 @@ struct OalSoundSys::Impl
 
 		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto open_parameters = StreamingSource::OpenParameters{};
+		auto open_param = StreamingSource::OpenParam{};
 
-		open_parameters.is_memory_ = true;
-		open_parameters.memory_ptr_ = storage_ptr;
-		open_parameters.memory_size_ = storage_size;
-		open_parameters.memory_wave_format_ = wave_format;
-		open_parameters.playback_rate_ = playback_rate;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_effect_slot_ = oal_effect_slot_;
+		open_param.is_memory_ = true;
+		open_param.memory_ptr_ = storage_ptr;
+		open_param.memory_size_ = storage_size;
+		open_param.memory_wave_format_ = wave_format;
+		open_param.playback_rate_ = playback_rate;
+		open_param.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_param.oal_effect_slot_ = oal_effect_slot_;
 
 		{
 			MtMutexGuard lock{mt_samples_mutex_};
@@ -3928,7 +3911,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!source.open(open_parameters))
+			if (!source.open(open_param))
 			{
 				return false;
 			}
@@ -3956,14 +3939,14 @@ struct OalSoundSys::Impl
 
 		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto open_parameters = StreamingSource::OpenParameters{};
+		auto open_param = StreamingSource::OpenParam{};
 
-		open_parameters.is_mapped_file_ = true;
-		open_parameters.mapped_decoder_ = &audio_decoder_;
-		open_parameters.mapped_storage_ptr = storage_ptr;
-		open_parameters.playback_rate_ = playback_rate;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_effect_slot_ = oal_effect_slot_;
+		open_param.is_mapped_file_ = true;
+		open_param.mapped_decoder_ = &audio_decoder_;
+		open_param.mapped_storage_ptr = storage_ptr;
+		open_param.playback_rate_ = playback_rate;
+		open_param.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_param.oal_effect_slot_ = oal_effect_slot_;
 
 		{
 			MtMutexGuard lock{mt_samples_mutex_};
@@ -3973,7 +3956,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!source.open(open_parameters))
+			if (!source.open(open_param))
 			{
 				return false;
 			}
@@ -4411,15 +4394,15 @@ struct OalSoundSys::Impl
 
 		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto open_parameters = StreamingSource::OpenParameters{};
+		auto open_param = StreamingSource::OpenParam{};
 
-		open_parameters.is_memory_ = true;
-		open_parameters.memory_ptr_ = storage_ptr;
-		open_parameters.memory_size_ = storage_size;
-		open_parameters.memory_wave_format_ = wave_format;
-		open_parameters.playback_rate_ = playback_rate;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_effect_slot_ = oal_effect_slot_;
+		open_param.is_memory_ = true;
+		open_param.memory_ptr_ = storage_ptr;
+		open_param.memory_size_ = storage_size;
+		open_param.memory_wave_format_ = wave_format;
+		open_param.playback_rate_ = playback_rate;
+		open_param.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_param.oal_effect_slot_ = oal_effect_slot_;
 
 		{
 			MtMutexGuard lock{mt_samples_mutex_};
@@ -4429,7 +4412,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!source.open(open_parameters))
+			if (!source.open(open_param))
 			{
 				return false;
 			}
@@ -4457,14 +4440,14 @@ struct OalSoundSys::Impl
 
 		auto& source = *static_cast<StreamingSource*>(sample_handle);
 
-		auto open_parameters = StreamingSource::OpenParameters{};
+		auto open_param = StreamingSource::OpenParam{};
 
-		open_parameters.is_mapped_file_ = true;
-		open_parameters.mapped_decoder_ = &audio_decoder_;
-		open_parameters.mapped_storage_ptr = storage_ptr;
-		open_parameters.playback_rate_ = playback_rate;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_effect_slot_ = oal_effect_slot_;
+		open_param.is_mapped_file_ = true;
+		open_param.mapped_decoder_ = &audio_decoder_;
+		open_param.mapped_storage_ptr = storage_ptr;
+		open_param.playback_rate_ = playback_rate;
+		open_param.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_param.oal_effect_slot_ = oal_effect_slot_;
 
 		{
 			MtMutexGuard lock{mt_samples_mutex_};
@@ -4474,7 +4457,7 @@ struct OalSoundSys::Impl
 				return false;
 			}
 
-			if (!source.open(open_parameters))
+			if (!source.open(open_param))
 			{
 				return false;
 			}
@@ -4589,15 +4572,15 @@ struct OalSoundSys::Impl
 			return nullptr;
 		}
 
-		auto open_parameters = StreamingSource::OpenParameters{};
+		auto open_param = StreamingSource::OpenParam{};
 
-		open_parameters.is_file_ = true;
-		open_parameters.file_name_ = file_name;
-		open_parameters.file_offset_ = file_offset;
-		open_parameters.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
-		open_parameters.oal_effect_slot_ = oal_effect_slot_;
+		open_param.is_file_ = true;
+		open_param.file_name_ = file_name;
+		open_param.file_offset_ = file_offset;
+		open_param.oal_has_effect_slot_ = oal_is_supports_eax20_filter_;
+		open_param.oal_effect_slot_ = oal_effect_slot_;
 
-		if (!source.open(open_parameters))
+		if (!source.open(open_param))
 		{
 			streams_.pop_back();
 			return nullptr;
@@ -4907,10 +4890,506 @@ struct OalSoundSys::Impl
 		listener_3d_uptr_->mute_3d_listener(is_focus_lost);
 	}
 
+	GenericStreamHandle api_open_generic_stream(
+		const int sample_rate,
+		const int buffer_size)
+	{
+		auto generic_stream = GenericStream{};
+
+		if (!generic_stream.open(sample_rate, buffer_size))
+		{
+			return nullptr;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		generic_streams_.emplace_back(std::move(generic_stream));
+
+		return &generic_streams_.back();
+	}
+
+	void api_close_generic_stream(
+		GenericStreamHandle stream_handle)
+	{
+		if (!stream_handle)
+		{
+			return;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		generic_streams_.remove_if(
+			[&](const auto& item)
+			{
+				return &item == stream_handle;
+			}
+		);
+	}
+
+	int api_get_generic_stream_queue_size()
+	{
+		return GenericStream::queue_size;
+	}
+
+	int api_get_generic_stream_free_buffer_count(
+		GenericStreamHandle stream_handle)
+	{
+		if (!stream_handle)
+		{
+			return false;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.get_free_buffer_count();
+	}
+
+	bool api_enqueue_generic_stream_buffer(
+		GenericStreamHandle stream_handle,
+		const void* buffer)
+	{
+		if (!stream_handle)
+		{
+			return false;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.enqueue_data(buffer);
+	}
+
+	bool api_set_generic_stream_pause(
+		GenericStreamHandle stream_handle,
+		const bool is_pause)
+	{
+		if (!stream_handle)
+		{
+			return false;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.set_pause(is_pause);
+	}
+
+	bool api_get_generic_stream_pause(
+		GenericStreamHandle stream_handle)
+	{
+		if (!stream_handle)
+		{
+			return false;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.get_pause();
+	}
+
+	bool api_set_generic_stream_volume(
+		GenericStreamHandle stream_handle,
+		const int ds_volume)
+	{
+		if (!stream_handle)
+		{
+			return false;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.set_volume(ds_volume);
+	}
+
+	int api_get_generic_stream_volume(
+		GenericStreamHandle stream_handle)
+	{
+		if (!stream_handle)
+		{
+			return false;
+		}
+
+		MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
+
+		auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+		return stream.get_volume();
+	}
+
+
 	//
 	// =========================================================================
 	// API
 	// =========================================================================
+
+
+	class GenericStream
+	{
+	public:
+		static constexpr auto channel_count = 2;
+		static constexpr auto bit_depth = 16;
+		static constexpr auto byte_depth = bit_depth / 8;
+		static constexpr auto sample_size = channel_count * byte_depth;
+
+		static constexpr auto queue_size = 3;
+
+
+		GenericStream()
+			:
+			is_open_{},
+			is_failed_{},
+			is_playing_{},
+			queued_count_{},
+			buffer_size_{},
+			sample_rate_{},
+			ds_volume_{},
+			oal_gain_{},
+			oal_is_source_created_{},
+			oal_are_buffers_created_{},
+			oal_source_{},
+			oal_buffers_{}
+		{
+		}
+
+		GenericStream(
+			const GenericStream& that) = delete;
+
+		GenericStream& operator=(
+			const GenericStream& that) = delete;
+
+		GenericStream(
+			GenericStream&& that)
+			:
+			is_open_{std::move(that.is_open_)},
+			is_failed_{std::move(that.is_failed_)},
+			is_playing_{std::move(that.is_playing_)},
+			queued_count_{std::move(that.queued_count_)},
+			buffer_size_{std::move(that.buffer_size_)},
+			sample_rate_{std::move(that.sample_rate_)},
+			ds_volume_{std::move(that.ds_volume_)},
+			oal_gain_{std::move(that.oal_gain_)},
+			oal_is_source_created_{std::move(that.oal_is_source_created_)},
+			oal_are_buffers_created_{std::move(that.oal_are_buffers_created_)},
+			oal_source_{std::move(that.oal_source_)},
+			oal_buffers_{std::move(that.oal_buffers_)}
+		{
+			that.is_open_ = {};
+			that.oal_is_source_created_ = {};
+			that.oal_are_buffers_created_ = {};
+		}
+
+		~GenericStream()
+		{
+			close();
+		}
+
+		void close()
+		{
+			is_open_ = {};
+			is_failed_ = {};
+			is_playing_ = {};
+			queued_count_ = {};
+			buffer_size_ = {};
+			sample_rate_ = {};
+			ds_volume_ = {};
+			oal_gain_ = {};
+
+			if (oal_is_source_created_)
+			{
+				oal_is_source_created_ = false;
+				::alDeleteSources(1, &oal_source_);
+			}
+
+			if (oal_are_buffers_created_)
+			{
+				oal_are_buffers_created_ = false;
+				::alDeleteBuffers(1, oal_buffers_.data());
+			}
+		}
+
+		bool open(
+			const int sample_rate,
+			const int buffer_size)
+		{
+			close();
+
+			if (sample_rate <= 0 ||
+				buffer_size <= 0 ||
+				(buffer_size % sample_size) != 0)
+			{
+				return false;
+			}
+
+			queued_count_ = 0;
+			buffer_size_ = buffer_size;
+			sample_rate_ = sample_rate;
+			ds_volume_ = ltjs::AudioUtils::ds_max_volume;
+			oal_gain_ = 1.0F;
+
+			if (!initialize_oal_objects())
+			{
+				close();
+				return false;
+			}
+
+			is_open_ = true;
+
+			return true;
+		}
+
+		bool set_pause(
+			const bool is_pause)
+		{
+			if (!is_open_ || is_failed_)
+			{
+				return false;
+			}
+
+			if (is_pause == !is_playing_)
+			{
+				return true;
+			}
+
+			is_playing_ = !is_pause;
+
+			if (is_playing_)
+			{
+				auto oal_state = ALint{};
+
+				::alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state);
+
+				switch (oal_state)
+				{
+				case AL_INITIAL:
+				case AL_PAUSED:
+				case AL_STOPPED:
+					::alSourcePlay(oal_source_);
+					assert(oal_is_succeed());
+					break;
+
+				case AL_PLAYING:
+					break;
+
+				default:
+					is_failed_ = true;
+					return false;
+				}
+
+				return true;
+			}
+			else
+			{
+				::alSourcePause(oal_source_);
+				assert(oal_is_succeed());
+
+				return true;
+			}
+		}
+
+		bool get_pause() const
+		{
+			return !is_playing_;
+		}
+
+		bool set_volume(
+			const int ds_volume)
+		{
+			if (!is_open_ || is_failed_)
+			{
+				return false;
+			}
+
+			const auto new_ds_volume = ltjs::AudioUtils::clamp_ds_volume(ds_volume);
+
+			if (new_ds_volume == ds_volume_)
+			{
+				return true;
+			}
+
+			ds_volume_ = new_ds_volume;
+
+			oal_gain_ = ltjs::AudioUtils::ds_volume_to_gain(new_ds_volume);
+
+			::alSourcef(oal_source_, AL_GAIN, oal_gain_);
+			assert(oal_is_succeed());
+
+			return true;
+		}
+
+		int get_volume() const
+		{
+			return ds_volume_;
+		}
+
+		int get_free_buffer_count()
+		{
+			if (!is_open_ || is_failed_)
+			{
+				return false;
+			}
+
+			if (!unqueue_processed_buffers())
+			{
+				return false;
+			}
+
+			return queue_size - queued_count_;
+		}
+
+		bool enqueue_data(
+			const void* buffer)
+		{
+			if (!is_open_ || is_failed_ || !buffer)
+			{
+				return false;
+			}
+
+			if (!unqueue_processed_buffers())
+			{
+				return false;
+			}
+
+			if (queued_count_ == queue_size)
+			{
+				return false;
+			}
+
+			const auto oal_free_buffer = oal_buffers_[queued_count_];
+
+			::alBufferData(oal_free_buffer, oal_buffer_format, buffer, buffer_size_, sample_rate_);
+			::alSourceQueueBuffers(oal_source_, 1, &oal_free_buffer);
+
+			queued_count_ += 1;
+
+			auto oal_state = ALint{};
+
+			::alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state);
+
+			switch (oal_state)
+			{
+			case AL_INITIAL:
+			case AL_PAUSED:
+			case AL_STOPPED:
+				if (is_playing_)
+				{
+					::alSourcePlay(oal_source_);
+					assert(oal_is_succeed());
+				}
+
+				break;
+
+			case AL_PLAYING:
+			default:
+				break;
+			}
+
+			if (!oal_is_succeed())
+			{
+				is_failed_ = true;
+				return false;
+			}
+
+			return true;
+		}
+
+
+	private:
+		static constexpr auto oal_buffer_format = ALenum{AL_FORMAT_STEREO16};
+
+
+		using OalBuffers = std::array<ALuint, queue_size>;
+
+
+		bool is_open_;
+		bool is_failed_;
+		bool is_playing_;
+		int queued_count_;
+		int buffer_size_;
+		int sample_rate_;
+		int ds_volume_;
+
+		float oal_gain_;
+
+		bool oal_is_source_created_;
+		bool oal_are_buffers_created_;
+
+		ALuint oal_source_;
+		OalBuffers oal_buffers_;
+
+
+		bool initialize_oal_objects()
+		{
+			oal_clear_error();
+
+			::alGenSources(1, &oal_source_);
+
+			if (oal_is_succeed())
+			{
+				oal_is_source_created_ = true;
+			}
+			else
+			{
+				return false;
+			}
+
+			::alGenBuffers(queue_size, oal_buffers_.data());
+
+			if (oal_is_succeed())
+			{
+				oal_are_buffers_created_ = true;
+			}
+			else
+			{
+				return false;
+			}
+
+			::alSourcei(oal_source_, AL_SOURCE_RELATIVE, AL_TRUE);
+
+			return oal_is_succeed();
+		}
+
+		bool unqueue_processed_buffers()
+		{
+			auto oal_processed_count = ALint{};
+
+			::alGetSourcei(oal_source_, AL_BUFFERS_PROCESSED, &oal_processed_count);
+
+			if (!oal_is_succeed())
+			{
+				is_failed_ = true;
+				return false;
+			}
+
+			if (oal_processed_count == 0)
+			{
+				return true;
+			}
+
+			std::rotate(oal_buffers_.begin(), oal_buffers_.begin() + oal_processed_count, oal_buffers_.end());
+
+			queued_count_ -= oal_processed_count;
+
+			::alSourceUnqueueBuffers(oal_source_, oal_processed_count, &oal_buffers_[queue_size - oal_processed_count]);
+
+			if (!oal_is_succeed())
+			{
+				is_failed_ = true;
+				return false;
+			}
+
+			return true;
+		}
+	}; // GenericStream
+
+	using GenericStreams = std::list<GenericStream>;
 
 
 	String error_message_;
@@ -4996,6 +5475,9 @@ struct OalSoundSys::Impl
 	MtMutex mt_streams_mutex_;
 	OpenSources mt_open_streams_;
 
+	GenericStreams generic_streams_;
+	MtMutex mt_generic_streams_mutex_;
+
 	MtThread mt_sound_thread_;
 	MtCondVar mt_sound_cv_;
 	MtMutex mt_sound_cv_mutex_;
@@ -5059,14 +5541,14 @@ const OalSoundSys::Impl::EfxReverbPresets OalSoundSys::Impl::efx_reverb_presets 
 
 OalSoundSys::OalSoundSys()
 	:
-	pimpl_{new Impl{}}
+	impl_{new Impl{}}
 {
 }
 
 OalSoundSys::OalSoundSys(
 	OalSoundSys&& that)
 	:
-	pimpl_{std::move(that.pimpl_)}
+	impl_{std::move(that.impl_)}
 {
 }
 
@@ -5076,73 +5558,73 @@ OalSoundSys::~OalSoundSys()
 
 bool OalSoundSys::Init()
 {
-	return pimpl_->api_init();
+	return impl_->api_init();
 }
 
 void OalSoundSys::Term()
 {
-	pimpl_->api_term();
+	impl_->api_term();
 }
 
 void* OalSoundSys::GetDDInterface(
 	const uint dd_interface_id)
 {
-	return pimpl_->api_get_dd_interface(dd_interface_id);
+	return impl_->api_get_dd_interface(dd_interface_id);
 }
 
 void OalSoundSys::Lock()
 {
-	pimpl_->api_lock();
+	impl_->api_lock();
 }
 
 void OalSoundSys::Unlock()
 {
-	pimpl_->api_unlock();
+	impl_->api_unlock();
 }
 
 sint32 OalSoundSys::Startup()
 {
-	return pimpl_->api_startup();
+	return impl_->api_startup();
 }
 
 void OalSoundSys::Shutdown()
 {
-	pimpl_->api_shutdown();
+	impl_->api_shutdown();
 }
 
 uint32 OalSoundSys::MsCount()
 {
-	return pimpl_->api_ms_count();
+	return impl_->api_ms_count();
 }
 
 sint32 OalSoundSys::SetPreference(
 	const uint32 index,
 	const sint32 value)
 {
-	return pimpl_->api_set_preference(index, value);
+	return impl_->api_set_preference(index, value);
 }
 
 sint32 OalSoundSys::GetPreference(
 	const uint32 index)
 {
-	return pimpl_->api_get_preference(index);
+	return impl_->api_get_preference(index);
 }
 
 void OalSoundSys::MemFreeLock(
 	void* storage_ptr)
 {
-	pimpl_->api_mem_free_lock(storage_ptr);
+	impl_->api_mem_free_lock(storage_ptr);
 }
 
 void* OalSoundSys::MemAllocLock(
 	const uint32 storage_size)
 {
-	return pimpl_->api_mem_alloc_lock(storage_size);
+	return impl_->api_mem_alloc_lock(storage_size);
 }
 
 const char* OalSoundSys::LastError()
 {
-	return pimpl_->api_last_error();
+	return impl_->api_last_error();
 }
 
 sint32 OalSoundSys::WaveOutOpen(
@@ -5151,38 +5633,38 @@ sint32 OalSoundSys::WaveOutOpen(
 	const sint32 device_id,
 	const ul::WaveFormatEx& wave_format)
 {
-	return pimpl_->api_wave_out_open(driver, wave_out, device_id, wave_format);
+	return impl_->api_wave_out_open(driver, wave_out, device_id, wave_format);
 }
 
 void OalSoundSys::WaveOutClose(
 	LHDIGDRIVER driver_ptr)
 {
-	pimpl_->api_wave_out_close(driver_ptr);
+	impl_->api_wave_out_close(driver_ptr);
 }
 
 void OalSoundSys::SetDigitalMasterVolume(
 	LHDIGDRIVER driver_ptr,
 	const sint32 master_volume)
 {
-	pimpl_->api_set_digital_master_volume(driver_ptr, master_volume);
+	impl_->api_set_digital_master_volume(driver_ptr, master_volume);
 }
 
 sint32 OalSoundSys::GetDigitalMasterVolume(
 	LHDIGDRIVER driver_ptr)
 {
-	return pimpl_->api_get_digital_master_volume(driver_ptr);
+	return impl_->api_get_digital_master_volume(driver_ptr);
 }
 
 sint32 OalSoundSys::DigitalHandleRelease(
 	LHDIGDRIVER driver_ptr)
 {
-	return pimpl_->api_digital_handle_release(driver_ptr);
+	return impl_->api_digital_handle_release(driver_ptr);
 }
 
 sint32 OalSoundSys::DigitalHandleReacquire(
 	LHDIGDRIVER driver_ptr)
 {
-	return pimpl_->api_digital_handle_reacquire(driver_ptr);
+	return impl_->api_digital_handle_reacquire(driver_ptr);
 }
 
 #ifdef USE_EAX20_HARDWARE_FILTERS
@@ -5190,38 +5672,38 @@ bool OalSoundSys::SetEAX20Filter(
 	const bool is_enable,
 	const LTSOUNDFILTERDATA& filter_data)
 {
-	return pimpl_->api_set_eax20_filter(is_enable, filter_data);
+	return impl_->api_set_eax20_filter(is_enable, filter_data);
 }
 
 bool OalSoundSys::SupportsEAX20Filter()
 {
-	return pimpl_->api_supports_eax20_filter();
+	return impl_->api_supports_eax20_filter();
 }
 
 bool OalSoundSys::SetEAX20BufferSettings(
 	LHSAMPLE sample_handle,
 	const LTSOUNDFILTERDATA& filter_data)
 {
-	return pimpl_->api_set_eax20_buffer_settings(sample_handle, filter_data);
+	return impl_->api_set_eax20_buffer_settings(sample_handle, filter_data);
 }
 #endif // USE_EAX20_HARDWARE_FILTERS
 
 void OalSoundSys::Set3DProviderMinBuffers(
 	const uint32 buffer_count)
 {
-	pimpl_->api_set_3d_provider_min_buffers(buffer_count);
+	impl_->api_set_3d_provider_min_buffers(buffer_count);
 }
 
 sint32 OalSoundSys::Open3DProvider(
 	LHPROVIDER provider_id)
 {
-	return pimpl_->api_open_3d_provider(provider_id);
+	return impl_->api_open_3d_provider(provider_id);
 }
 
 void OalSoundSys::Close3DProvider(
 	LHPROVIDER provider_id)
 {
-	pimpl_->api_close_3d_provider(provider_id);
+	impl_->api_close_3d_provider(provider_id);
 }
 
 void OalSoundSys::Set3DProviderPreference(
@@ -5229,7 +5711,7 @@ void OalSoundSys::Set3DProviderPreference(
 	const char* name,
 	const void* value)
 {
-	pimpl_->api_set_3d_provider_preference(provider_id, name, value);
+	impl_->api_set_3d_provider_preference(provider_id, name, value);
 }
 
 void OalSoundSys::Get3DProviderAttribute(
@@ -5237,7 +5719,7 @@ void OalSoundSys::Get3DProviderAttribute(
 	const char* name,
 	void* value)
 {
-	pimpl_->api_get_3d_provider_attribute(provider_id, name, value);
+	impl_->api_get_3d_provider_attribute(provider_id, name, value);
 }
 
 sint32 OalSoundSys::Enumerate3DProviders(
@@ -5245,31 +5727,31 @@ sint32 OalSoundSys::Enumerate3DProviders(
 	LHPROVIDER& id,
 	const char*& name)
 {
-	return pimpl_->api_enumerate_3d_providers(index, id, name);
+	return impl_->api_enumerate_3d_providers(index, id, name);
 }
 
 LH3DPOBJECT OalSoundSys::Open3DListener(
 	LHPROVIDER provider_id)
 {
-	return pimpl_->api_open_3d_listener(provider_id);
+	return impl_->api_open_3d_listener(provider_id);
 }
 
 void OalSoundSys::Close3DListener(
 	LH3DPOBJECT listener_ptr)
 {
-	pimpl_->api_close_3d_listener(listener_ptr);
+	impl_->api_close_3d_listener(listener_ptr);
 }
 
 void OalSoundSys::SetListenerDoppler(
 	LH3DPOBJECT listener_ptr,
 	const float doppler_factor)
 {
-	pimpl_->api_set_listener_doppler(listener_ptr, doppler_factor);
+	impl_->api_set_listener_doppler(listener_ptr, doppler_factor);
 }
 
 void OalSoundSys::CommitDeferred()
 {
-	pimpl_->api_commit_deferred();
+	impl_->api_commit_deferred();
 }
 
 void OalSoundSys::Set3DPosition(
@@ -5278,7 +5760,7 @@ void OalSoundSys::Set3DPosition(
 	const float y,
 	const float z)
 {
-	pimpl_->api_set_3d_position(object_ptr, x, y, z);
+	impl_->api_set_3d_position(object_ptr, x, y, z);
 }
 
 void OalSoundSys::Set3DVelocityVector(
@@ -5287,7 +5769,7 @@ void OalSoundSys::Set3DVelocityVector(
 	const float dy_per_s,
 	const float dz_per_s)
 {
-	pimpl_->api_set_3d_velocity_vector(object_ptr, dx_per_s, dy_per_s, dz_per_s);
+	impl_->api_set_3d_velocity_vector(object_ptr, dx_per_s, dy_per_s, dz_per_s);
 }
 
 void OalSoundSys::Set3DOrientation(
@@ -5299,7 +5781,7 @@ void OalSoundSys::Set3DOrientation(
 	const float y_up,
 	const float z_up)
 {
-	pimpl_->api_set_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
+	impl_->api_set_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
 }
 
 void OalSoundSys::Set3DUserData(
@@ -5307,7 +5789,7 @@ void OalSoundSys::Set3DUserData(
 	const uint32 index,
 	const sint32 value)
 {
-	pimpl_->api_set_3d_user_data(object_ptr, index, value);
+	impl_->api_set_3d_user_data(object_ptr, index, value);
 }
 
 void OalSoundSys::Get3DPosition(
@@ -5316,7 +5798,7 @@ void OalSoundSys::Get3DPosition(
 	float& y,
 	float& z)
 {
-	pimpl_->api_get_3d_position(object_ptr, x, y, z);
+	impl_->api_get_3d_position(object_ptr, x, y, z);
 }
 
 void OalSoundSys::Get3DVelocity(
@@ -5325,7 +5807,7 @@ void OalSoundSys::Get3DVelocity(
 	float& dy_per_ms,
 	float& dz_per_ms)
 {
-	pimpl_->api_get_3d_velocity(object_ptr, dx_per_ms, dy_per_ms, dz_per_ms);
+	impl_->api_get_3d_velocity(object_ptr, dx_per_ms, dy_per_ms, dz_per_ms);
 }
 
 void OalSoundSys::Get3DOrientation(
@@ -5337,50 +5819,50 @@ void OalSoundSys::Get3DOrientation(
 	float& y_up,
 	float& z_up)
 {
-	pimpl_->api_get_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
+	impl_->api_get_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
 }
 
 sint32 OalSoundSys::Get3DUserData(
 	LH3DPOBJECT object_ptr,
 	const uint32 index)
 {
-	return pimpl_->api_get_3d_user_data(object_ptr, index);
+	return impl_->api_get_3d_user_data(object_ptr, index);
 }
 
 LH3DSAMPLE OalSoundSys::Allocate3DSampleHandle(
 	LHPROVIDER driver_id)
 {
-	return pimpl_->api_allocate_3d_sample_handle(driver_id);
+	return impl_->api_allocate_3d_sample_handle(driver_id);
 }
 
 void OalSoundSys::Release3DSampleHandle(
 	LH3DSAMPLE sample_handle)
 {
-	return pimpl_->api_release_3d_sample_handle(sample_handle);
+	return impl_->api_release_3d_sample_handle(sample_handle);
 }
 
 void OalSoundSys::Stop3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	pimpl_->api_stop_3d_sample(sample_handle);
+	impl_->api_stop_3d_sample(sample_handle);
 }
 
 void OalSoundSys::Start3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	pimpl_->api_start_3d_sample(sample_handle);
+	impl_->api_start_3d_sample(sample_handle);
 }
 
 void OalSoundSys::Resume3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	pimpl_->api_resume_3d_sample(sample_handle);
+	impl_->api_resume_3d_sample(sample_handle);
 }
 
 void OalSoundSys::End3DSample(
 	LH3DSAMPLE sample_handle)
 {
-	pimpl_->api_end_3d_sample(sample_handle);
+	impl_->api_end_3d_sample(sample_handle);
 }
 
 sint32 OalSoundSys::Init3DSampleFromAddress(
@@ -5391,7 +5873,7 @@ sint32 OalSoundSys::Init3DSampleFromAddress(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->api_init_3d_sample_from_address(sample_handle, ptr, length, wave_format, playback_rate, filter_data_ptr);
+	return impl_->api_init_3d_sample_from_address(sample_handle, ptr, length, wave_format, playback_rate, filter_data_ptr);
 }
 
 sint32 OalSoundSys::Init3DSampleFromFile(
@@ -5401,40 +5883,40 @@ sint32 OalSoundSys::Init3DSampleFromFile(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->api_init_3d_sample_from_file(sample_handle, storage_ptr, block, playback_rate, filter_data_ptr);
+	return impl_->api_init_3d_sample_from_file(sample_handle, storage_ptr, block, playback_rate, filter_data_ptr);
 }
 
 sint32 OalSoundSys::Get3DSampleVolume(
 	LH3DSAMPLE sample_handle)
 {
-	return pimpl_->api_get_3d_sample_volume(sample_handle);
+	return impl_->api_get_3d_sample_volume(sample_handle);
 }
 
 void OalSoundSys::Set3DSampleVolume(
 	LH3DSAMPLE sample_handle,
 	const sint32 volume)
 {
-	pimpl_->api_set_3d_sample_volume(sample_handle, volume);
+	impl_->api_set_3d_sample_volume(sample_handle, volume);
 }
 
 uint32 OalSoundSys::Get3DSampleStatus(
 	LH3DSAMPLE sample_handle)
 {
-	return pimpl_->api_get_3d_sample_status(sample_handle);
+	return impl_->api_get_3d_sample_status(sample_handle);
 }
 
 void OalSoundSys::Set3DSampleMsPosition(
 	LHSAMPLE sample_handle,
 	const sint32 milliseconds)
 {
-	pimpl_->api_set_3d_sample_ms_position(sample_handle, milliseconds);
+	impl_->api_set_3d_sample_ms_position(sample_handle, milliseconds);
 }
 
 sint32 OalSoundSys::Set3DSampleInfo(
 	LH3DSAMPLE sample_handle,
 	const LTSOUNDINFO& sound_info)
 {
-	return pimpl_->api_set_3d_sample_info(sample_handle, sound_info);
+	return impl_->api_set_3d_sample_info(sample_handle, sound_info);
 }
 
 void OalSoundSys::Set3DSampleDistances(
@@ -5442,7 +5924,7 @@ void OalSoundSys::Set3DSampleDistances(
 	const float max_distance,
 	const float min_distance)
 {
-	pimpl_->api_set_3d_sample_distances(sample_handle, max_distance, min_distance);
+	impl_->api_set_3d_sample_distances(sample_handle, max_distance, min_distance);
 }
 
 void OalSoundSys::Set3DSamplePreference(
@@ -5450,7 +5932,7 @@ void OalSoundSys::Set3DSamplePreference(
 	const char* name,
 	const void* value)
 {
-	pimpl_->api_set_3d_sample_preference(sample_handle, name, value);
+	impl_->api_set_3d_sample_preference(sample_handle, name, value);
 }
 
 void OalSoundSys::Set3DSampleLoopBlock(
@@ -5459,7 +5941,7 @@ void OalSoundSys::Set3DSampleLoopBlock(
 	const sint32 loop_end_offset,
 	const bool is_enable)
 {
-	pimpl_->api_set_3d_sample_loop_block(
+	impl_->api_set_3d_sample_loop_block(
 		sample_handle, loop_begin_offset, loop_end_offset, is_enable);
 }
 
@@ -5467,101 +5949,101 @@ void OalSoundSys::Set3DSampleLoop(
 	LH3DSAMPLE sample_handle,
 	const bool is_enable)
 {
-	pimpl_->api_set_3d_sample_loop(sample_handle, is_enable);
+	impl_->api_set_3d_sample_loop(sample_handle, is_enable);
 }
 
 void OalSoundSys::Set3DSampleObstruction(
 	LH3DSAMPLE sample_handle,
 	const float obstruction)
 {
-	pimpl_->api_set_3d_sample_obstruction(sample_handle, obstruction);
+	impl_->api_set_3d_sample_obstruction(sample_handle, obstruction);
 }
 
 float OalSoundSys::Get3DSampleObstruction(
 	LH3DSAMPLE sample_handle)
 {
-	return pimpl_->api_get_3d_sample_obstruction(sample_handle);
+	return impl_->api_get_3d_sample_obstruction(sample_handle);
 }
 
 void OalSoundSys::Set3DSampleOcclusion(
 	LH3DSAMPLE sample_handle,
 	const float occlusion)
 {
-	pimpl_->api_set_3d_sample_occlusion(sample_handle, occlusion);
+	impl_->api_set_3d_sample_occlusion(sample_handle, occlusion);
 }
 
 float OalSoundSys::Get3DSampleOcclusion(
 	LH3DSAMPLE sample_handle)
 {
-	return pimpl_->api_get_3d_sample_occlusion(sample_handle);
+	return impl_->api_get_3d_sample_occlusion(sample_handle);
 }
 
 LHSAMPLE OalSoundSys::AllocateSampleHandle(
 	LHDIGDRIVER driver_ptr)
 {
-	return pimpl_->api_allocate_sample_handle(driver_ptr);
+	return impl_->api_allocate_sample_handle(driver_ptr);
 }
 
 void OalSoundSys::ReleaseSampleHandle(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->api_release_sample_handle(sample_handle);
+	impl_->api_release_sample_handle(sample_handle);
 }
 
 void OalSoundSys::InitSample(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->api_init_sample(sample_handle);
+	impl_->api_init_sample(sample_handle);
 }
 
 void OalSoundSys::StopSample(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->api_stop_sample(sample_handle);
+	impl_->api_stop_sample(sample_handle);
 }
 
 void OalSoundSys::StartSample(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->api_start_sample(sample_handle);
+	impl_->api_start_sample(sample_handle);
 }
 
 void OalSoundSys::ResumeSample(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->api_resume_sample(sample_handle);
+	impl_->api_resume_sample(sample_handle);
 }
 
 void OalSoundSys::EndSample(
 	LHSAMPLE sample_handle)
 {
-	pimpl_->api_end_sample(sample_handle);
+	impl_->api_end_sample(sample_handle);
 }
 
 void OalSoundSys::SetSampleVolume(
 	LHSAMPLE sample_handle,
 	const sint32 volume)
 {
-	pimpl_->api_set_sample_volume(sample_handle, volume);
+	impl_->api_set_sample_volume(sample_handle, volume);
 }
 
 void OalSoundSys::SetSamplePan(
 	LHSAMPLE sample_handle,
 	const sint32 pan)
 {
-	pimpl_->api_set_sample_pan(sample_handle, pan);
+	impl_->api_set_sample_pan(sample_handle, pan);
 }
 
 sint32 OalSoundSys::GetSampleVolume(
 	LHSAMPLE sample_handle)
 {
-	return pimpl_->api_get_sample_volume(sample_handle);
+	return impl_->api_get_sample_volume(sample_handle);
 }
 
 sint32 OalSoundSys::GetSamplePan(
 	LHSAMPLE sample_handle)
 {
-	return pimpl_->api_get_sample_pan(sample_handle);
+	return impl_->api_get_sample_pan(sample_handle);
 }
 
 void OalSoundSys::SetSampleUserData(
@@ -5569,7 +6051,7 @@ void OalSoundSys::SetSampleUserData(
 	const uint32 index,
 	const sint32 value)
 {
-	pimpl_->api_set_sample_user_data(sample_handle, index, value);
+	impl_->api_set_sample_user_data(sample_handle, index, value);
 }
 
 void OalSoundSys::GetDirectSoundInfo(
@@ -5577,7 +6059,7 @@ void OalSoundSys::GetDirectSoundInfo(
 	PTDIRECTSOUND& ds_instance,
 	PTDIRECTSOUNDBUFFER& ds_buffer)
 {
-	pimpl_->api_get_direct_sound_info(sample_handle, ds_instance, ds_buffer);
+	impl_->api_get_direct_sound_info(sample_handle, ds_instance, ds_buffer);
 }
 
 void OalSoundSys::SetSampleReverb(
@@ -5586,7 +6068,7 @@ void OalSoundSys::SetSampleReverb(
 	const float reverb_reflect_time,
 	const float reverb_decay_time)
 {
-	pimpl_->api_set_sample_reverb(sample_handle, reverb_level, reverb_reflect_time, reverb_decay_time);
+	impl_->api_set_sample_reverb(sample_handle, reverb_level, reverb_reflect_time, reverb_decay_time);
 }
 
 sint32 OalSoundSys::InitSampleFromAddress(
@@ -5597,7 +6079,7 @@ sint32 OalSoundSys::InitSampleFromAddress(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->api_init_sample_from_address(
+	return impl_->api_init_sample_from_address(
 		sample_handle, storage_ptr, storage_size, wave_format, playback_rate, filter_data_ptr);
 }
 
@@ -5608,7 +6090,7 @@ sint32 OalSoundSys::InitSampleFromFile(
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
-	return pimpl_->api_init_sample_from_file(
+	return impl_->api_init_sample_from_file(
 		sample_handle, storage_ptr, block, playback_rate, filter_data_ptr);
 }
 
@@ -5618,7 +6100,7 @@ void OalSoundSys::SetSampleLoopBlock(
 	const sint32 loop_end_offset,
 	const bool is_enable)
 {
-	pimpl_->api_set_sample_loop_block(
+	impl_->api_set_sample_loop_block(
 		sample_handle, loop_begin_offset, loop_end_offset, is_enable);
 }
 
@@ -5626,27 +6108,27 @@ void OalSoundSys::SetSampleLoop(
 	LHSAMPLE sample_handle,
 	const bool is_enable)
 {
-	pimpl_->api_set_sample_loop(sample_handle, is_enable);
+	impl_->api_set_sample_loop(sample_handle, is_enable);
 }
 
 void OalSoundSys::SetSampleMsPosition(
 	LHSAMPLE sample_handle,
 	const sint32 milliseconds)
 {
-	pimpl_->api_set_sample_ms_position(sample_handle, milliseconds);
+	impl_->api_set_sample_ms_position(sample_handle, milliseconds);
 }
 
 sint32 OalSoundSys::GetSampleUserData(
 	LHSAMPLE sample_handle,
 	const uint32 index)
 {
-	return pimpl_->api_get_sample_user_data(sample_handle, index);
+	return impl_->api_get_sample_user_data(sample_handle, index);
 }
 
 uint32 OalSoundSys::GetSampleStatus(
 	LHSAMPLE sample_handle)
 {
-	return pimpl_->api_get_sample_status(sample_handle);
+	return impl_->api_get_sample_status(sample_handle);
 }
 
 LHSTREAM OalSoundSys::OpenStream(
@@ -5656,7 +6138,7 @@ LHSTREAM OalSoundSys::OpenStream(
 	const char* storage_ptr,
 	const sint32 storage_size)
 {
-	return pimpl_->api_open_stream(
+	return impl_->api_open_stream(
 		file_name, file_offset, driver_ptr, storage_ptr, storage_size);
 }
 
@@ -5664,21 +6146,21 @@ void OalSoundSys::SetStreamLoop(
 	LHSTREAM stream_ptr,
 	const bool is_enable)
 {
-	pimpl_->api_set_stream_loop(stream_ptr, is_enable);
+	impl_->api_set_stream_loop(stream_ptr, is_enable);
 }
 
 void OalSoundSys::SetStreamPlaybackRate(
 	LHSTREAM stream_ptr,
 	const sint32 rate)
 {
-	pimpl_->api_set_stream_playback_rate(stream_ptr, rate);
+	impl_->api_set_stream_playback_rate(stream_ptr, rate);
 }
 
 void OalSoundSys::SetStreamMsPosition(
 	LHSTREAM stream_ptr,
 	const sint32 milliseconds)
 {
-	pimpl_->api_set_stream_ms_position(stream_ptr, milliseconds);
+	impl_->api_set_stream_ms_position(stream_ptr, milliseconds);
 }
 
 void OalSoundSys::SetStreamUserData(
@@ -5686,85 +6168,85 @@ void OalSoundSys::SetStreamUserData(
 	const uint32 index,
 	const sint32 value)
 {
-	pimpl_->api_set_stream_user_data(stream_ptr, index,value);
+	impl_->api_set_stream_user_data(stream_ptr, index,value);
 }
 
 sint32 OalSoundSys::GetStreamUserData(
 	LHSTREAM stream_ptr,
 	const uint32 index)
 {
-	return pimpl_->api_get_stream_user_data(stream_ptr, index);
+	return impl_->api_get_stream_user_data(stream_ptr, index);
 }
 
 void OalSoundSys::CloseStream(
 	LHSTREAM stream_ptr)
 {
-	pimpl_->api_close_stream(stream_ptr);
+	impl_->api_close_stream(stream_ptr);
 }
 
 void OalSoundSys::StartStream(
 	LHSTREAM stream_ptr)
 {
-	pimpl_->api_start_stream(stream_ptr);
+	impl_->api_start_stream(stream_ptr);
 }
 
 void OalSoundSys::PauseStream(
 	LHSTREAM stream_ptr,
 	const sint32 is_enable)
 {
-	pimpl_->api_pause_stream(stream_ptr, is_enable);
+	impl_->api_pause_stream(stream_ptr, is_enable);
 }
 
 void OalSoundSys::ResetStream(
 	LHSTREAM stream_ptr)
 {
-	pimpl_->api_reset_stream(stream_ptr);
+	impl_->api_reset_stream(stream_ptr);
 }
 
 void OalSoundSys::SetStreamVolume(
 	LHSTREAM stream_ptr,
 	const sint32 volume)
 {
-	pimpl_->api_set_stream_volume(stream_ptr, volume);
+	impl_->api_set_stream_volume(stream_ptr, volume);
 }
 
 void OalSoundSys::SetStreamPan(
 	LHSTREAM stream_ptr,
 	const sint32 pan)
 {
-	pimpl_->api_set_stream_pan(stream_ptr, pan);
+	impl_->api_set_stream_pan(stream_ptr, pan);
 }
 
 sint32 OalSoundSys::GetStreamVolume(
 	LHSTREAM stream_ptr)
 {
-	return pimpl_->api_get_stream_volume(stream_ptr);
+	return impl_->api_get_stream_volume(stream_ptr);
 }
 
 sint32 OalSoundSys::GetStreamPan(
 	LHSTREAM stream_ptr)
 {
-	return pimpl_->api_get_stream_pan(stream_ptr);
+	return impl_->api_get_stream_pan(stream_ptr);
 }
 
 uint32 OalSoundSys::GetStreamStatus(
 	LHSTREAM stream_ptr)
 {
-	return pimpl_->api_get_stream_status(stream_ptr);
+	return impl_->api_get_stream_status(stream_ptr);
 }
 
 sint32 OalSoundSys::GetStreamBufferParam(
 	LHSTREAM stream_ptr,
 	const uint32 index)
 {
-	return pimpl_->api_get_stream_buffer_param(stream_ptr, index);
+	return impl_->api_get_stream_buffer_param(stream_ptr, index);
 }
 
 void OalSoundSys::ClearStreamBuffer(
 	LHSTREAM stream_ptr,
 	const bool is_clear_data_queue)
 {
-	pimpl_->api_clear_stream_buffer(stream_ptr, is_clear_data_queue);
+	impl_->api_clear_stream_buffer(stream_ptr, is_clear_data_queue);
 }
 
 sint32 OalSoundSys::DecompressADPCM(
@@ -5772,7 +6254,7 @@ sint32 OalSoundSys::DecompressADPCM(
 	void*& dst_data,
 	uint32& dst_size)
 {
-	return pimpl_->api_decompress_adpcm(sound_info, dst_data, dst_size);
+	return impl_->api_decompress_adpcm(sound_info, dst_data, dst_size);
 }
 
 sint32 OalSoundSys::DecompressASI(
@@ -5783,23 +6265,80 @@ sint32 OalSoundSys::DecompressASI(
 	uint32& dst_wav_size,
 	LTLENGTHYCB callback)
 {
-	return pimpl_->api_decode_asi(src_data_ptr, src_data_size, file_name_ext, dst_wav_ptr, dst_wav_size, callback);
+	return impl_->api_decode_asi(src_data_ptr, src_data_size, file_name_ext, dst_wav_ptr, dst_wav_size, callback);
 }
 
 uint32 OalSoundSys::GetThreadedSoundTicks()
 {
-	return pimpl_->api_get_threaded_sound_ticks();
+	return impl_->api_get_threaded_sound_ticks();
 }
 
 bool OalSoundSys::HasOnBoardMemory()
 {
-	return pimpl_->api_has_on_board_memory();
+	return impl_->api_has_on_board_memory();
 }
 
 void OalSoundSys::handle_focus_lost(
 	const bool is_focus_lost)
 {
-	pimpl_->api_handle_focus_lost(is_focus_lost);
+	impl_->api_handle_focus_lost(is_focus_lost);
+}
+
+ILTSoundSys::GenericStreamHandle OalSoundSys::open_generic_stream(
+	const int sample_rate,
+	const int buffer_size)
+{
+	return impl_->api_open_generic_stream(sample_rate, buffer_size);
+}
+
+void OalSoundSys::close_generic_stream(
+	GenericStreamHandle stream_handle)
+{
+	impl_->api_close_generic_stream(stream_handle);
+}
+
+int OalSoundSys::get_generic_stream_queue_size()
+{
+	return impl_->api_get_generic_stream_queue_size();
+}
+
+int OalSoundSys::get_generic_stream_free_buffer_count(
+	GenericStreamHandle stream_handle)
+{
+	return impl_->api_get_generic_stream_free_buffer_count(stream_handle);
+}
+
+bool OalSoundSys::enqueue_generic_stream_buffer(
+	GenericStreamHandle stream_handle,
+	const void* buffer)
+{
+	return impl_->api_enqueue_generic_stream_buffer(stream_handle, buffer);
+}
+
+bool OalSoundSys::set_generic_stream_pause(
+	GenericStreamHandle stream_handle,
+	const bool is_pause)
+{
+	return impl_->api_set_generic_stream_pause(stream_handle, is_pause);
+}
+
+bool OalSoundSys::get_generic_stream_pause(
+	GenericStreamHandle stream_handle)
+{
+	return impl_->api_get_generic_stream_pause(stream_handle);
+}
+
+bool OalSoundSys::set_generic_stream_volume(
+	GenericStreamHandle stream_handle,
+	const int ds_volume)
+{
+	return impl_->api_set_generic_stream_volume(stream_handle, ds_volume);
+}
+
+int OalSoundSys::get_generic_stream_volume(
+	GenericStreamHandle stream_handle)
+{
+	return impl_->api_get_generic_stream_volume(stream_handle);
 }
 
 OalSoundSys& OalSoundSys::get_singleton()

@@ -58,10 +58,15 @@ struct EncodingUtils::Detail
 
 
 #if defined(BIBENDOVSKY_SPUL_IS_WIN32)
-	static std::wstring utf8_to_wide(
+	template<typename TDstString>
+	static TDstString utf8_to_utf16_or_wide(
 		const std::string& utf8_string,
 		bool& is_succeed)
 	{
+		using TDstChar = typename TDstString::value_type;
+
+		static_assert(sizeof(TDstChar) == 2, "Unsupported destination character type.");
+
 		if (utf8_string.empty())
 		{
 			is_succeed = true;
@@ -78,7 +83,7 @@ struct EncodingUtils::Detail
 
 		const auto utf8_size = static_cast<int>(utf8_string.size());
 
-		const auto wide_size = ::MultiByteToWideChar(
+		const auto dst_size = ::MultiByteToWideChar(
 			CP_UTF8,
 			MB_ERR_INVALID_CHARS,
 			utf8_string.c_str(),
@@ -86,37 +91,42 @@ struct EncodingUtils::Detail
 			nullptr,
 			0);
 
-		if (wide_size == 0)
+		if (dst_size == 0)
 		{
 			return {};
 		}
 
-		auto wide_string = std::wstring{};
-		wide_string.resize(wide_size);
+		auto dst_string = TDstString{};
+		dst_string.resize(dst_size);
 
 		const auto win32_result = ::MultiByteToWideChar(
 			CP_UTF8,
 			MB_ERR_INVALID_CHARS,
 			utf8_string.c_str(),
 			utf8_size,
-			&wide_string[0],
-			wide_size);
+			reinterpret_cast<LPWSTR>(&dst_string[0]),
+			dst_size);
 
-		if (win32_result != wide_size)
+		if (win32_result != dst_size)
 		{
 			return {};
 		}
 
 		is_succeed = true;
 
-		return wide_string;
+		return dst_string;
 	}
 
-	static std::string wide_to_utf8(
-		const std::wstring& wide_string,
+	template<typename TSrcString>
+	static std::string utf16_or_wide_to_utf8(
+		const TSrcString& src_string,
 		bool& is_succeed)
 	{
-		if (wide_string.empty())
+		using TSrcChar = typename TSrcString::value_type;
+
+		static_assert(sizeof(TSrcChar) == 2, "Unsupported source character type.");
+
+		if (src_string.empty())
 		{
 			is_succeed = true;
 			return {};
@@ -125,18 +135,19 @@ struct EncodingUtils::Detail
 
 		is_succeed = false;
 
-		if (wide_string.size() > max_length)
+		if (src_string.size() > max_length)
 		{
 			return {};
 		}
 
-		const auto wide_size = static_cast<int>(wide_string.size());
+		const auto src_size = static_cast<int>(src_string.size());
+		const auto src_ptr = &src_string[0];
 
 		const auto utf8_size = ::WideCharToMultiByte(
 			CP_UTF8,
 			0,
-			wide_string.c_str(),
-			wide_size,
+			reinterpret_cast<LPCWSTR>(src_ptr),
+			src_size,
 			nullptr,
 			0,
 			nullptr,
@@ -153,8 +164,8 @@ struct EncodingUtils::Detail
 		const auto win32_result = ::WideCharToMultiByte(
 			CP_UTF8,
 			0,
-			wide_string.c_str(),
-			wide_size,
+			reinterpret_cast<LPCWSTR>(src_ptr),
+			src_size,
 			&utf8_string[0],
 			utf8_size,
 			nullptr,
@@ -169,27 +180,63 @@ struct EncodingUtils::Detail
 
 		return utf8_string;
 	}
-#endif // BIBENDOVSKY_SPUL_IS_WIN32
-
-#if defined(BIBENDOVSKY_SPUL_IS_POSIX)
-	using Utf8WideConverter = std::wstring_convert<std::codecvt_utf8<wchar_t>>;
 
 
 	static std::wstring utf8_to_wide(
 		const std::string& utf8_string,
 		bool& is_succeed)
 	{
+		return utf8_to_utf16_or_wide<std::wstring>(utf8_string, is_succeed);
+	}
+
+	static std::string wide_to_utf8(
+		const std::wstring& wide_string,
+		bool& is_succeed)
+	{
+		return utf16_or_wide_to_utf8(wide_string, is_succeed);
+	}
+
+	static std::u16string utf8_to_utf16(
+		const std::string& utf8_string,
+		bool& is_succeed)
+	{
+		return utf8_to_utf16_or_wide<std::u16string>(utf8_string, is_succeed);
+	}
+
+	static std::string utf16_to_utf8(
+		const std::u16string& utf16_string,
+		bool& is_succeed)
+	{
+		return utf16_or_wide_to_utf8(utf16_string, is_succeed);
+	}
+#endif // BIBENDOVSKY_SPUL_IS_WIN32
+
+#if defined(BIBENDOVSKY_SPUL_IS_POSIX)
+	template<typename TChar>
+	using Utf8Utf16ToWideConverter = std::wstring_convert<std::codecvt_utf8<TChar>, TChar>;
+
+
+	template<typename TDstString>
+	static TDstString utf8_to_utf16_or_wide(
+		const std::string& utf8_string,
+		bool& is_succeed)
+	{
+		using TDstChar = typename TDstString::value_type;
+
+		static_assert(
+			sizeof(TDstChar) == sizeof(wchar_t) || sizeof(TDstChar) == sizeof(char16_t),
+			"Unsupported destination character type.");
+
+		is_succeed = true;
+
 		if (utf8_string.empty())
 		{
-			is_succeed = true;
 			return {};
 		}
 
 		try
 		{
-			const auto& result = Utf8WideConverter{}.from_bytes(utf8_string);
-			is_succeed = true;
-			return result;
+			return Utf8Utf16ToWideConverter<TDstChar>{}.from_bytes(utf8_string);
 		}
 		catch (...)
 		{
@@ -198,27 +245,62 @@ struct EncodingUtils::Detail
 		}
 	}
 
-	static std::string wide_to_utf8(
-		const std::wstring& wide_string,
+	template<typename TSrcString>
+	static std::string utf16_or_wide_to_utf8(
+		const TSrcString& utf16_string,
 		bool& is_succeed)
 	{
-		if (wide_string.empty())
+		using TSrcChar = typename TSrcString::value_type;
+
+		static_assert(
+			sizeof(TSrcChar) == sizeof(wchar_t) || sizeof(TSrcChar) == sizeof(char16_t),
+			"Unsupported source character type.");
+
+		is_succeed = true;
+
+		if (utf16_string.empty())
 		{
-			is_succeed = true;
 			return {};
 		}
 
 		try
 		{
-			const auto& result = Utf8WideConverter{}.to_bytes(wide_string);
-			is_succeed = true;
-			return result;
+			return Utf8Utf16ToWideConverter<TSrcChar>{}.to_bytes(utf16_string);
 		}
 		catch (...)
 		{
 			is_succeed = false;
 			return {};
 		}
+	}
+
+
+	static std::wstring utf8_to_wide(
+		const std::string& utf8_string,
+		bool& is_succeed)
+	{
+		return utf8_to_utf16_or_wide<std::wstring>(utf8_string, is_succeed);
+	}
+
+	static std::string wide_to_utf8(
+		const std::wstring& utf16_string,
+		bool& is_succeed)
+	{
+		return utf16_or_wide_to_utf8(utf16_string, is_succeed);
+	}
+
+	static std::u16string utf8_to_utf16(
+		const std::string& utf8_string,
+		bool& is_succeed)
+	{
+		return utf8_to_utf16_or_wide<std::u16string>(utf8_string, is_succeed);
+	}
+
+	static std::string utf16_to_utf8(
+		const std::u16string& utf16_string,
+		bool& is_succeed)
+	{
+		return utf16_or_wide_to_utf8(utf16_string, is_succeed);
 	}
 #endif // BIBENDOVSKY_SPUL_IS_POSIX
 }; // Detail
@@ -250,6 +332,34 @@ std::string EncodingUtils::wide_to_utf8(
 	bool& is_succeed)
 {
 	return Detail::wide_to_utf8(wide_string, is_succeed);
+}
+
+std::u16string EncodingUtils::utf8_to_utf16(
+	const std::string& string_utf8)
+{
+	bool is_succeed;
+	return Detail::utf8_to_utf16(string_utf8, is_succeed);
+}
+
+std::u16string EncodingUtils::utf8_to_utf16(
+	const std::string& string_utf8,
+	bool& is_succeed)
+{
+	return Detail::utf8_to_utf16(string_utf8, is_succeed);
+}
+
+std::string EncodingUtils::utf16_to_utf8(
+	const std::u16string& string_utf16)
+{
+	bool is_succeed;
+	return Detail::utf16_to_utf8(string_utf16, is_succeed);
+}
+
+std::string EncodingUtils::utf16_to_utf8(
+	const std::u16string& string_utf16,
+	bool& is_succeed)
+{
+	return Detail::utf16_to_utf8(string_utf16, is_succeed);
 }
 
 

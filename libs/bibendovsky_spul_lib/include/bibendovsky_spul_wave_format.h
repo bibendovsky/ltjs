@@ -52,7 +52,7 @@ namespace spul
 //
 struct WaveFormat
 {
-	static const auto packed_size = 14;
+	static constexpr auto class_size = 14;
 
 
 	WaveFormatTag tag_;
@@ -71,7 +71,7 @@ using WaveFormatPtr = WaveFormat*;
 struct PcmWaveFormat :
 	public WaveFormat
 {
-	static const auto packed_size = 16;
+	static constexpr auto class_size = 16;
 
 
 	std::uint16_t bit_depth_;
@@ -86,7 +86,7 @@ using PcmWaveFormatPtr = PcmWaveFormat*;
 struct WaveFormatEx :
 	public PcmWaveFormat
 {
-	static const auto packed_size = 18;
+	static constexpr auto class_size = 18;
 
 
 	std::uint16_t extra_size_;
@@ -96,6 +96,31 @@ using WaveFormatExPtr = WaveFormatEx*;
 
 
 #pragma pack(pop)
+
+
+bool operator==(
+	const WaveFormat& lhs,
+	const WaveFormat& rhs);
+
+bool operator==(
+	const PcmWaveFormat& lhs,
+	const PcmWaveFormat& rhs);
+
+bool operator==(
+	const WaveFormatEx& lhs,
+	const WaveFormatEx& rhs);
+
+bool operator!=(
+	const WaveFormat& lhs,
+	const WaveFormat& rhs);
+
+bool operator!=(
+	const PcmWaveFormat& lhs,
+	const PcmWaveFormat& rhs);
+
+bool operator!=(
+	const WaveFormatEx& lhs,
+	const WaveFormatEx& rhs);
 
 
 } // spul

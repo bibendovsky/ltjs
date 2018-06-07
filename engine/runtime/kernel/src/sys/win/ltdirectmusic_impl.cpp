@@ -30,6 +30,11 @@
 //	THIS CODE SHOULD BE COMMENTED OUT IF THIS FILE IS IN LTDMTEST
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #include "bdefs.h"
+
+
+#ifdef LTJS_USE_DIRECT_MUSIC8
+
+
 #include <process.h>
 #include "dmksctrl.h"
 #include "console.h"
@@ -3665,3 +3670,6 @@ int CLTDirectMusicMgr::GetVolumeOffset()
 { 
 	return m_nVolumeOffset; 
 };
+
+
+#endif // LTJS_USE_DIRECT_MUSIC8

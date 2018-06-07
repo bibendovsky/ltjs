@@ -51,6 +51,14 @@ class Substream :
 	public Stream
 {
 public:
+	enum class SyncPositionOnRead
+	{
+		none,
+		enable,
+		disable,
+	}; // SyncPositionOnRead
+
+
 	//
 	// Constructs an uninitialized substream.
 	//
@@ -62,13 +70,15 @@ public:
 	// Parameters:
 	//    - stream - an underlying stream instance.
 	//    - offset - a beginning position in the underlying stream.
+	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
 	//
 	// Notes:
 	//    - A size of the substream will be substruction of the underlying stream size and the offset.
 	//
 	Substream(
 		StreamPtr stream_ptr,
-		const Position offset);
+		const Position offset,
+		const SyncPositionOnRead sync_position_on_read = SyncPositionOnRead::enable);
 
 	//
 	// Constructs a substream.
@@ -78,11 +88,13 @@ public:
 	//    - offset - a beginning position in the underlying stream.
 	//    - size - a size of the substream.
 	//      Pass a negative value to use remaining size of the underlying stream.
+	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
 	//
 	Substream(
 		StreamPtr stream_ptr,
 		const Position offset,
-		const Position size);
+		const Position size,
+		const SyncPositionOnRead sync_position_on_read = SyncPositionOnRead::enable);
 
 	Substream(
 		const Substream& that) = default;
@@ -99,6 +111,7 @@ public:
 	// Parameters:
 	//    - stream - an underlying stream instance.
 	//    - offset - a beginning position in the underlying stream.
+	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
 	//
 	// Returns:
 	//    - "true" on success.
@@ -109,7 +122,8 @@ public:
 	//
 	bool open(
 		StreamPtr stream,
-		const Position offset);
+		const Position offset,
+		const SyncPositionOnRead sync_position_on_read = SyncPositionOnRead::enable);
 
 	//
 	// Initializes a substream.
@@ -119,6 +133,7 @@ public:
 	//    - offset - a beginning position in the underlying stream.
 	//    - size - a size of the substream.
 	//      Pass a negative value to use remaining size of the underlying stream.
+	//    - sync_position_on_read - controls synchronization of a position of the underlying stream on read.
 	//
 	// Returns:
 	//    - "true" on success.
@@ -127,7 +142,8 @@ public:
 	bool open(
 		StreamPtr stream,
 		const Position offset,
-		const Position size);
+		const Position size,
+		const SyncPositionOnRead sync_position_on_read = SyncPositionOnRead::enable);
 
 
 protected:
@@ -158,6 +174,7 @@ private:
 	Position begin_position_; // A beginning position in the underlying stream.
 	Position current_position_; // Internal current position.
 	Position end_position_; // Internal end position.
+	SyncPositionOnRead sync_position_on_read_; // Controls synchronization of a position of the underlying stream on read.
 
 
 	bool do_is_open() const override;
@@ -191,7 +208,8 @@ private:
 	bool open_internal(
 		StreamPtr stream_ptr,
 		const Position offset,
-		const Position size);
+		const Position size,
+		const SyncPositionOnRead sync_position_on_read);
 }; // Substream
 
 

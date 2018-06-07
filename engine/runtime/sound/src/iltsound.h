@@ -384,6 +384,9 @@ public:
 	virtual void*		GetDDInterface( const uint uiDDInterfaceId ) = 0;
 
 public:
+	using GenericStreamHandle = void*;
+
+
 	// system wide functions
 	virtual void		Lock( void ) = 0;
 	virtual void		Unlock( void ) = 0;
@@ -512,6 +515,160 @@ public:
 
 	virtual void handle_focus_lost(
 		const bool is_focus_lost) = 0;
+
+
+	//
+	// Generic stereo stream (thread-safe).
+	//
+
+	//
+	// Opens a generic stream.
+	//
+	// Parameters:
+	//    - sample_rate - destination sample rate.
+	//    - buffer_size - a size of the one buffer in the queue.
+	//                    Must be multiple of the sample format.
+	//
+	// Returns:
+	//    - Non-null value on success.
+	//    - Null otherwise.
+	//
+	// Notes:
+	//    - Thread-safe.
+	//    - Expected sample format: 16 bits signed integer, stereo.
+	//
+	virtual GenericStreamHandle open_generic_stream(
+		const int sample_rate,
+		const int buffer_size) = 0;
+
+	//
+	// Closes a generic stream.
+	//
+	// Parameters:
+	//    - stream_handle - a handle to generic stream.
+	//
+	// Notes:
+	//    - Thread-safe.
+	//
+	virtual void close_generic_stream(
+		GenericStreamHandle stream_handle) = 0;
+
+	//
+	// Gets a queue size.
+	//
+	// Returns:
+	//    - A queue size.
+	//    - Zero on error.
+	//
+	// Notes:
+	//    - Thread-safe.
+	//
+	virtual int get_generic_stream_queue_size() = 0;
+
+	//
+	// Gets information about buffer queue for generic stream.
+	//
+	// Parameters:
+	//    - stream_handle - a handle to generic stream.
+	//
+	// Returns:
+	//    - A free buffer count.
+	//    - Zero on error.
+	//
+	// Notes:
+	//    - Thread-safe.
+	//
+	virtual int get_generic_stream_free_buffer_count(
+		GenericStreamHandle stream_handle) = 0;
+
+	//
+	// Enqueues data for generic stream.
+	//
+	// Parameters:
+	//    - stream_handle - a handle to generic stream.
+	//    - buffer - a buffer with data.
+	//               A size of the data must match passed one on open.
+	//
+	// Returns:
+	//    - "true" on sucess.
+	//    - "false" otherwise.
+	//
+	// Notes:
+	//    - Thread-safe.
+	//    - Expected sample format: 16 bits signed integer, stereo.
+	//
+	virtual bool enqueue_generic_stream_buffer(
+		GenericStreamHandle stream_handle,
+		const void* buffer) = 0;
+
+	//
+	// Changes a playback state of a generic stream.
+	//
+	// Parameters:
+	//    - stream_handle - a handle to generic stream.
+	//    - is_pause - is pause.
+	//                 Pass "true" to pause the playback or "false" to resume.
+	//
+	// Returns:
+	//    - "true" on sucess.
+	//    - "false" otherwise.
+	//
+	// Notes:
+	//    - Thread-safe.
+	//
+	virtual bool set_generic_stream_pause(
+		GenericStreamHandle stream_handle,
+		const bool is_pause) = 0;
+
+	//
+	// Gets a playback state of a generic stream.
+	//
+	// Parameters:
+	//    - stream_handle - a handle to generic stream.
+	//
+	// Returns:
+	//    - "true" if a stream is paused.
+	//    - "false" if stream is not paused or on error.
+	//
+	// Notes:
+	//    - Thread-safe.
+	//
+	virtual bool get_generic_stream_pause(
+		GenericStreamHandle stream_handle) = 0;
+
+	//
+	// Changes a volume of a generic stream.
+	//
+	// Parameters:
+	//    - stream_handle - a handle to generic stream.
+	//    - ds_volume - a volume in DirectSound scale [-10000..0].
+	//
+	// Returns:
+	//    - "true" on sucess.
+	//    - "false" otherwise.
+	//
+	// Notes:
+	//    - Thread-safe.
+	//
+	virtual bool set_generic_stream_volume(
+		GenericStreamHandle stream_handle,
+		const int ds_volume) = 0;
+
+	//
+	// Gets a volume of a generic stream.
+	//
+	// Parameters:
+	//    - stream_handle - a handle to generic stream.
+	//
+	// Returns:
+	//    - A volume in DirectSound scale [-10000..0].
+	//    - Zero on error.
+	//
+	// Notes:
+	//    - Thread-safe.
+	//
+	virtual int get_generic_stream_volume(
+		GenericStreamHandle stream_handle) = 0;
 };
 
 // sound factory abstract base class

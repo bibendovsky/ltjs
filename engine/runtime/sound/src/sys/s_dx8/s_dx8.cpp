@@ -1,8 +1,15 @@
 #include "s_dx8.h"
+#include <algorithm>
 #include <array>
 #include <chrono>
+#include <condition_variable>
 #include <functional>
+#include <list>
 #include <memory>
+#include <mutex>
+#include <thread>
+#include <utility>
+#include <vector>
 #include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "eax.h"
@@ -115,6 +122,621 @@ enum
 static sint32 g_iCurrentEAXDirectSetting;
 #endif
 
+
+namespace
+{
+
+
+class GenericStream
+{
+public:
+	static constexpr auto channel_count = 2;
+	static constexpr auto bit_depth = 16;
+	static constexpr auto byte_depth = bit_depth / 8;
+	static constexpr auto sample_size = channel_count * byte_depth;
+
+	static constexpr auto queue_size = 3;
+
+
+	GenericStream()
+		:
+		is_open_{},
+		is_failed_{},
+		is_playing_{},
+		buffer_size_{},
+		queued_count_{},
+		ds_volume_{},
+		ds_segment_index_{},
+		buffer_{},
+		buffer_queue_{},
+		ds_buffer_{},
+		mt_mutex_{}
+	{
+	}
+
+	GenericStream(
+		GenericStream&& that)
+		:
+		is_open_{std::move(that.is_open_)},
+		is_failed_{std::move(that.is_failed_)},
+		is_playing_{std::move(that.is_playing_)},
+		buffer_size_{std::move(that.buffer_size_)},
+		queued_count_{std::move(that.queued_count_)},
+		ds_volume_{std::move(that.ds_volume_)},
+		ds_segment_index_{std::move(that.ds_segment_index_)},
+		buffer_{std::move(that.buffer_)},
+		buffer_queue_{std::move(that.buffer_queue_)},
+		ds_buffer_{std::move(that.ds_buffer_)},
+		mt_mutex_{}
+	{
+		that.is_open_ = false;
+		that.ds_buffer_ = nullptr;
+	}
+
+	~GenericStream()
+	{
+		close();
+	}
+
+	static void initialize()
+	{
+		uninitialize();
+
+		mt_mixer_thread_ = MtThread{mixer_worker};
+	}
+
+	static void uninitialize()
+	{
+		if (mt_mixer_thread_.joinable())
+		{
+			mt_is_quit_mixer_ = true;
+			mt_notify_mixer();
+			mt_mixer_thread_.join();
+
+			mt_is_quit_mixer_ = false;
+			mt_mixer_thread_ = {};
+		}
+
+		mt_stream_ptrs_to_add_.clear();
+		mt_stream_ptrs_to_remove_.clear();
+		mt_removed_stream_ptrs_.clear();
+		streams_.clear();
+	}
+
+	bool open(
+		LPDIRECTSOUND8 ds8,
+		const int sample_rate,
+		const int buffer_size)
+	{
+		close();
+
+		if (!ds8 || sample_rate <= 0 || buffer_size <= 0 || (buffer_size % sample_size) != 0)
+		{
+			return false;
+		}
+
+		buffer_size_ = buffer_size;
+
+		if (!initialize_ds_objects(ds8, sample_rate))
+		{
+			close();
+			return false;
+		}
+
+		is_open_ = true;
+
+		return true;
+	}
+
+	void close()
+	{
+		if (ds_buffer_)
+		{
+			static_cast<void>(ds_buffer_->Release());
+			ds_buffer_ = nullptr;
+		}
+
+		is_open_ = false;
+		is_failed_ = false;
+		is_playing_ = false;
+		buffer_size_ = 0;
+		queued_count_ = 0;
+		ds_volume_ = 0;
+		ds_segment_index_ = -1;
+		buffer_.clear();
+		buffer_queue_.fill(nullptr);
+		ds_buffer_ = nullptr;
+	}
+
+	bool get_pause()
+	{
+		MtLockGuard lock{mt_mutex_};
+
+		if (!is_open_ || is_failed_)
+		{
+			return false;
+		}
+
+		return !is_playing_;
+	}
+
+	bool set_pause(
+		const bool is_pause)
+	{
+		MtLockGuard lock{mt_mutex_};
+
+		if (!is_open_ || is_failed_)
+		{
+			return false;
+		}
+
+		if (is_playing_ == !is_pause)
+		{
+			return true;
+		}
+
+		is_playing_ = !is_pause;
+
+		auto ds_result = HRESULT{};
+
+		if (is_playing_)
+		{
+			if (!ds_restore_buffer())
+			{
+				return false;
+			}
+
+			ds_result = ds_buffer_->Play(0, 0, DSBPLAY_LOOPING);
+		}
+		else
+		{
+			ds_result = ds_buffer_->Stop();
+		}
+
+		if (FAILED(ds_result))
+		{
+			is_failed_ = true;
+			return false;
+		}
+
+		return true;
+	}
+
+	int get_volume()
+	{
+		MtLockGuard lock{mt_mutex_};
+
+		if (!is_open_ || is_failed_)
+		{
+			return 0;
+		}
+
+		return ds_volume_;
+	}
+
+	bool set_volume(
+		const int ds_volume)
+	{
+		const auto new_ds_volume = ltjs::AudioUtils::clamp_ds_volume(ds_volume);
+
+		MtLockGuard lock{mt_mutex_};
+
+		if (!is_open_ || is_failed_)
+		{
+			return false;
+		}
+
+		if (new_ds_volume == ds_volume_)
+		{
+			return true;
+		}
+
+		ds_volume_ = new_ds_volume;
+
+		const auto ds_result = ds_buffer_->SetVolume(new_ds_volume);
+
+		if (FAILED(ds_result))
+		{
+			is_failed_ = true;
+			return false;
+		}
+
+		return true;
+	}
+
+	int get_free_buffer_count()
+	{
+		MtLockGuard lock{mt_mutex_};
+
+		if (!is_open_ || is_failed_)
+		{
+			return 0;
+		}
+
+		return queue_size - queued_count_;
+	}
+
+	bool enqueue_buffer(
+		const void* buffer)
+	{
+		if (!buffer)
+		{
+			return false;
+		}
+
+		MtLockGuard lock{mt_mutex_};
+
+		if (!is_open_ || is_failed_)
+		{
+			return false;
+		}
+
+		if (queued_count_ == queue_size)
+		{
+			return false;
+		}
+
+		const auto src_buffer = static_cast<const std::uint8_t*>(buffer);
+		auto dst_buffer = buffer_queue_[queued_count_];
+
+		std::uninitialized_copy_n(src_buffer, buffer_size_, dst_buffer);
+
+		queued_count_ += 1;
+
+		return true;
+	}
+
+	static GenericStream* add_stream(
+		LPDIRECTSOUND8 ds8,
+		const int sample_rate,
+		const int buffer_size)
+	{
+		streams_.emplace_back();
+		auto& stream = streams_.back();
+
+		if (!stream.open(ds8, sample_rate, buffer_size))
+		{
+			streams_.pop_back();
+			return nullptr;
+		}
+
+		{
+			MtLockGuard lock{mt_mixer_mutex_};
+			mt_stream_ptrs_to_add_.emplace_back(&stream);
+		}
+
+		mt_notify_mixer();
+
+		return &stream;
+	}
+
+	static void remove_stream(
+		ILTSoundSys::GenericStreamHandle stream_handle)
+	{
+		if (!stream_handle)
+		{
+			return;
+		}
+
+		MtLockGuard lock{mt_mixer_mutex_};
+
+		mt_stream_ptrs_to_remove_.emplace_back(static_cast<GenericStream*>(stream_handle));
+
+		for (auto removed_stream_ptr : mt_removed_stream_ptrs_)
+		{
+			streams_.remove_if(
+				[&](const auto& item)
+				{
+					return &item == removed_stream_ptr;
+				}
+			);
+		}
+
+		mt_removed_stream_ptrs_.clear();
+	}
+
+
+private:
+	static constexpr auto ds_buffer_segment_count = 2 * queue_size;
+
+
+	using Buffer = std::vector<std::uint8_t>;
+	using BufferQueue = std::array<std::uint8_t*, queue_size>;
+
+	using GenericStreams = std::list<GenericStream>;
+	using GenericStreamPtrList = std::list<GenericStream*>;
+
+	using Win32Events = std::array<HANDLE, ds_buffer_segment_count>;
+
+	using MtThread = std::thread;
+	using MtMutex = std::mutex;
+	using MtLockGuard = std::lock_guard<MtMutex>;
+	using MtUniqueLock = std::unique_lock<MtMutex>;
+	using MtCondVar = std::condition_variable;
+
+
+	bool is_open_;
+	bool is_failed_;
+	bool is_playing_;
+	int buffer_size_;
+	int queued_count_;
+	int ds_volume_;
+	int ds_segment_index_; // "-1" - must be initialized.
+	Buffer buffer_;
+	BufferQueue buffer_queue_;
+	LPDIRECTSOUNDBUFFER ds_buffer_;
+	MtMutex mt_mutex_;
+
+
+	static MtThread mt_mixer_thread_;
+	static MtMutex mt_mixer_mutex_;
+	static bool mt_is_quit_mixer_;
+
+	static MtCondVar mt_mixer_cv_;
+	static MtMutex mt_mixer_cv_mutex_;
+	static bool mt_mixer_cv_flag_;
+
+	static GenericStreams streams_;
+	static GenericStreamPtrList mt_stream_ptrs_to_add_;
+	static GenericStreamPtrList mt_stream_ptrs_to_remove_;
+	static GenericStreamPtrList mt_removed_stream_ptrs_;
+
+
+	bool initialize_ds_objects(
+		LPDIRECTSOUND8 ds8,
+		const int sample_rate)
+	{
+		auto ds_result = HRESULT{};
+
+		auto format = ul::WaveFormatEx{};
+		format.tag_ = ul::WaveFormatTag::pcm;
+		format.bit_depth_ = static_cast<WORD>(bit_depth);
+		format.channel_count_ = static_cast<WORD>(channel_count);
+		format.block_align_ = static_cast<WORD>(sample_size);
+		format.sample_rate_ = sample_rate;
+		format.avg_bytes_per_sec_ = sample_rate * sample_size;
+
+		auto ds_buffer_desc = DSBUFFERDESC{};
+		ds_buffer_desc.dwSize = static_cast<DWORD>(sizeof(DSBUFFERDESC));
+		ds_buffer_desc.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_LOCSOFTWARE;
+		ds_buffer_desc.dwBufferBytes = buffer_size_ * ds_buffer_segment_count;
+		ds_buffer_desc.guid3DAlgorithm = DS3DALG_DEFAULT;
+		ds_buffer_desc.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&format);
+
+		ds_result = ds8->CreateSoundBuffer(&ds_buffer_desc, &ds_buffer_, nullptr);
+
+		if (FAILED(ds_result))
+		{
+			return false;
+		}
+
+		buffer_.resize(buffer_size_ * queue_size);
+
+		for (auto i = 0; i < queue_size; ++i)
+		{
+			buffer_queue_[i] = &buffer_[i * buffer_size_];
+		}
+
+		return true;
+	}
+
+	bool ds_restore_buffer()
+	{
+		auto is_succeed = false;
+		auto ds_result = HRESULT{};
+
+		auto ds_status = DWORD{};
+
+		ds_result = ds_buffer_->GetStatus(&ds_status);
+
+		if (SUCCEEDED(ds_result))
+		{
+			if ((ds_status & DSBSTATUS_BUFFERLOST) != 0)
+			{
+				ds_result = ds_buffer_->Restore();
+
+				if (SUCCEEDED(ds_result))
+				{
+					is_succeed = true;
+				}
+			}
+			else
+			{
+				is_succeed = true;
+			}
+		}
+
+		if (!is_succeed)
+		{
+			is_failed_ = true;
+			return false;
+		}
+
+		return true;
+	}
+
+	bool ds_fill_segment(
+		const int segment_index)
+	{
+		if (!ds_restore_buffer())
+		{
+			return false;
+		}
+
+		auto ds_result = HRESULT{};
+
+		auto segment_offset = segment_index * buffer_size_;
+		auto segment_size = buffer_size_;
+
+		auto src_buffer = (queued_count_ > 0 ? buffer_queue_.front() : nullptr);
+
+		auto buffer1 = LPVOID{};
+		auto buffer1_size = DWORD{};
+
+		auto buffer2 = LPVOID{};
+		auto buffer2_size = DWORD{};
+
+		ds_result = ds_buffer_->Lock(
+			segment_offset,
+			segment_size,
+			&buffer1,
+			&buffer1_size,
+			nullptr,
+			nullptr,
+			0);
+
+		if (FAILED(ds_result) || buffer2 || buffer2_size != 0)
+		{
+			is_failed_ = true;
+			return false;
+		}
+
+		auto dst_buffer = static_cast<std::uint8_t*>(buffer1);
+
+		if (src_buffer)
+		{
+			std::uninitialized_copy_n(src_buffer, segment_size, dst_buffer);
+		}
+		else
+		{
+			std::uninitialized_fill_n(dst_buffer, segment_size, std::uint8_t{});
+		}
+
+		ds_result = ds_buffer_->Unlock(buffer1, buffer1_size, nullptr, 0);
+
+		if (FAILED(ds_result))
+		{
+			is_failed_ = true;
+			return false;
+		}
+
+		if (queued_count_ > 0)
+		{
+			queued_count_ -= 1;
+
+			std::rotate(buffer_queue_.begin(), buffer_queue_.begin() + 1, buffer_queue_.end());
+		}
+
+		return true;
+	}
+
+	static void mt_notify_mixer()
+	{
+		MtUniqueLock cv_lock{mt_mixer_cv_mutex_};
+		mt_mixer_cv_flag_ = true;
+		mt_mixer_cv_.notify_one();
+	}
+
+	static void mt_wait_for_mixer_cv()
+	{
+		MtUniqueLock cv_lock{mt_mixer_cv_mutex_};
+		mt_mixer_cv_.wait(cv_lock, [&](){ return mt_mixer_cv_flag_; });
+		mt_mixer_cv_flag_ = false;
+	}
+
+	static void mixer_worker()
+	{
+		const auto delay = std::chrono::milliseconds(10);
+
+		auto stream_ptrs = GenericStreamPtrList{};
+
+		while (!mt_is_quit_mixer_)
+		{
+			{
+				MtLockGuard lock{mt_mixer_mutex_};
+
+				for (auto stream_ptr : mt_stream_ptrs_to_add_)
+				{
+					stream_ptrs.emplace_back(stream_ptr);
+				}
+
+				mt_stream_ptrs_to_add_.clear();
+
+				for (auto stream_ptr : mt_stream_ptrs_to_remove_)
+				{
+					stream_ptr->close();
+
+					mt_removed_stream_ptrs_.emplace_back(stream_ptr);
+
+					stream_ptrs.remove_if(
+						[&](const auto& item)
+						{
+							return item == stream_ptr;
+						}
+					);
+				}
+
+				mt_stream_ptrs_to_remove_.clear();
+			}
+
+			if (!stream_ptrs.empty())
+			{
+				for (auto stream_ptr : stream_ptrs)
+				{
+					auto& stream = *stream_ptr;
+
+					MtLockGuard lock{stream.mt_mutex_};
+
+					if (!stream.is_open_ || stream.is_failed_ || !stream.is_playing_)
+					{
+						continue;
+					}
+
+					auto ds_result = HRESULT{};
+					auto ds_write_offset = DWORD{};
+
+					ds_result = stream.ds_buffer_->GetCurrentPosition(nullptr, &ds_write_offset);
+
+					if (FAILED(ds_result))
+					{
+						stream.is_failed_ = true;
+						continue;
+					}
+
+					const auto segment_index = static_cast<int>(ds_write_offset / stream.buffer_size_);
+					const auto segment_remain = ds_write_offset % stream.buffer_size_;
+
+					if (segment_remain >= static_cast<DWORD>(stream.buffer_size_ / 2))
+					{
+						if (stream.ds_segment_index_ != segment_index)
+						{
+							const auto write_segment_index = (segment_index + 2) % ds_buffer_segment_count;
+
+							stream.ds_fill_segment(write_segment_index);
+
+							stream.ds_segment_index_ = segment_index;
+						}
+					}
+				}
+
+				std::this_thread::sleep_for(delay);
+			}
+			else
+			{
+				mt_wait_for_mixer_cv();
+			}
+		}
+	}
+}; // GenericStream
+
+
+GenericStream::MtThread GenericStream::mt_mixer_thread_;
+GenericStream::MtMutex GenericStream::mt_mixer_mutex_;
+bool GenericStream::mt_is_quit_mixer_;
+
+GenericStream::MtCondVar GenericStream::mt_mixer_cv_;
+GenericStream::MtMutex GenericStream::mt_mixer_cv_mutex_;
+bool GenericStream::mt_mixer_cv_flag_;
+
+GenericStream::GenericStreams GenericStream::streams_;
+GenericStream::GenericStreamPtrList GenericStream::mt_stream_ptrs_to_add_;
+GenericStream::GenericStreamPtrList GenericStream::mt_stream_ptrs_to_remove_;
+GenericStream::GenericStreamPtrList GenericStream::mt_removed_stream_ptrs_;
+
+
+} // namespace
+
+
 //! WaveFile
 
 
@@ -208,7 +830,7 @@ bool WaveFile::Open(
 		return false;
 	}
 
-	auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
+	auto open_parameters = ltjs::AudioDecoder::OpenParam{};
 	open_parameters.stream_ptr_ = &file_substream_;
 
 	if (!audio_decoder_.open(open_parameters))
@@ -2029,6 +2651,8 @@ bool CDx8SoundSys::Init( )
 
 	g_pSoundSys = this;
 
+	GenericStream::initialize();
+
 	return true;
 
 }
@@ -2052,6 +2676,8 @@ void CDx8SoundSys::handle_focus_lost(
 
 void CDx8SoundSys::Term( )
 {
+	GenericStream::uninitialize();
+
 	// Shut down the thread
 	is_mt_shutdown_ = true;
 
@@ -2101,6 +2727,105 @@ void CDx8SoundSys::Unlock( void )
 	if( !m_bLocked )
 		return;
 	m_bLocked = false;
+}
+
+ILTSoundSys::GenericStreamHandle CDx8SoundSys::open_generic_stream(
+	const int sample_rate,
+	const int buffer_size)
+{
+	return GenericStream::add_stream(m_pDirectSound, sample_rate, buffer_size);
+}
+
+void CDx8SoundSys::close_generic_stream(
+	GenericStreamHandle stream_handle)
+{
+	return GenericStream::remove_stream(stream_handle);
+}
+
+int CDx8SoundSys::get_generic_stream_queue_size()
+{
+	return GenericStream::queue_size;
+}
+
+int CDx8SoundSys::get_generic_stream_free_buffer_count(
+	GenericStreamHandle stream_handle)
+{
+	if (!stream_handle)
+	{
+		return 0;
+	}
+
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.get_free_buffer_count();
+}
+
+bool CDx8SoundSys::enqueue_generic_stream_buffer(
+	GenericStreamHandle stream_handle,
+	const void* buffer)
+{
+	if (!stream_handle)
+	{
+		return false;
+	}
+
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.enqueue_buffer(buffer);
+}
+
+bool CDx8SoundSys::set_generic_stream_pause(
+	GenericStreamHandle stream_handle,
+	const bool is_pause)
+{
+	if (!stream_handle)
+	{
+		return false;
+	}
+
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.set_pause(is_pause);
+}
+
+bool CDx8SoundSys::get_generic_stream_pause(
+	GenericStreamHandle stream_handle)
+{
+	if (!stream_handle)
+	{
+		return false;
+	}
+
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.get_pause();
+}
+
+bool CDx8SoundSys::set_generic_stream_volume(
+	GenericStreamHandle stream_handle,
+	const int ds_volume)
+{
+	if (!stream_handle)
+	{
+		return false;
+	}
+
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.set_volume(ds_volume);
+}
+
+int CDx8SoundSys::get_generic_stream_volume(
+	GenericStreamHandle stream_handle)
+{
+	if (!stream_handle)
+	{
+		return 0;
+	}
+
+	auto& stream = *static_cast<GenericStream*>(stream_handle);
+
+	return stream.get_volume();
 }
 
 //	===========================================================================
@@ -2889,10 +3614,10 @@ S32	CDx8SoundSys::Init3DSampleFromFile(
 
 	auto memory_stream = ul::MemoryStream{pFile_image, wave_size, ul::Stream::OpenMode::read};
 
-	auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
-	open_parameters.stream_ptr_ = &memory_stream;
+	auto decoder_param = ltjs::AudioDecoder::OpenParam{};
+	decoder_param.stream_ptr_ = &memory_stream;
 
-	if (!audio_decoder_.open(open_parameters))
+	if (!audio_decoder_.open(decoder_param))
 	{
 		return false;
 	}
@@ -3431,10 +4156,10 @@ S32	CDx8SoundSys::InitSampleFromFile(
 
 	auto memory_stream = ul::MemoryStream{pFile_image, wave_size, ul::Stream::OpenMode::read};
 
-	auto open_parameters = ltjs::AudioDecoder::OpenParameters{};
-	open_parameters.stream_ptr_ = &memory_stream;
+	auto decoder_param = ltjs::AudioDecoder::OpenParam{};
+	decoder_param.stream_ptr_ = &memory_stream;
 
-	if (!audio_decoder_.open(open_parameters))
+	if (!audio_decoder_.open(decoder_param))
 	{
 		return false;
 	}

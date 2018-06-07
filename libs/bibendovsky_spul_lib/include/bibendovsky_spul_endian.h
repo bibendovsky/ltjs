@@ -48,6 +48,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cstdint>
 #include <algorithm>
+#include <iterator>
 #include <type_traits>
 
 

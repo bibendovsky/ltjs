@@ -460,6 +460,40 @@ public:
 		const bool is_focus_lost) override;
 
 
+	// Generic stream.
+	//
+
+	GenericStreamHandle open_generic_stream(
+		const int sample_rate,
+		const int buffer_size) override;
+
+	void close_generic_stream(
+		GenericStreamHandle stream_handle) override;
+
+	int get_generic_stream_queue_size() override;
+
+	int get_generic_stream_free_buffer_count(
+		GenericStreamHandle stream_handle) override;
+
+	bool enqueue_generic_stream_buffer(
+		GenericStreamHandle stream_handle,
+		const void* buffer) override;
+
+	bool set_generic_stream_pause(
+		GenericStreamHandle stream_handle,
+		const bool is_pause) override;
+
+	bool get_generic_stream_pause(
+		GenericStreamHandle stream_handle) override;
+
+	bool set_generic_stream_volume(
+		GenericStreamHandle stream_handle,
+		const int ds_volume) override;
+
+	int get_generic_stream_volume(
+		GenericStreamHandle stream_handle) override;
+
+
 	static NulSoundSys& get_singleton();
 }; // NulSoundSys
 

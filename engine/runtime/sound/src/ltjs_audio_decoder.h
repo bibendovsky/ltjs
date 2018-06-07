@@ -18,7 +18,10 @@ namespace ul = bibendovsky::spul;
 class AudioDecoder final
 {
 public:
-	struct OpenParameters
+	//
+	// Open object parameter.
+	//
+	struct OpenParam
 	{
 		// An output channel count.
 		// Set to zero to skip convertion.
@@ -44,7 +47,7 @@ public:
 		//    - "false" otherwise.
 		//
 		bool validate() const;
-	}; // OpenParameters
+	}; // OpenParam
 
 
 	//
@@ -59,7 +62,7 @@ public:
 	//    - parameters - a set of parameters.
 	//
 	explicit AudioDecoder(
-		const OpenParameters& parameters);
+		const OpenParam& param);
 
 	AudioDecoder(
 		const AudioDecoder& that) = delete;
@@ -68,7 +71,10 @@ public:
 		const AudioDecoder& that) = delete;
 
 	AudioDecoder(
-		AudioDecoder&& that);
+		AudioDecoder&& that) noexcept;
+
+	AudioDecoder& operator=(
+		AudioDecoder&& that) noexcept;
 
 	~AudioDecoder();
 
@@ -84,7 +90,7 @@ public:
 	//    - "false" on error.
 	//
 	bool open(
-		const OpenParameters& parameters);
+		const OpenParam& param);
 
 	//
 	// Uninitializes the instance.
@@ -271,7 +277,7 @@ private:
 
 	using ImplUPtr = std::unique_ptr<Impl>;
 
-	ImplUPtr pimpl_;
+	ImplUPtr impl_;
 }; // AudioDecoder
 
 
