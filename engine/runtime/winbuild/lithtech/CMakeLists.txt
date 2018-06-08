@@ -12,6 +12,7 @@ include_directories(
 	${LTJS_FFMPEG_INCLUDE_DIR}
     .
     ../../../../directx/include
+	../../../../libs/DirectXMath/Inc
     ../../../../libs/bibendovsky_spul_lib/include
     ../../../../libs/lith
     ../../../../libs/mfcstub

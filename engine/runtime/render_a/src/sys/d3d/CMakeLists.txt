@@ -6,6 +6,7 @@ include(ltjs_common)
 include_directories(
     .
     ../../../../../../directx/include
+	../../../../../../libs/DirectXMath/Inc
     ../../../../../../libs/stdlith
     ../../../../../sdk/inc
     ../../../../../sdk/inc/physics
