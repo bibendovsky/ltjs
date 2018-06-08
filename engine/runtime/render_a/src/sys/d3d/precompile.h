@@ -6,6 +6,9 @@
 
 #define DIRECT3D_VERSION        0x0900
 
+
+#include "DirectXMath.h"
+
 #ifndef __BDEFS_H__
 #include "bdefs.h"
 #endif
