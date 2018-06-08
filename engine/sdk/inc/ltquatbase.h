@@ -15,10 +15,10 @@
 #define QUAT_HIGH_TOLERANCE (1.0f - QUAT_TOLERANCE)
 #define QUAT_LOW_TOLERANCE  (-QUAT_HIGH_TOLERANCE)
 
-#define QX  0
-#define QY  1
-#define QZ  2
-#define QW  3
+#define QUAT_X (0)
+#define QUAT_Y (1)
+#define QUAT_Z (2)
+#define QUAT_W (3)
 
 
 void quat_ConvertToMatrix
@@ -82,10 +82,10 @@ accurate).
 \par This can be simplified when the quaternions are written as a
 scalar and vector:
 
-- s1 = a[QW]
-- v1 = (a[QX], a[QY], a[QZ])
-- s2 = b[QW]
-- v2 = (b[QX], b[QY], b[QZ])
+- s1 = a[QUAT_W]
+- v1 = (a[QUAT_X], a[QUAT_Y], a[QUAT_Z])
+- s2 = b[QUAT_W]
+- v2 = (b[QUAT_X], b[QUAT_Y], b[QUAT_Z])
 - a = [s1,v1]
 - b = [s2,v2]
 
@@ -98,10 +98,10 @@ inline void quat_Mul
     const float*    b
 )
 {
-    q[QX] = a[QW]*b[QX] + a[QX]*b[QW] + a[QY]*b[QZ] - a[QZ]*b[QY];
-    q[QY] = a[QW]*b[QY] - a[QX]*b[QZ] + a[QY]*b[QW] + a[QZ]*b[QX];
-    q[QZ] = a[QW]*b[QZ] + a[QX]*b[QY] - a[QY]*b[QX] + a[QZ]*b[QW];
-    q[QW] = a[QW]*b[QW] - a[QX]*b[QX] - a[QY]*b[QY] - a[QZ]*b[QZ];
+    q[QUAT_X] = a[QUAT_W]*b[QUAT_X] + a[QUAT_X]*b[QUAT_W] + a[QUAT_Y]*b[QUAT_Z] - a[QUAT_Z]*b[QUAT_Y];
+    q[QUAT_Y] = a[QUAT_W]*b[QUAT_Y] - a[QUAT_X]*b[QUAT_Z] + a[QUAT_Y]*b[QUAT_W] + a[QUAT_Z]*b[QUAT_X];
+    q[QUAT_Z] = a[QUAT_W]*b[QUAT_Z] + a[QUAT_X]*b[QUAT_Y] - a[QUAT_Y]*b[QUAT_X] + a[QUAT_Z]*b[QUAT_W];
+    q[QUAT_W] = a[QUAT_W]*b[QUAT_W] - a[QUAT_X]*b[QUAT_X] - a[QUAT_Y]*b[QUAT_Y] - a[QUAT_Z]*b[QUAT_Z];
 }
 
 inline void quat_Conjugate
@@ -110,10 +110,10 @@ inline void quat_Conjugate
     const float*    q
 )
 {
-    c[QX] = -q[QX];
-    c[QY] = -q[QY];
-    c[QZ] = -q[QZ];
-    c[QW] = q[QW];
+    c[QUAT_X] = -q[QUAT_X];
+    c[QUAT_Y] = -q[QUAT_Y];
+    c[QUAT_Z] = -q[QUAT_Z];
+    c[QUAT_W] = q[QUAT_W];
 }
 
 // ------------------------------------------------------------------------
@@ -142,13 +142,13 @@ void quat_RotVec( float *pnt_res, const float *quat, const float *pnt_in )
 
 	// evaluate quat * vector
 	// bw == 0.0f
-    v[QX] = a[QW]*b[QX]  /*+ax *bw */  + a[QY]*b[QZ] - a[QZ]*b[QY];
-    v[QY] = a[QW]*b[QY] - a[QX]*b[QZ] /* +ay * bw*/ + a[QZ]*b[QX];
-    v[QZ] = a[QW]*b[QZ] + a[QX]*b[QY] - a[QY]*b[QX] /* + az * bw */;
-    v[QW] =/* aw * bw */- a[QX]*b[QX] - a[QY]*b[QY] - a[QZ]*b[QZ];
+    v[QUAT_X] = a[QUAT_W]*b[QUAT_X]  /*+ax *bw */  + a[QUAT_Y]*b[QUAT_Z] - a[QUAT_Z]*b[QUAT_Y];
+    v[QUAT_Y] = a[QUAT_W]*b[QUAT_Y] - a[QUAT_X]*b[QUAT_Z] /* +ay * bw*/ + a[QUAT_Z]*b[QUAT_X];
+    v[QUAT_Z] = a[QUAT_W]*b[QUAT_Z] + a[QUAT_X]*b[QUAT_Y] - a[QUAT_Y]*b[QUAT_X] /* + az * bw */;
+    v[QUAT_W] =/* aw * bw */- a[QUAT_X]*b[QUAT_X] - a[QUAT_Y]*b[QUAT_Y] - a[QUAT_Z]*b[QUAT_Z];
 
 	// make the conjugate of quat.
-	cj[QX] = -a[QX]; cj[QY] = -a[QY];  cj[QZ] = -a[QZ]; cj[QW] = a[QW];
+	cj[QUAT_X] = -a[QUAT_X]; cj[QUAT_Y] = -a[QUAT_Y];  cj[QUAT_Z] = -a[QUAT_Z]; cj[QUAT_W] = a[QUAT_W];
 
 	// reassign
 	v = pnt_res ;// final result
@@ -156,10 +156,10 @@ void quat_RotVec( float *pnt_res, const float *quat, const float *pnt_in )
 	b = cj ; // conjuagate
 
 	// evaluate vector * conj
-	v[QX] = a[QW]*b[QX] + a[QX]*b[QW] + a[QY]*b[QZ] - a[QZ]*b[QY];
-    v[QY] = a[QW]*b[QY] - a[QX]*b[QZ] + a[QY]*b[QW] + a[QZ]*b[QX];
-    v[QZ] = a[QW]*b[QZ] + a[QX]*b[QY] - a[QY]*b[QX] + a[QZ]*b[QW];
-    /* v[QW] = a[QW]*b[QW] - a[QX]*b[QX] - a[QY]*b[QY] - a[QZ]*b[QZ]; */
+	v[QUAT_X] = a[QUAT_W]*b[QUAT_X] + a[QUAT_X]*b[QUAT_W] + a[QUAT_Y]*b[QUAT_Z] - a[QUAT_Z]*b[QUAT_Y];
+    v[QUAT_Y] = a[QUAT_W]*b[QUAT_Y] - a[QUAT_X]*b[QUAT_Z] + a[QUAT_Y]*b[QUAT_W] + a[QUAT_Z]*b[QUAT_X];
+    v[QUAT_Z] = a[QUAT_W]*b[QUAT_Z] + a[QUAT_X]*b[QUAT_Y] - a[QUAT_Y]*b[QUAT_X] + a[QUAT_Z]*b[QUAT_W];
+    /* v[QUAT_W] = a[QUAT_W]*b[QUAT_W] - a[QUAT_X]*b[QUAT_X] - a[QUAT_Y]*b[QUAT_Y] - a[QUAT_Z]*b[QUAT_Z]; */
 }
 
 

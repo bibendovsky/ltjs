@@ -111,18 +111,18 @@ struct LTRotation
 
 	LTRotation( float x, float y, float z, float r )
 	{
-		m_Quat[QX] = x;
-		m_Quat[QY] = y;
-		m_Quat[QZ] = z;
-		m_Quat[QW] = r;
+		m_Quat[QUAT_X] = x;
+		m_Quat[QUAT_Y] = y;
+		m_Quat[QUAT_Z] = z;
+		m_Quat[QUAT_W] = r;
 	}
 
 	void Init( float a=0, float b=0, float c=0, float d=1 )
 	{
-		m_Quat[QX] = a;
-		m_Quat[QY] = b;
-		m_Quat[QZ] = c;
-		m_Quat[QW] = d;
+		m_Quat[QUAT_X] = a;
+		m_Quat[QUAT_Y] = b;
+		m_Quat[QUAT_Z] = c;
+		m_Quat[QUAT_W] = d;
 	}
 
 	void Identity()
@@ -186,7 +186,7 @@ struct LTRotation
 
 	LTRotation Conjugate() const
 	{
-		return LTRotation(-m_Quat[QX], -m_Quat[QY], -m_Quat[QZ], m_Quat[QW]);
+		return LTRotation(-m_Quat[QUAT_X], -m_Quat[QUAT_Y], -m_Quat[QUAT_Z], m_Quat[QUAT_W]);
 	}
 	LTRotation operator ~ () const
 	{

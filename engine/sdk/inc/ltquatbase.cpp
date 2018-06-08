@@ -9,7 +9,7 @@
 #include "ltquatbase.h"
 #include "ltsysoptim.h"
 
-static int g_QNext[3] = { QY, QZ, QX };
+static int g_QNext[3] = { QUAT_Y, QUAT_Z, QUAT_X };
 
 
 
@@ -74,11 +74,11 @@ void quat_ConvertFromMatrix(float *pQuat, const float mat[4][4])
 
 	if(diag < -0.999f )
 	{
-		i = QX;
-		if( mat[QY][QY] > mat[QX][QX] )
-			i = QY;
-		if( mat[QZ][QZ] > mat[i][i] )
-			i = QZ;
+		i = QUAT_X;
+		if( mat[QUAT_Y][QUAT_Y] > mat[QUAT_X][QUAT_X] )
+			i = QUAT_Y;
+		if( mat[QUAT_Z][QUAT_Z] > mat[i][i] )
+			i = QUAT_Z;
 		
 		j = g_QNext[i];
 		k = g_QNext[j];
@@ -87,7 +87,7 @@ void quat_ConvertFromMatrix(float *pQuat, const float mat[4][4])
 
 		pQuat[i] = s * 0.5f;
 		s = 0.5f / s;
-		pQuat[QW] = ( mat[k][j] - mat[j][k] ) * s;
+		pQuat[QUAT_W] = ( mat[k][j] - mat[j][k] ) * s;
 		pQuat[j] = ( mat[j][i] + mat[i][j] ) * s;
 		pQuat[k] = ( mat[k][i] + mat[i][k] ) * s;
 		return;
