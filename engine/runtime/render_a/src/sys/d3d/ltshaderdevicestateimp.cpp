@@ -19,6 +19,8 @@
 #include "renderstruct.h"
 
 
+namespace DX = DirectX;
+
 
 //-------------------------------------------------------------------------------------------------
 // LTShaderDeviceStateImp
@@ -42,26 +44,27 @@ bool LTShaderDeviceStateImp::GetMatrix(LTMatrixType MatrixType, bool Transpose, 
 	}
 
 	// Get the desired matrix from the device.
-	D3DXMATRIX Mat;
+	DX::XMFLOAT4X4 Mat;
+
 	switch (MatrixType)
 	{
 		case MATRIXTYPE_WORLD0:
-			PD3DDEVICE->GetTransform(D3DTS_WORLD, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_WORLD, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_WORLD1:
-			PD3DDEVICE->GetTransform(D3DTS_WORLD1, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_WORLD1, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_WORLD2:
-			PD3DDEVICE->GetTransform(D3DTS_WORLD2, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_WORLD2, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_WORLD3:
-			PD3DDEVICE->GetTransform(D3DTS_WORLD3, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_WORLD3, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_VIEW:
-			PD3DDEVICE->GetTransform(D3DTS_VIEW, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_VIEW, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_PROJECTION:
-			PD3DDEVICE->GetTransform(D3DTS_PROJECTION, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_PROJECTION, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_VIEWPROJECTION:
 		{
@@ -69,18 +72,22 @@ bool LTShaderDeviceStateImp::GetMatrix(LTMatrixType MatrixType, bool Transpose, 
 			// This is a special case in which we need two matrices.
 			//
 
-			D3DXMATRIX MatView;
-			PD3DDEVICE->GetTransform(D3DTS_VIEW, &MatView);
+			DX::XMFLOAT4X4 MatView;
+			PD3DDEVICE->GetTransform(D3DTS_VIEW, reinterpret_cast<D3DMATRIX*>(&MatView));
 
-			D3DXMATRIX MatProj;
-			PD3DDEVICE->GetTransform(D3DTS_PROJECTION, &MatProj);
+			DX::XMFLOAT4X4 MatProj;
+			PD3DDEVICE->GetTransform(D3DTS_PROJECTION, reinterpret_cast<D3DMATRIX*>(&MatProj));
 
-			D3DXMATRIX MatViewProj;
-    		D3DXMatrixMultiply(&MatViewProj, &MatView, &MatProj);
+			DX::XMFLOAT4X4 MatViewProj;
+
+			DX::XMStoreFloat4x4(
+				&MatViewProj,
+				DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&MatView), DX::XMLoadFloat4x4(&MatProj))
+			);
 
 			if (Transpose)
 			{
-				D3DXMatrixTranspose(&MatViewProj, &MatViewProj);
+				DX::XMStoreFloat4x4(&MatViewProj, DX::XMMatrixTranspose(DX::XMLoadFloat4x4(&MatViewProj)));
 			}
 
     		pMatrix->Init(MatViewProj._11, MatViewProj._12, MatViewProj._13, MatViewProj._14,
@@ -92,28 +99,28 @@ bool LTShaderDeviceStateImp::GetMatrix(LTMatrixType MatrixType, bool Transpose, 
 			return true;
 		}
 		case MATRIXTYPE_TEXTURE0:
-			PD3DDEVICE->GetTransform(D3DTS_TEXTURE0, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_TEXTURE0, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_TEXTURE1:
-			PD3DDEVICE->GetTransform(D3DTS_TEXTURE1, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_TEXTURE1, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_TEXTURE2:
-			PD3DDEVICE->GetTransform(D3DTS_TEXTURE2, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_TEXTURE2, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_TEXTURE3:
-			PD3DDEVICE->GetTransform(D3DTS_TEXTURE3, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_TEXTURE3, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_TEXTURE4:
-			PD3DDEVICE->GetTransform(D3DTS_TEXTURE4, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_TEXTURE4, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_TEXTURE5:
-			PD3DDEVICE->GetTransform(D3DTS_TEXTURE5, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_TEXTURE5, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_TEXTURE6:
-			PD3DDEVICE->GetTransform(D3DTS_TEXTURE6, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_TEXTURE6, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		case MATRIXTYPE_TEXTURE7:
-			PD3DDEVICE->GetTransform(D3DTS_TEXTURE7, &Mat);
+			PD3DDEVICE->GetTransform(D3DTS_TEXTURE7, reinterpret_cast<D3DMATRIX*>(&Mat));
 			break;
 		default:
 			// Invalid option
@@ -123,7 +130,7 @@ bool LTShaderDeviceStateImp::GetMatrix(LTMatrixType MatrixType, bool Transpose, 
 	// Transpose the matrix.
 	if (Transpose)
 	{
-    	D3DXMatrixTranspose(&Mat, &Mat);
+		DX::XMStoreFloat4x4(&Mat, DX::XMMatrixTranspose(DX::XMLoadFloat4x4(&Mat)));
 	}
 
     pMatrix->Init(Mat._11, Mat._12, Mat._13, Mat._14,
