@@ -46,6 +46,9 @@ static IClientFileMgr* g_pIClientFileMgr;
 define_holder(IClientFileMgr, g_pIClientFileMgr);
 
 
+namespace DX = DirectX;
+
+
 //----------------------------------------------------------------------------
 // Polygrid Effect Vertex format
 //   Uses: HW TnL, 1 texture channel, diffuse color, normal, 
@@ -371,20 +374,24 @@ static void d3d_SetEnvMapTextureStates(const ViewParams& Params, uint32 envMapTy
 	Params.m_mView.GetBasisVectors(&vRight, &vUp, &vForward);
 
 	//now setup the transpose, thus converting the normals into worldspace
-	D3DXMATRIX mCamToWorld( vRight.x, vUp.x, vForward.x, 0.0f,
-							vRight.y, vUp.y, vForward.y, 0.0f,
-							vRight.z, vUp.z, vForward.z, 0.0f,
-							0.0f,	  0.0f,	 0.0f,		 1.0f);
+	auto mCamToWorld = DX::XMMATRIX{
+		vRight.x, vUp.x, vForward.x, 0.0f,
+		vRight.y, vUp.y, vForward.y, 0.0f,
+		vRight.z, vUp.z, vForward.z, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
 
 	if(!bCubic)
 	{
 		//setup our texture channel 1 to generate environment maps
-		D3DXMATRIX mTex1Trans(	0.5f,	0.0f,	0.0f,	0.0f,
-								0.0f,	0.0f,	0.0f,	0.0f,
-								0.0f,	0.5f,	1.0f,	0.0f,
-								0.5f,	0.5f,	0.0f,	1.0f );
+		const auto mTex1Trans = DX::XMMATRIX{
+			0.5f, 0.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 0.5f, 1.0f, 0.0f,
+			0.5f, 0.5f, 0.0f, 1.0f
+		};
 
-		mCamToWorld = mCamToWorld * mTex1Trans;
+		mCamToWorld *= mTex1Trans;
 	}
 
 	//setup our input parameters for the texture coordinates
@@ -392,7 +399,10 @@ static void d3d_SetEnvMapTextureStates(const ViewParams& Params, uint32 envMapTy
 	PD3DDEVICE->SetTextureStageState(1, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR | 1);
 
 	//setup our texture transform
-	PD3DDEVICE->SetTransform(D3DTS_TEXTURE1, &mCamToWorld);
+	DX::XMFLOAT4X4 mCamToWorld_f;
+	DX::XMStoreFloat4x4(&mCamToWorld_f, mCamToWorld);
+
+	PD3DDEVICE->SetTransform(D3DTS_TEXTURE1, reinterpret_cast<const D3DMATRIX*>(&mCamToWorld_f));
 }
 
 static void d3d_UnsetEnvMapTextureStates()
