@@ -32,6 +32,10 @@ define_holder(IClientShell, i_client_shell);
 #include "ilttexinterface.h"
 #endif
 
+
+namespace DX = DirectX;
+
+
 static ILTTexInterface *pTexInterface;
 define_holder(ILTTexInterface, pTexInterface);
 
@@ -378,8 +382,8 @@ void CD3DDrawPrim::SetCamera(LPDIRECT3DDEVICE9 pDevice)
 
 void CD3DDrawPrim::SetTransformMode(LPDIRECT3DDEVICE9 pDevice)
 {
-	D3DXMATRIX mIdentity; 
-	D3DXMatrixIdentity(&mIdentity);
+	DX::XMFLOAT4X4 mIdentity;
+	DX::XMStoreFloat4x4(&mIdentity, DX::XMMatrixIdentity());
 
 	CameraInstance* pCamera = NULL;
 
@@ -410,18 +414,22 @@ void CD3DDrawPrim::SetTransformMode(LPDIRECT3DDEVICE9 pDevice)
 		m_bResetViewport = true;
 
 		//setup our new projection based on player view parameters.
-		D3DXMATRIX NewProj;
+		DX::XMFLOAT4X4 NewProj;
 
 		float aspect = g_ScreenWidth / float(g_ScreenHeight);
 
-		D3DXMatrixPerspectiveFovLH(&NewProj,g_CV_PVModelFOV.m_Val * 0.01745329251994f, 
-											aspect, 
-											g_CV_ModelNear.m_Val, 
-											g_CV_ModelFar.m_Val);
+		DX::XMStoreFloat4x4(
+			&NewProj,
+			DX::XMMatrixPerspectiveFovLH(
+				g_CV_PVModelFOV.m_Val * 0.01745329251994f,
+				aspect,
+				g_CV_ModelNear.m_Val,
+				g_CV_ModelFar.m_Val)
+		);
 
 		//setup the new matrices
-		PD3DDEVICE->SetTransform(D3DTS_PROJECTION, &NewProj);
-		PD3DDEVICE->SetTransform(D3DTS_VIEW,&mIdentity);
+		PD3DDEVICE->SetTransform(D3DTS_PROJECTION, reinterpret_cast<const D3DMATRIX*>(&NewProj));
+		PD3DDEVICE->SetTransform(D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&mIdentity));
 	}
 	else
 	{
@@ -456,11 +464,11 @@ void CD3DDrawPrim::SetTransformMode(LPDIRECT3DDEVICE9 pDevice)
 
 				d3d_SetD3DTransformStates(cDrawPrimParams);
 			} 
-			g_RenderStateMgr.SetTransform(D3DTS_VIEW,&mIdentity); 
+			g_RenderStateMgr.SetTransform(D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&mIdentity)); 
 			break;
 			
 		case DRAWPRIM_TRANSFORM_SCREEN : 
-			g_RenderStateMgr.SetTransform(D3DTS_PROJECTION,&mIdentity); 
+			g_RenderStateMgr.SetTransform(D3DTS_PROJECTION, reinterpret_cast<const D3DMATRIX*>(&mIdentity)); 
 			break; 
 
 		default:
@@ -690,10 +698,10 @@ void CD3DDrawPrim::PushRenderStates(LPDIRECT3DDEVICE9 pDevice)
 	pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
 	pDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
 
-	D3DXMATRIX mIdentity;
-	D3DXMatrixIdentity(&mIdentity);
+	DX::XMFLOAT4X4 mIdentity;
+	DX::XMStoreFloat4x4(&mIdentity, DX::XMMatrixIdentity());
 
-	g_RenderStateMgr.SetTransform(D3DTS_WORLDMATRIX(0), &mIdentity); 
+	g_RenderStateMgr.SetTransform(D3DTS_WORLDMATRIX(0), reinterpret_cast<const D3DMATRIX*>(&mIdentity));
 }
 
 // Reset the old renderstates...
