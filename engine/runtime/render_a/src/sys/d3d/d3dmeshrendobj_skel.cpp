@@ -472,6 +472,7 @@ void CD3DSkelMesh::Render(ModelInstance *pInstance, D3DMATRIX* pD3DTransforms, C
 				BoneSetListItem* pBoneSet = &m_pBoneSetArray[iBoneSet];
 				nNumActiveBones = SetTransformsToBoneSet(pBoneSet,pD3DTransforms, nNumActiveBones);
 
+#ifdef LTJS_USE_D3DX9
 				// Set the vertex shader constants.
 				if (m_pVertexShader != NULL)
 				{
@@ -499,6 +500,7 @@ void CD3DSkelMesh::Render(ModelInstance *pInstance, D3DMATRIX* pD3DTransforms, C
 					// Send the constants to the video card.
 					LTPixelShaderMgr::GetSingleton().SetPixelShaderConstants(m_pPixelShader);
 				}
+#endif // LTJS_USE_D3DX9
 
 				RSD3DOptions rsD3DOptions;
 				pRenderStyle->GetDirect3D_Options(&rsD3DOptions);
@@ -535,6 +537,7 @@ void CD3DSkelMesh::Render(ModelInstance *pInstance, D3DMATRIX* pD3DTransforms, C
 		{
 			uint32 nNumActiveBones = SetMatrixPalette(m_iMinBone,m_iMaxBone,pD3DTransforms);
 
+#ifdef LTJS_USE_D3DX9
 			// Set the vertex shader constants.
 			if (m_pVertexShader != NULL)
 			{
@@ -562,6 +565,7 @@ void CD3DSkelMesh::Render(ModelInstance *pInstance, D3DMATRIX* pD3DTransforms, C
 				// Send the constants to the video card.
 				LTPixelShaderMgr::GetSingleton().SetPixelShaderConstants(m_pPixelShader);
 			}
+#endif // LTJS_USE_D3DX9
 
 			RSD3DOptions rsD3DOptions;
 			pRenderStyle->GetDirect3D_Options(&rsD3DOptions);
@@ -641,6 +645,7 @@ void CD3DSkelMesh::BeginRender(D3DMATRIX* pD3DTransforms, CD3DRenderStyle* pRend
 			ReCreateObject();
 		}
 
+#ifdef LTJS_USE_D3DX9
 		// Store the pointer to the actual shader during rendering.
 		m_pVertexShader = LTVertexShaderMgr::GetSingleton().GetVertexShader(pPass->VertexShaderID);
 		if (m_pVertexShader != NULL)
@@ -652,6 +657,7 @@ void CD3DSkelMesh::BeginRender(D3DMATRIX* pD3DTransforms, CD3DRenderStyle* pRend
 				return;
 			}
 		}
+#endif // LTJS_USE_D3DX9
 	}
 	else if (!m_VBController.getVertexFormat(0) || m_bNonFixPipeData)
 	{
@@ -675,6 +681,7 @@ void CD3DSkelMesh::BeginRender(D3DMATRIX* pD3DTransforms, CD3DRenderStyle* pRend
 	    pPass->bUsePixelShader &&
 		pPass->PixelShaderID != LTPixelShader::PIXELSHADER_INVALID)
 	{
+#ifdef LTJS_USE_D3DX9
 		// Store the pointer to the actual shader during rendering.
 		m_pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(pPass->PixelShaderID);
 		if (m_pPixelShader != NULL)
@@ -686,6 +693,7 @@ void CD3DSkelMesh::BeginRender(D3DMATRIX* pD3DTransforms, CD3DRenderStyle* pRend
 				return;
 			}
 		}
+#endif // LTJS_USE_D3DX9
 	}
 
 
@@ -730,6 +738,7 @@ void CD3DSkelMesh::EndRender()
 	PD3DDEVICE->SetStreamSource(0, 0, 0, 0);
 	PD3DDEVICE->SetIndices(0);
 
+#ifdef LTJS_USE_D3DX9
 	// Uninstall the vertex shader.
 	if (NULL != m_pVertexShader)
 	{
@@ -743,7 +752,6 @@ void CD3DSkelMesh::EndRender()
 		LTPixelShaderMgr::GetSingleton().UninstallPixelShader();
 		m_pPixelShader = NULL;
 	}
-
-
+#endif // LTJS_USE_D3DX9
 }
 

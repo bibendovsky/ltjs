@@ -760,6 +760,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 					//see if we need to load it
 					if (!s_bPixelShaderFailed)
 					{
+#ifdef LTJS_USE_D3DX9
 						// Get the pixel shader.
 						pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(LTPixelShader::PIXELSHADER_ENVBUMPMAP);
 						if (NULL == pPixelShader)
@@ -782,6 +783,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 								pStream->Release();
 							}
 						}
+#endif // LTJS_USE_D3DX9
 					}
 
 					// See if we can continue.
@@ -1319,6 +1321,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 	//setup the pixel shader if we are bumpmapping
 	if(bBumpMap)
 	{
+#ifdef LTJS_USE_D3DX9
 		assert(NULL != pPixelShader && pPixelShader->IsValidShader());
 
 		// Set the pixel shader constants.
@@ -1362,6 +1365,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 
 		d3d_DisableTexture(0);
 		d3d_DisableTexture(3);
+#endif // LTJS_USE_D3DX9
 	}
 	else
 	{

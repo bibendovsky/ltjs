@@ -27,10 +27,9 @@
 #define __D3D9TYPES_H__
 #endif
 
-#ifndef __D3DX9_H__
+#ifdef LTJS_USE_D3DX9
 #include <d3dx9.h>
-#define __D3DX9_H__
-#endif
+#endif // LTJS_USE_D3DX9
 
 
 #ifndef __D3D9CAPS_H__

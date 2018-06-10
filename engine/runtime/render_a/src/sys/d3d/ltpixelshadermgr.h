@@ -12,6 +12,9 @@
 #define __LTPIXELSHADERMGR_H__
 
 
+#ifdef LTJS_USE_D3DX9
+
+
 #include "ltbasedefs.h"
 #include "ltidtoobjecttable.h"
 
@@ -149,6 +152,8 @@ private:
 	LTPixelShaders				m_PixelShaders;			// list of pixel shaders loaded from file
 };
 
+
+#endif // LTJS_USE_D3DX9
 
 
 #endif // __LTPIXELSHADERMGR_H__

@@ -259,6 +259,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 			ReCreateObject();
 		}
 
+#ifdef LTJS_USE_D3DX9
 		// Store the pointer to the actual shader during rendering.
 		m_pVertexShader = LTVertexShaderMgr::GetSingleton().GetVertexShader(pPass->VertexShaderID);
 		if (m_pVertexShader != NULL)
@@ -270,6 +271,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 				return;
 			}
 		}
+#endif // LTJS_USE_D3DX9
 	}
 	else if (!rsD3DOptions.bUseEffectShader)		
 	{
@@ -289,6 +291,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 	    pPass->bUsePixelShader &&
 		pPass->PixelShaderID != LTPixelShader::PIXELSHADER_INVALID)
 	{
+#ifdef LTJS_USE_D3DX9
 		// Store the pointer to the actual shader during rendering.
 		m_pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(pPass->PixelShaderID);
 		if (m_pPixelShader != NULL)
@@ -300,6 +303,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 				return;
 			}
 		}
+#endif // LTJS_USE_D3DX9
 	}
 
 	// We need software processing 
@@ -315,6 +319,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 
 	m_VBController.SetStreamSources();
 
+#ifdef LTJS_USE_D3DX9
 	// Set the vertex shader constants.
 	if (m_pVertexShader != NULL)
 	{
@@ -342,6 +347,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 		// Send the constants to the video card.
 		LTPixelShaderMgr::GetSingleton().SetPixelShaderConstants(m_pPixelShader);
 	}
+#endif // LTJS_USE_D3DX9
 
 	if(rsD3DOptions.bUseEffectShader)
 	{
@@ -373,6 +379,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 	PD3DDEVICE->SetStreamSource(0, 0, 0, 0);
 	PD3DDEVICE->SetIndices(0);
 
+#ifdef LTJS_USE_D3DX9
 	// Uninstall the vertex shader.
 	if (NULL != m_pVertexShader)
 	{
@@ -386,6 +393,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 		LTPixelShaderMgr::GetSingleton().UninstallPixelShader();
 		m_pPixelShader = NULL;
 	}
+#endif // LTJS_USE_D3DX9
 }
 
 void CD3DVAMesh::CalcUsedNodes( Model *pModel )

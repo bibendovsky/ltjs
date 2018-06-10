@@ -863,6 +863,7 @@ void CRenderShadowList::RenderQueuedShadows(const ViewParams& Params)
 	//handle the actual blending
 	if(bBlurShadows)
 	{
+#ifdef LTJS_USE_D3DX9
 		// Get the pixel shader.
 		LTPixelShader *pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(LTPixelShader::PIXELSHADER_SHADOWBLUR);
 		if (NULL == pPixelShader)
@@ -892,6 +893,7 @@ void CRenderShadowList::RenderQueuedShadows(const ViewParams& Params)
 			s_bFailedPSHandle = false;
 		}
 		else
+#endif // LTJS_USE_D3DX9
 		{
 			s_bFailedPSHandle = true;
 		}
@@ -1162,6 +1164,7 @@ bool CRenderShadowList::BlurShadowTexture(uint32 nSrcTex, uint32 nDestTex)
 		}
 	}
 
+#ifdef LTJS_USE_D3DX9
 	//determine if we can use the pixel shader version and do it in a single pass
 	bool bUsePixelShader 		= false;
 	LTPixelShader *pPixelShader = NULL;
@@ -1175,6 +1178,9 @@ bool CRenderShadowList::BlurShadowTexture(uint32 nSrcTex, uint32 nDestTex)
 	}
 
 	uint32	nNumTextures = (bUsePixelShader) ? 4 : 2;
+#else
+	uint32	nNumTextures = 2;
+#endif // LTJS_USE_D3DX9
 
 	//get the dimensions of the texture
 	float fWidth	= (float)m_nTextureRes;
@@ -1228,6 +1234,7 @@ bool CRenderShadowList::BlurShadowTexture(uint32 nSrcTex, uint32 nDestTex)
 			StateSet ssZWrite(D3DRS_ZWRITEENABLE, FALSE);
 
 			//alright, now we setup the vertices to give info to the blend
+#ifdef LTJS_USE_D3DX9
 			if(bUsePixelShader)
 			{
 				assert(pPixelShader->IsValidShader());
@@ -1251,6 +1258,7 @@ bool CRenderShadowList::BlurShadowTexture(uint32 nSrcTex, uint32 nDestTex)
 				LTPixelShaderMgr::GetSingleton().UninstallPixelShader();
 			}
 			else
+#endif // LTJS_USE_D3DX9
 			{
 				static CBlurTexture2PassVertex Verts[4];
 

@@ -608,13 +608,20 @@ if (MSVC)
 		APPEND
         libs
         ${path_to_dx_libs}/ddraw.lib
-        ${path_to_dx_libs}/d3dx9.lib
         ${path_to_dx_libs}/d3d9.lib
         ${path_to_dx_libs}/dxguid.lib
         ${path_to_dx_libs}/dinput8.lib
         ${path_to_dx_libs}/dplayx.lib
         winmm
     )
+
+	if (LTJS_USE_D3DX9)
+		list(
+			APPEND
+			libs
+			${path_to_dx_libs}/d3dx9.lib
+		)
+	endif ()
 endif ()
 
 if (NOT MSVC)
@@ -622,13 +629,20 @@ if (NOT MSVC)
 		APPEND
         libs
         d3d9
-        d3dx9
         dbghelp
         dxguid
         dinput8
         winmm
         ws2_32
     )
+
+	if (LTJS_USE_D3DX9)
+		list(
+			APPEND
+			libs
+			d3dx9
+		)
+	endif ()
 endif ()
 
 if (MINGW)

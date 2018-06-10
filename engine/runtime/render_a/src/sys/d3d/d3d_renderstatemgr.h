@@ -73,11 +73,14 @@ public:
 
 	inline HRESULT		SetVertexShader(HD3DVERTEXSHADER hVertShader)
 	{
+#ifdef LTJS_USE_D3DX9
 		HRESULT hr;
 		//m_VertexShader = hVertShader;
 		// right now this is only an FVF format
 		hr = PD3DDEVICE->SetVertexShader(NULL);
 		if (hr != D3D_OK) return hr;
+#endif // LTJS_USE_D3DX9
+
 		return PD3DDEVICE->SetFVF(hVertShader); 
 	}
 
