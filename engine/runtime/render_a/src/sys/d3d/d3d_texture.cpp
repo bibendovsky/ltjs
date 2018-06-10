@@ -33,8 +33,8 @@ public:
 		const UINT src_pitch,
 		const RECT& src_rect,
 		LPCVOID src_memory,
-		LPDIRECT3DSURFACE9 dst_surface,
-		const Filter dst_filter)
+		const Filter src_filter,
+		LPDIRECT3DSURFACE9 dst_surface)
 	{
 		switch (src_format)
 		{
@@ -51,7 +51,7 @@ public:
 			return false;
 		}
 
-		switch (dst_filter)
+		switch (src_filter)
 		{
 		case Filter::none:
 		case Filter::linear:
@@ -109,7 +109,7 @@ public:
 			return D3DERR_INVALIDCALL;
 		}
 
-		if (src_format == surface_desc.Format && dst_filter == Filter::none)
+		if (src_format == surface_desc.Format && src_filter == Filter::none)
 		{
 			D3DLOCKED_RECT locked_rect;
 
@@ -119,7 +119,7 @@ public:
 				return D3DERR_INVALIDCALL;
 			}
 
-			copy_without_filter(
+			copy(
 				surface_desc,
 				src_pitch,
 				static_cast<const std::uint8_t*>(src_memory),
@@ -129,32 +129,48 @@ public:
 
 			return D3D_OK;
 		}
-		else if (dst_filter == Filter::linear)
+		else if (src_filter == Filter::linear)
 		{
 			if (src_format == D3DFMT_A4R4G4B4 && surface_desc.Format == D3DFMT_A4R4G4B4)
 			{
+				D3DLOCKED_RECT locked_rect;
+
+				if (!lock_surface(dst_surface, locked_rect))
+				{
+					assert(!"Failed to lock a surface rectangle.");
+					return D3DERR_INVALIDCALL;
+				}
+
+				copy_argb16_linear(
+					surface_desc,
+					static_cast<int>(src_pitch),
+					static_cast<const std::uint8_t*>(src_memory),
+					locked_rect);
+
+				unlock_surface(dst_surface);
+
+				return D3D_OK;
 			}
 			else if (src_format == D3DFMT_A8R8G8B8 && surface_desc.Format == D3DFMT_V8U8)
 			{
+				return ::D3DXLoadSurfaceFromMemory(
+					dst_surface,
+					nullptr, // destination palette
+					nullptr, // destination rect
+					src_memory,
+					src_format,
+					src_pitch,
+					nullptr, // source palette
+					&src_rect,
+					D3DX_FILTER_LINEAR,
+					D3DCOLOR{} // color key
+				);
 			}
 			else
 			{
 				assert(!"Unsupported format combination.");
 				return D3DERR_INVALIDCALL;
 			}
-
-			return ::D3DXLoadSurfaceFromMemory(
-				dst_surface,
-				nullptr, // destination palette
-				nullptr, // destination rect
-				src_memory,
-				src_format,
-				src_pitch,
-				nullptr, // source palette
-				&src_rect,
-				D3DX_FILTER_LINEAR,
-				D3DCOLOR{} // color key
-			);
 		}
 		else
 		{
@@ -222,9 +238,9 @@ private:
 		}
 	}
 
-	static void copy_without_filter(
+	static void copy(
 		const D3DSURFACE_DESC& surface_desc,
-		const UINT src_pitch,
+		const int src_pitch,
 		const std::uint8_t* src_memory,
 		const D3DLOCKED_RECT& locked_rect)
 	{
@@ -236,11 +252,13 @@ private:
 			return;
 		}
 
-		const auto row_block_count = (surface_desc.Width + block_desc.width_ - 1) / block_desc.width_;
+		const auto width = static_cast<int>(surface_desc.Width);
+		const auto height = static_cast<int>(surface_desc.Height);
+		const auto row_block_count = (width + block_desc.width_ - 1) / block_desc.width_;
 		const auto row_size = row_block_count * block_desc.size_;
-		const auto row_count = (surface_desc.Height + block_desc.height_ - 1) / block_desc.height_;
+		const auto row_count = (height + block_desc.height_ - 1) / block_desc.height_;
 
-		const auto dst_pitch = static_cast<UINT>(locked_rect.Pitch);
+		const auto dst_pitch = locked_rect.Pitch;
 		auto dst_memory = static_cast<std::uint8_t*>(locked_rect.pBits);
 
 		if (src_pitch == dst_pitch && src_pitch == row_size)
@@ -257,13 +275,97 @@ private:
 			auto src_row = src_memory;
 			auto dst_row = dst_memory;
 
-			for (auto h = UINT{}; h < row_count; ++h)
+			for (auto h = 0; h < row_count; ++h)
 			{
 				std::uninitialized_copy_n(src_row, row_size, dst_row);
 
 				src_row += src_pitch;
 				dst_row += dst_pitch;
 			}
+		}
+	}
+
+	static std::uint16_t interpolate_pixel_linearly_a4r4g4b4(
+		const int x,
+		const int y,
+		const int width,
+		const int height,
+		const int src_pitch,
+		const std::uint8_t* src_memory)
+	{
+		constexpr auto max_sample_count = 4;
+
+		struct SampleDelta
+		{
+			int dx;
+			int dy;
+		}; // SampleDelta
+
+		constexpr SampleDelta sample_deltas[max_sample_count] =
+		{
+			{0, -1}, {-1, 0}, {0, 1}, {1, 0},
+		};
+
+		auto a_sum = 0;
+		auto r_sum = 0;
+		auto g_sum = 0;
+		auto b_sum = 0;
+		auto sample_count = 0;
+
+		for (auto i = 0; i < max_sample_count; ++i)
+		{
+			const auto& sample_delta = sample_deltas[i];
+			const auto new_x = x + sample_delta.dx;
+			const auto new_y = y + sample_delta.dy;
+
+			if (new_x < 0 || new_x >= width || new_y < 0 || new_y >= height)
+			{
+				continue;
+			}
+
+			const auto pixel_a4r4g4b4 =
+				*(reinterpret_cast<const std::uint16_t*>(src_memory + (new_y * src_pitch)) + new_x);
+
+			a_sum += (pixel_a4r4g4b4 >> 12) & 0xF;
+			r_sum += (pixel_a4r4g4b4 >> 8) & 0xF;
+			g_sum += (pixel_a4r4g4b4 >> 4) & 0xF;
+			b_sum += pixel_a4r4g4b4 & 0xF;
+
+			sample_count += 1;
+		}
+
+		return static_cast<std::uint16_t>(
+			((a_sum / sample_count) << 12) |
+			((r_sum / sample_count) << 8) |
+			((g_sum / sample_count) << 4) |
+			(b_sum / sample_count)
+		);
+	}
+
+	static void copy_argb16_linear(
+		const D3DSURFACE_DESC& surface_desc,
+		const int src_pitch,
+		const std::uint8_t* src_memory,
+		const D3DLOCKED_RECT& locked_rect)
+	{
+		auto dst_memory = static_cast<std::uint8_t*>(locked_rect.pBits);
+
+		for (auto h = 0; h < static_cast<int>(surface_desc.Height); ++h)
+		{
+			auto dst_row = reinterpret_cast<std::uint16_t*>(dst_memory);
+
+			for (auto w = 0; w < static_cast<int>(surface_desc.Width); ++w)
+			{
+				dst_row[w] = interpolate_pixel_linearly_a4r4g4b4(
+					w,
+					h,
+					static_cast<int>(surface_desc.Width),
+					static_cast<int>(surface_desc.Height),
+					static_cast<int>(src_pitch),
+					src_memory);
+			}
+
+			dst_memory += locked_rect.Pitch;
 		}
 	}
 
@@ -640,8 +742,8 @@ bool CTextureManager::ConvertTexDataToDD(uint8* pSrcData, PFormat* SrcFormat, ui
 		SrcPitch,
 		SrcRect,
 		pSrcData,
-		pD3DDstSurface,
-		SurfaceLoader::Filter::linear);
+		SurfaceLoader::Filter::linear,
+		pD3DDstSurface);
 
 	// Lock it and copy out it's data...
 	D3DLOCKED_RECT LockedRect; pD3DDstSurface->LockRect(&LockedRect,NULL,NULL); 
@@ -698,8 +800,8 @@ bool CTextureManager::UploadRTexture(TextureData* pSrcTexture, uint32 iSrcLvl, R
 				SrcPitch,
 				SrcRect,
 				pSrcData,
-				pDstSurface,
-				SurfaceLoader::Filter::none);
+				SurfaceLoader::Filter::none,
+				pDstSurface);
 
 			uint32 iRefCnt = pDstSurface->Release();
             static_cast<void>(iRefCnt);
@@ -735,8 +837,8 @@ bool CTextureManager::UploadRTexture(TextureData* pSrcTexture, uint32 iSrcLvl, R
 				SrcPitch,
 				SrcRect,
 				pSrcData,
-				pDstSurface,
-				SurfaceLoader::Filter::none);
+				SurfaceLoader::Filter::none,
+				pDstSurface);
 		
 		pDstSurface->Release();
 		if (hResult != D3D_OK) 
