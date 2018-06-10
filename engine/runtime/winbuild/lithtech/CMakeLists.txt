@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5.1)
 project(ltjs_lith_tech VERSION 0.0.1 LANGUAGES CXX)
 
 option(LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
+option(LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
 
 include(ltjs_common)
 
@@ -565,6 +566,13 @@ target_compile_definitions(
     PRIVATE MODEL_SUPPORT_ABC
     PRIVATE $<$<CONFIG:DEBUG>:D3D_DEBUG_INFO>
 )
+
+if (LTJS_USE_D3DX9)
+	target_compile_definitions(
+		ltjs_lith_tech
+		PRIVATE LTJS_USE_D3DX9
+	)
+endif ()
 
 if (LTJS_USE_DIRECT_MUSIC8)
 	target_compile_definitions(

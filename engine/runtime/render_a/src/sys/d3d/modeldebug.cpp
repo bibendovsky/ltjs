@@ -5,7 +5,6 @@
 #include "d3dmeshrendobj_rigid.h"
 #include "lteffectshadermgr.h"
 #include "lteffectimpl.h"
-
 #include "setupmodel.h"
 #include "d3d_utils.h"
 #include "d3d_device.h"
@@ -341,6 +340,7 @@ void NModelDebug::DrawModelVertexNormals(ModelInstance* pInstance)
 					pRenderStyle->GetDirect3D_Options(&options);
 					if(options.bUseEffectShader)
 					{
+#ifdef LTJS_USE_D3DX9
 						LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(options.EffectShaderID);
 						IDirect3DVertexDeclaration9* pDecl = pEffect->GetVertexDeclaration();
 						if(pDecl)
@@ -588,6 +588,7 @@ void NModelDebug::DrawModelVertexNormals(ModelInstance* pInstance)
 
 							}
 						}
+#endif // LTJS_USE_D3DX9
 					}
 				}
 			}

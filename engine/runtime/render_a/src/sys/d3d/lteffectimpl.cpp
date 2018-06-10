@@ -1,5 +1,9 @@
-
 #include "precompile.h"
+
+
+#ifdef LTJS_USE_D3DX9
+
+
 #include "lteffectimpl.h"
 #include "rendererconsolevars.h"
 #include "render.h"
@@ -449,3 +453,6 @@ LTRESULT LTEffectImpl::UploadVertexDeclaration()
 
 	return LT_OK;
 }
+
+
+#endif // LTJS_USE_D3DX9

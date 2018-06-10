@@ -8,7 +8,13 @@
 //
 //------------------------------------------------------------------
 
+
 #include "precompile.h"
+
+
+#ifdef LTJS_USE_D3DX9
+
+
 #include "lteffectshadermgr.h"
 #include "d3d_device.h"
 #include "d3d_utils.h"
@@ -176,3 +182,6 @@ void LTEffectShaderMgr::RecreateEffectShaders()
 		pShader = (LTEffectImpl*)(pShader->GetNext());
 	}
 }
+
+
+#endif // LTJS_USE_D3DX9

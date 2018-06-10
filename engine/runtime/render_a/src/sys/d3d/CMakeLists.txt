@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(ltjs_lib_d3d_render VERSION 0.0.1 LANGUAGES CXX)
 
+option(LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
+
 include(ltjs_common)
 
 include_directories(
@@ -283,3 +285,10 @@ target_compile_definitions(
     PRIVATE MODEL_SUPPORT_ABC
     PRIVATE $<$<CONFIG:DEBUG>:D3D_DEBUG_INFO>
 )
+
+if (LTJS_USE_D3DX9)
+	target_compile_definitions(
+		ltjs_lib_d3d_render
+		PRIVATE LTJS_USE_D3DX9
+	)
+endif ()

@@ -14,10 +14,8 @@ define_holder(IClientShell, i_client_shell);
 #include "tagnodes.h"
 #include "drawobjects.h"
 #include "rendererframestats.h"
-
 #include "renderstruct.h"
 #include "counter.h"
-
 #include "lteffectimpl.h"
 #include "lteffectshadermgr.h"
 #include "ltshaderdevicestateimp.h"
@@ -337,7 +335,8 @@ static void d3d_DrawRotatableSprite(const ViewParams& Params, SpriteInstance *pI
 				  (fZ + fBiasDist) * Params.m_Forward + Params.m_Pos;
 		}
 	}
-	
+
+#ifdef LTJS_USE_D3DX9
 	LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pInstance->m_nEffectShaderID);
 	if(pEffect)
 	{
@@ -366,6 +365,7 @@ static void d3d_DrawRotatableSprite(const ViewParams& Params, SpriteInstance *pI
 
 	}
 	else
+#endif // LTJS_USE_D3DX9
 	{	
 		D3D_CALL(PD3DDEVICE->SetVertexShader(NULL));
 		D3D_CALL(PD3DDEVICE->SetFVF(SPRITEVERTEX_FORMAT));
@@ -467,6 +467,7 @@ static void d3d_DrawSprite(const ViewParams& Params, SpriteInstance *pInstance, 
 	}
 
 	//Render our lovely verts
+#ifdef LTJS_USE_D3DX9
 	LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pInstance->m_nEffectShaderID);
 	if(pEffect)
 	{
@@ -495,6 +496,7 @@ static void d3d_DrawSprite(const ViewParams& Params, SpriteInstance *pInstance, 
 
 	}
 	else
+#endif // LTJS_USE_D3DX9
 	{	
 		D3D_CALL(PD3DDEVICE->SetVertexShader(NULL));
 		D3D_CALL(PD3DDEVICE->SetFVF(SPRITEVERTEX_FORMAT));

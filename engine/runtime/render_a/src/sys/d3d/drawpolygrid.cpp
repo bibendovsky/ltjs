@@ -34,7 +34,6 @@ define_holder(IClientShell, i_client_shell);
 #include "iltclient.h"
 #include "ltpixelshadermgr.h"
 #include "rendererframestats.h"
-
 #include "lteffectimpl.h"
 #include "lteffectshadermgr.h"
 #include "ltshaderdevicestateimp.h"
@@ -809,6 +808,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 				}
 				else
 				{
+#ifdef LTJS_USE_D3DX9
 					LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 					if(pEffect)
 					{
@@ -828,6 +828,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 
 						}
 					}else
+#endif // LTJS_USE_D3DX9
 					{
 						d3d_SetTexture(pBaseTex, 0, eFS_PolyGridBaseTexMemory);
 
@@ -936,6 +937,8 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 	uint32 nNumVerts;
 
 	bool bEffect = false;
+
+#ifdef LTJS_USE_D3DX9
 	LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 	if(pEffect)
 	{
@@ -945,6 +948,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			bEffect = true;
 		}
 	}
+#endif // LTJS_USE_D3DX9
 
 	if(bBumpMap)
 	{
@@ -1151,6 +1155,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			}
 
 			//now we need to generate the normals for the polygrid
+#ifdef LTJS_USE_D3DX9
 			LTEffectImpl* pEffect2 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 			if(pEffect2)
 			{
@@ -1161,6 +1166,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 				}
 			}
 			else
+#endif // LTJS_USE_D3DX9
 			{
 				GeneratePolyGridVectors(pGrid, (CPolyGridVertex*)g_TriVertList, GenerateNormal);
 			}
@@ -1267,6 +1273,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			}
 
 			//now we need to generate the normals for the polygrid
+#ifdef LTJS_USE_D3DX9
 			LTEffectImpl* pEffect3 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 			if(pEffect3)
 			{
@@ -1277,6 +1284,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 				}
 			}
 			else
+#endif // LTJS_USE_D3DX9
 			{
 				GeneratePolyGridVectors(pGrid, (CPolyGridVertex*)g_TriVertList, GenerateNormal);
 			}
@@ -1372,7 +1380,8 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			while(nRemainingPolies > 0)
 			{
 				uint32 nPoliesThisFrame = (nRemainingPolies > g_CV_PolyGridBufferSize) ? g_CV_PolyGridBufferSize: nRemainingPolies;
-				
+
+#ifdef LTJS_USE_D3DX9
 				LTEffectImpl* pEffect4 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 				if(pEffect4)
 				{
@@ -1398,6 +1407,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 
 				}
 				else
+#endif // LTJS_USE_D3DX9
 				{
 					D3D_CALL(PD3DDEVICE->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST,0,nNumVerts,nPoliesThisFrame,&pGrid->m_Indices[nCurrentVertPosition],D3DFMT_INDEX16,g_TriVertList, nVertexSize));
 				}
@@ -1408,6 +1418,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 		}
 		else
 		{
+#ifdef LTJS_USE_D3DX9
 			LTEffectImpl* pEffect5 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 			if(pEffect5)
 			{
@@ -1433,6 +1444,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 
 			}
 			else
+#endif // LTJS_USE_D3DX9
 			{
 				// No Effect Shader, just fixed function.
 				D3D_CALL(PD3DDEVICE->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST,0,nNumVerts,(pGrid->m_nIndices)/3,pGrid->m_Indices,D3DFMT_INDEX16,g_TriVertList, nVertexSize));

@@ -48,6 +48,7 @@ public:
 	virtual void Init() = 0;
 	virtual void Term() = 0;
 
+#ifdef LTJS_USE_D3DX9
 	/*!
 	\param  pFileName	Filename of the Effect file.
 	\param  EffectShaderID	Effect Shader ID to create.
@@ -82,6 +83,7 @@ public:
 
 	*/
 	virtual LTRESULT CreateEffectPool (HEFFECTPOOL EffectPoolID) = 0;
+#endif // LTJS_USE_D3DX9
 
 	/*!
 	\param  nWidth Width of the render target. (in pixels)
@@ -166,6 +168,7 @@ public:
 	*/
 	virtual LTRESULT SaveCurrentFrameToPrevious() = 0;
 
+#ifdef LTJS_USE_D3DX9
 	/*!
 	\param  pEffect	LTEffectShader pointer.
 	\param  szParam Parameter name to use to pass into the EffectShader.
@@ -185,7 +188,7 @@ public:
 
 	*/
 	virtual LTRESULT UploadPreviousFrameToEffect(LTEffectShader* pEffect, const char* szParam) = 0;
-
+#endif // LTJS_USE_D3DX9
 };
 
 

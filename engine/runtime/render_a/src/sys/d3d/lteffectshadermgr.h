@@ -12,6 +12,9 @@
 #define __LTEFFECTSHADERMGR_H__
 
 
+#ifdef LTJS_USE_D3DX9
+
+
 #include "ltbasedefs.h"
 #include "ltidtoobjecttable.h"
 #include "lteffectimpl.h"
@@ -74,6 +77,8 @@ private:
 	LTEffectPools				m_EffectPools;
 };
 
+
+#endif // LTJS_USE_D3DX9
 
 
 #endif // __LTEFFECTSHADERMGR_H__
