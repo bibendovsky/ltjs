@@ -17,9 +17,7 @@ define_holder(IClientShell, i_client_shell);
 #include "renderstruct.h"
 #include "3d_ops.h"
 #include "memstats_world.h"
-
 #include "d3d_rendershader_dynamiclight.h"
-
 #include "lteffectimpl.h"
 #include "lteffectshadermgr.h"
 #include "ltshaderdevicestateimp.h"
@@ -2926,6 +2924,7 @@ bool CRenderShader_Gouraud_Effect::ValidateShader(const CRBSection &cSection)
 	{
 		if(cSection.m_pTexture[0]->m_nShaderID != 0)
 		{
+#ifdef LTJS_USE_D3DX9
 			LTEffectImpl* _pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(cSection.m_pTexture[0]->m_nShaderID);
 
 			bool bPassed = true;
@@ -2952,6 +2951,7 @@ bool CRenderShader_Gouraud_Effect::ValidateShader(const CRBSection &cSection)
 			}
 
 			if(!bPassed)
+#endif // LTJS_USE_D3DX9
 			{
 				dsi_ConsolePrint("Effect ID %d Failed to find a valid Technique for this device!", cSection.m_pTexture[0]->m_nShaderID);
 				s_bValidateResult = false;
@@ -3054,6 +3054,7 @@ bool CRenderShader_Gouraud_Effect::FlushWithEffect(CInternalSection &cSection,
 													uint32 nStartIndex, uint32 nEndIndex,
 													uint32 nStartVertex, uint32 nEndVertex)
 {
+#ifdef LTJS_USE_D3DX9
 	// If we have an Effect Shader attached to this section
 	//if(cSection.m_pTexture && (cSection.m_pTexture->m_nShaderID != 0))
 	//{
@@ -3152,6 +3153,9 @@ bool CRenderShader_Gouraud_Effect::FlushWithEffect(CInternalSection &cSection,
 	//}
 
 	//return false;
+#else
+	return false;
+#endif // LTJS_USE_D3DX9
 }
 
 void CRenderShader_Gouraud_Effect::PostFlushBlock(CInternalSection &cSection, 

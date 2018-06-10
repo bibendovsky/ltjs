@@ -9,6 +9,10 @@
 #include "common_draw.h"
 #include "renderstylelookuptables.h"
 
+
+namespace DX = DirectX;
+
+
 // EXTERNS
 //extern uint32 g_CurFrameCode;				// Current Frame Code (Frame Number)...
 
@@ -44,9 +48,16 @@ void CD3DRenderStateMgr::FreeAll()
 // Reset the internal state (Note: This doesn't free stuff - if this isn't a first time thing, call FreeAll() first)...
 void CD3DRenderStateMgr::Reset()
 {
-	for (uint32 i = 0; i < MAX_WORLDMATRIX; ++i) D3DXMatrixIdentity(&m_World[i]);
-	D3DXMatrixIdentity(&m_View);
-	D3DXMatrixIdentity(&m_Proj);
+	const auto identity_mat4 = DX::XMMatrixIdentity();
+
+	for (uint32 i = 0; i < MAX_WORLDMATRIX; ++i)
+	{
+		DX::XMStoreFloat4x4(&m_World[i], identity_mat4);
+	}
+
+	DX::XMStoreFloat4x4(&m_View, identity_mat4);
+	DX::XMStoreFloat4x4(&m_Proj, identity_mat4);
+
 	m_VertexShader				= NULL;
 	m_pBackupRenderStyle		= NULL;
 
@@ -260,11 +271,13 @@ bool CD3DRenderStateMgr::SetRenderStyleStates(CD3DRenderStyle* pRenderStyle, uin
 				LTMatrix mInvWorld = g_ViewParams.m_mInvView;
 				mInvWorld.Transpose();
 				mInvWorld = *((LTMatrix*)RenderPass.TextureStages[iTexStage].UVTransform_Matrix) * mInvWorld;
-				PD3DDEVICE->SetTransform(nTransform, (D3DXMATRIX*)&mInvWorld);
+				PD3DDEVICE->SetTransform(nTransform, reinterpret_cast<const D3DMATRIX*>(&mInvWorld));
 			}
 			else
 			{
-				PD3DDEVICE->SetTransform(nTransform, (D3DXMATRIX*)RenderPass.TextureStages[iTexStage].UVTransform_Matrix);
+				PD3DDEVICE->SetTransform(
+					nTransform,
+					reinterpret_cast<const D3DMATRIX*>(RenderPass.TextureStages[iTexStage].UVTransform_Matrix));
 			}
 		}
 		else
@@ -287,9 +300,11 @@ bool CD3DRenderStateMgr::SetRenderStyleStates(CD3DRenderStyle* pRenderStyle, uin
 
 void CD3DRenderStateMgr::SetBumpEnvMapMatrix(uint32 BumpEnvMapStage)
 {
-	D3DVIEWPORT9 vp; PD3DDEVICE->GetViewport(&vp);
+	D3DVIEWPORT9 vp;
+	PD3DDEVICE->GetViewport(&vp);
 
-	D3DXMATRIX VS; ZeroMemory(&VS, sizeof(D3DMATRIX));
+	DX::XMFLOAT4X4 VS;
+	ZeroMemory(&VS, sizeof(DX::XMFLOAT4X4));
 	VS._11	= (float)vp.Width/2;						// Create view scaling matrix:
 	VS._22	= -(float)(vp.Height/2);					// | Width/2    0           0          0 |
 	VS._33	= (float)(vp.MaxZ - vp.MinZ);				// | 0          -Height/2   0          0 |
@@ -298,23 +313,45 @@ void CD3DRenderStateMgr::SetBumpEnvMapMatrix(uint32 BumpEnvMapStage)
 	VS._43	= (float)vp.MinZ;
 	VS._44	= 1.0f;
 
-	D3DXMATRIX mat, mat2, mat3;							// Generate D3D pipeline's model to screen transformation.
-	D3DXMatrixMultiply(&mat,  &m_Proj,  &VS);
-	D3DXMatrixMultiply(&mat2, &m_View,  &mat);
-	D3DXMatrixMultiply(&mat3, &m_World[0], &mat2);
+	// Generate D3D pipeline's model to screen transformation.
+	DX::XMFLOAT4X4 mat;
+	DX::XMFLOAT4X4 mat2;
+	DX::XMFLOAT4X4 mat3;
 
-	D3DXVECTOR3 v(0.0f,0.0f,0.0f);						// Transform X (1, 0, 0) and Y (0, 1, 0) vectors to screen space for this transformation.
-	D3DXVECTOR4 res; D3DXVec3Transform(&res, &v, &mat3);
-	D3DXVECTOR3 Screenv0, Screenv1, Screenu0, Screenu1;
-	Screenv0.x = Screenu0.x = res.x; Screenv0.y = Screenu0.y = res.y; Screenv0.z = Screenu0.z = res.z;
+	DX::XMStoreFloat4x4(&mat, DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&m_Proj), DX::XMLoadFloat4x4(&VS)));
+	DX::XMStoreFloat4x4(&mat2, DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&m_View), DX::XMLoadFloat4x4(&mat)));
+	DX::XMStoreFloat4x4(&mat3, DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&m_World[0]), DX::XMLoadFloat4x4(&mat2)));
 
-	v.x = 1.0f; v.y = 0.0f; v.z = 0.0f;
-	D3DXVec3Transform(&res, &v, &mat3);
-	Screenu1.x = res.x; Screenu1.y = res.y; Screenu1.z = res.z;
+	// Transform X (1, 0, 0) and Y (0, 1, 0) vectors to screen space for this transformation.
+	auto v = DX::XMFLOAT3{0.0F, 0.0F, 0.0F};
+	DX::XMFLOAT4 res;
+	DX::XMStoreFloat4(&res, DX::XMVector3Transform(DX::XMLoadFloat3(&v), DX::XMLoadFloat4x4(&mat3)));
+	DX::XMFLOAT3 Screenv0;
+	DX::XMFLOAT3 Screenv1;
+	DX::XMFLOAT3 Screenu0;
+	DX::XMFLOAT3 Screenu1;
+	Screenv0.x = res.x;
+	Screenu0.x = res.x;
+	Screenv0.y = res.y;
+	Screenu0.y = res.y;
+	Screenv0.z = res.z;
+	Screenu0.z = res.z;
 
-	v.x = 0.0f; v.y = 0.0f; v.z = 1.0f;
-	D3DXVec3Transform(&res, &v, &mat3);
-	Screenv1.x = res.x; Screenv1.y = res.y; Screenv1.z = res.z;
+	v.x = 1.0f;
+	v.y = 0.0f;
+	v.z = 0.0f;
+	DX::XMStoreFloat4(&res, DX::XMVector3Transform(DX::XMLoadFloat3(&v), DX::XMLoadFloat4x4(&mat3)));
+	Screenu1.x = res.x;
+	Screenu1.y = res.y;
+	Screenu1.z = res.z;
+
+	v.x = 0.0f;
+	v.y = 0.0f;
+	v.z = 1.0f;
+	DX::XMStoreFloat4(&res, DX::XMVector3Transform(DX::XMLoadFloat3(&v), DX::XMLoadFloat4x4(&mat3)));
+	Screenv1.x = res.x;
+	Screenv1.y = res.y;
+	Screenv1.z = res.z;
 
 	float dy = Screenu1.y - Screenu0.y;
 	float dx = Screenu1.x - Screenu0.x;

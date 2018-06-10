@@ -122,10 +122,10 @@ private:
 	IDirect3DBaseTexture9*	m_pShadowTexture;
 
 	//the matrix to convert the world points to the projector space
-	D3DXMATRIX				m_mWorldToProjector;
+	DirectX::XMFLOAT4X4 m_mWorldToProjector;
 
 	//the matrix that handles the texture transform for the fade texture
-	D3DXMATRIX				m_mFadeTex;
+	DirectX::XMFLOAT4X4 m_mFadeTex;
 
 	//the position of the projector for culling
 	LTVector				m_vProjectorPos;

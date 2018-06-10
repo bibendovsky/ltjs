@@ -208,7 +208,7 @@ static bool HandleReallyCloseEnvMapPanning(ModelInstance* pInstance, CD3DRenderS
 				}
 				else if(bPrevWasSet)
 				{
-					g_RenderStateMgr.SetTransform(D3DTS_TEXTURE1, (D3DXMATRIX*)&RenderPass.TextureStages[1].UVTransform_Matrix);
+					g_RenderStateMgr.SetTransform(D3DTS_TEXTURE1, (D3DMATRIX*)&RenderPass.TextureStages[1].UVTransform_Matrix);
 				}
 			}
 		}
@@ -509,6 +509,7 @@ void CRenderModelPieceList::RenderPieceList(float fAlpha)
 					IncFrameStat(eFS_ModelRender_ScaleSets, 1);
 				}
 
+#ifdef LTJS_USE_D3DX9
 				LTEffectImpl* _pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(rsD3DOptions.EffectShaderID);
 				ID3DXEffect* pEffect = _pEffect->GetEffect();
 
@@ -561,6 +562,7 @@ void CRenderModelPieceList::RenderPieceList(float fAlpha)
 					//ok, we can finally render our piece
 					//RenderModelPiece(Piece.m_pRenderPiece, Piece.m_pInstance, Piece.m_pTransforms, pCurrRenderStyle, nCurrPass, true);
 				}
+#endif // LTJS_USE_D3DX9
 			}
 
 			//we should end any outstanding pieces being rendered so the changing of the pass won't mess them up

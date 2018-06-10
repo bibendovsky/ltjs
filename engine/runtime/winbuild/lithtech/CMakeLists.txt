@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.5.1)
 project(ltjs_lith_tech VERSION 0.0.1 LANGUAGES CXX)
 
 option(LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
+option(LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
+
+if (LTJS_USE_DIRECT_MUSIC8 OR LTJS_USE_D3DX9)
+	set(LTJS_USE_BUNDLED_DIRECTX ON)
+endif ()
 
 include(ltjs_common)
 
@@ -11,7 +16,7 @@ find_package(LTJS_FFmpeg REQUIRED 2.8.11)
 include_directories(
 	${LTJS_FFMPEG_INCLUDE_DIR}
     .
-    ../../../../directx/include
+	../../../../libs/DirectXMath/Inc
     ../../../../libs/bibendovsky_spul_lib/include
     ../../../../libs/lith
     ../../../../libs/mfcstub
@@ -46,6 +51,12 @@ include_directories(
     ../../ui/src
     ../../world/src
 )
+
+if (LTJS_USE_BUNDLED_DIRECTX)
+	include_directories(
+		../../../../../../directx/include
+	)
+endif ()
 
 set(
     headers
@@ -572,6 +583,20 @@ if (LTJS_USE_DIRECT_MUSIC8)
 	)
 endif ()
 
+if (LTJS_USE_D3DX9)
+	target_compile_definitions(
+		ltjs_lith_tech
+		PRIVATE LTJS_USE_D3DX9
+	)
+endif ()
+
+if (LTJS_USE_BUNDLED_DIRECTX)
+	target_compile_definitions(
+		ltjs_lib_d3d_render
+		PRIVATE LTJS_USE_BUNDLED_DIRECTX
+	)
+endif ()
+
 set_target_properties(
     ltjs_lith_tech
     PROPERTIES
@@ -590,22 +615,49 @@ if (MSVC)
             LINK_FLAGS /SUBSYSTEM:WINDOWS
     )
 
-    set(
-        path_to_dx_libs
-        ${CMAKE_SOURCE_DIR}/directx/lib/x86
-    )
+	if (LTJS_USE_BUNDLED_DIRECTX)
+		set(
+			path_to_dx_libs
+			${CMAKE_SOURCE_DIR}/directx/lib/x86
+		)
 
-    list(
-		APPEND
-        libs
-        ${path_to_dx_libs}/ddraw.lib
-        ${path_to_dx_libs}/d3dx9.lib
-        ${path_to_dx_libs}/d3d9.lib
-        ${path_to_dx_libs}/dxguid.lib
-        ${path_to_dx_libs}/dinput8.lib
-        ${path_to_dx_libs}/dplayx.lib
-        winmm
-    )
+		list(
+			APPEND
+			libs
+			${path_to_dx_libs}/ddraw.lib
+			${path_to_dx_libs}/d3d9.lib
+			${path_to_dx_libs}/dxguid.lib
+			${path_to_dx_libs}/dinput8.lib
+			${path_to_dx_libs}/dplayx.lib
+			winmm
+		)
+
+		if (LTJS_USE_D3DX9)
+			list(
+				APPEND
+				libs
+				${path_to_dx_libs}/d3dx9.lib
+			)
+		endif ()
+	else ()
+		list(
+			APPEND
+			libs
+			d3d9
+			dxguid
+			dinput8
+			winmm
+			ws2_32
+		)
+
+		if (LTJS_USE_D3DX9)
+			list(
+				APPEND
+				libs
+				d3dx9
+			)
+		endif ()
+	endif ()
 endif ()
 
 if (NOT MSVC)
@@ -613,13 +665,19 @@ if (NOT MSVC)
 		APPEND
         libs
         d3d9
-        d3dx9
-        dbghelp
         dxguid
         dinput8
         winmm
         ws2_32
     )
+
+	if (LTJS_USE_D3DX9)
+		list(
+			APPEND
+			libs
+			d3dx9
+		)
+	endif ()
 endif ()
 
 if (MINGW)

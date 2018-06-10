@@ -1,6 +1,10 @@
 #ifndef _LT_EFFECTIMPL_H_
 #define _LT_EFFECTIMPL_H_
 
+
+#ifdef LTJS_USE_D3DX9
+
+
 #include "ltbasedefs.h"
 
 struct ID3DXEffect;
@@ -66,5 +70,9 @@ protected:
 	unsigned						m_ByteCodeSize;			// size of byte code array
 	HEFFECTPOOL						m_EffectPoolID;
 };
+
+
+#endif // LTJS_USE_D3DX9
+
 
 #endif

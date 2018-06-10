@@ -4,6 +4,9 @@
 #ifndef __D3D_RENDERSTATEMGR_H__
 #define __D3D_RENDERSTATEMGR_H__
 
+
+#include "DirectXMath.h"
+
 #ifndef __D3D_RENDERSTYLE_H__
 #include "d3d_renderstyle.h"
 #endif
@@ -70,11 +73,14 @@ public:
 
 	inline HRESULT		SetVertexShader(HD3DVERTEXSHADER hVertShader)
 	{
+#ifdef LTJS_USE_D3DX9
 		HRESULT hr;
 		//m_VertexShader = hVertShader;
 		// right now this is only an FVF format
 		hr = PD3DDEVICE->SetVertexShader(NULL);
 		if (hr != D3D_OK) return hr;
+#endif // LTJS_USE_D3DX9
+
 		return PD3DDEVICE->SetFVF(hVertShader); 
 	}
 
@@ -98,10 +104,10 @@ private:
 	CD3DRenderStyle*	m_pBackupRenderStyle;
 
 	// Current State...
-	D3DXMATRIX			m_World[MAX_WORLDMATRIX];
-	D3DXMATRIX			m_View;
-	D3DXMATRIX			m_Proj;
-	list<D3DXMATRIX>	m_PrevWorld;
+	DirectX::XMFLOAT4X4 m_World[MAX_WORLDMATRIX];
+	DirectX::XMFLOAT4X4 m_View;
+	DirectX::XMFLOAT4X4 m_Proj;
+	list<DirectX::XMFLOAT4X4> m_PrevWorld;
 	HD3DVERTEXSHADER	m_VertexShader;
 	D3DMATERIAL9		m_Material;
 	FourFloatVector		m_AmbientLight;

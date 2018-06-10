@@ -9,6 +9,11 @@
 //------------------------------------------------------------------
 
 #include "precompile.h"
+
+
+#ifdef LTJS_USE_D3DX9
+
+
 #include "ltvertexshadermgr.h"
 #include "d3d_device.h"
 #include "d3d_utils.h"
@@ -406,3 +411,6 @@ void LTVertexShaderMgr::UninstallVertexShader() const
 {
 	PD3DDEVICE->SetVertexShader(NULL);
 }
+
+
+#endif // LTJS_USE_D3DX9

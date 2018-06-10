@@ -12,6 +12,10 @@
 
 #pragma warning(disable : 4800)									// Disable the uint8 to bool warning...
 
+
+namespace DX = DirectX;
+
+
 ILTRenderStyles *g_pRenderStylesInterface;
 define_holder(ILTRenderStyles, g_pRenderStylesInterface);
 
@@ -268,6 +272,9 @@ void CD3DRenderStyle::SetDefaults()
 	RenderPass.RenderPass.TextureFactor							= 0x80808080;
 	RenderPass.RenderPass.AlphaRef								= 128;
 	RenderPass.RenderPass.DynamicLight							= true;
+
+	const auto identity_mat4 = DX::XMMatrixIdentity();
+
 	for (uint32 i=0;i<4;++i)
 	{
 		RenderPass.RenderPass.TextureStages[i].TextureParam		= RENDERSTYLE_NOTEXTURE;
@@ -285,7 +292,9 @@ void CD3DRenderStyle::SetDefaults()
 		RenderPass.RenderPass.TextureStages[i].ProjectTexCoord	= false;
 		RenderPass.RenderPass.TextureStages[i].TexCoordCount	= 2;
 
-		D3DXMatrixIdentity((D3DXMATRIX*)RenderPass.RenderPass.TextureStages[i].UVTransform_Matrix);
+		DX::XMStoreFloat4x4(
+			reinterpret_cast<DX::XMFLOAT4X4*>(RenderPass.RenderPass.TextureStages[i].UVTransform_Matrix),
+			identity_mat4);
 	}
 	RenderPass.RenderPass.TextureStages[0].TextureParam			= RENDERSTYLE_USE_TEXTURE1;
 	RenderPass.RenderPass.TextureStages[0].ColorOp				= RENDERSTYLE_COLOROP_MODULATE;

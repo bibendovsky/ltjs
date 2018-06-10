@@ -8,9 +8,9 @@
 #define __D3D9TYPES_H__
 #endif
 
-#ifndef _DXERR9_H_
+#ifdef LTJS_USE_BUNDLED_DIRECTX
 #include <dxerr9.h>
-#endif
+#endif // LTJS_USE_BUNDLED_DIRECTX
 
 #ifndef __COMMON_STUFF_H__
 #	include "common_stuff.h"

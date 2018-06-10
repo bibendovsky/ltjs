@@ -33,6 +33,8 @@ static IClientFileMgr* g_pIClientFileMgr;
 define_holder(IClientFileMgr, g_pIClientFileMgr);
 
 
+namespace DX = DirectX;
+
 
 //----------------------------------------------------------------------------
 // BlurTexture Vertex format
@@ -481,17 +483,20 @@ static void RenderModelShadow( ModelInstance* pInstance, const LTVector& vModelP
 	float fDistLightToModel = (vLightPos - vModelPos).Mag();
 
 	// Set the view matrix from the point of view of the light source...
-	D3DXMATRIX  MyViewMatrix;
+	DX::XMFLOAT4X4 MyViewMatrix;
 
-	D3DXVECTOR3 vEye(vLightPos.x, vLightPos.y, vLightPos.z);
-	D3DXVECTOR3 vLookAt(vLightPos.x + vLightDir.x, vLightPos.y + vLightDir.y, vLightPos.z + vLightDir.z);
-	D3DXVECTOR3 vUp(vLightUp.x, vLightUp.y, vLightUp.z);
+	const auto vEye = DX::XMFLOAT3{vLightPos.x, vLightPos.y, vLightPos.z};
+	const auto vLookAt = DX::XMFLOAT3{vLightPos.x + vLightDir.x, vLightPos.y + vLightDir.y, vLightPos.z + vLightDir.z};
+	const auto vUp = DX::XMFLOAT3{vLightUp.x, vLightUp.y, vLightUp.z};
 
-	D3DXMatrixLookAtLH(&MyViewMatrix,&vEye,&vLookAt,&vUp);
-	g_RenderStateMgr.SetTransform(D3DTS_VIEW,&MyViewMatrix);
+	DX::XMStoreFloat4x4(
+		&MyViewMatrix,
+		DX::XMMatrixLookAtLH(DX::XMLoadFloat3(&vEye), DX::XMLoadFloat3(&vLookAt), DX::XMLoadFloat3(&vUp)));
+
+	g_RenderStateMgr.SetTransform(D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&MyViewMatrix));
 
 	//calculate the projection matrix for rendering this model
-	D3DXMATRIX  MyProjMatrix;
+	DX::XMFLOAT4X4 MyProjMatrix;
 	float fNearZ			= 1.0f;
 	float fFarZ				= 20000.0f;
 
@@ -501,14 +506,14 @@ static void RenderModelShadow( ModelInstance* pInstance, const LTVector& vModelP
 		float wAtNearZ			= fNearZ * (fProjSizeX / fDistFrmProjPlane);
 		float hAtNearZ			= fNearZ * (fProjSizeY / fDistFrmProjPlane);
 
-		D3DXMatrixPerspectiveLH(&MyProjMatrix,wAtNearZ,hAtNearZ,fNearZ,fFarZ);
+		DX::XMStoreFloat4x4(&MyProjMatrix, DX::XMMatrixPerspectiveLH(wAtNearZ, hAtNearZ, fNearZ, fFarZ));
 	}
 	else
 	{
-		D3DXMatrixOrthoLH(&MyProjMatrix,fProjSizeX,fProjSizeY,fNearZ,fFarZ);
+		DX::XMStoreFloat4x4(&MyProjMatrix, DX::XMMatrixOrthographicLH(fProjSizeX, fProjSizeY, fNearZ, fFarZ));
 	}
 	//install the matrix
-	g_RenderStateMgr.SetTransform(D3DTS_PROJECTION,&MyProjMatrix);
+	g_RenderStateMgr.SetTransform(D3DTS_PROJECTION,reinterpret_cast<const D3DMATRIX*>(&MyProjMatrix));
 
 	//set the ambient color so that it will represent the color and distance from the light, and also
 	//the higher the pass number, the less alpha it should have
@@ -858,6 +863,7 @@ void CRenderShadowList::RenderQueuedShadows(const ViewParams& Params)
 	//handle the actual blending
 	if(bBlurShadows)
 	{
+#ifdef LTJS_USE_D3DX9
 		// Get the pixel shader.
 		LTPixelShader *pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(LTPixelShader::PIXELSHADER_SHADOWBLUR);
 		if (NULL == pPixelShader)
@@ -887,6 +893,7 @@ void CRenderShadowList::RenderQueuedShadows(const ViewParams& Params)
 			s_bFailedPSHandle = false;
 		}
 		else
+#endif // LTJS_USE_D3DX9
 		{
 			s_bFailedPSHandle = true;
 		}
@@ -912,8 +919,8 @@ void CRenderShadowList::RenderQueuedShadows(const ViewParams& Params)
 	//we need to make sure to preserve some transformation information so it can be properly
 	//restored
 	//restore our viewport
-	D3DXMATRIX mIdentity;
-	D3DXMatrixIdentity(&mIdentity);
+	DX::XMFLOAT4X4 mIdentity;
+	DX::XMStoreFloat4x4(&mIdentity, DX::XMMatrixIdentity());
 
 	//now get our old viewport for saving
 	D3DVIEWPORT9 OldViewport;
@@ -938,7 +945,7 @@ void CRenderShadowList::RenderQueuedShadows(const ViewParams& Params)
 			PD3DDEVICE->SetViewport(&OldViewport);
 			g_RenderStateMgr.SetTransform(D3DTS_VIEW,&PrevViewMatrix);
 			g_RenderStateMgr.SetTransform(D3DTS_PROJECTION,&PrevProjMatrix);
-			g_RenderStateMgr.SetTransform(D3DTS_WORLDMATRIX(0),&mIdentity);
+			g_RenderStateMgr.SetTransform(D3DTS_WORLDMATRIX(0),reinterpret_cast<const D3DMATRIX*>(&mIdentity));
 
 			RenderTexturesOnWorld(Params, nStartShadow, nCurrShadow, bBlurShadows);
 
@@ -967,7 +974,7 @@ void CRenderShadowList::RenderQueuedShadows(const ViewParams& Params)
 	PD3DDEVICE->SetViewport(&OldViewport);
 	g_RenderStateMgr.SetTransform(D3DTS_VIEW,&PrevViewMatrix);
 	g_RenderStateMgr.SetTransform(D3DTS_PROJECTION,&PrevProjMatrix);
-	g_RenderStateMgr.SetTransform(D3DTS_WORLDMATRIX(0),&mIdentity);
+	g_RenderStateMgr.SetTransform(D3DTS_WORLDMATRIX(0),reinterpret_cast<const D3DMATRIX*>(&mIdentity));
 
 	//see if we have any leftover
 	if(nStartShadow < nShadowsToRender)
@@ -1157,6 +1164,7 @@ bool CRenderShadowList::BlurShadowTexture(uint32 nSrcTex, uint32 nDestTex)
 		}
 	}
 
+#ifdef LTJS_USE_D3DX9
 	//determine if we can use the pixel shader version and do it in a single pass
 	bool bUsePixelShader 		= false;
 	LTPixelShader *pPixelShader = NULL;
@@ -1170,6 +1178,9 @@ bool CRenderShadowList::BlurShadowTexture(uint32 nSrcTex, uint32 nDestTex)
 	}
 
 	uint32	nNumTextures = (bUsePixelShader) ? 4 : 2;
+#else
+	uint32	nNumTextures = 2;
+#endif // LTJS_USE_D3DX9
 
 	//get the dimensions of the texture
 	float fWidth	= (float)m_nTextureRes;
@@ -1223,6 +1234,7 @@ bool CRenderShadowList::BlurShadowTexture(uint32 nSrcTex, uint32 nDestTex)
 			StateSet ssZWrite(D3DRS_ZWRITEENABLE, FALSE);
 
 			//alright, now we setup the vertices to give info to the blend
+#ifdef LTJS_USE_D3DX9
 			if(bUsePixelShader)
 			{
 				assert(pPixelShader->IsValidShader());
@@ -1246,6 +1258,7 @@ bool CRenderShadowList::BlurShadowTexture(uint32 nSrcTex, uint32 nDestTex)
 				LTPixelShaderMgr::GetSingleton().UninstallPixelShader();
 			}
 			else
+#endif // LTJS_USE_D3DX9
 			{
 				static CBlurTexture2PassVertex Verts[4];
 

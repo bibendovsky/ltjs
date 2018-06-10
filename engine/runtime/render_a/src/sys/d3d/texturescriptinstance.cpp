@@ -8,6 +8,10 @@
 #include "common_draw.h"
 #include "renderstruct.h"
 
+
+namespace DX = DirectX;
+
+
 #define MAX_CHANNELS	4
 
 CTextureScriptInstance::CTextureScriptInstance() :
@@ -246,10 +250,12 @@ bool CTextureScriptInstance::Install(uint32 nNumChannels, ...)
 		LTMatrix& mSrcMat = pStage->m_mTransform;
 
 		//convert our matrix to a D3D matrix (our source transposed)
-		D3DXMATRIX mMat(	mSrcMat.m[0][0], mSrcMat.m[1][0], mSrcMat.m[2][0], mSrcMat.m[3][0],
-							mSrcMat.m[0][1], mSrcMat.m[1][1], mSrcMat.m[2][1], mSrcMat.m[3][1],
-							mSrcMat.m[0][2], mSrcMat.m[1][2], mSrcMat.m[2][2], mSrcMat.m[3][2],
-							mSrcMat.m[0][3], mSrcMat.m[1][3], mSrcMat.m[2][3], mSrcMat.m[3][3] );
+		const auto mMat = DX::XMFLOAT4X4{
+			mSrcMat.m[0][0], mSrcMat.m[1][0], mSrcMat.m[2][0], mSrcMat.m[3][0],
+			mSrcMat.m[0][1], mSrcMat.m[1][1], mSrcMat.m[2][1], mSrcMat.m[3][1],
+			mSrcMat.m[0][2], mSrcMat.m[1][2], mSrcMat.m[2][2], mSrcMat.m[3][2],
+			mSrcMat.m[0][3], mSrcMat.m[1][3], mSrcMat.m[2][3], mSrcMat.m[3][3]
+		};
 
 		//see if the channel this maps to is valid
 		for(uint32 nChannel = 0; nChannel < nNumChannels; nChannel++)
@@ -259,7 +265,11 @@ bool CTextureScriptInstance::Install(uint32 nNumChannels, ...)
 			{
 				//found a match, so lets go ahead and update it
 				D3D_CALL(PD3DDEVICE->SetTextureStageState(nChannel, D3DTSS_TEXTURETRANSFORMFLAGS, nTTF));
-				D3D_CALL(PD3DDEVICE->SetTransform((D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + nChannel), &mMat));
+
+				D3D_CALL(PD3DDEVICE->SetTransform(
+					static_cast<D3DTRANSFORMSTATETYPE>(D3DTS_TEXTURE0 + nChannel),
+					reinterpret_cast<const D3DMATRIX*>(&mMat)));
+
 				if( (nInput == D3DTSS_TCI_PASSTHRU) && (pStage->m_eChannel == TSChannel_DualTexture || pStage->m_eChannel == TSChannel_Detail) )
 				{
 					D3D_CALL(PD3DDEVICE->SetTextureStageState(nChannel, D3DTSS_TEXCOORDINDEX, nInput|1));

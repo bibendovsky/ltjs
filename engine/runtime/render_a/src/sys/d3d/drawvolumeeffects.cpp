@@ -16,7 +16,6 @@ define_holder(IClientShell, i_client_shell);
 #include "common_draw.h"
 #include "relevantlightlist.h"
 #include "rendererframestats.h"
-
 #include "lteffectimpl.h"
 #include "lteffectshadermgr.h"
 #include "ltshaderdevicestateimp.h"
@@ -253,6 +252,7 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 			}
 			else
 			{
+#ifdef LTJS_USE_D3DX9
 				//if it passed and we have an Associated Effect, we need to upload the texture to the effect
 				LTEffectImpl* pEffectShader = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pEffect->m_nEffectShaderID);
 				if(pEffectShader)
@@ -267,6 +267,7 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 						}
 					}
 				}
+#endif // LTJS_USE_D3DX9
 			}
 		}
 
@@ -282,6 +283,7 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 				return;
 			}
 
+#ifdef LTJS_USE_D3DX9
 			LTEffectImpl* pEffectShader = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pEffect->m_nEffectShaderID);
 			if(pEffectShader)
 			{
@@ -316,6 +318,7 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 				}
 			}	
 			else
+#endif // LTJS_USE_D3DX9
 			{	if(FAILED( PD3DDEVICE->DrawPrimitive( D3DPT_TRIANGLELIST, g_nDynamicParticleVBIndex, numTris ) ))
 				{
 					return;
@@ -334,7 +337,8 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 			{
 				return;
 			}
-			
+
+#ifdef LTJS_USE_D3DX9
 			LTEffectImpl* pEffectShader = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pEffect->m_nEffectShaderID);
 			if(pEffectShader)			
 			{
@@ -369,6 +373,7 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 				}
 			}
 			else
+#endif // LTJS_USE_D3DX9
 			{			
 				if(FAILED( PD3DDEVICE->DrawIndexedPrimitive( D3DPT_TRIANGLELIST, 0, g_nDynamicParticleVBIndex, curFilled, (g_nDynamicParticleVBIndex/4)*6, numTris ) ) )
 				{

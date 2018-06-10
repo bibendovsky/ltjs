@@ -15,10 +15,8 @@ define_holder(IClientShell, i_client_shell);
 #include "d3d_renderstatemgr.h"
 #include "setuptouchinglights.h"
 #include "rendererframestats.h"
-
 #include "renderstruct.h"
 #include "counter.h"
-
 #include "lteffectimpl.h"
 #include "lteffectshadermgr.h"
 #include "ltshaderdevicestateimp.h"
@@ -312,6 +310,7 @@ static PSParticle* d3d_DrawParticleBatch(LTParticleSystem *pSystem, PSParticle *
 
 	if (pCurVert != CParticleVertex::m_BatchVerts)
 	{
+#ifdef LTJS_USE_D3DX9
 		LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pSystem->m_nEffectShaderID);
 		if(pEffect)
 		{
@@ -352,6 +351,7 @@ static PSParticle* d3d_DrawParticleBatch(LTParticleSystem *pSystem, PSParticle *
 			}
 		}
 		else
+#endif // LTJS_USE_D3DX9
 		{
 			int nParticlesDrawn = (pCurVert - CParticleVertex::m_BatchVerts) >> 2;
 			D3D_CALL(PD3DDEVICE->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST,

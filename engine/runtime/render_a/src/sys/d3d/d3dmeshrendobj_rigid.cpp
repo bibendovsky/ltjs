@@ -175,6 +175,7 @@ void CD3DRigidMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform,C
 	//setup our transform for this model
 	g_RenderStateMgr.SetTransform(D3DTS_WORLDMATRIX(0), &WorldTransform);
 
+#ifdef LTJS_USE_D3DX9
 	// Set the vertex shader constants.
 	if (m_pVertexShader != NULL)
 	{
@@ -202,6 +203,7 @@ void CD3DRigidMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform,C
 		// Send the constants to the video card.
 		LTPixelShaderMgr::GetSingleton().SetPixelShaderConstants(m_pPixelShader);
 	}
+#endif // LTJS_USE_D3DX9
 
 	//render away
 	m_VBController.Render(0, 0, m_iVertCount, m_iPolyCount);
@@ -223,6 +225,7 @@ void CD3DRigidMesh::BeginRender(D3DMATRIX& pD3DTransforms, CD3DRenderStyle* pRen
 			ReCreateObject();
 		}
 
+#ifdef LTJS_USE_D3DX9
 		// Store the pointer to the actual shader during rendering.
 		m_pVertexShader = LTVertexShaderMgr::GetSingleton().GetVertexShader(pPass->VertexShaderID);
 		if (m_pVertexShader != NULL)
@@ -235,6 +238,7 @@ void CD3DRigidMesh::BeginRender(D3DMATRIX& pD3DTransforms, CD3DRenderStyle* pRen
 			}
 		}
 		else
+#endif // LTJS_USE_D3DX9
 		{
 			return;
 		}
@@ -254,6 +258,7 @@ void CD3DRigidMesh::BeginRender(D3DMATRIX& pD3DTransforms, CD3DRenderStyle* pRen
 	    pPass->bUsePixelShader &&
 		pPass->PixelShaderID != LTPixelShader::PIXELSHADER_INVALID)
 	{
+#ifdef LTJS_USE_D3DX9
 		// Store the pointer to the actual shader during rendering.
 		m_pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(pPass->PixelShaderID);
 		if (m_pPixelShader != NULL)
@@ -265,6 +270,7 @@ void CD3DRigidMesh::BeginRender(D3DMATRIX& pD3DTransforms, CD3DRenderStyle* pRen
 				return;
 			}
 		}
+#endif // LTJS_USE_D3DX9
 	}
 
 
@@ -349,6 +355,7 @@ void CD3DRigidMesh::EndRender()
 	PD3DDEVICE->SetStreamSource(0, 0, 0, 0);
 	PD3DDEVICE->SetIndices(0);
 
+#ifdef LTJS_USE_D3DX9
 	// Uninstall the vertex shader.
 	if (NULL != m_pVertexShader)
 	{
@@ -362,4 +369,5 @@ void CD3DRigidMesh::EndRender()
 		LTPixelShaderMgr::GetSingleton().UninstallPixelShader();
 		m_pPixelShader = NULL;
 	}
+#endif // LTJS_USE_D3DX9
 }

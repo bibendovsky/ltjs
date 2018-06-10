@@ -9,6 +9,11 @@
 //------------------------------------------------------------------
 
 #include "precompile.h"
+
+
+#ifdef LTJS_USE_D3DX9
+
+
 #include "ltpixelshadermgr.h"
 #include "d3d_device.h"
 #include "d3d_utils.h"
@@ -388,3 +393,6 @@ void LTPixelShaderMgr::UninstallPixelShader() const
 {
 	PD3DDEVICE->SetPixelShader(NULL);
 }
+
+
+#endif // LTJS_USE_D3DX9

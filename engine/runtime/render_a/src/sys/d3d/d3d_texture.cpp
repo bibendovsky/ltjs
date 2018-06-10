@@ -1,6 +1,8 @@
 #include "precompile.h"
 
+#include <cstdint>
 #include <algorithm>
+#include <memory>
 #include "d3d_texture.h"
 #include "d3d_convar.h"
 #include "common_stuff.h"
@@ -10,6 +12,480 @@
 #include "d3d_shell.h"
 #include "colorops.h"
 #include "rendererframestats.h"
+
+
+namespace
+{
+
+
+class SurfaceLoader
+{
+public:
+	enum class Filter
+	{
+		none,
+		linear,
+	}; // Filter
+
+
+	static HRESULT from_memory(
+		const D3DFORMAT src_format,
+		const UINT src_pitch,
+		const RECT& src_rect,
+		LPCVOID src_memory,
+		const Filter src_filter,
+		LPDIRECT3DSURFACE9 dst_surface)
+	{
+// Just for reference.
+#if 0
+		return ::D3DXLoadSurfaceFromMemory(
+			dst_surface,
+			nullptr, // destination palette
+			nullptr, // destination rect
+			src_memory,
+			src_format,
+			src_pitch,
+			nullptr, // source palette
+			&src_rect,
+			D3DX_FILTER_???,
+			D3DCOLOR{} // color key
+		);
+#endif // 0
+
+		switch (src_format)
+		{
+		case D3DFMT_A4R4G4B4:
+		case D3DFMT_A8R8G8B8:
+		case D3DFMT_V8U8:
+		case D3DFMT_DXT1:
+		case D3DFMT_DXT3:
+		case D3DFMT_DXT5:
+			break;
+
+		default:
+			assert(!"Unsupported format.");
+			return false;
+		}
+
+		switch (src_filter)
+		{
+		case Filter::none:
+		case Filter::linear:
+			break;
+
+		default:
+			assert(!"Unsupported filter.");
+			return false;
+		}
+
+		if (!src_memory || !dst_surface)
+		{
+			return D3DERR_INVALIDCALL;
+		}
+
+		D3DSURFACE_DESC surface_desc;
+
+		if (FAILED(dst_surface->GetDesc(&surface_desc)))
+		{
+			assert(!"Failed to get a surface description.");
+			return D3DERR_INVALIDCALL;
+		}
+
+		if (surface_desc.Type != D3DRTYPE_SURFACE)
+		{
+			assert(!"Unsupported surface type.");
+			return D3DERR_INVALIDCALL;
+		}
+
+		if (src_rect.left != 0 ||
+			src_rect.right <= 0 ||
+			src_rect.top != 0 ||
+			src_rect.bottom <= 0 ||
+			src_rect.top >= src_rect.bottom)
+		{
+			assert(!"Invalid source rectangle.");
+			return D3DERR_INVALIDCALL;
+		}
+
+		const auto src_width = static_cast<UINT>(src_rect.right - src_rect.left);
+		const auto src_height = static_cast<UINT>(src_rect.bottom - src_rect.top);
+
+		if (src_width != surface_desc.Width || src_height != surface_desc.Height)
+		{
+			assert(!"Source rectangle dimensions are out of range.");
+			return D3DERR_INVALIDCALL;
+		}
+
+		if (static_cast<UINT>(src_rect.left) > surface_desc.Width ||
+			static_cast<UINT>(src_rect.right) > surface_desc.Width ||
+			static_cast<UINT>(src_rect.top) > surface_desc.Height ||
+			static_cast<UINT>(src_rect.bottom) > surface_desc.Height)
+		{
+			assert(!"Surface does not include a source rectangle.");
+			return D3DERR_INVALIDCALL;
+		}
+
+		auto copy_func = CopyFunc{};
+
+		if (src_format == surface_desc.Format && src_filter == Filter::none)
+		{
+			copy_func = copy;
+		}
+		else if (src_filter == Filter::linear)
+		{
+			if (src_format == D3DFMT_A4R4G4B4 && surface_desc.Format == D3DFMT_A4R4G4B4)
+			{
+				copy_func = copy_a4r4g4b4_linear;
+			}
+			else if (src_format == D3DFMT_A8R8G8B8 && surface_desc.Format == D3DFMT_V8U8)
+			{
+				copy_func = copy_a8r8g8b8_to_v8u8_linear;
+			}
+		}
+
+		if (!copy_func)
+		{
+			assert(!"Unsupported parameters combination.");
+			return D3DERR_INVALIDCALL;
+		}
+
+
+		D3DLOCKED_RECT locked_rect;
+
+		if (!lock_surface(dst_surface, locked_rect))
+		{
+			assert(!"Failed to lock a surface rectangle.");
+			return D3DERR_INVALIDCALL;
+		}
+
+		copy_func(
+			surface_desc,
+			static_cast<int>(src_pitch),
+			static_cast<const std::uint8_t*>(src_memory),
+			locked_rect);
+
+		unlock_surface(dst_surface);
+
+		return D3D_OK;
+	}
+
+
+private:
+	using CopyFunc = void (*)(
+		const D3DSURFACE_DESC& surface_desc,
+		const int src_pitch,
+		const std::uint8_t* src_memory,
+		const D3DLOCKED_RECT& locked_rect);
+
+
+	struct BlockDesc
+	{
+		int width_;
+		int height_;
+		int size_;
+
+
+		BlockDesc()
+			:
+			width_{},
+			height_{},
+			size_{}
+		{
+		}
+
+		BlockDesc(
+			const int width,
+			const int height,
+			const int size)
+			:
+			width_{width},
+			height_{height},
+			size_{size}
+		{
+		}
+
+		bool is_valid() const
+		{
+			return width_ > 0 && height_ > 0 && size_ > 0;
+		}
+	}; // BlockDesc
+
+
+	static BlockDesc get_block_description(
+		const D3DFORMAT format)
+	{
+		switch (format)
+		{
+		case D3DFMT_A4R4G4B4:
+		case D3DFMT_V8U8:
+			return {1, 1, 2};
+
+		case D3DFMT_A8R8G8B8:
+			return {1, 1, 4};
+
+		case D3DFMT_DXT1:
+			return {4, 4, 8};
+
+		case D3DFMT_DXT3:
+		case D3DFMT_DXT5:
+			return {4, 4, 16};
+
+		default:
+			return {};
+		}
+	}
+
+	static void copy(
+		const D3DSURFACE_DESC& surface_desc,
+		const int src_pitch,
+		const std::uint8_t* src_memory,
+		const D3DLOCKED_RECT& locked_rect)
+	{
+		const auto& block_desc = get_block_description(surface_desc.Format);
+
+		if (!block_desc.is_valid())
+		{
+			assert(!"Invalid block description.");
+			return;
+		}
+
+		const auto width = static_cast<int>(surface_desc.Width);
+		const auto height = static_cast<int>(surface_desc.Height);
+		const auto row_block_count = (width + block_desc.width_ - 1) / block_desc.width_;
+		const auto row_size = row_block_count * block_desc.size_;
+		const auto row_count = (height + block_desc.height_ - 1) / block_desc.height_;
+
+		const auto dst_pitch = locked_rect.Pitch;
+		auto dst_memory = static_cast<std::uint8_t*>(locked_rect.pBits);
+
+		if (src_pitch == dst_pitch && src_pitch == row_size)
+		{
+			// One shot.
+			//
+			const auto area = row_size * row_count;
+			std::uninitialized_copy_n(src_memory, area, dst_memory);
+		}
+		else
+		{
+			// Row by row.
+			//
+			auto src_row = src_memory;
+			auto dst_row = dst_memory;
+
+			for (auto h = 0; h < row_count; ++h)
+			{
+				std::uninitialized_copy_n(src_row, row_size, dst_row);
+
+				src_row += src_pitch;
+				dst_row += dst_pitch;
+			}
+		}
+	}
+
+	static std::uint16_t interpolate_pixel_linearly_a4r4g4b4(
+		const int x,
+		const int y,
+		const int width,
+		const int height,
+		const int src_pitch,
+		const std::uint8_t* src_memory)
+	{
+		constexpr auto max_sample_count = 4;
+
+		struct SampleDelta
+		{
+			int dx;
+			int dy;
+		}; // SampleDelta
+
+		constexpr SampleDelta sample_deltas[max_sample_count] =
+		{
+			{0, -1}, {-1, 0}, {0, 1}, {1, 0},
+		};
+
+		auto a_sum = 0;
+		auto r_sum = 0;
+		auto g_sum = 0;
+		auto b_sum = 0;
+		auto sample_count = 0;
+
+		for (auto i = 0; i < max_sample_count; ++i)
+		{
+			const auto& sample_delta = sample_deltas[i];
+			const auto new_x = x + sample_delta.dx;
+			const auto new_y = y + sample_delta.dy;
+
+			if (new_x < 0 || new_x >= width || new_y < 0 || new_y >= height)
+			{
+				continue;
+			}
+
+			const auto pixel_a4r4g4b4 =
+				*(reinterpret_cast<const std::uint16_t*>(src_memory + (new_y * src_pitch)) + new_x);
+
+			a_sum += (pixel_a4r4g4b4 >> 12) & 0xF;
+			r_sum += (pixel_a4r4g4b4 >> 8) & 0xF;
+			g_sum += (pixel_a4r4g4b4 >> 4) & 0xF;
+			b_sum += pixel_a4r4g4b4 & 0xF;
+
+			sample_count += 1;
+		}
+
+		return static_cast<std::uint16_t>(
+			((a_sum / sample_count) << 12) |
+			((r_sum / sample_count) << 8) |
+			((g_sum / sample_count) << 4) |
+			(b_sum / sample_count)
+		);
+	}
+
+	static std::uint16_t interpolate_pixel_linearly_a8r8g8b8_to_v8u8(
+		const int x,
+		const int y,
+		const int width,
+		const int height,
+		const int src_pitch,
+		const std::uint8_t* src_memory)
+	{
+		constexpr auto max_sample_count = 4;
+
+		struct SampleDelta
+		{
+			int dx;
+			int dy;
+		}; // SampleDelta
+
+		constexpr SampleDelta sample_deltas[max_sample_count] =
+		{
+			{0, -1}, {-1, 0}, {0, 1}, {1, 0},
+		};
+
+		auto g_sum = 0;
+		auto b_sum = 0;
+		auto sample_count = 0;
+
+		for (auto i = 0; i < max_sample_count; ++i)
+		{
+			const auto& sample_delta = sample_deltas[i];
+			const auto new_x = x + sample_delta.dx;
+			const auto new_y = y + sample_delta.dy;
+
+			if (new_x < 0 || new_x >= width || new_y < 0 || new_y >= height)
+			{
+				continue;
+			}
+
+			const auto pixel_a8r8g8b8 =
+				*(reinterpret_cast<const std::uint32_t*>(src_memory + (new_y * src_pitch)) + new_x);
+
+			g_sum += static_cast<std::int8_t>((pixel_a8r8g8b8 >> 8) & 0xFF);
+			b_sum += static_cast<std::int8_t>(pixel_a8r8g8b8 & 0xFF);
+
+			sample_count += 1;
+		}
+
+		return static_cast<std::uint16_t>(
+			(((g_sum / sample_count) & 0xFF) << 8) |
+			((b_sum / sample_count) & 0xFF)
+		);
+	}
+
+	static void copy_a4r4g4b4_linear(
+		const D3DSURFACE_DESC& surface_desc,
+		const int src_pitch,
+		const std::uint8_t* src_memory,
+		const D3DLOCKED_RECT& locked_rect)
+	{
+		auto dst_memory = static_cast<std::uint8_t*>(locked_rect.pBits);
+
+		for (auto h = 0; h < static_cast<int>(surface_desc.Height); ++h)
+		{
+			auto dst_row = reinterpret_cast<std::uint16_t*>(dst_memory);
+
+			for (auto w = 0; w < static_cast<int>(surface_desc.Width); ++w)
+			{
+				dst_row[w] = interpolate_pixel_linearly_a4r4g4b4(
+					w,
+					h,
+					static_cast<int>(surface_desc.Width),
+					static_cast<int>(surface_desc.Height),
+					static_cast<int>(src_pitch),
+					src_memory);
+			}
+
+			dst_memory += locked_rect.Pitch;
+		}
+	}
+
+	static void copy_a8r8g8b8_to_v8u8_linear(
+		const D3DSURFACE_DESC& surface_desc,
+		const int src_pitch,
+		const std::uint8_t* src_memory,
+		const D3DLOCKED_RECT& locked_rect)
+	{
+		auto dst_memory = static_cast<std::uint8_t*>(locked_rect.pBits);
+
+		for (auto h = 0; h < static_cast<int>(surface_desc.Height); ++h)
+		{
+			auto dst_row = reinterpret_cast<std::uint16_t*>(dst_memory);
+
+			for (auto w = 0; w < static_cast<int>(surface_desc.Width); ++w)
+			{
+				dst_row[w] = interpolate_pixel_linearly_a8r8g8b8_to_v8u8(
+					w,
+					h,
+					static_cast<int>(surface_desc.Width),
+					static_cast<int>(surface_desc.Height),
+					static_cast<int>(src_pitch),
+					src_memory);
+			}
+
+			dst_memory += locked_rect.Pitch;
+		}
+	}
+
+	static bool lock_surface(
+		LPDIRECT3DSURFACE9 dst_surface,
+		D3DLOCKED_RECT& locked_rect)
+	{
+		if (FAILED(dst_surface->LockRect(&locked_rect, nullptr, 0)))
+		{
+			assert(!"Failed to lock a surface rectangle.");
+			return false;
+		}
+
+		if (!locked_rect.pBits)
+		{
+			static_cast<void>(dst_surface->UnlockRect());
+			assert(!"No pixels.");
+			return false;
+		}
+
+		if (locked_rect.Pitch <= 0)
+		{
+			static_cast<void>(dst_surface->UnlockRect());
+			assert(!"Invalid pitch.");
+			return false;
+		}
+
+		return true;
+	}
+
+	static void unlock_surface(
+		LPDIRECT3DSURFACE9 dst_surface)
+	{
+		const auto h_result = dst_surface->UnlockRect();
+
+		if (FAILED(h_result))
+		{
+			assert(!"Failed to unlock a surface rectangle.");
+		}
+	}
+}; // SurfaceLoader
+
+
+} // namespace
+
 
 // Globals.
 CTextureManager			g_TextureManager;
@@ -336,7 +812,13 @@ bool CTextureManager::ConvertTexDataToDD(uint8* pSrcData, PFormat* SrcFormat, ui
 	uint32 SrcPitch = g_TextureManager.GetPitch(D3DSrcFormat,SrcWidth);
 	RECT SrcRect; SrcRect.left = 0; SrcRect.top = 0; SrcRect.right = SrcWidth; SrcRect.bottom = SrcHeight;
 
-	hResult = D3DXLoadSurfaceFromMemory(pD3DDstSurface,NULL,NULL,pSrcData,D3DSrcFormat,SrcPitch,NULL,&SrcRect,D3DX_FILTER_LINEAR,0);
+	hResult = SurfaceLoader::from_memory(
+		D3DSrcFormat,
+		SrcPitch,
+		SrcRect,
+		pSrcData,
+		SurfaceLoader::Filter::linear,
+		pD3DDstSurface);
 
 	// Lock it and copy out it's data...
 	D3DLOCKED_RECT LockedRect; pD3DDstSurface->LockRect(&LockedRect,NULL,NULL); 
@@ -388,7 +870,13 @@ bool CTextureManager::UploadRTexture(TextureData* pSrcTexture, uint32 iSrcLvl, R
 			if (!pDstSurface) 
 				return false;
 
-			HRESULT hResult = D3DXLoadSurfaceFromMemory(pDstSurface,NULL,NULL,pSrcData,D3DSrcFormat,SrcPitch,NULL,&SrcRect,D3DX_FILTER_NONE,0);
+			auto hResult = SurfaceLoader::from_memory(
+				D3DSrcFormat,
+				SrcPitch,
+				SrcRect,
+				pSrcData,
+				SurfaceLoader::Filter::none,
+				pDstSurface);
 
 			uint32 iRefCnt = pDstSurface->Release();
             static_cast<void>(iRefCnt);
@@ -418,7 +906,14 @@ bool CTextureManager::UploadRTexture(TextureData* pSrcTexture, uint32 iSrcLvl, R
 		SrcRect.bottom =  pSrcMip->m_Height;
 
 		HRESULT hResult;
-		LT_MEM_TRACK_ALLOC(hResult = D3DXLoadSurfaceFromMemory(pDstSurface,NULL,NULL,pSrcData,D3DSrcFormat,SrcPitch,NULL,&SrcRect,D3DX_FILTER_NONE,0), LT_MEM_TYPE_RENDERER);
+
+		hResult = SurfaceLoader::from_memory(
+				D3DSrcFormat,
+				SrcPitch,
+				SrcRect,
+				pSrcData,
+				SurfaceLoader::Filter::none,
+				pDstSurface);
 		
 		pDstSurface->Release();
 		if (hResult != D3D_OK) 

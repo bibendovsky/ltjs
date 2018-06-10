@@ -125,8 +125,8 @@ LTRESULT CLTCommonShared::SetupEuler(LTRotation &rot, float pitch, float yaw, fl
 float quat_length( float q[4] )
 {
 
-	float dot =  (q[QX] * q[QX] + q[QY] * q[QY]  + q[QZ] * q[QZ]) ;
-	float  a  = (q[QW] * q[QW] );
+	float dot =  (q[QUAT_X] * q[QUAT_X] + q[QUAT_Y] * q[QUAT_Y]  + q[QUAT_Z] * q[QUAT_Z]) ;
+	float  a  = (q[QUAT_W] * q[QUAT_W] );
 
 	a = a * a ;
 	dot = dot * dot ;

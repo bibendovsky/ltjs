@@ -355,6 +355,7 @@ class CLTClient : public ILTClient {
 	virtual void SetModelLooping(HLOCALOBJ hObj, bool bLoop);
 	virtual HMODELANIM GetAnimIndex(HOBJECT hObj, const char *pAnimName);
 
+#ifdef LTJS_USE_D3DX9
 	// vertex shaders
 	virtual bool				AddVertexShader(const char *pFileName, int VertexShaderID,
 												const uint32 *pVertexElements, uint32 VertexElementsSize,
@@ -368,6 +369,7 @@ class CLTClient : public ILTClient {
 	virtual void				RemovePixelShader(int PixelShaderID);
 	virtual void				RemoveAllPixelShaders();
 	virtual LTPixelShader*		GetPixelShader(int PixelShaderID);
+#endif // LTJS_USE_D3DX9
 
 	virtual void CPrint(const char *pMsg, ...);
 
@@ -1072,6 +1074,7 @@ HMODELANIM CLTClient::GetAnimIndex(HOBJECT hObj, const char *pAnimName)
 	return ic_GetAnimIndex(hObj, pAnimName);
 }
 
+#ifdef LTJS_USE_D3DX9
 bool CLTClient::AddVertexShader(const char *pFileName, int VertexShaderID,
 								const uint32 *pVertexElements, uint32 VertexElementsSize, bool bCompileShader)
 {
@@ -1144,6 +1147,7 @@ LTPixelShader* CLTClient::GetPixelShader(int PixelShaderID)
 {
 	return LTPixelShaderMgr::GetSingleton().GetPixelShader(PixelShaderID);
 }
+#endif // LTJS_USE_D3DX9
 
 void CLTClient::CPrint(const char *pMsg, ...)
 {

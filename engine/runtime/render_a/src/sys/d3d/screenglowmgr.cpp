@@ -269,6 +269,7 @@ bool CScreenGlowMgr::UpdateShader()
 		return true;
 	}
 
+#ifdef LTJS_USE_D3DX9
 	// See if our shader is valid.
 	LTPixelShader *pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(LTPixelShader::PIXELSHADER_SCREENGLOW);
 	if (NULL == pPixelShader)
@@ -297,6 +298,7 @@ bool CScreenGlowMgr::UpdateShader()
 	{
 		return true;
 	}
+#endif // LTJS_USE_D3DX9
 
 	// The shader is no good.
 	m_bFailedLoadingShader = true;
@@ -511,6 +513,7 @@ bool CScreenGlowMgr::RenderBlendedTextureDirectionPS(float fUVScale, float fUWei
 	Verts[3].m_Vec.Init(0.0f, fHeight);
 	Verts[3].m_RHW		= 1.0f;
 
+#ifdef LTJS_USE_D3DX9
 	// Get the shader.
 	LTPixelShader *pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(LTPixelShader::PIXELSHADER_SCREENGLOW);
 	if (NULL == pPixelShader)
@@ -567,6 +570,9 @@ bool CScreenGlowMgr::RenderBlendedTextureDirectionPS(float fUVScale, float fUWei
 	}
 
 	return true;
+#else
+	return false;
+#endif // LTJS_USE_D3DX9
 }
 
 //this will calculate the two integer versions of the weights, and will return how much was
@@ -703,6 +709,7 @@ bool CScreenGlowMgr::RenderBlendedTexture(bool bUsePixelShader)
 		SamplerStateSet ssWrapV3(3, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
 
+#ifdef LTJS_USE_D3DX9
 		// Get the shader.
 		LTPixelShader *pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(LTPixelShader::PIXELSHADER_SCREENGLOW);
 		if (NULL == pPixelShader)
@@ -740,6 +747,9 @@ bool CScreenGlowMgr::RenderBlendedTexture(bool bUsePixelShader)
 
 		// Uninstall the pixel shader.
 		LTPixelShaderMgr::GetSingleton().UninstallPixelShader();
+#else
+		return false;
+#endif // LTJS_USE_D3DX9
 	}
 	else
 	{

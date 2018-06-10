@@ -673,9 +673,12 @@ public :
 
 	CDIModelDrawable()
 		: m_pUsedNodeList(NULL),
-		  m_UsedNodeListSize(0),
+		  m_UsedNodeListSize(0)
+#ifdef LTJS_USE_D3DX9
+		,
 		  m_pVertexShader(NULL),
 		  m_pPixelShader(NULL)
+#endif // LTJS_USE_D3DX9
 	{
 	}
 
@@ -709,9 +712,10 @@ public :
 	uint8				 	m_UsedNodeListSize;
 
 protected:
-
+#ifdef LTJS_USE_D3DX9
 	LTVertexShader*			m_pVertexShader;	// temporary pointer to shader used during rendering
 	LTPixelShader*			m_pPixelShader;		// temporary pointer to shader used during rendering
+#endif // LTJS_USE_D3DX9
 };
 
 //  ----------------------------------------------------------------

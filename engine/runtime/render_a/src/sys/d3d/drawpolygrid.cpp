@@ -34,7 +34,6 @@ define_holder(IClientShell, i_client_shell);
 #include "iltclient.h"
 #include "ltpixelshadermgr.h"
 #include "rendererframestats.h"
-
 #include "lteffectimpl.h"
 #include "lteffectshadermgr.h"
 #include "ltshaderdevicestateimp.h"
@@ -44,6 +43,9 @@ define_holder(IClientShell, i_client_shell);
 #include "client_filemgr.h"
 static IClientFileMgr* g_pIClientFileMgr;
 define_holder(IClientFileMgr, g_pIClientFileMgr);
+
+
+namespace DX = DirectX;
 
 
 //----------------------------------------------------------------------------
@@ -371,20 +373,24 @@ static void d3d_SetEnvMapTextureStates(const ViewParams& Params, uint32 envMapTy
 	Params.m_mView.GetBasisVectors(&vRight, &vUp, &vForward);
 
 	//now setup the transpose, thus converting the normals into worldspace
-	D3DXMATRIX mCamToWorld( vRight.x, vUp.x, vForward.x, 0.0f,
-							vRight.y, vUp.y, vForward.y, 0.0f,
-							vRight.z, vUp.z, vForward.z, 0.0f,
-							0.0f,	  0.0f,	 0.0f,		 1.0f);
+	auto mCamToWorld = DX::XMMATRIX{
+		vRight.x, vUp.x, vForward.x, 0.0f,
+		vRight.y, vUp.y, vForward.y, 0.0f,
+		vRight.z, vUp.z, vForward.z, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
 
 	if(!bCubic)
 	{
 		//setup our texture channel 1 to generate environment maps
-		D3DXMATRIX mTex1Trans(	0.5f,	0.0f,	0.0f,	0.0f,
-								0.0f,	0.0f,	0.0f,	0.0f,
-								0.0f,	0.5f,	1.0f,	0.0f,
-								0.5f,	0.5f,	0.0f,	1.0f );
+		const auto mTex1Trans = DX::XMMATRIX{
+			0.5f, 0.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 0.5f, 1.0f, 0.0f,
+			0.5f, 0.5f, 0.0f, 1.0f
+		};
 
-		mCamToWorld = mCamToWorld * mTex1Trans;
+		mCamToWorld *= mTex1Trans;
 	}
 
 	//setup our input parameters for the texture coordinates
@@ -392,7 +398,10 @@ static void d3d_SetEnvMapTextureStates(const ViewParams& Params, uint32 envMapTy
 	PD3DDEVICE->SetTextureStageState(1, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR | 1);
 
 	//setup our texture transform
-	PD3DDEVICE->SetTransform(D3DTS_TEXTURE1, &mCamToWorld);
+	DX::XMFLOAT4X4 mCamToWorld_f;
+	DX::XMStoreFloat4x4(&mCamToWorld_f, mCamToWorld);
+
+	PD3DDEVICE->SetTransform(D3DTS_TEXTURE1, reinterpret_cast<const D3DMATRIX*>(&mCamToWorld_f));
 }
 
 static void d3d_UnsetEnvMapTextureStates()
@@ -751,6 +760,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 					//see if we need to load it
 					if (!s_bPixelShaderFailed)
 					{
+#ifdef LTJS_USE_D3DX9
 						// Get the pixel shader.
 						pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(LTPixelShader::PIXELSHADER_ENVBUMPMAP);
 						if (NULL == pPixelShader)
@@ -773,6 +783,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 								pStream->Release();
 							}
 						}
+#endif // LTJS_USE_D3DX9
 					}
 
 					// See if we can continue.
@@ -799,6 +810,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 				}
 				else
 				{
+#ifdef LTJS_USE_D3DX9
 					LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 					if(pEffect)
 					{
@@ -818,6 +830,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 
 						}
 					}else
+#endif // LTJS_USE_D3DX9
 					{
 						d3d_SetTexture(pBaseTex, 0, eFS_PolyGridBaseTexMemory);
 
@@ -926,6 +939,8 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 	uint32 nNumVerts;
 
 	bool bEffect = false;
+
+#ifdef LTJS_USE_D3DX9
 	LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 	if(pEffect)
 	{
@@ -935,6 +950,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			bEffect = true;
 		}
 	}
+#endif // LTJS_USE_D3DX9
 
 	if(bBumpMap)
 	{
@@ -1141,6 +1157,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			}
 
 			//now we need to generate the normals for the polygrid
+#ifdef LTJS_USE_D3DX9
 			LTEffectImpl* pEffect2 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 			if(pEffect2)
 			{
@@ -1151,6 +1168,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 				}
 			}
 			else
+#endif // LTJS_USE_D3DX9
 			{
 				GeneratePolyGridVectors(pGrid, (CPolyGridVertex*)g_TriVertList, GenerateNormal);
 			}
@@ -1257,6 +1275,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			}
 
 			//now we need to generate the normals for the polygrid
+#ifdef LTJS_USE_D3DX9
 			LTEffectImpl* pEffect3 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 			if(pEffect3)
 			{
@@ -1267,6 +1286,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 				}
 			}
 			else
+#endif // LTJS_USE_D3DX9
 			{
 				GeneratePolyGridVectors(pGrid, (CPolyGridVertex*)g_TriVertList, GenerateNormal);
 			}
@@ -1301,6 +1321,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 	//setup the pixel shader if we are bumpmapping
 	if(bBumpMap)
 	{
+#ifdef LTJS_USE_D3DX9
 		assert(NULL != pPixelShader && pPixelShader->IsValidShader());
 
 		// Set the pixel shader constants.
@@ -1344,6 +1365,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 
 		d3d_DisableTexture(0);
 		d3d_DisableTexture(3);
+#endif // LTJS_USE_D3DX9
 	}
 	else
 	{
@@ -1362,7 +1384,8 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			while(nRemainingPolies > 0)
 			{
 				uint32 nPoliesThisFrame = (nRemainingPolies > g_CV_PolyGridBufferSize) ? g_CV_PolyGridBufferSize: nRemainingPolies;
-				
+
+#ifdef LTJS_USE_D3DX9
 				LTEffectImpl* pEffect4 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 				if(pEffect4)
 				{
@@ -1388,6 +1411,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 
 				}
 				else
+#endif // LTJS_USE_D3DX9
 				{
 					D3D_CALL(PD3DDEVICE->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST,0,nNumVerts,nPoliesThisFrame,&pGrid->m_Indices[nCurrentVertPosition],D3DFMT_INDEX16,g_TriVertList, nVertexSize));
 				}
@@ -1398,6 +1422,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 		}
 		else
 		{
+#ifdef LTJS_USE_D3DX9
 			LTEffectImpl* pEffect5 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 			if(pEffect5)
 			{
@@ -1423,6 +1448,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 
 			}
 			else
+#endif // LTJS_USE_D3DX9
 			{
 				// No Effect Shader, just fixed function.
 				D3D_CALL(PD3DDEVICE->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST,0,nNumVerts,(pGrid->m_nIndices)/3,pGrid->m_Indices,D3DFMT_INDEX16,g_TriVertList, nVertexSize));

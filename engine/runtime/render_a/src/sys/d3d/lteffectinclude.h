@@ -1,3 +1,6 @@
+#ifdef LTJS_USE_D3DX9
+
+
 #include <list>
 #include <string>
 #include <d3dx9shader.h>
@@ -22,3 +25,6 @@ protected:
 	void BuildPath(char* szBuffer, const char* szPath, int nMaxLength);
 
 };
+
+
+#endif // LTJS_USE_D3DX9
