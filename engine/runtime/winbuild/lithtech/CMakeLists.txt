@@ -576,6 +576,13 @@ target_compile_definitions(
     PRIVATE $<$<CONFIG:DEBUG>:D3D_DEBUG_INFO>
 )
 
+if (NOT MSVC)
+	target_compile_definitions(
+		ltjs_lith_tech
+		PRIVATE _XM_NO_INTRINSICS_
+	)
+endif ()
+
 if (LTJS_USE_DIRECT_MUSIC8)
 	target_compile_definitions(
 		ltjs_lith_tech
