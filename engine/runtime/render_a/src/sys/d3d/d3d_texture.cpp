@@ -141,7 +141,7 @@ public:
 					return D3DERR_INVALIDCALL;
 				}
 
-				copy_argb16_linear(
+				copy_a4r4g4b4_linear(
 					surface_desc,
 					static_cast<int>(src_pitch),
 					static_cast<const std::uint8_t*>(src_memory),
@@ -342,7 +342,7 @@ private:
 		);
 	}
 
-	static void copy_argb16_linear(
+	static void copy_a4r4g4b4_linear(
 		const D3DSURFACE_DESC& surface_desc,
 		const int src_pitch,
 		const std::uint8_t* src_memory,
