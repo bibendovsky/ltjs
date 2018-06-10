@@ -1,13 +1,17 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(ltjs_lib_d3d_render VERSION 0.0.1 LANGUAGES CXX)
 
+option(LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
 option(LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
+
+if (LTJS_USE_DIRECT_MUSIC8 OR LTJS_USE_D3DX9)
+	set(LTJS_USE_BUNDLED_DIRECTX ON)
+endif ()
 
 include(ltjs_common)
 
 include_directories(
     .
-    ../../../../../../directx/include
 	../../../../../../libs/DirectXMath/Inc
     ../../../../../../libs/stdlith
     ../../../../../sdk/inc
@@ -24,6 +28,12 @@ include_directories(
     ../../../../shared/src/sys/win
     ../../../../world/src
 )
+
+if (LTJS_USE_BUNDLED_DIRECTX)
+	include_directories(
+		../../../../../../directx/include
+	)
+endif ()
 
 set(
     headers
@@ -290,5 +300,12 @@ if (LTJS_USE_D3DX9)
 	target_compile_definitions(
 		ltjs_lib_d3d_render
 		PRIVATE LTJS_USE_D3DX9
+	)
+endif ()
+
+if (LTJS_USE_BUNDLED_DIRECTX)
+	target_compile_definitions(
+		ltjs_lib_d3d_render
+		PRIVATE LTJS_USE_BUNDLED_DIRECTX
 	)
 endif ()
