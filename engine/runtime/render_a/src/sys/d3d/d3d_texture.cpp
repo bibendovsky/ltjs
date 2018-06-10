@@ -36,6 +36,22 @@ public:
 		const Filter src_filter,
 		LPDIRECT3DSURFACE9 dst_surface)
 	{
+// Just for reference.
+#if 0
+		return ::D3DXLoadSurfaceFromMemory(
+			dst_surface,
+			nullptr, // destination palette
+			nullptr, // destination rect
+			src_memory,
+			src_format,
+			src_pitch,
+			nullptr, // source palette
+			&src_rect,
+			D3DX_FILTER_???,
+			D3DCOLOR{} // color key
+		);
+#endif // 0
+
 		switch (src_format)
 		{
 		case D3DFMT_A4R4G4B4:
@@ -109,78 +125,59 @@ public:
 			return D3DERR_INVALIDCALL;
 		}
 
+		auto copy_func = CopyFunc{};
+
 		if (src_format == surface_desc.Format && src_filter == Filter::none)
 		{
-			D3DLOCKED_RECT locked_rect;
-
-			if (!lock_surface(dst_surface, locked_rect))
-			{
-				assert(!"Failed to lock a surface rectangle.");
-				return D3DERR_INVALIDCALL;
-			}
-
-			copy(
-				surface_desc,
-				src_pitch,
-				static_cast<const std::uint8_t*>(src_memory),
-				locked_rect);
-
-			unlock_surface(dst_surface);
-
-			return D3D_OK;
+			copy_func = copy;
 		}
 		else if (src_filter == Filter::linear)
 		{
 			if (src_format == D3DFMT_A4R4G4B4 && surface_desc.Format == D3DFMT_A4R4G4B4)
 			{
-				D3DLOCKED_RECT locked_rect;
-
-				if (!lock_surface(dst_surface, locked_rect))
-				{
-					assert(!"Failed to lock a surface rectangle.");
-					return D3DERR_INVALIDCALL;
-				}
-
-				copy_a4r4g4b4_linear(
-					surface_desc,
-					static_cast<int>(src_pitch),
-					static_cast<const std::uint8_t*>(src_memory),
-					locked_rect);
-
-				unlock_surface(dst_surface);
-
-				return D3D_OK;
+				copy_func = copy_a4r4g4b4_linear;
 			}
 			else if (src_format == D3DFMT_A8R8G8B8 && surface_desc.Format == D3DFMT_V8U8)
 			{
-				return ::D3DXLoadSurfaceFromMemory(
-					dst_surface,
-					nullptr, // destination palette
-					nullptr, // destination rect
-					src_memory,
-					src_format,
-					src_pitch,
-					nullptr, // source palette
-					&src_rect,
-					D3DX_FILTER_LINEAR,
-					D3DCOLOR{} // color key
-				);
-			}
-			else
-			{
-				assert(!"Unsupported format combination.");
-				return D3DERR_INVALIDCALL;
+				copy_func = copy_a8r8g8b8_to_v8u8_linear;
 			}
 		}
-		else
+
+		if (!copy_func)
 		{
 			assert(!"Unsupported parameters combination.");
 			return D3DERR_INVALIDCALL;
 		}
+
+
+		D3DLOCKED_RECT locked_rect;
+
+		if (!lock_surface(dst_surface, locked_rect))
+		{
+			assert(!"Failed to lock a surface rectangle.");
+			return D3DERR_INVALIDCALL;
+		}
+
+		copy_func(
+			surface_desc,
+			static_cast<int>(src_pitch),
+			static_cast<const std::uint8_t*>(src_memory),
+			locked_rect);
+
+		unlock_surface(dst_surface);
+
+		return D3D_OK;
 	}
 
 
 private:
+	using CopyFunc = void (*)(
+		const D3DSURFACE_DESC& surface_desc,
+		const int src_pitch,
+		const std::uint8_t* src_memory,
+		const D3DLOCKED_RECT& locked_rect);
+
+
 	struct BlockDesc
 	{
 		int width_;
@@ -342,6 +339,57 @@ private:
 		);
 	}
 
+	static std::uint16_t interpolate_pixel_linearly_a8r8g8b8_to_v8u8(
+		const int x,
+		const int y,
+		const int width,
+		const int height,
+		const int src_pitch,
+		const std::uint8_t* src_memory)
+	{
+		constexpr auto max_sample_count = 4;
+
+		struct SampleDelta
+		{
+			int dx;
+			int dy;
+		}; // SampleDelta
+
+		constexpr SampleDelta sample_deltas[max_sample_count] =
+		{
+			{0, -1}, {-1, 0}, {0, 1}, {1, 0},
+		};
+
+		auto g_sum = 0;
+		auto b_sum = 0;
+		auto sample_count = 0;
+
+		for (auto i = 0; i < max_sample_count; ++i)
+		{
+			const auto& sample_delta = sample_deltas[i];
+			const auto new_x = x + sample_delta.dx;
+			const auto new_y = y + sample_delta.dy;
+
+			if (new_x < 0 || new_x >= width || new_y < 0 || new_y >= height)
+			{
+				continue;
+			}
+
+			const auto pixel_a8r8g8b8 =
+				*(reinterpret_cast<const std::uint32_t*>(src_memory + (new_y * src_pitch)) + new_x);
+
+			g_sum += static_cast<std::int8_t>((pixel_a8r8g8b8 >> 8) & 0xFF);
+			b_sum += static_cast<std::int8_t>(pixel_a8r8g8b8 & 0xFF);
+
+			sample_count += 1;
+		}
+
+		return static_cast<std::uint16_t>(
+			(((g_sum / sample_count) & 0xFF) << 8) |
+			((b_sum / sample_count) & 0xFF)
+		);
+	}
+
 	static void copy_a4r4g4b4_linear(
 		const D3DSURFACE_DESC& surface_desc,
 		const int src_pitch,
@@ -357,6 +405,33 @@ private:
 			for (auto w = 0; w < static_cast<int>(surface_desc.Width); ++w)
 			{
 				dst_row[w] = interpolate_pixel_linearly_a4r4g4b4(
+					w,
+					h,
+					static_cast<int>(surface_desc.Width),
+					static_cast<int>(surface_desc.Height),
+					static_cast<int>(src_pitch),
+					src_memory);
+			}
+
+			dst_memory += locked_rect.Pitch;
+		}
+	}
+
+	static void copy_a8r8g8b8_to_v8u8_linear(
+		const D3DSURFACE_DESC& surface_desc,
+		const int src_pitch,
+		const std::uint8_t* src_memory,
+		const D3DLOCKED_RECT& locked_rect)
+	{
+		auto dst_memory = static_cast<std::uint8_t*>(locked_rect.pBits);
+
+		for (auto h = 0; h < static_cast<int>(surface_desc.Height); ++h)
+		{
+			auto dst_row = reinterpret_cast<std::uint16_t*>(dst_memory);
+
+			for (auto w = 0; w < static_cast<int>(surface_desc.Width); ++w)
+			{
+				dst_row[w] = interpolate_pixel_linearly_a8r8g8b8_to_v8u8(
 					w,
 					h,
 					static_cast<int>(surface_desc.Width),
