@@ -644,7 +644,6 @@ if (MSVC)
 			APPEND
 			libs
 			d3d9
-			dbghelp
 			dxguid
 			dinput8
 			winmm
@@ -666,7 +665,6 @@ if (NOT MSVC)
 		APPEND
         libs
         d3d9
-        dbghelp
         dxguid
         dinput8
         winmm
