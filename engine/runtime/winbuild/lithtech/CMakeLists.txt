@@ -187,6 +187,7 @@ set(
     ../../kernel/src/sys/win/dsys_interface.h
     ../../kernel/src/sys/win/dutil.h
 	../../kernel/src/sys/win/ltjs_ffmpeg_video_mgr_impl.h
+	../../kernel/src/sys/win/ltjs_fmv_player.h
     ../../kernel/src/sys/win/input.h
     ../../kernel/src/sys/win/interface_helpers.h
     ../../kernel/src/sys/win/load_pcx.h
@@ -404,6 +405,7 @@ set(
     ../../kernel/src/sys/win/dsys_interface.cpp
     ../../kernel/src/sys/win/dutil.cpp
 	../../kernel/src/sys/win/ltjs_ffmpeg_video_mgr_impl.cpp
+	../../kernel/src/sys/win/ltjs_fmv_player.cpp
     ../../kernel/src/sys/win/input.cpp
     ../../kernel/src/sys/win/inputsim.cpp
     ../../kernel/src/sys/win/interface_helpers.cpp

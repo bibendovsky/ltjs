@@ -29,9 +29,9 @@ public:
 	LTRESULT initialize();
 
 	LTRESULT CreateScreenVideo(
-		const char* const pFilename,
+		const char* const file_name,
 		const uint32 flags,
-		VideoInst*& pVideo) override;
+		VideoInst*& video_inst_ptr) override;
 
 
 private:
@@ -48,12 +48,16 @@ class FfmpegVideoInst final :
 {
 public:
 	FfmpegVideoInst(
-		FfmpegVideoMgr* pMgr);
+		VideoMgr* video_mgr_ptr);
 
 	FfmpegVideoInst(
 		FfmpegVideoInst&& that);
 
 	virtual ~FfmpegVideoInst();
+
+
+	bool initialize(
+		const char* const file_name);
 
 
 	void Release() override;
