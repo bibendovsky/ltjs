@@ -366,6 +366,8 @@ LTRESULT CClientMgr::Init(const char *resTrees[MAX_RESTREES], uint32 nResTrees, 
 
     m_pVideoMgr = CreateVideoMgr("BINK");
 
+#elif defined (LTJS_USE_FFMPEG_VIDEO_MGR)
+	m_pVideoMgr = ::CreateVideoMgr("FFMPEG");
 #else
 
 //

@@ -4,6 +4,8 @@
 
 #include "binkvideomgrimpl.h"
 #include "dshowvideomgrimpl.h"
+#include "ltjs_ffmpeg_video_mgr_impl.h"
+
 
 extern int32 g_CV_VideoDebug;
 
@@ -59,6 +61,7 @@ VideoMgr* CreateVideoMgr( const char *pszName )
 {
 	bool want_bink    = (stricmp( pszName, "BINK" ) == 0);
 	bool want_dshow   = (stricmp( pszName, "DIRECTSHOW" ) == 0);
+	const auto want_ffmpeg = (::stricmp(pszName, "FFMPEG") == 0);
 
 	// load bink
 
@@ -100,6 +103,20 @@ VideoMgr* CreateVideoMgr( const char *pszName )
 
 #endif
 
+	}
+	else if (want_ffmpeg)
+	{
+#ifdef LTJS_USE_FFMPEG_VIDEO_MGR
+		auto video_mgr_uptr = std::make_unique<FfmpegVideoMgr>();
+
+		if (video_mgr_uptr)
+		{
+			if (video_mgr_uptr->initialize() == LT_OK)
+			{
+				return video_mgr_uptr.release();
+			}
+		}
+#endif // LTJS_USE_FFMPEG_VIDEO_MGR
 	}
 	else if ( want_dshow )
 	{
