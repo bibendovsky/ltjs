@@ -8,6 +8,10 @@
 #include <utility>
 
 
+namespace ltjs
+{
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // FfmpegVideoMgr::Impl
 //
@@ -216,6 +220,9 @@ LTRESULT FfmpegVideoInst::GetVideoStatus()
 //
 // FfmpegVideoInst
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+} // ltjs
 
 
 #endif // LTJS_USE_FFMPEG_VIDEO_MGR

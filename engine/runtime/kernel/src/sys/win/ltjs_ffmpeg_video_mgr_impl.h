@@ -10,6 +10,10 @@
 #include "videomgr.h"
 
 
+namespace ltjs
+{
+
+
 class FfmpegVideoMgr final :
 	public VideoMgr
 {
@@ -72,6 +76,9 @@ private:
 
 	ImplUPtr impl_;
 };
+
+
+} // ltjs
 
 
 #endif // LTJS_USE_FFMPEG_VIDEO_MGR

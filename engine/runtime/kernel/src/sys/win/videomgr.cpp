@@ -107,7 +107,7 @@ VideoMgr* CreateVideoMgr( const char *pszName )
 	else if (want_ffmpeg)
 	{
 #ifdef LTJS_USE_FFMPEG_VIDEO_MGR
-		auto video_mgr_uptr = std::make_unique<FfmpegVideoMgr>();
+		auto video_mgr_uptr = std::make_unique<ltjs::FfmpegVideoMgr>();
 
 		if (video_mgr_uptr)
 		{
