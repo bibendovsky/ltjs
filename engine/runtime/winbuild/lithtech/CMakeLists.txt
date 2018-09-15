@@ -3,6 +3,7 @@ project(ltjs_lith_tech VERSION 0.0.1 LANGUAGES CXX)
 
 option(LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
 option(LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
+option(LTJS_USE_FFMPEG_VIDEO_MGR "Use video manager implemented via FFmpeg." ON)
 
 if (LTJS_USE_DIRECT_MUSIC8 OR LTJS_USE_D3DX9)
 	set(LTJS_USE_BUNDLED_DIRECTX ON)
@@ -185,6 +186,8 @@ set(
     ../../kernel/src/sys/win/dshowvideomgrimpl.h
     ../../kernel/src/sys/win/dsys_interface.h
     ../../kernel/src/sys/win/dutil.h
+	../../kernel/src/sys/win/ltjs_ffmpeg_video_mgr_impl.h
+	../../kernel/src/sys/win/ltjs_fmv_player.h
     ../../kernel/src/sys/win/input.h
     ../../kernel/src/sys/win/interface_helpers.h
     ../../kernel/src/sys/win/load_pcx.h
@@ -401,6 +404,8 @@ set(
     ../../kernel/src/sys/win/dshowvideomgrimpl.cpp
     ../../kernel/src/sys/win/dsys_interface.cpp
     ../../kernel/src/sys/win/dutil.cpp
+	../../kernel/src/sys/win/ltjs_ffmpeg_video_mgr_impl.cpp
+	../../kernel/src/sys/win/ltjs_fmv_player.cpp
     ../../kernel/src/sys/win/input.cpp
     ../../kernel/src/sys/win/inputsim.cpp
     ../../kernel/src/sys/win/interface_helpers.cpp
@@ -575,6 +580,14 @@ target_compile_definitions(
     PRIVATE MODEL_SUPPORT_ABC
     PRIVATE $<$<CONFIG:DEBUG>:D3D_DEBUG_INFO>
 )
+
+if (LTJS_USE_FFMPEG_VIDEO_MGR)
+	target_compile_definitions(
+		ltjs_lith_tech
+		PRIVATE
+			LTJS_USE_FFMPEG_VIDEO_MGR
+	)
+endif ()
 
 if (NOT MSVC)
 	target_compile_definitions(
