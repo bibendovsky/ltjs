@@ -7,6 +7,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <deque>
+#include <functional>
 #include <iterator>
 #include <mutex>
 #include <thread>
@@ -535,7 +536,7 @@ void FmvPlayer::Impl::handle_audio_frame_buffer()
 
 	for (auto i = 0; i < buffer_count; ++i)
 	{
-		const auto pts_ms = (1000i64 * ff_decoded_sample_count_) / ff_dst_sample_rate_;
+		const auto pts_ms = (1000LL * ff_decoded_sample_count_) / ff_dst_sample_rate_;
 
 		auto frame = Frame{};
 
@@ -810,7 +811,7 @@ void FmvPlayer::Impl::handle_decode_video_state()
 	get_frame_rate_internal(fr_num, fr_den);
 
 	const auto pts = normalize_pts(ff_frame_->pts);
-	const auto pts_ms = (1000i64 * fr_den * pts) / fr_num;
+	const auto pts_ms = (1000LL * fr_den * pts) / fr_num;
 	frame.pts_ms_ = pts_ms;
 
 	frame.data_size_ = dst_size;
@@ -1342,7 +1343,7 @@ bool FmvPlayer::Impl::initialize_decoder(
 std::int64_t FmvPlayer::Impl::normalize_pts(
 	const std::int64_t pts)
 {
-	return pts != AV_NOPTS_VALUE ? pts : 0i64;
+	return pts != AV_NOPTS_VALUE ? pts : 0LL;
 }
 
 FmvPlayer::Impl::AVInputFormatPtr& FmvPlayer::Impl::get_ff_bik_input_format()
@@ -1435,7 +1436,7 @@ bool FmvPlayer::Impl::present()
 		return false;
 	}
 
-	const auto fr_ms = (1000i64 * fr_den) / fr_num;
+	const auto fr_ms = (1000LL * fr_den) / fr_num;
 
 	mt_pts_ms_.store(0, std::memory_order_release);
 
@@ -1497,7 +1498,7 @@ bool FmvPlayer::Impl::present()
 		const auto begin_time_point = std::chrono::system_clock::now();
 
 		auto is_presented = false;
-		auto delay_ms = 0i64;
+		auto delay_ms = 0LL;
 
 		while (frame_index < frame_count)
 		{
@@ -1621,7 +1622,7 @@ bool FmvPlayer::Impl::present_frame()
 	const auto begin_time_point = std::chrono::system_clock::now();
 
 	auto is_presented = false;
-	auto delay_ms = 0i64;
+	auto delay_ms = 0LL;
 
 	while (frame_index < frame_count)
 	{
@@ -1822,7 +1823,7 @@ void FmvPlayer::Impl::audio_worker()
 {
 	const auto sleep_delay_ms = std::chrono::milliseconds{FmvPlayerDetail::default_sleep_delay_ms};
 
-	const auto threshold_ms = 20i64;
+	const auto threshold_ms = 20LL;
 
 	auto frame_count_to_remove = 0;
 
@@ -1966,7 +1967,7 @@ std::int64_t FmvPlayer::Impl::ms_to_size(
 	const auto sample_size = static_cast<std::int64_t>(FmvPlayerDetail::audio_dst_sample_size);
 	const auto sample_rate = static_cast<std::int64_t>(ff_dst_sample_rate_);
 
-	const auto size = (milliseconds * sample_size * sample_rate) / 1000i64;
+	const auto size = (milliseconds * sample_size * sample_rate) / 1000LL;
 
 	return size;
 }
@@ -1977,7 +1978,7 @@ std::int64_t FmvPlayer::Impl::size_to_ms(
 	const auto sample_size = static_cast<std::int64_t>(FmvPlayerDetail::audio_dst_sample_size);
 	const auto sample_rate = static_cast<std::int64_t>(ff_dst_sample_rate_);
 
-	const auto ms = (1000i64 * size) / (sample_size * sample_rate);
+	const auto ms = (1000LL * size) / (sample_size * sample_rate);
 
 	return ms;
 }
@@ -2000,7 +2001,7 @@ bool FmvPlayer::Impl::present_frame_initialize()
 		return false;
 	}
 
-	present_frame_context_.frame_rate_ms_ = (1000i64 * fr_den) / fr_num;
+	present_frame_context_.frame_rate_ms_ = (1000LL * fr_den) / fr_num;
 
 	mt_pts_ms_.store(0, std::memory_order_release);
 
