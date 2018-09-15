@@ -1629,7 +1629,7 @@ bool FmvPlayer::Impl::present_frame()
 
 		const auto pts_ms_delta = frame.pts_ms_ - pts_ms;
 
-		if (pts_ms_delta < -10)
+		if (pts_ms_delta < -20)
 		{
 			present_frame_context_.frame_count_to_remove_ += 1;
 			frame_index += 1;
@@ -1637,7 +1637,7 @@ bool FmvPlayer::Impl::present_frame()
 
 			is_presented = false;
 		}
-		else if (pts_ms_delta <= 10)
+		else if (pts_ms_delta <= 20)
 		{
 			initialize_param_.video_present_func_(
 				initialize_param_.user_data_,
@@ -1659,11 +1659,6 @@ bool FmvPlayer::Impl::present_frame()
 
 			delay_ms = present_frame_context_.frame_rate_ms_ - delta_ms;
 
-			if (delay_ms < 0)
-			{
-				delay_ms = 0;
-			}
-
 			break;
 		}
 		else
@@ -1683,7 +1678,10 @@ bool FmvPlayer::Impl::present_frame()
 		}
 	}
 
-	std::this_thread::sleep_for(std::chrono::milliseconds{delay_ms});
+	if (delay_ms > 0)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds{delay_ms});
+	}
 
 	return true;
 }
