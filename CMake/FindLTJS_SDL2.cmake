@@ -1,6 +1,13 @@
 #
 # A very simple "find_package" implementation for SDL2.
 #
+# User-provided/generated variables:
+#
+#    - LTJS_SDL2_LIB_NAME - the name of SDL2 library.
+#                           Default: SDL2
+#    - LTJS_SDL2_MAIN_LIB_NAME - the name of SDL2main library.
+#                                Default: SDL2main
+#
 # Generated variables:
 #    - LTJS_SDL2_INCLUDE_DIR - path to SDL2 headers.
 #    - LTJS_SDL2_LIBRARY_DIR - path to SDL2 libraries.
@@ -112,10 +119,18 @@ endif ()
 unset(LTJS_SDL2_TMP_FOUND_LIBS)
 unset(LTJS_SDL2_TMP_MISSING_LIBS)
 
+if (NOT LTJS_SDL2_LIB_NAME)
+	set(LTJS_SDL2_LIB_NAME SDL2 CACHE STRING "The name of SDL2 library.")
+endif ()
+
+if (NOT LTJS_SDL2_MAIN_LIB_NAME)
+	set(LTJS_SDL2_MAIN_LIB_NAME SDL2main CACHE STRING "The name of SDL2main library.")
+endif ()
+
 find_library(
 	LTJS_SDL2_LIBRARY_DIR
 	NAMES
-		SDL2
+		${LTJS_SDL2_LIB_NAME}
 	HINTS
 		PATH_SUFFIXES
 			lib
@@ -129,7 +144,7 @@ if (LTJS_SDL2_LIBRARY_DIR)
 
 	set(
 		LTJS_SDL2_TMP_LIB
-		"${LTJS_SDL2_LIBRARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}SDL2${CMAKE_STATIC_LIBRARY_SUFFIX}"
+		"${LTJS_SDL2_LIBRARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${LTJS_SDL2_LIB_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}"
 	)
 
 	if (EXISTS "${LTJS_SDL2_TMP_LIB}")
@@ -142,11 +157,12 @@ if (LTJS_SDL2_LIBRARY_DIR)
 	if (LTJS_SDL2_TMP_MISSING_LIBS)
 		unset(LTJS_SDL2_LIBRARY)
 
-		message("Missing SDL2 library.")
+		message("Missing SDL2 library (${LTJS_SDL2_LIB_NAME}).")
+		message(FATAL_ERROR "")
 	else ()
 		set(
 			LTJS_SDL2_TMP_LIB
-			"${LTJS_SDL2_LIBRARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}SDL2main${CMAKE_STATIC_LIBRARY_SUFFIX}"
+			"${LTJS_SDL2_LIBRARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}${LTJS_SDL2_MAIN_LIB_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}"
 		)
 
 		if (EXISTS "${LTJS_SDL2_TMP_LIB}")
@@ -183,6 +199,6 @@ include(FindPackageHandleStandardArgs)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(
 	LTJS_SDL2
-	REQUIRED_VARS LTJS_SDL2_INCLUDE_DIR LTJS_SDL2_LIBRARY_DIR
+	REQUIRED_VARS LTJS_SDL2_LIB_NAME LTJS_SDL2_MAIN_LIB_NAME LTJS_SDL2_INCLUDE_DIR LTJS_SDL2_LIBRARY_DIR
 	VERSION_VAR LTJS_SDL2_VERSION
 )
