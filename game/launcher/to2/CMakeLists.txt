@@ -19,6 +19,7 @@ target_include_directories(
 	ltjs_nolf2_launcher
 	PRIVATE
 		${LTJS_SDL2_INCLUDE_DIR}
+		../../../libs/glad/1_1
 		../../../libs/imgui
 		..
 )
@@ -26,6 +27,7 @@ target_include_directories(
 target_sources(
 	ltjs_nolf2_launcher
 	PRIVATE
+		../../../libs/glad/1_1/glad.h
 		../../../libs/imgui/imconfig.h
 		../../../libs/imgui/imgui.h
 		../../../libs/imgui/imgui_internal.h
@@ -38,6 +40,7 @@ target_sources(
 target_sources(
 	ltjs_nolf2_launcher
 	PRIVATE
+		../../../libs/glad/1_1/glad.cpp
 		../../../libs/imgui/imgui.cpp
 		../../../libs/imgui/imgui_demo.cpp
 		../../../libs/imgui/imgui_draw.cpp
