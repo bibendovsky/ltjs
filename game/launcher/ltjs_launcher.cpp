@@ -123,20 +123,33 @@ private:
 }; // SystemCursors
 
 
+struct WindowCreateParam
+{
+	std::string title_;
+	int width_;
+	int height_;
+	bool is_hidden_;
+}; // WindowCreateParam
+
+
+class Window;
+using WindowPtr = Window*;
+
+
 class Window
 {
 public:
-	Window(
-		Window&& rhs);
+	virtual ~Window();
 
-	bool initialize(
-		const std::string& title,
-		const int width,
-		const int height);
 
 	bool is_initialized() const;
 
 	const std::string& get_error_message() const;
+
+	void show(
+		const bool is_show);
+
+	bool is_show() const;
 
 	void draw();
 
@@ -154,10 +167,9 @@ protected:
 	Window(
 		const Window& rhs) = delete;
 
-	virtual ~Window();
 
-
-	void uninitialize();
+	bool initialize(
+		const WindowCreateParam& param);
 
 	void handle_event(
 		const SDL_Event& sdl_event);
@@ -177,8 +189,9 @@ private:
 	Uint64 time_;
 
 
-	Uint32 get_id() const;
+	void uninitialize();
 
+	Uint32 get_id() const;
 
 	void im_new_frame();
 
@@ -195,22 +208,31 @@ private:
 	virtual void do_draw() = 0;
 }; // Window
 
-using WindowPtr = Window*;
 
+class ImDemoWindow;
+using ImDemoWindowPtr = ImDemoWindow*;
+using ImDemoWindowUPtr = std::unique_ptr<ImDemoWindow>;
 
 class ImDemoWindow final :
 	public Window
 {
 public:
-	ImDemoWindow();
-
-	ImDemoWindow(
-		ImDemoWindow&& rhs);
-
 	~ImDemoWindow() override;
 
 
+	static ImDemoWindowPtr create();
+
+
 private:
+	ImDemoWindow();
+
+
+	bool initialize(
+		const WindowCreateParam& param);
+
+	void uninitialize();
+
+
 	bool show_demo_window_;
 	bool show_another_window_;
 	float f_;
@@ -291,6 +313,7 @@ public:
 private:
 	bool is_initialized_;
 	std::string error_message_;
+	ImDemoWindowUPtr im_demo_window_uptr_;
 
 
 	bool initialize_ogl_functions();
@@ -551,40 +574,15 @@ Window::Window()
 {
 }
 
-Window::Window(
-	Window&& rhs)
-	:
-	is_initialized_{std::move(rhs.is_initialized_)},
-	error_message_{std::move(rhs.error_message_)},
-	sdl_window_{std::move(rhs.sdl_window_)},
-	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
-	sdl_window_id_{std::move(rhs.sdl_window_id_)},
-	ogl_font_atlas_{std::move(rhs.ogl_font_atlas_)},
-	im_context_{std::move(rhs.im_context_)},
-	pressed_mouse_buttons_{std::move(rhs.pressed_mouse_buttons_)},
-	time_{std::move(rhs.time_)}
-{
-	rhs.is_initialized_ = false;
-	rhs.sdl_window_ = nullptr;
-	rhs.sdl_gl_context_ = nullptr;
-	rhs.sdl_window_id_ = 0;
-	rhs.ogl_font_atlas_ = 0;
-	rhs.im_context_ = nullptr;
-}
-
 Window::~Window()
 {
 	uninitialize();
 }
 
 bool Window::initialize(
-	const std::string& title,
-	const int width,
-	const int height)
+	const WindowCreateParam& param)
 {
-	uninitialize();
-
-	if (width <= 0 || height <= 0)
+	if (param.width_ <= 0 || param.height_ <= 0)
 	{
 		error_message_ = "Invalid window dimensions.";
 		return false;
@@ -609,11 +607,11 @@ bool Window::initialize(
 	if (is_succeed)
 	{
 		sdl_window_ = ::SDL_CreateWindow(
-			title.c_str(),
+			param.title_.c_str(),
 			SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED,
-			width,
-			height,
+			param.width_,
+			param.height_,
 			sdl_window_flags);
 
 		if (!sdl_window_)
@@ -751,12 +749,14 @@ bool Window::initialize(
 		auto& clipboard = Clipboard::get_instance();
 		clipboard.initialize_im_context(io);
 
-		::SDL_ShowWindow(sdl_window_);
+		if (!param.is_hidden_)
+		{
+			::SDL_ShowWindow(sdl_window_);
+		}
 	}
 
 	if (!is_succeed)
 	{
-		uninitialize();
 		return false;
 	}
 
@@ -777,6 +777,36 @@ bool Window::is_initialized() const
 const std::string& Window::get_error_message() const
 {
 	return error_message_;
+}
+
+void Window::show(
+	const bool is_show)
+{
+	if (!is_initialized_ || !sdl_window_)
+	{
+		return;
+	}
+
+	if (is_show)
+	{
+		::SDL_ShowWindow(sdl_window_);
+	}
+	else
+	{
+		::SDL_HideWindow(sdl_window_);
+	}
+}
+
+bool Window::is_show() const
+{
+	if (!is_initialized_ || !sdl_window_)
+	{
+		return false;
+	}
+
+	const auto sdl_window_flags = ::SDL_GetWindowFlags(sdl_window_);
+
+	return (sdl_window_flags & SDL_WINDOW_SHOWN) != 0;
 }
 
 void Window::draw()
@@ -1274,6 +1304,20 @@ void Window::im_render_data(
 // ImDemoWindow
 //
 
+ImDemoWindowPtr ImDemoWindow::create()
+{
+	auto im_demo_window_ptr = new ImDemoWindow();
+
+	auto im_demo_window_param = WindowCreateParam{};
+	im_demo_window_param.title_ = "ImGUI demo";
+	im_demo_window_param.width_ = 1280;
+	im_demo_window_param.height_ = 720;
+
+	static_cast<void>(im_demo_window_ptr->initialize(im_demo_window_param));
+
+	return im_demo_window_ptr;
+}
+
 ImDemoWindow::ImDemoWindow()
 	:
 	show_demo_window_{true},
@@ -1283,18 +1327,22 @@ ImDemoWindow::ImDemoWindow()
 {
 }
 
-ImDemoWindow::ImDemoWindow(
-	ImDemoWindow&& rhs)
-	:
-	Window{std::move(rhs)},
-	show_demo_window_{std::move(rhs.show_demo_window_)},
-	show_another_window_{std::move(rhs.show_another_window_)},
-	f_{std::move(rhs.f_)},
-	counter_{std::move(rhs.counter_)}
+ImDemoWindow::~ImDemoWindow()
 {
 }
 
-ImDemoWindow::~ImDemoWindow()
+bool ImDemoWindow::initialize(
+	const WindowCreateParam& param)
+{
+	if (!Window::initialize(param))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void ImDemoWindow::uninitialize()
 {
 }
 
@@ -1485,7 +1533,8 @@ void WindowManager::unregister_window(
 Launcher::Launcher()
 	:
 	is_initialized_{},
-	error_message_{}
+	error_message_{},
+	im_demo_window_uptr_{}
 {
 }
 
@@ -1493,7 +1542,8 @@ Launcher::Launcher(
 	Launcher&& rhs)
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
-	error_message_{std::move(rhs.error_message_)}
+	error_message_{std::move(rhs.error_message_)},
+	im_demo_window_uptr_{std::move(rhs.im_demo_window_uptr_)}
 {
 }
 
@@ -1507,52 +1557,75 @@ bool Launcher::initialize()
 {
 	uninitialize();
 
-	if (!initialize_sdl())
+	auto is_succeed = true;
+
+	if (is_succeed)
 	{
-		return false;
+		if (!initialize_sdl())
+		{
+			is_succeed = false;
+		}
 	}
 
-	// Clipboard
-	//
+	if (is_succeed)
+	{
+		// Clipboard
+		//
 
-	auto& clipboard = Clipboard::get_instance();
-	clipboard.initialize();
-
-
-	// SystemCursors
-	//
-
-	auto& system_cursors = SystemCursors::get_instance();
-	system_cursors.initialize();
+		auto& clipboard = Clipboard::get_instance();
+		clipboard.initialize();
 
 
-	// WindowManager
-	//
+		// SystemCursors
+		//
 
-	auto& window_manager = WindowManager::get_instance();
-	window_manager.initialize();
+		auto& system_cursors = SystemCursors::get_instance();
+		system_cursors.initialize();
 
 
-	// ImageCache
-	//
+		// WindowManager
+		//
 
-	const auto font_file_name = std::string{"F:\\temp\\noto_sans_display_condensed.ttf"};
+		auto& window_manager = WindowManager::get_instance();
+		window_manager.initialize();
+	}
 
-	auto& image_cache = ImageCache::get_instance();
+	if (is_succeed)
+	{
+		// ImageCache
+		//
 
-	image_cache.initialize();
+		const auto font_file_name = std::string{"F:\\temp\\noto_sans_display_condensed.ttf"};
 
-	const auto set_font_result = image_cache.set_font(font_file_name, 18);
+		auto& image_cache = ImageCache::get_instance();
 
-	if (!set_font_result)
+		image_cache.initialize();
+
+		const auto set_font_result = image_cache.set_font(font_file_name, 18);
+
+		if (!set_font_result)
+		{
+			is_succeed = false;
+			error_message_ = "Failed to cache font: \"" + font_file_name + "\".";
+		}
+	}
+
+	if (is_succeed)
+	{
+		im_demo_window_uptr_.reset(ImDemoWindow::create());
+
+		if (!im_demo_window_uptr_->is_initialized())
+		{
+			is_succeed = false;
+			error_message_ = "Failed to initialize ImGui demo window. " + im_demo_window_uptr_->get_error_message();
+		}
+	}
+
+	if (!is_succeed)
 	{
 		uninitialize();
-
-		error_message_ = "Failed to cache font: \"" + font_file_name + "\".";
 		return false;
 	}
-
-	//
 
 	is_initialized_ = true;
 
@@ -1563,6 +1636,9 @@ void Launcher::uninitialize()
 {
 	is_initialized_ = false;
 	error_message_ = {};
+
+
+	im_demo_window_uptr_ = {};
 
 
 	// Clipboard
@@ -1810,9 +1886,6 @@ int main(
 
 		return 1;
 	}
-
-	auto im_demo_window = ImDemoWindow{};
-	im_demo_window.initialize("ImGUI demo", 1280, 720);
 
 	launcher.run();
 
