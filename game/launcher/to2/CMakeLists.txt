@@ -19,6 +19,7 @@ target_include_directories(
 	ltjs_nolf2_launcher
 	PRIVATE
 		${LTJS_SDL2_INCLUDE_DIR}
+		../../../libs/bibendovsky_spul_lib/include
 		../../../libs/glad/1_1
 		../../../libs/imgui
 		..
@@ -75,6 +76,7 @@ endif ()
 target_link_libraries(
 	ltjs_nolf2_launcher
 	${LTJS_SDL2_LIBRARY}
+	bibendovsky_spul_lib
 )
 
 install(

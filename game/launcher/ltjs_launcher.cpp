@@ -2,18 +2,138 @@
 #include <cstddef>
 #include <cstdint>
 #include <array>
+#include <algorithm>
+#include <iterator>
 #include <limits>
+#include <sstream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
+#include <vector>
+#include "bibendovsky_spul_path_utils.h"
 #include "glad.h"
 #include "imgui.h"
 #include "SDL.h"
 
 
+#ifndef GL_BGR_EXT
+#define GL_BGR_EXT 0x80E0
+#endif // !GL_BGR_EXT
+
+#ifndef GL_BGRA_EXT
+#define GL_BGRA_EXT 0x80E1
+#endif // !GL_BGRA_EXT
+
+
+namespace ul = bibendovsky::spul;
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // Classes
 //
+
+enum class ImageId
+{
+	boxbackground,
+	checkboxc,
+	checkboxf,
+	checkboxn,
+	closed,
+	closeu,
+	error,
+	information,
+	minimized,
+	minimizeu,
+	warning,
+
+	canceld,
+	cancelf,
+	cancelu,
+	company1webd,
+	company1webf,
+	company1webu,
+	company2webd,
+	company2webf,
+	company2webu,
+	custombackground,
+	customd,
+	customf,
+	customu,
+	customx,
+	demomainappbackground,
+	detailsettingsbackground,
+	displaybackground,
+	displayd,
+	displayf,
+	displayu,
+	displayx,
+	highdetaild,
+	highdetailf,
+	highdetailu,
+	installd,
+	installf,
+	installu,
+	lowdetaild,
+	lowdetailf,
+	lowdetailu,
+	mainappbackground,
+	mediumdetaild,
+	mediumdetailf,
+	mediumdetailu,
+	nextd,
+	nextf,
+	nextu,
+	nextx,
+	okd,
+	okf,
+	oku,
+	optionsbackground,
+	optionsd,
+	optionsf,
+	optionsu,
+	optionsx,
+	playd,
+	playf,
+	playu,
+	previousd,
+	previousf,
+	previousu,
+	previousx,
+	publisher1webd,
+	publisher1webf,
+	publisher1webu,
+	publisher2webd,
+	publisher2webf,
+	publisher2webu,
+	quitd,
+	quitf,
+	quitu,
+	serverd,
+	serverf,
+	serveru,
+	serverx,
+}; // ImageId
+
+
+class OglExtensions
+{
+public:
+	static OglExtensions& get_instance();
+
+
+	void initialize();
+
+	bool has_ext_bgra() const;
+
+
+private:
+	bool has_ext_bgra_;
+
+
+	OglExtensions();
+}; // OglExtensions
+
 
 class ImageCache final
 {
@@ -23,6 +143,8 @@ public:
 
 	static ImageCache& get_instance();
 
+
+	const std::string& get_error_message() const;
 
 	void initialize();
 
@@ -35,16 +157,30 @@ public:
 	ImFontAtlas& get_font_atlas();
 
 
+	bool load_images();
+
+	SDL_Surface* get_image_surface(
+		const ImageId image_id);
+
+
 private:
 	using ImFontAtlasUPtr = std::unique_ptr<ImFontAtlas>;
+	using Strings = std::vector<std::string>;
+	using Surfaces = std::vector<SDL_Surface*>;
+
+
+	static const std::string images_path;
+
+	static const Strings image_file_names_;
+
+	std::string error_message_;
+	ImFontAtlasUPtr font_atlas_uptr_;
+	Surfaces image_surfaces_;
 
 
 	ImageCache();
 
 	~ImageCache();
-
-
-	ImFontAtlasUPtr font_atlas_uptr_;
 }; // ImageCache
 
 
@@ -174,6 +310,9 @@ protected:
 	void handle_event(
 		const SDL_Event& sdl_event);
 
+	GLuint ogl_create_texture(
+		SDL_Surface* sdl_surface);
+
 
 private:
 	friend class WindowManager;
@@ -237,6 +376,7 @@ private:
 	bool show_another_window_;
 	float f_;
 	int counter_;
+	GLuint ogl_test_texture_;
 
 
 	void do_draw() override;
@@ -329,19 +469,152 @@ private:
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// OglExtensions
+//
+
+OglExtensions::OglExtensions()
+	:
+	has_ext_bgra_{}
+{
+}
+
+OglExtensions& OglExtensions::get_instance()
+{
+	static OglExtensions ogl_extensions{};
+
+	return ogl_extensions;
+}
+
+void OglExtensions::initialize()
+{
+	auto extentions_iss = std::istringstream{reinterpret_cast<const char*>(::glGetString(GL_EXTENSIONS))};
+
+	const auto extensions = std::unordered_set<std::string>{
+		std::istream_iterator<std::string>{extentions_iss},
+		std::istream_iterator<std::string>{}};
+
+	has_ext_bgra_ = (extensions.find("GL_EXT_bgra") != extensions.cend());
+}
+
+bool OglExtensions::has_ext_bgra() const
+{
+	return has_ext_bgra_;
+}
+
+//
+// OglExtensions
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // ImageCache
 //
 
+const std::string ImageCache::images_path = "ltjs/nolf2/launcher/images";
+
+const ImageCache::Strings ImageCache::image_file_names_ = Strings
+{
+	// Common
+	//
+
+	"boxbackground.bmp",
+	"checkboxc.bmp",
+	"checkboxf.bmp",
+	"checkboxn.bmp",
+	"closed.bmp",
+	"closeu.bmp",
+	"error.bmp",
+	"information.bmp",
+	"minimized.bmp",
+	"minimizeu.bmp",
+	"warning.bmp",
+
+	// Language-specific
+	//
+
+	"canceld.bmp",
+	"cancelf.bmp",
+	"cancelu.bmp",
+	"company1webd.bmp",
+	"company1webf.bmp",
+	"company1webu.bmp",
+	"company2webd.bmp",
+	"company2webf.bmp",
+	"company2webu.bmp",
+	"custombackground.bmp",
+	"customd.bmp",
+	"customf.bmp",
+	"customu.bmp",
+	"customx.bmp",
+	"demomainappbackground.bmp",
+	"detailsettingsbackground.bmp",
+	"displaybackground.bmp",
+	"displayd.bmp",
+	"displayf.bmp",
+	"displayu.bmp",
+	"displayx.bmp",
+	"highdetaild.bmp",
+	"highdetailf.bmp",
+	"highdetailu.bmp",
+	"installd.bmp",
+	"installf.bmp",
+	"installu.bmp",
+	"lowdetaild.bmp",
+	"lowdetailf.bmp",
+	"lowdetailu.bmp",
+	"mainappbackground.bmp",
+	"mediumdetaild.bmp",
+	"mediumdetailf.bmp",
+	"mediumdetailu.bmp",
+	"nextd.bmp",
+	"nextf.bmp",
+	"nextu.bmp",
+	"nextx.bmp",
+	"okd.bmp",
+	"okf.bmp",
+	"oku.bmp",
+	"optionsbackground.bmp",
+	"optionsd.bmp",
+	"optionsf.bmp",
+	"optionsu.bmp",
+	"optionsx.bmp",
+	"playd.bmp",
+	"playf.bmp",
+	"playu.bmp",
+	"previousd.bmp",
+	"previousf.bmp",
+	"previousu.bmp",
+	"previousx.bmp",
+	"publisher1webd.bmp",
+	"publisher1webf.bmp",
+	"publisher1webu.bmp",
+	"publisher2webd.bmp",
+	"publisher2webf.bmp",
+	"publisher2webu.bmp",
+	"quitd.bmp",
+	"quitf.bmp",
+	"quitu.bmp",
+	"serverd.bmp",
+	"serverf.bmp",
+	"serveru.bmp",
+	"serverx.bmp",
+}; // ImageCache::image_file_names_
+
+
 ImageCache::ImageCache()
 	:
-	font_atlas_uptr_{std::make_unique<ImFontAtlas>()}
+	error_message_{},
+	font_atlas_uptr_{std::make_unique<ImFontAtlas>()},
+	image_surfaces_{}
 {
 }
 
 ImageCache::ImageCache(
 	ImageCache&& rhs)
 	:
-	font_atlas_uptr_{std::move(rhs.font_atlas_uptr_)}
+	error_message_{std::move(rhs.error_message_)},
+	font_atlas_uptr_{std::move(rhs.font_atlas_uptr_)},
+	image_surfaces_{std::move(rhs.image_surfaces_)}
 {
 }
 
@@ -352,17 +625,36 @@ ImageCache::~ImageCache()
 ImageCache& ImageCache::get_instance()
 {
 	static auto image_cache = ImageCache{};
+
 	return image_cache;
+}
+
+const std::string& ImageCache::get_error_message() const
+{
+	return error_message_;
 }
 
 void ImageCache::initialize()
 {
 	uninitialize();
+
+	image_surfaces_.resize(image_file_names_.size());
 }
 
 void ImageCache::uninitialize()
 {
 	font_atlas_uptr_->Clear();
+
+	for (auto& surface : image_surfaces_)
+	{
+		if (surface)
+		{
+			::SDL_FreeSurface(surface);
+			surface = nullptr;
+		}
+	}
+
+	image_surfaces_.clear();
 }
 
 bool ImageCache::set_font(
@@ -373,12 +665,76 @@ bool ImageCache::set_font(
 
 	auto im_font_ptr = font_atlas_uptr_->AddFontFromFileTTF(file_name.c_str(), font_size_pixels);
 
-	return im_font_ptr != nullptr;
+	if (!im_font_ptr)
+	{
+		error_message_ = "Failed to load font: \"" + file_name + "\".";
+		return false;
+	}
+
+	return true;
 }
 
 ImFontAtlas& ImageCache::get_font_atlas()
 {
 	return *font_atlas_uptr_;
+}
+
+bool ImageCache::load_images()
+{
+	const auto image_count = static_cast<int>(image_file_names_.size());
+
+	for (auto i = 0; i < image_count; ++i)
+	{
+		const auto& image_file_name = image_file_names_[i];
+
+		const auto invariant_image_path = ul::PathUtils::normalize(ul::PathUtils::append(images_path, image_file_name));
+
+		auto image_surface = ::SDL_LoadBMP(invariant_image_path.c_str());
+
+		if (!image_surface)
+		{
+			const auto specific_image_path = ul::PathUtils::normalize(
+				ul::PathUtils::append(ul::PathUtils::append(images_path, "en"), image_file_name));
+
+			image_surface = ::SDL_LoadBMP(specific_image_path.c_str());
+
+			if (!image_surface)
+			{
+				error_message_ = "Failed to load image: \"" + image_file_name + "\".";
+				return false;
+			}
+		}
+
+		image_surfaces_[i] = image_surface;
+
+		switch (image_surface->format->BitsPerPixel)
+		{
+		case 24:
+		case 32:
+			break;
+
+		default:
+			error_message_ = "Image \"" + image_file_name + "\" has unsupported bit depth: " +
+				std::to_string(image_surface->format->BitsPerPixel) + ".";
+
+			return false;
+		}
+	}
+
+	return true;
+}
+
+SDL_Surface* ImageCache::get_image_surface(
+	const ImageId image_id)
+{
+	const auto image_index = static_cast<int>(image_id);
+
+	if (image_index < 0 || image_index >= static_cast<int>(image_surfaces_.size()))
+	{
+		return nullptr;
+	}
+
+	return image_surfaces_[image_index];
 }
 
 //
@@ -963,6 +1319,113 @@ void Window::handle_event(
 	ImGui::SetCurrentContext(nullptr);
 }
 
+GLuint Window::ogl_create_texture(
+	SDL_Surface* sdl_surface)
+{
+	if (!sdl_surface)
+	{
+		return 0;
+	}
+
+	if (sdl_surface->w <= 0 || sdl_surface->h <= 0)
+	{
+		return 0;
+	}
+
+	if ((sdl_surface->format->BytesPerPixel * sdl_surface->w) != sdl_surface->pitch)
+	{
+		return 0;
+	}
+
+	if (!sdl_surface->pixels)
+	{
+		return 0;
+	}
+
+
+	static auto buffer = std::vector<std::uint8_t>{};
+
+	const auto& ogl_extensions = OglExtensions::get_instance();
+	const auto has_bgra = ogl_extensions.has_ext_bgra();
+
+	if (!has_bgra)
+	{
+		const auto bpp = sdl_surface->format->BytesPerPixel;
+		const auto area = sdl_surface->w * sdl_surface->h * bpp;
+
+		if (static_cast<int>(buffer.size()) < area)
+		{
+			buffer.resize(area);
+		}
+
+		for (auto i = 0; i < sdl_surface->h; ++i)
+		{
+			auto src_pixels = static_cast<const std::uint8_t*>(sdl_surface->pixels) + (i * sdl_surface->pitch);
+			auto dst_pixels = buffer.data() + (i * sdl_surface->w * bpp);
+
+			for (auto j = 0; j < sdl_surface->w; ++j)
+			{
+				if (bpp == 3)
+				{
+					dst_pixels[0] = src_pixels[2];
+					dst_pixels[1] = src_pixels[1];
+					dst_pixels[2] = src_pixels[0];
+				}
+				else
+				{
+					dst_pixels[0] = src_pixels[3];
+					dst_pixels[1] = src_pixels[2];
+					dst_pixels[2] = src_pixels[1];
+					dst_pixels[3] = src_pixels[0];
+				}
+
+				src_pixels += bpp;
+				dst_pixels += bpp;
+			}
+		}
+	}
+
+	auto format = GLenum{};
+	auto internal_format = GLenum{};
+
+	switch (sdl_surface->format->BitsPerPixel)
+	{
+	case 24:
+		format = (has_bgra ? GL_BGR_EXT : GL_RGB);
+		internal_format = GL_RGB;
+		break;
+
+	case 32:
+		format = (has_bgra ? GL_BGRA_EXT : GL_RGBA);
+		internal_format = GL_RGBA;
+		break;
+
+	default:
+		return 0;
+	}
+
+	auto ogl_texture = GLuint{};
+
+	::glGenTextures(1, &ogl_texture);
+	::glBindTexture(GL_TEXTURE_2D, ogl_texture);
+
+	::glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		internal_format,
+		sdl_surface->w,
+		sdl_surface->h,
+		0,
+		format,
+		GL_UNSIGNED_BYTE,
+		has_bgra ? sdl_surface->pixels : buffer.data());
+
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	return ogl_texture;
+}
+
 Uint32 Window::get_id() const
 {
 	return sdl_window_id_;
@@ -1323,12 +1786,14 @@ ImDemoWindow::ImDemoWindow()
 	show_demo_window_{true},
 	show_another_window_{},
 	f_{},
-	counter_{}
+	counter_{},
+	ogl_test_texture_{}
 {
 }
 
 ImDemoWindow::~ImDemoWindow()
 {
+	uninitialize();
 }
 
 bool ImDemoWindow::initialize(
@@ -1339,11 +1804,21 @@ bool ImDemoWindow::initialize(
 		return false;
 	}
 
+	auto& image_cache = ImageCache::get_instance();
+	auto image_surface = image_cache.get_image_surface(ImageId::boxbackground);
+
+	ogl_test_texture_ = ogl_create_texture(image_surface);
+
 	return true;
 }
 
 void ImDemoWindow::uninitialize()
 {
+	if (ogl_test_texture_ != 0)
+	{
+		::glDeleteTextures(1, &ogl_test_texture_);
+		ogl_test_texture_ = 0;
+	}
 }
 
 void ImDemoWindow::do_draw()
@@ -1606,7 +2081,18 @@ bool Launcher::initialize()
 		if (!set_font_result)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to cache font: \"" + font_file_name + "\".";
+			error_message_ = image_cache.get_error_message();
+		}
+	}
+
+	if (is_succeed)
+	{
+		auto& image_cache = ImageCache::get_instance();
+
+		if (!image_cache.load_images())
+		{
+			is_succeed = false;
+			error_message_ = image_cache.get_error_message();
 		}
 	}
 
@@ -1797,6 +2283,15 @@ bool Launcher::initialize_ogl_functions()
 			is_succeed = false;
 			error_message_ = "Failed to initialize GLAD.";
 		}
+	}
+
+	// Initialize OpenGL extensions.
+	//
+
+	if (is_succeed)
+	{
+		auto& ogl_extensions = OglExtensions::get_instance();
+		ogl_extensions.initialize();
 	}
 
 
