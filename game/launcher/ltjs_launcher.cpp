@@ -700,7 +700,7 @@ bool ImageCache::load_images()
 
 			if (!image_surface)
 			{
-				error_message_ = "Failed to load image: \"" + image_file_name + "\".";
+				error_message_ = "Failed to load image: \"" + invariant_image_path + "\".";
 				return false;
 			}
 		}
@@ -1209,7 +1209,6 @@ void Window::uninitialize()
 	}
 
 	is_initialized_ = false;
-	error_message_ = {};
 
 	if (sdl_gl_context_)
 	{
@@ -2121,7 +2120,6 @@ bool Launcher::initialize()
 void Launcher::uninitialize()
 {
 	is_initialized_ = false;
-	error_message_ = {};
 
 
 	im_demo_window_uptr_ = {};
@@ -2373,10 +2371,17 @@ int main(
 
 	if (!launcher.initialize())
 	{
+		auto error_message = launcher.get_error_message();
+
+		if (error_message.empty())
+		{
+			error_message = "Generic failure.";
+		}
+
 		::SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_ERROR,
 			"Launcher",
-			launcher.get_error_message().c_str(),
+			error_message.c_str(),
 			nullptr);
 
 		return 1;
