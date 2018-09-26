@@ -287,8 +287,15 @@ protected:
 		ImVec2& uv0,
 		ImVec2& uv1);
 
+	void minimize_internal(
+		const bool is_minimize);
+
 	static int ogl_calculate_npot_dimension(
 		const int dimension);
+
+	static bool is_point_inside_rect(
+		const ImVec2& point,
+		const ImVec4& rect);
 
 
 private:
@@ -340,8 +347,8 @@ public:
 
 
 private:
-	static constexpr auto window_width = 600;
-	static constexpr auto window_height = 250;
+	static constexpr auto window_width = 525;
+	static constexpr auto window_height = 245;
 
 
 	MainWindow();
@@ -353,9 +360,31 @@ private:
 	void uninitialize();
 
 
+	// Background.
+	//
 	GLuint ogl_mainappbackground_texture_;
 	ImVec2 ogl_mainappbackground_uv0_;
 	ImVec2 ogl_mainappbackground_uv1_;
+
+	// Minimize.
+	//
+	GLuint ogl_minimized_texture_;
+	ImVec2 ogl_minimized_uv0_;
+	ImVec2 ogl_minimized_uv1_;
+
+	GLuint ogl_minimizeu_texture_;
+	ImVec2 ogl_minimizeu_uv0_;
+	ImVec2 ogl_minimizeu_uv1_;
+
+	// Close.
+	//
+	GLuint ogl_closed_texture_;
+	ImVec2 ogl_closed_uv0_;
+	ImVec2 ogl_closed_uv1_;
+
+	GLuint ogl_closeu_texture_;
+	ImVec2 ogl_closeu_uv0_;
+	ImVec2 ogl_closeu_uv1_;
 
 
 	void do_draw() override;
@@ -1403,10 +1432,23 @@ GLuint Window::ogl_create_texture(
 		GL_UNSIGNED_BYTE,
 		is_convert ? buffer.data() : sdl_surface->pixels);
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	return ogl_texture;
+}
+
+void Window::minimize_internal(
+	const bool is_minimize)
+{
+	if (is_minimize)
+	{
+		::SDL_MinimizeWindow(sdl_window_);
+	}
+	else
+	{
+		::SDL_RestoreWindow(sdl_window_);
+	}
 }
 
 int Window::ogl_calculate_npot_dimension(
@@ -1420,6 +1462,15 @@ int Window::ogl_calculate_npot_dimension(
 	}
 
 	return 1 << power;
+}
+
+bool Window::is_point_inside_rect(
+	const ImVec2& point,
+	const ImVec4& rect)
+{
+	return
+		point.x >= rect.x && point.x < (rect.x + rect.w) &&
+		point.y >= rect.y && point.y < (rect.y + rect.z);
 }
 
 Uint32 Window::get_id() const
@@ -1763,6 +1814,31 @@ void Window::im_render_data(
 // MainWindow
 //
 
+MainWindow::MainWindow()
+	:
+	ogl_mainappbackground_texture_{},
+	ogl_mainappbackground_uv0_{},
+	ogl_mainappbackground_uv1_{},
+	ogl_minimized_texture_{},
+	ogl_minimized_uv0_{},
+	ogl_minimized_uv1_{},
+	ogl_minimizeu_texture_{},
+	ogl_minimizeu_uv0_{},
+	ogl_minimizeu_uv1_{},
+	ogl_closed_texture_{},
+	ogl_closed_uv0_{},
+	ogl_closed_uv1_{},
+	ogl_closeu_texture_{},
+	ogl_closeu_uv0_{},
+	ogl_closeu_uv1_{}
+{
+}
+
+MainWindow::~MainWindow()
+{
+	uninitialize();
+}
+
 MainWindowPtr MainWindow::create()
 {
 	auto im_demo_window_ptr = new MainWindow();
@@ -1777,19 +1853,6 @@ MainWindowPtr MainWindow::create()
 	return im_demo_window_ptr;
 }
 
-MainWindow::MainWindow()
-	:
-	ogl_mainappbackground_texture_{},
-	ogl_mainappbackground_uv0_{},
-	ogl_mainappbackground_uv1_{}
-{
-}
-
-MainWindow::~MainWindow()
-{
-	uninitialize();
-}
-
 bool MainWindow::initialize(
 	const WindowCreateParam& param)
 {
@@ -1799,27 +1862,111 @@ bool MainWindow::initialize(
 	}
 
 	auto& image_cache = ImageCache::get_instance();
-	auto image_surface = image_cache.get_image_surface(ImageId::mainappbackground);
 
-	ogl_mainappbackground_texture_ = ogl_create_texture(image_surface, ogl_mainappbackground_uv0_, ogl_mainappbackground_uv1_);
 
+	// mainappbackground
+	//
+	auto mainappbackground_surface = image_cache.get_image_surface(ImageId::mainappbackground);
+
+	ogl_mainappbackground_texture_ = ogl_create_texture(
+		mainappbackground_surface, ogl_mainappbackground_uv0_, ogl_mainappbackground_uv1_);
+
+	// minimized
+	//
+	auto minimized_surface = image_cache.get_image_surface(ImageId::minimized);
+
+	ogl_minimized_texture_ = ogl_create_texture(minimized_surface, ogl_minimized_uv0_, ogl_minimized_uv1_);
+
+	// minimizeu
+	//
+	auto minimizeu_surface = image_cache.get_image_surface(ImageId::minimizeu);
+
+	ogl_minimizeu_texture_ = ogl_create_texture(minimizeu_surface, ogl_minimizeu_uv0_, ogl_minimizeu_uv1_);
+
+
+	// closed
+	//
+	auto closed_surface = image_cache.get_image_surface(ImageId::closed);
+
+	ogl_closed_texture_ = ogl_create_texture(closed_surface, ogl_closed_uv0_, ogl_closed_uv1_);
+
+	// closeu
+	//
+	auto closeu_surface = image_cache.get_image_surface(ImageId::closeu);
+
+	ogl_closeu_texture_ = ogl_create_texture(closeu_surface, ogl_closeu_uv0_, ogl_closeu_uv1_);
+
+
+	//
 	return true;
 }
 
 void MainWindow::uninitialize()
 {
+	// Background.
+	//
 	if (ogl_mainappbackground_texture_ != 0)
 	{
 		::glDeleteTextures(1, &ogl_mainappbackground_texture_);
 		ogl_mainappbackground_texture_ = 0;
 	}
+
+	// Minimize.
+	//
+	if (ogl_minimized_texture_ != 0)
+	{
+		::glDeleteTextures(1, &ogl_minimized_texture_);
+		ogl_minimized_texture_ = 0;
+	}
+
+	if (ogl_minimizeu_texture_ != 0)
+	{
+		::glDeleteTextures(1, &ogl_minimizeu_texture_);
+		ogl_minimizeu_texture_ = 0;
+	}
+
+	// Close.
+	//
+	if (ogl_closed_texture_ != 0)
+	{
+		::glDeleteTextures(1, &ogl_closed_texture_);
+		ogl_closed_texture_ = 0;
+	}
+
+	if (ogl_closeu_texture_ != 0)
+	{
+		::glDeleteTextures(1, &ogl_closeu_texture_);
+		ogl_closeu_texture_ = 0;
+	}
 }
 
 void MainWindow::do_draw()
 {
-	const auto zero_vec2 = ImVec2{};
+	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
+	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
 
-	auto main_flags =
+	const auto mouse_pos = ImGui::GetMousePos();
+
+	const auto window_rect = ImVec4
+	{
+		0.0F,
+		0.0F,
+		static_cast<float>(window_width),
+		static_cast<float>(window_height),
+	};
+
+	const auto minimize_pos = ImVec2{487.0F, 6.0F};
+	const auto minimize_size = ImVec2{16.0F, 14.0F};
+	const auto minimize_rect = ImVec4{minimize_pos.x, minimize_pos.y, minimize_size.x, minimize_size.y};
+
+	const auto close_pos = ImVec2{503, 6.0F};
+	const auto close_size = ImVec2{16.0F, 14.0F};
+	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
+
+
+	// Begin main window.
+	//
+	const auto main_flags =
 		ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoResize |
 		ImGuiWindowFlags_NoMove |
@@ -1833,6 +1980,7 @@ void MainWindow::do_draw()
 	ImGui::SetWindowPos({}, ImGuiCond_Always);
 	ImGui::SetWindowSize(ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)}, ImGuiCond_Always);
 
+
 	// Background.
 	//
 	ImGui::SetCursorPos(ImVec2{});
@@ -1843,7 +1991,91 @@ void MainWindow::do_draw()
 		ogl_mainappbackground_uv0_,
 		ogl_mainappbackground_uv1_);
 
+
+	// Minimize button.
+	//
+	auto is_minimize_button_clicked = false;
+	auto is_minimize_mouse_button_down = false;
+
+	if (is_mouse_button_down || is_mouse_button_up)
+	{
+		if (is_point_inside_rect(mouse_pos, minimize_rect))
+		{
+			if (is_mouse_button_down)
+			{
+				is_minimize_mouse_button_down = true;
+			}
+
+			if (is_mouse_button_up)
+			{
+				is_minimize_button_clicked = true;
+			}
+		}
+	}
+
+	const auto ogl_minimize_texture = (is_minimize_mouse_button_down ? ogl_minimized_texture_ : ogl_minimizeu_texture_);
+
+	ImGui::SetCursorPos(minimize_pos);
+
+	ImGui::Image(
+		reinterpret_cast<ImTextureID>(static_cast<std::intptr_t>(ogl_minimize_texture)),
+		minimize_size,
+		ogl_minimized_uv0_,
+		ogl_minimized_uv1_);
+
+
+	// Close button.
+	//
+	auto is_close_button_clicked = false;
+	auto is_close_mouse_button_down = false;
+
+	if (is_mouse_button_down || is_mouse_button_up)
+	{
+		if (is_point_inside_rect(mouse_pos, close_rect))
+		{
+			if (is_mouse_button_down)
+			{
+				is_close_mouse_button_down = true;
+			}
+
+			if (is_mouse_button_up)
+			{
+				is_close_button_clicked = true;
+			}
+		}
+	}
+
+	const auto ogl_close_texture = (is_close_mouse_button_down ? ogl_closed_texture_ : ogl_closeu_texture_);
+
+	ImGui::SetCursorPos(close_pos);
+
+	ImGui::Image(
+		reinterpret_cast<ImTextureID>(static_cast<std::intptr_t>(ogl_close_texture)),
+		close_size,
+		ogl_closed_uv0_,
+		ogl_closed_uv1_);
+
+
+	// End main window.
+	//
 	ImGui::End();
+
+
+	// Handle events.
+	//
+
+	if (is_minimize_button_clicked)
+	{
+		minimize_internal(true);
+	}
+
+	if (is_close_button_clicked)
+	{
+		SDL_Event sdl_event;
+
+		sdl_event.type = SDL_QUIT;
+		::SDL_PushEvent(&sdl_event);
+	}
 }
 
 //
