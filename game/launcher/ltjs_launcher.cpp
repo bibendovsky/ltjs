@@ -283,7 +283,12 @@ protected:
 		const SDL_Event& sdl_event);
 
 	GLuint ogl_create_texture(
-		SDL_Surface* sdl_surface);
+		SDL_Surface* sdl_surface,
+		ImVec2& uv0,
+		ImVec2& uv1);
+
+	static int ogl_calculate_npot_dimension(
+		const int dimension);
 
 
 private:
@@ -349,6 +354,8 @@ private:
 
 
 	GLuint ogl_mainappbackground_texture_;
+	ImVec2 ogl_mainappbackground_uv0_;
+	ImVec2 ogl_mainappbackground_uv1_;
 
 
 	void do_draw() override;
@@ -1271,8 +1278,13 @@ void Window::handle_event(
 }
 
 GLuint Window::ogl_create_texture(
-	SDL_Surface* sdl_surface)
+	SDL_Surface* sdl_surface,
+	ImVec2& uv0,
+	ImVec2& uv1)
 {
+	uv0 = {0.0F, 0.0F};
+	uv1 = {1.0F, 1.0F};
+
 	if (!sdl_surface)
 	{
 		return 0;
@@ -1294,16 +1306,24 @@ GLuint Window::ogl_create_texture(
 	const auto alignment = 4;
 	const auto bpp = sdl_surface->format->BytesPerPixel;
 
-	auto dst_pitch = sdl_surface->w * bpp;
+	const auto dst_width = ogl_calculate_npot_dimension(sdl_surface->w);
+	const auto dst_height = ogl_calculate_npot_dimension(sdl_surface->h);
+
+	auto dst_pitch = dst_width * bpp;
 	dst_pitch += alignment - 1;
 	dst_pitch /= alignment;
 	dst_pitch *= alignment;
 
-	const auto has_bgra = (GLAD_GL_EXT_bgra && sdl_surface->pitch == dst_pitch);
+	const auto is_npot = (sdl_surface->w != dst_width || sdl_surface->h != dst_height);
 
-	if (!has_bgra)
+	const auto is_convert = (
+		!GLAD_GL_EXT_bgra ||
+		(is_npot && !GLAD_GL_ARB_texture_non_power_of_two) ||
+		sdl_surface->pitch != dst_pitch);
+
+	if (is_convert)
 	{
-		const auto area = dst_pitch * sdl_surface->h;
+		const auto area = dst_pitch * dst_height;
 
 		if (static_cast<int>(buffer.size()) < area)
 		{
@@ -1313,7 +1333,7 @@ GLuint Window::ogl_create_texture(
 		for (auto i = 0; i < sdl_surface->h; ++i)
 		{
 			auto src_pixels = static_cast<const std::uint8_t*>(sdl_surface->pixels) + (i * sdl_surface->pitch);
-			auto dst_pixels = buffer.data() + dst_pitch;
+			auto dst_pixels = buffer.data() + (i * dst_pitch);
 
 			for (auto j = 0; j < sdl_surface->w; ++j)
 			{
@@ -1335,6 +1355,17 @@ GLuint Window::ogl_create_texture(
 				dst_pixels += bpp;
 			}
 		}
+
+		const auto u_offset = 0.5F / static_cast<float>(dst_width);
+		const auto v_offset = 0.5F / static_cast<float>(dst_height);
+
+		uv0 = {u_offset, v_offset};
+
+		uv1 =
+		{
+			(static_cast<float>(sdl_surface->w) / static_cast<float>(dst_width)) - u_offset,
+			(static_cast<float>(sdl_surface->h) / static_cast<float>(dst_height)) - v_offset,
+		};
 	}
 
 	auto format = GLenum{};
@@ -1343,12 +1374,12 @@ GLuint Window::ogl_create_texture(
 	switch (sdl_surface->format->BitsPerPixel)
 	{
 	case 24:
-		format = (has_bgra ? GL_BGR_EXT : GL_RGB);
+		format = (is_convert ? GL_RGB : GL_BGR_EXT);
 		internal_format = GL_RGB;
 		break;
 
 	case 32:
-		format = (has_bgra ? GL_BGRA_EXT : GL_RGBA);
+		format = (is_convert ? GL_RGBA : GL_BGRA_EXT);
 		internal_format = GL_RGBA;
 		break;
 
@@ -1365,17 +1396,30 @@ GLuint Window::ogl_create_texture(
 		GL_TEXTURE_2D,
 		0,
 		internal_format,
-		sdl_surface->w,
-		sdl_surface->h,
+		is_convert ? dst_width : sdl_surface->w,
+		is_convert ? dst_height : sdl_surface->h,
 		0,
 		format,
 		GL_UNSIGNED_BYTE,
-		has_bgra ? sdl_surface->pixels : buffer.data());
+		is_convert ? buffer.data() : sdl_surface->pixels);
 
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	return ogl_texture;
+}
+
+int Window::ogl_calculate_npot_dimension(
+	const int dimension)
+{
+	auto power = 0;
+
+	while ((1 << power) < dimension)
+	{
+		power += 1;
+	}
+
+	return 1 << power;
 }
 
 Uint32 Window::get_id() const
@@ -1735,7 +1779,9 @@ MainWindowPtr MainWindow::create()
 
 MainWindow::MainWindow()
 	:
-	ogl_mainappbackground_texture_{}
+	ogl_mainappbackground_texture_{},
+	ogl_mainappbackground_uv0_{},
+	ogl_mainappbackground_uv1_{}
 {
 }
 
@@ -1755,7 +1801,7 @@ bool MainWindow::initialize(
 	auto& image_cache = ImageCache::get_instance();
 	auto image_surface = image_cache.get_image_surface(ImageId::mainappbackground);
 
-	ogl_mainappbackground_texture_ = ogl_create_texture(image_surface);
+	ogl_mainappbackground_texture_ = ogl_create_texture(image_surface, ogl_mainappbackground_uv0_, ogl_mainappbackground_uv1_);
 
 	return true;
 }
@@ -1771,6 +1817,8 @@ void MainWindow::uninitialize()
 
 void MainWindow::do_draw()
 {
+	const auto zero_vec2 = ImVec2{};
+
 	auto main_flags =
 		ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoResize |
@@ -1791,7 +1839,9 @@ void MainWindow::do_draw()
 
 	ImGui::Image(
 		reinterpret_cast<ImTextureID>(static_cast<std::intptr_t>(ogl_mainappbackground_texture_)),
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)});
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)},
+		ogl_mainappbackground_uv0_,
+		ogl_mainappbackground_uv1_);
 
 	ImGui::End();
 }
