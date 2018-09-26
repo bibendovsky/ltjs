@@ -69,7 +69,7 @@ if (MSVC)
 	set_target_properties(
 		ltjs_nolf2_launcher
 		PROPERTIES
-			LINK_FLAGS /SUBSYSTEM:CONSOLE
+			LINK_FLAGS /SUBSYSTEM:WINDOWS
 	)
 endif ()
 
