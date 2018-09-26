@@ -348,22 +348,26 @@ private:
 }; // Window
 
 
-class ImDemoWindow;
-using ImDemoWindowPtr = ImDemoWindow*;
-using ImDemoWindowUPtr = std::unique_ptr<ImDemoWindow>;
+class MainWindow;
+using MainWindowPtr = MainWindow*;
+using MainWindowUPtr = std::unique_ptr<MainWindow>;
 
-class ImDemoWindow final :
+class MainWindow final :
 	public Window
 {
 public:
-	~ImDemoWindow() override;
+	~MainWindow() override;
 
 
-	static ImDemoWindowPtr create();
+	static MainWindowPtr create();
 
 
 private:
-	ImDemoWindow();
+	static constexpr auto window_width = 600;
+	static constexpr auto window_height = 250;
+
+
+	MainWindow();
 
 
 	bool initialize(
@@ -372,15 +376,11 @@ private:
 	void uninitialize();
 
 
-	bool show_demo_window_;
-	bool show_another_window_;
-	float f_;
-	int counter_;
-	GLuint ogl_test_texture_;
+	GLuint ogl_mainappbackground_texture_;
 
 
 	void do_draw() override;
-}; // ImDemoWindow
+}; // MainWindow
 
 
 class WindowManager final
@@ -453,7 +453,7 @@ public:
 private:
 	bool is_initialized_;
 	std::string error_message_;
-	ImDemoWindowUPtr im_demo_window_uptr_;
+	MainWindowUPtr im_demo_window_uptr_;
 
 
 	bool initialize_ogl_functions();
@@ -1020,12 +1020,30 @@ bool Window::initialize(
 			is_succeed = false;
 			error_message_ = "Failed to create ImGUI context.";
 		}
+	}
 
+	if (is_succeed)
+	{
 		ImGui::SetCurrentContext(im_context_);
 
 		auto& im_io = ImGui::GetIO();
 
 		im_io.IniFilename = nullptr;
+
+		auto& im_style = ImGui::GetStyle();
+		im_style.ChildRounding = 0.0F;
+		im_style.FrameBorderSize = 0.0F;
+		im_style.FramePadding = {};
+		im_style.FrameRounding = 0.0F;
+		im_style.GrabRounding = 0.0F;
+		im_style.ItemInnerSpacing = {};
+		im_style.ItemSpacing = {};
+		im_style.PopupRounding = 0.0F;
+		im_style.ScrollbarRounding = 0.0F;
+		im_style.TouchExtraPadding = {};
+		im_style.WindowBorderSize = 0.0F;
+		im_style.WindowPadding = {};
+		im_style.WindowRounding = 0.0F;
 	}
 
 	if (is_succeed)
@@ -1331,11 +1349,6 @@ GLuint Window::ogl_create_texture(
 		return 0;
 	}
 
-	if ((sdl_surface->format->BytesPerPixel * sdl_surface->w) != sdl_surface->pitch)
-	{
-		return 0;
-	}
-
 	if (!sdl_surface->pixels)
 	{
 		return 0;
@@ -1344,13 +1357,20 @@ GLuint Window::ogl_create_texture(
 
 	static auto buffer = std::vector<std::uint8_t>{};
 
+	const auto alignment = 4;
+	const auto bpp = sdl_surface->format->BytesPerPixel;
+
+	auto dst_pitch = sdl_surface->w * bpp;
+	dst_pitch += alignment - 1;
+	dst_pitch /= alignment;
+	dst_pitch *= alignment;
+
 	const auto& ogl_extensions = OglExtensions::get_instance();
-	const auto has_bgra = ogl_extensions.has_ext_bgra();
+	const auto has_bgra = (ogl_extensions.has_ext_bgra() && sdl_surface->pitch == dst_pitch);
 
 	if (!has_bgra)
 	{
-		const auto bpp = sdl_surface->format->BytesPerPixel;
-		const auto area = sdl_surface->w * sdl_surface->h * bpp;
+		const auto area = dst_pitch * sdl_surface->h;
 
 		if (static_cast<int>(buffer.size()) < area)
 		{
@@ -1360,7 +1380,7 @@ GLuint Window::ogl_create_texture(
 		for (auto i = 0; i < sdl_surface->h; ++i)
 		{
 			auto src_pixels = static_cast<const std::uint8_t*>(sdl_surface->pixels) + (i * sdl_surface->pitch);
-			auto dst_pixels = buffer.data() + (i * sdl_surface->w * bpp);
+			auto dst_pixels = buffer.data() + dst_pitch;
 
 			for (auto j = 0; j < sdl_surface->w; ++j)
 			{
@@ -1763,39 +1783,35 @@ void Window::im_render_data(
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// ImDemoWindow
+// MainWindow
 //
 
-ImDemoWindowPtr ImDemoWindow::create()
+MainWindowPtr MainWindow::create()
 {
-	auto im_demo_window_ptr = new ImDemoWindow();
+	auto im_demo_window_ptr = new MainWindow();
 
 	auto im_demo_window_param = WindowCreateParam{};
-	im_demo_window_param.title_ = "ImGUI demo";
-	im_demo_window_param.width_ = 1280;
-	im_demo_window_param.height_ = 720;
+	im_demo_window_param.title_ = "main";
+	im_demo_window_param.width_ = window_width;
+	im_demo_window_param.height_ = window_height;
 
 	static_cast<void>(im_demo_window_ptr->initialize(im_demo_window_param));
 
 	return im_demo_window_ptr;
 }
 
-ImDemoWindow::ImDemoWindow()
+MainWindow::MainWindow()
 	:
-	show_demo_window_{true},
-	show_another_window_{},
-	f_{},
-	counter_{},
-	ogl_test_texture_{}
+	ogl_mainappbackground_texture_{}
 {
 }
 
-ImDemoWindow::~ImDemoWindow()
+MainWindow::~MainWindow()
 {
 	uninitialize();
 }
 
-bool ImDemoWindow::initialize(
+bool MainWindow::initialize(
 	const WindowCreateParam& param)
 {
 	if (!Window::initialize(param))
@@ -1804,75 +1820,51 @@ bool ImDemoWindow::initialize(
 	}
 
 	auto& image_cache = ImageCache::get_instance();
-	auto image_surface = image_cache.get_image_surface(ImageId::boxbackground);
+	auto image_surface = image_cache.get_image_surface(ImageId::mainappbackground);
 
-	ogl_test_texture_ = ogl_create_texture(image_surface);
+	ogl_mainappbackground_texture_ = ogl_create_texture(image_surface);
 
 	return true;
 }
 
-void ImDemoWindow::uninitialize()
+void MainWindow::uninitialize()
 {
-	if (ogl_test_texture_ != 0)
+	if (ogl_mainappbackground_texture_ != 0)
 	{
-		::glDeleteTextures(1, &ogl_test_texture_);
-		ogl_test_texture_ = 0;
+		::glDeleteTextures(1, &ogl_mainappbackground_texture_);
+		ogl_mainappbackground_texture_ = 0;
 	}
 }
 
-void ImDemoWindow::do_draw()
+void MainWindow::do_draw()
 {
-	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	if (show_demo_window_)
-	{
-		ImGui::ShowDemoWindow(&show_demo_window_);
-	}
+	auto main_flags =
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_None;
 
-	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-	{
-		auto clear_color = ImVec4{0.45F, 0.55F, 0.60F, 1.00F};
+	ImGui::Begin("main", nullptr, main_flags);
+	ImGui::SetWindowPos({}, ImGuiCond_Always);
+	ImGui::SetWindowSize(ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)}, ImGuiCond_Always);
 
-		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+	// Background.
+	//
+	ImGui::SetCursorPos(ImVec2{});
 
-		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &show_demo_window_);      // Edit bools storing our window open/close state
-		ImGui::Checkbox("Another Window", &show_another_window_);
+	ImGui::Image(
+		reinterpret_cast<ImTextureID>(static_cast<std::intptr_t>(ogl_mainappbackground_texture_)),
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)});
 
-		ImGui::SliderFloat("float", &f_, 0.0F, 1.0F);            // Edit 1 float using a slider from 0.0f to 1.0f    
-		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-		{
-			counter_++;
-		}
-
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter_);
-
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0F / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-		ImGui::End();
-	}
-
-	// 3. Show another simple window.
-	if (show_another_window_)
-	{
-		// Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		ImGui::Begin("Another Window", &show_another_window_);
-
-		ImGui::Text("Hello from another window!");
-
-		if (ImGui::Button("Close Me"))
-		{
-			show_another_window_ = false;
-		}
-
-		ImGui::End();
-	}
+	ImGui::End();
 }
 
 //
-// ImDemoWindow
+// MainWindow
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -2026,7 +2018,6 @@ Launcher::~Launcher()
 	uninitialize();
 }
 
-
 bool Launcher::initialize()
 {
 	uninitialize();
@@ -2097,7 +2088,7 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		im_demo_window_uptr_.reset(ImDemoWindow::create());
+		im_demo_window_uptr_.reset(MainWindow::create());
 
 		if (!im_demo_window_uptr_->is_initialized())
 		{
