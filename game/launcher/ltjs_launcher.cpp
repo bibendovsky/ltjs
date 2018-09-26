@@ -17,15 +17,6 @@
 #include "SDL.h"
 
 
-#ifndef GL_BGR_EXT
-#define GL_BGR_EXT 0x80E0
-#endif // !GL_BGR_EXT
-
-#ifndef GL_BGRA_EXT
-#define GL_BGRA_EXT 0x80E1
-#endif // !GL_BGRA_EXT
-
-
 namespace ul = bibendovsky::spul;
 
 
@@ -114,25 +105,6 @@ enum class ImageId
 	serveru,
 	serverx,
 }; // ImageId
-
-
-class OglExtensions
-{
-public:
-	static OglExtensions& get_instance();
-
-
-	void initialize();
-
-	bool has_ext_bgra() const;
-
-
-private:
-	bool has_ext_bgra_;
-
-
-	OglExtensions();
-}; // OglExtensions
 
 
 class ImageCache final
@@ -465,44 +437,6 @@ private:
 
 //
 // Classes
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// OglExtensions
-//
-
-OglExtensions::OglExtensions()
-	:
-	has_ext_bgra_{}
-{
-}
-
-OglExtensions& OglExtensions::get_instance()
-{
-	static OglExtensions ogl_extensions{};
-
-	return ogl_extensions;
-}
-
-void OglExtensions::initialize()
-{
-	auto extentions_iss = std::istringstream{reinterpret_cast<const char*>(::glGetString(GL_EXTENSIONS))};
-
-	const auto extensions = std::unordered_set<std::string>{
-		std::istream_iterator<std::string>{extentions_iss},
-		std::istream_iterator<std::string>{}};
-
-	has_ext_bgra_ = (extensions.find("GL_EXT_bgra") != extensions.cend());
-}
-
-bool OglExtensions::has_ext_bgra() const
-{
-	return has_ext_bgra_;
-}
-
-//
-// OglExtensions
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -1365,8 +1299,7 @@ GLuint Window::ogl_create_texture(
 	dst_pitch /= alignment;
 	dst_pitch *= alignment;
 
-	const auto& ogl_extensions = OglExtensions::get_instance();
-	const auto has_bgra = (ogl_extensions.has_ext_bgra() && sdl_surface->pitch == dst_pitch);
+	const auto has_bgra = (GLAD_GL_EXT_bgra && sdl_surface->pitch == dst_pitch);
 
 	if (!has_bgra)
 	{
@@ -2273,16 +2206,6 @@ bool Launcher::initialize_ogl_functions()
 			error_message_ = "Failed to initialize GLAD.";
 		}
 	}
-
-	// Initialize OpenGL extensions.
-	//
-
-	if (is_succeed)
-	{
-		auto& ogl_extensions = OglExtensions::get_instance();
-		ogl_extensions.initialize();
-	}
-
 
 	// Clean up.
 	//
