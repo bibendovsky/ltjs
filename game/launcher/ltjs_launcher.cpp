@@ -386,6 +386,20 @@ private:
 	ImVec2 ogl_closeu_uv0_;
 	ImVec2 ogl_closeu_uv1_;
 
+	// Publisher.
+	//
+	GLuint ogl_publisher1webd_texture_;
+	ImVec2 ogl_publisher1webd_uv0_;
+	ImVec2 ogl_publisher1webd_uv1_;
+
+	GLuint ogl_publisher1webf_texture_;
+	ImVec2 ogl_publisher1webf_uv0_;
+	ImVec2 ogl_publisher1webf_uv1_;
+
+	GLuint ogl_publisher1webu_texture_;
+	ImVec2 ogl_publisher1webu_uv0_;
+	ImVec2 ogl_publisher1webu_uv1_;
+
 
 	void do_draw() override;
 }; // MainWindow
@@ -1830,7 +1844,16 @@ MainWindow::MainWindow()
 	ogl_closed_uv1_{},
 	ogl_closeu_texture_{},
 	ogl_closeu_uv0_{},
-	ogl_closeu_uv1_{}
+	ogl_closeu_uv1_{},
+	ogl_publisher1webd_texture_{},
+	ogl_publisher1webd_uv0_{},
+	ogl_publisher1webd_uv1_{},
+	ogl_publisher1webf_texture_{},
+	ogl_publisher1webf_uv0_{},
+	ogl_publisher1webf_uv1_{},
+	ogl_publisher1webu_texture_{},
+	ogl_publisher1webu_uv0_{},
+	ogl_publisher1webu_uv1_{}
 {
 }
 
@@ -1897,7 +1920,24 @@ bool MainWindow::initialize(
 	ogl_closeu_texture_ = ogl_create_texture(closeu_surface, ogl_closeu_uv0_, ogl_closeu_uv1_);
 
 
+	// publisher1webd
 	//
+	auto publisher1webd_surface = image_cache.get_image_surface(ImageId::publisher1webd);
+
+	ogl_publisher1webd_texture_ = ogl_create_texture(publisher1webd_surface, ogl_publisher1webd_uv0_, ogl_publisher1webd_uv1_);
+
+	// publisher1webf
+	//
+	auto publisher1webf_surface = image_cache.get_image_surface(ImageId::publisher1webf);
+
+	ogl_publisher1webf_texture_ = ogl_create_texture(publisher1webf_surface, ogl_publisher1webf_uv0_, ogl_publisher1webf_uv1_);
+
+	// publisher1webu
+	//
+	auto publisher1webu_surface = image_cache.get_image_surface(ImageId::publisher1webu);
+
+	ogl_publisher1webu_texture_ = ogl_create_texture(publisher1webu_surface, ogl_publisher1webu_uv0_, ogl_publisher1webu_uv1_);
+
 	return true;
 }
 
@@ -1938,6 +1978,26 @@ void MainWindow::uninitialize()
 		::glDeleteTextures(1, &ogl_closeu_texture_);
 		ogl_closeu_texture_ = 0;
 	}
+
+	// Publisher.
+	//
+	if (ogl_publisher1webd_texture_ != 0)
+	{
+		::glDeleteTextures(1, &ogl_publisher1webd_texture_);
+		ogl_publisher1webd_texture_ = 0;
+	}
+
+	if (ogl_publisher1webf_texture_ != 0)
+	{
+		::glDeleteTextures(1, &ogl_publisher1webf_texture_);
+		ogl_publisher1webf_texture_ = 0;
+	}
+
+	if (ogl_publisher1webu_texture_ != 0)
+	{
+		::glDeleteTextures(1, &ogl_publisher1webu_texture_);
+		ogl_publisher1webu_texture_ = 0;
+	}
 }
 
 void MainWindow::do_draw()
@@ -1959,9 +2019,13 @@ void MainWindow::do_draw()
 	const auto minimize_size = ImVec2{16.0F, 14.0F};
 	const auto minimize_rect = ImVec4{minimize_pos.x, minimize_pos.y, minimize_size.x, minimize_size.y};
 
-	const auto close_pos = ImVec2{503, 6.0F};
+	const auto close_pos = ImVec2{503.0F, 6.0F};
 	const auto close_size = ImVec2{16.0F, 14.0F};
 	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
+
+	const auto publisher1web_pos = ImVec2{14.0F, 187.0F};
+	const auto publisher1web_size = ImVec2{52.0F, 40.0F};
+	const auto publisher1web_rect = ImVec4{publisher1web_pos.x, publisher1web_pos.y, publisher1web_size.x, publisher1web_size.y};
 
 
 	// Begin main window.
@@ -1994,8 +2058,8 @@ void MainWindow::do_draw()
 
 	// Minimize button.
 	//
-	auto is_minimize_button_clicked = false;
 	auto is_minimize_mouse_button_down = false;
+	auto is_minimize_button_clicked = false;
 
 	if (is_mouse_button_down || is_mouse_button_up)
 	{
@@ -2014,20 +2078,22 @@ void MainWindow::do_draw()
 	}
 
 	const auto ogl_minimize_texture = (is_minimize_mouse_button_down ? ogl_minimized_texture_ : ogl_minimizeu_texture_);
+	const auto ogl_minimize_uv0 = (is_minimize_mouse_button_down ? ogl_minimized_uv0_ : ogl_minimizeu_uv0_);
+	const auto ogl_minimize_uv1 = (is_minimize_mouse_button_down ? ogl_minimized_uv1_ : ogl_minimizeu_uv1_);
 
 	ImGui::SetCursorPos(minimize_pos);
 
 	ImGui::Image(
 		reinterpret_cast<ImTextureID>(static_cast<std::intptr_t>(ogl_minimize_texture)),
 		minimize_size,
-		ogl_minimized_uv0_,
-		ogl_minimized_uv1_);
+		ogl_minimize_uv0,
+		ogl_minimize_uv1);
 
 
 	// Close button.
 	//
-	auto is_close_button_clicked = false;
 	auto is_close_mouse_button_down = false;
+	auto is_close_button_clicked = false;
 
 	if (is_mouse_button_down || is_mouse_button_up)
 	{
@@ -2046,14 +2112,71 @@ void MainWindow::do_draw()
 	}
 
 	const auto ogl_close_texture = (is_close_mouse_button_down ? ogl_closed_texture_ : ogl_closeu_texture_);
+	const auto ogl_close_uv0 = (is_close_mouse_button_down ? ogl_closed_uv0_ : ogl_closeu_uv0_);
+	const auto ogl_close_uv1 = (is_close_mouse_button_down ? ogl_closed_uv1_ : ogl_closeu_uv1_);
 
 	ImGui::SetCursorPos(close_pos);
 
 	ImGui::Image(
 		reinterpret_cast<ImTextureID>(static_cast<std::intptr_t>(ogl_close_texture)),
 		close_size,
-		ogl_closed_uv0_,
-		ogl_closed_uv1_);
+		ogl_close_uv0,
+		ogl_close_uv1);
+
+
+	// Publisher button.
+	//
+	auto is_publisher1web_mouse_button_down = false;
+	auto is_publisher1web_button_clicked = false;
+
+	const auto is_publisher1web_button_hightlighted = is_point_inside_rect(mouse_pos, publisher1web_rect);
+
+	if (is_publisher1web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_publisher1web_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_publisher1web_button_clicked = true;
+		}
+	}
+
+	auto ogl_publisher1web_texture = GLenum{};
+	auto ogl_publisher1web_uv0 = ImVec2{};
+	auto ogl_publisher1web_uv1 = ImVec2{};
+
+	if (is_publisher1web_mouse_button_down)
+	{
+		ogl_publisher1web_texture = ogl_publisher1webd_texture_;
+
+		ogl_publisher1web_uv0 = ogl_publisher1webd_uv0_;
+		ogl_publisher1web_uv1 = ogl_publisher1webd_uv1_;
+	}
+	else if (is_publisher1web_button_hightlighted)
+	{
+		ogl_publisher1web_texture = ogl_publisher1webf_texture_;
+
+		ogl_publisher1web_uv0 = ogl_publisher1webf_uv0_;
+		ogl_publisher1web_uv1 = ogl_publisher1webf_uv1_;
+	}
+	else
+	{
+		ogl_publisher1web_texture = ogl_publisher1webu_texture_;
+
+		ogl_publisher1web_uv0 = ogl_publisher1webu_uv0_;
+		ogl_publisher1web_uv1 = ogl_publisher1webu_uv1_;
+	}
+
+	ImGui::SetCursorPos(publisher1web_pos);
+
+	ImGui::Image(
+		reinterpret_cast<ImTextureID>(static_cast<std::intptr_t>(ogl_publisher1web_texture)),
+		publisher1web_size,
+		ogl_publisher1web_uv0,
+		ogl_publisher1web_uv1);
 
 
 	// End main window.
@@ -2071,7 +2194,7 @@ void MainWindow::do_draw()
 
 	if (is_close_button_clicked)
 	{
-		SDL_Event sdl_event;
+		auto sdl_event = SDL_Event{};
 
 		sdl_event.type = SDL_QUIT;
 		::SDL_PushEvent(&sdl_event);
