@@ -24,6 +24,15 @@ namespace ul = bibendovsky::spul;
 using SdlWindowPtr = SDL_Window*;
 
 
+ImVec2 operator*(
+	const ImVec2& v,
+	const float scale);
+
+ImVec2& operator*=(
+	ImVec2& v,
+	const float scale);
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // Classes
 //
@@ -191,12 +200,6 @@ public:
 		SdlOglWindow& sdl_ogl_window);
 }; // Sdl
 
-
-void deleter(
-	void* data)
-{
-	ImGui::MemFree(data);
-}
 
 class FontManager final :
 	public Base
@@ -540,9 +543,14 @@ public:
 
 	bool is_quit_requested() const;
 
+	float get_scale() const;
+
 
 private:
 	friend class Window;
+
+
+	static constexpr auto ref_scale_dimension = 600.0F;
 
 
 	using WindowMap = std::unordered_map<Uint32, WindowPtr>;
@@ -550,6 +558,7 @@ private:
 
 	WindowMap window_map_;
 	bool is_quit_requested_;
+	float scale_;
 
 
 	WindowManager();
@@ -1373,8 +1382,8 @@ OglTexture OglTextureManager::create_texture_from_surface(
 		GL_UNSIGNED_BYTE,
 		is_convert ? buffer.data() : sdl_surface->pixels);
 
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	const auto u_offset = 0.5F / static_cast<float>(dst_width);
 	const auto v_offset = 0.5F / static_cast<float>(dst_height);
@@ -2354,10 +2363,13 @@ MainWindowPtr MainWindow::create()
 {
 	auto im_demo_window_ptr = new MainWindow();
 
+	const auto& window_manager = WindowManager::get_instance();
+	const auto scale = window_manager.get_scale();
+
 	auto im_demo_window_param = WindowCreateParam{};
 	im_demo_window_param.title_ = "main";
-	im_demo_window_param.width_ = window_width;
-	im_demo_window_param.height_ = window_height;
+	im_demo_window_param.width_ = static_cast<int>(window_width * scale);
+	im_demo_window_param.height_ = static_cast<int>(window_height * scale);
 
 	static_cast<void>(im_demo_window_ptr->initialize(im_demo_window_param));
 
@@ -2381,6 +2393,9 @@ void MainWindow::uninitialize()
 
 void MainWindow::do_draw()
 {
+	const auto& window_manager = WindowManager::get_instance();
+	const auto scale = window_manager.get_scale();
+
 	auto& ogl_texture_manager = OglTextureManager::get_instance();
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
@@ -2388,52 +2403,44 @@ void MainWindow::do_draw()
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
-	const auto window_rect = ImVec4
-	{
-		0.0F,
-		0.0F,
-		static_cast<float>(window_width),
-		static_cast<float>(window_height),
-	};
-
-	const auto minimize_pos = ImVec2{487.0F, 6.0F};
-	const auto minimize_size = ImVec2{16.0F, 14.0F};
+	const auto minimize_pos = ImVec2{487.0F, 6.0F} * scale;
+	const auto minimize_size = ImVec2{16.0F, 14.0F} * scale;
 	const auto minimize_rect = ImVec4{minimize_pos.x, minimize_pos.y, minimize_size.x, minimize_size.y};
 
-	const auto close_pos = ImVec2{503.0F, 6.0F};
-	const auto close_size = ImVec2{16.0F, 14.0F};
+	const auto close_pos = ImVec2{503.0F, 6.0F} * scale;
+	const auto close_size = ImVec2{16.0F, 14.0F} * scale;
 	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
 
-	const auto publisher1web_pos = ImVec2{14.0F, 187.0F};
-	const auto publisher1web_size = ImVec2{52.0F, 40.0F};
+	const auto publisher1web_pos = ImVec2{14.0F, 187.0F} * scale;
+	const auto publisher1web_size = ImVec2{52.0F, 40.0F} * scale;
 	const auto publisher1web_rect = ImVec4{publisher1web_pos.x, publisher1web_pos.y, publisher1web_size.x, publisher1web_size.y};
 
-	const auto company1web_pos = ImVec2{76.0F, 187.0F};
-	const auto company1web_size = ImVec2{61.0F, 17.0F};
+	const auto company1web_pos = ImVec2{76.0F, 187.0F} * scale;
+	const auto company1web_size = ImVec2{61.0F, 17.0F} * scale;
 	const auto company1web_rect = ImVec4{company1web_pos.x, company1web_pos.y, company1web_size.x, company1web_size.y};
 
-	const auto company2web_pos = ImVec2{76.0F, 210.0F};
-	const auto company2web_size = ImVec2{62.0F, 17.0F};
+	const auto company2web_pos = ImVec2{76.0F, 210.0F} * scale;
+	const auto company2web_size = ImVec2{62.0F, 17.0F} * scale;
 	const auto company2web_rect = ImVec4{company2web_pos.x, company2web_pos.y, company2web_size.x, company2web_size.y};
 
-	const auto publisher2web_pos = ImVec2{147.0F, 198.0F};
-	const auto publisher2web_size = ImVec2{99.0F, 30.0F};
+	const auto publisher2web_pos = ImVec2{147.0F, 198.0F} * scale;
+	const auto publisher2web_size = ImVec2{99.0F, 30.0F} * scale;
 	const auto publisher2web_rect = ImVec4{publisher2web_pos.x, publisher2web_pos.y, publisher2web_size.x, publisher2web_size.y};
 
-	const auto install_or_play_pos = ImVec2{413.0F, 25.0F};
-	const auto install_or_play_size = ImVec2{100.0F, 30.0F};
+	const auto install_or_play_pos = ImVec2{413.0F, 25.0F} * scale;
+	const auto install_or_play_size = ImVec2{100.0F, 30.0F} * scale;
 	const auto install_or_play_rect = ImVec4{install_or_play_pos.x, install_or_play_pos.y, install_or_play_size.x, install_or_play_size.y};
 
-	const auto display_pos = ImVec2{413.0F, 97.0F};
-	const auto display_size = ImVec2{100.0F, 30.0F};
+	const auto display_pos = ImVec2{413.0F, 97.0F} * scale;
+	const auto display_size = ImVec2{100.0F, 30.0F} * scale;
 	const auto display_rect = ImVec4{display_pos.x, display_pos.y, display_size.x, display_size.y};
 
-	const auto options_pos = ImVec2{413.0F, 133.0F};
-	const auto options_size = ImVec2{100.0F, 30.0F};
+	const auto options_pos = ImVec2{413.0F, 133.0F} * scale;
+	const auto options_size = ImVec2{100.0F, 30.0F} * scale;
 	const auto options_rect = ImVec4{options_pos.x, options_pos.y, options_size.x, options_size.y};
 
-	const auto quit_pos = ImVec2{413.0F, 205.0F};
-	const auto quit_size = ImVec2{100.0F, 30.0F};
+	const auto quit_pos = ImVec2{413.0F, 205.0F} * scale;
+	const auto quit_size = ImVec2{100.0F, 30.0F} * scale;
 	const auto quit_rect = ImVec4{quit_pos.x, quit_pos.y, quit_size.x, quit_size.y};
 
 
@@ -2451,7 +2458,10 @@ void MainWindow::do_draw()
 
 	ImGui::Begin("main", nullptr, main_flags);
 	ImGui::SetWindowPos({}, ImGuiCond_Always);
-	ImGui::SetWindowSize(ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)}, ImGuiCond_Always);
+
+	ImGui::SetWindowSize(
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ImGuiCond_Always);
 
 
 	// Background.
@@ -2462,7 +2472,7 @@ void MainWindow::do_draw()
 
 	ImGui::Image(
 		ogl_mainappbackground_texture.get_im_texture_id(),
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)},
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
 		ogl_mainappbackground_texture.uv0_,
 		ogl_mainappbackground_texture.uv1_);
 
@@ -2990,6 +3000,22 @@ WindowManager& WindowManager::get_instance()
 void WindowManager::initialize()
 {
 	uninitialize();
+
+	auto sdl_display_mode = SDL_DisplayMode{};
+
+	const auto sdl_result = ::SDL_GetCurrentDisplayMode(0, &sdl_display_mode);
+
+	if (sdl_result == 0)
+	{
+		const auto dimension = static_cast<float>(std::min(sdl_display_mode.w, sdl_display_mode.h));
+
+		scale_ = dimension / ref_scale_dimension;
+	}
+
+	if (scale_ < 1.0F)
+	{
+		scale_ = 1.0F;
+	}
 }
 
 void WindowManager::uninitialize()
@@ -3050,6 +3076,11 @@ void WindowManager::draw()
 bool WindowManager::is_quit_requested() const
 {
 	return is_quit_requested_;
+}
+
+float WindowManager::get_scale() const
+{
+	return scale_;
 }
 
 void WindowManager::register_window(
@@ -3159,7 +3190,12 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		if (!font_manager.set_font(FontManager::ref_font_size_pixels))
+		const auto& window_manager = WindowManager::get_instance();
+		const auto scale = window_manager.get_scale();
+
+		const auto font_size_pixels = scale * FontManager::ref_font_size_pixels;
+
+		if (!font_manager.set_font(font_size_pixels))
 		{
 			is_succeed = false;
 
@@ -3434,6 +3470,24 @@ bool Launcher::initialize_sdl()
 //
 // Launcher
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+ImVec2 operator*(
+	const ImVec2& v,
+	const float scale)
+{
+	return {v.x * scale, v.y * scale};
+}
+
+ImVec2& operator*=(
+	ImVec2& v,
+	const float scale)
+{
+	v.x *= scale;
+	v.y *= scale;
+
+	return v;
+}
 
 
 int main(
