@@ -1996,8 +1996,8 @@ bool Window::is_point_inside_rect(
 	const ImVec4& rect)
 {
 	return
-		point.x >= rect.x && point.x < (rect.x + rect.w) &&
-		point.y >= rect.y && point.y < (rect.y + rect.z);
+		point.x >= rect.x && point.x < (rect.x + rect.z) &&
+		point.y >= rect.y && point.y < (rect.y + rect.w);
 }
 
 Uint32 Window::get_id() const
@@ -2408,6 +2408,34 @@ void MainWindow::do_draw()
 	const auto publisher1web_size = ImVec2{52.0F, 40.0F};
 	const auto publisher1web_rect = ImVec4{publisher1web_pos.x, publisher1web_pos.y, publisher1web_size.x, publisher1web_size.y};
 
+	const auto company1web_pos = ImVec2{76.0F, 187.0F};
+	const auto company1web_size = ImVec2{61.0F, 17.0F};
+	const auto company1web_rect = ImVec4{company1web_pos.x, company1web_pos.y, company1web_size.x, company1web_size.y};
+
+	const auto company2web_pos = ImVec2{76.0F, 210.0F};
+	const auto company2web_size = ImVec2{62.0F, 17.0F};
+	const auto company2web_rect = ImVec4{company2web_pos.x, company2web_pos.y, company2web_size.x, company2web_size.y};
+
+	const auto publisher2web_pos = ImVec2{147.0F, 198.0F};
+	const auto publisher2web_size = ImVec2{99.0F, 30.0F};
+	const auto publisher2web_rect = ImVec4{publisher2web_pos.x, publisher2web_pos.y, publisher2web_size.x, publisher2web_size.y};
+
+	const auto install_or_play_pos = ImVec2{413.0F, 25.0F};
+	const auto install_or_play_size = ImVec2{100.0F, 30.0F};
+	const auto install_or_play_rect = ImVec4{install_or_play_pos.x, install_or_play_pos.y, install_or_play_size.x, install_or_play_size.y};
+
+	const auto display_pos = ImVec2{413.0F, 97.0F};
+	const auto display_size = ImVec2{100.0F, 30.0F};
+	const auto display_rect = ImVec4{display_pos.x, display_pos.y, display_size.x, display_size.y};
+
+	const auto options_pos = ImVec2{413.0F, 133.0F};
+	const auto options_size = ImVec2{100.0F, 30.0F};
+	const auto options_rect = ImVec4{options_pos.x, options_pos.y, options_size.x, options_size.y};
+
+	const auto quit_pos = ImVec2{413.0F, 205.0F};
+	const auto quit_size = ImVec2{100.0F, 30.0F};
+	const auto quit_rect = ImVec4{quit_pos.x, quit_pos.y, quit_size.x, quit_size.y};
+
 
 	// Begin main window.
 	//
@@ -2505,7 +2533,7 @@ void MainWindow::do_draw()
 		ogl_close_texture.uv1_);
 
 
-	// Publisher button.
+	// Fox Interactive button.
 	//
 	auto is_publisher1web_mouse_button_down = false;
 	auto is_publisher1web_button_clicked = false;
@@ -2551,6 +2579,357 @@ void MainWindow::do_draw()
 		ogl_publisher1web_texture.uv1_);
 
 
+	// Monolith Productions button.
+	//
+	auto is_company1web_mouse_button_down = false;
+	auto is_company1web_button_clicked = false;
+
+	const auto is_company1web_button_hightlighted = is_point_inside_rect(mouse_pos, company1web_rect);
+
+	if (is_company1web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_company1web_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_company1web_button_clicked = true;
+		}
+	}
+
+	auto ogl_company1web_image_id = ImageId{};
+
+	if (is_company1web_mouse_button_down)
+	{
+		ogl_company1web_image_id = ImageId::company1webd;
+	}
+	else if (is_company1web_button_hightlighted)
+	{
+		ogl_company1web_image_id = ImageId::company1webf;
+	}
+	else
+	{
+		ogl_company1web_image_id = ImageId::company1webu;
+	}
+
+	const auto& ogl_company1web_texture = ogl_texture_manager.get(ogl_company1web_image_id);
+
+	ImGui::SetCursorPos(company1web_pos);
+
+	ImGui::Image(
+		ogl_company1web_texture.get_im_texture_id(),
+		company1web_size,
+		ogl_company1web_texture.uv0_,
+		ogl_company1web_texture.uv1_);
+
+
+	// LithTech button.
+	//
+	auto is_company2web_mouse_button_down = false;
+	auto is_company2web_button_clicked = false;
+
+	const auto is_company2web_button_hightlighted = is_point_inside_rect(mouse_pos, company2web_rect);
+
+	if (is_company2web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_company2web_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_company2web_button_clicked = true;
+		}
+	}
+
+	auto ogl_company2web_image_id = ImageId{};
+
+	if (is_company2web_mouse_button_down)
+	{
+		ogl_company2web_image_id = ImageId::company2webd;
+	}
+	else if (is_company2web_button_hightlighted)
+	{
+		ogl_company2web_image_id = ImageId::company2webf;
+	}
+	else
+	{
+		ogl_company2web_image_id = ImageId::company2webu;
+	}
+
+	const auto& ogl_company2web_texture = ogl_texture_manager.get(ogl_company2web_image_id);
+
+	ImGui::SetCursorPos(company2web_pos);
+
+	ImGui::Image(
+		ogl_company2web_texture.get_im_texture_id(),
+		company2web_size,
+		ogl_company2web_texture.uv0_,
+		ogl_company2web_texture.uv1_);
+
+
+	// Sierra Entertainment button.
+	//
+	auto is_publisher2web_mouse_button_down = false;
+	auto is_publisher2web_button_clicked = false;
+
+	const auto is_publisher2web_button_hightlighted = is_point_inside_rect(mouse_pos, publisher2web_rect);
+
+	if (is_publisher2web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_publisher2web_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_publisher2web_button_clicked = true;
+		}
+	}
+
+	auto ogl_publisher2web_image_id = ImageId{};
+
+	if (is_publisher2web_mouse_button_down)
+	{
+		ogl_publisher2web_image_id = ImageId::publisher2webd;
+	}
+	else if (is_publisher2web_button_hightlighted)
+	{
+		ogl_publisher2web_image_id = ImageId::publisher2webf;
+	}
+	else
+	{
+		ogl_publisher2web_image_id = ImageId::publisher2webu;
+	}
+
+	const auto& ogl_publisher2web_texture = ogl_texture_manager.get(ogl_publisher2web_image_id);
+
+	ImGui::SetCursorPos(publisher2web_pos);
+
+	ImGui::Image(
+		ogl_publisher2web_texture.get_im_texture_id(),
+		publisher2web_size,
+		ogl_publisher2web_texture.uv0_,
+		ogl_publisher2web_texture.uv1_);
+
+
+	// Install/Play button.
+	//
+
+	// TODO
+	auto is_install = false;
+
+	auto is_install_or_play_mouse_button_down = false;
+	auto is_install_or_play_button_clicked = false;
+
+	const auto is_install_or_play_button_hightlighted = is_point_inside_rect(mouse_pos, install_or_play_rect);
+
+	if (is_install_or_play_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_install_or_play_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_install_or_play_button_clicked = true;
+		}
+	}
+
+	auto ogl_install_or_play_image_id = ImageId{};
+
+	if (is_install_or_play_mouse_button_down)
+	{
+		ogl_install_or_play_image_id = (is_install ? ImageId::installd : ImageId::playd);
+	}
+	else if (is_install_or_play_button_hightlighted)
+	{
+		ogl_install_or_play_image_id = (is_install ? ImageId::installf : ImageId::playf);
+	}
+	else
+	{
+		ogl_install_or_play_image_id = (is_install ? ImageId::installu : ImageId::playu);
+	}
+
+	const auto& ogl_install_or_play_texture = ogl_texture_manager.get(ogl_install_or_play_image_id);
+
+	ImGui::SetCursorPos(install_or_play_pos);
+
+	ImGui::Image(
+		ogl_install_or_play_texture.get_im_texture_id(),
+		install_or_play_size,
+		ogl_install_or_play_texture.uv0_,
+		ogl_install_or_play_texture.uv1_);
+
+
+	// Display button.
+	//
+
+	// TODO
+	auto is_display_enabled = false;
+	auto is_display_mouse_button_down = false;
+	auto is_display_button_clicked = false;
+
+	auto is_display_button_hightlighted = false;
+
+	if (is_display_enabled)
+	{
+		is_display_button_hightlighted = is_point_inside_rect(mouse_pos, display_rect);
+	}
+
+	if (is_display_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_display_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_display_button_clicked = true;
+		}
+	}
+
+	auto ogl_display_image_id = ImageId{};
+
+	if (!is_display_enabled)
+	{
+		ogl_display_image_id = ImageId::displayx;
+	}
+	else if (is_display_mouse_button_down)
+	{
+		ogl_display_image_id = ImageId::displayd;
+	}
+	else if (is_display_button_hightlighted)
+	{
+		ogl_display_image_id = ImageId::displayf;
+	}
+	else
+	{
+		ogl_display_image_id = ImageId::displayu;
+	}
+
+	const auto& ogl_display_texture = ogl_texture_manager.get(ogl_display_image_id);
+
+	ImGui::SetCursorPos(display_pos);
+
+	ImGui::Image(
+		ogl_display_texture.get_im_texture_id(),
+		display_size,
+		ogl_display_texture.uv0_,
+		ogl_display_texture.uv1_);
+
+
+	// Options button.
+	//
+
+	// TODO
+	auto is_options_enabled = false;
+	auto is_options_mouse_button_down = false;
+	auto is_options_button_clicked = false;
+
+	auto is_options_button_hightlighted = false;
+
+	if (is_options_enabled)
+	{
+		is_options_button_hightlighted = is_point_inside_rect(mouse_pos, options_rect);
+	}
+
+	if (is_options_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_options_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_options_button_clicked = true;
+		}
+	}
+
+	auto ogl_options_image_id = ImageId{};
+
+	if (!is_options_enabled)
+	{
+		ogl_options_image_id = ImageId::optionsx;
+	}
+	else if (is_options_mouse_button_down)
+	{
+		ogl_options_image_id = ImageId::optionsd;
+	}
+	else if (is_options_button_hightlighted)
+	{
+		ogl_options_image_id = ImageId::optionsf;
+	}
+	else
+	{
+		ogl_options_image_id = ImageId::optionsu;
+	}
+
+	const auto& ogl_options_texture = ogl_texture_manager.get(ogl_options_image_id);
+
+	ImGui::SetCursorPos(options_pos);
+
+	ImGui::Image(
+		ogl_options_texture.get_im_texture_id(),
+		options_size,
+		ogl_options_texture.uv0_,
+		ogl_options_texture.uv1_);
+
+
+	// Quit button.
+	//
+
+	auto is_quit_mouse_button_down = false;
+	auto is_quit_button_clicked = false;
+
+	const auto is_quit_button_hightlighted = is_point_inside_rect(mouse_pos, quit_rect);
+
+	if (is_quit_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_quit_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_quit_button_clicked = true;
+		}
+	}
+
+	auto ogl_quit_image_id = ImageId{};
+
+	if (is_quit_mouse_button_down)
+	{
+		ogl_quit_image_id = ImageId::quitd;
+	}
+	else if (is_quit_button_hightlighted)
+	{
+		ogl_quit_image_id = ImageId::quitf;
+	}
+	else
+	{
+		ogl_quit_image_id = ImageId::quitu;
+	}
+
+	const auto& ogl_quit_texture = ogl_texture_manager.get(ogl_quit_image_id);
+
+	ImGui::SetCursorPos(quit_pos);
+
+	ImGui::Image(
+		ogl_quit_texture.get_im_texture_id(),
+		quit_size,
+		ogl_quit_texture.uv0_,
+		ogl_quit_texture.uv1_);
+
+
 	// End main window.
 	//
 	ImGui::End();
@@ -2564,7 +2943,7 @@ void MainWindow::do_draw()
 		minimize_internal(true);
 	}
 
-	if (is_close_button_clicked)
+	if (is_close_button_clicked || is_quit_button_clicked)
 	{
 		auto sdl_event = SDL_Event{};
 
