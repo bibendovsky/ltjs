@@ -21,6 +21,9 @@
 namespace ul = bibendovsky::spul;
 
 
+using SdlWindowPtr = SDL_Window*;
+
+
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // Classes
 //
@@ -138,6 +141,57 @@ private:
 }; // Base
 
 
+struct SdlCreateWindowParam final
+{
+	std::string title_;
+
+	int width_;
+	int height_;
+
+	bool is_borderless_;
+	bool is_hidden_;
+	bool is_double_buffering_;
+	bool is_share_with_current_ogl_context_;;
+}; // SdlCreateWindowParam
+
+
+struct SdlOglWindow final
+{
+	SdlWindowPtr window_;
+	Uint32 window_id_;
+	SDL_GLContext ogl_context_;
+
+
+	bool is_valid() const
+	{
+		return window_ && window_id_ != 0 && ogl_context_;
+	}
+
+	void make_context_current(
+		const bool is_current)
+	{
+		if (!is_valid())
+		{
+			return;
+		}
+
+		static_cast<void>(::SDL_GL_MakeCurrent(window_, is_current ? ogl_context_ : nullptr));
+	}
+}; // SdlOglWindow
+
+
+class Sdl final :
+	public Base
+{
+public:
+	SdlOglWindow ogl_create_window(
+		const SdlCreateWindowParam& param);
+
+	static void ogl_destroy_window(
+		SdlOglWindow& sdl_ogl_window);
+}; // Sdl
+
+
 struct OglTexture final
 {
 	GLuint ogl_id_;
@@ -166,6 +220,7 @@ public:
 
 	void uninitialize();
 
+
 	bool set_font(
 		const std::string& file_name,
 		const float font_size_pixels);
@@ -174,7 +229,6 @@ public:
 
 
 	bool load_all_textures();
-
 
 	const OglTexture& get(
 		const ImageId image_id);
@@ -193,8 +247,7 @@ private:
 	static const Strings image_file_names;
 
 
-	SDL_Window* sdl_window_;
-	SDL_GLContext sdl_gl_context_;
+	SdlOglWindow sdl_ogl_window_;
 	ImFontAtlasUPtr font_atlas_uptr_;
 	OglTextures ogl_textures_;
 
@@ -356,9 +409,7 @@ private:
 
 	using PressedMouseButtons = std::array<bool, 3>;
 
-	SDL_Window* sdl_window_;
-	SDL_GLContext sdl_gl_context_;
-	Uint32 sdl_window_id_;
+	SdlOglWindow sdl_ogl_window_;
 	GLuint ogl_font_atlas_;
 	ImGuiContext* im_context_;
 	PressedMouseButtons pressed_mouse_buttons_;
@@ -551,6 +602,186 @@ void Base::prepend_error_message(
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// Sdl
+//
+
+SdlOglWindow Sdl::ogl_create_window(
+	const SdlCreateWindowParam& param)
+{
+	if (param.width_ <= 0)
+	{
+		set_error_message("Invalid width.");
+	}
+
+	if (param.height_ <= 0)
+	{
+		set_error_message("Invalid height.");
+	}
+
+
+	bool is_succeed = true;
+	int sdl_result = 0;
+
+
+	// Set OpenGL attributes.
+	//
+	if (is_succeed)
+	{
+		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, param.is_double_buffering_);
+
+		if (sdl_result)
+		{
+			is_succeed = false;
+
+			set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()});
+		}
+	}
+
+	if (is_succeed)
+	{
+		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, param.is_share_with_current_ogl_context_);
+
+		if (sdl_result)
+		{
+			is_succeed = false;
+
+			set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{::SDL_GetError()});
+		}
+	}
+
+	// Create window.
+	//
+	auto sdl_window = SdlWindowPtr{};
+
+	if (is_succeed)
+	{
+		const Uint32 sdl_window_flags =
+			SDL_WINDOW_OPENGL |
+			SDL_WINDOW_HIDDEN |
+			(param.is_borderless_ ? SDL_WINDOW_BORDERLESS : 0);
+
+		sdl_window = ::SDL_CreateWindow(
+			param.title_.c_str(),
+			SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED,
+			param.width_,
+			param.height_,
+			sdl_window_flags);
+
+		if (!sdl_window)
+		{
+			is_succeed = false;
+
+			set_error_message("Failed to create window. " + std::string{::SDL_GetError()});
+		}
+	}
+
+	// Window ID.
+	//
+	auto sdl_window_id = Uint32{};
+
+	if (is_succeed)
+	{
+		sdl_window_id = ::SDL_GetWindowID(sdl_window);
+
+		if (sdl_window_id == 0)
+		{
+			is_succeed = false;
+
+			set_error_message("Failed to get window's id. " + std::string{::SDL_GetError()});
+		}
+	}
+
+	// Create OpenGL context.
+	//
+	auto sdl_gl_context = SDL_GLContext{};
+
+	if (is_succeed)
+	{
+		sdl_gl_context = ::SDL_GL_CreateContext(sdl_window);
+
+		if (!sdl_gl_context)
+		{
+			is_succeed = false;
+
+			set_error_message("Failed to create OpenGL context. " + std::string{::SDL_GetError()});
+		}
+	}
+
+	// Unset the context.
+	//
+	if (is_succeed)
+	{
+		sdl_result = ::SDL_GL_MakeCurrent(sdl_window, nullptr);
+
+		if (sdl_result)
+		{
+			is_succeed = false;
+
+			set_error_message("Failed to unset OpenGL context. " + std::string{::SDL_GetError()});
+		}
+	}
+
+	// Show window.
+	//
+	if (is_succeed)
+	{
+		if (!param.is_hidden_)
+		{
+			::SDL_ShowWindow(sdl_window);
+		}
+	}
+
+	// Clean up
+	//
+	if (!is_succeed)
+	{
+		if (sdl_gl_context)
+		{
+			::SDL_GL_DeleteContext(sdl_gl_context);
+		}
+
+		if (sdl_window)
+		{
+			::SDL_DestroyWindow(sdl_window);
+		}
+
+		return {};
+	}
+
+	// Return result.
+	//
+	auto sdl_ogl_window = SdlOglWindow{};
+	sdl_ogl_window.window_ = sdl_window;
+	sdl_ogl_window.window_id_ = sdl_window_id;
+	sdl_ogl_window.ogl_context_ = sdl_gl_context;
+
+	return sdl_ogl_window;
+}
+
+void Sdl::ogl_destroy_window(
+	SdlOglWindow& sdl_ogl_window)
+{
+	if (!sdl_ogl_window.is_valid())
+	{
+		return;
+	}
+
+	static_cast<void>(::SDL_GL_MakeCurrent(sdl_ogl_window.window_, nullptr));
+
+	::SDL_GL_DeleteContext(sdl_ogl_window.ogl_context_);
+	sdl_ogl_window.ogl_context_ = nullptr;
+
+	::SDL_DestroyWindow(sdl_ogl_window.window_);
+	sdl_ogl_window.window_ = nullptr;
+}
+
+//
+// Sdl
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // OglTextureManager
 //
 
@@ -647,8 +878,7 @@ const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 
 OglTextureManager::OglTextureManager()
 	:
-	sdl_window_{},
-	sdl_gl_context_{},
+	sdl_ogl_window_{},
 	font_atlas_uptr_{std::make_unique<ImFontAtlas>()},
 	ogl_textures_{}
 {
@@ -657,13 +887,10 @@ OglTextureManager::OglTextureManager()
 OglTextureManager::OglTextureManager(
 	OglTextureManager&& rhs)
 	:
-	sdl_window_{std::move(rhs.sdl_window_)},
-	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
+	sdl_ogl_window_{std::move(rhs.sdl_ogl_window_)},
 	font_atlas_uptr_{std::move(rhs.font_atlas_uptr_)},
 	ogl_textures_{std::move(rhs.ogl_textures_)}
 {
-	rhs.sdl_window_ = nullptr;
-	rhs.sdl_gl_context_ = nullptr;
 }
 
 OglTextureManager::~OglTextureManager()
@@ -696,9 +923,9 @@ void OglTextureManager::uninitialize()
 {
 	font_atlas_uptr_->Clear();
 
-	if (sdl_window_ && sdl_gl_context_)
+	if (sdl_ogl_window_.is_valid())
 	{
-		static_cast<void>(::SDL_GL_MakeCurrent(sdl_window_, sdl_gl_context_));
+		sdl_ogl_window_.make_context_current(true);
 
 		for (auto& surface : ogl_textures_)
 		{
@@ -708,7 +935,7 @@ void OglTextureManager::uninitialize()
 			}
 		}
 
-		static_cast<void>(::SDL_GL_MakeCurrent(sdl_window_, nullptr));
+		sdl_ogl_window_.make_context_current(false);
 	}
 
 	ogl_textures_.clear();
@@ -749,11 +976,11 @@ bool OglTextureManager::load_all_textures()
 	auto guard_context = ul::ScopeGuard{
 		[&]()
 		{
-			static_cast<void>(::SDL_GL_MakeCurrent(sdl_window_, nullptr));
+			sdl_ogl_window_.make_context_current(false);
 		}
 	};
 
-	static_cast<void>(::SDL_GL_MakeCurrent(sdl_window_, sdl_gl_context_));
+	sdl_ogl_window_.make_context_current(true);
 
 	const auto image_count = static_cast<int>(image_file_names.size());
 
@@ -814,7 +1041,7 @@ const OglTexture& OglTextureManager::get(
 void OglTextureManager::make_context_current(
 	const bool is_current)
 {
-	static_cast<void>(::SDL_GL_MakeCurrent(sdl_window_, is_current ? sdl_gl_context_ : nullptr));
+	sdl_ogl_window_.make_context_current(is_current);
 }
 
 OglTexture OglTextureManager::create_texture_from_surface(
@@ -972,68 +1199,21 @@ OglTexture OglTextureManager::create_texture_from_surface(
 
 bool OglTextureManager::initialize_context()
 {
-	auto sdl_result = 0;
+	auto sdl = Sdl{};
 
+	auto window_param = SdlCreateWindowParam{};
+	window_param.title_ = "dummy";
+	window_param.width_ = 64;
+	window_param.height_ = 64;
+	window_param.is_hidden_ = true;
+	window_param.is_double_buffering_ = true;
+	window_param.is_share_with_current_ogl_context_ = false;
 
-	// Set OpenGL attributes.
-	//
+	sdl_ogl_window_ = sdl.ogl_create_window(window_param);
 
-	sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
-
-	if (sdl_result)
+	if (!sdl_ogl_window_.is_valid())
 	{
-		set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()});
-		return false;
-	}
-
-	sdl_result = ::SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, SDL_FALSE);
-
-	if (sdl_result)
-	{
-		set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{::SDL_GetError()});
-		return false;
-	}
-
-	// Create dummy window.
-	//
-
-	const auto sdl_window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
-
-	sdl_window_ = ::SDL_CreateWindow(
-		"dummy",
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-		64,
-		64,
-		sdl_window_flags);
-
-	if (!sdl_window_)
-	{
-		set_error_message("Failed to create dummy window. " + std::string{::SDL_GetError()});
-
-		return false;
-	}
-
-	// Create OpenGL context.
-	//
-
-	sdl_gl_context_ = ::SDL_GL_CreateContext(sdl_window_);
-
-	if (!sdl_gl_context_)
-	{
-		set_error_message("Failed to create OpenGL context. " + std::string{::SDL_GetError()});
-
-		return false;
-	}
-
-	// Unset the context.
-	//
-	sdl_result = ::SDL_GL_MakeCurrent(sdl_window_, nullptr);
-
-	if (sdl_result)
-	{
-		set_error_message("Failed to unset OpenGL context. " + std::string{::SDL_GetError()});
-
+		set_error_message("Failed to create dummy window. " + sdl.get_error_message());
 		return false;
 	}
 
@@ -1042,17 +1222,9 @@ bool OglTextureManager::initialize_context()
 
 void OglTextureManager::uninitialize_context()
 {
-	if (sdl_gl_context_)
-	{
-		::SDL_GL_DeleteContext(sdl_gl_context_);
-		sdl_gl_context_ = nullptr;
-	}
+	auto sdl = Sdl{};
 
-	if (sdl_window_)
-	{
-		::SDL_DestroyWindow(sdl_window_);
-		sdl_window_ = nullptr;
-	}
+	sdl.ogl_destroy_window(sdl_ogl_window_);
 }
 
 int OglTextureManager::ogl_calculate_npot_dimension(
@@ -1250,9 +1422,7 @@ const SdlCursorPtr SystemCursors::operator[](
 Window::Window()
 	:
 	is_initialized_{},
-	sdl_window_{},
-	sdl_gl_context_{},
-	sdl_window_id_{},
+	sdl_ogl_window_{},
 	ogl_font_atlas_{},
 	im_context_{},
 	pressed_mouse_buttons_{},
@@ -1268,77 +1438,31 @@ Window::~Window()
 bool Window::initialize(
 	const WindowCreateParam& param)
 {
-	if (param.width_ <= 0 || param.height_ <= 0)
-	{
-		set_error_message("Invalid window dimensions.");
-		return false;
-	}
-
 	auto& ogl_texture_manager = OglTextureManager::get_instance();
 
 	ogl_texture_manager.make_context_current(true);
 
 	auto is_succeed = true;
-	auto sdl_result = 0;
 
 	if (is_succeed)
 	{
-		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
+		auto window_param = SdlCreateWindowParam{};
+		window_param.title_ = param.title_;
+		window_param.width_ = param.width_;
+		window_param.height_ = param.height_;
+		window_param.is_hidden_ = true;
+		window_param.is_borderless_ = true;
+		window_param.is_double_buffering_ = true;
+		window_param.is_share_with_current_ogl_context_ = true;
 
-		if (sdl_result)
+		auto sdl = Sdl{};
+
+		sdl_ogl_window_ = sdl.ogl_create_window(window_param);
+
+		if (!sdl_ogl_window_.is_valid())
 		{
 			is_succeed = false;
-			set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()});
-		}
-
-		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, SDL_TRUE);
-
-		if (is_succeed && sdl_result)
-		{
-			is_succeed = false;
-			set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{::SDL_GetError()});
-		}
-
-	}
-
-	const auto sdl_window_flags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
-
-	if (is_succeed)
-	{
-		sdl_window_ = ::SDL_CreateWindow(
-			param.title_.c_str(),
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
-			param.width_,
-			param.height_,
-			sdl_window_flags);
-
-		if (!sdl_window_)
-		{
-			is_succeed = false;
-			set_error_message("Failed to create SDL window. " + std::string{::SDL_GetError()});
-		}
-	}
-
-	if (is_succeed)
-	{
-		sdl_window_id_ = ::SDL_GetWindowID(sdl_window_);
-
-		if (sdl_window_id_ == 0)
-		{
-			is_succeed = false;
-			set_error_message("Failed to get SDL window id. " + std::string{::SDL_GetError()});
-		}
-	}
-
-	if (is_succeed)
-	{
-		sdl_gl_context_ = ::SDL_GL_CreateContext(sdl_window_);
-
-		if (!sdl_gl_context_)
-		{
-			is_succeed = false;
-			set_error_message("Failed to create OpenGL context and make it current. " + std::string{::SDL_GetError()});
+			set_error_message("Failed to create window. " + sdl.get_error_message());
 		}
 	}
 
@@ -1417,12 +1541,12 @@ bool Window::initialize(
 		auto w = 0;
 		auto h = 0;
 
-		::SDL_GetWindowSize(sdl_window_, &w, &h);
+		::SDL_GetWindowSize(sdl_ogl_window_.window_, &w, &h);
 
 		auto display_w = 0;
 		auto display_h = 0;
 
-		::SDL_GL_GetDrawableSize(sdl_window_, &display_w, &display_h);
+		::SDL_GL_GetDrawableSize(sdl_ogl_window_.window_, &display_w, &display_h);
 
 		auto& io = ImGui::GetIO();
 
@@ -1468,7 +1592,7 @@ bool Window::initialize(
 
 		if (!param.is_hidden_)
 		{
-			::SDL_ShowWindow(sdl_window_);
+			::SDL_ShowWindow(sdl_ogl_window_.window_);
 		}
 	}
 
@@ -1479,7 +1603,7 @@ bool Window::initialize(
 
 	auto& window_mananger = WindowManager::get_instance();
 
-	window_mananger.register_window(sdl_window_id_, this);
+	window_mananger.register_window(sdl_ogl_window_.window_id_, this);
 
 	is_initialized_ = true;
 
@@ -1494,29 +1618,29 @@ bool Window::is_initialized() const
 void Window::show(
 	const bool is_show)
 {
-	if (!is_initialized_ || !sdl_window_)
+	if (!is_initialized_ || !sdl_ogl_window_.is_valid())
 	{
 		return;
 	}
 
 	if (is_show)
 	{
-		::SDL_ShowWindow(sdl_window_);
+		::SDL_ShowWindow(sdl_ogl_window_.window_);
 	}
 	else
 	{
-		::SDL_HideWindow(sdl_window_);
+		::SDL_HideWindow(sdl_ogl_window_.window_);
 	}
 }
 
 bool Window::is_show() const
 {
-	if (!is_initialized_ || !sdl_window_)
+	if (!is_initialized_ || !sdl_ogl_window_.is_valid())
 	{
 		return false;
 	}
 
-	const auto sdl_window_flags = ::SDL_GetWindowFlags(sdl_window_);
+	const auto sdl_window_flags = ::SDL_GetWindowFlags(sdl_ogl_window_.window_);
 
 	return (sdl_window_flags & SDL_WINDOW_SHOWN) != 0;
 }
@@ -1529,9 +1653,8 @@ void Window::draw()
 	}
 
 
-	auto sdl_result = 0;
+	sdl_ogl_window_.make_context_current(true);
 
-	sdl_result = ::SDL_GL_MakeCurrent(sdl_window_, sdl_gl_context_);
 	ImGui::SetCurrentContext(im_context_);
 
 	auto& im_io = ImGui::GetIO();
@@ -1547,7 +1670,7 @@ void Window::draw()
 	im_render();
 
 	ImGui::SetCurrentContext(nullptr);
-	sdl_result = ::SDL_GL_MakeCurrent(sdl_window_, nullptr);
+	sdl_ogl_window_.make_context_current(false);
 }
 
 void Window::uninitialize()
@@ -1558,18 +1681,10 @@ void Window::uninitialize()
 		im_context_ = nullptr;
 	}
 
-	if (sdl_window_id_ > 0 && sdl_window_)
+	if (sdl_ogl_window_.is_valid())
 	{
 		auto& window_manager = WindowManager::get_instance();
-		window_manager.unregister_window(sdl_window_id_);
-	}
-
-	is_initialized_ = false;
-
-	if (sdl_gl_context_)
-	{
-		const auto sdl_result = ::SDL_GL_MakeCurrent(sdl_window_, sdl_gl_context_);
-		assert(sdl_result == 0);
+		window_manager.unregister_window(sdl_ogl_window_.window_id_);
 
 		if (ogl_font_atlas_ != 0)
 		{
@@ -1577,20 +1692,11 @@ void Window::uninitialize()
 			ogl_font_atlas_ = 0;
 		}
 
-		static_cast<void>(::SDL_GL_MakeCurrent(sdl_window_, nullptr));
-		::SDL_GL_DeleteContext(sdl_gl_context_);
-
-		sdl_gl_context_ = nullptr;
+		auto sdl = Sdl{};
+		sdl.ogl_destroy_window(sdl_ogl_window_);
 	}
 
-	if (sdl_window_)
-	{
-		::SDL_HideWindow(sdl_window_);
-		::SDL_DestroyWindow(sdl_window_);
-		sdl_window_ = nullptr;
-	}
-
-	sdl_window_id_ = 0;
+	is_initialized_ = false;
 
 	pressed_mouse_buttons_ = {};
 }
@@ -1679,11 +1785,11 @@ void Window::minimize_internal(
 {
 	if (is_minimize)
 	{
-		::SDL_MinimizeWindow(sdl_window_);
+		::SDL_MinimizeWindow(sdl_ogl_window_.window_);
 	}
 	else
 	{
-		::SDL_RestoreWindow(sdl_window_);
+		::SDL_RestoreWindow(sdl_ogl_window_.window_);
 	}
 }
 
@@ -1711,7 +1817,7 @@ bool Window::is_point_inside_rect(
 
 Uint32 Window::get_id() const
 {
-	return sdl_window_id_;
+	return sdl_ogl_window_.window_id_;
 }
 
 void Window::im_new_frame()
@@ -1727,12 +1833,12 @@ void Window::im_new_frame()
 	auto w = 0;
 	auto h = 0;
 
-	::SDL_GetWindowSize(sdl_window_, &w, &h);
+	::SDL_GetWindowSize(sdl_ogl_window_.window_, &w, &h);
 
 	auto display_w = 0;
 	auto display_h = 0;
 
-	::SDL_GL_GetDrawableSize(sdl_window_, &display_w, &display_h);
+	::SDL_GL_GetDrawableSize(sdl_ogl_window_.window_, &display_w, &display_h);
 
 	io.DisplaySize = ImVec2{static_cast<float>(w), static_cast<float>(h)};
 
@@ -1768,7 +1874,7 @@ void Window::im_update_mouse_position_and_buttons()
 	// Set OS mouse position if requested (rarely used, only when ImGuiConfigFlags_NavEnableSetMousePos is enabled by user)
 	if (io.WantSetMousePos)
 	{
-		::SDL_WarpMouseInWindow(sdl_window_, static_cast<int>(io.MousePos.x), static_cast<int>(io.MousePos.y));
+		::SDL_WarpMouseInWindow(sdl_ogl_window_.window_, static_cast<int>(io.MousePos.x), static_cast<int>(io.MousePos.y));
 	}
 	else
 	{
@@ -1793,7 +1899,7 @@ void Window::im_update_mouse_position_and_buttons()
 #if SDL_VERSION_ATLEAST(2,0,4)
 	auto focused_window = ::SDL_GetKeyboardFocus();
 
-	if (sdl_window_ == focused_window)
+	if (sdl_ogl_window_.window_ == focused_window)
 	{
 		// SDL_GetMouseState() gives mouse position seemingly based on the last window entered/focused(?)
 		// The creation of a new windows at runtime and SDL_CaptureMouse both seems to severely mess up with that, so we retrieve that position globally.
@@ -1871,7 +1977,7 @@ void Window::im_render()
 
 	im_render_data(draw_data);
 
-	::SDL_GL_SwapWindow(sdl_window_);
+	::SDL_GL_SwapWindow(sdl_ogl_window_.window_);
 }
 
 void Window::im_render_data(
