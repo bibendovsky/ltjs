@@ -108,6 +108,36 @@ enum class ImageId
 }; // ImageId
 
 
+class Base
+{
+public:
+	Base();
+
+	Base(
+		Base&& rhs);
+
+
+	const std::string& get_error_message();
+
+
+protected:
+	void clear_error_message();
+
+	void set_error_message(
+		const std::string& error_message);
+
+	void append_error_message(
+		const std::string& error_message);
+
+	void prepend_error_message(
+		const std::string& error_message);
+
+
+private:
+	std::string error_message_;
+}; // Base
+
+
 struct OglTexture final
 {
 	GLuint ogl_id_;
@@ -122,7 +152,8 @@ struct OglTexture final
 }; // OglTexture
 
 
-class OglTextureManager final
+class OglTextureManager final :
+	public Base
 {
 public:
 	OglTextureManager(
@@ -130,8 +161,6 @@ public:
 
 	static OglTextureManager& get_instance();
 
-
-	const std::string& get_error_message() const;
 
 	bool initialize();
 
@@ -164,7 +193,6 @@ private:
 	static const Strings image_file_names;
 
 
-	std::string error_message_;
 	SDL_Window* sdl_window_;
 	SDL_GLContext sdl_gl_context_;
 	ImFontAtlasUPtr font_atlas_uptr_;
@@ -276,15 +304,14 @@ class Window;
 using WindowPtr = Window*;
 
 
-class Window
+class Window :
+	public Base
 {
 public:
 	virtual ~Window();
 
 
 	bool is_initialized() const;
-
-	const std::string& get_error_message() const;
 
 	void show(
 		const bool is_show);
@@ -299,7 +326,6 @@ protected:
 
 
 	bool is_initialized_;
-	std::string error_message_;
 
 
 	Window();
@@ -436,7 +462,8 @@ private:
 }; // WindowManager
 
 
-class Launcher final
+class Launcher final :
+	public Base
 {
 public:
 	Launcher();
@@ -453,14 +480,11 @@ public:
 
 	bool is_initialized();
 
-	const std::string& get_error_message();
-
 	void run();
 
 
 private:
 	bool is_initialized_;
-	std::string error_message_;
 	MainWindowUPtr main_window_uptr_;
 
 
@@ -473,6 +497,56 @@ private:
 
 //
 // Classes
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// Base
+//
+
+Base::Base()
+	:
+	error_message_{}
+{
+}
+
+Base::Base(
+	Base&& rhs)
+	:
+	error_message_{std::move(rhs.error_message_)}
+{
+}
+
+const std::string& Base::get_error_message()
+{
+	return error_message_;
+}
+
+void Base::clear_error_message()
+{
+	error_message_.clear();
+}
+
+void Base::set_error_message(
+	const std::string& error_message)
+{
+	error_message_ = error_message;
+}
+
+void Base::append_error_message(
+	const std::string& error_message)
+{
+	error_message_ += error_message;
+}
+
+void Base::prepend_error_message(
+	const std::string& error_message)
+{
+	error_message_.insert(std::string::size_type{}, error_message);
+}
+
+//
+// Base
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -573,7 +647,6 @@ const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 
 OglTextureManager::OglTextureManager()
 	:
-	error_message_{},
 	sdl_window_{},
 	sdl_gl_context_{},
 	font_atlas_uptr_{std::make_unique<ImFontAtlas>()},
@@ -584,7 +657,6 @@ OglTextureManager::OglTextureManager()
 OglTextureManager::OglTextureManager(
 	OglTextureManager&& rhs)
 	:
-	error_message_{std::move(rhs.error_message_)},
 	sdl_window_{std::move(rhs.sdl_window_)},
 	sdl_gl_context_{std::move(rhs.sdl_gl_context_)},
 	font_atlas_uptr_{std::move(rhs.font_atlas_uptr_)},
@@ -603,11 +675,6 @@ OglTextureManager& OglTextureManager::get_instance()
 	static auto image_cache = OglTextureManager{};
 
 	return image_cache;
-}
-
-const std::string& OglTextureManager::get_error_message() const
-{
-	return error_message_;
 }
 
 bool OglTextureManager::initialize()
@@ -659,7 +726,7 @@ bool OglTextureManager::set_font(
 
 	if (!im_font_ptr)
 	{
-		error_message_ = "Failed to load font: \"" + file_name + "\".";
+		set_error_message("Failed to load font: \"" + file_name + "\".");
 		return false;
 	}
 
@@ -675,7 +742,7 @@ bool OglTextureManager::load_all_textures()
 {
 	if (image_file_names.empty())
 	{
-		error_message_ = "No images.";
+		set_error_message("No images.");
 		return false;
 	}
 
@@ -707,7 +774,7 @@ bool OglTextureManager::load_all_textures()
 
 			if (!image_surface)
 			{
-				error_message_ = "Failed to load image: \"" + invariant_image_path + "\".";
+				set_error_message("Failed to load image: \"" + invariant_image_path + "\".");
 				return false;
 			}
 		}
@@ -720,7 +787,7 @@ bool OglTextureManager::load_all_textures()
 
 		if (!ogl_texture.ogl_id_)
 		{
-			error_message_ = "Failed to create texure from \"" + image_file_name + "\". " + error_message_;
+			prepend_error_message("Failed to create texure from \"" + image_file_name + "\". ");
 
 			return false;
 		}
@@ -755,19 +822,19 @@ OglTexture OglTextureManager::create_texture_from_surface(
 {
 	if (!sdl_surface)
 	{
-		error_message_ = "No surface.";
+		set_error_message("No surface.");
 		return {};
 	}
 
 	if (sdl_surface->w <= 0 || sdl_surface->h <= 0)
 	{
-		error_message_ = "Invalid surface dimensions.";
+		set_error_message("Invalid surface dimensions.");
 		return {};
 	}
 
 	if (!sdl_surface->pixels)
 	{
-		error_message_ = "No surface pixels.";
+		set_error_message("No surface pixels.");
 		return {};
 	}
 
@@ -778,7 +845,7 @@ OglTexture OglTextureManager::create_texture_from_surface(
 		break;
 
 	default:
-		error_message_ = "Unsupported bit depth.";
+		set_error_message("Unsupported bit depth.");
 		return {};
 	}
 
@@ -912,11 +979,18 @@ bool OglTextureManager::initialize_context()
 	//
 
 	sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
+
+	if (sdl_result)
+	{
+		set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()});
+		return false;
+	}
+
 	sdl_result = ::SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, SDL_FALSE);
 
 	if (sdl_result)
 	{
-		error_message_ = "Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()};
+		set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{::SDL_GetError()});
 		return false;
 	}
 
@@ -935,7 +1009,7 @@ bool OglTextureManager::initialize_context()
 
 	if (!sdl_window_)
 	{
-		error_message_ = "Failed to create dummy window. " + std::string{::SDL_GetError()};
+		set_error_message("Failed to create dummy window. " + std::string{::SDL_GetError()});
 
 		return false;
 	}
@@ -947,7 +1021,7 @@ bool OglTextureManager::initialize_context()
 
 	if (!sdl_gl_context_)
 	{
-		error_message_ = "Failed to create OpenGL context. " + std::string{::SDL_GetError()};
+		set_error_message("Failed to create OpenGL context. " + std::string{::SDL_GetError()});
 
 		return false;
 	}
@@ -958,7 +1032,7 @@ bool OglTextureManager::initialize_context()
 
 	if (sdl_result)
 	{
-		error_message_ = "Failed to unset OpenGL context. " + std::string{::SDL_GetError()};
+		set_error_message("Failed to unset OpenGL context. " + std::string{::SDL_GetError()});
 
 		return false;
 	}
@@ -1176,7 +1250,6 @@ const SdlCursorPtr SystemCursors::operator[](
 Window::Window()
 	:
 	is_initialized_{},
-	error_message_{},
 	sdl_window_{},
 	sdl_gl_context_{},
 	sdl_window_id_{},
@@ -1197,7 +1270,7 @@ bool Window::initialize(
 {
 	if (param.width_ <= 0 || param.height_ <= 0)
 	{
-		error_message_ = "Invalid window dimensions.";
+		set_error_message("Invalid window dimensions.");
 		return false;
 	}
 
@@ -1211,13 +1284,21 @@ bool Window::initialize(
 	if (is_succeed)
 	{
 		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
-		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, SDL_TRUE);
 
 		if (sdl_result)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()};
+			set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()});
 		}
+
+		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, SDL_TRUE);
+
+		if (is_succeed && sdl_result)
+		{
+			is_succeed = false;
+			set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{::SDL_GetError()});
+		}
+
 	}
 
 	const auto sdl_window_flags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
@@ -1235,7 +1316,7 @@ bool Window::initialize(
 		if (!sdl_window_)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to create SDL window. " + std::string{::SDL_GetError()};
+			set_error_message("Failed to create SDL window. " + std::string{::SDL_GetError()});
 		}
 	}
 
@@ -1246,7 +1327,7 @@ bool Window::initialize(
 		if (sdl_window_id_ == 0)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to get SDL window id. " + std::string{::SDL_GetError()};
+			set_error_message("Failed to get SDL window id. " + std::string{::SDL_GetError()});
 		}
 	}
 
@@ -1257,7 +1338,7 @@ bool Window::initialize(
 		if (!sdl_gl_context_)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to create OpenGL context and make it current. " + std::string{::SDL_GetError()};
+			set_error_message("Failed to create OpenGL context and make it current. " + std::string{::SDL_GetError()});
 		}
 	}
 
@@ -1269,7 +1350,7 @@ bool Window::initialize(
 		if (im_font_atlas.Fonts.empty())
 		{
 			is_succeed = false;
-			error_message_ = "No font atlas.";
+			set_error_message("No font atlas.");
 		}
 	}
 
@@ -1280,7 +1361,7 @@ bool Window::initialize(
 		if (!im_context_)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to create ImGUI context.";
+			set_error_message("Failed to create ImGUI context.");
 		}
 	}
 
@@ -1327,7 +1408,7 @@ bool Window::initialize(
 		else
 		{
 			is_succeed = false;
-			error_message_ = "Failed to get font atlas data.";
+			set_error_message("Failed to get font atlas data.");
 		}
 	}
 
@@ -1408,11 +1489,6 @@ bool Window::initialize(
 bool Window::is_initialized() const
 {
 	return is_initialized_;
-}
-
-const std::string& Window::get_error_message() const
-{
-	return error_message_;
 }
 
 void Window::show(
@@ -2342,7 +2418,6 @@ void WindowManager::unregister_window(
 Launcher::Launcher()
 	:
 	is_initialized_{},
-	error_message_{},
 	main_window_uptr_{}
 {
 }
@@ -2351,7 +2426,6 @@ Launcher::Launcher(
 	Launcher&& rhs)
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
-	error_message_{std::move(rhs.error_message_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)}
 {
 }
@@ -2414,7 +2488,7 @@ bool Launcher::initialize()
 		if (!set_font_result)
 		{
 			is_succeed = false;
-			error_message_ = ogl_texture_manager.get_error_message();
+			set_error_message(ogl_texture_manager.get_error_message());
 		}
 	}
 
@@ -2425,7 +2499,7 @@ bool Launcher::initialize()
 		if (!ogl_texture_manager.load_all_textures())
 		{
 			is_succeed = false;
-			error_message_ = ogl_texture_manager.get_error_message();
+			set_error_message(ogl_texture_manager.get_error_message());
 		}
 	}
 
@@ -2436,7 +2510,7 @@ bool Launcher::initialize()
 		if (!main_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			error_message_ = "Failed to initialize main window. " + main_window_uptr_->get_error_message();
+			set_error_message("Failed to initialize main window. " + main_window_uptr_->get_error_message());
 		}
 	}
 
@@ -2498,16 +2572,11 @@ bool Launcher::is_initialized()
 	return is_initialized_;
 }
 
-const std::string& Launcher::get_error_message()
-{
-	return error_message_;
-}
-
 void Launcher::run()
 {
 	if (!is_initialized_)
 	{
-		error_message_ = "Not initialized.";
+		set_error_message("Not initialized.");
 		return;
 	}
 
@@ -2555,12 +2624,19 @@ bool Launcher::initialize_ogl_functions()
 	if (is_succeed)
 	{
 		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
+
+		if (is_succeed && sdl_result)
+		{
+			is_succeed = false;
+			set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()});
+		}
+
 		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, SDL_FALSE);
 
 		if (is_succeed && sdl_result)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()};
+			set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{::SDL_GetError()});
 		}
 	}
 
@@ -2584,7 +2660,7 @@ bool Launcher::initialize_ogl_functions()
 		if (!sdl_window)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to create dummy window. " + std::string{::SDL_GetError()};
+			set_error_message("Failed to create dummy window. " + std::string{::SDL_GetError()});
 		}
 	}
 
@@ -2600,7 +2676,7 @@ bool Launcher::initialize_ogl_functions()
 		if (!sdl_gl_context)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to create OpenGL context. " + std::string{::SDL_GetError()};
+			set_error_message("Failed to create OpenGL context. " + std::string{::SDL_GetError()});
 		}
 	}
 
@@ -2614,7 +2690,7 @@ bool Launcher::initialize_ogl_functions()
 		if (!glad_result)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to initialize GLAD.";
+			set_error_message("Failed to initialize GLAD.");
 		}
 	}
 
@@ -2652,7 +2728,7 @@ bool Launcher::initialize_sdl()
 		if (sdl_result)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to initialize SDL. " + std::string{::SDL_GetError()};
+			set_error_message("Failed to initialize SDL. " + std::string{::SDL_GetError()});
 		}
 	}
 
@@ -2663,7 +2739,7 @@ bool Launcher::initialize_sdl()
 		if (sdl_result)
 		{
 			is_succeed = false;
-			error_message_ = "Failed to load OpenGL library. " + std::string{::SDL_GetError()};
+			set_error_message("Failed to load OpenGL library. " + std::string{::SDL_GetError()});
 		}
 	}
 
