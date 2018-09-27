@@ -87,6 +87,15 @@ install(
 
 install(
 	FILES
+		res/fonts/noto_sans_display_condensed.ttf
+		res/fonts/noto_sans_display_condensed_license_ofl.txt
+		res/fonts/noto_sans_display_condensed_readme.txt
+	DESTINATION
+		ltjs/nolf2/launcher/fonts
+)
+
+install(
+	FILES
 		res/bmp/boxbackground.bmp
 		res/bmp/checkboxc.bmp
 		res/bmp/checkboxf.bmp

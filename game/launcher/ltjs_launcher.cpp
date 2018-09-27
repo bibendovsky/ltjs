@@ -192,6 +192,59 @@ public:
 }; // Sdl
 
 
+void deleter(
+	void* data)
+{
+	ImGui::MemFree(data);
+}
+
+class FontManager final :
+	public Base
+{
+public:
+	static const float ref_font_size_pixels;
+
+
+	FontManager(
+		FontManager&& rhs);
+
+	static FontManager& get_instance();
+
+
+	bool initialize();
+
+	void uninitialize();
+
+
+	bool set_font(
+		const float font_size_pixels);
+
+	ImFontAtlas& get_font_atlas();
+
+
+private:
+	static constexpr int max_font_file_size = 1 * 1'024 * 1'024;
+	static const std::string font_file_name;
+
+
+	using Buffer = std::vector<std::uint8_t>;
+	using ImFontAtlasUPtr = std::unique_ptr<ImFontAtlas>;
+
+
+	Buffer font_data_;
+	ImFontAtlasUPtr font_atlas_uptr_;
+
+
+	FontManager();
+
+	~FontManager();
+
+
+	static void font_data_deleter(
+		std::uint8_t* font_data);
+}; // FontManager
+
+
 struct OglTexture final
 {
 	GLuint ogl_id_;
@@ -221,17 +274,16 @@ public:
 	void uninitialize();
 
 
-	bool set_font(
-		const std::string& file_name,
-		const float font_size_pixels);
+	bool load_font();
 
-	ImFontAtlas& get_font_atlas();
+	const OglTexture& get_font();
 
 
 	bool load_all_textures();
 
 	const OglTexture& get(
 		const ImageId image_id);
+
 
 	void make_context_current(
 		const bool is_current);
@@ -248,8 +300,8 @@ private:
 
 
 	SdlOglWindow sdl_ogl_window_;
-	ImFontAtlasUPtr font_atlas_uptr_;
 	OglTextures ogl_textures_;
+	OglTexture ogl_font_texture_;
 
 
 	OglTextureManager();
@@ -266,6 +318,8 @@ private:
 
 	OglTexture create_texture_from_surface(
 		SDL_Surface* sdl_surface);
+
+	void unload_font();
 }; // OglTextureManager
 
 
@@ -410,7 +464,6 @@ private:
 	using PressedMouseButtons = std::array<bool, 3>;
 
 	SdlOglWindow sdl_ogl_window_;
-	GLuint ogl_font_atlas_;
 	ImGuiContext* im_context_;
 	PressedMouseButtons pressed_mouse_buttons_;
 	Uint64 time_;
@@ -780,6 +833,137 @@ void Sdl::ogl_destroy_window(
 // Sdl
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// FontManager
+//
+
+const float FontManager::ref_font_size_pixels = 18.0F;
+const std::string FontManager::font_file_name = "ltjs/nolf2/launcher/fonts/noto_sans_display_condensed.ttf";
+
+
+FontManager::FontManager()
+	:
+	font_data_{},
+	font_atlas_uptr_{std::make_unique<ImFontAtlas>()}
+{
+}
+
+FontManager::~FontManager()
+{
+}
+
+FontManager::FontManager(
+	FontManager&& rhs)
+	:
+	font_data_{std::move(font_data_)},
+	font_atlas_uptr_{std::move(font_atlas_uptr_)}
+{
+}
+
+FontManager& FontManager::get_instance()
+{
+	static auto font_manager = FontManager{};
+
+	return font_manager;
+}
+
+bool FontManager::initialize()
+{
+	uninitialize();
+
+	const auto file_name = ul::PathUtils::normalize(font_file_name);
+
+	auto sdl_rw = ::SDL_RWFromFile(file_name.c_str(), "rb");
+
+	if (!sdl_rw)
+	{
+		set_error_message("Failed to open font file: \"" + font_file_name + "\".");
+
+		return false;
+	}
+
+
+	auto guard_rw = ul::ScopeGuard{
+		[&]()
+		{
+			::SDL_FreeRW(sdl_rw);
+		}
+	};
+
+	const auto file_size = sdl_rw->size(sdl_rw);
+
+	if (file_size > max_font_file_size)
+	{
+		set_error_message("Font file too big: \"" + font_file_name + "\".");
+
+		return false;
+	}
+
+	font_data_.resize(static_cast<Buffer::size_type>(file_size));
+
+	const auto read_size = sdl_rw->read(sdl_rw, font_data_.data(), 1, static_cast<std::size_t>(file_size));
+
+	if (read_size != file_size)
+	{
+		font_data_.clear();
+		set_error_message("Failed to read font file: \"" + font_file_name + "\".");
+
+		return false;
+	}
+
+	return true;
+}
+
+void FontManager::uninitialize()
+{
+	font_data_ = {};
+	font_atlas_uptr_->Clear();
+}
+
+bool FontManager::set_font(
+	const float font_size_pixels)
+{
+	font_atlas_uptr_->Clear();
+
+	auto im_font_data = static_cast<std::uint8_t*>(ImGui::MemAlloc(font_data_.size()));
+
+	std::uninitialized_copy(
+		font_data_.cbegin(),
+		font_data_.cend(),
+		im_font_data);
+
+	const auto im_font = font_atlas_uptr_->AddFontFromMemoryTTF(
+		im_font_data,
+		static_cast<int>(font_data_.size()),
+		font_size_pixels);
+
+	if (!im_font)
+	{
+		font_atlas_uptr_->Clear();
+
+		set_error_message("Failed to load font.");
+
+		return false;
+	}
+
+	return true;
+}
+
+ImFontAtlas& FontManager::get_font_atlas()
+{
+	return *font_atlas_uptr_;
+}
+
+void FontManager::font_data_deleter(
+	std::uint8_t* font_data)
+{
+	ImGui::MemFree(font_data);
+}
+
+//
+// FontManager
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // OglTextureManager
@@ -879,8 +1063,8 @@ const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 OglTextureManager::OglTextureManager()
 	:
 	sdl_ogl_window_{},
-	font_atlas_uptr_{std::make_unique<ImFontAtlas>()},
-	ogl_textures_{}
+	ogl_textures_{},
+	ogl_font_texture_{}
 {
 }
 
@@ -888,8 +1072,8 @@ OglTextureManager::OglTextureManager(
 	OglTextureManager&& rhs)
 	:
 	sdl_ogl_window_{std::move(rhs.sdl_ogl_window_)},
-	font_atlas_uptr_{std::move(rhs.font_atlas_uptr_)},
-	ogl_textures_{std::move(rhs.ogl_textures_)}
+	ogl_textures_{std::move(rhs.ogl_textures_)},
+	ogl_font_texture_{std::move(rhs.ogl_font_texture_)}
 {
 }
 
@@ -921,8 +1105,6 @@ bool OglTextureManager::initialize()
 
 void OglTextureManager::uninitialize()
 {
-	font_atlas_uptr_->Clear();
-
 	if (sdl_ogl_window_.is_valid())
 	{
 		sdl_ogl_window_.make_context_current(true);
@@ -940,29 +1122,13 @@ void OglTextureManager::uninitialize()
 
 	ogl_textures_.clear();
 
-	uninitialize_context();
-}
-
-bool OglTextureManager::set_font(
-	const std::string& file_name,
-	const float font_size_pixels)
-{
-	font_atlas_uptr_->Clear();
-
-	auto im_font_ptr = font_atlas_uptr_->AddFontFromFileTTF(file_name.c_str(), font_size_pixels);
-
-	if (!im_font_ptr)
+	if (ogl_font_texture_.ogl_id_)
 	{
-		set_error_message("Failed to load font: \"" + file_name + "\".");
-		return false;
+		::glDeleteTextures(1, &ogl_font_texture_.ogl_id_);
+		ogl_font_texture_.ogl_id_ = 0;
 	}
 
-	return true;
-}
-
-ImFontAtlas& OglTextureManager::get_font_atlas()
-{
-	return *font_atlas_uptr_;
+	uninitialize_context();
 }
 
 bool OglTextureManager::load_all_textures()
@@ -1042,6 +1208,47 @@ void OglTextureManager::make_context_current(
 	const bool is_current)
 {
 	sdl_ogl_window_.make_context_current(is_current);
+}
+
+bool OglTextureManager::load_font()
+{
+	unload_font();
+
+	unsigned char* pixels = nullptr;
+	int font_atlas_width;
+	int font_atlas_height;
+
+	auto& font_manager = FontManager::get_instance();
+	auto& font_atlas = font_manager.get_font_atlas();
+
+	font_atlas.GetTexDataAsAlpha8(&pixels, &font_atlas_width, &font_atlas_height);
+
+	if (!pixels || font_atlas_width <= 0 || font_atlas_height <= 0)
+	{
+		set_error_message("Failed to get font atlas.");
+
+		return false;
+	}
+
+	sdl_ogl_window_.make_context_current(true);
+
+	::glGenTextures(1, &ogl_font_texture_.ogl_id_);
+	::glBindTexture(GL_TEXTURE_2D, ogl_font_texture_.ogl_id_);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	::glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, font_atlas_width, font_atlas_height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pixels);
+
+	ogl_font_texture_.uv0_ = {0.0F, 0.0F};
+	ogl_font_texture_.uv1_ = {1.0F, 1.0F};
+
+	sdl_ogl_window_.make_context_current(false);
+
+	return true;
+}
+
+const OglTexture& OglTextureManager::get_font()
+{
+	return ogl_font_texture_;
 }
 
 OglTexture OglTextureManager::create_texture_from_surface(
@@ -1195,6 +1402,20 @@ OglTexture OglTextureManager::create_texture_from_surface(
 	};
 
 	return result;
+}
+
+void OglTextureManager::unload_font()
+{
+	if (!ogl_font_texture_.ogl_id_)
+	{
+		return;
+	}
+
+	::glDeleteTextures(1, &ogl_font_texture_.ogl_id_);
+	ogl_font_texture_.ogl_id_ = 0;
+
+	ogl_font_texture_.uv0_ = {};
+	ogl_font_texture_.uv1_ = {};
 }
 
 bool OglTextureManager::initialize_context()
@@ -1423,7 +1644,6 @@ Window::Window()
 	:
 	is_initialized_{},
 	sdl_ogl_window_{},
-	ogl_font_atlas_{},
 	im_context_{},
 	pressed_mouse_buttons_{},
 	time_{}
@@ -1466,8 +1686,8 @@ bool Window::initialize(
 		}
 	}
 
-	auto& image_cache = OglTextureManager::get_instance();
-	auto& im_font_atlas = image_cache.get_font_atlas();
+	auto& font_manager = FontManager::get_instance();
+	auto& im_font_atlas = font_manager.get_font_atlas();
 
 	if (is_succeed)
 	{
@@ -1511,29 +1731,6 @@ bool Window::initialize(
 		im_style.WindowBorderSize = 0.0F;
 		im_style.WindowPadding = {};
 		im_style.WindowRounding = 0.0F;
-	}
-
-	if (is_succeed)
-	{
-		unsigned char* pixels = nullptr;
-		int font_atlas_width;
-		int font_atlas_height;
-
-		im_font_atlas.GetTexDataAsAlpha8(&pixels, &font_atlas_width, &font_atlas_height);
-
-		if (pixels)
-		{
-			::glGenTextures(1, &ogl_font_atlas_);
-			::glBindTexture(GL_TEXTURE_2D, ogl_font_atlas_);
-			::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			::glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, font_atlas_width, font_atlas_height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pixels);
-		}
-		else
-		{
-			is_succeed = false;
-			set_error_message("Failed to get font atlas data.");
-		}
 	}
 
 	if (is_succeed)
@@ -1659,7 +1856,10 @@ void Window::draw()
 
 	auto& im_io = ImGui::GetIO();
 
-	im_io.Fonts->TexID = reinterpret_cast<ImTextureID>(static_cast<std::intptr_t>(ogl_font_atlas_));
+	auto& ogl_texture_manager = OglTextureManager::get_instance();
+	const auto& font_texture = ogl_texture_manager.get_font();
+
+	im_io.Fonts->TexID = font_texture.get_im_texture_id();
 
 	im_new_frame();
 
@@ -1686,12 +1886,6 @@ void Window::uninitialize()
 		auto& window_manager = WindowManager::get_instance();
 		window_manager.unregister_window(sdl_ogl_window_.window_id_);
 
-		if (ogl_font_atlas_ != 0)
-		{
-			::glDeleteTextures(1, &ogl_font_atlas_);
-			ogl_font_atlas_ = 0;
-		}
-
 		auto sdl = Sdl{};
 		sdl.ogl_destroy_window(sdl_ogl_window_);
 	}
@@ -1704,6 +1898,11 @@ void Window::uninitialize()
 void Window::handle_event(
 	const SDL_Event& sdl_event)
 {
+	if (!is_initialized_)
+	{
+		return;
+	}
+
 	ImGui::SetCurrentContext(im_context_);
 
 	auto& io = ImGui::GetIO();
@@ -2534,6 +2733,7 @@ Launcher::Launcher(
 	is_initialized_{std::move(rhs.is_initialized_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)}
 {
+	rhs.is_initialized_ = false;
 }
 
 Launcher::~Launcher()
@@ -2578,33 +2778,60 @@ bool Launcher::initialize()
 		window_manager.initialize();
 	}
 
+	// FontManager
+	//
+	auto& font_manager = FontManager::get_instance();
+
 	if (is_succeed)
 	{
-		// OglTextureManager
-		//
-
-		const auto font_file_name = std::string{"F:\\temp\\noto_sans_display_condensed.ttf"};
-
-		auto& ogl_texture_manager = OglTextureManager::get_instance();
-
-		ogl_texture_manager.initialize();
-
-		const auto set_font_result = ogl_texture_manager.set_font(font_file_name, 18);
-
-		if (!set_font_result)
+		if (!font_manager.initialize())
 		{
 			is_succeed = false;
+
+			set_error_message(font_manager.get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
+		if (!font_manager.set_font(FontManager::ref_font_size_pixels))
+		{
+			is_succeed = false;
+
+			set_error_message(font_manager.get_error_message());
+		}
+	}
+
+	// OglTextureManager
+	//
+	auto& ogl_texture_manager = OglTextureManager::get_instance();
+
+	if (is_succeed)
+	{
+		if (!ogl_texture_manager.initialize())
+		{
+			is_succeed = false;
+
 			set_error_message(ogl_texture_manager.get_error_message());
 		}
 	}
 
 	if (is_succeed)
 	{
-		auto& ogl_texture_manager = OglTextureManager::get_instance();
+		if (!ogl_texture_manager.load_font())
+		{
+			is_succeed = false;
 
+			set_error_message(ogl_texture_manager.get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
 		if (!ogl_texture_manager.load_all_textures())
 		{
 			is_succeed = false;
+
 			set_error_message(ogl_texture_manager.get_error_message());
 		}
 	}
@@ -2641,35 +2868,36 @@ void Launcher::uninitialize()
 
 	// Clipboard
 	//
-
 	auto& clipboard = Clipboard::get_instance();
 	clipboard.uninitialize();
 
 
 	// SystemCursors
 	//
-
 	auto& system_cursors = SystemCursors::get_instance();
 	system_cursors.uninitialize();
 
 
 	// WindowManager
 	//
-
 	auto& window_manager = WindowManager::get_instance();
 	window_manager.uninitialize();
 
 
+	// FontManager
+	//
+	auto& font_manager = FontManager::get_instance();
+	font_manager.uninitialize();
+
+
 	// OglTextureManager
 	//
-
 	auto& image_cache = OglTextureManager::get_instance();
 	image_cache.uninitialize();
 
 
 	// SDL
 	//
-
 	uninitialize_sdl();
 }
 
