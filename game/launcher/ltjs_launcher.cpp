@@ -761,20 +761,6 @@ SdlOglWindow Sdl::ogl_create_window(
 		}
 	}
 
-	// Unset the context.
-	//
-	if (is_succeed)
-	{
-		sdl_result = ::SDL_GL_MakeCurrent(sdl_window, nullptr);
-
-		if (sdl_result)
-		{
-			is_succeed = false;
-
-			set_error_message("Failed to unset OpenGL context. " + std::string{::SDL_GetError()});
-		}
-	}
-
 	// Show window.
 	//
 	if (is_succeed)
@@ -2977,42 +2963,23 @@ bool Launcher::initialize_ogl_functions()
 	// Create dummy window.
 	//
 
-	SDL_Window* sdl_window = nullptr;
+	auto window_param = SdlCreateWindowParam{};
+	window_param.title_ = "dummy";
+	window_param.width_ = 64;
+	window_param.height_ = 64;
+	window_param.is_hidden_ = true;
+	window_param.is_double_buffering_ = true;
 
-	if (is_succeed)
+	auto sdl = Sdl{};
+	auto ogl_window = sdl.ogl_create_window(window_param);
+
+	if (!ogl_window.is_valid())
 	{
-		const auto sdl_window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
-
-		sdl_window = ::SDL_CreateWindow(
-			"dummy",
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
-			64,
-			64,
-			sdl_window_flags);
-
-		if (!sdl_window)
-		{
-			is_succeed = false;
-			set_error_message("Failed to create dummy window. " + std::string{::SDL_GetError()});
-		}
+		is_succeed = false;
+		set_error_message("Failed to create dummy window. " + sdl.get_error_message());
 	}
 
-	// Create OpenGL context and make it current.
-	//
-
-	auto sdl_gl_context = SDL_GLContext{};
-
-	if (is_succeed)
-	{
-		sdl_gl_context = ::SDL_GL_CreateContext(sdl_window);
-
-		if (!sdl_gl_context)
-		{
-			is_succeed = false;
-			set_error_message("Failed to create OpenGL context. " + std::string{::SDL_GetError()});
-		}
-	}
+	ogl_window.make_context_current(true);
 
 	// Initialize GLAD.
 	//
@@ -3031,15 +2998,7 @@ bool Launcher::initialize_ogl_functions()
 	// Clean up.
 	//
 
-	if (sdl_gl_context)
-	{
-		static_cast<void>(::SDL_GL_MakeCurrent(sdl_window, nullptr));
-	}
-
-	if (sdl_window)
-	{
-		::SDL_DestroyWindow(sdl_window);
-	}
+	sdl.ogl_destroy_window(ogl_window);
 
 	return is_succeed;
 }
