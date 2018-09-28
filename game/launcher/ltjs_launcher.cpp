@@ -117,6 +117,18 @@ enum class ImageId
 	serverx,
 }; // ImageId
 
+enum class FontType
+{
+	regular,
+	bold,
+}; // FontType
+
+enum class FontId
+{
+	message_box_title,
+	message_box_text,
+}; // FontId
+
 
 class Base
 {
@@ -230,9 +242,6 @@ class FontManager final :
 	public Base
 {
 public:
-	static const float ref_font_size_pixels;
-
-
 	FontManager(
 		FontManager&& rhs);
 
@@ -244,23 +253,40 @@ public:
 	void uninitialize();
 
 
-	bool set_font(
-		const float font_size_pixels);
+	bool set_fonts(
+		const float scale);
 
 	ImFontAtlas& get_font_atlas();
 
+	ImFont* get_font(
+		const FontId font_id);
+
 
 private:
-	static constexpr int max_font_file_size = 1 * 1'024 * 1'024;
-	static const std::string font_file_name;
+	struct Description
+	{
+		FontId font_id_;
+		FontType font_type_;
+		float size_in_pixels_;
+	}; // Description
 
 
+	using Descriptions = std::vector<Description>;
 	using Buffer = std::vector<std::uint8_t>;
+	using BufferPtr = Buffer*;
 	using ImFontAtlasUPtr = std::unique_ptr<ImFontAtlas>;
+	using FontSizes = std::vector<float>;
 
 
-	Buffer font_data_;
-	ImFontAtlasUPtr font_atlas_uptr_;
+	static constexpr int max_font_file_size = 1 * 1'024 * 1'024;
+	static const std::string regular_font_file_name;
+	static const std::string bold_font_file_name;
+	static const Descriptions descriptions;
+
+
+	Buffer regular_font_data_;
+	Buffer bold_font_data_;
+	ImFontAtlasUPtr im_font_atlas_uptr_;
 
 
 	FontManager();
@@ -268,8 +294,13 @@ private:
 	~FontManager();
 
 
-	static void font_data_deleter(
-		std::uint8_t* font_data);
+	bool load_font_data(
+		const std::string& file_name,
+		Buffer& font_data);
+
+	bool add_font(
+		const float scale,
+		const Description& description);
 }; // FontManager
 
 
@@ -318,7 +349,6 @@ public:
 
 
 private:
-	using ImFontAtlasUPtr = std::unique_ptr<ImFontAtlas>;
 	using Strings = std::vector<std::string>;
 	using OglTextures = std::vector<OglTexture>;
 
@@ -1085,14 +1115,20 @@ void SdlOglWindow::uninitialize()
 // FontManager
 //
 
-const float FontManager::ref_font_size_pixels = 18.0F;
-const std::string FontManager::font_file_name = "ltjs/nolf2/launcher/fonts/noto_sans_display_condensed.ttf";
+const std::string FontManager::regular_font_file_name = "ltjs/nolf2/launcher/fonts/noto_sans_display_condensed.ttf";
+const std::string FontManager::bold_font_file_name = "ltjs/nolf2/launcher/fonts/noto_sans_display_condensed_bold.ttf";
 
+const FontManager::Descriptions FontManager::descriptions =
+{
+	{FontId::message_box_title, FontType::bold, 14.0F},
+	{FontId::message_box_text, FontType::regular, 10.0F},
+};
 
 FontManager::FontManager()
 	:
-	font_data_{},
-	font_atlas_uptr_{std::make_unique<ImFontAtlas>()}
+	regular_font_data_{},
+	bold_font_data_{},
+	im_font_atlas_uptr_{std::make_unique<ImFontAtlas>()}
 {
 }
 
@@ -1103,8 +1139,9 @@ FontManager::~FontManager()
 FontManager::FontManager(
 	FontManager&& rhs)
 	:
-	font_data_{std::move(font_data_)},
-	font_atlas_uptr_{std::move(font_atlas_uptr_)}
+	regular_font_data_{std::move(regular_font_data_)},
+	bold_font_data_{std::move(bold_font_data_)},
+	im_font_atlas_uptr_{std::move(im_font_atlas_uptr_)}
 {
 }
 
@@ -1119,13 +1156,64 @@ bool FontManager::initialize()
 {
 	uninitialize();
 
-	const auto file_name = ul::PathUtils::normalize(font_file_name);
+	if (!load_font_data(regular_font_file_name, regular_font_data_))
+	{
+		return false;
+	}
+
+	if (!load_font_data(bold_font_file_name, bold_font_data_))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void FontManager::uninitialize()
+{
+	regular_font_data_ = {};
+	bold_font_data_ = {};
+	im_font_atlas_uptr_->Clear();
+}
+
+bool FontManager::set_fonts(
+	const float scale)
+{
+	im_font_atlas_uptr_->Clear();
+
+	for (auto& description : descriptions)
+	{
+		if (!add_font(scale, description))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+ImFontAtlas& FontManager::get_font_atlas()
+{
+	return *im_font_atlas_uptr_;
+}
+
+ImFont* FontManager::get_font(
+	const FontId font_id)
+{
+	return im_font_atlas_uptr_->Fonts[static_cast<int>(font_id)];
+}
+
+bool FontManager::load_font_data(
+	const std::string& file_name,
+	Buffer& font_data)
+{
+	const auto normalized_file_name = ul::PathUtils::normalize(file_name);
 
 	auto sdl_rw = ::SDL_RWFromFile(file_name.c_str(), "rb");
 
 	if (!sdl_rw)
 	{
-		set_error_message("Failed to open font file: \"" + font_file_name + "\".");
+		set_error_message("Failed to open font file: \"" + normalized_file_name + "\".");
 
 		return false;
 	}
@@ -1142,19 +1230,19 @@ bool FontManager::initialize()
 
 	if (file_size > max_font_file_size)
 	{
-		set_error_message("Font file too big: \"" + font_file_name + "\".");
+		set_error_message("Font file too big: \"" + normalized_file_name + "\".");
 
 		return false;
 	}
 
-	font_data_.resize(static_cast<Buffer::size_type>(file_size));
+	font_data.resize(static_cast<Buffer::size_type>(file_size));
 
-	const auto read_size = sdl_rw->read(sdl_rw, font_data_.data(), 1, static_cast<std::size_t>(file_size));
+	const auto read_size = sdl_rw->read(sdl_rw, font_data.data(), 1, static_cast<std::size_t>(file_size));
 
 	if (read_size != file_size)
 	{
-		font_data_.clear();
-		set_error_message("Failed to read font file: \"" + font_file_name + "\".");
+		regular_font_data_.clear();
+		set_error_message("Failed to read font file: \"" + normalized_file_name + "\".");
 
 		return false;
 	}
@@ -1162,50 +1250,48 @@ bool FontManager::initialize()
 	return true;
 }
 
-void FontManager::uninitialize()
+bool FontManager::add_font(
+	const float scale,
+	const Description& description)
 {
-	font_data_ = {};
-	font_atlas_uptr_->Clear();
-}
+	auto font_data_ptr = BufferPtr{};
 
-bool FontManager::set_font(
-	const float font_size_pixels)
-{
-	font_atlas_uptr_->Clear();
+	switch (description.font_type_)
+	{
+	case FontType::regular:
+		font_data_ptr = &regular_font_data_;
+		break;
 
-	auto im_font_data = static_cast<std::uint8_t*>(ImGui::MemAlloc(font_data_.size()));
+	case FontType::bold:
+		font_data_ptr = &bold_font_data_;
+		break;
 
-	std::uninitialized_copy(
-		font_data_.cbegin(),
-		font_data_.cend(),
-		im_font_data);
+	default:
+		set_error_message("Unsupported font type.");
+		return false;
+	}
 
-	const auto im_font = font_atlas_uptr_->AddFontFromMemoryTTF(
+	const auto font_data_size = static_cast<int>(font_data_ptr->size());
+
+	auto im_font_data = static_cast<std::uint8_t*>(ImGui::MemAlloc(font_data_size));
+
+	std::uninitialized_copy(font_data_ptr->cbegin(), font_data_ptr->cend(), im_font_data);
+
+	const auto font_index = static_cast<int>(description.font_id_);
+
+	const auto im_font = im_font_atlas_uptr_->AddFontFromMemoryTTF(
 		im_font_data,
-		static_cast<int>(font_data_.size()),
-		font_size_pixels);
+		font_data_size,
+		description.size_in_pixels_ * scale);
 
 	if (!im_font)
 	{
-		font_atlas_uptr_->Clear();
-
 		set_error_message("Failed to load font.");
 
 		return false;
 	}
 
 	return true;
-}
-
-ImFontAtlas& FontManager::get_font_atlas()
-{
-	return *font_atlas_uptr_;
-}
-
-void FontManager::font_data_deleter(
-	std::uint8_t* font_data)
-{
-	ImGui::MemFree(font_data);
 }
 
 //
@@ -3184,6 +3270,7 @@ void MainWindow::do_draw()
 	ImGui::End();
 
 
+
 	// Handle events.
 	//
 
@@ -3448,9 +3535,7 @@ bool Launcher::initialize()
 		const auto& window_manager = WindowManager::get_instance();
 		const auto scale = window_manager.get_scale();
 
-		const auto font_size_pixels = scale * FontManager::ref_font_size_pixels;
-
-		if (!font_manager.set_font(font_size_pixels))
+		if (!font_manager.set_fonts(scale))
 		{
 			is_succeed = false;
 
