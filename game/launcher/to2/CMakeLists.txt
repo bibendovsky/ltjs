@@ -88,6 +88,7 @@ install(
 install(
 	FILES
 		res/fonts/noto_sans_display_condensed.ttf
+		res/fonts/noto_sans_display_condensed_bold.ttf
 		res/fonts/noto_sans_display_condensed_license_ofl.txt
 		res/fonts/noto_sans_display_condensed_readme.txt
 	DESTINATION
