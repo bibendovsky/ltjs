@@ -126,8 +126,15 @@ enum class FontType
 enum class FontId
 {
 	message_box_title,
-	message_box_text,
+	message_box_message,
 }; // FontId
+
+enum class MessageBoxType
+{
+	information,
+	warning,
+	error,
+}; // MessageBoxType
 
 
 class Base
@@ -275,7 +282,6 @@ private:
 	using Buffer = std::vector<std::uint8_t>;
 	using BufferPtr = Buffer*;
 	using ImFontAtlasUPtr = std::unique_ptr<ImFontAtlas>;
-	using FontSizes = std::vector<float>;
 
 
 	static constexpr int max_font_file_size = 1 * 1'024 * 1'024;
@@ -515,6 +521,10 @@ protected:
 		const ImVec2& point,
 		const ImVec4& rect);
 
+	static ImVec2 center_size_inside_rect(
+		const ImVec4& outer_rect,
+		const ImVec2& inner_size);
+
 
 private:
 	friend class WindowManager;
@@ -543,6 +553,51 @@ private:
 
 	virtual void do_draw() = 0;
 }; // Window
+
+
+class MessageBoxWindow;
+using MessageBoxWindowPtr = MessageBoxWindow*;
+using MessageBoxWindowUPtr = std::unique_ptr<MessageBoxWindow>;
+
+class MessageBoxWindow final :
+	public Window
+{
+public:
+	~MessageBoxWindow() override;
+
+
+	static MessageBoxWindowPtr create();
+
+
+	void show(
+		MessageBoxType type,
+		const std::string& title,
+		const std::string& text);
+
+
+private:
+	static constexpr auto window_width = 600;
+	static constexpr auto window_height = 250;
+
+
+	MessageBoxType type_;
+	std::string title_;
+	std::string message_;
+	bool is_title_position_calculated_;
+	ImVec2 calculated_title_position_;
+
+
+	MessageBoxWindow();
+
+
+	bool initialize(
+		const WindowCreateParam& param);
+
+	void uninitialize();
+
+
+	void do_draw() override;
+}; // MessageBoxWindow
 
 
 class MainWindow;
@@ -650,6 +705,7 @@ public:
 
 private:
 	bool is_initialized_;
+	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
 
 
@@ -1120,8 +1176,8 @@ const std::string FontManager::bold_font_file_name = "ltjs/nolf2/launcher/fonts/
 
 const FontManager::Descriptions FontManager::descriptions =
 {
-	{FontId::message_box_title, FontType::bold, 14.0F},
-	{FontId::message_box_text, FontType::regular, 10.0F},
+	{FontId::message_box_title, FontType::bold, 27.0F},
+	{FontId::message_box_message, FontType::regular, 17.0F},
 };
 
 FontManager::FontManager()
@@ -2170,6 +2226,10 @@ void Window::draw()
 		return;
 	}
 
+	if (!sdl_ogl_window_.is_visible())
+	{
+		return;
+	}
 
 	sdl_ogl_window_.make_ogl_context_current(true);
 
@@ -2337,6 +2397,16 @@ bool Window::is_point_inside_rect(
 	return
 		point.x >= rect.x && point.x < (rect.x + rect.z) &&
 		point.y >= rect.y && point.y < (rect.y + rect.w);
+}
+
+ImVec2 Window::center_size_inside_rect(
+	const ImVec4& outer_rect,
+	const ImVec2& inner_size)
+{
+	return {
+		outer_rect.x + (0.5F * (outer_rect.z - inner_size.x)),
+		outer_rect.y + (0.5F * (outer_rect.w - inner_size.y)),
+	};
 }
 
 void Window::im_new_frame()
@@ -2672,6 +2742,315 @@ void Window::im_render_data(
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// MessageBoxWindow
+//
+
+MessageBoxWindow::MessageBoxWindow()
+	:
+	type_{},
+	title_{},
+	message_{},
+	is_title_position_calculated_{},
+	calculated_title_position_{}
+{
+}
+
+MessageBoxWindow::~MessageBoxWindow()
+{
+	uninitialize();
+}
+
+MessageBoxWindowPtr MessageBoxWindow::create()
+{
+	const auto& window_manager = WindowManager::get_instance();
+	const auto scale = window_manager.get_scale();
+
+	auto message_box_window_param = WindowCreateParam{};
+	message_box_window_param.title_ = "message_box";
+	message_box_window_param.width_ = static_cast<int>(window_width * scale);
+	message_box_window_param.height_ = static_cast<int>(window_height * scale);
+	message_box_window_param.is_hidden_ = true;
+
+	auto message_box_window_ptr = new MessageBoxWindow();
+
+	static_cast<void>(message_box_window_ptr->initialize(message_box_window_param));
+
+	return message_box_window_ptr;
+}
+
+void MessageBoxWindow::show(
+	MessageBoxType type,
+	const std::string& title,
+	const std::string& text)
+{
+	type_ = type;
+	title_ = title;
+	message_ = text;
+	is_title_position_calculated_ = false;
+
+	Window::show(true);
+}
+
+bool MessageBoxWindow::initialize(
+	const WindowCreateParam& param)
+{
+	type_ = {};
+	title_ = {};
+	message_ = {};
+
+	if (!Window::initialize(param))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void MessageBoxWindow::uninitialize()
+{
+}
+
+void MessageBoxWindow::do_draw()
+{
+	const auto& window_manager = WindowManager::get_instance();
+	const auto scale = window_manager.get_scale();
+
+	auto& font_manager = FontManager::get_instance();
+
+	auto& ogl_texture_manager = OglTextureManager::get_instance();
+
+	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
+	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
+
+	const auto mouse_pos = ImGui::GetMousePos();
+
+	const auto close_pos = ImVec2{578.0F, 6.0F} * scale;
+	const auto close_size = ImVec2{17.0F, 14.0F} * scale;
+	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
+
+	const auto icon_pos = ImVec2{6.0F, 15.0F} * scale;
+	const auto icon_size = ImVec2{38.0F, 38.0F} * scale;
+	const auto icon_rect = ImVec4{icon_pos.x, icon_pos.y, icon_size.x, icon_size.y};
+
+	const auto title_pos = ImVec2{52.0F, 14.0F} * scale;
+	const auto title_size = ImVec2{518.0F, 31.0F} * scale;
+	const auto title_rect = ImVec4{title_pos.x, title_pos.y, title_size.x, title_size.y};
+
+	const auto message_pos = ImVec2{14.0F, 64.0F} * scale;
+	const auto message_size = ImVec2{573.0F, 121.0F} * scale;
+	const auto message_rect = ImVec4{message_pos.x, message_pos.y, message_size.x, message_size.y};
+
+	const auto ok_pos = ImVec2{250.0F, 206.0F} * scale;
+	const auto ok_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
+
+
+	// Begin message box window.
+	//
+	const auto main_flags =
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_None;
+
+	ImGui::Begin("message_box", nullptr, main_flags);
+	ImGui::SetWindowPos({}, ImGuiCond_Always);
+
+	ImGui::SetWindowSize(
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ImGuiCond_Always);
+
+
+	// Background image.
+	//
+	ImGui::SetCursorPos(ImVec2{});
+
+	const auto& ogl_boxbackground_texture = ogl_texture_manager.get(ImageId::boxbackground);
+
+	ImGui::Image(
+		ogl_boxbackground_texture.get_im_texture_id(),
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ogl_boxbackground_texture.uv0_,
+		ogl_boxbackground_texture.uv1_);
+
+
+	// "Close" button.
+	//
+	auto is_close_mouse_button_down = false;
+	auto is_close_button_clicked = false;
+
+	if (is_mouse_button_down || is_mouse_button_up)
+	{
+		if (is_point_inside_rect(mouse_pos, close_rect))
+		{
+			if (is_mouse_button_down)
+			{
+				is_close_mouse_button_down = true;
+			}
+
+			if (is_mouse_button_up)
+			{
+				is_close_button_clicked = true;
+			}
+		}
+	}
+
+	const auto ogl_close_image_id = (is_close_mouse_button_down ? ImageId::closed : ImageId::closeu);
+	const auto& ogl_close_texture = ogl_texture_manager.get(ogl_close_image_id);
+
+	ImGui::SetCursorPos(close_pos);
+
+	ImGui::Image(
+		ogl_close_texture.get_im_texture_id(),
+		close_size,
+		ogl_close_texture.uv0_,
+		ogl_close_texture.uv1_);
+
+
+	// "Icon" image.
+	//
+	auto ogl_icon_image_id = ImageId{};
+
+	switch (type_)
+	{
+	case MessageBoxType::error:
+		ogl_icon_image_id = ImageId::error;
+		break;
+
+	case MessageBoxType::warning:
+		ogl_icon_image_id = ImageId::warning;
+		break;
+
+	case MessageBoxType::information:
+	default:
+		ogl_icon_image_id = ImageId::information;
+		break;
+	}
+
+	const auto& ogl_icon_texture = ogl_texture_manager.get(ogl_icon_image_id);
+
+	ImGui::SetCursorPos(icon_pos);
+
+	ImGui::Image(
+		ogl_icon_texture.get_im_texture_id(),
+		icon_size,
+		ogl_icon_texture.uv0_,
+		ogl_icon_texture.uv1_);
+
+
+	// Title.
+	//
+	if (!title_.empty())
+	{
+		ImGui::PushFont(font_manager.get_font(FontId::message_box_title));
+
+		auto centered_title_position = calculated_title_position_;
+
+		if (!is_title_position_calculated_)
+		{
+			is_title_position_calculated_ = true;
+
+			const auto title_text_size = ImGui::CalcTextSize(title_.data(), title_.data() + title_.size());
+			calculated_title_position_ = center_size_inside_rect(title_rect, title_text_size);
+		}
+
+		ImGui::SetCursorPos(calculated_title_position_);
+
+		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
+		ImGui::Text("%s", title_.c_str());
+		ImGui::PopStyleColor();
+
+		ImGui::PopFont();
+	}
+
+
+	// Message.
+	//
+	if (!message_.empty())
+	{
+		ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+
+		ImGui::SetCursorPos(message_pos);
+
+		ImGui::BeginChild("message", message_size);
+		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
+		ImGui::TextWrapped("%s", message_.c_str());
+		ImGui::PopStyleColor();
+		ImGui::EndChild();
+
+		ImGui::PopFont();
+	}
+
+
+	// "Ok" button.
+	//
+	auto is_ok_mouse_button_down = false;
+	auto is_ok_button_clicked = false;
+
+	const auto is_ok_button_hightlighted = is_point_inside_rect(mouse_pos, ok_rect);
+
+	if (is_ok_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_ok_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_ok_button_clicked = true;
+		}
+	}
+
+	auto ogl_ok_image_id = ImageId{};
+
+	if (is_ok_mouse_button_down)
+	{
+		ogl_ok_image_id = ImageId::okd;
+	}
+	else if (is_ok_button_hightlighted)
+	{
+		ogl_ok_image_id = ImageId::okf;
+	}
+	else
+	{
+		ogl_ok_image_id = ImageId::oku;
+	}
+
+	const auto& ogl_ok_texture = ogl_texture_manager.get(ogl_ok_image_id);
+
+	ImGui::SetCursorPos(ok_pos);
+
+	ImGui::Image(
+		ogl_ok_texture.get_im_texture_id(),
+		ok_size,
+		ogl_ok_texture.uv0_,
+		ogl_ok_texture.uv1_);
+
+
+	// End message box window.
+	//
+	ImGui::End();
+
+
+	// Handle events.
+	//
+	if (is_close_button_clicked || is_ok_button_clicked)
+	{
+		Window::show(false);
+	}
+}
+
+//
+// MessageBoxWindow
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // MainWindow
 //
 
@@ -2686,19 +3065,20 @@ MainWindow::~MainWindow()
 
 MainWindowPtr MainWindow::create()
 {
-	auto im_demo_window_ptr = new MainWindow();
-
 	const auto& window_manager = WindowManager::get_instance();
 	const auto scale = window_manager.get_scale();
 
-	auto im_demo_window_param = WindowCreateParam{};
-	im_demo_window_param.title_ = "main";
-	im_demo_window_param.width_ = static_cast<int>(window_width * scale);
-	im_demo_window_param.height_ = static_cast<int>(window_height * scale);
+	auto main_window_param = WindowCreateParam{};
+	main_window_param.title_ = "main";
+	main_window_param.width_ = static_cast<int>(window_width * scale);
+	main_window_param.height_ = static_cast<int>(window_height * scale);
+	main_window_param.is_hidden_ = true;
 
-	static_cast<void>(im_demo_window_ptr->initialize(im_demo_window_param));
+	auto main_window_ptr = new MainWindow();
 
-	return im_demo_window_ptr;
+	static_cast<void>(main_window_ptr->initialize(main_window_param));
+
+	return main_window_ptr;
 }
 
 bool MainWindow::initialize(
@@ -3461,6 +3841,7 @@ void WindowManager::unregister_window(
 Launcher::Launcher()
 	:
 	is_initialized_{},
+	message_box_window_uptr_{},
 	main_window_uptr_{}
 {
 }
@@ -3469,6 +3850,7 @@ Launcher::Launcher(
 	Launcher&& rhs)
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
+	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)}
 {
 	rhs.is_initialized_ = false;
@@ -3579,6 +3961,17 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		message_box_window_uptr_.reset(MessageBoxWindow::create());
+
+		if (!message_box_window_uptr_->is_initialized())
+		{
+			is_succeed = false;
+			set_error_message("Failed to initialize message box window. " + message_box_window_uptr_->get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
 		main_window_uptr_.reset(MainWindow::create());
 
 		if (!main_window_uptr_->is_initialized())
@@ -3604,6 +3997,7 @@ void Launcher::uninitialize()
 	is_initialized_ = false;
 
 
+	message_box_window_uptr_ = {};
 	main_window_uptr_ = {};
 
 
@@ -3654,6 +4048,12 @@ void Launcher::run()
 		set_error_message("Not initialized.");
 		return;
 	}
+
+	// TODO
+	message_box_window_uptr_->show(
+		MessageBoxType::error,
+		"Title",
+		"ERROR");
 
 	auto frequency = ::SDL_GetPerformanceFrequency();
 
