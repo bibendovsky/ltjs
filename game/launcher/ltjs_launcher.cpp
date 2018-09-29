@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <array>
 #include <algorithm>
 #include <iterator>
@@ -618,6 +619,11 @@ private:
 	static constexpr auto window_width = 525;
 	static constexpr auto window_height = 245;
 
+	static const std::string lithtech_executable;
+
+
+	bool is_show_play_button_;
+
 
 	MainWindow();
 
@@ -626,6 +632,8 @@ private:
 		const WindowCreateParam& param);
 
 	void uninitialize();
+
+	bool is_lithtech_executable_exists() const;
 
 
 	void do_draw() override;
@@ -686,13 +694,14 @@ class Launcher final :
 	public Base
 {
 public:
-	Launcher();
+	static std::string launcher_commands_file_name;
+
 
 	Launcher(
 		Launcher&& rhs);
 
-	~Launcher();
 
+	static Launcher& get_instance();
 
 	bool initialize();
 
@@ -702,12 +711,21 @@ public:
 
 	void run();
 
+	void show_message_box(
+		const MessageBoxType type,
+		const std::string& title,
+		const std::string& message);
+
 
 private:
 	bool is_initialized_;
 	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
 
+
+	Launcher();
+
+	~Launcher();
 
 	bool initialize_ogl_functions();
 
@@ -1229,7 +1247,6 @@ void FontManager::uninitialize()
 {
 	regular_font_data_ = {};
 	bold_font_data_ = {};
-	im_font_atlas_uptr_->Clear();
 }
 
 bool FontManager::set_fonts(
@@ -1265,7 +1282,7 @@ bool FontManager::load_font_data(
 {
 	const auto normalized_file_name = ul::PathUtils::normalize(file_name);
 
-	auto sdl_rw = ::SDL_RWFromFile(file_name.c_str(), "rb");
+	auto sdl_rw = ::SDL_RWFromFile(normalized_file_name.c_str(), "rb");
 
 	if (!sdl_rw)
 	{
@@ -1278,6 +1295,7 @@ bool FontManager::load_font_data(
 	auto guard_rw = ul::ScopeGuard{
 		[&]()
 		{
+			SDL_RWclose(sdl_rw);
 			::SDL_FreeRW(sdl_rw);
 		}
 	};
@@ -2245,8 +2263,8 @@ void Window::draw()
 	im_new_frame();
 
 	ImGui::NewFrame();
-
 	do_draw();
+	ImGui::EndFrame();
 
 	im_render();
 
@@ -3054,6 +3072,15 @@ void MessageBoxWindow::do_draw()
 // MainWindow
 //
 
+const std::string MainWindow::lithtech_executable =
+#ifdef _WIN32
+	"ltjs_lithtech.exe"
+#else // _WIN32
+	"ltjs_lithtech"
+#endif // _WIN32
+;
+
+
 MainWindow::MainWindow()
 {
 }
@@ -3089,11 +3116,43 @@ bool MainWindow::initialize(
 		return false;
 	}
 
+	is_show_play_button_ = is_lithtech_executable_exists();
+
 	return true;
 }
 
 void MainWindow::uninitialize()
 {
+}
+
+bool MainWindow::is_lithtech_executable_exists() const
+{
+	const auto normalized_file_name = ul::PathUtils::normalize(lithtech_executable);
+
+	auto sdl_rw = ::SDL_RWFromFile(normalized_file_name.c_str(), "rb");
+
+	if (!sdl_rw)
+	{
+		return false;
+	}
+
+
+	auto guard_rw = ul::ScopeGuard{
+		[&]()
+		{
+			SDL_RWclose(sdl_rw);
+			::SDL_FreeRW(sdl_rw);
+		}
+	};
+
+	const auto file_size = sdl_rw->size(sdl_rw);
+
+	if (file_size <= 0)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void MainWindow::do_draw()
@@ -3434,10 +3493,6 @@ void MainWindow::do_draw()
 
 	// Install/Play button.
 	//
-
-	// TODO
-	auto is_install = false;
-
 	auto is_install_or_play_mouse_button_down = false;
 	auto is_install_or_play_button_clicked = false;
 
@@ -3460,15 +3515,15 @@ void MainWindow::do_draw()
 
 	if (is_install_or_play_mouse_button_down)
 	{
-		ogl_install_or_play_image_id = (is_install ? ImageId::installd : ImageId::playd);
+		ogl_install_or_play_image_id = (is_show_play_button_ ? ImageId::playd : ImageId::installd);
 	}
 	else if (is_install_or_play_button_hightlighted)
 	{
-		ogl_install_or_play_image_id = (is_install ? ImageId::installf : ImageId::playf);
+		ogl_install_or_play_image_id = (is_show_play_button_ ? ImageId::playf : ImageId::installf);
 	}
 	else
 	{
-		ogl_install_or_play_image_id = (is_install ? ImageId::installu : ImageId::playu);
+		ogl_install_or_play_image_id = (is_show_play_button_ ? ImageId::playu : ImageId::installu);
 	}
 
 	const auto& ogl_install_or_play_texture = ogl_texture_manager.get(ogl_install_or_play_image_id);
@@ -3657,6 +3712,7 @@ void MainWindow::do_draw()
 	if (is_minimize_button_clicked)
 	{
 		minimize_internal(true);
+		return;
 	}
 
 	if (is_close_button_clicked || is_quit_button_clicked)
@@ -3665,6 +3721,47 @@ void MainWindow::do_draw()
 
 		sdl_event.type = SDL_QUIT;
 		::SDL_PushEvent(&sdl_event);
+
+		return;
+	}
+
+	if (is_install_or_play_button_clicked)
+	{
+		auto& launcher = Launcher::get_instance();
+
+		if (is_show_play_button_)
+		{
+			const auto command = lithtech_executable + " -cmdfile " + Launcher::launcher_commands_file_name;
+
+			show(false);
+
+			const auto exec_result = std::system(command.c_str());
+
+			is_show_play_button_ = is_lithtech_executable_exists();
+
+			show(true);
+
+			if (exec_result != 0)
+			{
+				launcher.show_message_box(
+					MessageBoxType::error,
+					"Title",
+					"Failed to run LithTech executable \"" + lithtech_executable + "\".");
+
+				return;
+			}
+		}
+		else
+		{
+			launcher.show_message_box(
+				MessageBoxType::error,
+				"Title",
+				"LithTech executable \"" + lithtech_executable + "\" not found.");
+
+			is_show_play_button_ = is_lithtech_executable_exists();
+
+			return;
+		}
 	}
 }
 
@@ -3838,6 +3935,9 @@ void WindowManager::unregister_window(
 // Launcher
 //
 
+std::string Launcher::launcher_commands_file_name = "launchcmds.txt";
+
+
 Launcher::Launcher()
 	:
 	is_initialized_{},
@@ -3859,6 +3959,13 @@ Launcher::Launcher(
 Launcher::~Launcher()
 {
 	uninitialize();
+}
+
+Launcher& Launcher::get_instance()
+{
+	static auto launcher = Launcher{};
+
+	return launcher;
 }
 
 bool Launcher::initialize()
@@ -4001,6 +4108,23 @@ void Launcher::uninitialize()
 	main_window_uptr_ = {};
 
 
+	// WindowManager
+	//
+	auto& window_manager = WindowManager::get_instance();
+	window_manager.uninitialize();
+
+
+	// OglTextureManager
+	//
+	auto& image_cache = OglTextureManager::get_instance();
+	image_cache.uninitialize();
+
+
+	// FontManager
+	//
+	auto& font_manager = FontManager::get_instance();
+	font_manager.uninitialize();
+
 	// Clipboard
 	//
 	auto& clipboard = Clipboard::get_instance();
@@ -4011,24 +4135,6 @@ void Launcher::uninitialize()
 	//
 	auto& system_cursors = SystemCursors::get_instance();
 	system_cursors.uninitialize();
-
-
-	// WindowManager
-	//
-	auto& window_manager = WindowManager::get_instance();
-	window_manager.uninitialize();
-
-
-	// FontManager
-	//
-	auto& font_manager = FontManager::get_instance();
-	font_manager.uninitialize();
-
-
-	// OglTextureManager
-	//
-	auto& image_cache = OglTextureManager::get_instance();
-	image_cache.uninitialize();
 
 
 	// SDL
@@ -4049,11 +4155,7 @@ void Launcher::run()
 		return;
 	}
 
-	// TODO
-	message_box_window_uptr_->show(
-		MessageBoxType::error,
-		"Title",
-		"ERROR");
+	main_window_uptr_->show(true);
 
 	auto frequency = ::SDL_GetPerformanceFrequency();
 
@@ -4087,6 +4189,14 @@ void Launcher::run()
 			::SDL_Delay(static_cast<Uint32>(delay_ms));
 		}
 	}
+}
+
+void Launcher::show_message_box(
+	const MessageBoxType type,
+	const std::string& title,
+	const std::string& message)
+{
+	message_box_window_uptr_->show(type, title, message);
 }
 
 bool Launcher::initialize_ogl_functions()
@@ -4237,7 +4347,7 @@ int main(
 	int,
 	char**)
 {
-	auto launcher = Launcher{};
+	auto& launcher = Launcher::get_instance();
 
 	if (!launcher.initialize())
 	{
