@@ -1,0 +1,134 @@
+/*
+
+LTJS
+
+Strings for "No One Lives Forever 2" launcher (english, utf-8).
+
+*/
+
+
+// Identifiers.
+//
+#define IDS_APPNAME                        1
+#define IDS_APPEXE                         2
+#define IDS_DISPLAY_WARNING                3
+#define IDS_OPTIONS_WARNING                4
+#define IDS_APPCD1CHECK                    5
+#define IDS_APPCD2CHECK                    6
+#define IDS_REZBASE                        7
+#define IDS_SETUPEXE                       8
+#define IDS_SERVEREXE                      9
+#define IDS_LANGUAGE                       10
+#define IDS_INSERTCD2                      11
+#define IDS_INSERTCD                       12
+#define IDS_CANTLAUNCHSETUP                13
+#define IDS_NORENS                         14
+#define IDS_HELP_DISABLESOUND              15
+#define IDS_HELP_DISABLEMUSIC              16
+#define IDS_HELP_DISABLEMOVIES             17
+#define IDS_HELP_DISABLEFOG                18
+#define IDS_HELP_DISABLEJOYSTICKS          19
+#define IDS_HELP_DISABLETRIPLEBUFFERING    20
+#define IDS_HELP_DISABLEHARDWARECURSOR     21
+#define IDS_HELP_DISABLEANIMATEDLOADSCREEN 22
+#define IDS_HELP_RESTOREDEFAULTS           23
+#define IDS_HELP_ALWAYSSPECIFY             24
+#define IDS_CANTFINDREZFILE                25
+#define IDS_CANTLAUNCHCLIENTEXE            26
+#define IDS_DETAIL_HEADER                  27
+#define IDS_DETAIL_LOW                     28
+#define IDS_DETAIL_MEDIUM                  29
+#define IDS_DETAIL_HIGH                    30
+#define IDS_CANTLAUNCHSERVER               31
+#define IDS_APPVERSION                     32
+#define IDS_CANTUNINSTALL                  33
+#define IDS_COMPANYWEBPAGE                 34
+#define IDS_CANTOPENAVI                    35
+#define IDS_PUBLISHERWEBPAGE               36
+#define IDS_OD_DISABLESOUND                37
+#define IDS_OD_DISABLEMUSIC                38
+#define IDS_OD_DISABLEMOVIES               39
+#define IDS_OD_DISABLEFOG                  40
+#define IDS_APPNAME_DEMO                   40
+#define IDS_OD_DISABLEJOYSTICKS            41
+#define IDS_OD_DISABLETRIPLEBUFFERING      42
+#define IDS_OD_DISABLEHARDWARECURSOR       43
+#define IDS_OD_DISABLEANIMATEDLOADSCREENS  44
+#define IDS_OD_RESTOREDEFAULTS             45
+#define IDS_OD_ALWAYSSPECIFY               46
+#define IDS_DEBUG_REGCREATEERROR           47
+#define IDS_DEBUG_INSTALLSUCCESS           48
+#define IDS_DEBUG_UNINSTALLSUCCESS         49
+#define IDS_LAUNCHBROWSERERROR             50
+#define IDS_HELP_DEFAULT                   51
+#define IDS_HELP_DISABLEHARDWARESOUND      52
+#define IDS_HELP_DISABLESOUNDFILTERS       53
+#define IDS_OD_DISABLEHARDWARESOUND        54
+#define IDS_OD_DISABLESOUNDFILTERS         55
+#define IDS_CANTOPENCOMMANDFILE            56
+#define IDS_LITHTECHWEBPAGE                57
+#define IDS_SIERRAWEBPAGE                  58
+#define IDS_NOCUSTOMDIR                    59
+
+
+// Strings.
+//
+IDS_APPNAME                                "No One Lives Forever 2"
+IDS_APPEXE                                 "NOLF2.exe"
+IDS_DISPLAY_WARNING                        "The available display options on your system will now be enumerated.  This may take some time depending on what hardware is installed.\n\nIf nothing shows up in the display dialog, please verify that DirectX is installed properly on your system."
+IDS_OPTIONS_WARNING                        "WARNING!  Tinkering with the advanced options can cause the game to run worse (or not at all) depending on your system configuration."
+IDS_APPCD1CHECK                            "\\NOLF2.EXE"
+IDS_APPCD2CHECK                            "\\DATA\\GAME2.REZ"
+IDS_REZBASE                                "GAME"
+IDS_SETUPEXE                               "SETUP.EXE"
+IDS_SERVEREXE                              "NOLF2Svr.EXE"
+IDS_LANGUAGE                               "English"
+IDS_INSERTCD2                              "Please remove the No One Lives Forever Disc 2 from your drive and replace it with the No One Lives Forever Disc 1."
+IDS_INSERTCD                               "Please insert the No One Lives Forever 2 Disc 1 into your drive."
+IDS_CANTLAUNCHSETUP                        "ERROR - Unable to launch the setup program.  Please make sure that your No One Lives Forever 2 CD is in the drive and try again."
+IDS_NORENS                                 "No renderers were found.  This problem is usually due to DirectX not being properly installed.  Please verify that DirectX is installed and try again.."
+IDS_HELP_DISABLESOUND                      "This will disable all sound effects."
+IDS_HELP_DISABLEMUSIC                      "This will disable the use of DirectMusic. Some sound cards may have incompatibilities with DirectMusic.  Use this for troubleshooting only."
+IDS_HELP_DISABLEMOVIES                     "This will disable the logo and intro movies from playing."
+IDS_HELP_DISABLEFOG                        "This will disable all atmospheric (not clipping plane) fog. There should be no performance increase or decrease. However, this might possibly be useful on cards that ""almost"" support table fog."
+IDS_HELP_DISABLEJOYSTICKS                  "This will disable all joysticks and gamepads.  Use this if your particular joystick is causing problems when the game starts."
+IDS_HELP_DISABLETRIPLEBUFFERING            "This will disable a feature on some video cards that can improve performance, but uses more of the card's video memory as a result.  Most AGP video cards benefit from this feature being enabled.  However, this may cause lock-ups on a few PCI video cards."
+IDS_HELP_DISABLEHARDWARECURSOR             "This will disable the use of a hardware cursor. Some older cards do not support the hardware cursor."
+IDS_HELP_DISABLEANIMATEDLOADSCREEN         "This will disable the use of an animated loading screen. Use this for troubleshooting."
+IDS_HELP_RESTOREDEFAULTS                   "This restores all configuration settings to the original defaults. This includes resetting the key configuration, detail level and sound options. This is useful if you've changed settings, and you just want things back the way they were. "
+IDS_HELP_ALWAYSSPECIFY                     "Advanced users only."
+IDS_CANTFINDREZFILE                        "ERROR - Unable to find the Game.rez file.  Please make sure that NOLF 2 is installed properly and that your No One Lives Forever 2 disc 1 CD is in the drive."
+IDS_CANTLAUNCHCLIENTEXE                    "ERROR - Could not launch LITHTECH.EXE.  Please make sure that No One Lives Forever 2 is installed properly."
+IDS_DETAIL_HEADER                          "In order to get the best gameplay experience from No One Lives Forever 2, please select the initial performance setting you would like the game to use.  You can change this setting later using No One Lives Forever 2's in-game menus."
+IDS_DETAIL_LOW                             "Low detail will provide the best game performance at the sacrifice of visual quality.  Required System Specs:  PIII 500 MHz, 128MB Ram, 32MB GeForce 1 or equivalent video card."
+IDS_DETAIL_MEDIUM                          "Medium detail will provide a good trade-off between game performance and visual quality.  Recommended System Specs:   PIII 1 GHz, 256MB Ram, 64MB GeForce 3 or equivalent video card."
+IDS_DETAIL_HIGH                            "High detail will provide the best visual quality, but game performance may suffer on slower systems.  Recommended System Specs:   P4 2 GHz, 256MB Ram, 128MB GeForce 4 Ti or equivalent video card."
+IDS_CANTLAUNCHSERVER                       "ERROR - Unable to launch the stand-alone server.  Please verify that No One Lives Forever 2 is properly installed on your machine and try again."
+IDS_DEBUG_INSTALLSUCCESS                   "No One Lives Forever 2 was successfully Installed!"
+IDS_DEBUG_UNINSTALLSUCCESS                 "No One Livers Forever 2 was successfully Uninstalled!"
+IDS_LAUNCHBROWSERERROR                     "ERROR - Unable to launch a web browser!"
+IDS_HELP_DEFAULT                           "Move your mouse over an option to obtain help on it."
+IDS_HELP_DISABLEHARDWARESOUND              "This will disable use of DirectSound 3D sound Hardware support."
+IDS_HELP_DISABLESOUNDFILTERS               "This will disable use of sound filter effects within the game."
+IDS_OD_DISABLEHARDWARESOUND                "Disable Hardware Sound"
+IDS_OD_DISABLESOUNDFILTERS                 "Disable Sound Filters"
+IDS_CANTOPENCOMMANDFILE                    "ERROR - Unable to open the file launchcmds.txt for writing. Please make sure that this file is writable and try again."
+IDS_LITHTECHWEBPAGE                        "http://www.lithtech.com"
+IDS_SIERRAWEBPAGE                          "http://www.sierra.com"
+IDS_NOCUSTOMDIR                            "ERROR - Unable to find any custom directories."
+IDS_APPVERSION                             "1.0"
+IDS_CANTUNINSTALL                          "ERROR - Unable to uninstall the game. If No One Lives Forever 2 is still installed, try using add/remove programs. To reinstall the game, run the Setup.exe program from the No One Lives Forever 2 Disc 1."
+IDS_COMPANYWEBPAGE                         "http://www.lith.com"
+IDS_CANTOPENAVI                            "ERROR - Unable to open a .avi file"
+IDS_PUBLISHERWEBPAGE                       "http://www.foxinteractive.com"
+IDS_OD_DISABLESOUND                        "Disable Sound"
+IDS_OD_DISABLEMUSIC                        "Disable Music"
+IDS_OD_DISABLEMOVIES                       "Disable Movies"
+IDS_APPNAME_DEMO                           "No One Lives Forever 2 (Official Demo)"
+IDS_OD_DISABLEJOYSTICKS                    "Disable Joysticks"
+IDS_OD_DISABLETRIPLEBUFFERING              "Disable Triplebuffering"
+IDS_OD_DISABLEHARDWARECURSOR               "Disable Hardware Cursor"
+IDS_OD_DISABLEANIMATEDLOADSCREENS          "Disable Animated Load Screens"
+IDS_OD_RESTOREDEFAULTS                     "Restore Defaults"
+IDS_OD_ALWAYSSPECIFY                       "Always pass command line arguments to the game"
+IDS_DEBUG_REGCREATEERROR                   "ERROR - Unable to create the No One Lives Forever 2 registry key!"

@@ -22,6 +22,7 @@ target_include_directories(
 		../../../libs/bibendovsky_spul_lib/include
 		../../../libs/glad/1_1
 		../../../libs/imgui
+		../../shared
 		..
 )
 
@@ -35,6 +36,8 @@ target_sources(
 		../../../libs/imgui/imstb_rectpack.h
 		../../../libs/imgui/imstb_textedit.h
 		../../../libs/imgui/imstb_truetype.h
+		../../shared/ltjs_resource_strings.h
+		../../shared/ltjs_script_tokenizer.h
 		../ltjs_launcher.h
 )
 
@@ -46,6 +49,8 @@ target_sources(
 		../../../libs/imgui/imgui_demo.cpp
 		../../../libs/imgui/imgui_draw.cpp
 		../../../libs/imgui/imgui_widgets.cpp
+		../../shared/ltjs_resource_strings.cpp
+		../../shared/ltjs_script_tokenizer.cpp
 		../ltjs_launcher.cpp
 )
 
@@ -182,4 +187,11 @@ install(
 		res/lang/en/bmp/serverx.bmp
 	DESTINATION
 		ltjs/nolf2/launcher/images/en
+)
+
+install(
+	FILES
+		res/lang/en/strings/launcher.txt
+	DESTINATION
+		ltjs/nolf2/launcher/strings/en
 )

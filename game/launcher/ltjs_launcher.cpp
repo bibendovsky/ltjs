@@ -15,6 +15,11 @@
 #include "glad.h"
 #include "imgui.h"
 #include "SDL.h"
+#include "ltjs_resource_strings.h"
+
+
+namespace ltjs
+{
 
 
 namespace ul = bibendovsky::spul;
@@ -570,6 +575,13 @@ public:
 	static MessageBoxWindowPtr create();
 
 
+	void set_title(
+		const std::string& title);
+
+	void show(
+		MessageBoxType type,
+		const std::string& text);
+
 	void show(
 		MessageBoxType type,
 		const std::string& title,
@@ -694,6 +706,71 @@ class Launcher final :
 	public Base
 {
 public:
+	// Resource strings identifiers.
+	//
+
+	static constexpr auto IDS_APPNAME = 1;
+	static constexpr auto IDS_APPEXE = 2;
+	static constexpr auto IDS_DISPLAY_WARNING = 3;
+	static constexpr auto IDS_OPTIONS_WARNING = 4;
+	static constexpr auto IDS_APPCD1CHECK = 5;
+	static constexpr auto IDS_APPCD2CHECK = 6;
+	static constexpr auto IDS_REZBASE = 7;
+	static constexpr auto IDS_SETUPEXE = 8;
+	static constexpr auto IDS_SERVEREXE = 9;
+	static constexpr auto IDS_LANGUAGE = 10;
+	static constexpr auto IDS_INSERTCD2 = 11;
+	static constexpr auto IDS_INSERTCD = 12;
+	static constexpr auto IDS_CANTLAUNCHSETUP = 13;
+	static constexpr auto IDS_NORENS = 14;
+	static constexpr auto IDS_HELP_DISABLESOUND = 15;
+	static constexpr auto IDS_HELP_DISABLEMUSIC = 16;
+	static constexpr auto IDS_HELP_DISABLEMOVIES = 17;
+	static constexpr auto IDS_HELP_DISABLEFOG = 18;
+	static constexpr auto IDS_HELP_DISABLEJOYSTICKS = 19;
+	static constexpr auto IDS_HELP_DISABLETRIPLEBUFFERING = 20;
+	static constexpr auto IDS_HELP_DISABLEHARDWARECURSOR = 21;
+	static constexpr auto IDS_HELP_DISABLEANIMATEDLOADSCREEN = 22;
+	static constexpr auto IDS_HELP_RESTOREDEFAULTS = 23;
+	static constexpr auto IDS_HELP_ALWAYSSPECIFY = 24;
+	static constexpr auto IDS_CANTFINDREZFILE = 25;
+	static constexpr auto IDS_CANTLAUNCHCLIENTEXE = 26;
+	static constexpr auto IDS_DETAIL_HEADER = 27;
+	static constexpr auto IDS_DETAIL_LOW = 28;
+	static constexpr auto IDS_DETAIL_MEDIUM = 29;
+	static constexpr auto IDS_DETAIL_HIGH = 30;
+	static constexpr auto IDS_CANTLAUNCHSERVER = 31;
+	static constexpr auto IDS_APPVERSION = 32;
+	static constexpr auto IDS_CANTUNINSTALL = 33;
+	static constexpr auto IDS_COMPANYWEBPAGE = 34;
+	static constexpr auto IDS_CANTOPENAVI = 35;
+	static constexpr auto IDS_PUBLISHERWEBPAGE = 36;
+	static constexpr auto IDS_OD_DISABLESOUND = 37;
+	static constexpr auto IDS_OD_DISABLEMUSIC = 38;
+	static constexpr auto IDS_OD_DISABLEMOVIES = 39;
+	static constexpr auto IDS_OD_DISABLEFOG = 40;
+	static constexpr auto IDS_APPNAME_DEMO = 40;
+	static constexpr auto IDS_OD_DISABLEJOYSTICKS = 41;
+	static constexpr auto IDS_OD_DISABLETRIPLEBUFFERING = 42;
+	static constexpr auto IDS_OD_DISABLEHARDWARECURSOR = 43;
+	static constexpr auto IDS_OD_DISABLEANIMATEDLOADSCREENS = 44;
+	static constexpr auto IDS_OD_RESTOREDEFAULTS = 45;
+	static constexpr auto IDS_OD_ALWAYSSPECIFY = 46;
+	static constexpr auto IDS_DEBUG_REGCREATEERROR = 47;
+	static constexpr auto IDS_DEBUG_INSTALLSUCCESS = 48;
+	static constexpr auto IDS_DEBUG_UNINSTALLSUCCESS = 49;
+	static constexpr auto IDS_LAUNCHBROWSERERROR = 50;
+	static constexpr auto IDS_HELP_DEFAULT = 51;
+	static constexpr auto IDS_HELP_DISABLEHARDWARESOUND = 52;
+	static constexpr auto IDS_HELP_DISABLESOUNDFILTERS = 53;
+	static constexpr auto IDS_OD_DISABLEHARDWARESOUND = 54;
+	static constexpr auto IDS_OD_DISABLESOUNDFILTERS = 55;
+	static constexpr auto IDS_CANTOPENCOMMANDFILE = 56;
+	static constexpr auto IDS_LITHTECHWEBPAGE = 57;
+	static constexpr auto IDS_SIERRAWEBPAGE = 58;
+	static constexpr auto IDS_NOCUSTOMDIR = 59;
+
+
 	static std::string launcher_commands_file_name;
 
 
@@ -713,12 +790,14 @@ public:
 
 	void show_message_box(
 		const MessageBoxType type,
-		const std::string& title,
 		const std::string& message);
+
+	const ResourceStrings& get_resource_strings() const;
 
 
 private:
 	bool is_initialized_;
+	ResourceStrings resource_strings_;
 	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
 
@@ -1381,7 +1460,7 @@ const std::string OglTextureManager::images_path = "ltjs/nolf2/launcher/images";
 
 const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 {
-	// Common
+	// Shared.
 	//
 
 	"boxbackground.bmp",
@@ -1396,7 +1475,7 @@ const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 	"minimizeu.bmp",
 	"warning.bmp",
 
-	// Language-specific
+	// Language-specific.
 	//
 
 	"canceld.bmp",
@@ -2796,6 +2875,23 @@ MessageBoxWindowPtr MessageBoxWindow::create()
 	return message_box_window_ptr;
 }
 
+void MessageBoxWindow::set_title(
+	const std::string& title)
+{
+	title_ = title;
+	is_title_position_calculated_ = false;
+}
+
+void MessageBoxWindow::show(
+	MessageBoxType type,
+	const std::string& text)
+{
+	type_ = type;
+	message_ = text;
+
+	Window::show(true);
+}
+
 void MessageBoxWindow::show(
 	MessageBoxType type,
 	const std::string& title,
@@ -3745,7 +3841,6 @@ void MainWindow::do_draw()
 			{
 				launcher.show_message_box(
 					MessageBoxType::error,
-					"Title",
 					"Failed to run LithTech executable \"" + lithtech_executable + "\".");
 
 				return;
@@ -3755,7 +3850,6 @@ void MainWindow::do_draw()
 		{
 			launcher.show_message_box(
 				MessageBoxType::error,
-				"Title",
 				"LithTech executable \"" + lithtech_executable + "\" not found.");
 
 			is_show_play_button_ = is_lithtech_executable_exists();
@@ -3941,6 +4035,7 @@ std::string Launcher::launcher_commands_file_name = "launchcmds.txt";
 Launcher::Launcher()
 	:
 	is_initialized_{},
+	resource_strings_{},
 	message_box_window_uptr_{},
 	main_window_uptr_{}
 {
@@ -3950,6 +4045,7 @@ Launcher::Launcher(
 	Launcher&& rhs)
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
+	resource_strings_{std::move(rhs.resource_strings_)},
 	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)}
 {
@@ -3979,6 +4075,20 @@ bool Launcher::initialize()
 		if (!initialize_sdl())
 		{
 			is_succeed = false;
+		}
+	}
+
+	if (is_succeed)
+	{
+		const auto resource_strings_result = resource_strings_.initialize(
+			"en",
+			"ltjs/nolf2/launcher/strings",
+			"launcher.txt");
+
+		if (!resource_strings_result)
+		{
+			is_succeed = false;
+			set_error_message(resource_strings_.get_error_message());
 		}
 	}
 
@@ -4079,6 +4189,13 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		const auto& title = resource_strings_.get(IDS_APPNAME, "IDS_APPNAME");
+
+		message_box_window_uptr_->set_title(title);
+	}
+
+	if (is_succeed)
+	{
 		main_window_uptr_.reset(MainWindow::create());
 
 		if (!main_window_uptr_->is_initialized())
@@ -4104,6 +4221,7 @@ void Launcher::uninitialize()
 	is_initialized_ = false;
 
 
+	resource_strings_.uninitialize();
 	message_box_window_uptr_ = {};
 	main_window_uptr_ = {};
 
@@ -4193,10 +4311,14 @@ void Launcher::run()
 
 void Launcher::show_message_box(
 	const MessageBoxType type,
-	const std::string& title,
 	const std::string& message)
 {
-	message_box_window_uptr_->show(type, title, message);
+	message_box_window_uptr_->show(type, message);
+}
+
+const ResourceStrings& Launcher::get_resource_strings() const
+{
+	return resource_strings_;
 }
 
 bool Launcher::initialize_ogl_functions()
@@ -4343,11 +4465,14 @@ ImVec2& operator*=(
 }
 
 
+} // ltjs
+
+
 int main(
 	int,
 	char**)
 {
-	auto& launcher = Launcher::get_instance();
+	auto& launcher = ltjs::Launcher::get_instance();
 
 	if (!launcher.initialize())
 	{
