@@ -167,6 +167,15 @@ private:
 }; // Base
 
 
+class Direct3d9 final
+{
+public:
+	static bool has_direct3d9();
+
+	static const std::string& get_renderer_name();
+}; // Direct3d9
+
+
 struct SdlCreateWindowParam final
 {
 	std::string title_;
@@ -852,6 +861,50 @@ void Base::prepend_error_message(
 
 //
 // Base
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// Direct3d9
+//
+
+bool Direct3d9::has_direct3d9()
+{
+#ifdef _WIN32
+	auto d3d9_module = ::SDL_LoadObject("d3d9.dll");
+
+	if (!d3d9_module)
+	{
+		return false;
+	}
+
+	auto d3d9_module_guard = ul::ScopeGuard(
+		[&]()
+		{
+			::SDL_UnloadObject(d3d9_module);
+		}
+	);
+
+	auto create_function = ::SDL_LoadFunction(d3d9_module, "Direct3DCreate9");
+
+	if (!create_function)
+	{
+		return false;
+	}
+
+	return true;
+#else // _WIN32
+	return false;
+#endif // _WIN32
+}
+
+const std::string& Direct3d9::get_renderer_name()
+{
+	return "Direct3D 9";
+}
+
+//
+// Direct3d9
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -4076,6 +4129,11 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 		}
+	}
+
+	if (is_succeed)
+	{
+		const auto has_d3d9 = Direct3d9::has_direct3d9();
 	}
 
 	if (is_succeed)
