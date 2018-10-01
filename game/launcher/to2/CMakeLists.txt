@@ -64,6 +64,12 @@ set_target_properties(
 	CXX_EXTENSIONS OFF
 )
 
+target_compile_definitions(
+	ltjs_nolf2_launcher
+	PRIVATE
+		LTJS_NOLF2
+)
+
 set_target_properties(
 	ltjs_nolf2_launcher
 	PROPERTIES

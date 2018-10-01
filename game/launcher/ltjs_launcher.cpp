@@ -10,12 +10,22 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_path_utils.h"
 #include "bibendovsky_spul_scope_guard.h"
 #include "glad.h"
 #include "imgui.h"
 #include "SDL.h"
 #include "ltjs_resource_strings.h"
+#include "ltjs_script_tokenizer.h"
+
+
+#if defined(LTJS_NOLF2)
+#define LTJS_GAME_ID_STRING "nolf2"
+#define LTJS_GAME_ID_STRING_UC "NOLF2"
+#else // LTJS_NOLF2
+#error Unsupported game.
+#endif // LTJS_NOLF2
 
 
 namespace ltjs
@@ -174,6 +184,99 @@ public:
 
 	static const std::string& get_renderer_name();
 }; // Direct3d9
+
+
+class Configuration final :
+	public Base
+{
+public:
+	static constexpr auto max_file_size = 64 * 1'024;
+
+
+	Configuration(
+		Configuration&& rhs);
+
+	static Configuration& get_instance();
+
+
+	bool initialize();
+
+	bool is_initialized() const;
+
+	void reset();
+
+	bool reload();
+
+	bool save();
+
+
+private:
+	static const std::string configuration_file_name;
+
+
+	static const bool default_is_warned_about_display;
+	static const bool default_is_warned_about_settings;
+	static const bool default_is_sound_effects_disabled;
+	static const bool default_is_music_disabled;
+	static const bool default_is_fmv_disabled;
+	static const bool default_is_fog_disabled;
+	static const bool default_is_controller_disabled;
+	static const bool default_is_triple_buffering_enabled;
+	static const bool default_is_hardware_cursor_disabled;
+	static const bool default_is_animated_loading_screen_disabled;
+	static const bool default_is_detail_level_selected;
+	static const bool default_is_hardware_sound_disabled;
+	static const bool default_is_sound_filter_disabled;
+	static const bool default_is_always_pass_custom_arguments;
+	static const std::string default_custom_arguments;
+	static const int default_screen_width;
+	static const int default_screen_height;
+
+	static const std::string is_warned_about_display_setting_name;
+	static const std::string is_warned_about_settings_setting_name;
+	static const std::string is_sound_effects_disabled_setting_name;
+	static const std::string is_music_disabled_setting_name;
+	static const std::string is_fmv_disabled_setting_name;
+	static const std::string is_fog_disabled_setting_name;
+	static const std::string is_controller_disabled_setting_name;
+	static const std::string is_triple_buffering_enabled_setting_name;
+	static const std::string is_hardware_cursor_disabled_setting_name;
+	static const std::string is_animated_loading_screen_disabled_setting_name;
+	static const std::string is_detail_level_selected_setting_name;
+	static const std::string is_hardware_sound_disabled_setting_name;
+	static const std::string is_sound_filter_disabled_setting_name;
+	static const std::string is_always_pass_custom_arguments_setting_name;
+	static const std::string custom_arguments_setting_name;
+	static const std::string screen_width_setting_name;
+	static const std::string screen_height_setting_name;
+
+
+	bool is_initialized_;
+	std::string configuration_path_;
+
+	bool is_warned_about_display_;
+	bool is_warned_about_settings_;
+	bool is_sound_effects_disabled_;
+	bool is_music_disabled_;
+	bool is_fmv_disabled_;
+	bool is_fog_disabled_;
+	bool is_controller_disabled_;
+	bool is_triple_buffering_enabled_;
+	bool is_hardware_cursor_disabled_;
+	bool is_animated_loading_screen_disabled_;
+	bool is_detail_level_selected_;
+	bool is_hardware_sound_disabled_;
+	bool is_sound_filter_disabled_;
+	bool is_always_pass_custom_arguments_;
+	std::string custom_arguments_;
+	int screen_width_;
+	int screen_height_;
+
+
+	Configuration();
+
+	~Configuration();
+}; // Configuration
 
 
 struct SdlCreateWindowParam final
@@ -900,11 +1003,612 @@ bool Direct3d9::has_direct3d9()
 
 const std::string& Direct3d9::get_renderer_name()
 {
-	return "Direct3D 9";
+	static const auto renderer_name = std::string{"Direct3D 9"};
+
+	return renderer_name;
 }
 
 //
 // Direct3d9
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// Configuration
+//
+
+const std::string Configuration::configuration_file_name = LTJS_GAME_ID_STRING "_launcher_config.txt";
+
+
+const bool Configuration::default_is_warned_about_display = false;
+const bool Configuration::default_is_warned_about_settings = false;
+const bool Configuration::default_is_sound_effects_disabled = false;
+const bool Configuration::default_is_music_disabled = false;
+const bool Configuration::default_is_fmv_disabled = false;
+const bool Configuration::default_is_fog_disabled = false;
+const bool Configuration::default_is_controller_disabled = false;
+const bool Configuration::default_is_triple_buffering_enabled = false;
+const bool Configuration::default_is_hardware_cursor_disabled = false;
+const bool Configuration::default_is_animated_loading_screen_disabled = false;
+const bool Configuration::default_is_detail_level_selected = false;
+const bool Configuration::default_is_hardware_sound_disabled = false;
+const bool Configuration::default_is_sound_filter_disabled = false;
+const bool Configuration::default_is_always_pass_custom_arguments = false;
+const std::string Configuration::default_custom_arguments = {};
+const int Configuration::default_screen_width = 0;
+const int Configuration::default_screen_height = 0;
+
+
+const std::string Configuration::is_warned_about_display_setting_name = "warned_about_display";
+const std::string Configuration::is_warned_about_settings_setting_name = "warned_about_settings";
+const std::string Configuration::is_sound_effects_disabled_setting_name = "sound_effects_disabled";
+const std::string Configuration::is_music_disabled_setting_name = "music_disabled";
+const std::string Configuration::is_fmv_disabled_setting_name = "fmv_disabled";
+const std::string Configuration::is_fog_disabled_setting_name = "fog_disabled";
+const std::string Configuration::is_controller_disabled_setting_name = "controllers_disabled";
+const std::string Configuration::is_triple_buffering_enabled_setting_name = "triple_buffering_enabled";
+const std::string Configuration::is_hardware_cursor_disabled_setting_name = "hardware_cursor_disabled";
+const std::string Configuration::is_animated_loading_screen_disabled_setting_name = "animated_loading_screen_disabled";
+const std::string Configuration::is_detail_level_selected_setting_name = "detail_level_selected";
+const std::string Configuration::is_hardware_sound_disabled_setting_name = "hardware_sound_disabled";
+const std::string Configuration::is_sound_filter_disabled_setting_name = "sound_filter_disabled";
+const std::string Configuration::is_always_pass_custom_arguments_setting_name = "always_pass_custom_arguments";
+const std::string Configuration::custom_arguments_setting_name = "custom_arguments";
+const std::string Configuration::screen_width_setting_name = "screen_width";
+const std::string Configuration::screen_height_setting_name = "screen_height";
+
+
+Configuration::Configuration()
+	:
+	is_initialized_{},
+	configuration_path_{},
+	is_warned_about_display_{},
+	is_warned_about_settings_{},
+	is_sound_effects_disabled_{},
+	is_music_disabled_{},
+	is_fmv_disabled_{},
+	is_fog_disabled_{},
+	is_controller_disabled_{},
+	is_triple_buffering_enabled_{},
+	is_hardware_cursor_disabled_{},
+	is_animated_loading_screen_disabled_{},
+	is_detail_level_selected_{},
+	is_hardware_sound_disabled_{},
+	is_sound_filter_disabled_{},
+	is_always_pass_custom_arguments_{},
+	custom_arguments_{},
+	screen_width_{},
+	screen_height_{}
+{
+}
+
+Configuration::Configuration(
+	Configuration&& rhs)
+	:
+	is_initialized_{std::move(is_initialized_)},
+	configuration_path_{std::move(configuration_path_)},
+	is_warned_about_display_{std::move(is_warned_about_display_)},
+	is_warned_about_settings_{std::move(is_warned_about_settings_)},
+	is_sound_effects_disabled_{std::move(is_sound_effects_disabled_)},
+	is_music_disabled_{std::move(is_music_disabled_)},
+	is_fmv_disabled_{std::move(is_fmv_disabled_)},
+	is_fog_disabled_{std::move(is_fog_disabled_)},
+	is_controller_disabled_{std::move(is_controller_disabled_)},
+	is_triple_buffering_enabled_{std::move(is_triple_buffering_enabled_)},
+	is_hardware_cursor_disabled_{std::move(is_hardware_cursor_disabled_)},
+	is_animated_loading_screen_disabled_{std::move(is_animated_loading_screen_disabled_)},
+	is_detail_level_selected_{std::move(is_detail_level_selected_)},
+	is_hardware_sound_disabled_{std::move(is_hardware_sound_disabled_)},
+	is_sound_filter_disabled_{std::move(is_sound_filter_disabled_)},
+	is_always_pass_custom_arguments_{std::move(is_always_pass_custom_arguments_)},
+	custom_arguments_{std::move(custom_arguments_)},
+	screen_width_{std::move(screen_width_)},
+	screen_height_{std::move(screen_height_)}
+{
+}
+
+Configuration::~Configuration()
+{
+}
+
+Configuration& Configuration::get_instance()
+{
+	static auto configuration = Configuration{};
+
+	return configuration;
+}
+
+bool Configuration::initialize()
+{
+	if (is_initialized_)
+	{
+		return true;
+	}
+
+
+	const auto sdl_profile_path = ::SDL_GetPrefPath("bibendovsky", "ltjs");
+
+	if (!sdl_profile_path)
+	{
+		set_error_message("Failed to get profile path." + std::string{::SDL_GetError()});
+		return false;
+	}
+
+	configuration_path_ = ul::PathUtils::normalize(ul::PathUtils::append(sdl_profile_path, configuration_file_name));
+
+	reset();
+
+	is_initialized_ = true;
+
+	return true;
+}
+
+bool Configuration::is_initialized() const
+{
+	return is_initialized_;
+}
+
+bool Configuration::reload()
+{
+	if (!is_initialized_)
+	{
+		set_error_message("Not initialized.");
+		return false;
+	}
+
+	auto file_stream = ul::FileStream{configuration_path_, ul::Stream::OpenMode::read};
+
+	if (!file_stream.is_open())
+	{
+		return true;
+	}
+
+	const auto stream_size = file_stream.get_size();
+
+	if (stream_size > max_file_size)
+	{
+		set_error_message("Configuration file \"" + configuration_path_ + "\" too big.");
+		return false;
+	}
+
+	const auto file_size = static_cast<int>(stream_size);
+
+	auto string_buffer = std::vector<char>{};
+	string_buffer.resize(file_size);
+
+	const auto read_result = file_stream.read(string_buffer.data(), file_size);
+
+	if (read_result != file_size)
+	{
+		set_error_message("Failed to read configuration file \"" + configuration_path_ + "\".");
+		return false;
+	}
+
+	auto script_tokenizer = ltjs::ScriptTokenizer{};
+
+	if (!script_tokenizer.tokenize(string_buffer.data(), file_size))
+	{
+		set_error_message("Failed to parse configuration file \"" + configuration_path_ + "\". " + script_tokenizer.get_error_message());
+		return false;
+	}
+
+	for (const auto& script_line : script_tokenizer.get_lines())
+	{
+		const auto& tokens = script_line.tokens_;
+
+		if (tokens.size() != 2)
+		{
+			continue;
+		}
+
+		if (false)
+		{
+		}
+		// is_warned_about_display
+		//
+		else if (tokens[0].content_ == is_warned_about_display_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_warned_about_display_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_warned_about_settings
+		//
+		else if (tokens[0].content_ == is_warned_about_settings_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_warned_about_settings_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_sound_effects_disabled
+		//
+		else if (tokens[0].content_ == is_sound_effects_disabled_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_sound_effects_disabled_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_music_disabled
+		//
+		else if (tokens[0].content_ == is_music_disabled_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_music_disabled_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_fmv_disabled
+		//
+		else if (tokens[0].content_ == is_fmv_disabled_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_fmv_disabled_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_fog_disabled
+		//
+		else if (tokens[0].content_ == is_fog_disabled_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_fog_disabled_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_controller_disabled
+		//
+		else if (tokens[0].content_ == is_controller_disabled_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_controller_disabled_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_triple_buffering_enabled
+		//
+		else if (tokens[0].content_ == is_triple_buffering_enabled_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_triple_buffering_enabled_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_hardware_cursor_disabled
+		//
+		else if (tokens[0].content_ == is_hardware_cursor_disabled_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_hardware_cursor_disabled_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_animated_loading_screen_disabled
+		//
+		else if (tokens[0].content_ == is_animated_loading_screen_disabled_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_animated_loading_screen_disabled_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_detail_level_selected
+		//
+		else if (tokens[0].content_ == is_detail_level_selected_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_detail_level_selected_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_hardware_sound_disabled
+		//
+		else if (tokens[0].content_ == is_hardware_sound_disabled_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_hardware_sound_disabled_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_sound_filter_disabled
+		//
+		else if (tokens[0].content_ == is_sound_filter_disabled_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_sound_filter_disabled_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// is_always_pass_custom_arguments
+		//
+		else if (tokens[0].content_ == is_always_pass_custom_arguments_setting_name)
+		{
+			try
+			{
+				const auto value = std::stoi(tokens[1].content_);
+				is_always_pass_custom_arguments_ = (value != 0);
+			}
+			catch(...)
+			{
+			}
+		}
+		// custom_arguments
+		//
+		else if (tokens[0].content_ == custom_arguments_setting_name)
+		{
+			custom_arguments_ = tokens[1].content_;
+		}
+		// screen_width
+		//
+		else if (tokens[0].content_ == screen_width_setting_name)
+		{
+			try
+			{
+				screen_width_ = std::stoi(tokens[1].content_);
+			}
+			catch(...)
+			{
+			}
+		}
+		// screen_height
+		//
+		else if (tokens[0].content_ == screen_height_setting_name)
+		{
+			try
+			{
+				screen_height_ = std::stoi(tokens[1].content_);
+			}
+			catch(...)
+			{
+			}
+		}
+	}
+
+	return true;
+}
+
+bool Configuration::save()
+{
+	if (!is_initialized_)
+	{
+		set_error_message("Not initialized.");
+		return false;
+	}
+
+	auto file_stream = ul::FileStream{configuration_path_, ul::Stream::OpenMode::write | ul::Stream::OpenMode::truncate};
+
+	if (!file_stream.is_open())
+	{
+		set_error_message("Failed to open configuration file \"" + configuration_path_ + "\" for writing.");
+		return false;
+	}
+
+	auto string_buffer = std::string{};
+	string_buffer.reserve(max_file_size);
+
+	// Header.
+	//
+	string_buffer += "/*\n";
+	string_buffer += '\n';
+	string_buffer += "LTJS\n";
+	string_buffer += '\n';
+	string_buffer += LTJS_GAME_ID_STRING_UC " launcher configuration.\n";
+	string_buffer += "WARNING! This is auto-generated file.\n";
+	string_buffer += '\n';
+	string_buffer += "*/\n";
+	string_buffer += '\n';
+
+	// is_warned_about_settings
+	//
+	string_buffer += is_warned_about_settings_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_warned_about_settings_);
+	string_buffer += '\n';
+
+	// is_sound_effects_disabled
+	//
+	string_buffer += is_sound_effects_disabled_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_sound_effects_disabled_);
+	string_buffer += '\n';
+
+	// is_music_disabled
+	//
+	string_buffer += is_music_disabled_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_music_disabled_);
+	string_buffer += '\n';
+
+	// is_fmv_disabled
+	//
+	string_buffer += is_fmv_disabled_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_fmv_disabled_);
+	string_buffer += '\n';
+
+	// is_fog_disabled
+	//
+	string_buffer += is_fog_disabled_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_fog_disabled_);
+	string_buffer += '\n';
+
+	// is_controller_disabled
+	//
+	string_buffer += is_controller_disabled_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_controller_disabled_);
+	string_buffer += '\n';
+
+	// is_triple_buffering_enabled
+	//
+	string_buffer += is_triple_buffering_enabled_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_triple_buffering_enabled_);
+	string_buffer += '\n';
+
+	// is_hardware_cursor_disabled
+	//
+	string_buffer += is_hardware_cursor_disabled_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_hardware_cursor_disabled_);
+	string_buffer += '\n';
+
+	// is_animated_loading_screen_disabled
+	//
+	string_buffer += is_animated_loading_screen_disabled_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_animated_loading_screen_disabled_);
+	string_buffer += '\n';
+
+	// is_detail_level_selected
+	//
+	string_buffer += is_detail_level_selected_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_detail_level_selected_);
+	string_buffer += '\n';
+
+	// is_hardware_sound_disabled
+	//
+	string_buffer += is_hardware_sound_disabled_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_hardware_sound_disabled_);
+	string_buffer += '\n';
+
+	// is_sound_filter_disabled
+	//
+	string_buffer += is_sound_filter_disabled_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_sound_filter_disabled_);
+	string_buffer += '\n';
+
+	// is_always_pass_custom_arguments
+	//
+	string_buffer += is_always_pass_custom_arguments_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_always_pass_custom_arguments_);
+	string_buffer += '\n';
+
+	// custom_arguments
+	//
+	string_buffer += custom_arguments_setting_name;
+	string_buffer += " \"";
+	string_buffer += custom_arguments_;
+	string_buffer += "\"\n";
+
+	// screen_width
+	//
+	string_buffer += screen_width_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(screen_width_);
+	string_buffer += '\n';
+
+	// screen_height
+	//
+	string_buffer += screen_height_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(screen_height_);
+	string_buffer += '\n';
+
+
+	// Dump the string buffer into file stream.
+	//
+	const auto string_buffer_size = static_cast<int>(string_buffer.size());
+
+	if (string_buffer_size > max_file_size)
+	{
+		set_error_message("Configuration data too big.");
+		return false;
+	}
+
+	const auto write_result = file_stream.write(string_buffer.data(), string_buffer_size);
+
+	if (write_result != string_buffer_size)
+	{
+		set_error_message("Failed to write settings into \"" + configuration_path_ + "\".");
+		return false;
+	}
+
+	return true;
+}
+
+void Configuration::reset()
+{
+	is_warned_about_display_ = default_is_warned_about_display;
+	is_warned_about_settings_ = default_is_warned_about_settings;
+	is_sound_effects_disabled_ = default_is_sound_effects_disabled;
+	is_music_disabled_ = default_is_music_disabled;
+	is_fmv_disabled_ = default_is_fmv_disabled;
+	is_fog_disabled_ = default_is_fog_disabled;
+	is_controller_disabled_ = default_is_controller_disabled;
+	is_triple_buffering_enabled_ = default_is_triple_buffering_enabled;
+	is_hardware_cursor_disabled_ = default_is_hardware_cursor_disabled;
+	is_animated_loading_screen_disabled_ = default_is_animated_loading_screen_disabled;
+	is_detail_level_selected_ = default_is_detail_level_selected;
+	is_hardware_sound_disabled_ = default_is_hardware_sound_disabled;
+	is_sound_filter_disabled_ = default_is_sound_filter_disabled;
+	is_always_pass_custom_arguments_ = default_is_always_pass_custom_arguments;
+	custom_arguments_ = default_custom_arguments;
+	screen_width_ = default_screen_width;
+	screen_height_ = default_screen_height;
+}
+
+//
+// Configuration
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -1321,8 +2025,8 @@ void SdlOglWindow::uninitialize()
 // FontManager
 //
 
-const std::string FontManager::regular_font_file_name = "ltjs/nolf2/launcher/fonts/noto_sans_display_condensed.ttf";
-const std::string FontManager::bold_font_file_name = "ltjs/nolf2/launcher/fonts/noto_sans_display_condensed_bold.ttf";
+const std::string FontManager::regular_font_file_name = "ltjs/" LTJS_GAME_ID_STRING "/launcher/fonts/noto_sans_display_condensed.ttf";
+const std::string FontManager::bold_font_file_name = "ltjs/" LTJS_GAME_ID_STRING "/launcher/fonts/noto_sans_display_condensed_bold.ttf";
 
 const FontManager::Descriptions FontManager::descriptions =
 {
@@ -1509,7 +2213,7 @@ bool FontManager::add_font(
 // OglTextureManager
 //
 
-const std::string OglTextureManager::images_path = "ltjs/nolf2/launcher/images";
+const std::string OglTextureManager::images_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/images";
 
 const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 {
@@ -4133,14 +4837,28 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		const auto has_d3d9 = Direct3d9::has_direct3d9();
+		auto& configuration = Configuration::get_instance();
+
+		if (!configuration.initialize())
+		{
+			is_succeed = false;
+
+			set_error_message(configuration.get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
+		auto& configuration = Configuration::get_instance();
+
+		configuration.reload();
 	}
 
 	if (is_succeed)
 	{
 		const auto resource_strings_result = resource_strings_.initialize(
 			"en",
-			"ltjs/nolf2/launcher/strings",
+			"ltjs/" LTJS_GAME_ID_STRING "/launcher/strings",
 			"launcher.txt");
 
 		if (!resource_strings_result)
@@ -4365,6 +5083,10 @@ void Launcher::run()
 			::SDL_Delay(static_cast<Uint32>(delay_ms));
 		}
 	}
+
+	auto& configuration = Configuration::get_instance();
+
+	static_cast<void>(configuration.save());
 }
 
 void Launcher::show_message_box(
