@@ -152,6 +152,18 @@ enum class MessageBoxType
 	error,
 }; // MessageBoxType
 
+enum class MessageBoxButtons
+{
+	ok,
+	ok_cancel,
+}; // MessageBoxButtons
+
+enum class MessageBoxResult
+{
+	ok,
+	cancel,
+}; // MessageBoxResult
+
 
 class Base
 {
@@ -690,14 +702,20 @@ public:
 	void set_title(
 		const std::string& title);
 
+	using Window::show;
+
 	void show(
-		MessageBoxType type,
+		const MessageBoxType type,
+		const MessageBoxButtons buttons,
 		const std::string& text);
 
 	void show(
-		MessageBoxType type,
+		const MessageBoxType type,
+		const MessageBoxButtons buttons,
 		const std::string& title,
 		const std::string& text);
+
+	MessageBoxResult get_result() const;
 
 
 private:
@@ -706,6 +724,8 @@ private:
 
 
 	MessageBoxType type_;
+	MessageBoxButtons buttons_;
+	MessageBoxResult result_;
 	std::string title_;
 	std::string message_;
 	bool is_title_position_calculated_;
@@ -902,7 +922,10 @@ public:
 
 	void show_message_box(
 		const MessageBoxType type,
+		const MessageBoxButtons buttons,
 		const std::string& message);
+
+	MessageBoxResult get_message_box_result() const;
 
 	const ResourceStrings& get_resource_strings() const;
 
@@ -3602,6 +3625,8 @@ void Window::im_render_data(
 MessageBoxWindow::MessageBoxWindow()
 	:
 	type_{},
+	buttons_{},
+	result_{},
 	title_{},
 	message_{},
 	is_title_position_calculated_{},
@@ -3640,26 +3665,37 @@ void MessageBoxWindow::set_title(
 }
 
 void MessageBoxWindow::show(
-	MessageBoxType type,
+	const MessageBoxType type,
+	const MessageBoxButtons buttons,
 	const std::string& text)
 {
 	type_ = type;
+	buttons_ = buttons;
+	result_ = {};
 	message_ = text;
 
-	Window::show(true);
+	show(true);
 }
 
 void MessageBoxWindow::show(
-	MessageBoxType type,
+	const MessageBoxType type,
+	const MessageBoxButtons buttons,
 	const std::string& title,
 	const std::string& text)
 {
 	type_ = type;
+	buttons_ = buttons;
+	result_ = {};
 	title_ = title;
 	message_ = text;
 	is_title_position_calculated_ = false;
 
-	Window::show(true);
+	show(true);
+}
+
+MessageBoxResult MessageBoxWindow::get_result() const
+{
+	return result_;
 }
 
 bool MessageBoxWindow::initialize(
@@ -3683,6 +3719,8 @@ void MessageBoxWindow::uninitialize()
 
 void MessageBoxWindow::do_draw()
 {
+	const auto has_cancel_button = (buttons_ == MessageBoxButtons::ok_cancel);
+
 	const auto& window_manager = WindowManager::get_instance();
 	const auto scale = window_manager.get_scale();
 
@@ -3711,9 +3749,13 @@ void MessageBoxWindow::do_draw()
 	const auto message_size = ImVec2{573.0F, 121.0F} * scale;
 	const auto message_rect = ImVec4{message_pos.x, message_pos.y, message_size.x, message_size.y};
 
-	const auto ok_pos = ImVec2{250.0F, 206.0F} * scale;
+	auto ok_pos = ImVec2{has_cancel_button ? 189.0F : 250.0F, 206.0F} * scale;
 	const auto ok_size = ImVec2{100.0F, 30.0F} * scale;
 	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
+
+	const auto cancel_pos = ImVec2{312.0F, 206.0F} * scale;
+	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
 
 
 	// Begin message box window.
@@ -3903,6 +3945,56 @@ void MessageBoxWindow::do_draw()
 		ogl_ok_texture.uv1_);
 
 
+	// "Cancel" button.
+	//
+	auto is_cancel_button_clicked = false;
+
+	if (has_cancel_button)
+	{
+		auto is_cancel_mouse_button_down = false;
+
+		const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
+
+		if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+		{
+			if (is_mouse_button_down)
+			{
+				is_cancel_mouse_button_down = true;
+			}
+
+			if (is_mouse_button_up)
+			{
+				is_cancel_button_clicked = true;
+			}
+		}
+
+		auto ogl_cancel_image_id = ImageId{};
+
+		if (is_cancel_mouse_button_down)
+		{
+			ogl_cancel_image_id = ImageId::canceld;
+		}
+		else if (is_cancel_button_hightlighted)
+		{
+			ogl_cancel_image_id = ImageId::cancelf;
+		}
+		else
+		{
+			ogl_cancel_image_id = ImageId::cancelu;
+		}
+
+		const auto& ogl_cancel_texture = ogl_texture_manager.get(ogl_cancel_image_id);
+
+		ImGui::SetCursorPos(cancel_pos);
+
+		ImGui::Image(
+			ogl_cancel_texture.get_im_texture_id(),
+			cancel_size,
+			ogl_cancel_texture.uv0_,
+			ogl_cancel_texture.uv1_);
+	}
+
+
 	// End message box window.
 	//
 	ImGui::End();
@@ -3910,9 +4002,27 @@ void MessageBoxWindow::do_draw()
 
 	// Handle events.
 	//
-	if (is_close_button_clicked || is_ok_button_clicked)
+	auto is_hide = false;
+
+	if (is_close_button_clicked)
 	{
-		Window::show(false);
+		is_hide = true;
+		result_ = (has_cancel_button ? MessageBoxResult::cancel : MessageBoxResult::ok);
+	}
+	else if (is_ok_button_clicked)
+	{
+		is_hide = true;
+		result_ = MessageBoxResult::ok;
+	}
+	else if (is_cancel_button_clicked)
+	{
+		is_hide = true;
+		result_ = MessageBoxResult::cancel;
+	}
+
+	if (is_hide)
+	{
+		show(false);
 	}
 }
 
@@ -4598,6 +4708,7 @@ void MainWindow::do_draw()
 			{
 				launcher.show_message_box(
 					MessageBoxType::error,
+					MessageBoxButtons::ok,
 					"Failed to run LithTech executable \"" + lithtech_executable + "\".");
 
 				return;
@@ -4607,6 +4718,7 @@ void MainWindow::do_draw()
 		{
 			launcher.show_message_box(
 				MessageBoxType::error,
+				MessageBoxButtons::ok,
 				"LithTech executable \"" + lithtech_executable + "\" not found.");
 
 			is_show_play_button_ = is_lithtech_executable_exists();
@@ -5049,6 +5161,7 @@ void Launcher::run()
 		return;
 	}
 
+	message_box_window_uptr_->show(false);
 	main_window_uptr_->show(true);
 
 	auto frequency = ::SDL_GetPerformanceFrequency();
@@ -5091,9 +5204,15 @@ void Launcher::run()
 
 void Launcher::show_message_box(
 	const MessageBoxType type,
+	const MessageBoxButtons buttons,
 	const std::string& message)
 {
-	message_box_window_uptr_->show(type, message);
+	message_box_window_uptr_->show(type, buttons, message);
+}
+
+MessageBoxResult Launcher::get_message_box_result() const
+{
+	return message_box_window_uptr_->get_result();
 }
 
 const ResourceStrings& Launcher::get_resource_strings() const
