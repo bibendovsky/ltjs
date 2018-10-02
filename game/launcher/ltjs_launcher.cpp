@@ -165,6 +165,13 @@ enum class MessageBoxResult
 }; // MessageBoxResult
 
 
+struct DisplayMode
+{
+	int width_;
+	int height_;
+}; // DisplayMode
+
+
 class Base
 {
 public:
@@ -203,6 +210,25 @@ class Configuration final :
 {
 public:
 	static constexpr auto max_file_size = 64 * 1'024;
+
+
+	bool is_warned_about_display_;
+	bool is_warned_about_settings_;
+	bool is_sound_effects_disabled_;
+	bool is_music_disabled_;
+	bool is_fmv_disabled_;
+	bool is_fog_disabled_;
+	bool is_controller_disabled_;
+	bool is_triple_buffering_enabled_;
+	bool is_hardware_cursor_disabled_;
+	bool is_animated_loading_screen_disabled_;
+	bool is_detail_level_selected_;
+	bool is_hardware_sound_disabled_;
+	bool is_sound_filter_disabled_;
+	bool is_always_pass_custom_arguments_;
+	std::string custom_arguments_;
+	int screen_width_;
+	int screen_height_;
 
 
 	Configuration(
@@ -265,24 +291,6 @@ private:
 
 	bool is_initialized_;
 	std::string configuration_path_;
-
-	bool is_warned_about_display_;
-	bool is_warned_about_settings_;
-	bool is_sound_effects_disabled_;
-	bool is_music_disabled_;
-	bool is_fmv_disabled_;
-	bool is_fog_disabled_;
-	bool is_controller_disabled_;
-	bool is_triple_buffering_enabled_;
-	bool is_hardware_cursor_disabled_;
-	bool is_animated_loading_screen_disabled_;
-	bool is_detail_level_selected_;
-	bool is_hardware_sound_disabled_;
-	bool is_sound_filter_disabled_;
-	bool is_always_pass_custom_arguments_;
-	std::string custom_arguments_;
-	int screen_width_;
-	int screen_height_;
 
 
 	Configuration();
@@ -617,7 +625,7 @@ public:
 	void show(
 		const bool is_show);
 
-	bool is_show() const;
+	bool is_visible() const;
 
 	void draw();
 
@@ -838,6 +846,12 @@ class Launcher final :
 	public Base
 {
 public:
+	using DisplayModes = std::vector<DisplayMode>;
+
+
+	static constexpr auto min_display_mode_width = 640;
+	static constexpr auto min_display_mode_height = 480;
+
 	// Resource strings identifiers.
 	//
 
@@ -929,12 +943,18 @@ public:
 
 	const ResourceStrings& get_resource_strings() const;
 
+	const DisplayMode& get_native_display_mode() const;
+
+	const DisplayModes& get_display_modes() const;
+
 
 private:
 	bool is_initialized_;
 	ResourceStrings resource_strings_;
 	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
+	DisplayModes display_modes_;
+	DisplayMode native_display_mode_;
 
 
 	Launcher();
@@ -946,6 +966,10 @@ private:
 	void uninitialize_sdl();
 
 	bool initialize_sdl();
+
+	void initialize_display_modes();
+
+	void uninitialize_display_modes();
 }; // Launcher
 
 //
@@ -3086,7 +3110,7 @@ void Window::show(
 	sdl_ogl_window_.show(is_show);
 }
 
-bool Window::is_show() const
+bool Window::is_visible() const
 {
 	if (!is_initialized_)
 	{
@@ -4121,6 +4145,10 @@ bool MainWindow::is_lithtech_executable_exists() const
 void MainWindow::do_draw()
 {
 	const auto& window_manager = WindowManager::get_instance();
+	auto& configuration = Configuration::get_instance();
+	auto& launcher = Launcher::get_instance();
+	auto& resource_strings = launcher.get_resource_strings();
+
 	const auto scale = window_manager.get_scale();
 
 	auto& ogl_texture_manager = OglTextureManager::get_instance();
@@ -4503,8 +4531,7 @@ void MainWindow::do_draw()
 	// Display button.
 	//
 
-	// TODO
-	auto is_display_enabled = false;
+	const auto is_display_enabled = is_show_play_button_;
 	auto is_display_mouse_button_down = false;
 	auto is_display_button_clicked = false;
 
@@ -4561,8 +4588,7 @@ void MainWindow::do_draw()
 	// Options button.
 	//
 
-	// TODO
-	auto is_options_enabled = false;
+	const auto is_options_enabled = is_show_play_button_;
 	auto is_options_mouse_button_down = false;
 	auto is_options_button_clicked = false;
 
@@ -4690,8 +4716,6 @@ void MainWindow::do_draw()
 
 	if (is_install_or_play_button_clicked)
 	{
-		auto& launcher = Launcher::get_instance();
-
 		if (is_show_play_button_)
 		{
 			const auto command = lithtech_executable + " -cmdfile " + Launcher::launcher_commands_file_name;
@@ -4722,6 +4746,23 @@ void MainWindow::do_draw()
 				"LithTech executable \"" + lithtech_executable + "\" not found.");
 
 			is_show_play_button_ = is_lithtech_executable_exists();
+
+			return;
+		}
+	}
+
+	if (is_display_button_clicked)
+	{
+		if (!configuration.is_warned_about_display_)
+		{
+			configuration.is_warned_about_display_ = true;
+
+			const auto& message = resource_strings.get(Launcher::IDS_DISPLAY_WARNING, "IDS_DISPLAY_WARNING");
+
+			launcher.show_message_box(
+				MessageBoxType::warning,
+				MessageBoxButtons::ok,
+				message);
 
 			return;
 		}
@@ -4906,7 +4947,9 @@ Launcher::Launcher()
 	is_initialized_{},
 	resource_strings_{},
 	message_box_window_uptr_{},
-	main_window_uptr_{}
+	main_window_uptr_{},
+	display_modes_{},
+	native_display_mode_{}
 {
 }
 
@@ -4916,7 +4959,9 @@ Launcher::Launcher(
 	is_initialized_{std::move(rhs.is_initialized_)},
 	resource_strings_{std::move(rhs.resource_strings_)},
 	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
-	main_window_uptr_{std::move(rhs.main_window_uptr_)}
+	main_window_uptr_{std::move(rhs.main_window_uptr_)},
+	display_modes_{std::move(rhs.display_modes_)},
+	native_display_mode_{std::move(rhs.native_display_mode_)}
 {
 	rhs.is_initialized_ = false;
 }
@@ -4945,6 +4990,11 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 		}
+	}
+
+	if (is_succeed)
+	{
+		initialize_display_modes();
 	}
 
 	if (is_succeed)
@@ -5161,9 +5211,6 @@ void Launcher::run()
 		return;
 	}
 
-	message_box_window_uptr_->show(false);
-	main_window_uptr_->show(true);
-
 	auto frequency = ::SDL_GetPerformanceFrequency();
 
 	auto& window_manager = WindowManager::get_instance();
@@ -5218,6 +5265,16 @@ MessageBoxResult Launcher::get_message_box_result() const
 const ResourceStrings& Launcher::get_resource_strings() const
 {
 	return resource_strings_;
+}
+
+const DisplayMode& Launcher::get_native_display_mode() const
+{
+	return native_display_mode_;
+}
+
+const Launcher::DisplayModes& Launcher::get_display_modes() const
+{
+	return display_modes_;
 }
 
 bool Launcher::initialize_ogl_functions()
@@ -5339,6 +5396,90 @@ bool Launcher::initialize_sdl()
 	}
 
 	return is_succeed;
+}
+
+void Launcher::initialize_display_modes()
+{
+	const auto mode_count = ::SDL_GetNumDisplayModes(0);
+
+	if (mode_count == 0)
+	{
+		return;
+	}
+
+	auto sdl_result = 0;
+
+	auto sdl_native_display_mode = SDL_DisplayMode{};
+
+	sdl_result = ::SDL_GetCurrentDisplayMode(0, &sdl_native_display_mode);
+
+	if (sdl_result == 0)
+	{
+		if ((SDL_BITSPERPIXEL(sdl_native_display_mode.format) != 24 &&
+			SDL_BITSPERPIXEL(sdl_native_display_mode.format) != 32) ||
+			SDL_ISPIXELFORMAT_INDEXED(sdl_native_display_mode.format) ||
+			SDL_ISPIXELFORMAT_ALPHA(sdl_native_display_mode.format))
+		{
+			return;
+		}
+
+		native_display_mode_.width_ = sdl_native_display_mode.w;
+		native_display_mode_.height_ = sdl_native_display_mode.h;
+	}
+
+	display_modes_.reserve(mode_count);
+
+	for (auto i = 0; i < mode_count; ++i)
+	{
+		auto sdl_display_mode = SDL_DisplayMode{};
+
+		sdl_result = ::SDL_GetDisplayMode(0, i, &sdl_display_mode);
+
+		if (sdl_result)
+		{
+			continue;
+		}
+
+		if ((SDL_BITSPERPIXEL(sdl_display_mode.format) != 24 &&
+			SDL_BITSPERPIXEL(sdl_display_mode.format) != 32) ||
+			SDL_ISPIXELFORMAT_INDEXED(sdl_display_mode.format) ||
+			SDL_ISPIXELFORMAT_ALPHA(sdl_display_mode.format))
+		{
+			continue;
+		}
+
+		if (sdl_display_mode.w < min_display_mode_width ||
+			sdl_display_mode.h < min_display_mode_height)
+		{
+			continue;
+		}
+
+		auto item_it = std::find_if(
+			display_modes_.cbegin(),
+			display_modes_.cend(),
+			[&](const auto& item)
+			{
+				return item.width_ == sdl_display_mode.w && item.height_ == sdl_display_mode.h;
+			}
+		);
+
+		if (item_it != display_modes_.cend())
+		{
+			continue;
+		}
+
+		display_modes_.emplace_back();
+		auto& display_mode = display_modes_.back();
+
+		display_mode.width_ = sdl_display_mode.w;
+		display_mode.height_ = sdl_display_mode.h;
+	}
+}
+
+void Launcher::uninitialize_display_modes()
+{
+	display_modes_ = {};
+	native_display_mode_ = {};
 }
 
 //
