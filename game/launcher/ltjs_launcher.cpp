@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <array>
 #include <algorithm>
+#include <deque>
+#include <functional>
 #include <iterator>
 #include <limits>
 #include <sstream>
@@ -600,6 +602,31 @@ private:
 }; // SystemCursors
 
 
+class Event final
+{
+public:
+	using FuncType = void();
+	using Func = std::function<FuncType>;
+
+
+	void notify();
+
+
+	Event& operator+=(
+		const Func& func);
+
+	Event& operator-=(
+		const Func& func);
+
+
+private:
+	using Subscribers = std::deque<Func>;
+
+
+	Subscribers subscribers_;
+}; // Event
+
+
 struct WindowCreateParam
 {
 	std::string title_;
@@ -947,6 +974,8 @@ public:
 
 	const DisplayModes& get_display_modes() const;
 
+	Event& get_message_box_result_event();
+
 
 private:
 	bool is_initialized_;
@@ -955,6 +984,7 @@ private:
 	MainWindowUPtr main_window_uptr_;
 	DisplayModes display_modes_;
 	DisplayMode native_display_mode_;
+	Event message_box_result_event_;
 
 
 	Launcher();
@@ -2925,6 +2955,57 @@ const SdlCursorPtr SystemCursors::operator[](
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// Event
+//
+
+void Event::notify()
+{
+	for (auto& subscriber : subscribers_)
+	{
+		subscriber();
+	}
+}
+
+Event& Event::operator+=(
+	const Func& func)
+{
+	subscribers_.emplace_back(func);
+
+	return *this;
+}
+
+Event& Event::operator-=(
+	const Func& func)
+{
+	auto func_end_it = subscribers_.cend();
+
+	auto func_it = std::find_if(
+		subscribers_.cbegin(),
+		func_end_it,
+		[&](const auto& item)
+		{
+			return
+				func.target_type() == item.target_type() &&
+				func.target<void(*)()>() == item.target<void(*)()>();
+		}
+	);
+
+	if (func_it == func_end_it)
+	{
+		return *this;
+	}
+
+	subscribers_.erase(func_it);
+
+	return *this;
+}
+
+//
+// Event
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // Window
 //
 
@@ -4047,6 +4128,11 @@ void MessageBoxWindow::do_draw()
 	if (is_hide)
 	{
 		show(false);
+
+		auto& launcher = Launcher::get_instance();
+		auto& e = launcher.get_message_box_result_event();
+
+		e.notify();
 	}
 }
 
@@ -5278,6 +5364,11 @@ const DisplayMode& Launcher::get_native_display_mode() const
 const Launcher::DisplayModes& Launcher::get_display_modes() const
 {
 	return display_modes_;
+}
+
+Event& Launcher::get_message_box_result_event()
+{
+	return message_box_result_event_;
 }
 
 bool Launcher::initialize_ogl_functions()
