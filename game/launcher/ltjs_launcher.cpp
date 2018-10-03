@@ -5211,6 +5211,9 @@ void Launcher::run()
 		return;
 	}
 
+	message_box_window_uptr_->show(false);
+	main_window_uptr_->show(true);
+
 	auto frequency = ::SDL_GetPerformanceFrequency();
 
 	auto& window_manager = WindowManager::get_instance();
