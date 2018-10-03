@@ -602,20 +602,23 @@ private:
 }; // SystemCursors
 
 
-class Event final
+class WindowEvent final
 {
 public:
-	using FuncType = void();
+	using FuncType = void(
+		class Window* sender_window_ptr);
+
 	using Func = std::function<FuncType>;
 
 
-	void notify();
+	void notify(
+		class Window* sender_window_ptr);
 
 
-	Event& operator+=(
+	WindowEvent& operator+=(
 		const Func& func);
 
-	Event& operator-=(
+	WindowEvent& operator-=(
 		const Func& func);
 
 
@@ -656,6 +659,10 @@ public:
 
 	void draw();
 
+	WindowEvent& get_message_box_result_event();
+
+	MessageBoxResult get_message_box_result() const;
+
 
 protected:
 	friend class WindowManager;
@@ -679,6 +686,9 @@ protected:
 	void minimize_internal(
 		const bool is_minimize);
 
+	void set_message_box_result(
+		const MessageBoxResult message_box_result);
+
 	static int ogl_calculate_npot_dimension(
 		const int dimension);
 
@@ -700,6 +710,8 @@ private:
 	ImGuiContext* im_context_;
 	PressedMouseButtons pressed_mouse_buttons_;
 	Uint64 time_;
+	WindowEvent message_box_result_event_;
+	MessageBoxResult message_box_result_;
 
 
 	void uninitialize();
@@ -750,8 +762,6 @@ public:
 		const std::string& title,
 		const std::string& text);
 
-	MessageBoxResult get_result() const;
-
 
 private:
 	static constexpr auto window_width = 600;
@@ -760,7 +770,6 @@ private:
 
 	MessageBoxType type_;
 	MessageBoxButtons buttons_;
-	MessageBoxResult result_;
 	std::string title_;
 	std::string message_;
 	bool is_title_position_calculated_;
@@ -800,8 +809,16 @@ private:
 
 	static const std::string lithtech_executable;
 
+	enum class State
+	{
+		main_window,
+		display_settings_warning,
+		display_settings,
+	}; // State
+
 
 	bool is_show_play_button_;
+	State state_;
 
 
 	MainWindow();
@@ -813,6 +830,9 @@ private:
 	void uninitialize();
 
 	bool is_lithtech_executable_exists() const;
+
+	void handle_message_box_result_event(
+		WindowPtr sender_window_ptr);
 
 
 	void do_draw() override;
@@ -966,15 +986,15 @@ public:
 		const MessageBoxButtons buttons,
 		const std::string& message);
 
-	MessageBoxResult get_message_box_result() const;
-
 	const ResourceStrings& get_resource_strings() const;
 
 	const DisplayMode& get_native_display_mode() const;
 
 	const DisplayModes& get_display_modes() const;
 
-	Event& get_message_box_result_event();
+	MessageBoxWindowPtr get_message_box_window();
+
+	MainWindowPtr get_main_window();
 
 
 private:
@@ -984,7 +1004,7 @@ private:
 	MainWindowUPtr main_window_uptr_;
 	DisplayModes display_modes_;
 	DisplayMode native_display_mode_;
-	Event message_box_result_event_;
+	WindowEvent message_box_result_event_;
 
 
 	Launcher();
@@ -1527,6 +1547,13 @@ bool Configuration::save()
 	string_buffer += "WARNING! This is auto-generated file.\n";
 	string_buffer += '\n';
 	string_buffer += "*/\n";
+	string_buffer += '\n';
+
+	// is_warned_about_display
+	//
+	string_buffer += is_warned_about_display_setting_name;
+	string_buffer += ' ';
+	string_buffer += std::to_string(is_warned_about_display_);
 	string_buffer += '\n';
 
 	// is_warned_about_settings
@@ -2958,15 +2985,16 @@ const SdlCursorPtr SystemCursors::operator[](
 // Event
 //
 
-void Event::notify()
+void WindowEvent::notify(
+	Window* sender_window_ptr)
 {
 	for (auto& subscriber : subscribers_)
 	{
-		subscriber();
+		subscriber(sender_window_ptr);
 	}
 }
 
-Event& Event::operator+=(
+WindowEvent& WindowEvent::operator+=(
 	const Func& func)
 {
 	subscribers_.emplace_back(func);
@@ -2974,7 +3002,7 @@ Event& Event::operator+=(
 	return *this;
 }
 
-Event& Event::operator-=(
+WindowEvent& WindowEvent::operator-=(
 	const Func& func)
 {
 	auto func_end_it = subscribers_.cend();
@@ -3015,7 +3043,9 @@ Window::Window()
 	sdl_ogl_window_{},
 	im_context_{},
 	pressed_mouse_buttons_{},
-	time_{}
+	time_{},
+	message_box_result_event_{},
+	message_box_result_{}
 {
 }
 
@@ -3236,6 +3266,22 @@ void Window::draw()
 	sdl_ogl_window_.make_ogl_context_current(false);
 }
 
+WindowEvent& Window::get_message_box_result_event()
+{
+	return message_box_result_event_;
+}
+
+MessageBoxResult Window::get_message_box_result() const
+{
+	return message_box_result_;
+}
+
+void Window::set_message_box_result(
+	const MessageBoxResult message_box_result)
+{
+	message_box_result_ = message_box_result;
+}
+
 void Window::uninitialize()
 {
 	if (im_context_)
@@ -3255,6 +3301,9 @@ void Window::uninitialize()
 	is_initialized_ = false;
 
 	pressed_mouse_buttons_ = {};
+
+	message_box_result_event_ = {};
+	message_box_result_ = {};
 }
 
 void Window::handle_event(
@@ -3731,7 +3780,6 @@ MessageBoxWindow::MessageBoxWindow()
 	:
 	type_{},
 	buttons_{},
-	result_{},
 	title_{},
 	message_{},
 	is_title_position_calculated_{},
@@ -3776,7 +3824,6 @@ void MessageBoxWindow::show(
 {
 	type_ = type;
 	buttons_ = buttons;
-	result_ = {};
 	message_ = text;
 
 	show(true);
@@ -3790,17 +3837,11 @@ void MessageBoxWindow::show(
 {
 	type_ = type;
 	buttons_ = buttons;
-	result_ = {};
 	title_ = title;
 	message_ = text;
 	is_title_position_calculated_ = false;
 
 	show(true);
-}
-
-MessageBoxResult MessageBoxWindow::get_result() const
-{
-	return result_;
 }
 
 bool MessageBoxWindow::initialize(
@@ -4112,27 +4153,23 @@ void MessageBoxWindow::do_draw()
 	if (is_close_button_clicked)
 	{
 		is_hide = true;
-		result_ = (has_cancel_button ? MessageBoxResult::cancel : MessageBoxResult::ok);
+		set_message_box_result(has_cancel_button ? MessageBoxResult::cancel : MessageBoxResult::ok);
 	}
 	else if (is_ok_button_clicked)
 	{
 		is_hide = true;
-		result_ = MessageBoxResult::ok;
+		set_message_box_result(MessageBoxResult::ok);
 	}
 	else if (is_cancel_button_clicked)
 	{
 		is_hide = true;
-		result_ = MessageBoxResult::cancel;
+		set_message_box_result(MessageBoxResult::cancel);
 	}
 
 	if (is_hide)
 	{
 		show(false);
-
-		auto& launcher = Launcher::get_instance();
-		auto& e = launcher.get_message_box_result_event();
-
-		e.notify();
+		get_message_box_result_event().notify(this);
 	}
 }
 
@@ -4190,6 +4227,13 @@ bool MainWindow::initialize(
 	}
 
 	is_show_play_button_ = is_lithtech_executable_exists();
+	state_ = {};
+
+	auto& launcher = Launcher::get_instance();
+	auto message_box_window_ptr = launcher.get_message_box_window();
+	auto& message_box_result_event = message_box_window_ptr->get_message_box_result_event();
+
+	message_box_result_event += std::bind(&MainWindow::handle_message_box_result_event, this, std::placeholders::_1);
 
 	return true;
 }
@@ -4228,6 +4272,40 @@ bool MainWindow::is_lithtech_executable_exists() const
 	return true;
 }
 
+void MainWindow::handle_message_box_result_event(
+	WindowPtr sender_window_ptr)
+{
+	auto message_box_window_ptr = static_cast<MessageBoxWindowPtr>(sender_window_ptr);
+	const auto message_box_result = message_box_window_ptr->get_message_box_result();
+
+	switch (state_)
+	{
+	case State::display_settings:
+		state_ = State::main_window;
+		show(true);
+		break;
+
+	case State::display_settings_warning:
+	{
+		state_ = State::main_window;
+
+		auto& configuration = Configuration::get_instance();
+
+		if (message_box_result == MessageBoxResult::ok)
+		{
+			configuration.is_warned_about_display_ = true;
+
+			show(true);
+		}
+
+		break;
+	}
+
+	default:
+		break;
+	}
+}
+
 void MainWindow::do_draw()
 {
 	const auto& window_manager = WindowManager::get_instance();
@@ -4241,6 +4319,8 @@ void MainWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
+
+	const auto is_modal = (state_ != State::main_window);
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
@@ -4323,7 +4403,7 @@ void MainWindow::do_draw()
 	auto is_minimize_mouse_button_down = false;
 	auto is_minimize_button_clicked = false;
 
-	if (is_mouse_button_down || is_mouse_button_up)
+	if (!is_modal && (is_mouse_button_down || is_mouse_button_up))
 	{
 		if (is_point_inside_rect(mouse_pos, minimize_rect))
 		{
@@ -4391,7 +4471,7 @@ void MainWindow::do_draw()
 
 	const auto is_publisher1web_button_hightlighted = is_point_inside_rect(mouse_pos, publisher1web_rect);
 
-	if (is_publisher1web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	if (!is_modal && is_publisher1web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
 		if (is_mouse_button_down)
 		{
@@ -4406,11 +4486,11 @@ void MainWindow::do_draw()
 
 	auto ogl_publisher1web_image_id = ImageId{};
 
-	if (is_publisher1web_mouse_button_down)
+	if (!is_modal && is_publisher1web_mouse_button_down)
 	{
 		ogl_publisher1web_image_id = ImageId::publisher1webd;
 	}
-	else if (is_publisher1web_button_hightlighted)
+	else if (!is_modal && is_publisher1web_button_hightlighted)
 	{
 		ogl_publisher1web_image_id = ImageId::publisher1webf;
 	}
@@ -4437,7 +4517,7 @@ void MainWindow::do_draw()
 
 	const auto is_company1web_button_hightlighted = is_point_inside_rect(mouse_pos, company1web_rect);
 
-	if (is_company1web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	if (!is_modal && is_company1web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
 		if (is_mouse_button_down)
 		{
@@ -4452,11 +4532,11 @@ void MainWindow::do_draw()
 
 	auto ogl_company1web_image_id = ImageId{};
 
-	if (is_company1web_mouse_button_down)
+	if (!is_modal && is_company1web_mouse_button_down)
 	{
 		ogl_company1web_image_id = ImageId::company1webd;
 	}
-	else if (is_company1web_button_hightlighted)
+	else if (!is_modal && is_company1web_button_hightlighted)
 	{
 		ogl_company1web_image_id = ImageId::company1webf;
 	}
@@ -4483,7 +4563,7 @@ void MainWindow::do_draw()
 
 	const auto is_company2web_button_hightlighted = is_point_inside_rect(mouse_pos, company2web_rect);
 
-	if (is_company2web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	if (!is_modal && is_company2web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
 		if (is_mouse_button_down)
 		{
@@ -4498,11 +4578,11 @@ void MainWindow::do_draw()
 
 	auto ogl_company2web_image_id = ImageId{};
 
-	if (is_company2web_mouse_button_down)
+	if (!is_modal && is_company2web_mouse_button_down)
 	{
 		ogl_company2web_image_id = ImageId::company2webd;
 	}
-	else if (is_company2web_button_hightlighted)
+	else if (!is_modal && is_company2web_button_hightlighted)
 	{
 		ogl_company2web_image_id = ImageId::company2webf;
 	}
@@ -4529,7 +4609,7 @@ void MainWindow::do_draw()
 
 	const auto is_publisher2web_button_hightlighted = is_point_inside_rect(mouse_pos, publisher2web_rect);
 
-	if (is_publisher2web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	if (!is_modal && is_publisher2web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
 		if (is_mouse_button_down)
 		{
@@ -4544,11 +4624,11 @@ void MainWindow::do_draw()
 
 	auto ogl_publisher2web_image_id = ImageId{};
 
-	if (is_publisher2web_mouse_button_down)
+	if (!is_modal && is_publisher2web_mouse_button_down)
 	{
 		ogl_publisher2web_image_id = ImageId::publisher2webd;
 	}
-	else if (is_publisher2web_button_hightlighted)
+	else if (!is_modal && is_publisher2web_button_hightlighted)
 	{
 		ogl_publisher2web_image_id = ImageId::publisher2webf;
 	}
@@ -4575,7 +4655,7 @@ void MainWindow::do_draw()
 
 	const auto is_install_or_play_button_hightlighted = is_point_inside_rect(mouse_pos, install_or_play_rect);
 
-	if (is_install_or_play_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	if (!is_modal && is_install_or_play_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
 		if (is_mouse_button_down)
 		{
@@ -4590,11 +4670,11 @@ void MainWindow::do_draw()
 
 	auto ogl_install_or_play_image_id = ImageId{};
 
-	if (is_install_or_play_mouse_button_down)
+	if (!is_modal && is_install_or_play_mouse_button_down)
 	{
 		ogl_install_or_play_image_id = (is_show_play_button_ ? ImageId::playd : ImageId::installd);
 	}
-	else if (is_install_or_play_button_hightlighted)
+	else if (!is_modal && is_install_or_play_button_hightlighted)
 	{
 		ogl_install_or_play_image_id = (is_show_play_button_ ? ImageId::playf : ImageId::installf);
 	}
@@ -4617,7 +4697,7 @@ void MainWindow::do_draw()
 	// Display button.
 	//
 
-	const auto is_display_enabled = is_show_play_button_;
+	const auto is_display_enabled = !is_modal && is_show_play_button_;
 	auto is_display_mouse_button_down = false;
 	auto is_display_button_clicked = false;
 
@@ -4674,7 +4754,7 @@ void MainWindow::do_draw()
 	// Options button.
 	//
 
-	const auto is_options_enabled = is_show_play_button_;
+	const auto is_options_enabled = !is_modal && is_show_play_button_;
 	auto is_options_mouse_button_down = false;
 	auto is_options_button_clicked = false;
 
@@ -4783,7 +4863,6 @@ void MainWindow::do_draw()
 
 	// Handle events.
 	//
-
 	if (is_minimize_button_clicked)
 	{
 		minimize_internal(true);
@@ -4841,14 +4920,13 @@ void MainWindow::do_draw()
 	{
 		if (!configuration.is_warned_about_display_)
 		{
-			configuration.is_warned_about_display_ = true;
+			state_ = State::display_settings_warning;
 
 			const auto& message = resource_strings.get(Launcher::IDS_DISPLAY_WARNING, "IDS_DISPLAY_WARNING");
 
-			launcher.show_message_box(
-				MessageBoxType::warning,
-				MessageBoxButtons::ok,
-				message);
+			auto message_box_window_ptr = launcher.get_message_box_window();
+
+			message_box_window_ptr->show(MessageBoxType::warning, MessageBoxButtons::ok_cancel, message);
 
 			return;
 		}
@@ -5346,11 +5424,6 @@ void Launcher::show_message_box(
 	message_box_window_uptr_->show(type, buttons, message);
 }
 
-MessageBoxResult Launcher::get_message_box_result() const
-{
-	return message_box_window_uptr_->get_result();
-}
-
 const ResourceStrings& Launcher::get_resource_strings() const
 {
 	return resource_strings_;
@@ -5366,9 +5439,14 @@ const Launcher::DisplayModes& Launcher::get_display_modes() const
 	return display_modes_;
 }
 
-Event& Launcher::get_message_box_result_event()
+MessageBoxWindowPtr Launcher::get_message_box_window()
 {
-	return message_box_result_event_;
+	return message_box_window_uptr_.get();
+}
+
+MainWindowPtr Launcher::get_main_window()
+{
+	return main_window_uptr_.get();
 }
 
 bool Launcher::initialize_ogl_functions()
