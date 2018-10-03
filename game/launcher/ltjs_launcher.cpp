@@ -5286,7 +5286,7 @@ void DisplaySettingsWindow::do_draw()
 
 	// Resolutions list.
 	//
-	auto resolutions_pos = ImVec2{16.0F, 73.0F} * scale;
+	const auto resolutions_pos = ImVec2{16.0F, 73.0F} * scale;
 	const auto resolutions_size = ImVec2{133.0F, 248.0F} * scale;
 	const auto resolutions_rect = ImVec4{resolutions_pos.x, resolutions_pos.y, resolutions_size.x, resolutions_size.y};
 
@@ -5297,8 +5297,8 @@ void DisplaySettingsWindow::do_draw()
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
 	ImGui::PushItemWidth(-1.0F);
 
-	const auto resolution_item_height = ImGui::GetTextLineHeightWithSpacing();
-	const auto resolutions_height_in_items = resolutions_size.y / resolution_item_height;
+	const auto resolutions_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
+	const auto resolutions_height_in_items = resolutions_size.y / resolutions_list_box_item_height;
 
 	auto& display_modes = launcher.get_display_modes();
 
@@ -5309,6 +5309,80 @@ void DisplaySettingsWindow::do_draw()
 		const_cast<Launcher::DisplayModes*>(&display_modes),
 		static_cast<int>(display_modes.size()),
 		static_cast<int>(resolutions_height_in_items));
+
+	ImGui::PopItemWidth();
+	ImGui::PopStyleColor();
+	ImGui::PopFont();
+
+	ImGui::EndChild();
+
+
+	// Renderers list.
+	//
+	const auto renderers_pos = ImVec2{181.0F, 73.0F} * scale;
+	const auto renderers_size = ImVec2{405.0F, 106.0F} * scale;
+	const auto renderers_rect = ImVec4{renderers_pos.x, renderers_pos.y, renderers_size.x, renderers_size.y};
+
+	ImGui::SetCursorPos(renderers_pos);
+
+	ImGui::BeginChild("renderers", renderers_size);
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+	ImGui::PushItemWidth(-1.0F);
+
+	const auto renderers_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
+	const auto renderers_height_in_items = renderers_size.y / renderers_list_box_item_height;
+
+	const char* const renderers_list[] =
+	{
+		Direct3d9::get_renderer_name().c_str(),
+	};
+
+	auto selected_renderer_index = 0;
+
+	ImGui::ListBox(
+		"##renderers",
+		&selected_renderer_index,
+		renderers_list,
+		1,
+		static_cast<int>(renderers_height_in_items));
+
+	ImGui::PopItemWidth();
+	ImGui::PopStyleColor();
+	ImGui::PopFont();
+
+	ImGui::EndChild();
+
+
+	// Displays list.
+	//
+	const auto displays_pos = ImVec2{181.0F, 205.0F} * scale;
+	const auto displays_size = ImVec2{405.0F, 116.0F} * scale;
+	const auto displays_rect = ImVec4{displays_pos.x, displays_pos.y, displays_size.x, displays_size.y};
+
+	ImGui::SetCursorPos(displays_pos);
+
+	ImGui::BeginChild("displays", displays_size);
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+	ImGui::PushItemWidth(-1.0F);
+
+	const auto displays_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
+	const auto displays_height_in_items = renderers_size.y / displays_list_box_item_height;
+
+	const char* const displays_list[] =
+	{
+		Direct3d9::get_display_name().c_str(),
+	};
+
+	auto selected_displays_index = 0;
+
+	ImGui::ListBox(
+		"##displays",
+		&selected_displays_index,
+		displays_list,
+		1,
+		static_cast<int>(displays_height_in_items));
 
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor();
