@@ -171,6 +171,7 @@ struct DisplayMode
 {
 	int width_;
 	int height_;
+	std::string as_string_;
 }; // DisplayMode
 
 
@@ -879,7 +880,8 @@ private:
 	using Strings = std::vector<std::string>;
 
 
-	Strings display_mode_strings_;
+	int selected_resolution_index_;
+	int last_selected_resolution_index_;
 
 
 	DisplaySettingsWindow();
@@ -890,7 +892,7 @@ private:
 
 	void uninitialize();
 
-	static bool im_strings_items_getter(
+	static bool im_display_modes_getter(
 		void* data,
 		const int idx,
 		const char** out_text);
@@ -5122,16 +5124,58 @@ bool DisplaySettingsWindow::initialize(
 
 	set_message_box_result(MessageBoxResult::cancel);
 
-
-	display_mode_strings_ = {};
+	selected_resolution_index_ = -1;
 
 	const auto& launcher = Launcher::get_instance();
+	const auto& display_modes = launcher.get_display_modes();
+	const auto& native_display_mode = launcher.get_native_display_mode();
 
-	for (const auto& display_mode : launcher.get_display_modes())
+	auto& configuration = Configuration::get_instance();
+
+	const auto display_mode_begin_it = display_modes.cbegin();
+	const auto display_mode_end_it = display_modes.cend();
+
+	auto display_mode_it = std::find_if(
+		display_mode_begin_it,
+		display_mode_end_it,
+		[&](const auto& item)
+		{
+			return
+				item.width_ == configuration.screen_width_ &&
+				item.height_ == configuration.screen_height_;
+		}
+	);
+
+	if (display_mode_it != display_mode_end_it)
 	{
-		display_mode_strings_.emplace_back(
-			std::to_string(display_mode.width_) + " x " + std::to_string(display_mode.height_));
+		selected_resolution_index_ = static_cast<int>(display_mode_it - display_mode_begin_it);
 	}
+
+	if (selected_resolution_index_ < 0)
+	{
+		display_mode_it = std::find_if(
+			display_mode_begin_it,
+			display_mode_end_it,
+			[&](const auto& item)
+			{
+				return
+					item.width_ == native_display_mode.width_ &&
+					item.height_ == native_display_mode.height_;
+			}
+		);
+
+		if (display_mode_it != display_mode_end_it)
+		{
+			selected_resolution_index_ = static_cast<int>(display_mode_it - display_mode_begin_it);
+		}
+	}
+
+	if (selected_resolution_index_ < 0)
+	{
+		selected_resolution_index_ = 0;
+	}
+
+	last_selected_resolution_index_ = selected_resolution_index_;
 
 	return true;
 }
@@ -5140,27 +5184,23 @@ void DisplaySettingsWindow::uninitialize()
 {
 }
 
-bool DisplaySettingsWindow::im_strings_items_getter(
+bool DisplaySettingsWindow::im_display_modes_getter(
 	void* data,
 	const int idx,
 	const char** out_text)
 {
-	const auto& strings = *static_cast<Strings*>(data);
+	const auto& display_modes = *static_cast<Launcher::DisplayModes*>(data);
+	const auto& display_mode = display_modes[idx];
 
-	const auto& string = strings[idx];
-
-	if (string.empty())
-	{
-		return false;
-	}
-
-	*out_text = string.c_str();
+	*out_text = display_mode.as_string_.c_str();
 
 	return true;
 }
 
 void DisplaySettingsWindow::do_draw()
 {
+	auto& launcher = Launcher::get_instance();
+
 	const auto& window_manager = WindowManager::get_instance();
 	auto& font_manager = FontManager::get_instance();
 
@@ -5250,25 +5290,32 @@ void DisplaySettingsWindow::do_draw()
 	const auto resolutions_size = ImVec2{133.0F, 248.0F} * scale;
 	const auto resolutions_rect = ImVec4{resolutions_pos.x, resolutions_pos.y, resolutions_size.x, resolutions_size.y};
 
-	auto selected_resolution_index = 0;
-
 	ImGui::SetCursorPos(resolutions_pos);
 
 	ImGui::BeginChild("resolutions", resolutions_size);
-
 	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
-	ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(255, 0, 0, 255));
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+	ImGui::PushItemWidth(-1.0F);
+
+	const auto resolution_item_height = ImGui::GetTextLineHeightWithSpacing();
+	const auto resolutions_height_in_items = resolutions_size.y / resolution_item_height;
+
+	auto& display_modes = launcher.get_display_modes();
+
 	ImGui::ListBox(
 		"##resolutions",
-		&selected_resolution_index,
-		&DisplaySettingsWindow::im_strings_items_getter,
-		&display_mode_strings_,
-		static_cast<int>(display_mode_strings_.size()));
+		&last_selected_resolution_index_,
+		&DisplaySettingsWindow::im_display_modes_getter,
+		const_cast<Launcher::DisplayModes*>(&display_modes),
+		static_cast<int>(display_modes.size()),
+		static_cast<int>(resolutions_height_in_items));
 
+	ImGui::PopItemWidth();
 	ImGui::PopStyleColor();
 	ImGui::PopFont();
 
 	ImGui::EndChild();
+
 
 	// "Ok" button.
 	//
@@ -5379,12 +5426,21 @@ void DisplaySettingsWindow::do_draw()
 	//
 	if (is_close_button_clicked || is_cancel_button_clicked)
 	{
+		last_selected_resolution_index_ = selected_resolution_index_;
 		set_message_box_result(MessageBoxResult::cancel);
 		show(false);
 		get_message_box_result_event().notify(this);
 	}
 	else if (is_ok_button_clicked)
 	{
+		selected_resolution_index_ = last_selected_resolution_index_;
+
+		auto& configuration = Configuration::get_instance();
+		const auto& display_mode = display_modes[selected_resolution_index_];
+
+		configuration.screen_width_ = display_mode.width_;
+		configuration.screen_height_ = display_mode.height_;
+
 		set_message_box_result(MessageBoxResult::ok);
 		show(false);
 		get_message_box_result_event().notify(this);
@@ -6135,6 +6191,7 @@ void Launcher::initialize_display_modes()
 
 		display_mode.width_ = sdl_display_mode.w;
 		display_mode.height_ = sdl_display_mode.h;
+		display_mode.as_string_ = std::to_string(sdl_display_mode.w) + " x " + std::to_string(sdl_display_mode.h);
 	}
 }
 
