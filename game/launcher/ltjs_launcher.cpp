@@ -204,6 +204,8 @@ public:
 	static bool has_direct3d9();
 
 	static const std::string& get_renderer_name();
+
+	static const std::string& get_display_name();
 }; // Direct3d9
 
 
@@ -1112,6 +1114,13 @@ const std::string& Direct3d9::get_renderer_name()
 	static const auto renderer_name = std::string{"Direct3D 9"};
 
 	return renderer_name;
+}
+
+const std::string& Direct3d9::get_display_name()
+{
+	static const auto display_name = std::string{"Default"};
+
+	return display_name;
 }
 
 //
