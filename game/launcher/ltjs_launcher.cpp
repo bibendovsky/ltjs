@@ -813,6 +813,7 @@ private:
 	{
 		main_window,
 		display_settings_warning,
+		display_settings_no_renderers,
 		display_settings,
 	}; // State
 
@@ -830,6 +831,11 @@ private:
 	void uninitialize();
 
 	bool is_lithtech_executable_exists() const;
+
+	void attach_to_message_box_result_event(
+		const bool is_attach);
+
+	void handle_check_for_renderers();
 
 	void handle_message_box_result_event(
 		WindowPtr sender_window_ptr);
@@ -988,6 +994,8 @@ public:
 
 	const ResourceStrings& get_resource_strings() const;
 
+	bool has_direct_3d_9() const;
+
 	const DisplayMode& get_native_display_mode() const;
 
 	const DisplayModes& get_display_modes() const;
@@ -999,6 +1007,7 @@ public:
 
 private:
 	bool is_initialized_;
+	bool has_direct_3d_9_;
 	ResourceStrings resource_strings_;
 	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
@@ -4229,12 +4238,6 @@ bool MainWindow::initialize(
 	is_show_play_button_ = is_lithtech_executable_exists();
 	state_ = {};
 
-	auto& launcher = Launcher::get_instance();
-	auto message_box_window_ptr = launcher.get_message_box_window();
-	auto& message_box_result_event = message_box_window_ptr->get_message_box_result_event();
-
-	message_box_result_event += std::bind(&MainWindow::handle_message_box_result_event, this, std::placeholders::_1);
-
 	return true;
 }
 
@@ -4272,6 +4275,47 @@ bool MainWindow::is_lithtech_executable_exists() const
 	return true;
 }
 
+void MainWindow::attach_to_message_box_result_event(
+	const bool is_attach)
+{
+	const auto func = std::bind(&MainWindow::handle_message_box_result_event, this, std::placeholders::_1);
+
+	auto& launcher = Launcher::get_instance();
+	auto message_box_window_ptr = launcher.get_message_box_window();
+	auto& message_box_result_event = message_box_window_ptr->get_message_box_result_event();
+
+	if (is_attach)
+	{
+		message_box_result_event += func;
+	}
+	else
+	{
+		message_box_result_event -= func;
+	}
+}
+
+void MainWindow::handle_check_for_renderers()
+{
+	auto& launcher = Launcher::get_instance();
+	auto message_box_window_ptr = launcher.get_message_box_window();
+
+	if (launcher.has_direct_3d_9())
+	{
+		// TODO
+		state_ = State::main_window;
+		attach_to_message_box_result_event(false);
+	}
+	else
+	{
+		state_ = State::display_settings_no_renderers;
+
+		const auto& resource_strings = launcher.get_resource_strings();
+		const auto& message = resource_strings.get(Launcher::IDS_NORENS, "IDS_NORENS");
+
+		message_box_window_ptr->show(MessageBoxType::error, MessageBoxButtons::ok, message);
+	}
+}
+
 void MainWindow::handle_message_box_result_event(
 	WindowPtr sender_window_ptr)
 {
@@ -4281,7 +4325,9 @@ void MainWindow::handle_message_box_result_event(
 	switch (state_)
 	{
 	case State::display_settings:
+	case State::display_settings_no_renderers:
 		state_ = State::main_window;
+		attach_to_message_box_result_event(false);
 		show(true);
 		break;
 
@@ -4296,13 +4342,15 @@ void MainWindow::handle_message_box_result_event(
 			configuration.is_warned_about_display_ = true;
 
 			show(true);
+
+			handle_check_for_renderers();
 		}
 
 		break;
 	}
 
 	default:
-		break;
+		throw "Invalid state.";
 	}
 }
 
@@ -4918,6 +4966,8 @@ void MainWindow::do_draw()
 
 	if (is_display_button_clicked)
 	{
+		attach_to_message_box_result_event(true);
+
 		if (!configuration.is_warned_about_display_)
 		{
 			state_ = State::display_settings_warning;
@@ -4925,10 +4975,13 @@ void MainWindow::do_draw()
 			const auto& message = resource_strings.get(Launcher::IDS_DISPLAY_WARNING, "IDS_DISPLAY_WARNING");
 
 			auto message_box_window_ptr = launcher.get_message_box_window();
-
 			message_box_window_ptr->show(MessageBoxType::warning, MessageBoxButtons::ok_cancel, message);
 
 			return;
+		}
+		else
+		{
+			handle_check_for_renderers();
 		}
 	}
 }
@@ -5109,6 +5162,7 @@ std::string Launcher::launcher_commands_file_name = "launchcmds.txt";
 Launcher::Launcher()
 	:
 	is_initialized_{},
+	has_direct_3d_9_{},
 	resource_strings_{},
 	message_box_window_uptr_{},
 	main_window_uptr_{},
@@ -5121,6 +5175,7 @@ Launcher::Launcher(
 	Launcher&& rhs)
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
+	has_direct_3d_9_{std::move(rhs.has_direct_3d_9_)},
 	resource_strings_{std::move(rhs.resource_strings_)},
 	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)},
@@ -5158,7 +5213,12 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		initialize_display_modes();
+		has_direct_3d_9_ = Direct3d9::has_direct3d9();
+
+		if (has_direct_3d_9_)
+		{
+			initialize_display_modes();
+		}
 	}
 
 	if (is_succeed)
@@ -5321,6 +5381,7 @@ bool Launcher::initialize()
 void Launcher::uninitialize()
 {
 	is_initialized_ = false;
+	has_direct_3d_9_ = false;
 
 
 	resource_strings_.uninitialize();
@@ -5427,6 +5488,11 @@ void Launcher::show_message_box(
 const ResourceStrings& Launcher::get_resource_strings() const
 {
 	return resource_strings_;
+}
+
+bool Launcher::has_direct_3d_9() const
+{
+	return has_direct_3d_9_;
 }
 
 const DisplayMode& Launcher::get_native_display_mode() const
