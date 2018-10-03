@@ -604,6 +604,9 @@ private:
 }; // SystemCursors
 
 
+class WindowEvent;
+using WindowEventPtr = WindowEvent*;
+
 class WindowEvent final
 {
 public:
@@ -811,12 +814,18 @@ private:
 
 	static const std::string lithtech_executable;
 
+	enum class AttachPoint
+	{
+		message_box,
+		display_settings,
+	}; // AttachPoint
+
 	enum class State
 	{
 		main_window,
 		display_settings_warning,
 		display_settings_no_renderers,
-		display_settings,
+		display_settings_window,
 	}; // State
 
 
@@ -834,10 +843,11 @@ private:
 
 	bool is_lithtech_executable_exists() const;
 
-	void attach_to_message_box_result_event(
-		const bool is_attach);
-
 	void handle_check_for_renderers();
+
+	void attach_to_message_box_result_event(
+		const bool is_attach,
+		const AttachPoint attach_point);
 
 	void handle_message_box_result_event(
 		WindowPtr sender_window_ptr);
@@ -845,6 +855,49 @@ private:
 
 	void do_draw() override;
 }; // MainWindow
+
+
+class DisplaySettingsWindow;
+using DisplaySettingsWindowPtr = DisplaySettingsWindow*;
+using DisplaySettingsWindowUPtr = std::unique_ptr<DisplaySettingsWindow>;
+
+class DisplaySettingsWindow final :
+	public Window
+{
+public:
+	~DisplaySettingsWindow() override;
+
+
+	static DisplaySettingsWindowPtr create();
+
+
+private:
+	static constexpr auto window_width = 600;
+	static constexpr auto window_height = 394;
+
+
+	using Strings = std::vector<std::string>;
+
+
+	Strings display_mode_strings_;
+
+
+	DisplaySettingsWindow();
+
+
+	bool initialize(
+		const WindowCreateParam& param);
+
+	void uninitialize();
+
+	static bool im_strings_items_getter(
+		void* data,
+		const int idx,
+		const char** out_text);
+
+
+	void do_draw() override;
+}; // DisplaySettingsWindow
 
 
 class WindowManager final
@@ -1006,6 +1059,8 @@ public:
 
 	MainWindowPtr get_main_window();
 
+	DisplaySettingsWindowPtr get_display_settings_window();
+
 
 private:
 	bool is_initialized_;
@@ -1013,6 +1068,7 @@ private:
 	ResourceStrings resource_strings_;
 	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
+	DisplaySettingsWindowUPtr display_settings_window_uptr_;
 	DisplayModes display_modes_;
 	DisplayMode native_display_mode_;
 	WindowEvent message_box_result_event_;
@@ -3821,7 +3877,7 @@ MessageBoxWindowPtr MessageBoxWindow::create()
 	message_box_window_param.height_ = static_cast<int>(window_height * scale);
 	message_box_window_param.is_hidden_ = true;
 
-	auto message_box_window_ptr = new MessageBoxWindow();
+	auto message_box_window_ptr = new MessageBoxWindow{};
 
 	static_cast<void>(message_box_window_ptr->initialize(message_box_window_param));
 
@@ -4229,7 +4285,7 @@ MainWindowPtr MainWindow::create()
 	main_window_param.height_ = static_cast<int>(window_height * scale);
 	main_window_param.is_hidden_ = true;
 
-	auto main_window_ptr = new MainWindow();
+	auto main_window_ptr = new MainWindow{};
 
 	static_cast<void>(main_window_ptr->initialize(main_window_param));
 
@@ -4284,35 +4340,18 @@ bool MainWindow::is_lithtech_executable_exists() const
 	return true;
 }
 
-void MainWindow::attach_to_message_box_result_event(
-	const bool is_attach)
-{
-	const auto func = std::bind(&MainWindow::handle_message_box_result_event, this, std::placeholders::_1);
-
-	auto& launcher = Launcher::get_instance();
-	auto message_box_window_ptr = launcher.get_message_box_window();
-	auto& message_box_result_event = message_box_window_ptr->get_message_box_result_event();
-
-	if (is_attach)
-	{
-		message_box_result_event += func;
-	}
-	else
-	{
-		message_box_result_event -= func;
-	}
-}
-
 void MainWindow::handle_check_for_renderers()
 {
 	auto& launcher = Launcher::get_instance();
-	auto message_box_window_ptr = launcher.get_message_box_window();
 
 	if (launcher.has_direct_3d_9())
 	{
-		// TODO
-		state_ = State::main_window;
-		attach_to_message_box_result_event(false);
+		state_ = State::display_settings_window;
+		attach_to_message_box_result_event(false, AttachPoint::message_box);
+		attach_to_message_box_result_event(true, AttachPoint::display_settings);
+
+		auto display_settings_window_ptr = launcher.get_display_settings_window();
+		display_settings_window_ptr->show(true);
 	}
 	else
 	{
@@ -4321,7 +4360,45 @@ void MainWindow::handle_check_for_renderers()
 		const auto& resource_strings = launcher.get_resource_strings();
 		const auto& message = resource_strings.get(Launcher::IDS_NORENS, "IDS_NORENS");
 
+		auto message_box_window_ptr = launcher.get_message_box_window();
 		message_box_window_ptr->show(MessageBoxType::error, MessageBoxButtons::ok, message);
+	}
+}
+
+void MainWindow::attach_to_message_box_result_event(
+	const bool is_attach,
+	const AttachPoint attach_point)
+{
+	const auto func = std::bind(&MainWindow::handle_message_box_result_event, this, std::placeholders::_1);
+
+	auto& launcher = Launcher::get_instance();
+	auto window_ptr = WindowPtr{};
+	auto event_ptr = WindowEventPtr{};
+
+	switch (attach_point)
+	{
+	case AttachPoint::message_box:
+		window_ptr = launcher.get_message_box_window();
+		break;
+
+	case AttachPoint::display_settings:
+		window_ptr = launcher.get_display_settings_window();
+		event_ptr = &window_ptr->get_message_box_result_event();
+		break;
+
+	default:
+		throw "Invalid attach point.";
+	}
+
+	auto& e = window_ptr->get_message_box_result_event();
+
+	if (is_attach)
+	{
+		e += func;
+	}
+	else
+	{
+		e -= func;
 	}
 }
 
@@ -4333,10 +4410,15 @@ void MainWindow::handle_message_box_result_event(
 
 	switch (state_)
 	{
-	case State::display_settings:
+	case State::display_settings_window:
+		state_ = State::main_window;
+		attach_to_message_box_result_event(false, AttachPoint::display_settings);
+		show(true);
+		break;
+
 	case State::display_settings_no_renderers:
 		state_ = State::main_window;
-		attach_to_message_box_result_event(false);
+		attach_to_message_box_result_event(false, AttachPoint::message_box);
 		show(true);
 		break;
 
@@ -4975,7 +5057,7 @@ void MainWindow::do_draw()
 
 	if (is_display_button_clicked)
 	{
-		attach_to_message_box_result_event(true);
+		attach_to_message_box_result_event(true, AttachPoint::message_box);
 
 		if (!configuration.is_warned_about_display_)
 		{
@@ -4999,6 +5081,319 @@ void MainWindow::do_draw()
 // MainWindow
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// DisplaySettingsWindow
+//
+
+DisplaySettingsWindow::DisplaySettingsWindow()
+{
+}
+
+DisplaySettingsWindow::~DisplaySettingsWindow()
+{
+}
+
+DisplaySettingsWindowPtr DisplaySettingsWindow::create()
+{
+	const auto& window_manager = WindowManager::get_instance();
+	const auto scale = window_manager.get_scale();
+
+	auto display_settings_window_param = WindowCreateParam{};
+	display_settings_window_param.title_ = "display_settings";
+	display_settings_window_param.width_ = static_cast<int>(window_width * scale);
+	display_settings_window_param.height_ = static_cast<int>(window_height * scale);
+	display_settings_window_param.is_hidden_ = true;
+
+	auto display_settings_window_ptr = new DisplaySettingsWindow{};
+
+	static_cast<void>(display_settings_window_ptr->initialize(display_settings_window_param));
+
+	return display_settings_window_ptr;
+}
+
+bool DisplaySettingsWindow::initialize(
+	const WindowCreateParam& param)
+{
+	if (!Window::initialize(param))
+	{
+		return false;
+	}
+
+	set_message_box_result(MessageBoxResult::cancel);
+
+
+	display_mode_strings_ = {};
+
+	const auto& launcher = Launcher::get_instance();
+
+	for (const auto& display_mode : launcher.get_display_modes())
+	{
+		display_mode_strings_.emplace_back(
+			std::to_string(display_mode.width_) + " x " + std::to_string(display_mode.height_));
+	}
+
+	return true;
+}
+
+void DisplaySettingsWindow::uninitialize()
+{
+}
+
+bool DisplaySettingsWindow::im_strings_items_getter(
+	void* data,
+	const int idx,
+	const char** out_text)
+{
+	const auto& strings = *static_cast<Strings*>(data);
+
+	const auto& string = strings[idx];
+
+	if (string.empty())
+	{
+		return false;
+	}
+
+	*out_text = string.c_str();
+
+	return true;
+}
+
+void DisplaySettingsWindow::do_draw()
+{
+	const auto& window_manager = WindowManager::get_instance();
+	auto& font_manager = FontManager::get_instance();
+
+	const auto scale = window_manager.get_scale();
+
+	auto& ogl_texture_manager = OglTextureManager::get_instance();
+
+	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
+	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
+
+	const auto mouse_pos = ImGui::GetMousePos();
+
+
+	// Begin main window.
+	//
+	const auto main_flags =
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_None;
+
+	ImGui::Begin("display_settings", nullptr, main_flags);
+	ImGui::SetWindowPos({}, ImGuiCond_Always);
+
+	ImGui::SetWindowSize(
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ImGuiCond_Always);
+
+
+	// Background.
+	//
+	ImGui::SetCursorPos(ImVec2{});
+
+	const auto& ogl_displaybackground_texture = ogl_texture_manager.get(ImageId::displaybackground);
+
+	ImGui::Image(
+		ogl_displaybackground_texture.get_im_texture_id(),
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ogl_displaybackground_texture.uv0_,
+		ogl_displaybackground_texture.uv1_);
+
+
+	// Close button.
+	//
+	const auto close_pos = ImVec2{578.0F, 6.0F} * scale;
+	const auto close_size = ImVec2{16.0F, 14.0F} * scale;
+	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
+
+	auto is_close_mouse_button_down = false;
+	auto is_close_button_clicked = false;
+
+	if (is_mouse_button_down || is_mouse_button_up)
+	{
+		if (is_point_inside_rect(mouse_pos, close_rect))
+		{
+			if (is_mouse_button_down)
+			{
+				is_close_mouse_button_down = true;
+			}
+
+			if (is_mouse_button_up)
+			{
+				is_close_button_clicked = true;
+			}
+		}
+	}
+
+	const auto ogl_close_image_id = (is_close_mouse_button_down ? ImageId::closed : ImageId::closeu);
+	const auto& ogl_close_texture = ogl_texture_manager.get(ogl_close_image_id);
+
+	ImGui::SetCursorPos(close_pos);
+
+	ImGui::Image(
+		ogl_close_texture.get_im_texture_id(),
+		close_size,
+		ogl_close_texture.uv0_,
+		ogl_close_texture.uv1_);
+
+
+	// Resolutions list.
+	//
+	auto resolutions_pos = ImVec2{16.0F, 73.0F} * scale;
+	const auto resolutions_size = ImVec2{133.0F, 248.0F} * scale;
+	const auto resolutions_rect = ImVec4{resolutions_pos.x, resolutions_pos.y, resolutions_size.x, resolutions_size.y};
+
+	auto selected_resolution_index = 0;
+
+	ImGui::SetCursorPos(resolutions_pos);
+
+	ImGui::BeginChild("resolutions", resolutions_size);
+
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(255, 0, 0, 255));
+	ImGui::ListBox(
+		"##resolutions",
+		&selected_resolution_index,
+		&DisplaySettingsWindow::im_strings_items_getter,
+		&display_mode_strings_,
+		static_cast<int>(display_mode_strings_.size()));
+
+	ImGui::PopStyleColor();
+	ImGui::PopFont();
+
+	ImGui::EndChild();
+
+	// "Ok" button.
+	//
+	auto ok_pos = ImVec2{194.0F, 349.0F} * scale;
+	const auto ok_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
+
+	auto is_ok_mouse_button_down = false;
+	auto is_ok_button_clicked = false;
+
+	const auto is_ok_button_hightlighted = is_point_inside_rect(mouse_pos, ok_rect);
+
+	if (is_ok_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_ok_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_ok_button_clicked = true;
+		}
+	}
+
+	auto ogl_ok_image_id = ImageId{};
+
+	if (is_ok_mouse_button_down)
+	{
+		ogl_ok_image_id = ImageId::okd;
+	}
+	else if (is_ok_button_hightlighted)
+	{
+		ogl_ok_image_id = ImageId::okf;
+	}
+	else
+	{
+		ogl_ok_image_id = ImageId::oku;
+	}
+
+	const auto& ogl_ok_texture = ogl_texture_manager.get(ogl_ok_image_id);
+
+	ImGui::SetCursorPos(ok_pos);
+
+	ImGui::Image(
+		ogl_ok_texture.get_im_texture_id(),
+		ok_size,
+		ogl_ok_texture.uv0_,
+		ogl_ok_texture.uv1_);
+
+
+	// "Cancel" button.
+	//
+	const auto cancel_pos = ImVec2{306.0F, 349.0F} * scale;
+	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
+
+	auto is_cancel_button_clicked = false;
+	auto is_cancel_mouse_button_down = false;
+
+	const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
+
+	if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_cancel_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_cancel_button_clicked = true;
+		}
+	}
+
+	auto ogl_cancel_image_id = ImageId{};
+
+	if (is_cancel_mouse_button_down)
+	{
+		ogl_cancel_image_id = ImageId::canceld;
+	}
+	else if (is_cancel_button_hightlighted)
+	{
+		ogl_cancel_image_id = ImageId::cancelf;
+	}
+	else
+	{
+		ogl_cancel_image_id = ImageId::cancelu;
+	}
+
+	const auto& ogl_cancel_texture = ogl_texture_manager.get(ogl_cancel_image_id);
+
+	ImGui::SetCursorPos(cancel_pos);
+
+	ImGui::Image(
+		ogl_cancel_texture.get_im_texture_id(),
+		cancel_size,
+		ogl_cancel_texture.uv0_,
+		ogl_cancel_texture.uv1_);
+
+
+	// End display settings window.
+	//
+	ImGui::End();
+
+
+	// Handle events.
+	//
+	if (is_close_button_clicked || is_cancel_button_clicked)
+	{
+		set_message_box_result(MessageBoxResult::cancel);
+		show(false);
+		get_message_box_result_event().notify(this);
+	}
+	else if (is_ok_button_clicked)
+	{
+		set_message_box_result(MessageBoxResult::ok);
+		show(false);
+		get_message_box_result_event().notify(this);
+	}
+}
+
+//
+// DisplaySettingsWindow
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // WindowManager
@@ -5175,6 +5570,7 @@ Launcher::Launcher()
 	resource_strings_{},
 	message_box_window_uptr_{},
 	main_window_uptr_{},
+	display_settings_window_uptr_{},
 	display_modes_{},
 	native_display_mode_{}
 {
@@ -5188,6 +5584,7 @@ Launcher::Launcher(
 	resource_strings_{std::move(rhs.resource_strings_)},
 	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)},
+	display_settings_window_uptr_{std::move(rhs.display_settings_window_uptr_)},
 	display_modes_{std::move(rhs.display_modes_)},
 	native_display_mode_{std::move(rhs.native_display_mode_)}
 {
@@ -5360,6 +5757,17 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		display_settings_window_uptr_.reset(DisplaySettingsWindow::create());
+
+		if (!display_settings_window_uptr_->is_initialized())
+		{
+			is_succeed = false;
+			set_error_message("Failed to initialize display settings window. " + display_settings_window_uptr_->get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
 		const auto& title = resource_strings_.get(IDS_APPNAME, "IDS_APPNAME");
 
 		message_box_window_uptr_->set_title(title);
@@ -5396,6 +5804,7 @@ void Launcher::uninitialize()
 	resource_strings_.uninitialize();
 	message_box_window_uptr_ = {};
 	main_window_uptr_ = {};
+	display_settings_window_uptr_ = {};
 
 
 	// WindowManager
@@ -5447,12 +5856,13 @@ void Launcher::run()
 
 	message_box_window_uptr_->show(false);
 	main_window_uptr_->show(true);
+	display_settings_window_uptr_->show(false);
 
 	auto frequency = ::SDL_GetPerformanceFrequency();
 
 	auto& window_manager = WindowManager::get_instance();
 
-	const Uint64 max_delay_ms = 1000;
+	const Uint64 max_delay_ms = 100;
 	const Uint64 delay_bias_ms = 5;
 	const Uint64 target_fps = 60;
 	const Uint64 target_delay_ms = 1000 / target_fps;
@@ -5522,6 +5932,11 @@ MessageBoxWindowPtr Launcher::get_message_box_window()
 MainWindowPtr Launcher::get_main_window()
 {
 	return main_window_uptr_.get();
+}
+
+DisplaySettingsWindowPtr Launcher::get_display_settings_window()
+{
+	return display_settings_window_uptr_.get();
 }
 
 bool Launcher::initialize_ogl_functions()
