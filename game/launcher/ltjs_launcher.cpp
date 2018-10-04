@@ -216,6 +216,7 @@ public:
 		return &current_value_;
 	}
 
+
 	void accept()
 	{
 		accepted_value_ = current_value_;
@@ -266,6 +267,59 @@ public:
 
 	static const std::string& get_display_name();
 }; // Direct3d9
+
+
+class DisplayModeManager
+{
+public:
+	static constexpr auto min_display_mode_width = 640;
+	static constexpr auto min_display_mode_height = 480;
+
+
+	using DisplayModes = std::vector<DisplayMode>;
+
+
+	static DisplayModeManager& get_instance();
+
+
+	void initialize();
+
+	int get_count() const;
+
+	const DisplayModes& get() const;
+
+	const DisplayMode& get(
+		const int index) const;
+
+	const DisplayMode& get_native() const;
+
+	int get_mode_index(
+		const int width,
+		const int height) const;
+
+	int get_native_display_mode_index() const;
+
+
+private:
+	DisplayModes display_modes_;
+	DisplayMode native_display_mode_;
+	int native_display_mode_index_;
+
+
+	DisplayModeManager();
+
+	DisplayModeManager(
+		DisplayModeManager&& rhs);
+
+	~DisplayModeManager();
+
+
+	void uninitialize();
+
+
+	static bool sdl_is_pixel_format_valid(
+		const Uint32 sdl_pixel_format);
+}; // DisplayModeManager
 
 
 class Configuration final :
@@ -1013,12 +1067,6 @@ class Launcher final :
 	public Base
 {
 public:
-	using DisplayModes = std::vector<DisplayMode>;
-
-
-	static constexpr auto min_display_mode_width = 640;
-	static constexpr auto min_display_mode_height = 480;
-
 	// Resource strings identifiers.
 	//
 
@@ -1110,10 +1158,6 @@ public:
 
 	bool has_direct_3d_9() const;
 
-	const DisplayMode& get_native_display_mode() const;
-
-	const DisplayModes& get_display_modes() const;
-
 	MessageBoxWindowPtr get_message_box_window();
 
 	MainWindowPtr get_main_window();
@@ -1128,8 +1172,6 @@ private:
 	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
 	DisplaySettingsWindowUPtr display_settings_window_uptr_;
-	DisplayModes display_modes_;
-	DisplayMode native_display_mode_;
 	WindowEvent message_box_result_event_;
 
 
@@ -1142,10 +1184,6 @@ private:
 	void uninitialize_sdl();
 
 	bool initialize_sdl();
-
-	void initialize_display_modes();
-
-	void uninitialize_display_modes();
 }; // Launcher
 
 //
@@ -1240,6 +1278,206 @@ const std::string& Direct3d9::get_display_name()
 
 //
 // Direct3d9
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// DisplayModeManager
+//
+
+DisplayModeManager::DisplayModeManager()
+	:
+	display_modes_{},
+	native_display_mode_{},
+	native_display_mode_index_{}
+{
+}
+
+DisplayModeManager::DisplayModeManager(
+	DisplayModeManager&& rhs)
+	:
+	display_modes_{std::move(rhs.display_modes_)},
+	native_display_mode_{std::move(rhs.native_display_mode_)},
+	native_display_mode_index_{std::move(rhs.native_display_mode_index_)}
+{
+}
+
+DisplayModeManager::~DisplayModeManager()
+{
+}
+
+DisplayModeManager& DisplayModeManager::get_instance()
+{
+	static auto display_mode_manager = DisplayModeManager{};
+
+	return display_mode_manager;
+}
+
+void DisplayModeManager::initialize()
+{
+	uninitialize();
+
+
+	const auto mode_count = ::SDL_GetNumDisplayModes(0);
+
+	if (mode_count == 0)
+	{
+		return;
+	}
+
+	auto sdl_result = 0;
+
+	auto sdl_native_display_mode = SDL_DisplayMode{};
+	auto native_display_mode = DisplayMode{};
+
+	sdl_result = ::SDL_GetCurrentDisplayMode(0, &sdl_native_display_mode);
+
+	if (sdl_result == 0)
+	{
+		if (!sdl_is_pixel_format_valid(sdl_native_display_mode.format))
+		{
+			return;
+		}
+
+		native_display_mode.width_ = sdl_native_display_mode.w;
+		native_display_mode.height_ = sdl_native_display_mode.h;
+	}
+
+	auto display_modes = DisplayModes{};
+	display_modes.reserve(mode_count);
+
+	auto native_display_mode_index = -1;
+
+	for (auto i = 0; i < mode_count; ++i)
+	{
+		auto sdl_display_mode = SDL_DisplayMode{};
+
+		sdl_result = ::SDL_GetDisplayMode(0, i, &sdl_display_mode);
+
+		if (sdl_result)
+		{
+			continue;
+		}
+
+		if (!sdl_is_pixel_format_valid(sdl_display_mode.format))
+		{
+			continue;
+		}
+
+		if (sdl_display_mode.w < min_display_mode_width ||
+			sdl_display_mode.h < min_display_mode_height)
+		{
+			continue;
+		}
+
+		auto item_it = std::find_if(
+			display_modes.cbegin(),
+			display_modes.cend(),
+			[&](const auto& item)
+			{
+				return item.width_ == sdl_display_mode.w && item.height_ == sdl_display_mode.h;
+			}
+		);
+
+		if (item_it != display_modes.cend())
+		{
+			continue;
+		}
+
+		display_modes.emplace_back();
+		auto& display_mode = display_modes.back();
+
+		display_mode.width_ = sdl_display_mode.w;
+		display_mode.height_ = sdl_display_mode.h;
+		display_mode.as_string_ = std::to_string(sdl_display_mode.w) + " x " + std::to_string(sdl_display_mode.h);
+
+		if (display_mode.width_ == native_display_mode.width_ &&
+			display_mode.height_ == native_display_mode.height_)
+		{
+			native_display_mode_index = static_cast<int>(display_modes.size());
+		}
+	}
+
+	native_display_mode_ = native_display_mode;
+	display_modes_ = display_modes;
+	native_display_mode_index_ = native_display_mode_index;
+}
+
+int DisplayModeManager::get_count() const
+{
+	return static_cast<int>(display_modes_.size());
+}
+
+const DisplayModeManager::DisplayModes& DisplayModeManager::get() const
+{
+	return display_modes_;
+}
+
+const DisplayMode& DisplayModeManager::get(
+	const int index) const
+{
+	return display_modes_[index];
+}
+
+const DisplayMode& DisplayModeManager::get_native() const
+{
+	return native_display_mode_;
+}
+
+int DisplayModeManager::get_mode_index(
+	const int width,
+	const int height) const
+{
+	if (width <= 0 || height <= 0)
+	{
+		return -1;
+	}
+
+	const auto display_mode_begin_it = display_modes_.cbegin();
+	const auto display_mode_end_it = display_modes_.cend();
+
+	auto display_mode_it = std::find_if(
+		display_mode_begin_it,
+		display_mode_end_it,
+		[&](const auto& item)
+		{
+			return item.width_ == width && item.height_ == height;
+		}
+	);
+
+	if (display_mode_it == display_mode_end_it)
+	{
+		return -1;
+	}
+
+	const auto index = display_mode_it - display_mode_begin_it;
+
+	return index;
+}
+
+int DisplayModeManager::get_native_display_mode_index() const
+{
+	return native_display_mode_index_;
+}
+
+void DisplayModeManager::uninitialize()
+{
+	display_modes_ = {};
+	native_display_mode_ = {};
+	native_display_mode_index_ = -1;
+}
+
+bool DisplayModeManager::sdl_is_pixel_format_valid(
+	const Uint32 sdl_pixel_format)
+{
+	return
+		((SDL_BITSPERPIXEL(sdl_pixel_format) == 24 ||
+		SDL_BITSPERPIXEL(sdl_pixel_format) == 32) &&
+		!SDL_ISPIXELFORMAT_INDEXED(sdl_pixel_format) ||
+		!SDL_ISPIXELFORMAT_ALPHA(sdl_pixel_format));
+}
+//
+// DisplayModeManager
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -5181,55 +5419,16 @@ bool DisplaySettingsWindow::initialize(
 
 	set_message_box_result(MessageBoxResult::cancel);
 
-	selected_resolution_index_ = -1;
 
-	const auto& launcher = Launcher::get_instance();
-	const auto& display_modes = launcher.get_display_modes();
-	const auto& native_display_mode = launcher.get_native_display_mode();
+	const auto& display_mode_manager = DisplayModeManager::get_instance();
 
 	auto& configuration = Configuration::get_instance();
 
-	const auto display_mode_begin_it = display_modes.cbegin();
-	const auto display_mode_end_it = display_modes.cend();
-
-	auto display_mode_it = std::find_if(
-		display_mode_begin_it,
-		display_mode_end_it,
-		[&](const auto& item)
-		{
-			return
-				item.width_ == configuration.screen_width_ &&
-				item.height_ == configuration.screen_height_;
-		}
-	);
-
-	if (display_mode_it != display_mode_end_it)
-	{
-		selected_resolution_index_ = static_cast<int>(display_mode_it - display_mode_begin_it);
-	}
+	selected_resolution_index_ = display_mode_manager.get_mode_index(configuration.screen_width_, configuration.screen_height_);
 
 	if (selected_resolution_index_ < 0)
 	{
-		display_mode_it = std::find_if(
-			display_mode_begin_it,
-			display_mode_end_it,
-			[&](const auto& item)
-			{
-				return
-					item.width_ == native_display_mode.width_ &&
-					item.height_ == native_display_mode.height_;
-			}
-		);
-
-		if (display_mode_it != display_mode_end_it)
-		{
-			selected_resolution_index_ = static_cast<int>(display_mode_it - display_mode_begin_it);
-		}
-	}
-
-	if (selected_resolution_index_ < 0)
-	{
-		selected_resolution_index_ = 0;
+		selected_resolution_index_ = display_mode_manager.get_native_display_mode_index();
 	}
 
 	selected_resolution_index_.accept();
@@ -5246,7 +5445,7 @@ bool DisplaySettingsWindow::im_display_modes_getter(
 	const int idx,
 	const char** out_text)
 {
-	const auto& display_modes = *static_cast<Launcher::DisplayModes*>(data);
+	const auto& display_modes = *static_cast<DisplayModeManager::DisplayModes*>(data);
 	const auto& display_mode = display_modes[idx];
 
 	*out_text = display_mode.as_string_.c_str();
@@ -5256,7 +5455,7 @@ bool DisplaySettingsWindow::im_display_modes_getter(
 
 void DisplaySettingsWindow::do_draw()
 {
-	auto& launcher = Launcher::get_instance();
+	const auto& display_mode_manager = DisplayModeManager::get_instance();
 
 	const auto& window_manager = WindowManager::get_instance();
 	auto& font_manager = FontManager::get_instance();
@@ -5269,6 +5468,11 @@ void DisplaySettingsWindow::do_draw()
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
 
 	const auto mouse_pos = ImGui::GetMousePos();
+
+	const auto has_display_modes = (
+		selected_resolution_index_ >= 0 &&
+		display_mode_manager.get_count() > 0 &&
+		display_mode_manager.get_native_display_mode_index() >= 0);
 
 
 	// Begin main window.
@@ -5343,109 +5547,118 @@ void DisplaySettingsWindow::do_draw()
 
 	// Resolutions list.
 	//
-	const auto resolutions_pos = ImVec2{16.0F, 73.0F} * scale;
-	const auto resolutions_size = ImVec2{133.0F, 248.0F} * scale;
-	const auto resolutions_rect = ImVec4{resolutions_pos.x, resolutions_pos.y, resolutions_size.x, resolutions_size.y};
+	if (has_display_modes)
+	{
+		const auto resolutions_pos = ImVec2{16.0F, 73.0F} * scale;
+		const auto resolutions_size = ImVec2{133.0F, 248.0F} * scale;
+		const auto resolutions_rect = ImVec4{resolutions_pos.x, resolutions_pos.y, resolutions_size.x, resolutions_size.y};
 
-	ImGui::SetCursorPos(resolutions_pos);
+		ImGui::SetCursorPos(resolutions_pos);
 
-	ImGui::BeginChild("resolutions", resolutions_size);
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
-	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
-	ImGui::PushItemWidth(-1.0F);
+		ImGui::BeginChild("resolutions", resolutions_size);
+		ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+		ImGui::PushItemWidth(-1.0F);
 
-	const auto resolutions_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
-	const auto resolutions_height_in_items = resolutions_size.y / resolutions_list_box_item_height;
+		const auto resolutions_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
+		const auto resolutions_height_in_items = resolutions_size.y / resolutions_list_box_item_height;
 
-	auto& display_modes = launcher.get_display_modes();
+		const auto& display_modes = display_mode_manager.get();
 
-	ImGui::ListBox(
-		"##resolutions",
-		selected_resolution_index_,
-		&DisplaySettingsWindow::im_display_modes_getter,
-		const_cast<Launcher::DisplayModes*>(&display_modes),
-		static_cast<int>(display_modes.size()),
-		static_cast<int>(resolutions_height_in_items));
+		ImGui::ListBox(
+			"##resolutions",
+			selected_resolution_index_,
+			&DisplaySettingsWindow::im_display_modes_getter,
+			const_cast<DisplayModeManager::DisplayModes*>(&display_modes),
+			static_cast<int>(display_modes.size()),
+			static_cast<int>(resolutions_height_in_items));
 
-	ImGui::PopItemWidth();
-	ImGui::PopStyleColor();
-	ImGui::PopFont();
+		ImGui::PopItemWidth();
+		ImGui::PopStyleColor();
+		ImGui::PopFont();
 
-	ImGui::EndChild();
+		ImGui::EndChild();
+	}
 
 
 	// Renderers list.
 	//
-	const auto renderers_pos = ImVec2{181.0F, 73.0F} * scale;
-	const auto renderers_size = ImVec2{405.0F, 106.0F} * scale;
-	const auto renderers_rect = ImVec4{renderers_pos.x, renderers_pos.y, renderers_size.x, renderers_size.y};
-
-	ImGui::SetCursorPos(renderers_pos);
-
-	ImGui::BeginChild("renderers", renderers_size);
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
-	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
-	ImGui::PushItemWidth(-1.0F);
-
-	const auto renderers_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
-	const auto renderers_height_in_items = renderers_size.y / renderers_list_box_item_height;
-
-	const char* const renderers_list[] =
+	if (has_display_modes)
 	{
-		Direct3d9::get_renderer_name().c_str(),
-	};
+		const auto renderers_pos = ImVec2{181.0F, 73.0F} * scale;
+		const auto renderers_size = ImVec2{405.0F, 106.0F} * scale;
+		const auto renderers_rect = ImVec4{renderers_pos.x, renderers_pos.y, renderers_size.x, renderers_size.y};
 
-	auto selected_renderer_index = 0;
+		ImGui::SetCursorPos(renderers_pos);
 
-	ImGui::ListBox(
-		"##renderers",
-		&selected_renderer_index,
-		renderers_list,
-		1,
-		static_cast<int>(renderers_height_in_items));
+		ImGui::BeginChild("renderers", renderers_size);
+		ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+		ImGui::PushItemWidth(-1.0F);
 
-	ImGui::PopItemWidth();
-	ImGui::PopStyleColor();
-	ImGui::PopFont();
+		const auto renderers_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
+		const auto renderers_height_in_items = renderers_size.y / renderers_list_box_item_height;
 
-	ImGui::EndChild();
+		const char* const renderers_list[] =
+		{
+			Direct3d9::get_renderer_name().c_str(),
+		};
+
+		auto selected_renderer_index = 0;
+
+		ImGui::ListBox(
+			"##renderers",
+			&selected_renderer_index,
+			renderers_list,
+			1,
+			static_cast<int>(renderers_height_in_items));
+
+		ImGui::PopItemWidth();
+		ImGui::PopStyleColor();
+		ImGui::PopFont();
+
+		ImGui::EndChild();
+	}
 
 
 	// Displays list.
 	//
-	const auto displays_pos = ImVec2{181.0F, 205.0F} * scale;
-	const auto displays_size = ImVec2{405.0F, 116.0F} * scale;
-	const auto displays_rect = ImVec4{displays_pos.x, displays_pos.y, displays_size.x, displays_size.y};
-
-	ImGui::SetCursorPos(displays_pos);
-
-	ImGui::BeginChild("displays", displays_size);
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
-	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
-	ImGui::PushItemWidth(-1.0F);
-
-	const auto displays_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
-	const auto displays_height_in_items = renderers_size.y / displays_list_box_item_height;
-
-	const char* const displays_list[] =
+	if (has_display_modes)
 	{
-		Direct3d9::get_display_name().c_str(),
-	};
+		const auto displays_pos = ImVec2{181.0F, 205.0F} * scale;
+		const auto displays_size = ImVec2{405.0F, 116.0F} * scale;
+		const auto displays_rect = ImVec4{displays_pos.x, displays_pos.y, displays_size.x, displays_size.y};
 
-	auto selected_displays_index = 0;
+		ImGui::SetCursorPos(displays_pos);
 
-	ImGui::ListBox(
-		"##displays",
-		&selected_displays_index,
-		displays_list,
-		1,
-		static_cast<int>(displays_height_in_items));
+		ImGui::BeginChild("displays", displays_size);
+		ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+		ImGui::PushItemWidth(-1.0F);
 
-	ImGui::PopItemWidth();
-	ImGui::PopStyleColor();
-	ImGui::PopFont();
+		const auto displays_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
+		const auto displays_height_in_items = displays_size.y / displays_list_box_item_height;
 
-	ImGui::EndChild();
+		const char* const displays_list[] =
+		{
+			Direct3d9::get_display_name().c_str(),
+		};
+
+		auto selected_displays_index = 0;
+
+		ImGui::ListBox(
+			"##displays",
+			&selected_displays_index,
+			displays_list,
+			1,
+			static_cast<int>(displays_height_in_items));
+
+		ImGui::PopItemWidth();
+		ImGui::PopStyleColor();
+		ImGui::PopFont();
+
+		ImGui::EndChild();
+	}
 
 
 	// "Ok" button.
@@ -5566,11 +5779,14 @@ void DisplaySettingsWindow::do_draw()
 	{
 		selected_resolution_index_.accept();
 
-		auto& configuration = Configuration::get_instance();
-		const auto& display_mode = display_modes[selected_resolution_index_];
+		if (has_display_modes)
+		{
+			auto& configuration = Configuration::get_instance();
+			const auto& display_mode = display_mode_manager.get(selected_resolution_index_);
 
-		configuration.screen_width_ = display_mode.width_;
-		configuration.screen_height_ = display_mode.height_;
+			configuration.screen_width_ = display_mode.width_;
+			configuration.screen_height_ = display_mode.height_;
+		}
 
 		set_message_box_result(MessageBoxResult::ok);
 		show(false);
@@ -5758,9 +5974,7 @@ Launcher::Launcher()
 	resource_strings_{},
 	message_box_window_uptr_{},
 	main_window_uptr_{},
-	display_settings_window_uptr_{},
-	display_modes_{},
-	native_display_mode_{}
+	display_settings_window_uptr_{}
 {
 }
 
@@ -5772,9 +5986,7 @@ Launcher::Launcher(
 	resource_strings_{std::move(rhs.resource_strings_)},
 	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)},
-	display_settings_window_uptr_{std::move(rhs.display_settings_window_uptr_)},
-	display_modes_{std::move(rhs.display_modes_)},
-	native_display_mode_{std::move(rhs.native_display_mode_)}
+	display_settings_window_uptr_{std::move(rhs.display_settings_window_uptr_)}
 {
 	rhs.is_initialized_ = false;
 }
@@ -5809,10 +6021,8 @@ bool Launcher::initialize()
 	{
 		has_direct_3d_9_ = Direct3d9::has_direct3d9();
 
-		if (has_direct_3d_9_)
-		{
-			initialize_display_modes();
-		}
+		auto& display_mode_manager = DisplayModeManager::get_instance();
+		display_mode_manager.initialize();
 	}
 
 	if (is_succeed)
@@ -6102,16 +6312,6 @@ bool Launcher::has_direct_3d_9() const
 	return has_direct_3d_9_;
 }
 
-const DisplayMode& Launcher::get_native_display_mode() const
-{
-	return native_display_mode_;
-}
-
-const Launcher::DisplayModes& Launcher::get_display_modes() const
-{
-	return display_modes_;
-}
-
 MessageBoxWindowPtr Launcher::get_message_box_window()
 {
 	return message_box_window_uptr_.get();
@@ -6246,91 +6446,6 @@ bool Launcher::initialize_sdl()
 	}
 
 	return is_succeed;
-}
-
-void Launcher::initialize_display_modes()
-{
-	const auto mode_count = ::SDL_GetNumDisplayModes(0);
-
-	if (mode_count == 0)
-	{
-		return;
-	}
-
-	auto sdl_result = 0;
-
-	auto sdl_native_display_mode = SDL_DisplayMode{};
-
-	sdl_result = ::SDL_GetCurrentDisplayMode(0, &sdl_native_display_mode);
-
-	if (sdl_result == 0)
-	{
-		if ((SDL_BITSPERPIXEL(sdl_native_display_mode.format) != 24 &&
-			SDL_BITSPERPIXEL(sdl_native_display_mode.format) != 32) ||
-			SDL_ISPIXELFORMAT_INDEXED(sdl_native_display_mode.format) ||
-			SDL_ISPIXELFORMAT_ALPHA(sdl_native_display_mode.format))
-		{
-			return;
-		}
-
-		native_display_mode_.width_ = sdl_native_display_mode.w;
-		native_display_mode_.height_ = sdl_native_display_mode.h;
-	}
-
-	display_modes_.reserve(mode_count);
-
-	for (auto i = 0; i < mode_count; ++i)
-	{
-		auto sdl_display_mode = SDL_DisplayMode{};
-
-		sdl_result = ::SDL_GetDisplayMode(0, i, &sdl_display_mode);
-
-		if (sdl_result)
-		{
-			continue;
-		}
-
-		if ((SDL_BITSPERPIXEL(sdl_display_mode.format) != 24 &&
-			SDL_BITSPERPIXEL(sdl_display_mode.format) != 32) ||
-			SDL_ISPIXELFORMAT_INDEXED(sdl_display_mode.format) ||
-			SDL_ISPIXELFORMAT_ALPHA(sdl_display_mode.format))
-		{
-			continue;
-		}
-
-		if (sdl_display_mode.w < min_display_mode_width ||
-			sdl_display_mode.h < min_display_mode_height)
-		{
-			continue;
-		}
-
-		auto item_it = std::find_if(
-			display_modes_.cbegin(),
-			display_modes_.cend(),
-			[&](const auto& item)
-			{
-				return item.width_ == sdl_display_mode.w && item.height_ == sdl_display_mode.h;
-			}
-		);
-
-		if (item_it != display_modes_.cend())
-		{
-			continue;
-		}
-
-		display_modes_.emplace_back();
-		auto& display_mode = display_modes_.back();
-
-		display_mode.width_ = sdl_display_mode.w;
-		display_mode.height_ = sdl_display_mode.h;
-		display_mode.as_string_ = std::to_string(sdl_display_mode.w) + " x " + std::to_string(sdl_display_mode.h);
-	}
-}
-
-void Launcher::uninitialize_display_modes()
-{
-	display_modes_ = {};
-	native_display_mode_ = {};
 }
 
 //
