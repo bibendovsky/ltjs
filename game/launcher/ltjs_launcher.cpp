@@ -175,6 +175,64 @@ struct DisplayMode
 }; // DisplayMode
 
 
+template<typename T>
+class SettingValue
+{
+public:
+	SettingValue()
+		:
+		accepted_value_{},
+		current_value_{}
+	{
+	}
+
+	SettingValue(
+		const T& accepted_value)
+		:
+		accepted_value_{accepted_value},
+		current_value_{accepted_value}
+	{
+	}
+
+
+	operator T&()
+	{
+		return current_value_;
+	}
+
+	operator const T&() const
+	{
+		return current_value_;
+	}
+
+
+	operator T*()
+	{
+		return &current_value_;
+	}
+
+	operator const T*() const
+	{
+		return &current_value_;
+	}
+
+	void accept()
+	{
+		accepted_value_ = current_value_;
+	}
+
+	void reject()
+	{
+		current_value_ = accepted_value_;
+	}
+
+
+private:
+	T accepted_value_;
+	T current_value_;
+}; // SettingValue
+
+
 class Base
 {
 public:
@@ -880,8 +938,7 @@ private:
 	using Strings = std::vector<std::string>;
 
 
-	int selected_resolution_index_;
-	int last_selected_resolution_index_;
+	SettingValue<int> selected_resolution_index_;
 
 
 	DisplaySettingsWindow();
@@ -5175,7 +5232,7 @@ bool DisplaySettingsWindow::initialize(
 		selected_resolution_index_ = 0;
 	}
 
-	last_selected_resolution_index_ = selected_resolution_index_;
+	selected_resolution_index_.accept();
 
 	return true;
 }
@@ -5304,7 +5361,7 @@ void DisplaySettingsWindow::do_draw()
 
 	ImGui::ListBox(
 		"##resolutions",
-		&last_selected_resolution_index_,
+		selected_resolution_index_,
 		&DisplaySettingsWindow::im_display_modes_getter,
 		const_cast<Launcher::DisplayModes*>(&display_modes),
 		static_cast<int>(display_modes.size()),
@@ -5500,14 +5557,14 @@ void DisplaySettingsWindow::do_draw()
 	//
 	if (is_close_button_clicked || is_cancel_button_clicked)
 	{
-		last_selected_resolution_index_ = selected_resolution_index_;
+		selected_resolution_index_.reject();
 		set_message_box_result(MessageBoxResult::cancel);
 		show(false);
 		get_message_box_result_event().notify(this);
 	}
 	else if (is_ok_button_clicked)
 	{
-		selected_resolution_index_ = last_selected_resolution_index_;
+		selected_resolution_index_.accept();
 
 		auto& configuration = Configuration::get_instance();
 		const auto& display_mode = display_modes[selected_resolution_index_];
@@ -5524,6 +5581,7 @@ void DisplaySettingsWindow::do_draw()
 //
 // DisplaySettingsWindow
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // WindowManager
