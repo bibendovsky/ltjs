@@ -187,11 +187,19 @@ public:
 	}
 
 	SettingValue(
-		const T& accepted_value)
+		const T& current_value)
 		:
-		accepted_value_{accepted_value},
-		current_value_{accepted_value}
+		accepted_value_{current_value},
+		current_value_{current_value}
 	{
+	}
+
+	SettingValue& operator=(
+		const T& rhs)
+	{
+		current_value_ = rhs;
+
+		return *this;
 	}
 
 
@@ -931,6 +939,7 @@ private:
 	{
 		message_box,
 		display_settings,
+		advanced_settings,
 	}; // AttachPoint
 
 	enum class State
@@ -939,6 +948,8 @@ private:
 		display_settings_warning,
 		display_settings_no_renderers,
 		display_settings_window,
+		advanced_settings_warning,
+		advanced_settings_window,
 	}; // State
 
 
@@ -1011,6 +1022,64 @@ private:
 
 	void do_draw() override;
 }; // DisplaySettingsWindow
+
+
+class AdvancedSettingsWindow;
+using AdvancedSettingsWindowPtr = AdvancedSettingsWindow*;
+using AdvancedSettingsWindowUPtr = std::unique_ptr<AdvancedSettingsWindow>;
+
+class AdvancedSettingsWindow final :
+	public Window
+{
+public:
+	~AdvancedSettingsWindow() override;
+
+
+	static AdvancedSettingsWindowPtr create();
+
+
+private:
+	static constexpr auto window_width = 456;
+	static constexpr auto window_height = 480;
+
+
+	bool is_disable_sound_pressed_;
+	bool is_disable_music_pressed_;
+	bool is_disable_movies_pressed_;
+	bool is_disable_hardware_sound_pressed_;
+	bool is_disable_animated_screens_pressed_;
+	bool is_disable_triple_buffering_pressed_;
+	bool is_disable_controllers_pressed_;
+	bool is_disable_hardware_cursor_pressed_;
+	bool is_disable_sound_filters_pressed_;
+	bool is_restore_defaults_pressed_;
+	bool is_pass_command_line_pressed_;
+
+	SettingValue<bool> is_disable_sound_;
+	SettingValue<bool> is_disable_music_;
+	SettingValue<bool> is_disable_movies_;
+	SettingValue<bool> is_disable_hardware_sound_;
+	SettingValue<bool> is_disable_animated_screens_;
+	SettingValue<bool> is_disable_triple_buffering_;
+	SettingValue<bool> is_disable_controllers_;
+	SettingValue<bool> is_disable_hardware_cursor_;
+	SettingValue<bool> is_disable_sound_filters_;
+	SettingValue<bool> is_restore_defaults_;
+	SettingValue<bool> is_pass_command_line_;
+	SettingValue<std::string> command_line_;
+
+
+	AdvancedSettingsWindow();
+
+
+	bool initialize(
+		const WindowCreateParam& param);
+
+	void uninitialize();
+
+
+	void do_draw() override;
+}; // AdvancedSettingsWindow
 
 
 class WindowManager final
@@ -1164,6 +1233,8 @@ public:
 
 	DisplaySettingsWindowPtr get_display_settings_window();
 
+	AdvancedSettingsWindowPtr get_advanced_settings_window();
+
 
 private:
 	bool is_initialized_;
@@ -1172,7 +1243,7 @@ private:
 	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
 	DisplaySettingsWindowUPtr display_settings_window_uptr_;
-	WindowEvent message_box_result_event_;
+	AdvancedSettingsWindowUPtr advanced_settings_window_uptr_;
 
 
 	Launcher();
@@ -4670,7 +4741,6 @@ void MainWindow::attach_to_message_box_result_event(
 
 	auto& launcher = Launcher::get_instance();
 	auto window_ptr = WindowPtr{};
-	auto event_ptr = WindowEventPtr{};
 
 	switch (attach_point)
 	{
@@ -4680,7 +4750,10 @@ void MainWindow::attach_to_message_box_result_event(
 
 	case AttachPoint::display_settings:
 		window_ptr = launcher.get_display_settings_window();
-		event_ptr = &window_ptr->get_message_box_result_event();
+		break;
+
+	case AttachPoint::advanced_settings:
+		window_ptr = launcher.get_advanced_settings_window();
 		break;
 
 	default:
@@ -4702,16 +4775,26 @@ void MainWindow::attach_to_message_box_result_event(
 void MainWindow::handle_message_box_result_event(
 	WindowPtr sender_window_ptr)
 {
+	auto& configuration = Configuration::get_instance();
+
 	auto message_box_window_ptr = static_cast<MessageBoxWindowPtr>(sender_window_ptr);
 	const auto message_box_result = message_box_window_ptr->get_message_box_result();
 
 	switch (state_)
 	{
-	case State::display_settings_window:
+	case State::display_settings_warning:
+	{
 		state_ = State::main_window;
-		attach_to_message_box_result_event(false, AttachPoint::display_settings);
-		show(true);
+
+		if (message_box_result == MessageBoxResult::ok)
+		{
+			configuration.is_warned_about_display_ = true;
+			handle_check_for_renderers();
+			show(true);
+		}
+
 		break;
+	}
 
 	case State::display_settings_no_renderers:
 		state_ = State::main_window;
@@ -4719,21 +4802,42 @@ void MainWindow::handle_message_box_result_event(
 		show(true);
 		break;
 
-	case State::display_settings_warning:
-	{
+	case State::display_settings_window:
 		state_ = State::main_window;
+		attach_to_message_box_result_event(false, AttachPoint::display_settings);
+		show(true);
+		break;
 
-		auto& configuration = Configuration::get_instance();
+	case State::advanced_settings_warning:
+	{
+		attach_to_message_box_result_event(false, AttachPoint::message_box);
 
-		if (message_box_result == MessageBoxResult::ok)
+		if (message_box_result == MessageBoxResult::cancel)
 		{
-			configuration.is_warned_about_display_ = true;
-
+			state_ = State::main_window;
 			show(true);
+		}
+		else
+		{
+			auto& launcher = Launcher::get_instance();
+			auto advanced_options_window_ptr = launcher.get_advanced_settings_window();
 
-			handle_check_for_renderers();
+			attach_to_message_box_result_event(true, AttachPoint::advanced_settings);
+
+			state_ = State::advanced_settings_window;
+			configuration.is_warned_about_settings_ = true;
+			advanced_options_window_ptr->show(true);
 		}
 
+		break;
+	}
+
+	case State::advanced_settings_window:
+	{
+		attach_to_message_box_result_event(false, AttachPoint::advanced_settings);
+
+		state_ = State::main_window;
+		show(true);
 		break;
 	}
 
@@ -5304,8 +5408,7 @@ void MainWindow::do_draw()
 		minimize_internal(true);
 		return;
 	}
-
-	if (is_close_button_clicked || is_quit_button_clicked)
+	else if (is_close_button_clicked || is_quit_button_clicked)
 	{
 		auto sdl_event = SDL_Event{};
 
@@ -5314,8 +5417,7 @@ void MainWindow::do_draw()
 
 		return;
 	}
-
-	if (is_install_or_play_button_clicked)
+	else if (is_install_or_play_button_clicked)
 	{
 		if (is_show_play_button_)
 		{
@@ -5351,8 +5453,7 @@ void MainWindow::do_draw()
 			return;
 		}
 	}
-
-	if (is_display_button_clicked)
+	else if (is_display_button_clicked)
 	{
 		attach_to_message_box_result_event(true, AttachPoint::message_box);
 
@@ -5371,6 +5472,32 @@ void MainWindow::do_draw()
 		{
 			handle_check_for_renderers();
 		}
+	}
+	else if (is_options_button_clicked)
+	{
+		if (!configuration.is_warned_about_settings_)
+		{
+			state_ = State::advanced_settings_warning;
+
+			attach_to_message_box_result_event(true, AttachPoint::message_box);
+
+			const auto& message = resource_strings.get(Launcher::IDS_OPTIONS_WARNING, "IDS_OPTIONS_WARNING");
+
+			auto message_box_window_ptr = launcher.get_message_box_window();
+			message_box_window_ptr->show(MessageBoxType::warning, MessageBoxButtons::ok_cancel, message);
+		}
+		else
+		{
+			state_ = State::advanced_settings_window;
+
+			attach_to_message_box_result_event(true, AttachPoint::advanced_settings);
+
+			auto advanced_settings_window_ptr = launcher.get_advanced_settings_window();
+
+			advanced_settings_window_ptr->show(true);
+		}
+
+		return;
 	}
 }
 
@@ -5800,6 +5927,359 @@ void DisplaySettingsWindow::do_draw()
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// AdvancedSettingsWindow
+//
+
+AdvancedSettingsWindow::AdvancedSettingsWindow()
+	:
+	is_disable_sound_pressed_{},
+	is_disable_music_pressed_{},
+	is_disable_movies_pressed_{},
+	is_disable_hardware_sound_pressed_{},
+	is_disable_animated_screens_pressed_{},
+	is_disable_triple_buffering_pressed_{},
+	is_disable_controllers_pressed_{},
+	is_disable_hardware_cursor_pressed_{},
+	is_disable_sound_filters_pressed_{},
+	is_restore_defaults_pressed_{},
+	is_pass_command_line_pressed_{},
+	is_disable_sound_{},
+	is_disable_music_{},
+	is_disable_movies_{},
+	is_disable_hardware_sound_{},
+	is_disable_animated_screens_{},
+	is_disable_triple_buffering_{},
+	is_disable_controllers_{},
+	is_disable_hardware_cursor_{},
+	is_disable_sound_filters_{},
+	is_restore_defaults_{},
+	is_pass_command_line_{},
+	command_line_{}
+{
+}
+
+AdvancedSettingsWindow::~AdvancedSettingsWindow()
+{
+}
+
+AdvancedSettingsWindowPtr AdvancedSettingsWindow::create()
+{
+	const auto& window_manager = WindowManager::get_instance();
+	const auto scale = window_manager.get_scale();
+
+	auto advanced_settings_window_param = WindowCreateParam{};
+	advanced_settings_window_param.title_ = "advanced_settings";
+	advanced_settings_window_param.width_ = static_cast<int>(window_width * scale);
+	advanced_settings_window_param.height_ = static_cast<int>(window_height * scale);
+	advanced_settings_window_param.is_hidden_ = true;
+
+	auto advanced_settings_window_ptr = new AdvancedSettingsWindow{};
+
+	static_cast<void>(advanced_settings_window_ptr->initialize(advanced_settings_window_param));
+
+	return advanced_settings_window_ptr;
+}
+
+bool AdvancedSettingsWindow::initialize(
+	const WindowCreateParam& param)
+{
+	if (!Window::initialize(param))
+	{
+		return false;
+	}
+
+	set_message_box_result(MessageBoxResult::cancel);
+
+	return true;
+}
+
+void AdvancedSettingsWindow::uninitialize()
+{
+}
+
+void AdvancedSettingsWindow::do_draw()
+{
+	auto& configuration = Configuration::get_instance();
+	const auto& window_manager = WindowManager::get_instance();
+	auto& font_manager = FontManager::get_instance();
+
+	const auto scale = window_manager.get_scale();
+
+	auto& ogl_texture_manager = OglTextureManager::get_instance();
+
+	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
+	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
+
+	const auto mouse_pos = ImGui::GetMousePos();
+
+
+	// Begin advanced settings window.
+	//
+	const auto main_flags =
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_None;
+
+	ImGui::Begin("advanced_settings", nullptr, main_flags);
+	ImGui::SetWindowPos({}, ImGuiCond_Always);
+
+	ImGui::SetWindowSize(
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ImGuiCond_Always);
+
+
+	// Background.
+	//
+	ImGui::SetCursorPos(ImVec2{});
+
+	const auto& ogl_displaybackground_texture = ogl_texture_manager.get(ImageId::optionsbackground);
+
+	ImGui::Image(
+		ogl_displaybackground_texture.get_im_texture_id(),
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ogl_displaybackground_texture.uv0_,
+		ogl_displaybackground_texture.uv1_);
+
+
+	// Close button.
+	//
+	const auto close_pos = ImVec2{434.0F, 6.0F} * scale;
+	const auto close_size = ImVec2{17.0F, 14.0F} * scale;
+	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
+
+	auto is_close_mouse_button_down = false;
+	auto is_close_button_clicked = false;
+
+	if (is_mouse_button_down || is_mouse_button_up)
+	{
+		if (is_point_inside_rect(mouse_pos, close_rect))
+		{
+			if (is_mouse_button_down)
+			{
+				is_close_mouse_button_down = true;
+			}
+
+			if (is_mouse_button_up)
+			{
+				is_close_button_clicked = true;
+			}
+		}
+	}
+
+	const auto ogl_close_image_id = (is_close_mouse_button_down ? ImageId::closed : ImageId::closeu);
+	const auto& ogl_close_texture = ogl_texture_manager.get(ogl_close_image_id);
+
+	ImGui::SetCursorPos(close_pos);
+
+	ImGui::Image(
+		ogl_close_texture.get_im_texture_id(),
+		close_size,
+		ogl_close_texture.uv0_,
+		ogl_close_texture.uv1_);
+
+
+	// Disable sound checkbox.
+	//
+	const auto disable_sound_pos = ImVec2{26.0F, 69.0F} * scale;
+	const auto disable_sound_size = ImVec2{20.0F, 11.0F} * scale;
+
+	const auto disable_sound_rect = ImVec4
+	{
+		disable_sound_pos.x,
+		disable_sound_pos.y,
+		disable_sound_size.x,
+		disable_sound_size.y
+	};
+
+	auto is_disable_sound_mouse_button_down = false;
+	auto is_disable_sound_button_clicked = false;
+
+	const auto is_disable_sound_button_hightlighted = is_point_inside_rect(mouse_pos, disable_sound_rect);
+
+	if (is_disable_sound_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			if (!is_disable_sound_pressed_)
+			{
+				is_disable_sound_pressed_ = true;
+				is_disable_sound_mouse_button_down = true;
+			}
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_disable_sound_pressed_ = false;
+			is_disable_sound_button_clicked = true;
+		}
+	}
+
+	auto ogl_disable_sound_image_id = ImageId{};
+
+	if (is_disable_sound_mouse_button_down)
+	{
+		is_disable_sound_ = !is_disable_sound_;
+	}
+
+	if (is_disable_sound_)
+	{
+		ogl_disable_sound_image_id = ImageId::checkboxc;
+	}
+	else if (is_disable_sound_button_hightlighted)
+	{
+		ogl_disable_sound_image_id = ImageId::checkboxf;
+	}
+	else
+	{
+		ogl_disable_sound_image_id = ImageId::checkboxn;
+	}
+
+	const auto& ogl_disable_sound_texture = ogl_texture_manager.get(ogl_disable_sound_image_id);
+
+	ImGui::SetCursorPos(disable_sound_pos);
+
+	ImGui::Image(
+		ogl_disable_sound_texture.get_im_texture_id(),
+		disable_sound_size,
+		ogl_disable_sound_texture.uv0_,
+		ogl_disable_sound_texture.uv1_);
+
+	// "Ok" button.
+	//
+	const auto ok_pos = ImVec2{123.0F, 435.0F} * scale;
+	const auto ok_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
+
+	auto is_ok_mouse_button_down = false;
+	auto is_ok_button_clicked = false;
+
+	const auto is_ok_button_hightlighted = is_point_inside_rect(mouse_pos, ok_rect);
+
+	if (is_ok_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_ok_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_ok_button_clicked = true;
+		}
+	}
+
+	auto ogl_ok_image_id = ImageId{};
+
+	if (is_ok_mouse_button_down)
+	{
+		ogl_ok_image_id = ImageId::okd;
+	}
+	else if (is_ok_button_hightlighted)
+	{
+		ogl_ok_image_id = ImageId::okf;
+	}
+	else
+	{
+		ogl_ok_image_id = ImageId::oku;
+	}
+
+	const auto& ogl_ok_texture = ogl_texture_manager.get(ogl_ok_image_id);
+
+	ImGui::SetCursorPos(ok_pos);
+
+	ImGui::Image(
+		ogl_ok_texture.get_im_texture_id(),
+		ok_size,
+		ogl_ok_texture.uv0_,
+		ogl_ok_texture.uv1_);
+
+
+	// "Cancel" button.
+	//
+	const auto cancel_pos = ImVec2{235.0F, 435.0F} * scale;
+	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
+
+	auto is_cancel_button_clicked = false;
+	auto is_cancel_mouse_button_down = false;
+
+	const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
+
+	if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_cancel_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_cancel_button_clicked = true;
+		}
+	}
+
+	auto ogl_cancel_image_id = ImageId{};
+
+	if (is_cancel_mouse_button_down)
+	{
+		ogl_cancel_image_id = ImageId::canceld;
+	}
+	else if (is_cancel_button_hightlighted)
+	{
+		ogl_cancel_image_id = ImageId::cancelf;
+	}
+	else
+	{
+		ogl_cancel_image_id = ImageId::cancelu;
+	}
+
+	const auto& ogl_cancel_texture = ogl_texture_manager.get(ogl_cancel_image_id);
+
+	ImGui::SetCursorPos(cancel_pos);
+
+	ImGui::Image(
+		ogl_cancel_texture.get_im_texture_id(),
+		cancel_size,
+		ogl_cancel_texture.uv0_,
+		ogl_cancel_texture.uv1_);
+
+
+	// End advanced settings window.
+	//
+	ImGui::End();
+
+
+	// Handle events.
+	//
+	if (is_close_button_clicked || is_cancel_button_clicked)
+	{
+		is_disable_sound_.reject();
+
+		set_message_box_result(MessageBoxResult::cancel);
+		show(false);
+		get_message_box_result_event().notify(this);
+	}
+	else if (is_ok_button_clicked)
+	{
+		is_disable_sound_.accept();
+
+		set_message_box_result(MessageBoxResult::ok);
+		show(false);
+		get_message_box_result_event().notify(this);
+	}
+}
+
+//
+// AdvancedSettingsWindow
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // WindowManager
 //
 
@@ -5974,7 +6454,8 @@ Launcher::Launcher()
 	resource_strings_{},
 	message_box_window_uptr_{},
 	main_window_uptr_{},
-	display_settings_window_uptr_{}
+	display_settings_window_uptr_{},
+	advanced_settings_window_uptr_{}
 {
 }
 
@@ -5986,7 +6467,8 @@ Launcher::Launcher(
 	resource_strings_{std::move(rhs.resource_strings_)},
 	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)},
-	display_settings_window_uptr_{std::move(rhs.display_settings_window_uptr_)}
+	display_settings_window_uptr_{std::move(rhs.display_settings_window_uptr_)},
+	advanced_settings_window_uptr_{std::move(rhs.advanced_settings_window_uptr_)}
 {
 	rhs.is_initialized_ = false;
 }
@@ -6166,6 +6648,17 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		advanced_settings_window_uptr_.reset(AdvancedSettingsWindow::create());
+
+		if (!advanced_settings_window_uptr_->is_initialized())
+		{
+			is_succeed = false;
+			set_error_message("Failed to initialize advanced settings window. " + advanced_settings_window_uptr_->get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
 		const auto& title = resource_strings_.get(IDS_APPNAME, "IDS_APPNAME");
 
 		message_box_window_uptr_->set_title(title);
@@ -6203,6 +6696,7 @@ void Launcher::uninitialize()
 	message_box_window_uptr_ = {};
 	main_window_uptr_ = {};
 	display_settings_window_uptr_ = {};
+	advanced_settings_window_uptr_ = {};
 
 
 	// WindowManager
@@ -6325,6 +6819,11 @@ MainWindowPtr Launcher::get_main_window()
 DisplaySettingsWindowPtr Launcher::get_display_settings_window()
 {
 	return display_settings_window_uptr_.get();
+}
+
+AdvancedSettingsWindowPtr Launcher::get_advanced_settings_window()
+{
+	return advanced_settings_window_uptr_.get();
 }
 
 bool Launcher::initialize_ogl_functions()
