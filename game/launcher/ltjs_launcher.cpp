@@ -1054,18 +1054,15 @@ public:
 
 
 private:
-	enum class CheckBoxContextId
-	{
-		disable_sound,
-	}; // CheckBoxContextId
-
 	struct CheckBoxContext
 	{
 		ImVec2 position_;
+		bool checked_value_;
 		bool is_pressed_;
-		bool is_clicked_;
 		int resource_string_id_;
-		std::string resource_string_name_;
+		std::string resource_string_default_;
+		int hint_resource_string_id_;
+		std::string hint_resource_string_default_;
 		SettingValue<bool>* setting_value_ptr_;
 	}; // CheckBoxContext
 
@@ -1075,10 +1072,10 @@ private:
 	static constexpr auto window_width = 456;
 	static constexpr auto window_height = 480;
 
-	static constexpr auto check_box_context_count = 1;
-
 
 	CheckBoxContexts check_box_contexts_;
+	std::string hint_;
+	SettingValue<bool> is_restore_defaults_;
 
 
 	AdvancedSettingsWindow();
@@ -1092,7 +1089,7 @@ private:
 	void uninitialize();
 
 	void draw_check_box(
-		const CheckBoxContextId check_box_context_id);
+		const int index);
 
 	void update_check_box_configuration(
 		const bool is_accept);
@@ -5981,6 +5978,10 @@ void DisplaySettingsWindow::do_draw()
 //
 
 AdvancedSettingsWindow::AdvancedSettingsWindow()
+	:
+	check_box_contexts_{},
+	hint_{},
+	is_restore_defaults_{}
 {
 }
 
@@ -6011,18 +6012,170 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 	auto& configuration = Configuration::get_instance();
 
 	check_box_contexts_ = {};
-	check_box_contexts_.resize(check_box_context_count);
 
 	// Disable sound.
 	//
 	{
-		auto& check_box_content = check_box_contexts_[static_cast<int>(CheckBoxContextId::disable_sound)];
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
 		check_box_content.position_ = {26.0F, 69.0F};
+		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.is_clicked_ = false;
 		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLESOUND;
-		check_box_content.resource_string_name_ = "IDS_OD_DISABLESOUND";
+		check_box_content.resource_string_default_ = "IDS_OD_DISABLESOUND";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLESOUND;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLESOUND";
 		check_box_content.setting_value_ptr_ = &configuration.is_sound_effects_disabled_;
+	}
+
+	// Disable music.
+	//
+	{
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
+		check_box_content.position_ = {26.0F, 94.0F};
+		check_box_content.checked_value_ = true;
+		check_box_content.is_pressed_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEMUSIC;
+		check_box_content.resource_string_default_ = "IDS_OD_DISABLEMUSIC";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEMUSIC;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEMUSIC";
+		check_box_content.setting_value_ptr_ = &configuration.is_music_disabled_;
+	}
+
+	// Disable movies.
+	//
+	{
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
+		check_box_content.position_ = {26.0F, 119.0F};
+		check_box_content.checked_value_ = true;
+		check_box_content.is_pressed_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEMOVIES;
+		check_box_content.resource_string_default_ = "IDS_OD_DISABLEMOVIES";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEMOVIES;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEMOVIES";
+		check_box_content.setting_value_ptr_ = &configuration.is_fmv_disabled_;
+	}
+
+	// Disable hardware sound.
+	//
+	{
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
+		check_box_content.position_ = {26.0F, 144.0F};
+		check_box_content.checked_value_ = true;
+		check_box_content.is_pressed_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEHARDWARESOUND;
+		check_box_content.resource_string_default_ = "IDS_OD_DISABLEHARDWARESOUND";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEHARDWARESOUND;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEHARDWARESOUND";
+		check_box_content.setting_value_ptr_ = &configuration.is_hardware_sound_disabled_;
+	}
+
+	// Disable animated load screens.
+	//
+	{
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
+		check_box_content.position_ = {26.0F, 169.0F};
+		check_box_content.checked_value_ = true;
+		check_box_content.is_pressed_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEANIMATEDLOADSCREENS;
+		check_box_content.resource_string_default_ = "IDS_OD_DISABLEANIMATEDLOADSCREENS";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEANIMATEDLOADSCREEN;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEANIMATEDLOADSCREEN";
+		check_box_content.setting_value_ptr_ = &configuration.is_animated_loading_screen_disabled_;
+	}
+
+	// Disable triple buffering.
+	//
+	{
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
+		check_box_content.position_ = {228.0F, 69.0F};
+		check_box_content.checked_value_ = false;
+		check_box_content.is_pressed_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLETRIPLEBUFFERING;
+		check_box_content.resource_string_default_ = "IDS_OD_DISABLETRIPLEBUFFERING";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLETRIPLEBUFFERING;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLETRIPLEBUFFERING";
+		check_box_content.setting_value_ptr_ = &configuration.is_triple_buffering_enabled_;
+	}
+
+	// Disable joysticks.
+	//
+	{
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
+		check_box_content.position_ = {228.0F, 94.0F};
+		check_box_content.checked_value_ = true;
+		check_box_content.is_pressed_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEJOYSTICKS;
+		check_box_content.resource_string_default_ = "IDS_OD_DISABLEJOYSTICKS";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEJOYSTICKS;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEJOYSTICKS";
+		check_box_content.setting_value_ptr_ = &configuration.is_controller_disabled_;
+	}
+
+	// Disable hardware cursor.
+	//
+	{
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
+		check_box_content.position_ = {228.0F, 119.0F};
+		check_box_content.checked_value_ = true;
+		check_box_content.is_pressed_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEHARDWARECURSOR;
+		check_box_content.resource_string_default_ = "IDS_OD_DISABLEHARDWARECURSOR";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEHARDWARECURSOR;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEHARDWARECURSOR";
+		check_box_content.setting_value_ptr_ = &configuration.is_hardware_cursor_disabled_;
+	}
+
+	// Disable sound filters.
+	//
+	{
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
+		check_box_content.position_ = {228.0F, 144.0F};
+		check_box_content.checked_value_ = true;
+		check_box_content.is_pressed_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLESOUNDFILTERS;
+		check_box_content.resource_string_default_ = "IDS_OD_DISABLESOUNDFILTERS";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLESOUNDFILTERS;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLESOUNDFILTERS";
+		check_box_content.setting_value_ptr_ = &configuration.is_sound_filter_disabled_;
+	}
+
+	// Restore defaults.
+	//
+	{
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
+		check_box_content.position_ = {26.0F, 221.0F};
+		check_box_content.checked_value_ = true;
+		check_box_content.is_pressed_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_RESTOREDEFAULTS;
+		check_box_content.resource_string_default_ = "IDS_OD_RESTOREDEFAULTS";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_RESTOREDEFAULTS;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_RESTOREDEFAULTS";
+		check_box_content.setting_value_ptr_ = &is_restore_defaults_;
+	}
+
+	// Always pass command line.
+	//
+	{
+		check_box_contexts_.emplace_back();
+		auto& check_box_content = check_box_contexts_.back();
+		check_box_content.position_ = {26.0F, 297.0F};
+		check_box_content.checked_value_ = true;
+		check_box_content.is_pressed_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_ALWAYSSPECIFY;
+		check_box_content.resource_string_default_ = "IDS_OD_ALWAYSSPECIFY";
+		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_ALWAYSSPECIFY;
+		check_box_content.hint_resource_string_default_ = "IDS_HELP_ALWAYSSPECIFY";
+		check_box_content.setting_value_ptr_ = &configuration.is_always_pass_custom_arguments_;
 	}
 }
 
@@ -6067,6 +6220,9 @@ void AdvancedSettingsWindow::do_draw()
 	const auto check_box_text_normal_color = IM_COL32(0xC0, 0xA0, 0x1C, 0xFF);
 	const auto check_box_text_highlighted_color = IM_COL32(0xFF, 0xFF, 0x0B, 0xFF);
 	const auto check_box_text_disabled_color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
+
+
+	hint_ = resource_strings.get(Launcher::IDS_HELP_DEFAULT, "IDS_HELP_DEFAULT");
 
 
 	// Begin advanced settings window.
@@ -6139,7 +6295,31 @@ void AdvancedSettingsWindow::do_draw()
 		ogl_close_texture.uv1_);
 
 
-	draw_check_box(CheckBoxContextId::disable_sound);
+	// Check boxes.
+	//
+	const auto check_box_count = static_cast<int>(check_box_contexts_.size());
+
+	for (auto i_check_box = 0; i_check_box < check_box_count; ++i_check_box)
+	{
+		draw_check_box(i_check_box);
+	}
+
+
+	// Hint.
+	//
+	const auto hint_pos = ImVec2{14.0F, 341.0F} * scale;
+	const auto hint_size = ImVec2{418.0F, 74.0F} * scale;
+	const auto hint_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
+
+	ImGui::SetCursorPos(hint_pos);
+
+	ImGui::BeginChild("##hint_text", hint_size);
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
+	ImGui::TextWrapped("%s", hint_.c_str());
+	ImGui::PopStyleColor();
+	ImGui::PopFont();
+	ImGui::EndChild();
 
 
 	// "Ok" button.
@@ -6279,7 +6459,7 @@ void AdvancedSettingsWindow::update_check_box_configuration(
 }
 
 void AdvancedSettingsWindow::draw_check_box(
-	const CheckBoxContextId check_box_context_id)
+	const int index)
 {
 	auto& launcher = Launcher::get_instance();
 	auto& font_manager = FontManager::get_instance();
@@ -6302,7 +6482,7 @@ void AdvancedSettingsWindow::draw_check_box(
 	const auto check_box_text_highlighted_color = IM_COL32(0xFF, 0xFF, 0x0B, 0xFF);
 	const auto check_box_text_disabled_color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
 
-	auto& check_box_context = check_box_contexts_[static_cast<int>(check_box_context_id)];
+	auto& check_box_context = check_box_contexts_[index];
 
 	const auto check_box_size = ImVec2{20.0F, 11.0F} * scale;
 	const auto check_box_pos = check_box_context.position_ * scale;
@@ -6315,7 +6495,7 @@ void AdvancedSettingsWindow::draw_check_box(
 
 	const auto& text = resource_strings.get(
 		check_box_context.resource_string_id_,
-		check_box_context.resource_string_name_);
+		check_box_context.resource_string_default_);
 
 	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
 
@@ -6376,7 +6556,7 @@ void AdvancedSettingsWindow::draw_check_box(
 		setting_value = !setting_value;
 	}
 
-	if (!setting_value)
+	if (setting_value == check_box_context.checked_value_)
 	{
 		ogl_disable_sound_image_id = ImageId::checkboxc;
 		disable_sound_check_box_color = check_box_text_disabled_color;
@@ -6390,6 +6570,13 @@ void AdvancedSettingsWindow::draw_check_box(
 	{
 		ogl_disable_sound_image_id = ImageId::checkboxn;
 		disable_sound_check_box_color = check_box_text_normal_color;
+	}
+
+	if (is_hightlighted)
+	{
+		hint_ = resource_strings.get(
+			check_box_context.hint_resource_string_id_,
+			check_box_context.hint_resource_string_default_);
 	}
 
 	const auto& ogl_disable_sound_texture = ogl_texture_manager.get(ogl_disable_sound_image_id);
