@@ -5999,6 +5999,8 @@ void AdvancedSettingsWindow::uninitialize()
 
 void AdvancedSettingsWindow::do_draw()
 {
+	auto& launcher = Launcher::get_instance();
+	const auto& resource_strings = launcher.get_resource_strings();
 	auto& configuration = Configuration::get_instance();
 	const auto& window_manager = WindowManager::get_instance();
 	auto& font_manager = FontManager::get_instance();
@@ -6011,6 +6013,12 @@ void AdvancedSettingsWindow::do_draw()
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
 
 	const auto mouse_pos = ImGui::GetMousePos();
+
+	const auto check_box_space_px = 4 * scale;
+
+	const auto check_box_text_normal_color = IM_COL32(0xC0, 0xA0, 0x1C, 0xFF);
+	const auto check_box_text_highlighted_color = IM_COL32(0xFF, 0xFF, 0x0B, 0xFF);
+	const auto check_box_text_disabled_color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
 
 
 	// Begin advanced settings window.
@@ -6085,13 +6093,43 @@ void AdvancedSettingsWindow::do_draw()
 
 	// Disable sound checkbox.
 	//
-	const auto disable_sound_pos = ImVec2{26.0F, 69.0F} * scale;
-	const auto disable_sound_size = ImVec2{20.0F, 11.0F} * scale;
+	const auto disable_sound_check_box_pos = ImVec2{26.0F, 69.0F} * scale;
+	const auto disable_sound_check_box_size = ImVec2{20.0F, 11.0F} * scale;
+
+	const auto disable_sound_check_box_rect = ImVec4
+	{
+		disable_sound_check_box_pos.x,
+		disable_sound_check_box_pos.y,
+		disable_sound_check_box_size.x,
+		disable_sound_check_box_size.y
+	};
+
+	const auto& disable_sound_text = resource_strings.get(Launcher::IDS_OD_DISABLESOUND, "IDS_OD_DISABLESOUND");
+
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+
+	const auto& disable_sound_text_size = ImGui::CalcTextSize(
+		disable_sound_text.c_str(),
+		disable_sound_text.c_str() + disable_sound_text.size());
+
+	ImGui::PopFont();
+
+	const auto disable_sound_text_pos = ImVec2
+	{
+		disable_sound_check_box_pos.x + disable_sound_check_box_size.x + check_box_space_px,
+		disable_sound_check_box_pos.y - (disable_sound_text_size.y - disable_sound_check_box_size.y) * 0.5F,
+	};
+
+	const auto disable_sound_size = ImVec2
+	{
+		disable_sound_check_box_size.x + check_box_space_px + disable_sound_text_size.x,
+		disable_sound_check_box_size.y,
+	};
 
 	const auto disable_sound_rect = ImVec4
 	{
-		disable_sound_pos.x,
-		disable_sound_pos.y,
+		disable_sound_check_box_pos.x,
+		disable_sound_check_box_pos.y,
 		disable_sound_size.x,
 		disable_sound_size.y
 	};
@@ -6099,9 +6137,9 @@ void AdvancedSettingsWindow::do_draw()
 	auto is_disable_sound_mouse_button_down = false;
 	auto is_disable_sound_button_clicked = false;
 
-	const auto is_disable_sound_button_hightlighted = is_point_inside_rect(mouse_pos, disable_sound_rect);
+	const auto is_disable_sound_hightlighted = is_point_inside_rect(mouse_pos, disable_sound_rect);
 
-	if (is_disable_sound_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	if (is_disable_sound_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
 		if (is_mouse_button_down)
 		{
@@ -6120,6 +6158,7 @@ void AdvancedSettingsWindow::do_draw()
 	}
 
 	auto ogl_disable_sound_image_id = ImageId{};
+	auto disable_sound_check_box_color = ImU32{};
 
 	if (is_disable_sound_mouse_button_down)
 	{
@@ -6129,25 +6168,37 @@ void AdvancedSettingsWindow::do_draw()
 	if (is_disable_sound_)
 	{
 		ogl_disable_sound_image_id = ImageId::checkboxc;
+		disable_sound_check_box_color = check_box_text_disabled_color;
 	}
-	else if (is_disable_sound_button_hightlighted)
+	else if (is_disable_sound_hightlighted)
 	{
 		ogl_disable_sound_image_id = ImageId::checkboxf;
+		disable_sound_check_box_color = check_box_text_highlighted_color;
 	}
 	else
 	{
 		ogl_disable_sound_image_id = ImageId::checkboxn;
+		disable_sound_check_box_color = check_box_text_normal_color;
 	}
 
 	const auto& ogl_disable_sound_texture = ogl_texture_manager.get(ogl_disable_sound_image_id);
 
-	ImGui::SetCursorPos(disable_sound_pos);
+	ImGui::SetCursorPos(disable_sound_check_box_pos);
 
 	ImGui::Image(
 		ogl_disable_sound_texture.get_im_texture_id(),
-		disable_sound_size,
+		disable_sound_check_box_size,
 		ogl_disable_sound_texture.uv0_,
 		ogl_disable_sound_texture.uv1_);
+
+	ImGui::SetCursorPos(disable_sound_text_pos);
+
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushStyleColor(ImGuiCol_Text, disable_sound_check_box_color);
+	ImGui::Text("%s", disable_sound_text.c_str());
+	ImGui::PopStyleColor();
+	ImGui::PopFont();
+
 
 	// "Ok" button.
 	//
