@@ -1463,12 +1463,25 @@ void DisplayModeManager::initialize()
 		display_mode.width_ = sdl_display_mode.w;
 		display_mode.height_ = sdl_display_mode.h;
 		display_mode.as_string_ = std::to_string(sdl_display_mode.w) + " x " + std::to_string(sdl_display_mode.h);
+	}
 
-		if (display_mode.width_ == native_display_mode.width_ &&
-			display_mode.height_ == native_display_mode.height_)
+	const auto native_display_mode_begin_it = display_modes.cbegin();
+	const auto native_display_mode_end_it = display_modes.cend();
+
+	const auto native_display_mode_it = std::find_if(
+		native_display_mode_begin_it,
+		native_display_mode_end_it,
+		[&](const auto& item)
 		{
-			native_display_mode_index = static_cast<int>(display_modes.size());
+			return
+				native_display_mode.width_ == item.width_ &&
+				native_display_mode.height_ == item.height_;
 		}
+	);
+
+	if (native_display_mode_it != native_display_mode_end_it)
+	{
+		native_display_mode_index = static_cast<int>(native_display_mode_it - native_display_mode_begin_it);
 	}
 
 	native_display_mode_ = native_display_mode;
