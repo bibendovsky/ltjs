@@ -1054,30 +1054,48 @@ public:
 
 
 private:
+	enum class CheckBoxContextId
+	{
+		disable_sound,
+	}; // CheckBoxContextId
+
+	struct CheckBoxContext
+	{
+		ImVec2 position_;
+		bool is_pressed_;
+		bool is_clicked_;
+		int resource_string_id_;
+		std::string resource_string_name_;
+		SettingValue<bool>* setting_value_ptr_;
+	}; // CheckBoxContext
+
+	using CheckBoxContexts = std::vector<CheckBoxContext>;
+
+
 	static constexpr auto window_width = 456;
 	static constexpr auto window_height = 480;
 
+	static constexpr auto check_box_context_count = 1;
 
-	bool is_disable_sound_pressed_;
-	bool is_disable_music_pressed_;
-	bool is_disable_movies_pressed_;
-	bool is_disable_hardware_sound_pressed_;
-	bool is_disable_animated_screens_pressed_;
-	bool is_disable_triple_buffering_pressed_;
-	bool is_disable_controllers_pressed_;
-	bool is_disable_hardware_cursor_pressed_;
-	bool is_disable_sound_filters_pressed_;
-	bool is_restore_defaults_pressed_;
-	bool is_pass_command_line_pressed_;
+
+	CheckBoxContexts check_box_contexts_;
 
 
 	AdvancedSettingsWindow();
 
 
+	void initialize_check_box_contents();
+
 	bool initialize(
 		const WindowCreateParam& param);
 
 	void uninitialize();
+
+	void draw_check_box(
+		const CheckBoxContextId check_box_context_id);
+
+	void update_check_box_configuration(
+		const bool is_accept);
 
 
 	void do_draw() override;
@@ -5963,18 +5981,6 @@ void DisplaySettingsWindow::do_draw()
 //
 
 AdvancedSettingsWindow::AdvancedSettingsWindow()
-	:
-	is_disable_sound_pressed_{},
-	is_disable_music_pressed_{},
-	is_disable_movies_pressed_{},
-	is_disable_hardware_sound_pressed_{},
-	is_disable_animated_screens_pressed_{},
-	is_disable_triple_buffering_pressed_{},
-	is_disable_controllers_pressed_{},
-	is_disable_hardware_cursor_pressed_{},
-	is_disable_sound_filters_pressed_{},
-	is_restore_defaults_pressed_{},
-	is_pass_command_line_pressed_{}
 {
 }
 
@@ -6000,6 +6006,26 @@ AdvancedSettingsWindowPtr AdvancedSettingsWindow::create()
 	return advanced_settings_window_ptr;
 }
 
+void AdvancedSettingsWindow::initialize_check_box_contents()
+{
+	auto& configuration = Configuration::get_instance();
+
+	check_box_contexts_ = {};
+	check_box_contexts_.resize(check_box_context_count);
+
+	// Disable sound.
+	//
+	{
+		auto& check_box_content = check_box_contexts_[static_cast<int>(CheckBoxContextId::disable_sound)];
+		check_box_content.position_ = {26.0F, 69.0F};
+		check_box_content.is_pressed_ = false;
+		check_box_content.is_clicked_ = false;
+		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLESOUND;
+		check_box_content.resource_string_name_ = "IDS_OD_DISABLESOUND";
+		check_box_content.setting_value_ptr_ = &configuration.is_sound_effects_disabled_;
+	}
+}
+
 bool AdvancedSettingsWindow::initialize(
 	const WindowCreateParam& param)
 {
@@ -6009,6 +6035,8 @@ bool AdvancedSettingsWindow::initialize(
 	}
 
 	set_message_box_result(MessageBoxResult::cancel);
+
+	initialize_check_box_contents();
 
 	return true;
 }
@@ -6111,113 +6139,7 @@ void AdvancedSettingsWindow::do_draw()
 		ogl_close_texture.uv1_);
 
 
-	// Disable sound checkbox.
-	//
-	const auto disable_sound_check_box_pos = ImVec2{26.0F, 69.0F} * scale;
-	const auto disable_sound_check_box_size = ImVec2{20.0F, 11.0F} * scale;
-
-	const auto disable_sound_check_box_rect = ImVec4
-	{
-		disable_sound_check_box_pos.x,
-		disable_sound_check_box_pos.y,
-		disable_sound_check_box_size.x,
-		disable_sound_check_box_size.y
-	};
-
-	const auto& disable_sound_text = resource_strings.get(Launcher::IDS_OD_DISABLESOUND, "IDS_OD_DISABLESOUND");
-
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
-
-	const auto& disable_sound_text_size = ImGui::CalcTextSize(
-		disable_sound_text.c_str(),
-		disable_sound_text.c_str() + disable_sound_text.size());
-
-	ImGui::PopFont();
-
-	const auto disable_sound_text_pos = ImVec2
-	{
-		disable_sound_check_box_pos.x + disable_sound_check_box_size.x + check_box_space_px,
-		disable_sound_check_box_pos.y - (disable_sound_text_size.y - disable_sound_check_box_size.y) * 0.5F,
-	};
-
-	const auto disable_sound_size = ImVec2
-	{
-		disable_sound_check_box_size.x + check_box_space_px + disable_sound_text_size.x,
-		disable_sound_check_box_size.y,
-	};
-
-	const auto disable_sound_rect = ImVec4
-	{
-		disable_sound_check_box_pos.x,
-		disable_sound_check_box_pos.y,
-		disable_sound_size.x,
-		disable_sound_size.y
-	};
-
-	auto is_disable_sound_mouse_button_down = false;
-	auto is_disable_sound_button_clicked = false;
-
-	const auto is_disable_sound_hightlighted = is_point_inside_rect(mouse_pos, disable_sound_rect);
-
-	if (is_disable_sound_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			if (!is_disable_sound_pressed_)
-			{
-				is_disable_sound_pressed_ = true;
-				is_disable_sound_mouse_button_down = true;
-			}
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_disable_sound_pressed_ = false;
-			is_disable_sound_button_clicked = true;
-		}
-	}
-
-	auto ogl_disable_sound_image_id = ImageId{};
-	auto disable_sound_check_box_color = ImU32{};
-
-	if (is_disable_sound_mouse_button_down)
-	{
-		configuration.is_sound_effects_disabled_ = !configuration.is_sound_effects_disabled_;
-	}
-
-	if (configuration.is_sound_effects_disabled_)
-	{
-		ogl_disable_sound_image_id = ImageId::checkboxc;
-		disable_sound_check_box_color = check_box_text_disabled_color;
-	}
-	else if (is_disable_sound_hightlighted)
-	{
-		ogl_disable_sound_image_id = ImageId::checkboxf;
-		disable_sound_check_box_color = check_box_text_highlighted_color;
-	}
-	else
-	{
-		ogl_disable_sound_image_id = ImageId::checkboxn;
-		disable_sound_check_box_color = check_box_text_normal_color;
-	}
-
-	const auto& ogl_disable_sound_texture = ogl_texture_manager.get(ogl_disable_sound_image_id);
-
-	ImGui::SetCursorPos(disable_sound_check_box_pos);
-
-	ImGui::Image(
-		ogl_disable_sound_texture.get_im_texture_id(),
-		disable_sound_check_box_size,
-		ogl_disable_sound_texture.uv0_,
-		ogl_disable_sound_texture.uv1_);
-
-	ImGui::SetCursorPos(disable_sound_text_pos);
-
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
-	ImGui::PushStyleColor(ImGuiCol_Text, disable_sound_check_box_color);
-	ImGui::Text("%s", disable_sound_text.c_str());
-	ImGui::PopStyleColor();
-	ImGui::PopFont();
+	draw_check_box(CheckBoxContextId::disable_sound);
 
 
 	// "Ok" button.
@@ -6329,7 +6251,7 @@ void AdvancedSettingsWindow::do_draw()
 	//
 	if (is_close_button_clicked || is_cancel_button_clicked)
 	{
-		configuration.is_sound_effects_disabled_.reject();
+		update_check_box_configuration(false);
 
 		set_message_box_result(MessageBoxResult::cancel);
 		show(false);
@@ -6337,12 +6259,156 @@ void AdvancedSettingsWindow::do_draw()
 	}
 	else if (is_ok_button_clicked)
 	{
-		configuration.is_sound_effects_disabled_.accept();
+		update_check_box_configuration(true);
 
 		set_message_box_result(MessageBoxResult::ok);
 		show(false);
 		get_message_box_result_event().notify(this);
 	}
+}
+
+void AdvancedSettingsWindow::update_check_box_configuration(
+	const bool is_accept)
+{
+	auto method = (is_accept ? &SettingValue<bool>::accept : &SettingValue<bool>::reject);
+
+	for (auto& check_box_context : check_box_contexts_)
+	{
+		(check_box_context.setting_value_ptr_->*method)();
+	}
+}
+
+void AdvancedSettingsWindow::draw_check_box(
+	const CheckBoxContextId check_box_context_id)
+{
+	auto& launcher = Launcher::get_instance();
+	auto& font_manager = FontManager::get_instance();
+
+	auto& window_manager = WindowManager::get_instance();
+	const auto scale = window_manager.get_scale();
+
+	const auto& resource_strings = launcher.get_resource_strings();
+
+	auto& ogl_texture_manager = OglTextureManager::get_instance();
+
+	const auto im_is_mouse_button_down = ImGui::IsMouseDown(0);
+	const auto im_is_mouse_button_up = ImGui::IsMouseReleased(0);
+
+	const auto im_mouse_pos = ImGui::GetMousePos();
+
+	const auto check_box_space_px = 4 * scale;
+
+	const auto check_box_text_normal_color = IM_COL32(0xC0, 0xA0, 0x1C, 0xFF);
+	const auto check_box_text_highlighted_color = IM_COL32(0xFF, 0xFF, 0x0B, 0xFF);
+	const auto check_box_text_disabled_color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
+
+	auto& check_box_context = check_box_contexts_[static_cast<int>(check_box_context_id)];
+
+	const auto check_box_size = ImVec2{20.0F, 11.0F} * scale;
+	const auto check_box_pos = check_box_context.position_ * scale;
+
+	const auto check_box_rect = ImVec4{
+		check_box_pos.x,
+		check_box_pos.y,
+		check_box_size.x,
+		check_box_size.y};
+
+	const auto& text = resource_strings.get(
+		check_box_context.resource_string_id_,
+		check_box_context.resource_string_name_);
+
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+
+	const auto& text_size = ImGui::CalcTextSize(
+		text.c_str(),
+		text.c_str() + text.size());
+
+	ImGui::PopFont();
+
+	const auto text_pos = ImVec2
+	{
+		check_box_pos.x + check_box_size.x + check_box_space_px,
+		check_box_pos.y - (text_size.y - check_box_size.y) * 0.5F,
+	};
+
+	const auto size = ImVec2
+	{
+		check_box_size.x + check_box_space_px + text_size.x,
+		check_box_size.y,
+	};
+
+	const auto rect = ImVec4
+	{
+		check_box_pos.x,
+		check_box_pos.y,
+		size.x,
+		size.y
+	};
+
+	auto is_mouse_button_down = false;
+
+	const auto is_hightlighted = is_point_inside_rect(im_mouse_pos, rect);
+
+	if (is_hightlighted && (im_is_mouse_button_down || im_is_mouse_button_up))
+	{
+		if (im_is_mouse_button_down)
+		{
+			if (!check_box_context.is_pressed_)
+			{
+				check_box_context.is_pressed_ = true;
+				is_mouse_button_down = true;
+			}
+		}
+
+		if (im_is_mouse_button_up)
+		{
+			check_box_context.is_pressed_ = false;
+		}
+	}
+
+	auto ogl_disable_sound_image_id = ImageId{};
+	auto disable_sound_check_box_color = ImU32{};
+
+	auto& setting_value = *check_box_context.setting_value_ptr_;
+
+	if (is_mouse_button_down)
+	{
+		setting_value = !setting_value;
+	}
+
+	if (!setting_value)
+	{
+		ogl_disable_sound_image_id = ImageId::checkboxc;
+		disable_sound_check_box_color = check_box_text_disabled_color;
+	}
+	else if (is_hightlighted)
+	{
+		ogl_disable_sound_image_id = ImageId::checkboxf;
+		disable_sound_check_box_color = check_box_text_highlighted_color;
+	}
+	else
+	{
+		ogl_disable_sound_image_id = ImageId::checkboxn;
+		disable_sound_check_box_color = check_box_text_normal_color;
+	}
+
+	const auto& ogl_disable_sound_texture = ogl_texture_manager.get(ogl_disable_sound_image_id);
+
+	ImGui::SetCursorPos(check_box_pos);
+
+	ImGui::Image(
+		ogl_disable_sound_texture.get_im_texture_id(),
+		check_box_size,
+		ogl_disable_sound_texture.uv0_,
+		ogl_disable_sound_texture.uv1_);
+
+	ImGui::SetCursorPos(text_pos);
+
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushStyleColor(ImGuiCol_Text, disable_sound_check_box_color);
+	ImGui::Text("%s", text.c_str());
+	ImGui::PopStyleColor();
+	ImGui::PopFont();
 }
 
 //
