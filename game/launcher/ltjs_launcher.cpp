@@ -194,6 +194,14 @@ public:
 	{
 	}
 
+	SettingValue(
+		SettingValue&& rhs)
+		:
+		accepted_value_{std::move(rhs.current_value_)},
+		current_value_{std::move(rhs.current_value_)}
+	{
+	}
+
 	SettingValue& operator=(
 		const T& rhs)
 	{
@@ -233,6 +241,13 @@ public:
 	void reject()
 	{
 		current_value_ = accepted_value_;
+	}
+
+	void set_and_accept(
+		const T& value)
+	{
+		accepted_value_ = value;
+		current_value_ = value;
 	}
 
 
@@ -337,23 +352,23 @@ public:
 	static constexpr auto max_file_size = 64 * 1'024;
 
 
-	bool is_warned_about_display_;
-	bool is_warned_about_settings_;
-	bool is_sound_effects_disabled_;
-	bool is_music_disabled_;
-	bool is_fmv_disabled_;
-	bool is_fog_disabled_;
-	bool is_controller_disabled_;
-	bool is_triple_buffering_enabled_;
-	bool is_hardware_cursor_disabled_;
-	bool is_animated_loading_screen_disabled_;
-	bool is_detail_level_selected_;
-	bool is_hardware_sound_disabled_;
-	bool is_sound_filter_disabled_;
-	bool is_always_pass_custom_arguments_;
-	std::string custom_arguments_;
-	int screen_width_;
-	int screen_height_;
+	SettingValue<bool> is_warned_about_display_;
+	SettingValue<bool> is_warned_about_settings_;
+	SettingValue<bool> is_sound_effects_disabled_;
+	SettingValue<bool> is_music_disabled_;
+	SettingValue<bool> is_fmv_disabled_;
+	SettingValue<bool> is_fog_disabled_;
+	SettingValue<bool> is_controller_disabled_;
+	SettingValue<bool> is_triple_buffering_enabled_;
+	SettingValue<bool> is_hardware_cursor_disabled_;
+	SettingValue<bool> is_animated_loading_screen_disabled_;
+	SettingValue<bool> is_detail_level_selected_;
+	SettingValue<bool> is_hardware_sound_disabled_;
+	SettingValue<bool> is_sound_filter_disabled_;
+	SettingValue<bool> is_always_pass_custom_arguments_;
+	SettingValue<std::string> custom_arguments_;
+	SettingValue<int> screen_width_;
+	SettingValue<int> screen_height_;
 
 
 	Configuration(
@@ -1055,19 +1070,6 @@ private:
 	bool is_restore_defaults_pressed_;
 	bool is_pass_command_line_pressed_;
 
-	SettingValue<bool> is_disable_sound_;
-	SettingValue<bool> is_disable_music_;
-	SettingValue<bool> is_disable_movies_;
-	SettingValue<bool> is_disable_hardware_sound_;
-	SettingValue<bool> is_disable_animated_screens_;
-	SettingValue<bool> is_disable_triple_buffering_;
-	SettingValue<bool> is_disable_controllers_;
-	SettingValue<bool> is_disable_hardware_cursor_;
-	SettingValue<bool> is_disable_sound_filters_;
-	SettingValue<bool> is_restore_defaults_;
-	SettingValue<bool> is_pass_command_line_;
-	SettingValue<std::string> command_line_;
-
 
 	AdvancedSettingsWindow();
 
@@ -1750,7 +1752,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_warned_about_display_ = (value != 0);
+				is_warned_about_display_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1763,7 +1765,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_warned_about_settings_ = (value != 0);
+				is_warned_about_settings_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1776,7 +1778,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_sound_effects_disabled_ = (value != 0);
+				is_sound_effects_disabled_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1789,7 +1791,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_music_disabled_ = (value != 0);
+				is_music_disabled_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1802,7 +1804,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_fmv_disabled_ = (value != 0);
+				is_fmv_disabled_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1815,7 +1817,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_fog_disabled_ = (value != 0);
+				is_fog_disabled_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1828,7 +1830,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_controller_disabled_ = (value != 0);
+				is_controller_disabled_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1841,7 +1843,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_triple_buffering_enabled_ = (value != 0);
+				is_triple_buffering_enabled_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1854,7 +1856,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_hardware_cursor_disabled_ = (value != 0);
+				is_hardware_cursor_disabled_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1867,7 +1869,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_animated_loading_screen_disabled_ = (value != 0);
+				is_animated_loading_screen_disabled_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1880,7 +1882,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_detail_level_selected_ = (value != 0);
+				is_detail_level_selected_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1893,7 +1895,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_hardware_sound_disabled_ = (value != 0);
+				is_hardware_sound_disabled_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1906,7 +1908,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_sound_filter_disabled_ = (value != 0);
+				is_sound_filter_disabled_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1919,7 +1921,7 @@ bool Configuration::reload()
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_always_pass_custom_arguments_ = (value != 0);
+				is_always_pass_custom_arguments_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
@@ -1929,7 +1931,7 @@ bool Configuration::reload()
 		//
 		else if (tokens[0].content_ == custom_arguments_setting_name)
 		{
-			custom_arguments_ = tokens[1].content_;
+			custom_arguments_.set_and_accept(tokens[1].content_);
 		}
 		// screen_width
 		//
@@ -1937,7 +1939,7 @@ bool Configuration::reload()
 		{
 			try
 			{
-				screen_width_ = std::stoi(tokens[1].content_);
+				screen_width_.set_and_accept(std::stoi(tokens[1].content_));
 			}
 			catch(...)
 			{
@@ -1949,7 +1951,7 @@ bool Configuration::reload()
 		{
 			try
 			{
-				screen_height_ = std::stoi(tokens[1].content_);
+				screen_height_.set_and_accept(std::stoi(tokens[1].content_));
 			}
 			catch(...)
 			{
@@ -1993,6 +1995,7 @@ bool Configuration::save()
 
 	// is_warned_about_display
 	//
+	is_warned_about_display_.accept();
 	string_buffer += is_warned_about_display_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_warned_about_display_);
@@ -2000,6 +2003,7 @@ bool Configuration::save()
 
 	// is_warned_about_settings
 	//
+	is_warned_about_settings_.accept();
 	string_buffer += is_warned_about_settings_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_warned_about_settings_);
@@ -2007,6 +2011,7 @@ bool Configuration::save()
 
 	// is_sound_effects_disabled
 	//
+	is_sound_effects_disabled_.accept();
 	string_buffer += is_sound_effects_disabled_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_sound_effects_disabled_);
@@ -2014,6 +2019,7 @@ bool Configuration::save()
 
 	// is_music_disabled
 	//
+	is_music_disabled_.accept();
 	string_buffer += is_music_disabled_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_music_disabled_);
@@ -2021,6 +2027,7 @@ bool Configuration::save()
 
 	// is_fmv_disabled
 	//
+	is_fmv_disabled_.accept();
 	string_buffer += is_fmv_disabled_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_fmv_disabled_);
@@ -2028,6 +2035,7 @@ bool Configuration::save()
 
 	// is_fog_disabled
 	//
+	is_fog_disabled_.accept();
 	string_buffer += is_fog_disabled_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_fog_disabled_);
@@ -2035,6 +2043,7 @@ bool Configuration::save()
 
 	// is_controller_disabled
 	//
+	is_controller_disabled_.accept();
 	string_buffer += is_controller_disabled_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_controller_disabled_);
@@ -2042,6 +2051,7 @@ bool Configuration::save()
 
 	// is_triple_buffering_enabled
 	//
+	is_triple_buffering_enabled_.accept();
 	string_buffer += is_triple_buffering_enabled_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_triple_buffering_enabled_);
@@ -2049,6 +2059,7 @@ bool Configuration::save()
 
 	// is_hardware_cursor_disabled
 	//
+	is_hardware_cursor_disabled_.accept();
 	string_buffer += is_hardware_cursor_disabled_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_hardware_cursor_disabled_);
@@ -2056,6 +2067,7 @@ bool Configuration::save()
 
 	// is_animated_loading_screen_disabled
 	//
+	is_animated_loading_screen_disabled_.accept();
 	string_buffer += is_animated_loading_screen_disabled_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_animated_loading_screen_disabled_);
@@ -2063,6 +2075,7 @@ bool Configuration::save()
 
 	// is_detail_level_selected
 	//
+	is_detail_level_selected_.accept();
 	string_buffer += is_detail_level_selected_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_detail_level_selected_);
@@ -2070,6 +2083,7 @@ bool Configuration::save()
 
 	// is_hardware_sound_disabled
 	//
+	is_hardware_sound_disabled_.accept();
 	string_buffer += is_hardware_sound_disabled_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_hardware_sound_disabled_);
@@ -2077,6 +2091,7 @@ bool Configuration::save()
 
 	// is_sound_filter_disabled
 	//
+	is_sound_filter_disabled_.accept();
 	string_buffer += is_sound_filter_disabled_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_sound_filter_disabled_);
@@ -2084,6 +2099,7 @@ bool Configuration::save()
 
 	// is_always_pass_custom_arguments
 	//
+	is_always_pass_custom_arguments_.accept();
 	string_buffer += is_always_pass_custom_arguments_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(is_always_pass_custom_arguments_);
@@ -2091,6 +2107,7 @@ bool Configuration::save()
 
 	// custom_arguments
 	//
+	custom_arguments_.accept();
 	string_buffer += custom_arguments_setting_name;
 	string_buffer += " \"";
 	string_buffer += custom_arguments_;
@@ -2098,6 +2115,7 @@ bool Configuration::save()
 
 	// screen_width
 	//
+	screen_width_.accept();
 	string_buffer += screen_width_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(screen_width_);
@@ -2105,6 +2123,7 @@ bool Configuration::save()
 
 	// screen_height
 	//
+	screen_height_.accept();
 	string_buffer += screen_height_setting_name;
 	string_buffer += ' ';
 	string_buffer += std::to_string(screen_height_);
@@ -2134,23 +2153,23 @@ bool Configuration::save()
 
 void Configuration::reset()
 {
-	is_warned_about_display_ = default_is_warned_about_display;
-	is_warned_about_settings_ = default_is_warned_about_settings;
-	is_sound_effects_disabled_ = default_is_sound_effects_disabled;
-	is_music_disabled_ = default_is_music_disabled;
-	is_fmv_disabled_ = default_is_fmv_disabled;
-	is_fog_disabled_ = default_is_fog_disabled;
-	is_controller_disabled_ = default_is_controller_disabled;
-	is_triple_buffering_enabled_ = default_is_triple_buffering_enabled;
-	is_hardware_cursor_disabled_ = default_is_hardware_cursor_disabled;
-	is_animated_loading_screen_disabled_ = default_is_animated_loading_screen_disabled;
-	is_detail_level_selected_ = default_is_detail_level_selected;
-	is_hardware_sound_disabled_ = default_is_hardware_sound_disabled;
-	is_sound_filter_disabled_ = default_is_sound_filter_disabled;
-	is_always_pass_custom_arguments_ = default_is_always_pass_custom_arguments;
-	custom_arguments_ = default_custom_arguments;
-	screen_width_ = default_screen_width;
-	screen_height_ = default_screen_height;
+	is_warned_about_display_.set_and_accept(default_is_warned_about_display);
+	is_warned_about_settings_.set_and_accept(default_is_warned_about_settings);
+	is_sound_effects_disabled_.set_and_accept(default_is_sound_effects_disabled);
+	is_music_disabled_.set_and_accept(default_is_music_disabled);
+	is_fmv_disabled_.set_and_accept(default_is_fmv_disabled);
+	is_fog_disabled_.set_and_accept(default_is_fog_disabled);
+	is_controller_disabled_.set_and_accept(default_is_controller_disabled);
+	is_triple_buffering_enabled_.set_and_accept(default_is_triple_buffering_enabled);
+	is_hardware_cursor_disabled_.set_and_accept(default_is_hardware_cursor_disabled);
+	is_animated_loading_screen_disabled_.set_and_accept(default_is_animated_loading_screen_disabled);
+	is_detail_level_selected_.set_and_accept(default_is_detail_level_selected);
+	is_hardware_sound_disabled_.set_and_accept(default_is_hardware_sound_disabled);
+	is_sound_filter_disabled_.set_and_accept(default_is_sound_filter_disabled);
+	is_always_pass_custom_arguments_.set_and_accept(default_is_always_pass_custom_arguments);
+	custom_arguments_.set_and_accept(default_custom_arguments);
+	screen_width_.set_and_accept(default_screen_width);
+	screen_height_.set_and_accept(default_screen_height);
 }
 
 //
@@ -5942,19 +5961,7 @@ AdvancedSettingsWindow::AdvancedSettingsWindow()
 	is_disable_hardware_cursor_pressed_{},
 	is_disable_sound_filters_pressed_{},
 	is_restore_defaults_pressed_{},
-	is_pass_command_line_pressed_{},
-	is_disable_sound_{},
-	is_disable_music_{},
-	is_disable_movies_{},
-	is_disable_hardware_sound_{},
-	is_disable_animated_screens_{},
-	is_disable_triple_buffering_{},
-	is_disable_controllers_{},
-	is_disable_hardware_cursor_{},
-	is_disable_sound_filters_{},
-	is_restore_defaults_{},
-	is_pass_command_line_{},
-	command_line_{}
+	is_pass_command_line_pressed_{}
 {
 }
 
@@ -6162,10 +6169,10 @@ void AdvancedSettingsWindow::do_draw()
 
 	if (is_disable_sound_mouse_button_down)
 	{
-		is_disable_sound_ = !is_disable_sound_;
+		configuration.is_sound_effects_disabled_ = !configuration.is_sound_effects_disabled_;
 	}
 
-	if (is_disable_sound_)
+	if (configuration.is_sound_effects_disabled_)
 	{
 		ogl_disable_sound_image_id = ImageId::checkboxc;
 		disable_sound_check_box_color = check_box_text_disabled_color;
@@ -6309,7 +6316,7 @@ void AdvancedSettingsWindow::do_draw()
 	//
 	if (is_close_button_clicked || is_cancel_button_clicked)
 	{
-		is_disable_sound_.reject();
+		configuration.is_sound_effects_disabled_.reject();
 
 		set_message_box_result(MessageBoxResult::cancel);
 		show(false);
@@ -6317,7 +6324,7 @@ void AdvancedSettingsWindow::do_draw()
 	}
 	else if (is_ok_button_clicked)
 	{
-		is_disable_sound_.accept();
+		configuration.is_sound_effects_disabled_.accept();
 
 		set_message_box_result(MessageBoxResult::ok);
 		show(false);
