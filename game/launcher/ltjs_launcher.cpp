@@ -4427,6 +4427,7 @@ void MessageBoxWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
+	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
@@ -4711,7 +4712,7 @@ void MessageBoxWindow::do_draw()
 		is_hide = true;
 		set_message_box_result(MessageBoxResult::ok);
 	}
-	else if (is_cancel_button_clicked)
+	else if (is_cancel_button_clicked || is_escape_down)
 	{
 		is_hide = true;
 		set_message_box_result(MessageBoxResult::cancel);
@@ -4901,6 +4902,10 @@ void MainWindow::handle_message_box_result_event(
 			handle_check_for_renderers();
 			show(true);
 		}
+		else
+		{
+			attach_to_message_box_result_event(false, AttachPoint::message_box);
+		}
 
 		break;
 	}
@@ -4968,6 +4973,7 @@ void MainWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
+	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 	const auto is_modal = (state_ != State::main_window);
 
@@ -5517,7 +5523,7 @@ void MainWindow::do_draw()
 		minimize_internal(true);
 		return;
 	}
-	else if (is_close_button_clicked || is_quit_button_clicked)
+	else if (is_close_button_clicked || is_quit_button_clicked || is_escape_down)
 	{
 		auto sdl_event = SDL_Event{};
 
@@ -5703,6 +5709,7 @@ void DisplaySettingsWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
+	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
@@ -6005,7 +6012,7 @@ void DisplaySettingsWindow::do_draw()
 
 	// Handle events.
 	//
-	if (is_close_button_clicked || is_cancel_button_clicked)
+	if (is_close_button_clicked || is_cancel_button_clicked | is_escape_down)
 	{
 		selected_resolution_index_.reject();
 		set_message_box_result(MessageBoxResult::cancel);
@@ -6275,6 +6282,7 @@ void AdvancedSettingsWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
+	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
@@ -6517,7 +6525,7 @@ void AdvancedSettingsWindow::do_draw()
 
 	// Handle events.
 	//
-	if (is_close_button_clicked || is_cancel_button_clicked)
+	if (is_close_button_clicked || is_cancel_button_clicked || is_escape_down)
 	{
 		update_check_box_configuration(false);
 		configuration.custom_arguments_.reject();
