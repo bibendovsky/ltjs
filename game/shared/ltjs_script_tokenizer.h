@@ -64,6 +64,18 @@ public:
 	// Returns lines of tokens.
 	const ScriptLines& get_lines() const;
 
+	//
+	// Replaces special whitespace characters (new line, double quote) with escaped ones.
+	//
+	// Parameters:
+	//    - string - string to modify.
+	//
+	// Returns:
+	//    - Escaped string.
+	//
+	static std::string escape_string(
+		const std::string& string);
+
 
 private:
 	class Impl;

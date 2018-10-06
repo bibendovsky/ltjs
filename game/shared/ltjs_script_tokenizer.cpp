@@ -601,6 +601,46 @@ const ScriptLines& ScriptTokenizer::get_lines() const
 	return impl_->impl_get_lines();
 }
 
+std::string ScriptTokenizer::escape_string(
+	const std::string& string)
+{
+	if (string.empty())
+	{
+		return {};
+	}
+
+	auto result = string;
+
+	auto i = 0;
+	auto n = static_cast<int>(string.size());
+
+	while (i < n)
+	{
+		switch (result[i])
+		{
+		case '\n':
+			result[i] = '\\';
+			result.insert(i + 1, 1, 'n');
+			i += 2;
+			n += 1;
+			break;
+
+		case '\"':
+			result[i] = '\\';
+			result.insert(i + 1, 1, '\"');
+			i += 2;
+			n += 1;
+			break;
+
+		default:
+			i += 1;
+			break;
+		}
+	}
+
+	return result;
+}
+
 // ScriptTokenizer
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 

@@ -456,6 +456,13 @@ private:
 	Configuration();
 
 	~Configuration();
+
+
+	static std::string serialize_cl_args(
+		const std::string& custom_command_line);
+
+	static std::string deserialize_cl_args(
+		const std::string& custom_command_line);
 }; // Configuration
 
 
@@ -1979,7 +1986,7 @@ bool Configuration::reload()
 		//
 		else if (tokens[0].content_ == custom_arguments_setting_name)
 		{
-			custom_arguments_.set_and_accept(tokens[1].content_);
+			custom_arguments_.set_and_accept(deserialize_cl_args(tokens[1].content_));
 		}
 		// screen_width
 		//
@@ -2158,7 +2165,7 @@ bool Configuration::save()
 	custom_arguments_.accept();
 	string_buffer += custom_arguments_setting_name;
 	string_buffer += " \"";
-	string_buffer += custom_arguments_;
+	string_buffer += serialize_cl_args(custom_arguments_);
 	string_buffer += "\"\n";
 
 	// screen_width
@@ -2220,6 +2227,41 @@ void Configuration::reset()
 	screen_height_.set_and_accept(default_screen_height);
 }
 
+std::string Configuration::serialize_cl_args(
+	const std::string& custom_command_line)
+{
+	auto result = ScriptTokenizer::escape_string(custom_command_line);
+
+	std::replace_if(
+		result.begin(),
+		result.end(),
+		[](const auto& item)
+		{
+			return item < ' ';
+		},
+		' '
+	);
+
+	return result;
+}
+
+std::string Configuration::deserialize_cl_args(
+	const std::string& custom_command_line)
+{
+	auto result = custom_command_line;
+
+	std::replace_if(
+		result.begin(),
+		result.end(),
+		[](const auto& item)
+		{
+			return item < ' ';
+		},
+		' '
+	);
+
+	return result;
+}
 //
 // Configuration
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
