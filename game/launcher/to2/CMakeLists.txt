@@ -22,6 +22,7 @@ target_include_directories(
 		../../../libs/bibendovsky_spul_lib/include
 		../../../libs/glad/1_1
 		../../../libs/imgui
+		../../../libs/imgui/misc/stl
 		../../shared
 		..
 )
@@ -36,6 +37,7 @@ target_sources(
 		../../../libs/imgui/imstb_rectpack.h
 		../../../libs/imgui/imstb_textedit.h
 		../../../libs/imgui/imstb_truetype.h
+		../../../libs/imgui/misc/stl/imgui_stl.h
 		../../shared/ltjs_resource_strings.h
 		../../shared/ltjs_script_tokenizer.h
 		../ltjs_launcher.h
@@ -49,6 +51,7 @@ target_sources(
 		../../../libs/imgui/imgui_demo.cpp
 		../../../libs/imgui/imgui_draw.cpp
 		../../../libs/imgui/imgui_widgets.cpp
+		../../../libs/imgui/misc/stl/imgui_stl.cpp
 		../../shared/ltjs_resource_strings.cpp
 		../../shared/ltjs_script_tokenizer.cpp
 		../ltjs_launcher.cpp

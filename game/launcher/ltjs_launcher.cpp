@@ -17,6 +17,7 @@
 #include "bibendovsky_spul_scope_guard.h"
 #include "glad.h"
 #include "imgui.h"
+#include "imgui_stl.h"
 #include "SDL.h"
 #include "ltjs_resource_strings.h"
 #include "ltjs_script_tokenizer.h"
@@ -221,7 +222,6 @@ public:
 		return current_value_;
 	}
 
-
 	operator T*()
 	{
 		return &current_value_;
@@ -232,6 +232,26 @@ public:
 		return &current_value_;
 	}
 
+
+	T& get_ref()
+	{
+		return current_value_;
+	}
+
+	const T& get_ref() const
+	{
+		return current_value_;
+	}
+
+	T* get_ptr()
+	{
+		return &current_value_;
+	}
+
+	const T* get_ptr() const
+	{
+		return &current_value_;
+	}
 
 	void accept()
 	{
@@ -6305,6 +6325,31 @@ void AdvancedSettingsWindow::do_draw()
 	}
 
 
+	// Command line.
+	//
+	const auto cmd_pos = ImVec2{25.0F, 265.0F} * scale;
+	const auto cmd_size = ImVec2{405.0F, 23.0F} * scale;
+	const auto cmd_rect = ImVec4{cmd_pos.x, cmd_pos.y, cmd_size.x, cmd_size.y};
+
+	ImGui::SetCursorPos(cmd_pos);
+
+	auto cmd_font = font_manager.get_font(FontId::message_box_message);
+
+	const auto cmd_input_pos = center_size_inside_rect(cmd_rect, ImVec2{0.0F, cmd_font->FontSize});
+	const auto cmd_input_rel_pos = ImVec2{0.0F, cmd_input_pos.y - cmd_rect.y};
+
+	ImGui::BeginChild("##command_line_child", cmd_size);
+	ImGui::SetCursorPos(cmd_input_rel_pos);
+	ImGui::PushFont(cmd_font);
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+	ImGui::PushItemWidth(-1);
+	ImGui::InputText("##command_line", configuration.custom_arguments_.get_ptr());
+	ImGui::PopItemWidth();
+	ImGui::PopStyleColor();
+	ImGui::PopFont();
+	ImGui::EndChild();
+
+
 	// Hint.
 	//
 	const auto hint_pos = ImVec2{14.0F, 341.0F} * scale;
@@ -6432,6 +6477,7 @@ void AdvancedSettingsWindow::do_draw()
 	if (is_close_button_clicked || is_cancel_button_clicked)
 	{
 		update_check_box_configuration(false);
+		configuration.custom_arguments_.reject();
 
 		set_message_box_result(MessageBoxResult::cancel);
 		show(false);
@@ -6440,6 +6486,7 @@ void AdvancedSettingsWindow::do_draw()
 	else if (is_ok_button_clicked)
 	{
 		update_check_box_configuration(true);
+		configuration.custom_arguments_.accept();
 
 		set_message_box_result(MessageBoxResult::ok);
 		show(false);
