@@ -2165,7 +2165,7 @@ bool Configuration::save()
 	custom_arguments_.accept();
 	string_buffer += custom_arguments_setting_name;
 	string_buffer += " \"";
-	string_buffer += serialize_cl_args(custom_arguments_);
+	string_buffer += (is_always_pass_custom_arguments_ ? serialize_cl_args(custom_arguments_) : "");
 	string_buffer += "\"\n";
 
 	// screen_width
@@ -5530,10 +5530,11 @@ void MainWindow::do_draw()
 	{
 		if (is_show_play_button_)
 		{
-			const auto command = lithtech_executable + " -cmdfile " + Launcher::launcher_commands_file_name;
-
 			show(false);
 
+			configuration.save();
+
+			const auto command = lithtech_executable + " -cmdfile " + Launcher::launcher_commands_file_name;
 			const auto exec_result = std::system(command.c_str());
 
 			is_show_play_button_ = is_lithtech_executable_exists();
