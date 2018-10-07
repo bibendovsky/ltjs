@@ -380,6 +380,7 @@ public:
 	static constexpr auto max_file_size = 64 * 1'024;
 
 
+	SettingValue<std::string> language_;
 	SettingValue<bool> is_warned_about_display_;
 	SettingValue<bool> is_warned_about_settings_;
 	SettingValue<bool> is_sound_effects_disabled_;
@@ -421,6 +422,7 @@ private:
 	static const std::string configuration_file_name;
 
 
+	static const std::string default_language;
 	static const bool default_is_warned_about_display;
 	static const bool default_is_warned_about_settings;
 	static const bool default_is_sound_effects_disabled;
@@ -439,6 +441,7 @@ private:
 	static const int default_screen_width;
 	static const int default_screen_height;
 
+	static const std::string language_setting_name;
 	static const std::string is_warned_about_display_setting_name;
 	static const std::string is_warned_about_settings_setting_name;
 	static const std::string is_sound_effects_disabled_setting_name;
@@ -1668,6 +1671,7 @@ bool DisplayModeManager::sdl_is_pixel_format_valid(
 const std::string Configuration::configuration_file_name = LTJS_GAME_ID_STRING "_launcher_config.txt";
 
 
+const std::string Configuration::default_language = "en";
 const bool Configuration::default_is_warned_about_display = false;
 const bool Configuration::default_is_warned_about_settings = false;
 const bool Configuration::default_is_sound_effects_disabled = false;
@@ -1687,6 +1691,7 @@ const int Configuration::default_screen_width = 0;
 const int Configuration::default_screen_height = 0;
 
 
+const std::string Configuration::language_setting_name = "language";
 const std::string Configuration::is_warned_about_display_setting_name = "disable_display_settings_warning";
 const std::string Configuration::is_warned_about_settings_setting_name = "disable_advanced_settings_warning";
 const std::string Configuration::is_sound_effects_disabled_setting_name = "disable_sound_effects";
@@ -1710,6 +1715,7 @@ Configuration::Configuration()
 	:
 	is_initialized_{},
 	configuration_path_{},
+	language_{},
 	is_warned_about_display_{},
 	is_warned_about_settings_{},
 	is_sound_effects_disabled_{},
@@ -1736,6 +1742,7 @@ Configuration::Configuration(
 	:
 	is_initialized_{std::move(is_initialized_)},
 	configuration_path_{std::move(configuration_path_)},
+	language_{std::move(language_)},
 	is_warned_about_display_{std::move(is_warned_about_display_)},
 	is_warned_about_settings_{std::move(is_warned_about_settings_)},
 	is_sound_effects_disabled_{std::move(is_sound_effects_disabled_)},
@@ -1853,6 +1860,12 @@ bool Configuration::reload()
 
 		if (false)
 		{
+		}
+		// language
+		//
+		else if (tokens[0].content_ == language_setting_name)
+		{
+			language_.set_and_accept(tokens[1].content_);
 		}
 		// is_warned_about_display
 		//
@@ -2102,6 +2115,14 @@ bool Configuration::save()
 	string_buffer += "*/\n";
 	string_buffer += '\n';
 
+	// language
+	//
+	is_warned_about_display_.accept();
+	string_buffer += language_setting_name;
+	string_buffer += " \"";
+	string_buffer += language_;
+	string_buffer += "\"\n";
+
 	// is_warned_about_display
 	//
 	is_warned_about_display_.accept();
@@ -2262,6 +2283,7 @@ bool Configuration::save()
 
 void Configuration::reset()
 {
+	language_.set_and_accept(default_language);
 	is_warned_about_display_.set_and_accept(default_is_warned_about_display);
 	is_warned_about_settings_.set_and_accept(default_is_warned_about_settings);
 	is_sound_effects_disabled_.set_and_accept(default_is_sound_effects_disabled);
@@ -2898,10 +2920,19 @@ bool FontManager::add_font(
 
 	const auto font_index = static_cast<int>(description.font_id_);
 
+	static const ImWchar glyph_ranges[] =
+	{
+		L'\x0020', L'\x024F', // Basic Latin + Latin Supplement + Latin Extended-A + Latin Extended-B
+		L'\x0400', L'\x052F', // Cyrillic + Cyrillic Supplement
+		L'\0',
+	}; // glyph_ranges
+
 	const auto im_font = im_font_atlas_uptr_->AddFontFromMemoryTTF(
 		im_font_data,
 		font_data_size,
-		description.size_in_pixels_ * scale);
+		description.size_in_pixels_ * scale,
+		nullptr,
+		glyph_ranges);
 
 	if (!im_font)
 	{
@@ -3099,6 +3130,8 @@ bool OglTextureManager::load_all_textures()
 		}
 	};
 
+	const auto& configuration = Configuration::get_instance();
+
 	sdl_ogl_window_.make_ogl_context_current(true);
 
 	const auto image_count = static_cast<int>(image_file_names.size());
@@ -3114,13 +3147,13 @@ bool OglTextureManager::load_all_textures()
 		if (!image_surface)
 		{
 			const auto specific_image_path = ul::PathUtils::normalize(
-				ul::PathUtils::append(ul::PathUtils::append(images_path, "en"), image_file_name));
+				ul::PathUtils::append(ul::PathUtils::append(images_path, configuration.language_), image_file_name));
 
 			image_surface = ::SDL_LoadBMP(specific_image_path.c_str());
 
 			if (!image_surface)
 			{
-				set_error_message("Failed to load image: \"" + invariant_image_path + "\".");
+				set_error_message("Failed to load image: \"" + specific_image_path + "\".");
 				return false;
 			}
 		}
@@ -7527,8 +7560,10 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		auto& configuration = Configuration::get_instance();
+
 		const auto resource_strings_result = resource_strings_.initialize(
-			"en",
+			configuration.language_,
 			"ltjs/" LTJS_GAME_ID_STRING "/launcher/strings",
 			"launcher.txt");
 

@@ -2,7 +2,10 @@
 
 LTJS
 
-Strings for "No One Lives Forever 2" launcher (english, utf-8).
+Strings for "No One Lives Forever 2" launcher.
+
+Language: English
+Encoding: UTF-8
 
 */
 
