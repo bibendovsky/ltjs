@@ -6288,8 +6288,8 @@ void AdvancedSettingsWindow::do_draw()
 
 	const auto check_box_space_px = 4 * scale;
 
-	const auto check_box_text_normal_color = IM_COL32(0xC0, 0xA0, 0x1C, 0xFF);
-	const auto check_box_text_highlighted_color = IM_COL32(0xFF, 0xFF, 0x0B, 0xFF);
+	const auto check_box_text_normal_color = IM_COL32(0xC0, 0xA0, 0x20, 0xFF);
+	const auto check_box_text_highlighted_color = IM_COL32(0xFF, 0xFF, 0x00, 0xFF);
 	const auto check_box_text_disabled_color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
 
 
