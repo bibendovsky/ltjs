@@ -167,6 +167,14 @@ enum class MessageBoxResult
 	cancel,
 }; // MessageBoxResult
 
+enum class DetailLevel
+{
+	none,
+	low,
+	medium,
+	high,
+}; // DetailLevel
+
 
 struct DisplayMode
 {
@@ -389,6 +397,7 @@ public:
 	SettingValue<std::string> custom_arguments_;
 	SettingValue<int> screen_width_;
 	SettingValue<int> screen_height_;
+	SettingValue<bool> is_restore_defaults_; // Not serializable.
 
 
 	Configuration(
@@ -982,6 +991,7 @@ private:
 		message_box,
 		display_settings,
 		advanced_settings,
+		detail_settings,
 	}; // AttachPoint
 
 	enum class State
@@ -992,6 +1002,7 @@ private:
 		display_settings_window,
 		advanced_settings_warning,
 		advanced_settings_window,
+		detail_settings_window,
 	}; // State
 
 
@@ -1018,9 +1029,48 @@ private:
 	void handle_message_box_result_event(
 		WindowPtr sender_window_ptr);
 
+	void run_the_game();
+
 
 	void do_draw() override;
 }; // MainWindow
+
+
+class DetailSettingsWindow;
+using DetailSettingsWindowPtr = DetailSettingsWindow*;
+using DetailSettingsWindowUPtr = std::unique_ptr<DetailSettingsWindow>;
+
+class DetailSettingsWindow final :
+	public Window
+{
+public:
+	~DetailSettingsWindow() override;
+
+
+	static DetailSettingsWindowPtr create();
+
+	DetailLevel get_detail_level() const;
+
+
+private:
+	static constexpr auto window_width = 456;
+	static constexpr auto window_height = 480;
+
+
+	DetailLevel detail_level_;
+
+
+	DetailSettingsWindow();
+
+
+	bool initialize(
+		const WindowCreateParam& param);
+
+	void uninitialize();
+
+
+	void do_draw() override;
+}; // DetailSettingsWindow
 
 
 class DisplaySettingsWindow;
@@ -1102,7 +1152,6 @@ private:
 
 	CheckBoxContexts check_box_contexts_;
 	std::string hint_;
-	SettingValue<bool> is_restore_defaults_;
 
 
 	AdvancedSettingsWindow();
@@ -1279,6 +1328,8 @@ public:
 
 	AdvancedSettingsWindowPtr get_advanced_settings_window();
 
+	DetailSettingsWindowPtr get_detail_settings_window();
+
 
 private:
 	bool is_initialized_;
@@ -1288,6 +1339,7 @@ private:
 	MainWindowUPtr main_window_uptr_;
 	DisplaySettingsWindowUPtr display_settings_window_uptr_;
 	AdvancedSettingsWindowUPtr advanced_settings_window_uptr_;
+	DetailSettingsWindowUPtr detail_settings_window_uptr_;
 
 
 	Launcher();
@@ -1674,7 +1726,8 @@ Configuration::Configuration()
 	is_always_pass_custom_arguments_{},
 	custom_arguments_{},
 	screen_width_{},
-	screen_height_{}
+	screen_height_{},
+	is_restore_defaults_{}
 {
 }
 
@@ -1699,7 +1752,8 @@ Configuration::Configuration(
 	is_always_pass_custom_arguments_{std::move(is_always_pass_custom_arguments_)},
 	custom_arguments_{std::move(custom_arguments_)},
 	screen_width_{std::move(screen_width_)},
-	screen_height_{std::move(screen_height_)}
+	screen_height_{std::move(screen_height_)},
+	is_restore_defaults_{std::move(is_restore_defaults_)}
 {
 }
 
@@ -4866,6 +4920,10 @@ void MainWindow::attach_to_message_box_result_event(
 		window_ptr = launcher.get_advanced_settings_window();
 		break;
 
+	case AttachPoint::detail_settings:
+		window_ptr = launcher.get_detail_settings_window();
+		break;
+
 	default:
 		throw "Invalid attach point.";
 	}
@@ -4955,8 +5013,53 @@ void MainWindow::handle_message_box_result_event(
 		break;
 	}
 
+	case State::detail_settings_window:
+		state_ = State::main_window;
+
+		attach_to_message_box_result_event(false, AttachPoint::detail_settings);
+
+		if (message_box_result == MessageBoxResult::cancel)
+		{
+			show(true);
+		}
+		else
+		{
+			run_the_game();
+		}
+
+		break;
+
 	default:
 		throw "Invalid state.";
+	}
+}
+
+void MainWindow::run_the_game()
+{
+	auto& launcher = Launcher::get_instance();
+	auto& configuration = Configuration::get_instance();
+
+	show(false);
+
+	configuration.save();
+
+	const auto command = lithtech_executable + " -cmdfile " + Launcher::launcher_commands_file_name;
+	const auto exec_result = std::system(command.c_str());
+
+	is_show_play_button_ = is_lithtech_executable_exists();
+
+	show(true);
+
+	if (exec_result != 0)
+	{
+		launcher.show_message_box(
+			MessageBoxType::error,
+			MessageBoxButtons::ok,
+			"Failed to run LithTech executable \"" + lithtech_executable + "\".");
+	}
+	else
+	{
+		configuration.is_restore_defaults_.set_and_accept(false);
 	}
 }
 
@@ -5515,7 +5618,6 @@ void MainWindow::do_draw()
 	ImGui::End();
 
 
-
 	// Handle events.
 	//
 	if (is_minimize_button_clicked)
@@ -5536,25 +5638,18 @@ void MainWindow::do_draw()
 	{
 		if (is_show_play_button_)
 		{
-			show(false);
-
-			configuration.save();
-
-			const auto command = lithtech_executable + " -cmdfile " + Launcher::launcher_commands_file_name;
-			const auto exec_result = std::system(command.c_str());
-
-			is_show_play_button_ = is_lithtech_executable_exists();
-
-			show(true);
-
-			if (exec_result != 0)
+			if (configuration.is_restore_defaults_)
 			{
-				launcher.show_message_box(
-					MessageBoxType::error,
-					MessageBoxButtons::ok,
-					"Failed to run LithTech executable \"" + lithtech_executable + "\".");
+				state_ = State::detail_settings_window;
 
-				return;
+				attach_to_message_box_result_event(true, AttachPoint::detail_settings);
+
+				auto detail_settings_window_ptr = launcher.get_detail_settings_window();
+				detail_settings_window_ptr->show(true);
+			}
+			else
+			{
+				run_the_game();
 			}
 		}
 		else
@@ -5619,6 +5714,489 @@ void MainWindow::do_draw()
 
 //
 // MainWindow
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// DetailSettingsWindow
+//
+
+DetailSettingsWindow::DetailSettingsWindow()
+{
+}
+
+DetailSettingsWindow::~DetailSettingsWindow()
+{
+}
+
+DetailSettingsWindowPtr DetailSettingsWindow::create()
+{
+	const auto& window_manager = WindowManager::get_instance();
+	const auto scale = window_manager.get_scale();
+
+	auto detail_settings_window_param = WindowCreateParam{};
+	detail_settings_window_param.title_ = "detail_settings";
+	detail_settings_window_param.width_ = static_cast<int>(window_width * scale);
+	detail_settings_window_param.height_ = static_cast<int>(window_height * scale);
+	detail_settings_window_param.is_hidden_ = true;
+
+	auto detail_settings_window_ptr = new DetailSettingsWindow{};
+
+	static_cast<void>(detail_settings_window_ptr->initialize(detail_settings_window_param));
+
+	return detail_settings_window_ptr;
+}
+
+DetailLevel DetailSettingsWindow::get_detail_level() const
+{
+	return detail_level_;
+}
+
+bool DetailSettingsWindow::initialize(
+	const WindowCreateParam& param)
+{
+	if (!Window::initialize(param))
+	{
+		return false;
+	}
+
+	detail_level_ = {};
+	set_message_box_result(MessageBoxResult::cancel);
+
+	return true;
+}
+
+void DetailSettingsWindow::uninitialize()
+{
+}
+
+void DetailSettingsWindow::do_draw()
+{
+	auto& launcher = Launcher::get_instance();
+	const auto& resource_strings = launcher.get_resource_strings();
+	const auto& window_manager = WindowManager::get_instance();
+	auto& font_manager = FontManager::get_instance();
+
+	const auto scale = window_manager.get_scale();
+
+	auto& ogl_texture_manager = OglTextureManager::get_instance();
+
+	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
+	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
+	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
+
+	const auto mouse_pos = ImGui::GetMousePos();
+
+
+	// Begin detail settings window.
+	//
+	const auto main_flags =
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_None;
+
+	ImGui::Begin("detail_settings", nullptr, main_flags);
+	ImGui::SetWindowPos({}, ImGuiCond_Always);
+
+	ImGui::SetWindowSize(
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ImGuiCond_Always);
+
+
+	// Background.
+	//
+	ImGui::SetCursorPos(ImVec2{});
+
+	const auto& ogl_displaybackground_texture = ogl_texture_manager.get(ImageId::detailsettingsbackground);
+
+	ImGui::Image(
+		ogl_displaybackground_texture.get_im_texture_id(),
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ogl_displaybackground_texture.uv0_,
+		ogl_displaybackground_texture.uv1_);
+
+
+	// Close button.
+	//
+	const auto close_pos = ImVec2{434.0F, 6.0F} * scale;
+	const auto close_size = ImVec2{16.0F, 14.0F} * scale;
+	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
+
+	auto is_close_mouse_button_down = false;
+	auto is_close_button_clicked = false;
+
+	if (is_mouse_button_down || is_mouse_button_up)
+	{
+		if (is_point_inside_rect(mouse_pos, close_rect))
+		{
+			if (is_mouse_button_down)
+			{
+				is_close_mouse_button_down = true;
+			}
+
+			if (is_mouse_button_up)
+			{
+				is_close_button_clicked = true;
+			}
+		}
+	}
+
+	const auto ogl_close_image_id = (is_close_mouse_button_down ? ImageId::closed : ImageId::closeu);
+	const auto& ogl_close_texture = ogl_texture_manager.get(ogl_close_image_id);
+
+	ImGui::SetCursorPos(close_pos);
+
+	ImGui::Image(
+		ogl_close_texture.get_im_texture_id(),
+		close_size,
+		ogl_close_texture.uv0_,
+		ogl_close_texture.uv1_);
+
+
+	// "Cancel" button.
+	//
+	const auto cancel_pos = ImVec2{178.0F, 440.0F} * scale;
+	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
+
+	auto is_cancel_button_clicked = false;
+	auto is_cancel_mouse_button_down = false;
+
+	const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
+
+	if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_cancel_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_cancel_button_clicked = true;
+		}
+	}
+
+	auto ogl_cancel_image_id = ImageId{};
+
+	if (is_cancel_mouse_button_down)
+	{
+		ogl_cancel_image_id = ImageId::canceld;
+	}
+	else if (is_cancel_button_hightlighted)
+	{
+		ogl_cancel_image_id = ImageId::cancelf;
+	}
+	else
+	{
+		ogl_cancel_image_id = ImageId::cancelu;
+	}
+
+	const auto& ogl_cancel_texture = ogl_texture_manager.get(ogl_cancel_image_id);
+
+	ImGui::SetCursorPos(cancel_pos);
+
+	ImGui::Image(
+		ogl_cancel_texture.get_im_texture_id(),
+		cancel_size,
+		ogl_cancel_texture.uv0_,
+		ogl_cancel_texture.uv1_);
+
+
+	// Header.
+	//
+	const auto header_pos = ImVec2{14.0F, 45.0F} * scale;
+	const auto header_size = ImVec2{428.0F, 51.0F} * scale;
+
+	const auto& header_text = resource_strings.get(Launcher::IDS_DETAIL_HEADER, "IDS_DETAIL_HEADER");
+
+	ImGui::SetCursorPos(header_pos);
+	ImGui::BeginChild("##header_child", header_size);
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+
+	ImGui::PushItemWidth(-1);
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::TextWrapped("%s", header_text.c_str());
+	ImGui::PopFont();
+	ImGui::PopStyleColor();
+	ImGui::PopItemWidth();
+
+	ImGui::PopStyleColor();
+	ImGui::EndChild();
+
+
+	// High detail header.
+	//
+	const auto high_header_pos = ImVec2{14.0F, 119.0F} * scale;
+	const auto high_header_size = ImVec2{428.0F, 40.0F} * scale;
+
+	const auto& high_header_text = resource_strings.get(Launcher::IDS_DETAIL_HIGH, "IDS_DETAIL_HIGH");
+
+	ImGui::SetCursorPos(high_header_pos);
+	ImGui::BeginChild("##high_header_child", high_header_size);
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+
+	ImGui::PushItemWidth(-1);
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::TextWrapped("%s", high_header_text.c_str());
+	ImGui::PopFont();
+	ImGui::PopStyleColor();
+	ImGui::PopItemWidth();
+
+	ImGui::PopStyleColor();
+	ImGui::EndChild();
+
+
+	// High detail button.
+	//
+	const auto high_button_pos = ImVec2{140.0F, 165.0F} * scale;
+	const auto high_button_size = ImVec2{177.0F, 38.0F} * scale;
+	const auto high_button_rect = ImVec4{high_button_pos.x, high_button_pos.y, high_button_size.x, high_button_size.y};
+
+	auto is_high_button_clicked = false;
+	auto is_high_mouse_button_down = false;
+
+	const auto is_high_button_hightlighted = is_point_inside_rect(mouse_pos, high_button_rect);
+
+	if (is_high_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_high_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_high_button_clicked = true;
+		}
+	}
+
+	auto ogl_high_image_id = ImageId{};
+
+	if (is_high_mouse_button_down)
+	{
+		ogl_high_image_id = ImageId::highdetaild;
+	}
+	else if (is_high_button_hightlighted)
+	{
+		ogl_high_image_id = ImageId::highdetailf;
+	}
+	else
+	{
+		ogl_high_image_id = ImageId::highdetailu;
+	}
+
+	const auto& ogl_high_texture = ogl_texture_manager.get(ogl_high_image_id);
+
+	ImGui::SetCursorPos(high_button_pos);
+
+	ImGui::Image(
+		ogl_high_texture.get_im_texture_id(),
+		high_button_size,
+		ogl_high_texture.uv0_,
+		ogl_high_texture.uv1_);
+
+
+	// Medium detail header.
+	//
+	const auto medium_header_pos = ImVec2{14.0F, 228.0F} * scale;
+	const auto medium_header_size = ImVec2{428.0F, 43.0F} * scale;
+
+	const auto& medium_header_text = resource_strings.get(Launcher::IDS_DETAIL_MEDIUM, "IDS_DETAIL_MEDIUM");
+
+	ImGui::SetCursorPos(medium_header_pos);
+	ImGui::BeginChild("##medium_header_child", medium_header_size);
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+
+	ImGui::PushItemWidth(-1);
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::TextWrapped("%s", medium_header_text.c_str());
+	ImGui::PopFont();
+	ImGui::PopStyleColor();
+	ImGui::PopItemWidth();
+
+	ImGui::PopStyleColor();
+	ImGui::EndChild();
+
+
+	// Medium detail button.
+	//
+	const auto medium_button_pos = ImVec2{140.0F, 274.0F} * scale;
+	const auto medium_button_size = ImVec2{178.0F, 36.0F} * scale;
+	const auto medium_button_rect = ImVec4{medium_button_pos.x, medium_button_pos.y, medium_button_size.x, medium_button_size.y};
+
+	auto is_medium_button_clicked = false;
+	auto is_medium_mouse_button_down = false;
+
+	const auto is_medium_button_hightlighted = is_point_inside_rect(mouse_pos, medium_button_rect);
+
+	if (is_medium_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_medium_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_medium_button_clicked = true;
+		}
+	}
+
+	auto ogl_medium_image_id = ImageId{};
+
+	if (is_medium_mouse_button_down)
+	{
+		ogl_medium_image_id = ImageId::mediumdetaild;
+	}
+	else if (is_medium_button_hightlighted)
+	{
+		ogl_medium_image_id = ImageId::mediumdetailf;
+	}
+	else
+	{
+		ogl_medium_image_id = ImageId::mediumdetailu;
+	}
+
+	const auto& ogl_medium_texture = ogl_texture_manager.get(ogl_medium_image_id);
+
+	ImGui::SetCursorPos(medium_button_pos);
+
+	ImGui::Image(
+		ogl_medium_texture.get_im_texture_id(),
+		medium_button_size,
+		ogl_medium_texture.uv0_,
+		ogl_medium_texture.uv1_);
+
+
+	// Low detail header.
+	//
+	const auto low_header_pos = ImVec2{14.0F, 337.0F} * scale;
+	const auto low_header_size = ImVec2{428.0F, 43.0F} * scale;
+
+	const auto& low_header_text = resource_strings.get(Launcher::IDS_DETAIL_LOW, "IDS_DETAIL_LOW");
+
+	ImGui::SetCursorPos(low_header_pos);
+	ImGui::BeginChild("##low_header_child", low_header_size);
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
+
+	ImGui::PushItemWidth(-1);
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::TextWrapped("%s", low_header_text.c_str());
+	ImGui::PopFont();
+	ImGui::PopStyleColor();
+	ImGui::PopItemWidth();
+
+	ImGui::PopStyleColor();
+	ImGui::EndChild();
+
+
+	// Low detail button.
+	//
+	const auto low_button_pos = ImVec2{140.0F, 383.0F} * scale;
+	const auto low_button_size = ImVec2{178.0F, 35.0F} * scale;
+	const auto low_button_rect = ImVec4{low_button_pos.x, low_button_pos.y, low_button_size.x, low_button_size.y};
+
+	auto is_low_button_clicked = false;
+	auto is_low_mouse_button_down = false;
+
+	const auto is_low_button_hightlighted = is_point_inside_rect(mouse_pos, low_button_rect);
+
+	if (is_low_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
+	{
+		if (is_mouse_button_down)
+		{
+			is_low_mouse_button_down = true;
+		}
+
+		if (is_mouse_button_up)
+		{
+			is_low_button_clicked = true;
+		}
+	}
+
+	auto ogl_low_image_id = ImageId{};
+
+	if (is_low_mouse_button_down)
+	{
+		ogl_low_image_id = ImageId::lowdetaild;
+	}
+	else if (is_low_button_hightlighted)
+	{
+		ogl_low_image_id = ImageId::lowdetailf;
+	}
+	else
+	{
+		ogl_low_image_id = ImageId::lowdetailu;
+	}
+
+	const auto& ogl_low_texture = ogl_texture_manager.get(ogl_low_image_id);
+
+	ImGui::SetCursorPos(low_button_pos);
+
+	ImGui::Image(
+		ogl_low_texture.get_im_texture_id(),
+		low_button_size,
+		ogl_low_texture.uv0_,
+		ogl_low_texture.uv1_);
+
+
+	// End detail settings window.
+	//
+	ImGui::End();
+
+
+	// Handle events.
+	//
+	if (is_close_button_clicked || is_cancel_button_clicked || is_escape_down)
+	{
+		detail_level_ = {};
+		set_message_box_result(MessageBoxResult::cancel);
+		show(false);
+		get_message_box_result_event().notify(this);
+		return;
+	}
+	else
+	{
+		auto has_level = false;
+
+		if (is_high_button_clicked)
+		{
+			has_level = true;
+			detail_level_ = DetailLevel::high;
+		}
+		else if (is_medium_button_clicked)
+		{
+			has_level = true;
+			detail_level_ = DetailLevel::medium;
+		}
+		else if (is_low_button_clicked)
+		{
+			has_level = true;
+			detail_level_ = DetailLevel::low;
+		}
+
+		if (has_level)
+		{
+			set_message_box_result(MessageBoxResult::ok);
+			show(false);
+			get_message_box_result_event().notify(this);
+			return;
+		}
+	}
+}
+
+//
+// DetailSettingsWindow
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -6050,8 +6628,7 @@ void DisplaySettingsWindow::do_draw()
 AdvancedSettingsWindow::AdvancedSettingsWindow()
 	:
 	check_box_contexts_{},
-	hint_{},
-	is_restore_defaults_{}
+	hint_{}
 {
 }
 
@@ -6230,7 +6807,7 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.resource_string_default_ = "IDS_OD_RESTOREDEFAULTS";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_RESTOREDEFAULTS;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_RESTOREDEFAULTS";
-		check_box_content.setting_value_ptr_ = &is_restore_defaults_;
+		check_box_content.setting_value_ptr_ = &configuration.is_restore_defaults_;
 	}
 
 	// Always pass command line.
@@ -7081,6 +7658,17 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		detail_settings_window_uptr_.reset(DetailSettingsWindow::create());
+
+		if (!detail_settings_window_uptr_->is_initialized())
+		{
+			is_succeed = false;
+			set_error_message("Failed to initialize detail settings window. " + detail_settings_window_uptr_->get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
 		const auto& title = resource_strings_.get(IDS_APPNAME, "IDS_APPNAME");
 
 		message_box_window_uptr_->set_title(title);
@@ -7119,6 +7707,7 @@ void Launcher::uninitialize()
 	main_window_uptr_ = {};
 	display_settings_window_uptr_ = {};
 	advanced_settings_window_uptr_ = {};
+	detail_settings_window_uptr_ = {};
 
 
 	// WindowManager
@@ -7171,6 +7760,7 @@ void Launcher::run()
 	message_box_window_uptr_->show(false);
 	main_window_uptr_->show(true);
 	display_settings_window_uptr_->show(false);
+	detail_settings_window_uptr_->show(false);
 
 	auto frequency = ::SDL_GetPerformanceFrequency();
 
@@ -7246,6 +7836,11 @@ DisplaySettingsWindowPtr Launcher::get_display_settings_window()
 AdvancedSettingsWindowPtr Launcher::get_advanced_settings_window()
 {
 	return advanced_settings_window_uptr_.get();
+}
+
+DetailSettingsWindowPtr Launcher::get_detail_settings_window()
+{
+	return detail_settings_window_uptr_.get();
 }
 
 bool Launcher::initialize_ogl_functions()
