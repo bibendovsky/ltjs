@@ -503,7 +503,10 @@ public:
 	const Languages& get() const;
 
 	bool has_id(
-		const std::string id) const;
+		const std::string& id) const;
+
+	int get_id_index(
+		const std::string& id) const;
 
 
 private:
@@ -1054,11 +1057,14 @@ private:
 
 
 	bool is_show_play_button_;
+	int language_index_;
 	State state_;
 
 
 	MainWindow();
 
+
+	void initialize_language();
 
 	bool initialize(
 		const WindowCreateParam& param);
@@ -2563,18 +2569,43 @@ const Languages& SupportedLanguages::get() const
 }
 
 bool SupportedLanguages::has_id(
-	const std::string id) const
+	const std::string& id) const
 {
+	const auto language_end_it = languages_.cend();
+
 	const auto language_it = std::find_if(
 		languages_.cbegin(),
-		languages_.cend(),
+		language_end_it,
 		[&](const auto& item)
 		{
 			return item.id_ == id;
 		}
 	);
 
-	return language_it != languages_.cend();
+	return language_it != language_end_it;
+}
+
+int SupportedLanguages::get_id_index(
+	const std::string& id) const
+{
+	const auto language_begin_it = languages_.cbegin();
+	const auto language_end_it = languages_.cend();
+
+	const auto language_it = std::find_if(
+		language_begin_it,
+		language_end_it,
+		[&](const auto& item)
+		{
+			return item.id_ == id;
+		}
+	);
+
+	if (language_it == language_end_it)
+	{
+		return -1;
+	}
+
+	return static_cast<int>(language_it - language_begin_it);
 }
 
 //
@@ -5070,6 +5101,10 @@ const std::string MainWindow::lithtech_executable =
 
 
 MainWindow::MainWindow()
+	:
+	is_show_play_button_{},
+	language_index_{-1},
+	state_{}
 {
 }
 
@@ -5096,6 +5131,14 @@ MainWindowPtr MainWindow::create()
 	return main_window_ptr;
 }
 
+void MainWindow::initialize_language()
+{
+	const auto& supported_languages = SupportedLanguages::get_instance();
+	const auto& configuration = Configuration::get_instance();
+
+	language_index_ = supported_languages.get_id_index(configuration.language_);
+}
+
 bool MainWindow::initialize(
 	const WindowCreateParam& param)
 {
@@ -5106,6 +5149,8 @@ bool MainWindow::initialize(
 
 	is_show_play_button_ = is_lithtech_executable_exists();
 	state_ = {};
+
+	initialize_language();
 
 	return true;
 }
@@ -5341,6 +5386,7 @@ void MainWindow::do_draw()
 	auto& configuration = Configuration::get_instance();
 	auto& launcher = Launcher::get_instance();
 	auto& resource_strings = launcher.get_resource_strings();
+	auto& font_manager = FontManager::get_instance();
 
 	const auto scale = window_manager.get_scale();
 
@@ -5492,6 +5538,77 @@ void MainWindow::do_draw()
 		close_size,
 		ogl_close_texture.uv0_,
 		ogl_close_texture.uv1_);
+
+
+	// Language.
+	//
+	const auto language_pos = ImVec2{14.0F, 161.0F} * scale;
+
+	const auto& supported_languages = SupportedLanguages::get_instance();
+	const auto languages = supported_languages.get();
+
+	const char* language_preview = nullptr;
+
+	if (language_index_ >= 0)
+	{
+		language_preview = languages[language_index_].name_.c_str();
+	}
+	else
+	{
+		language_preview = "???";
+	}
+
+	ImGui::SetCursorPos(language_pos);
+	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+
+	ImGui::PushItemWidth(100.0F * scale);
+
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(0, 0, 0, 0xD0));
+	ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(0, 0, 0, 0xB0));
+	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(0, 0, 0, 0x80));
+
+	ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(0, 0, 0, 0xD0));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(0, 0, 0, 0xB0));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(0, 0, 0, 0x80));
+
+	auto is_language_selected = false;
+
+	if (ImGui::BeginCombo("##language", language_preview))
+	{
+		const auto selectable_flags = (is_modal ? ImGuiSelectableFlags_Disabled : ImGuiSelectableFlags_None);
+
+		const auto language_count = static_cast<int>(languages.size());
+
+		for (auto i = 0; i < language_count; ++i)
+		{
+			const auto& language = languages[i];
+
+			const auto is_selected = ImGui::Selectable(
+				language.name_.c_str(),
+				i == language_index_,
+				selectable_flags);
+
+			if (!is_modal && is_selected)
+			{
+				is_language_selected = true;
+				language_index_ = i;
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+
+		ImGui::EndCombo();
+	}
+
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
+
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
+
+	ImGui::PopItemWidth();
+	ImGui::PopFont();
 
 
 	// Fox Interactive button.
@@ -5981,6 +6098,10 @@ void MainWindow::do_draw()
 		}
 
 		return;
+	}
+	else if (is_language_selected)
+	{
+		configuration.language_.set_and_accept(languages[language_index_].id_);
 	}
 }
 
