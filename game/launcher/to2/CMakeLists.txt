@@ -100,7 +100,17 @@ install(
 )
 
 #
-# Fonts
+# Supported languages.
+#
+install(
+	FILES
+		res/languages.txt
+	DESTINATION
+		ltjs/nolf2/launcher
+)
+
+#
+# Fonts.
 #
 install(
 	FILES

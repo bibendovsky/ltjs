@@ -10,6 +10,7 @@
 #include <limits>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 #include "bibendovsky_spul_file_stream.h"
@@ -476,6 +477,49 @@ private:
 	static std::string deserialize_cl_args(
 		const std::string& custom_command_line);
 }; // Configuration
+
+
+struct Language
+{
+	std::string id_;
+	std::string name_;
+}; // Language
+
+using Languages = std::vector<Language>;
+
+
+class SupportedLanguages final :
+	public Base
+{
+public:
+	SupportedLanguages(
+		SupportedLanguages&& rhs);
+
+
+	static SupportedLanguages& get_instance();
+
+	bool load();
+
+	const Languages& get() const;
+
+	bool has_id(
+		const std::string id) const;
+
+
+private:
+	static constexpr auto max_file_size = 4'096;
+
+
+	static const std::string config_file_path;
+
+
+	Languages languages_;
+
+
+	SupportedLanguages();
+
+	~SupportedLanguages();
+}; // SupportedLanguages
 
 
 struct SdlCreateWindowParam final
@@ -2338,8 +2382,203 @@ std::string Configuration::deserialize_cl_args(
 
 	return result;
 }
+
 //
 // Configuration
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// SupportedLanguages
+//
+
+const std::string SupportedLanguages::config_file_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/languages.txt";
+
+
+SupportedLanguages::SupportedLanguages()
+	:
+	languages_{}
+{
+}
+
+SupportedLanguages::SupportedLanguages(
+	SupportedLanguages&& rhs)
+	:
+	languages_{std::move(languages_)}
+{
+}
+
+SupportedLanguages::~SupportedLanguages()
+{
+}
+
+SupportedLanguages& SupportedLanguages::get_instance()
+{
+	static auto supported_languages = SupportedLanguages{};
+
+	return supported_languages;
+}
+
+bool SupportedLanguages::load()
+{
+	clear_error_message();
+
+	languages_ = {};
+
+	const auto file_path = ul::PathUtils::normalize(config_file_path);
+
+	auto file_stream = ul::FileStream{file_path, ul::Stream::OpenMode::read};
+
+	if (!file_stream.is_open())
+	{
+		set_error_message("Failed to open file with supported languages: \"" + file_path + "\".");
+		return false;
+	}
+
+	const auto stream_size = file_stream.get_size();
+
+	if (stream_size > max_file_size)
+	{
+		set_error_message("File with supported languages too big: \"" + file_path + "\".");
+		return false;
+	}
+
+	const auto file_size = static_cast<int>(stream_size);
+
+	using Buffer = std::vector<char>;
+
+	auto buffer = Buffer{};
+	buffer.resize(file_size);
+
+	const auto read_result = file_stream.read(buffer.data(), file_size);
+
+	if (read_result != file_size)
+	{
+		set_error_message("Failed to read file with supported languages: \"" + file_path + "\".");
+		return false;
+	}
+
+	auto script_tokenizer = ScriptTokenizer{};
+
+	if (!script_tokenizer.tokenize(buffer.data(), file_size))
+	{
+		set_error_message("Failed to parse \"" + file_path + "\" with supported languages. " + script_tokenizer.get_error_message());
+		return false;
+	}
+
+	using LanguageMap = std::unordered_map<std::string, Language>;
+
+	auto language_map = LanguageMap{};
+	auto last_id = std::string{};
+
+	for (const auto& script_line : script_tokenizer.get_lines())
+	{
+		const auto& tokens = script_line.tokens_;
+
+		if (tokens.size() != 2)
+		{
+			set_error_message("Expected two tokens in \"" + file_path + "\" at line " + std::to_string(script_line.number_) + ".");
+			return false;
+		}
+
+		const auto& content_1 = tokens[0].content_;
+		const auto& content_2 = tokens[1].content_;
+
+		if (false)
+		{
+		}
+		else if (content_1 == "id")
+		{
+			if (content_2.empty())
+			{
+				set_error_message("Empty id in \"" + file_path + "\" at line " + std::to_string(script_line.number_) + ".");
+				return false;
+			}
+
+			if (language_map.find(content_1) == language_map.cend())
+			{
+				last_id = content_2;
+				language_map[content_2] = {};
+				language_map[content_2].id_ = content_2;
+			}
+			else
+			{
+				set_error_message(
+					"Id \"" + content_2 + "\" already defined in \"" + file_path + "\" at line " +
+						std::to_string(script_line.number_) + ".");
+
+				return false;
+			}
+		}
+		else if (content_1 == "name")
+		{
+			if (language_map.find(last_id) == language_map.cend())
+			{
+				set_error_message(
+					"Name \"" + content_2 + "\" without id in \"" + file_path + "\" at line " +
+						std::to_string(script_line.number_) + ".");
+
+				return false;
+			}
+			else
+			{
+				language_map[last_id].name_ = content_2;
+			}
+		}
+		else
+		{
+			set_error_message("Unsupported token in \"" + file_path + "\" at line " + std::to_string(script_line.number_) + ".");
+			return false;
+		}
+	}
+
+	auto empty_name_it = std::find_if(
+		language_map.cbegin(),
+		language_map.cend(),
+		[](const auto& item)
+		{
+			return item.second.name_.empty();
+		}
+	);
+
+	if (empty_name_it != language_map.cend())
+	{
+		set_error_message("Empty name with id \"" + empty_name_it->first + "\" in \"" + file_path + "\".");
+		return false;
+	}
+
+	languages_.reserve(language_map.size());
+
+	for (const auto& language_item : language_map)
+	{
+		languages_.push_back(language_item.second);
+	}
+
+	return true;
+}
+
+const Languages& SupportedLanguages::get() const
+{
+	return languages_;
+}
+
+bool SupportedLanguages::has_id(
+	const std::string id) const
+{
+	const auto language_it = std::find_if(
+		languages_.cbegin(),
+		languages_.cend(),
+		[&](const auto& item)
+		{
+			return item.id_ == id;
+		}
+	);
+
+	return language_it != languages_.cend();
+}
+
+//
+// SupportedLanguages
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -7541,6 +7780,30 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		auto& supported_languages = SupportedLanguages::get_instance();
+
+		if (!supported_languages.load())
+		{
+			is_succeed = false;
+
+			set_error_message(supported_languages.get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
+		auto& supported_languages = SupportedLanguages::get_instance();
+
+		if (supported_languages.get().empty())
+		{
+			is_succeed = false;
+
+			set_error_message("No supported languages.");
+		}
+	}
+
+	if (is_succeed)
+	{
 		auto& configuration = Configuration::get_instance();
 
 		if (!configuration.initialize())
@@ -7556,6 +7819,14 @@ bool Launcher::initialize()
 		auto& configuration = Configuration::get_instance();
 
 		configuration.reload();
+
+		auto& supported_languages = SupportedLanguages::get_instance();
+
+		if (!supported_languages.has_id(configuration.language_))
+		{
+			is_succeed = false;
+			set_error_message("Unsupported language id \"" + static_cast<const std::string&>(configuration.language_) + "\".");
+		}
 	}
 
 	if (is_succeed)
