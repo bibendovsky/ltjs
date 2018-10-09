@@ -741,6 +741,8 @@ private:
 
 	void uninitialize_context();
 
+	void uninitialize_textures();
+
 	static int ogl_calculate_npot_dimension(
 		const int dimension);
 
@@ -1109,6 +1111,8 @@ private:
 
 	void run_the_game();
 
+	void change_language();
+
 
 	void do_draw() override;
 
@@ -1296,6 +1300,8 @@ public:
 
 	void draw();
 
+	void hide_all();
+
 	bool is_quit_requested() const;
 
 	float get_scale() const;
@@ -1399,6 +1405,8 @@ public:
 
 
 	static std::string launcher_commands_file_name;
+	static std::string resource_strings_directory;
+	static std::string resource_strings_file_name;
 
 
 	Launcher(
@@ -1420,7 +1428,7 @@ public:
 		const MessageBoxButtons buttons,
 		const std::string& message);
 
-	const ResourceStrings& get_resource_strings() const;
+	ResourceStrings& get_resource_strings();
 
 	bool has_direct_3d_9() const;
 
@@ -3410,20 +3418,7 @@ bool OglTextureManager::initialize()
 
 void OglTextureManager::uninitialize()
 {
-	if (sdl_ogl_window_.is_initialized())
-	{
-		sdl_ogl_window_.make_ogl_context_current(true);
-
-		for (auto& ogl_texture : ogl_textures_)
-		{
-			if (ogl_texture.ogl_id_)
-			{
-				::glDeleteTextures(1, &ogl_texture.ogl_id_);
-			}
-		}
-
-		sdl_ogl_window_.make_ogl_context_current(false);
-	}
+	uninitialize_textures();
 
 	ogl_textures_.clear();
 
@@ -3438,6 +3433,8 @@ void OglTextureManager::uninitialize()
 
 bool OglTextureManager::load_all_textures()
 {
+	uninitialize_textures();
+
 	if (image_file_names.empty())
 	{
 		set_error_message("No images.");
@@ -3697,8 +3694,8 @@ OglTexture OglTextureManager::create_texture_from_surface(
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	const auto u_offset = 0.5F / static_cast<float>(dst_width);
-	const auto v_offset = 0.5F / static_cast<float>(dst_height);
+	const auto u_offset = 0.0F;
+	const auto v_offset = 0.0F;
 
 	result.uv0_ = {u_offset, v_offset};
 
@@ -3750,6 +3747,27 @@ bool OglTextureManager::initialize_context()
 void OglTextureManager::uninitialize_context()
 {
 	sdl_ogl_window_ = {};
+}
+
+void OglTextureManager::uninitialize_textures()
+{
+	if (!sdl_ogl_window_.is_initialized())
+	{
+		return;
+	}
+
+	sdl_ogl_window_.make_ogl_context_current(true);
+
+	for (auto& ogl_texture : ogl_textures_)
+	{
+		if (ogl_texture.ogl_id_)
+		{
+			::glDeleteTextures(1, &ogl_texture.ogl_id_);
+			ogl_texture.ogl_id_ = 0;
+		}
+	}
+
+	sdl_ogl_window_.make_ogl_context_current(false);
 }
 
 int OglTextureManager::ogl_calculate_npot_dimension(
@@ -5466,6 +5484,59 @@ void MainWindow::run_the_game()
 	}
 }
 
+void MainWindow::change_language()
+{
+	auto& launcher = Launcher::get_instance();
+	auto& resource_strings = launcher.get_resource_strings();
+	auto& configuration = Configuration::get_instance();
+	auto& ogl_texture_manager = OglTextureManager::get_instance();
+	auto& window_manager = WindowManager::get_instance();
+
+	auto is_succeed = true;
+
+	if (is_succeed)
+	{
+		const auto resource_strings_result = resource_strings.initialize(
+			configuration.language_,
+			Launcher::resource_strings_directory,
+			Launcher::resource_strings_file_name);
+
+		if (!resource_strings_result)
+		{
+			is_succeed = false;
+			set_error_message("Failed to reload resource strings. " + resource_strings.get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
+		if (!ogl_texture_manager.load_all_textures())
+		{
+			is_succeed = false;
+			set_error_message("Failed to reload textures. " + ogl_texture_manager.get_error_message());
+		}
+	}
+
+	if (!is_succeed)
+	{
+		window_manager.hide_all();
+
+		::SDL_ShowSimpleMessageBox(
+			SDL_MESSAGEBOX_ERROR,
+			"LTJS Launcher",
+			get_error_message().c_str(),
+			nullptr);
+
+		auto sdl_event = SDL_Event{};
+		sdl_event.type = SDL_QUIT;
+		::SDL_PushEvent(&sdl_event);
+
+		return;
+	}
+
+	configuration.language_.accept();
+}
+
 void MainWindow::do_draw()
 {
 	const auto& window_manager = WindowManager::get_instance();
@@ -5624,7 +5695,7 @@ void MainWindow::do_draw()
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(0, 0, 0, 0xB0));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(0, 0, 0, 0x80));
 
-	auto is_language_selected = false;
+	is_language_selected_ = false;
 
 	if (ImGui::BeginCombo("##language", language_preview))
 	{
@@ -5643,7 +5714,7 @@ void MainWindow::do_draw()
 
 			if (!is_modal && is_selected)
 			{
-				is_language_selected = true;
+				is_language_selected_ = true;
 				language_index_ = i;
 				ImGui::SetItemDefaultFocus();
 			}
@@ -6186,7 +6257,9 @@ void MainWindow::do_im_handle_events()
 		const auto& supported_languages = SupportedLanguages::get_instance();
 		const auto& languages = supported_languages.get();
 
-		configuration.language_.set_and_accept(languages[language_index_].id_);
+		configuration.language_ = languages[language_index_].id_;
+
+		change_language();
 	}
 
 	is_minimize_button_clicked_ = false;
@@ -7923,6 +7996,14 @@ void WindowManager::draw()
 	}
 }
 
+void WindowManager::hide_all()
+{
+	for (auto& window : windows_)
+	{
+		window->show(false);
+	}
+}
+
 bool WindowManager::is_quit_requested() const
 {
 	return is_quit_requested_;
@@ -7982,6 +8063,8 @@ void WindowManager::unregister_window(
 //
 
 std::string Launcher::launcher_commands_file_name = "launchcmds.txt";
+std::string Launcher::resource_strings_directory = "ltjs/" LTJS_GAME_ID_STRING "/launcher/strings";
+std::string Launcher::resource_strings_file_name = "launcher.txt";
 
 
 Launcher::Launcher()
@@ -8101,8 +8184,8 @@ bool Launcher::initialize()
 
 		const auto resource_strings_result = resource_strings_.initialize(
 			configuration.language_,
-			"ltjs/" LTJS_GAME_ID_STRING "/launcher/strings",
-			"launcher.txt");
+			resource_strings_directory,
+			resource_strings_file_name);
 
 		if (!resource_strings_result)
 		{
@@ -8380,7 +8463,7 @@ void Launcher::show_message_box(
 	message_box_window_uptr_->show(type, buttons, message);
 }
 
-const ResourceStrings& Launcher::get_resource_strings() const
+ResourceStrings& Launcher::get_resource_strings()
 {
 	return resource_strings_;
 }
@@ -8579,7 +8662,7 @@ int main(
 
 		::SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_ERROR,
-			"Launcher",
+			"LTJS Launcher",
 			error_message.c_str(),
 			nullptr);
 
