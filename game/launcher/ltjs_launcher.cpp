@@ -3991,7 +3991,7 @@ WindowEvent& WindowEvent::operator-=(
 		{
 			return
 				func.target_type() == item.target_type() &&
-				func.target<void(*)()>() == item.target<void(*)()>();
+				func.template target<void(*)()>() == item.template target<void(*)()>();
 		}
 	);
 

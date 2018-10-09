@@ -132,7 +132,7 @@ bool ResourceStrings::Impl::impl_initialize(
 
 		for (const auto& language_item : language_map)
 		{
-			id_to_string_map_.insert_or_assign(language_item.first, language_item.second);
+			id_to_string_map_[language_item.first] = language_item.second;
 		}
 	}
 	else if (shared_map.empty() && !language_map.empty())

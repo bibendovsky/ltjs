@@ -87,11 +87,27 @@ if (MSVC)
 	)
 endif ()
 
+if (MINGW)
+	target_link_libraries(
+		ltjs_nolf2_launcher
+		mingw32
+	)
+endif ()
+
 target_link_libraries(
 	ltjs_nolf2_launcher
 	${LTJS_SDL2_LIBRARY}
 	bibendovsky_spul_lib
 )
+
+if (WIN32)
+	target_link_libraries(
+		ltjs_nolf2_launcher
+		imm32
+		version
+		winmm
+	)
+endif ()
 
 install(
 	TARGETS
