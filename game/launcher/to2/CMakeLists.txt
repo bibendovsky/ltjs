@@ -76,7 +76,7 @@ target_compile_definitions(
 set_target_properties(
 	ltjs_nolf2_launcher
 	PROPERTIES
-		OUTPUT_NAME ltjs_nolf2_launcher
+		OUTPUT_NAME ltjs_nolf2
 )
 
 if (MSVC)
