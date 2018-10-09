@@ -886,6 +886,8 @@ public:
 
 	void draw();
 
+	void im_handle_events();
+
 	WindowEvent& get_message_box_result_event();
 
 	MessageBoxResult get_message_box_result() const;
@@ -956,6 +958,8 @@ private:
 
 
 	virtual void do_draw() = 0;
+
+	virtual void do_im_handle_events() = 0;
 }; // Window
 
 
@@ -1002,6 +1006,11 @@ private:
 	bool is_title_position_calculated_;
 	ImVec2 calculated_title_position_;
 
+	bool is_close_button_clicked_;
+	bool is_ok_button_clicked_;
+	bool is_cancel_button_clicked_;
+	bool is_escape_down_;
+
 
 	MessageBoxWindow();
 
@@ -1013,6 +1022,8 @@ private:
 
 
 	void do_draw() override;
+
+	void do_im_handle_events() override;
 }; // MessageBoxWindow
 
 
@@ -1057,6 +1068,20 @@ private:
 
 
 	bool is_show_play_button_;
+
+	bool is_minimize_button_clicked_;
+	bool is_close_button_clicked_;
+	bool is_quit_button_clicked_;
+	bool is_escape_down_;
+	bool is_install_or_play_button_clicked_;
+	bool is_display_button_clicked_;
+	bool is_options_button_clicked_;
+	bool is_language_selected_;
+	bool is_publisher1web_button_clicked_;
+	bool is_company1web_button_clicked_;
+	bool is_company2web_button_clicked_;
+	bool is_publisher2web_button_clicked_;
+
 	int language_index_;
 	State state_;
 
@@ -1086,6 +1111,8 @@ private:
 
 
 	void do_draw() override;
+
+	void do_im_handle_events() override;
 }; // MainWindow
 
 
@@ -1112,6 +1139,13 @@ private:
 
 	DetailLevel detail_level_;
 
+	bool is_escape_down_;
+	bool is_close_button_clicked_;
+	bool is_cancel_button_clicked_;
+	bool is_high_button_clicked_;
+	bool is_medium_button_clicked_;
+	bool is_low_button_clicked_;
+
 
 	DetailSettingsWindow();
 
@@ -1123,6 +1157,8 @@ private:
 
 
 	void do_draw() override;
+
+	void do_im_handle_events() override;
 }; // DetailSettingsWindow
 
 
@@ -1150,6 +1186,12 @@ private:
 
 	SettingValue<int> selected_resolution_index_;
 
+	bool is_escape_down_;
+	bool has_display_modes_;
+	bool is_close_button_clicked_;
+	bool is_ok_button_clicked_;
+	bool is_cancel_button_clicked_;
+
 
 	DisplaySettingsWindow();
 
@@ -1166,6 +1208,8 @@ private:
 
 
 	void do_draw() override;
+
+	void do_im_handle_events() override;
 }; // DisplaySettingsWindow
 
 
@@ -1206,6 +1250,11 @@ private:
 	CheckBoxContexts check_box_contexts_;
 	std::string hint_;
 
+	bool is_escape_down_;
+	bool is_close_button_clicked_;
+	bool is_ok_button_clicked_;
+	bool is_cancel_button_clicked_;
+
 
 	AdvancedSettingsWindow();
 
@@ -1225,6 +1274,8 @@ private:
 
 
 	void do_draw() override;
+
+	void do_im_handle_events() override;
 }; // AdvancedSettingsWindow
 
 
@@ -4174,6 +4225,16 @@ void Window::draw()
 	sdl_ogl_window_.make_ogl_context_current(false);
 }
 
+void Window::im_handle_events()
+{
+	if (!is_initialized_)
+	{
+		return;
+	}
+
+	do_im_handle_events();
+}
+
 WindowEvent& Window::get_message_box_result_event()
 {
 	return message_box_result_event_;
@@ -4691,7 +4752,11 @@ MessageBoxWindow::MessageBoxWindow()
 	title_{},
 	message_{},
 	is_title_position_calculated_{},
-	calculated_title_position_{}
+	calculated_title_position_{},
+	is_close_button_clicked_{},
+	is_ok_button_clicked_{},
+	is_cancel_button_clicked_{},
+	is_escape_down_{}
 {
 }
 
@@ -4784,33 +4849,10 @@ void MessageBoxWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
-	const auto close_pos = ImVec2{578.0F, 6.0F} * scale;
-	const auto close_size = ImVec2{17.0F, 14.0F} * scale;
-	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
-
-	const auto icon_pos = ImVec2{6.0F, 15.0F} * scale;
-	const auto icon_size = ImVec2{38.0F, 38.0F} * scale;
-	const auto icon_rect = ImVec4{icon_pos.x, icon_pos.y, icon_size.x, icon_size.y};
-
-	const auto title_pos = ImVec2{52.0F, 14.0F} * scale;
-	const auto title_size = ImVec2{518.0F, 31.0F} * scale;
-	const auto title_rect = ImVec4{title_pos.x, title_pos.y, title_size.x, title_size.y};
-
-	const auto message_pos = ImVec2{14.0F, 64.0F} * scale;
-	const auto message_size = ImVec2{573.0F, 121.0F} * scale;
-	const auto message_rect = ImVec4{message_pos.x, message_pos.y, message_size.x, message_size.y};
-
-	auto ok_pos = ImVec2{has_cancel_button ? 189.0F : 250.0F, 206.0F} * scale;
-	const auto ok_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
-
-	const auto cancel_pos = ImVec2{312.0F, 206.0F} * scale;
-	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
+	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 
 	// Begin message box window.
@@ -4848,8 +4890,13 @@ void MessageBoxWindow::do_draw()
 
 	// "Close" button.
 	//
+	const auto close_pos = ImVec2{578.0F, 6.0F} * scale;
+	const auto close_size = ImVec2{17.0F, 14.0F} * scale;
+	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
+
 	auto is_close_mouse_button_down = false;
-	auto is_close_button_clicked = false;
+
+	is_close_button_clicked_ = false;
 
 	if (is_mouse_button_down || is_mouse_button_up)
 	{
@@ -4862,7 +4909,7 @@ void MessageBoxWindow::do_draw()
 
 			if (is_mouse_button_up)
 			{
-				is_close_button_clicked = true;
+				is_close_button_clicked_ = true;
 			}
 		}
 	}
@@ -4881,6 +4928,10 @@ void MessageBoxWindow::do_draw()
 
 	// "Icon" image.
 	//
+	const auto icon_pos = ImVec2{6.0F, 15.0F} * scale;
+	const auto icon_size = ImVec2{38.0F, 38.0F} * scale;
+	const auto icon_rect = ImVec4{icon_pos.x, icon_pos.y, icon_size.x, icon_size.y};
+
 	auto ogl_icon_image_id = ImageId{};
 
 	switch (type_)
@@ -4914,6 +4965,10 @@ void MessageBoxWindow::do_draw()
 	//
 	if (!title_.empty())
 	{
+		const auto title_pos = ImVec2{52.0F, 14.0F} * scale;
+		const auto title_size = ImVec2{518.0F, 31.0F} * scale;
+		const auto title_rect = ImVec4{title_pos.x, title_pos.y, title_size.x, title_size.y};
+
 		ImGui::PushFont(font_manager.get_font(FontId::message_box_title));
 
 		auto centered_title_position = calculated_title_position_;
@@ -4940,6 +4995,10 @@ void MessageBoxWindow::do_draw()
 	//
 	if (!message_.empty())
 	{
+		const auto message_pos = ImVec2{14.0F, 64.0F} * scale;
+		const auto message_size = ImVec2{573.0F, 121.0F} * scale;
+		const auto message_rect = ImVec4{message_pos.x, message_pos.y, message_size.x, message_size.y};
+
 		ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
 
 		ImGui::SetCursorPos(message_pos);
@@ -4956,10 +5015,14 @@ void MessageBoxWindow::do_draw()
 
 	// "Ok" button.
 	//
-	auto is_ok_mouse_button_down = false;
-	auto is_ok_button_clicked = false;
+	auto ok_pos = ImVec2{has_cancel_button ? 189.0F : 250.0F, 206.0F} * scale;
+	const auto ok_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
 
+	auto is_ok_mouse_button_down = false;
 	const auto is_ok_button_hightlighted = is_point_inside_rect(mouse_pos, ok_rect);
+
+	is_ok_button_clicked_ = false;
 
 	if (is_ok_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -4970,7 +5033,7 @@ void MessageBoxWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_ok_button_clicked = true;
+			is_ok_button_clicked_ = true;
 		}
 	}
 
@@ -5002,7 +5065,11 @@ void MessageBoxWindow::do_draw()
 
 	// "Cancel" button.
 	//
-	auto is_cancel_button_clicked = false;
+	const auto cancel_pos = ImVec2{312.0F, 206.0F} * scale;
+	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
+
+	is_cancel_button_clicked_ = false;
 
 	if (has_cancel_button)
 	{
@@ -5019,7 +5086,7 @@ void MessageBoxWindow::do_draw()
 
 			if (is_mouse_button_up)
 			{
-				is_cancel_button_clicked = true;
+				is_cancel_button_clicked_ = true;
 			}
 		}
 
@@ -5053,23 +5120,25 @@ void MessageBoxWindow::do_draw()
 	// End message box window.
 	//
 	ImGui::End();
+}
 
+void MessageBoxWindow::do_im_handle_events()
+{
+	const auto has_cancel_button = (buttons_ == MessageBoxButtons::ok_cancel);
 
-	// Handle events.
-	//
 	auto is_hide = false;
 
-	if (is_close_button_clicked)
+	if (is_close_button_clicked_)
 	{
 		is_hide = true;
 		set_message_box_result(has_cancel_button ? MessageBoxResult::cancel : MessageBoxResult::ok);
 	}
-	else if (is_ok_button_clicked)
+	else if (is_ok_button_clicked_)
 	{
 		is_hide = true;
 		set_message_box_result(MessageBoxResult::ok);
 	}
-	else if (is_cancel_button_clicked || is_escape_down)
+	else if (is_cancel_button_clicked_ || is_escape_down_)
 	{
 		is_hide = true;
 		set_message_box_result(MessageBoxResult::cancel);
@@ -5080,6 +5149,11 @@ void MessageBoxWindow::do_draw()
 		show(false);
 		get_message_box_result_event().notify(this);
 	}
+
+	is_close_button_clicked_ = false;
+	is_ok_button_clicked_ = false;
+	is_cancel_button_clicked_ = false;
+	is_escape_down_ = false;
 }
 
 //
@@ -5103,6 +5177,18 @@ const std::string MainWindow::lithtech_executable =
 MainWindow::MainWindow()
 	:
 	is_show_play_button_{},
+	is_minimize_button_clicked_{},
+	is_close_button_clicked_{},
+	is_quit_button_clicked_{},
+	is_escape_down_{},
+	is_install_or_play_button_clicked_{},
+	is_display_button_clicked_{},
+	is_options_button_clicked_{},
+	is_language_selected_{},
+	is_publisher1web_button_clicked_{},
+	is_company1web_button_clicked_{},
+	is_company2web_button_clicked_{},
+	is_publisher2web_button_clicked_{},
 	language_index_{-1},
 	state_{}
 {
@@ -5383,9 +5469,6 @@ void MainWindow::run_the_game()
 void MainWindow::do_draw()
 {
 	const auto& window_manager = WindowManager::get_instance();
-	auto& configuration = Configuration::get_instance();
-	auto& launcher = Launcher::get_instance();
-	auto& resource_strings = launcher.get_resource_strings();
 	auto& font_manager = FontManager::get_instance();
 
 	const auto scale = window_manager.get_scale();
@@ -5399,46 +5482,6 @@ void MainWindow::do_draw()
 	const auto is_modal = (state_ != State::main_window);
 
 	const auto mouse_pos = ImGui::GetMousePos();
-
-	const auto minimize_pos = ImVec2{487.0F, 6.0F} * scale;
-	const auto minimize_size = ImVec2{16.0F, 14.0F} * scale;
-	const auto minimize_rect = ImVec4{minimize_pos.x, minimize_pos.y, minimize_size.x, minimize_size.y};
-
-	const auto close_pos = ImVec2{503.0F, 6.0F} * scale;
-	const auto close_size = ImVec2{16.0F, 14.0F} * scale;
-	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
-
-	const auto publisher1web_pos = ImVec2{14.0F, 187.0F} * scale;
-	const auto publisher1web_size = ImVec2{52.0F, 40.0F} * scale;
-	const auto publisher1web_rect = ImVec4{publisher1web_pos.x, publisher1web_pos.y, publisher1web_size.x, publisher1web_size.y};
-
-	const auto company1web_pos = ImVec2{76.0F, 187.0F} * scale;
-	const auto company1web_size = ImVec2{61.0F, 17.0F} * scale;
-	const auto company1web_rect = ImVec4{company1web_pos.x, company1web_pos.y, company1web_size.x, company1web_size.y};
-
-	const auto company2web_pos = ImVec2{76.0F, 210.0F} * scale;
-	const auto company2web_size = ImVec2{62.0F, 17.0F} * scale;
-	const auto company2web_rect = ImVec4{company2web_pos.x, company2web_pos.y, company2web_size.x, company2web_size.y};
-
-	const auto publisher2web_pos = ImVec2{147.0F, 198.0F} * scale;
-	const auto publisher2web_size = ImVec2{99.0F, 30.0F} * scale;
-	const auto publisher2web_rect = ImVec4{publisher2web_pos.x, publisher2web_pos.y, publisher2web_size.x, publisher2web_size.y};
-
-	const auto install_or_play_pos = ImVec2{413.0F, 25.0F} * scale;
-	const auto install_or_play_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto install_or_play_rect = ImVec4{install_or_play_pos.x, install_or_play_pos.y, install_or_play_size.x, install_or_play_size.y};
-
-	const auto display_pos = ImVec2{413.0F, 97.0F} * scale;
-	const auto display_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto display_rect = ImVec4{display_pos.x, display_pos.y, display_size.x, display_size.y};
-
-	const auto options_pos = ImVec2{413.0F, 133.0F} * scale;
-	const auto options_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto options_rect = ImVec4{options_pos.x, options_pos.y, options_size.x, options_size.y};
-
-	const auto quit_pos = ImVec2{413.0F, 205.0F} * scale;
-	const auto quit_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto quit_rect = ImVec4{quit_pos.x, quit_pos.y, quit_size.x, quit_size.y};
 
 
 	// Begin main window.
@@ -5476,8 +5519,13 @@ void MainWindow::do_draw()
 
 	// Minimize button.
 	//
+	const auto minimize_pos = ImVec2{487.0F, 6.0F} * scale;
+	const auto minimize_size = ImVec2{16.0F, 14.0F} * scale;
+	const auto minimize_rect = ImVec4{minimize_pos.x, minimize_pos.y, minimize_size.x, minimize_size.y};
+
 	auto is_minimize_mouse_button_down = false;
-	auto is_minimize_button_clicked = false;
+
+	is_minimize_button_clicked_ = false;
 
 	if (!is_modal && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -5490,7 +5538,7 @@ void MainWindow::do_draw()
 
 			if (is_mouse_button_up)
 			{
-				is_minimize_button_clicked = true;
+				is_minimize_button_clicked_ = true;
 			}
 		}
 	}
@@ -5509,8 +5557,13 @@ void MainWindow::do_draw()
 
 	// Close button.
 	//
+	const auto close_pos = ImVec2{503.0F, 6.0F} * scale;
+	const auto close_size = ImVec2{16.0F, 14.0F} * scale;
+	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
+
 	auto is_close_mouse_button_down = false;
-	auto is_close_button_clicked = false;
+
+	is_close_button_clicked_ = false;
 
 	if (is_mouse_button_down || is_mouse_button_up)
 	{
@@ -5523,7 +5576,7 @@ void MainWindow::do_draw()
 
 			if (is_mouse_button_up)
 			{
-				is_close_button_clicked = true;
+				is_close_button_clicked_ = true;
 			}
 		}
 	}
@@ -5613,8 +5666,13 @@ void MainWindow::do_draw()
 
 	// Fox Interactive button.
 	//
+	const auto publisher1web_pos = ImVec2{14.0F, 187.0F} * scale;
+	const auto publisher1web_size = ImVec2{52.0F, 40.0F} * scale;
+	const auto publisher1web_rect = ImVec4{publisher1web_pos.x, publisher1web_pos.y, publisher1web_size.x, publisher1web_size.y};
+
 	auto is_publisher1web_mouse_button_down = false;
-	auto is_publisher1web_button_clicked = false;
+
+	is_publisher1web_button_clicked_ = false;
 
 	const auto is_publisher1web_button_hightlighted = is_point_inside_rect(mouse_pos, publisher1web_rect);
 
@@ -5627,7 +5685,7 @@ void MainWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_publisher1web_button_clicked = true;
+			is_publisher1web_button_clicked_ = true;
 		}
 	}
 
@@ -5659,8 +5717,13 @@ void MainWindow::do_draw()
 
 	// Monolith Productions button.
 	//
+	const auto company1web_pos = ImVec2{76.0F, 187.0F} * scale;
+	const auto company1web_size = ImVec2{61.0F, 17.0F} * scale;
+	const auto company1web_rect = ImVec4{company1web_pos.x, company1web_pos.y, company1web_size.x, company1web_size.y};
+
 	auto is_company1web_mouse_button_down = false;
-	auto is_company1web_button_clicked = false;
+
+	is_company1web_button_clicked_ = false;
 
 	const auto is_company1web_button_hightlighted = is_point_inside_rect(mouse_pos, company1web_rect);
 
@@ -5673,7 +5736,7 @@ void MainWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_company1web_button_clicked = true;
+			is_company1web_button_clicked_ = true;
 		}
 	}
 
@@ -5705,8 +5768,13 @@ void MainWindow::do_draw()
 
 	// LithTech button.
 	//
+	const auto company2web_pos = ImVec2{76.0F, 210.0F} * scale;
+	const auto company2web_size = ImVec2{62.0F, 17.0F} * scale;
+	const auto company2web_rect = ImVec4{company2web_pos.x, company2web_pos.y, company2web_size.x, company2web_size.y};
+
 	auto is_company2web_mouse_button_down = false;
-	auto is_company2web_button_clicked = false;
+
+	is_company2web_button_clicked_ = false;
 
 	const auto is_company2web_button_hightlighted = is_point_inside_rect(mouse_pos, company2web_rect);
 
@@ -5719,7 +5787,7 @@ void MainWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_company2web_button_clicked = true;
+			is_company2web_button_clicked_ = true;
 		}
 	}
 
@@ -5751,8 +5819,13 @@ void MainWindow::do_draw()
 
 	// Sierra Entertainment button.
 	//
+	const auto publisher2web_pos = ImVec2{147.0F, 198.0F} * scale;
+	const auto publisher2web_size = ImVec2{99.0F, 30.0F} * scale;
+	const auto publisher2web_rect = ImVec4{publisher2web_pos.x, publisher2web_pos.y, publisher2web_size.x, publisher2web_size.y};
+
 	auto is_publisher2web_mouse_button_down = false;
-	auto is_publisher2web_button_clicked = false;
+
+	is_publisher2web_button_clicked_ = false;
 
 	const auto is_publisher2web_button_hightlighted = is_point_inside_rect(mouse_pos, publisher2web_rect);
 
@@ -5765,7 +5838,7 @@ void MainWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_publisher2web_button_clicked = true;
+			is_publisher2web_button_clicked_ = true;
 		}
 	}
 
@@ -5797,8 +5870,13 @@ void MainWindow::do_draw()
 
 	// Install/Play button.
 	//
+	const auto install_or_play_pos = ImVec2{413.0F, 25.0F} * scale;
+	const auto install_or_play_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto install_or_play_rect = ImVec4{install_or_play_pos.x, install_or_play_pos.y, install_or_play_size.x, install_or_play_size.y};
+
 	auto is_install_or_play_mouse_button_down = false;
-	auto is_install_or_play_button_clicked = false;
+
+	is_install_or_play_button_clicked_ = false;
 
 	const auto is_install_or_play_button_hightlighted = is_point_inside_rect(mouse_pos, install_or_play_rect);
 
@@ -5811,7 +5889,7 @@ void MainWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_install_or_play_button_clicked = true;
+			is_install_or_play_button_clicked_ = true;
 		}
 	}
 
@@ -5843,12 +5921,15 @@ void MainWindow::do_draw()
 
 	// Display button.
 	//
+	const auto display_pos = ImVec2{413.0F, 97.0F} * scale;
+	const auto display_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto display_rect = ImVec4{display_pos.x, display_pos.y, display_size.x, display_size.y};
 
 	const auto is_display_enabled = !is_modal && is_show_play_button_;
 	auto is_display_mouse_button_down = false;
-	auto is_display_button_clicked = false;
-
 	auto is_display_button_hightlighted = false;
+
+	is_display_button_clicked_ = false;
 
 	if (is_display_enabled)
 	{
@@ -5864,7 +5945,7 @@ void MainWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_display_button_clicked = true;
+			is_display_button_clicked_ = true;
 		}
 	}
 
@@ -5900,12 +5981,15 @@ void MainWindow::do_draw()
 
 	// Options button.
 	//
+	const auto options_pos = ImVec2{413.0F, 133.0F} * scale;
+	const auto options_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto options_rect = ImVec4{options_pos.x, options_pos.y, options_size.x, options_size.y};
 
 	const auto is_options_enabled = !is_modal && is_show_play_button_;
 	auto is_options_mouse_button_down = false;
-	auto is_options_button_clicked = false;
-
 	auto is_options_button_hightlighted = false;
+
+	is_options_button_clicked_ = false;
 
 	if (is_options_enabled)
 	{
@@ -5921,7 +6005,7 @@ void MainWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_options_button_clicked = true;
+			is_options_button_clicked_ = true;
 		}
 	}
 
@@ -5957,11 +6041,14 @@ void MainWindow::do_draw()
 
 	// Quit button.
 	//
+	const auto quit_pos = ImVec2{413.0F, 205.0F} * scale;
+	const auto quit_size = ImVec2{100.0F, 30.0F} * scale;
+	const auto quit_rect = ImVec4{quit_pos.x, quit_pos.y, quit_size.x, quit_size.y};
 
 	auto is_quit_mouse_button_down = false;
-	auto is_quit_button_clicked = false;
-
 	const auto is_quit_button_hightlighted = is_point_inside_rect(mouse_pos, quit_rect);
+
+	is_quit_button_clicked_ = false;
 
 	if (is_quit_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -5972,7 +6059,7 @@ void MainWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_quit_button_clicked = true;
+			is_quit_button_clicked_ = true;
 		}
 	}
 
@@ -6005,25 +6092,26 @@ void MainWindow::do_draw()
 	// End main window.
 	//
 	ImGui::End();
+}
 
+void MainWindow::do_im_handle_events()
+{
+	auto& configuration = Configuration::get_instance();
+	auto& launcher = Launcher::get_instance();
+	auto& resource_strings = launcher.get_resource_strings();
 
-	// Handle events.
-	//
-	if (is_minimize_button_clicked)
+	if (is_minimize_button_clicked_)
 	{
 		minimize_internal(true);
-		return;
 	}
-	else if (is_close_button_clicked || is_quit_button_clicked || is_escape_down)
+	else if (is_close_button_clicked_ || is_quit_button_clicked_ || is_escape_down_)
 	{
 		auto sdl_event = SDL_Event{};
 
 		sdl_event.type = SDL_QUIT;
 		::SDL_PushEvent(&sdl_event);
-
-		return;
 	}
-	else if (is_install_or_play_button_clicked)
+	else if (is_install_or_play_button_clicked_)
 	{
 		if (is_show_play_button_)
 		{
@@ -6049,11 +6137,9 @@ void MainWindow::do_draw()
 				"LithTech executable \"" + lithtech_executable + "\" not found.");
 
 			is_show_play_button_ = is_lithtech_executable_exists();
-
-			return;
 		}
 	}
-	else if (is_display_button_clicked)
+	else if (is_display_button_clicked_)
 	{
 		attach_to_message_box_result_event(true, AttachPoint::message_box);
 
@@ -6065,15 +6151,13 @@ void MainWindow::do_draw()
 
 			auto message_box_window_ptr = launcher.get_message_box_window();
 			message_box_window_ptr->show(MessageBoxType::warning, MessageBoxButtons::ok_cancel, message);
-
-			return;
 		}
 		else
 		{
 			handle_check_for_renderers();
 		}
 	}
-	else if (is_options_button_clicked)
+	else if (is_options_button_clicked_)
 	{
 		if (!configuration.is_warned_about_settings_)
 		{
@@ -6096,13 +6180,27 @@ void MainWindow::do_draw()
 
 			advanced_settings_window_ptr->show(true);
 		}
-
-		return;
 	}
-	else if (is_language_selected)
+	else if (is_language_selected_)
 	{
+		const auto& supported_languages = SupportedLanguages::get_instance();
+		const auto& languages = supported_languages.get();
+
 		configuration.language_.set_and_accept(languages[language_index_].id_);
 	}
+
+	is_minimize_button_clicked_ = false;
+	is_close_button_clicked_ = false;
+	is_quit_button_clicked_ = false;
+	is_escape_down_ = false;
+	is_install_or_play_button_clicked_ = false;
+	is_display_button_clicked_ = false;
+	is_options_button_clicked_ = false;
+	is_language_selected_ = false;
+	is_publisher1web_button_clicked_ = false;
+	is_company1web_button_clicked_ = false;
+	is_company2web_button_clicked_ = false;
+	is_publisher2web_button_clicked_ = false;
 }
 
 //
@@ -6115,6 +6213,14 @@ void MainWindow::do_draw()
 //
 
 DetailSettingsWindow::DetailSettingsWindow()
+	:
+	detail_level_{},
+	is_escape_down_{},
+	is_close_button_clicked_{},
+	is_cancel_button_clicked_{},
+	is_high_button_clicked_{},
+	is_medium_button_clicked_{},
+	is_low_button_clicked_{}
 {
 }
 
@@ -6176,9 +6282,9 @@ void DetailSettingsWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
-
 	const auto mouse_pos = ImGui::GetMousePos();
+
+	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 
 	// Begin detail settings window.
@@ -6221,7 +6327,8 @@ void DetailSettingsWindow::do_draw()
 	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
 
 	auto is_close_mouse_button_down = false;
-	auto is_close_button_clicked = false;
+
+	is_close_button_clicked_ = false;
 
 	if (is_mouse_button_down || is_mouse_button_up)
 	{
@@ -6234,7 +6341,7 @@ void DetailSettingsWindow::do_draw()
 
 			if (is_mouse_button_up)
 			{
-				is_close_button_clicked = true;
+				is_close_button_clicked_ = true;
 			}
 		}
 	}
@@ -6257,10 +6364,10 @@ void DetailSettingsWindow::do_draw()
 	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
 	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
 
-	auto is_cancel_button_clicked = false;
 	auto is_cancel_mouse_button_down = false;
-
 	const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
+
+	is_cancel_button_clicked_ = false;
 
 	if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -6271,7 +6378,7 @@ void DetailSettingsWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_cancel_button_clicked = true;
+			is_cancel_button_clicked_ = true;
 		}
 	}
 
@@ -6353,10 +6460,10 @@ void DetailSettingsWindow::do_draw()
 	const auto high_button_size = ImVec2{177.0F, 38.0F} * scale;
 	const auto high_button_rect = ImVec4{high_button_pos.x, high_button_pos.y, high_button_size.x, high_button_size.y};
 
-	auto is_high_button_clicked = false;
 	auto is_high_mouse_button_down = false;
-
 	const auto is_high_button_hightlighted = is_point_inside_rect(mouse_pos, high_button_rect);
+
+	is_high_button_clicked_ = false;
 
 	if (is_high_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -6367,7 +6474,7 @@ void DetailSettingsWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_high_button_clicked = true;
+			is_high_button_clicked_ = true;
 		}
 	}
 
@@ -6426,10 +6533,10 @@ void DetailSettingsWindow::do_draw()
 	const auto medium_button_size = ImVec2{178.0F, 36.0F} * scale;
 	const auto medium_button_rect = ImVec4{medium_button_pos.x, medium_button_pos.y, medium_button_size.x, medium_button_size.y};
 
-	auto is_medium_button_clicked = false;
 	auto is_medium_mouse_button_down = false;
-
 	const auto is_medium_button_hightlighted = is_point_inside_rect(mouse_pos, medium_button_rect);
+
+	is_medium_button_clicked_ = false;
 
 	if (is_medium_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -6440,7 +6547,7 @@ void DetailSettingsWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_medium_button_clicked = true;
+			is_medium_button_clicked_ = true;
 		}
 	}
 
@@ -6499,10 +6606,10 @@ void DetailSettingsWindow::do_draw()
 	const auto low_button_size = ImVec2{178.0F, 35.0F} * scale;
 	const auto low_button_rect = ImVec4{low_button_pos.x, low_button_pos.y, low_button_size.x, low_button_size.y};
 
-	auto is_low_button_clicked = false;
 	auto is_low_mouse_button_down = false;
-
 	const auto is_low_button_hightlighted = is_point_inside_rect(mouse_pos, low_button_rect);
+
+	is_low_button_clicked_ = false;
 
 	if (is_low_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -6513,7 +6620,7 @@ void DetailSettingsWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_low_button_clicked = true;
+			is_low_button_clicked_ = true;
 		}
 	}
 
@@ -6546,33 +6653,32 @@ void DetailSettingsWindow::do_draw()
 	// End detail settings window.
 	//
 	ImGui::End();
+}
 
-
-	// Handle events.
-	//
-	if (is_close_button_clicked || is_cancel_button_clicked || is_escape_down)
+void DetailSettingsWindow::do_im_handle_events()
+{
+	if (is_close_button_clicked_ || is_cancel_button_clicked_ || is_escape_down_)
 	{
 		detail_level_ = {};
 		set_message_box_result(MessageBoxResult::cancel);
 		show(false);
 		get_message_box_result_event().notify(this);
-		return;
 	}
 	else
 	{
 		auto has_level = false;
 
-		if (is_high_button_clicked)
+		if (is_high_button_clicked_)
 		{
 			has_level = true;
 			detail_level_ = DetailLevel::high;
 		}
-		else if (is_medium_button_clicked)
+		else if (is_medium_button_clicked_)
 		{
 			has_level = true;
 			detail_level_ = DetailLevel::medium;
 		}
-		else if (is_low_button_clicked)
+		else if (is_low_button_clicked_)
 		{
 			has_level = true;
 			detail_level_ = DetailLevel::low;
@@ -6583,9 +6689,14 @@ void DetailSettingsWindow::do_draw()
 			set_message_box_result(MessageBoxResult::ok);
 			show(false);
 			get_message_box_result_event().notify(this);
-			return;
 		}
 	}
+
+	is_close_button_clicked_ = false;
+	is_cancel_button_clicked_ = false;
+	is_high_button_clicked_ = false;
+	is_medium_button_clicked_ = false;
+	is_low_button_clicked_ = false;
 }
 
 //
@@ -6598,6 +6709,13 @@ void DetailSettingsWindow::do_draw()
 //
 
 DisplaySettingsWindow::DisplaySettingsWindow()
+	:
+	selected_resolution_index_{-1},
+	is_escape_down_{},
+	has_display_modes_{},
+	is_close_button_clicked_{},
+	is_ok_button_clicked_{},
+	is_cancel_button_clicked_{}
 {
 }
 
@@ -6680,11 +6798,12 @@ void DisplaySettingsWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
-	const auto has_display_modes = (
+	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
+
+	has_display_modes_ = (
 		selected_resolution_index_ >= 0 &&
 		display_mode_manager.get_count() > 0 &&
 		display_mode_manager.get_native_display_mode_index() >= 0);
@@ -6730,7 +6849,8 @@ void DisplaySettingsWindow::do_draw()
 	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
 
 	auto is_close_mouse_button_down = false;
-	auto is_close_button_clicked = false;
+
+	is_close_button_clicked_ = false;
 
 	if (is_mouse_button_down || is_mouse_button_up)
 	{
@@ -6743,7 +6863,7 @@ void DisplaySettingsWindow::do_draw()
 
 			if (is_mouse_button_up)
 			{
-				is_close_button_clicked = true;
+				is_close_button_clicked_ = true;
 			}
 		}
 	}
@@ -6762,7 +6882,7 @@ void DisplaySettingsWindow::do_draw()
 
 	// Resolutions list.
 	//
-	if (has_display_modes)
+	if (has_display_modes_)
 	{
 		const auto resolutions_pos = ImVec2{16.0F, 73.0F} * scale;
 		const auto resolutions_size = ImVec2{133.0F, 248.0F} * scale;
@@ -6798,7 +6918,7 @@ void DisplaySettingsWindow::do_draw()
 
 	// Renderers list.
 	//
-	if (has_display_modes)
+	if (has_display_modes_)
 	{
 		const auto renderers_pos = ImVec2{181.0F, 73.0F} * scale;
 		const auto renderers_size = ImVec2{405.0F, 106.0F} * scale;
@@ -6838,7 +6958,7 @@ void DisplaySettingsWindow::do_draw()
 
 	// Displays list.
 	//
-	if (has_display_modes)
+	if (has_display_modes_)
 	{
 		const auto displays_pos = ImVec2{181.0F, 205.0F} * scale;
 		const auto displays_size = ImVec2{405.0F, 116.0F} * scale;
@@ -6883,9 +7003,9 @@ void DisplaySettingsWindow::do_draw()
 	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
 
 	auto is_ok_mouse_button_down = false;
-	auto is_ok_button_clicked = false;
-
 	const auto is_ok_button_hightlighted = is_point_inside_rect(mouse_pos, ok_rect);
+
+	is_ok_button_clicked_ = false;
 
 	if (is_ok_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -6896,7 +7016,7 @@ void DisplaySettingsWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_ok_button_clicked = true;
+			is_ok_button_clicked_ = true;
 		}
 	}
 
@@ -6932,10 +7052,10 @@ void DisplaySettingsWindow::do_draw()
 	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
 	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
 
-	auto is_cancel_button_clicked = false;
 	auto is_cancel_mouse_button_down = false;
-
 	const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
+
+	is_cancel_button_clicked_ = false;
 
 	if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -6946,7 +7066,7 @@ void DisplaySettingsWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_cancel_button_clicked = true;
+			is_cancel_button_clicked_ = true;
 		}
 	}
 
@@ -6979,24 +7099,25 @@ void DisplaySettingsWindow::do_draw()
 	// End display settings window.
 	//
 	ImGui::End();
+}
 
-
-	// Handle events.
-	//
-	if (is_close_button_clicked || is_cancel_button_clicked | is_escape_down)
+void DisplaySettingsWindow::do_im_handle_events()
+{
+	if (is_close_button_clicked_ || is_cancel_button_clicked_ | is_escape_down_)
 	{
 		selected_resolution_index_.reject();
 		set_message_box_result(MessageBoxResult::cancel);
 		show(false);
 		get_message_box_result_event().notify(this);
 	}
-	else if (is_ok_button_clicked)
+	else if (is_ok_button_clicked_)
 	{
 		selected_resolution_index_.accept();
 
-		if (has_display_modes)
+		if (has_display_modes_)
 		{
 			auto& configuration = Configuration::get_instance();
+			const auto& display_mode_manager = DisplayModeManager::get_instance();
 			const auto& display_mode = display_mode_manager.get(selected_resolution_index_);
 
 			configuration.screen_width_ = display_mode.width_;
@@ -7007,6 +7128,12 @@ void DisplaySettingsWindow::do_draw()
 		show(false);
 		get_message_box_result_event().notify(this);
 	}
+
+	is_escape_down_ = false;
+	has_display_modes_ = false;
+	is_close_button_clicked_ = false;
+	is_ok_button_clicked_ = false;
+	is_cancel_button_clicked_ = false;
 }
 
 //
@@ -7021,7 +7148,11 @@ void DisplaySettingsWindow::do_draw()
 AdvancedSettingsWindow::AdvancedSettingsWindow()
 	:
 	check_box_contexts_{},
-	hint_{}
+	hint_{},
+	is_escape_down_{},
+	is_close_button_clicked_{},
+	is_ok_button_clicked_{},
+	is_cancel_button_clicked_{}
 {
 }
 
@@ -7252,7 +7383,8 @@ void AdvancedSettingsWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
+
+	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
@@ -7306,7 +7438,8 @@ void AdvancedSettingsWindow::do_draw()
 	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
 
 	auto is_close_mouse_button_down = false;
-	auto is_close_button_clicked = false;
+
+	is_close_button_clicked_ = false;
 
 	if (is_mouse_button_down || is_mouse_button_up)
 	{
@@ -7319,7 +7452,7 @@ void AdvancedSettingsWindow::do_draw()
 
 			if (is_mouse_button_up)
 			{
-				is_close_button_clicked = true;
+				is_close_button_clicked_ = true;
 			}
 		}
 	}
@@ -7395,9 +7528,9 @@ void AdvancedSettingsWindow::do_draw()
 	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
 
 	auto is_ok_mouse_button_down = false;
-	auto is_ok_button_clicked = false;
-
 	const auto is_ok_button_hightlighted = is_point_inside_rect(mouse_pos, ok_rect);
+
+	is_ok_button_clicked_ = false;
 
 	if (is_ok_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -7408,7 +7541,7 @@ void AdvancedSettingsWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_ok_button_clicked = true;
+			is_ok_button_clicked_ = true;
 		}
 	}
 
@@ -7444,10 +7577,10 @@ void AdvancedSettingsWindow::do_draw()
 	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
 	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
 
-	auto is_cancel_button_clicked = false;
 	auto is_cancel_mouse_button_down = false;
-
 	const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
+
+	is_cancel_button_clicked_ = false;
 
 	if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
 	{
@@ -7458,7 +7591,7 @@ void AdvancedSettingsWindow::do_draw()
 
 		if (is_mouse_button_up)
 		{
-			is_cancel_button_clicked = true;
+			is_cancel_button_clicked_ = true;
 		}
 	}
 
@@ -7491,11 +7624,13 @@ void AdvancedSettingsWindow::do_draw()
 	// End advanced settings window.
 	//
 	ImGui::End();
+}
 
+void AdvancedSettingsWindow::do_im_handle_events()
+{
+	auto& configuration = Configuration::get_instance();
 
-	// Handle events.
-	//
-	if (is_close_button_clicked || is_cancel_button_clicked || is_escape_down)
+	if (is_close_button_clicked_ || is_cancel_button_clicked_ || is_escape_down_)
 	{
 		update_check_box_configuration(false);
 		configuration.custom_arguments_.reject();
@@ -7504,7 +7639,7 @@ void AdvancedSettingsWindow::do_draw()
 		show(false);
 		get_message_box_result_event().notify(this);
 	}
-	else if (is_ok_button_clicked)
+	else if (is_ok_button_clicked_)
 	{
 		update_check_box_configuration(true);
 		configuration.custom_arguments_.accept();
@@ -7513,6 +7648,11 @@ void AdvancedSettingsWindow::do_draw()
 		show(false);
 		get_message_box_result_event().notify(this);
 	}
+
+	is_escape_down_ = false;
+	is_close_button_clicked_ = false;
+	is_ok_button_clicked_ = false;
+	is_cancel_button_clicked_ = false;
 }
 
 void AdvancedSettingsWindow::update_check_box_configuration(
@@ -7762,6 +7902,11 @@ void WindowManager::handle_events()
 				}
 			}
 		}
+	}
+
+	for (auto& window : windows_)
+	{
+		window->im_handle_events();
 	}
 }
 
