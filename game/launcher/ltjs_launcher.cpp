@@ -1113,6 +1113,8 @@ private:
 
 	void run_the_game();
 
+	void no_lithtech_exe_error();
+
 	void change_language();
 
 	std::string build_command_line(
@@ -5383,7 +5385,6 @@ void MainWindow::handle_message_box_result_event(
 
 void MainWindow::run_the_game()
 {
-	auto& launcher = Launcher::get_instance();
 	auto& configuration = Configuration::get_instance();
 
 	show(false);
@@ -5402,18 +5403,24 @@ void MainWindow::run_the_game()
 
 	if (exec_result != 0)
 	{
-		const auto& resource_strings = launcher.get_resource_strings();
-		const auto& message = resource_strings.get(Launcher::IDS_CANTLAUNCHCLIENTEXE, "IDS_CANTLAUNCHCLIENTEXE");
-
-		state_ = State::main_window_message_box;
-		attach_to_message_box_result_event(true, AttachPoint::message_box);
-
-		launcher.show_message_box(MessageBoxType::error, MessageBoxButtons::ok, message);
+		no_lithtech_exe_error();
 	}
 	else
 	{
 		configuration.is_restore_defaults_.set_and_accept(false);
 	}
+}
+
+void MainWindow::no_lithtech_exe_error()
+{
+	auto& launcher = Launcher::get_instance();
+	const auto& resource_strings = launcher.get_resource_strings();
+	const auto& message = resource_strings.get(Launcher::IDS_CANTLAUNCHCLIENTEXE, "IDS_CANTLAUNCHCLIENTEXE");
+
+	state_ = State::main_window_message_box;
+	attach_to_message_box_result_event(true, AttachPoint::message_box);
+
+	launcher.show_message_box(MessageBoxType::error, MessageBoxButtons::ok, message);
 }
 
 void MainWindow::change_language()
@@ -5638,7 +5645,8 @@ void MainWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
+
+	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 	const auto is_modal = (state_ != State::main_window);
 
@@ -6292,10 +6300,7 @@ void MainWindow::do_im_handle_events()
 		}
 		else
 		{
-			launcher.show_message_box(
-				MessageBoxType::error,
-				MessageBoxButtons::ok,
-				"LithTech executable \"" + lithtech_executable + "\" not found.");
+			no_lithtech_exe_error();
 
 			is_show_play_button_ = is_lithtech_executable_exists();
 		}
