@@ -382,19 +382,18 @@ public:
 
 
 	SettingValue<std::string> language_;
-	SettingValue<bool> is_warned_about_display_;
-	SettingValue<bool> is_warned_about_settings_;
-	SettingValue<bool> is_sound_effects_disabled_;
-	SettingValue<bool> is_music_disabled_;
-	SettingValue<bool> is_fmv_disabled_;
-	SettingValue<bool> is_fog_disabled_;
-	SettingValue<bool> is_controller_disabled_;
-	SettingValue<bool> is_triple_buffering_enabled_;
-	SettingValue<bool> is_hardware_cursor_disabled_;
-	SettingValue<bool> is_animated_loading_screen_disabled_;
-	SettingValue<bool> is_hardware_sound_disabled_;
-	SettingValue<bool> is_sound_filter_disabled_;
-	SettingValue<bool> is_always_pass_custom_arguments_;
+	SettingValue<bool> is_disable_display_settings_warning_;
+	SettingValue<bool> is_disable_advanced_settings_warning_;
+	SettingValue<bool> is_disable_sound_effects_;
+	SettingValue<bool> is_disable_music_;
+	SettingValue<bool> is_disable_fmvs_;
+	SettingValue<bool> is_disable_controllers_;
+	SettingValue<bool> is_disable_triple_buffering_;
+	SettingValue<bool> is_disable_hardware_cursor_;
+	SettingValue<bool> is_disable_animated_loading_screen_;
+	SettingValue<bool> is_disable_hardware_sound_;
+	SettingValue<bool> is_disable_sound_filters_;
+	SettingValue<bool> is_pass_custom_arguments_;
 	SettingValue<std::string> custom_arguments_;
 	SettingValue<int> screen_width_;
 	SettingValue<int> screen_height_;
@@ -429,37 +428,35 @@ private:
 
 	static const std::string default_language;
 	static const bool default_is_warned_about_display;
-	static const bool default_is_warned_about_settings;
-	static const bool default_is_sound_effects_disabled;
-	static const bool default_is_music_disabled;
-	static const bool default_is_fmv_disabled;
-	static const bool default_is_fog_disabled;
-	static const bool default_is_controller_disabled;
-	static const bool default_is_triple_buffering_enabled;
-	static const bool default_is_hardware_cursor_disabled;
-	static const bool default_is_animated_loading_screen_disabled;
+	static const bool default_is_disable_advanced_settings_warning;
+	static const bool default_is_disable_sound_effects;
+	static const bool default_is_disable_music;
+	static const bool default_is_disable_fmvs;
+	static const bool default_is_disable_controllers;
+	static const bool default_is_disable_triple_buffering;
+	static const bool default_is_disable_hardware_cursor;
+	static const bool default_is_disable_animated_loading_screen;
 	static const bool default_is_detail_level_selected;
-	static const bool default_is_hardware_sound_disabled;
-	static const bool default_is_sound_filter_disabled;
-	static const bool default_is_always_pass_custom_arguments;
+	static const bool default_is_disable_hardware_sound;
+	static const bool default_is_disable_sound_filters;
+	static const bool default_is_pass_custom_arguments;
 	static const std::string default_custom_arguments;
 	static const int default_screen_width;
 	static const int default_screen_height;
 
 	static const std::string language_setting_name;
-	static const std::string is_warned_about_display_setting_name;
-	static const std::string is_warned_about_settings_setting_name;
-	static const std::string is_sound_effects_disabled_setting_name;
-	static const std::string is_music_disabled_setting_name;
-	static const std::string is_fmv_disabled_setting_name;
-	static const std::string is_fog_disabled_setting_name;
-	static const std::string is_controller_disabled_setting_name;
-	static const std::string is_triple_buffering_enabled_setting_name;
-	static const std::string is_hardware_cursor_disabled_setting_name;
-	static const std::string is_animated_loading_screen_disabled_setting_name;
-	static const std::string is_hardware_sound_disabled_setting_name;
-	static const std::string is_sound_filter_disabled_setting_name;
-	static const std::string is_always_pass_custom_arguments_setting_name;
+	static const std::string is_disable_display_settings_warning_setting_name;
+	static const std::string is_disable_advanced_settings_warning_setting_name;
+	static const std::string is_disable_sound_effects_setting_name;
+	static const std::string is_disable_music_setting_name;
+	static const std::string is_disable_fmvs_setting_name;
+	static const std::string is_disable_controllers_setting_name;
+	static const std::string is_disable_triple_buffering_setting_name;
+	static const std::string is_disable_hardware_cursor_setting_name;
+	static const std::string is_disable_animated_loading_screen_setting_name;
+	static const std::string is_disable_hardware_sound_setting_name;
+	static const std::string is_disable_sound_filters_setting_name;
+	static const std::string is_pass_custom_arguments_setting_name;
 	static const std::string custom_arguments_setting_name;
 	static const std::string screen_width_setting_name;
 	static const std::string screen_height_setting_name;
@@ -1794,38 +1791,36 @@ const std::string Configuration::arguments_file_name = LTJS_GAME_ID_STRING "_lau
 
 const std::string Configuration::default_language = "en";
 const bool Configuration::default_is_warned_about_display = false;
-const bool Configuration::default_is_warned_about_settings = false;
-const bool Configuration::default_is_sound_effects_disabled = false;
-const bool Configuration::default_is_music_disabled = false;
-const bool Configuration::default_is_fmv_disabled = false;
-const bool Configuration::default_is_fog_disabled = false;
-const bool Configuration::default_is_controller_disabled = false;
-const bool Configuration::default_is_triple_buffering_enabled = false;
-const bool Configuration::default_is_hardware_cursor_disabled = false;
-const bool Configuration::default_is_animated_loading_screen_disabled = false;
+const bool Configuration::default_is_disable_advanced_settings_warning = false;
+const bool Configuration::default_is_disable_sound_effects = false;
+const bool Configuration::default_is_disable_music = false;
+const bool Configuration::default_is_disable_fmvs = false;
+const bool Configuration::default_is_disable_controllers = false;
+const bool Configuration::default_is_disable_triple_buffering = true;
+const bool Configuration::default_is_disable_hardware_cursor = false;
+const bool Configuration::default_is_disable_animated_loading_screen = false;
 const bool Configuration::default_is_detail_level_selected = false;
-const bool Configuration::default_is_hardware_sound_disabled = false;
-const bool Configuration::default_is_sound_filter_disabled = false;
-const bool Configuration::default_is_always_pass_custom_arguments = false;
+const bool Configuration::default_is_disable_hardware_sound = false;
+const bool Configuration::default_is_disable_sound_filters = false;
+const bool Configuration::default_is_pass_custom_arguments = false;
 const std::string Configuration::default_custom_arguments = {};
 const int Configuration::default_screen_width = 0;
 const int Configuration::default_screen_height = 0;
 
 
 const std::string Configuration::language_setting_name = "language";
-const std::string Configuration::is_warned_about_display_setting_name = "disable_display_settings_warning";
-const std::string Configuration::is_warned_about_settings_setting_name = "disable_advanced_settings_warning";
-const std::string Configuration::is_sound_effects_disabled_setting_name = "disable_sound_effects";
-const std::string Configuration::is_music_disabled_setting_name = "disable_music";
-const std::string Configuration::is_fmv_disabled_setting_name = "disable_fmv";
-const std::string Configuration::is_fog_disabled_setting_name = "disable_fog";
-const std::string Configuration::is_controller_disabled_setting_name = "disable_controllers";
-const std::string Configuration::is_triple_buffering_enabled_setting_name = "enable_triple_buffering";
-const std::string Configuration::is_hardware_cursor_disabled_setting_name = "disable_hardware_cursor";
-const std::string Configuration::is_animated_loading_screen_disabled_setting_name = "disable_animated_loading_screen";
-const std::string Configuration::is_hardware_sound_disabled_setting_name = "disable_hardware_sound";
-const std::string Configuration::is_sound_filter_disabled_setting_name = "disable_sound_filter";
-const std::string Configuration::is_always_pass_custom_arguments_setting_name = "always_pass_custom_arguments";
+const std::string Configuration::is_disable_display_settings_warning_setting_name = "disable_display_settings_warning";
+const std::string Configuration::is_disable_advanced_settings_warning_setting_name = "disable_advanced_settings_warning";
+const std::string Configuration::is_disable_sound_effects_setting_name = "disable_sound_effects";
+const std::string Configuration::is_disable_music_setting_name = "disable_music";
+const std::string Configuration::is_disable_fmvs_setting_name = "disable_fmvs";
+const std::string Configuration::is_disable_controllers_setting_name = "disable_controllers";
+const std::string Configuration::is_disable_triple_buffering_setting_name = "disable_triple_buffering";
+const std::string Configuration::is_disable_hardware_cursor_setting_name = "disable_hardware_cursor";
+const std::string Configuration::is_disable_animated_loading_screen_setting_name = "disable_animated_loading_screen";
+const std::string Configuration::is_disable_hardware_sound_setting_name = "disable_hardware_sound";
+const std::string Configuration::is_disable_sound_filters_setting_name = "disable_sound_filters";
+const std::string Configuration::is_pass_custom_arguments_setting_name = "pass_custom_arguments";
 const std::string Configuration::custom_arguments_setting_name = "custom_arguments";
 const std::string Configuration::screen_width_setting_name = "screen_width";
 const std::string Configuration::screen_height_setting_name = "screen_height";
@@ -1836,19 +1831,18 @@ Configuration::Configuration()
 	is_initialized_{},
 	configuration_path_{},
 	language_{},
-	is_warned_about_display_{},
-	is_warned_about_settings_{},
-	is_sound_effects_disabled_{},
-	is_music_disabled_{},
-	is_fmv_disabled_{},
-	is_fog_disabled_{},
-	is_controller_disabled_{},
-	is_triple_buffering_enabled_{},
-	is_hardware_cursor_disabled_{},
-	is_animated_loading_screen_disabled_{},
-	is_hardware_sound_disabled_{},
-	is_sound_filter_disabled_{},
-	is_always_pass_custom_arguments_{},
+	is_disable_display_settings_warning_{},
+	is_disable_advanced_settings_warning_{},
+	is_disable_sound_effects_{},
+	is_disable_music_{},
+	is_disable_fmvs_{},
+	is_disable_controllers_{},
+	is_disable_triple_buffering_{},
+	is_disable_hardware_cursor_{},
+	is_disable_animated_loading_screen_{},
+	is_disable_hardware_sound_{},
+	is_disable_sound_filters_{},
+	is_pass_custom_arguments_{},
 	custom_arguments_{},
 	screen_width_{},
 	screen_height_{},
@@ -1862,19 +1856,18 @@ Configuration::Configuration(
 	is_initialized_{std::move(is_initialized_)},
 	configuration_path_{std::move(configuration_path_)},
 	language_{std::move(language_)},
-	is_warned_about_display_{std::move(is_warned_about_display_)},
-	is_warned_about_settings_{std::move(is_warned_about_settings_)},
-	is_sound_effects_disabled_{std::move(is_sound_effects_disabled_)},
-	is_music_disabled_{std::move(is_music_disabled_)},
-	is_fmv_disabled_{std::move(is_fmv_disabled_)},
-	is_fog_disabled_{std::move(is_fog_disabled_)},
-	is_controller_disabled_{std::move(is_controller_disabled_)},
-	is_triple_buffering_enabled_{std::move(is_triple_buffering_enabled_)},
-	is_hardware_cursor_disabled_{std::move(is_hardware_cursor_disabled_)},
-	is_animated_loading_screen_disabled_{std::move(is_animated_loading_screen_disabled_)},
-	is_hardware_sound_disabled_{std::move(is_hardware_sound_disabled_)},
-	is_sound_filter_disabled_{std::move(is_sound_filter_disabled_)},
-	is_always_pass_custom_arguments_{std::move(is_always_pass_custom_arguments_)},
+	is_disable_display_settings_warning_{std::move(is_disable_display_settings_warning_)},
+	is_disable_advanced_settings_warning_{std::move(is_disable_advanced_settings_warning_)},
+	is_disable_sound_effects_{std::move(is_disable_sound_effects_)},
+	is_disable_music_{std::move(is_disable_music_)},
+	is_disable_fmvs_{std::move(is_disable_fmvs_)},
+	is_disable_controllers_{std::move(is_disable_controllers_)},
+	is_disable_triple_buffering_{std::move(is_disable_triple_buffering_)},
+	is_disable_hardware_cursor_{std::move(is_disable_hardware_cursor_)},
+	is_disable_animated_loading_screen_{std::move(is_disable_animated_loading_screen_)},
+	is_disable_hardware_sound_{std::move(is_disable_hardware_sound_)},
+	is_disable_sound_filters_{std::move(is_disable_sound_filters_)},
+	is_pass_custom_arguments_{std::move(is_pass_custom_arguments_)},
 	custom_arguments_{std::move(custom_arguments_)},
 	screen_width_{std::move(screen_width_)},
 	screen_height_{std::move(screen_height_)},
@@ -1981,189 +1974,146 @@ bool Configuration::reload()
 		if (false)
 		{
 		}
-		// language
-		//
 		else if (tokens[0].content_ == language_setting_name)
 		{
 			language_.set_and_accept(tokens[1].content_);
 		}
-		// is_warned_about_display
-		//
-		else if (tokens[0].content_ == is_warned_about_display_setting_name)
+		else if (tokens[0].content_ == is_disable_display_settings_warning_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_warned_about_display_.set_and_accept(value != 0);
+				is_disable_display_settings_warning_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_warned_about_settings
-		//
-		else if (tokens[0].content_ == is_warned_about_settings_setting_name)
+		else if (tokens[0].content_ == is_disable_advanced_settings_warning_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_warned_about_settings_.set_and_accept(value != 0);
+				is_disable_advanced_settings_warning_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_sound_effects_disabled
-		//
-		else if (tokens[0].content_ == is_sound_effects_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_sound_effects_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_sound_effects_disabled_.set_and_accept(value != 0);
+				is_disable_sound_effects_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_music_disabled
-		//
-		else if (tokens[0].content_ == is_music_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_music_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_music_disabled_.set_and_accept(value != 0);
+				is_disable_music_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_fmv_disabled
-		//
-		else if (tokens[0].content_ == is_fmv_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_fmvs_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_fmv_disabled_.set_and_accept(value != 0);
+				is_disable_fmvs_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_fog_disabled
-		//
-		else if (tokens[0].content_ == is_fog_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_controllers_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_fog_disabled_.set_and_accept(value != 0);
+				is_disable_controllers_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_controller_disabled
-		//
-		else if (tokens[0].content_ == is_controller_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_triple_buffering_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_controller_disabled_.set_and_accept(value != 0);
+				is_disable_triple_buffering_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_triple_buffering_enabled
-		//
-		else if (tokens[0].content_ == is_triple_buffering_enabled_setting_name)
+		else if (tokens[0].content_ == is_disable_hardware_cursor_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_triple_buffering_enabled_.set_and_accept(value != 0);
+				is_disable_hardware_cursor_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_hardware_cursor_disabled
-		//
-		else if (tokens[0].content_ == is_hardware_cursor_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_animated_loading_screen_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_hardware_cursor_disabled_.set_and_accept(value != 0);
+				is_disable_animated_loading_screen_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_animated_loading_screen_disabled
-		//
-		else if (tokens[0].content_ == is_animated_loading_screen_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_hardware_sound_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_animated_loading_screen_disabled_.set_and_accept(value != 0);
+				is_disable_hardware_sound_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_hardware_sound_disabled
-		//
-		else if (tokens[0].content_ == is_hardware_sound_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_sound_filters_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_hardware_sound_disabled_.set_and_accept(value != 0);
+				is_disable_sound_filters_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_sound_filter_disabled
-		//
-		else if (tokens[0].content_ == is_sound_filter_disabled_setting_name)
+		else if (tokens[0].content_ == is_pass_custom_arguments_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_sound_filter_disabled_.set_and_accept(value != 0);
+				is_pass_custom_arguments_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_always_pass_custom_arguments
-		//
-		else if (tokens[0].content_ == is_always_pass_custom_arguments_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(tokens[1].content_);
-				is_always_pass_custom_arguments_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		// custom_arguments
-		//
 		else if (tokens[0].content_ == custom_arguments_setting_name)
 		{
 			custom_arguments_.set_and_accept(deserialize_cl_args(tokens[1].content_));
 		}
-		// screen_width
-		//
 		else if (tokens[0].content_ == screen_width_setting_name)
 		{
 			try
@@ -2174,8 +2124,6 @@ bool Configuration::reload()
 			{
 			}
 		}
-		// screen_height
-		//
 		else if (tokens[0].content_ == screen_height_setting_name)
 		{
 			try
@@ -2222,127 +2170,104 @@ bool Configuration::save()
 	string_buffer += "*/\n";
 	string_buffer += '\n';
 
-	// language
 	//
-	is_warned_about_display_.accept();
+	is_disable_display_settings_warning_.accept();
 	string_buffer += language_setting_name;
 	string_buffer += " \"";
 	string_buffer += language_;
 	string_buffer += "\"\n";
 
-	// is_warned_about_display
 	//
-	is_warned_about_display_.accept();
-	string_buffer += is_warned_about_display_setting_name;
+	is_disable_display_settings_warning_.accept();
+	string_buffer += is_disable_display_settings_warning_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_warned_about_display_);
+	string_buffer += std::to_string(is_disable_display_settings_warning_);
 	string_buffer += '\n';
 
-	// is_warned_about_settings
 	//
-	is_warned_about_settings_.accept();
-	string_buffer += is_warned_about_settings_setting_name;
+	is_disable_advanced_settings_warning_.accept();
+	string_buffer += is_disable_advanced_settings_warning_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_warned_about_settings_);
+	string_buffer += std::to_string(is_disable_advanced_settings_warning_);
 	string_buffer += '\n';
 
-	// is_sound_effects_disabled
 	//
-	is_sound_effects_disabled_.accept();
-	string_buffer += is_sound_effects_disabled_setting_name;
+	is_disable_sound_effects_.accept();
+	string_buffer += is_disable_sound_effects_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_sound_effects_disabled_);
+	string_buffer += std::to_string(is_disable_sound_effects_);
 	string_buffer += '\n';
 
-	// is_music_disabled
 	//
-	is_music_disabled_.accept();
-	string_buffer += is_music_disabled_setting_name;
+	is_disable_music_.accept();
+	string_buffer += is_disable_music_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_music_disabled_);
+	string_buffer += std::to_string(is_disable_music_);
 	string_buffer += '\n';
 
-	// is_fmv_disabled
 	//
-	is_fmv_disabled_.accept();
-	string_buffer += is_fmv_disabled_setting_name;
+	is_disable_fmvs_.accept();
+	string_buffer += is_disable_fmvs_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_fmv_disabled_);
+	string_buffer += std::to_string(is_disable_fmvs_);
 	string_buffer += '\n';
 
-	// is_fog_disabled
 	//
-	is_fog_disabled_.accept();
-	string_buffer += is_fog_disabled_setting_name;
+	is_disable_controllers_.accept();
+	string_buffer += is_disable_controllers_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_fog_disabled_);
+	string_buffer += std::to_string(is_disable_controllers_);
 	string_buffer += '\n';
 
-	// is_controller_disabled
 	//
-	is_controller_disabled_.accept();
-	string_buffer += is_controller_disabled_setting_name;
+	is_disable_triple_buffering_.accept();
+	string_buffer += is_disable_triple_buffering_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_controller_disabled_);
+	string_buffer += std::to_string(is_disable_triple_buffering_);
 	string_buffer += '\n';
 
-	// is_triple_buffering_enabled
 	//
-	is_triple_buffering_enabled_.accept();
-	string_buffer += is_triple_buffering_enabled_setting_name;
+	is_disable_hardware_cursor_.accept();
+	string_buffer += is_disable_hardware_cursor_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_triple_buffering_enabled_);
+	string_buffer += std::to_string(is_disable_hardware_cursor_);
 	string_buffer += '\n';
 
-	// is_hardware_cursor_disabled
 	//
-	is_hardware_cursor_disabled_.accept();
-	string_buffer += is_hardware_cursor_disabled_setting_name;
+	is_disable_animated_loading_screen_.accept();
+	string_buffer += is_disable_animated_loading_screen_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_hardware_cursor_disabled_);
+	string_buffer += std::to_string(is_disable_animated_loading_screen_);
 	string_buffer += '\n';
 
-	// is_animated_loading_screen_disabled
 	//
-	is_animated_loading_screen_disabled_.accept();
-	string_buffer += is_animated_loading_screen_disabled_setting_name;
+	is_disable_hardware_sound_.accept();
+	string_buffer += is_disable_hardware_sound_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_animated_loading_screen_disabled_);
+	string_buffer += std::to_string(is_disable_hardware_sound_);
 	string_buffer += '\n';
 
-	// is_hardware_sound_disabled
 	//
-	is_hardware_sound_disabled_.accept();
-	string_buffer += is_hardware_sound_disabled_setting_name;
+	is_disable_sound_filters_.accept();
+	string_buffer += is_disable_sound_filters_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_hardware_sound_disabled_);
+	string_buffer += std::to_string(is_disable_sound_filters_);
 	string_buffer += '\n';
 
-	// is_sound_filter_disabled
 	//
-	is_sound_filter_disabled_.accept();
-	string_buffer += is_sound_filter_disabled_setting_name;
+	is_pass_custom_arguments_.accept();
+	string_buffer += is_pass_custom_arguments_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_sound_filter_disabled_);
+	string_buffer += std::to_string(is_pass_custom_arguments_);
 	string_buffer += '\n';
 
-	// is_always_pass_custom_arguments
-	//
-	is_always_pass_custom_arguments_.accept();
-	string_buffer += is_always_pass_custom_arguments_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_always_pass_custom_arguments_);
-	string_buffer += '\n';
-
-	// custom_arguments
 	//
 	custom_arguments_.accept();
 	string_buffer += custom_arguments_setting_name;
 	string_buffer += " \"";
-	string_buffer += (is_always_pass_custom_arguments_ ? serialize_cl_args(custom_arguments_) : "");
+	string_buffer += (is_pass_custom_arguments_ ? serialize_cl_args(custom_arguments_) : "");
 	string_buffer += "\"\n";
 
-	// screen_width
 	//
 	screen_width_.accept();
 	string_buffer += screen_width_setting_name;
@@ -2350,7 +2275,6 @@ bool Configuration::save()
 	string_buffer += std::to_string(screen_width_);
 	string_buffer += '\n';
 
-	// screen_height
 	//
 	screen_height_.accept();
 	string_buffer += screen_height_setting_name;
@@ -2393,19 +2317,18 @@ const std::string& Configuration::get_arguments_file_name() const
 void Configuration::reset()
 {
 	language_.set_and_accept(default_language);
-	is_warned_about_display_.set_and_accept(default_is_warned_about_display);
-	is_warned_about_settings_.set_and_accept(default_is_warned_about_settings);
-	is_sound_effects_disabled_.set_and_accept(default_is_sound_effects_disabled);
-	is_music_disabled_.set_and_accept(default_is_music_disabled);
-	is_fmv_disabled_.set_and_accept(default_is_fmv_disabled);
-	is_fog_disabled_.set_and_accept(default_is_fog_disabled);
-	is_controller_disabled_.set_and_accept(default_is_controller_disabled);
-	is_triple_buffering_enabled_.set_and_accept(default_is_triple_buffering_enabled);
-	is_hardware_cursor_disabled_.set_and_accept(default_is_hardware_cursor_disabled);
-	is_animated_loading_screen_disabled_.set_and_accept(default_is_animated_loading_screen_disabled);
-	is_hardware_sound_disabled_.set_and_accept(default_is_hardware_sound_disabled);
-	is_sound_filter_disabled_.set_and_accept(default_is_sound_filter_disabled);
-	is_always_pass_custom_arguments_.set_and_accept(default_is_always_pass_custom_arguments);
+	is_disable_display_settings_warning_.set_and_accept(default_is_warned_about_display);
+	is_disable_advanced_settings_warning_.set_and_accept(default_is_disable_advanced_settings_warning);
+	is_disable_sound_effects_.set_and_accept(default_is_disable_sound_effects);
+	is_disable_music_.set_and_accept(default_is_disable_music);
+	is_disable_fmvs_.set_and_accept(default_is_disable_fmvs);
+	is_disable_controllers_.set_and_accept(default_is_disable_controllers);
+	is_disable_triple_buffering_.set_and_accept(default_is_disable_triple_buffering);
+	is_disable_hardware_cursor_.set_and_accept(default_is_disable_hardware_cursor);
+	is_disable_animated_loading_screen_.set_and_accept(default_is_disable_animated_loading_screen);
+	is_disable_hardware_sound_.set_and_accept(default_is_disable_hardware_sound);
+	is_disable_sound_filters_.set_and_accept(default_is_disable_sound_filters);
+	is_pass_custom_arguments_.set_and_accept(default_is_pass_custom_arguments);
 	custom_arguments_.set_and_accept(default_custom_arguments);
 	screen_width_.set_and_accept(default_screen_width);
 	screen_height_.set_and_accept(default_screen_height);
@@ -5380,7 +5303,7 @@ void MainWindow::handle_message_box_result_event(
 
 		if (message_box_result == MessageBoxResult::ok)
 		{
-			configuration.is_warned_about_display_ = true;
+			configuration.is_disable_display_settings_warning_ = true;
 			handle_check_for_renderers();
 			show(true);
 		}
@@ -5421,7 +5344,7 @@ void MainWindow::handle_message_box_result_event(
 			attach_to_message_box_result_event(true, AttachPoint::advanced_settings);
 
 			state_ = State::advanced_settings_window;
-			configuration.is_warned_about_settings_ = true;
+			configuration.is_disable_advanced_settings_warning_ = true;
 			advanced_options_window_ptr->show(true);
 		}
 
@@ -5580,15 +5503,15 @@ std::string MainWindow::build_command_line(
 
 	// Advanced settings.
 	//
-	command_line += " +DisableSound " + std::string{configuration.is_sound_effects_disabled_ ? "1" : "0"};
-	command_line += " +DisableMusic " + std::string{configuration.is_music_disabled_ ? "1" : "0"};
-	command_line += " +DisableMovies " + std::string{configuration.is_fmv_disabled_ ? "1" : "0"};
-	command_line += " +DisableJoystick " + std::string{configuration.is_controller_disabled_ ? "1" : "0"};
-	command_line += " +DisableTripBuf " + std::string{configuration.is_triple_buffering_enabled_ ? "0" : "1"};
-	command_line += " +DisableHardwareCursor " + std::string{configuration.is_hardware_cursor_disabled_ ? "1" : "0"};
-	command_line += " +DynamicLoadScreen " + std::string{configuration.is_animated_loading_screen_disabled_ ? "0" : "1"};
-	command_line += " +DisableHardwareSound " + std::string{configuration.is_hardware_sound_disabled_ ? "1" : "0"};
-	command_line += " +DisableSoundFilters " + std::string{configuration.is_sound_filter_disabled_ ? "1" : "0"};
+	command_line += " +DisableSound " + std::string{configuration.is_disable_sound_effects_ ? "1" : "0"};
+	command_line += " +DisableMusic " + std::string{configuration.is_disable_music_ ? "1" : "0"};
+	command_line += " +DisableMovies " + std::string{configuration.is_disable_fmvs_ ? "1" : "0"};
+	command_line += " +DisableJoystick " + std::string{configuration.is_disable_controllers_ ? "1" : "0"};
+	command_line += " +DisableTripBuf " + std::string{configuration.is_disable_triple_buffering_ ? "1" : "0"};
+	command_line += " +DisableHardwareCursor " + std::string{configuration.is_disable_hardware_cursor_ ? "1" : "0"};
+	command_line += " +DynamicLoadScreen " + std::string{configuration.is_disable_animated_loading_screen_ ? "0" : "1"};
+	command_line += " +DisableHardwareSound " + std::string{configuration.is_disable_hardware_sound_ ? "1" : "0"};
+	command_line += " +DisableSoundFilters " + std::string{configuration.is_disable_sound_filters_ ? "1" : "0"};
 
 
 	// Display settings.
@@ -6381,7 +6304,7 @@ void MainWindow::do_im_handle_events()
 	{
 		attach_to_message_box_result_event(true, AttachPoint::message_box);
 
-		if (!configuration.is_warned_about_display_)
+		if (!configuration.is_disable_display_settings_warning_)
 		{
 			state_ = State::display_settings_warning;
 
@@ -6397,7 +6320,7 @@ void MainWindow::do_im_handle_events()
 	}
 	else if (is_options_button_clicked_)
 	{
-		if (!configuration.is_warned_about_settings_)
+		if (!configuration.is_disable_advanced_settings_warning_)
 		{
 			state_ = State::advanced_settings_warning;
 
@@ -7436,7 +7359,7 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLESOUND";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLESOUND;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLESOUND";
-		check_box_content.setting_value_ptr_ = &configuration.is_sound_effects_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_sound_effects_;
 	}
 
 	// Disable music.
@@ -7451,7 +7374,7 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEMUSIC";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEMUSIC;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEMUSIC";
-		check_box_content.setting_value_ptr_ = &configuration.is_music_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_music_;
 	}
 
 	// Disable movies.
@@ -7466,7 +7389,7 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEMOVIES";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEMOVIES;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEMOVIES";
-		check_box_content.setting_value_ptr_ = &configuration.is_fmv_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_fmvs_;
 	}
 
 	// Disable hardware sound.
@@ -7481,7 +7404,7 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEHARDWARESOUND";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEHARDWARESOUND;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEHARDWARESOUND";
-		check_box_content.setting_value_ptr_ = &configuration.is_hardware_sound_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_hardware_sound_;
 	}
 
 	// Disable animated load screens.
@@ -7496,7 +7419,7 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEANIMATEDLOADSCREENS";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEANIMATEDLOADSCREEN;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEANIMATEDLOADSCREEN";
-		check_box_content.setting_value_ptr_ = &configuration.is_animated_loading_screen_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_animated_loading_screen_;
 	}
 
 	// Disable triple buffering.
@@ -7505,13 +7428,13 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_contexts_.emplace_back();
 		auto& check_box_content = check_box_contexts_.back();
 		check_box_content.position_ = {228.0F, 69.0F};
-		check_box_content.checked_value_ = false;
+		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
 		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLETRIPLEBUFFERING;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLETRIPLEBUFFERING";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLETRIPLEBUFFERING;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLETRIPLEBUFFERING";
-		check_box_content.setting_value_ptr_ = &configuration.is_triple_buffering_enabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_triple_buffering_;
 	}
 
 	// Disable joysticks.
@@ -7526,7 +7449,7 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEJOYSTICKS";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEJOYSTICKS;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEJOYSTICKS";
-		check_box_content.setting_value_ptr_ = &configuration.is_controller_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_controllers_;
 	}
 
 	// Disable hardware cursor.
@@ -7541,7 +7464,7 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEHARDWARECURSOR";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEHARDWARECURSOR;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEHARDWARECURSOR";
-		check_box_content.setting_value_ptr_ = &configuration.is_hardware_cursor_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_hardware_cursor_;
 	}
 
 	// Disable sound filters.
@@ -7556,7 +7479,7 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLESOUNDFILTERS";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLESOUNDFILTERS;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLESOUNDFILTERS";
-		check_box_content.setting_value_ptr_ = &configuration.is_sound_filter_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_sound_filters_;
 	}
 
 	// Restore defaults.
@@ -7586,7 +7509,7 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.resource_string_default_ = "IDS_OD_ALWAYSSPECIFY";
 		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_ALWAYSSPECIFY;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_ALWAYSSPECIFY";
-		check_box_content.setting_value_ptr_ = &configuration.is_always_pass_custom_arguments_;
+		check_box_content.setting_value_ptr_ = &configuration.is_pass_custom_arguments_;
 	}
 }
 
