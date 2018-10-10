@@ -411,6 +411,10 @@ public:
 
 	bool is_initialized() const;
 
+	const std::string& get_profile_directory() const;
+
+	const std::string& get_arguments_file_name() const;
+
 	void reset();
 
 	bool reload();
@@ -420,6 +424,7 @@ public:
 
 private:
 	static const std::string configuration_file_name;
+	static const std::string arguments_file_name;
 
 
 	static const std::string default_language;
@@ -462,6 +467,7 @@ private:
 
 	bool is_initialized_;
 	std::string configuration_path_;
+	std::string profile_path_;
 
 
 	Configuration();
@@ -1058,6 +1064,7 @@ private:
 	enum class State
 	{
 		main_window,
+		main_window_message_box,
 		display_settings_warning,
 		display_settings_no_renderers,
 		display_settings_window,
@@ -1110,6 +1117,12 @@ private:
 	void run_the_game();
 
 	void change_language();
+
+	std::string build_command_line(
+		const bool has_detail_settings) const;
+
+	bool save_arguments(
+		const std::string& command_line) const;
 
 
 	void do_draw() override;
@@ -1776,6 +1789,7 @@ bool DisplayModeManager::sdl_is_pixel_format_valid(
 //
 
 const std::string Configuration::configuration_file_name = LTJS_GAME_ID_STRING "_launcher_config.txt";
+const std::string Configuration::arguments_file_name = LTJS_GAME_ID_STRING "_launcher_arguments.txt";
 
 
 const std::string Configuration::default_language = "en";
@@ -1895,7 +1909,9 @@ bool Configuration::initialize()
 		return false;
 	}
 
-	configuration_path_ = ul::PathUtils::normalize(ul::PathUtils::append(sdl_profile_path, configuration_file_name));
+	profile_path_ = sdl_profile_path;
+
+	configuration_path_ = ul::PathUtils::normalize(ul::PathUtils::append(profile_path_, configuration_file_name));
 
 	reset();
 
@@ -2362,6 +2378,16 @@ bool Configuration::save()
 	}
 
 	return true;
+}
+
+const std::string& Configuration::get_profile_directory() const
+{
+	return profile_path_;
+}
+
+const std::string& Configuration::get_arguments_file_name() const
+{
+	return arguments_file_name;
 }
 
 void Configuration::reset()
@@ -5344,6 +5370,10 @@ void MainWindow::handle_message_box_result_event(
 
 	switch (state_)
 	{
+	case State::main_window_message_box:
+		attach_to_message_box_result_event(false, AttachPoint::message_box);
+		break;
+
 	case State::display_settings_warning:
 	{
 		state_ = State::main_window;
@@ -5437,7 +5467,10 @@ void MainWindow::run_the_game()
 
 	configuration.save();
 
-	const auto command = lithtech_executable + " -cmdfile " + Launcher::launcher_commands_file_name;
+	const auto arguments = build_command_line(configuration.is_restore_defaults_);
+	save_arguments(arguments);
+
+	const auto command = lithtech_executable + arguments;
 	const auto exec_result = std::system(command.c_str());
 
 	is_show_play_button_ = is_lithtech_executable_exists();
@@ -5446,10 +5479,13 @@ void MainWindow::run_the_game()
 
 	if (exec_result != 0)
 	{
-		launcher.show_message_box(
-			MessageBoxType::error,
-			MessageBoxButtons::ok,
-			"Failed to run LithTech executable \"" + lithtech_executable + "\".");
+		const auto& resource_strings = launcher.get_resource_strings();
+		const auto& message = resource_strings.get(Launcher::IDS_CANTLAUNCHCLIENTEXE, "IDS_CANTLAUNCHCLIENTEXE");
+
+		state_ = State::main_window_message_box;
+		attach_to_message_box_result_event(true, AttachPoint::message_box);
+
+		launcher.show_message_box(MessageBoxType::error, MessageBoxButtons::ok, message);
 	}
 	else
 	{
@@ -5508,6 +5544,164 @@ void MainWindow::change_language()
 	}
 
 	configuration.language_.accept();
+}
+
+std::string MainWindow::build_command_line(
+	const bool has_detail_settings) const
+{
+	auto& launcher = Launcher::get_instance();
+	const auto& resource_strings = launcher.get_resource_strings();
+	const auto& configuration = Configuration::get_instance();
+
+	auto command_line = std::string{};
+
+	// Window title.
+	//
+	const auto& app_name = resource_strings.get(Launcher::IDS_APPNAME, "IDS_APPNAME");
+	command_line += " -windowtitle \"" + app_name + "\"";
+
+	// .REZ files.
+	//
+	const auto& rez_base = resource_strings.get(Launcher::IDS_REZBASE, "IDS_REZBASE");
+
+	command_line += " -rez " + rez_base + ".REZ";
+	command_line += " -rez " + rez_base + "2.REZ";
+	command_line += " -rez " + rez_base + "DLL.REZ";
+	command_line += " -rez SOUND.REZ";
+	command_line += " -rez " + rez_base + "L.REZ";
+	command_line += " -rez custom";
+	command_line += " -rez " + rez_base + "P.REZ";
+	command_line += " -rez " + rez_base + "P2.REZ";
+
+#ifdef LTJS_NOLF2
+	command_line += " -rez Update_v1x3.rez";
+#endif // LTJS_NOLF2
+
+
+	// Advanced settings.
+	//
+	command_line += " +DisableSound " + std::string{configuration.is_sound_effects_disabled_ ? "1" : "0"};
+	command_line += " +DisableMusic " + std::string{configuration.is_music_disabled_ ? "1" : "0"};
+	command_line += " +DisableMovies " + std::string{configuration.is_fmv_disabled_ ? "1" : "0"};
+	command_line += " +DisableJoystick " + std::string{configuration.is_controller_disabled_ ? "1" : "0"};
+	command_line += " +DisableTripBuf " + std::string{configuration.is_triple_buffering_enabled_ ? "0" : "1"};
+	command_line += " +DisableHardwareCursor " + std::string{configuration.is_hardware_cursor_disabled_ ? "1" : "0"};
+	command_line += " +DynamicLoadScreen " + std::string{configuration.is_animated_loading_screen_disabled_ ? "0" : "1"};
+	command_line += " +DisableHardwareSound " + std::string{configuration.is_hardware_sound_disabled_ ? "1" : "0"};
+	command_line += " +DisableSoundFilters " + std::string{configuration.is_sound_filter_disabled_ ? "1" : "0"};
+
+
+	// Display settings.
+	//
+	if (configuration.screen_width_ <= 0 || configuration.screen_height_ <= 0)
+	{
+		const auto& display_mode_manager = DisplayModeManager::get_instance();
+		const auto& native_display_mode = display_mode_manager.get_native();
+
+		if (native_display_mode.width_ > 0 && native_display_mode.height_)
+		{
+			command_line += " +ScreenWidth " + std::to_string(native_display_mode.width_);
+			command_line += " +ScreenHeight " + std::to_string(native_display_mode.height_);
+		}
+		else
+		{
+			command_line += " +ScreenWidth 640 +ScreenHeight 480";
+		}
+	}
+	else
+	{
+		command_line += " +ScreenWidth " + std::to_string(configuration.screen_width_);
+		command_line += " +ScreenHeight " + std::to_string(configuration.screen_height_);
+	}
+
+	command_line += " +BitDepth 32";
+
+
+	// Restore defaults.
+	//
+	if (configuration.is_restore_defaults_)
+	{
+		command_line += " +RestoreDefaults 1";
+		command_line += " +HardwareCursor 1";
+		command_line += " +VSyncOnFlip 1";
+		command_line += " +GammaR 1.0";
+		command_line += " +GammaG 1.0";
+		command_line += " +GammaB 1.0";
+	}
+
+	// Detail settings.
+	//
+	if (has_detail_settings)
+	{
+		const auto detail_level_id = launcher.get_detail_settings_window()->get_detail_level();
+
+		auto detail_level_string = std::string{};
+
+		switch (detail_level_id)
+		{
+		case DetailLevel::low:
+			detail_level_string = ".DefaultLow";
+			break;
+
+		case DetailLevel::medium:
+			detail_level_string = ".DefaultMid";
+			break;
+
+		case DetailLevel::high:
+			detail_level_string = ".DefaultHigh";
+			break;
+
+		default:
+			break;
+		}
+
+		if (!detail_level_string.empty())
+		{
+			command_line += " +SetPerformanceLevel " + detail_level_string;
+		}
+	}
+
+	// Custom command line.
+	//
+	if (!configuration.custom_arguments_.get_ref().empty())
+	{
+		command_line += " " + static_cast<const std::string&>(configuration.custom_arguments_);
+	}
+
+	//
+	return command_line;
+}
+
+bool MainWindow::save_arguments(
+	const std::string& command_line) const
+{
+	const auto& configuration = Configuration::get_instance();
+	const auto& profile_directory = configuration.get_profile_directory();
+	const auto& arguments_file_name = configuration.get_arguments_file_name();
+	const auto file_name = ul::PathUtils::append(profile_directory, arguments_file_name);
+
+	auto file_stream = ul::FileStream{file_name, ul::Stream::OpenMode::write | ul::Stream::OpenMode::truncate};
+
+	if (!file_stream.is_open())
+	{
+		return false;
+	}
+
+	const auto data_size = static_cast<int>(command_line.size());
+
+	if (data_size == 0)
+	{
+		return true;
+	}
+
+	const auto write_result = file_stream.write(command_line.c_str(), data_size);
+
+	if (write_result != data_size)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void MainWindow::do_draw()
