@@ -392,7 +392,6 @@ public:
 	SettingValue<bool> is_triple_buffering_enabled_;
 	SettingValue<bool> is_hardware_cursor_disabled_;
 	SettingValue<bool> is_animated_loading_screen_disabled_;
-	SettingValue<bool> is_detail_level_selected_;
 	SettingValue<bool> is_hardware_sound_disabled_;
 	SettingValue<bool> is_sound_filter_disabled_;
 	SettingValue<bool> is_always_pass_custom_arguments_;
@@ -453,7 +452,6 @@ private:
 	static const std::string is_triple_buffering_enabled_setting_name;
 	static const std::string is_hardware_cursor_disabled_setting_name;
 	static const std::string is_animated_loading_screen_disabled_setting_name;
-	static const std::string is_detail_level_selected_setting_name;
 	static const std::string is_hardware_sound_disabled_setting_name;
 	static const std::string is_sound_filter_disabled_setting_name;
 	static const std::string is_always_pass_custom_arguments_setting_name;
@@ -1811,7 +1809,6 @@ const std::string Configuration::is_controller_disabled_setting_name = "disable_
 const std::string Configuration::is_triple_buffering_enabled_setting_name = "enable_triple_buffering";
 const std::string Configuration::is_hardware_cursor_disabled_setting_name = "disable_hardware_cursor";
 const std::string Configuration::is_animated_loading_screen_disabled_setting_name = "disable_animated_loading_screen";
-const std::string Configuration::is_detail_level_selected_setting_name = "skip_detail_level";
 const std::string Configuration::is_hardware_sound_disabled_setting_name = "disable_hardware_sound";
 const std::string Configuration::is_sound_filter_disabled_setting_name = "disable_sound_filter";
 const std::string Configuration::is_always_pass_custom_arguments_setting_name = "always_pass_custom_arguments";
@@ -1835,7 +1832,6 @@ Configuration::Configuration()
 	is_triple_buffering_enabled_{},
 	is_hardware_cursor_disabled_{},
 	is_animated_loading_screen_disabled_{},
-	is_detail_level_selected_{},
 	is_hardware_sound_disabled_{},
 	is_sound_filter_disabled_{},
 	is_always_pass_custom_arguments_{},
@@ -1862,7 +1858,6 @@ Configuration::Configuration(
 	is_triple_buffering_enabled_{std::move(is_triple_buffering_enabled_)},
 	is_hardware_cursor_disabled_{std::move(is_hardware_cursor_disabled_)},
 	is_animated_loading_screen_disabled_{std::move(is_animated_loading_screen_disabled_)},
-	is_detail_level_selected_{std::move(is_detail_level_selected_)},
 	is_hardware_sound_disabled_{std::move(is_hardware_sound_disabled_)},
 	is_sound_filter_disabled_{std::move(is_sound_filter_disabled_)},
 	is_always_pass_custom_arguments_{std::move(is_always_pass_custom_arguments_)},
@@ -2106,19 +2101,6 @@ bool Configuration::reload()
 			{
 			}
 		}
-		// is_detail_level_selected
-		//
-		else if (tokens[0].content_ == is_detail_level_selected_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(tokens[1].content_);
-				is_detail_level_selected_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
 		// is_hardware_sound_disabled
 		//
 		else if (tokens[0].content_ == is_hardware_sound_disabled_setting_name)
@@ -2312,14 +2294,6 @@ bool Configuration::save()
 	string_buffer += std::to_string(is_animated_loading_screen_disabled_);
 	string_buffer += '\n';
 
-	// is_detail_level_selected
-	//
-	is_detail_level_selected_.accept();
-	string_buffer += is_detail_level_selected_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_detail_level_selected_);
-	string_buffer += '\n';
-
 	// is_hardware_sound_disabled
 	//
 	is_hardware_sound_disabled_.accept();
@@ -2403,7 +2377,6 @@ void Configuration::reset()
 	is_triple_buffering_enabled_.set_and_accept(default_is_triple_buffering_enabled);
 	is_hardware_cursor_disabled_.set_and_accept(default_is_hardware_cursor_disabled);
 	is_animated_loading_screen_disabled_.set_and_accept(default_is_animated_loading_screen_disabled);
-	is_detail_level_selected_.set_and_accept(default_is_detail_level_selected);
 	is_hardware_sound_disabled_.set_and_accept(default_is_hardware_sound_disabled);
 	is_sound_filter_disabled_.set_and_accept(default_is_sound_filter_disabled);
 	is_always_pass_custom_arguments_.set_and_accept(default_is_always_pass_custom_arguments);
