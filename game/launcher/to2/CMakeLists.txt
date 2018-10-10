@@ -534,6 +534,16 @@ install(
 )
 
 #
+# Strings (common).
+#
+install(
+	FILES
+		res/strings/launcher.txt
+	DESTINATION
+		ltjs/nolf2/launcher/strings
+)
+
+#
 # Strings (Germany).
 #
 install(
