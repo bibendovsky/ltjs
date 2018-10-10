@@ -84,7 +84,7 @@ IDS_HELP_DISABLEANIMATEDLOADSCREEN         "This will disable the use of an anim
 IDS_HELP_RESTOREDEFAULTS                   "This restores all configuration settings to the original defaults. This includes resetting the key configuration, detail level and sound options. This is useful if you've changed settings, and you just want things back the way they were. "
 IDS_HELP_ALWAYSSPECIFY                     "Advanced users only."
 IDS_CANTFINDREZFILE                        "ERROR - Unable to find the Game.rez file.  Please make sure that NOLF 2 is installed properly and that your No One Lives Forever 2 disc 1 CD is in the drive."
-IDS_CANTLAUNCHCLIENTEXE                    "ERROR - Could not launch LITHTECH.EXE.  Please make sure that No One Lives Forever 2 is installed properly."
+IDS_CANTLAUNCHCLIENTEXE                    "ERROR - Could not launch ltjs_lithtech.exe.  Please make sure that No One Lives Forever 2 is installed properly."
 IDS_DETAIL_HEADER                          "In order to get the best gameplay experience from No One Lives Forever 2, please select the initial performance setting you would like the game to use.  You can change this setting later using No One Lives Forever 2's in-game menus."
 IDS_DETAIL_LOW                             "Low detail will provide the best game performance at the sacrifice of visual quality.  Required System Specs:  PIII 500 MHz, 128MB Ram, 32MB GeForce 1 or equivalent video card."
 IDS_DETAIL_MEDIUM                          "Medium detail will provide a good trade-off between game performance and visual quality.  Recommended System Specs:   PIII 1 GHz, 256MB Ram, 64MB GeForce 3 or equivalent video card."

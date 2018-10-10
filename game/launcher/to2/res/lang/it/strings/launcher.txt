@@ -84,7 +84,7 @@ IDS_HELP_DISABLEANIMATEDLOADSCREEN         "Viene disabilitato l'uso di una sche
 IDS_HELP_RESTOREDEFAULTS                   "Riporta le impostazioni di configurazione ai valori originali. Include anche l'impostazione dei tasti, del livello di dettaglio e delle opzioni audio. Č utile se hai cambiato impostazioni e vuoi tornare a quelle originali."
 IDS_HELP_ALWAYSSPECIFY                     "Solo per utenti avanzati."
 IDS_CANTFINDREZFILE                        "ERRORE: impossibile trovare il file Game.rez. Assicurati che NOLF2 sia installato correttamente e che il CD 1 di No One Lives Forever 2 sia nel lettore."
-IDS_CANTLAUNCHCLIENTEXE                    "ERRORE: impossibile avviare LITHTECH.EXE. Assicurati che No One Lives Forever 2 sia installato correttamente."
+IDS_CANTLAUNCHCLIENTEXE                    "ERRORE: impossibile avviare ltjs_lithtech.exe. Assicurati che No One Lives Forever 2 sia installato correttamente."
 IDS_DETAIL_HEADER                          "Per ottenere la massima funzionalitŕ di gioco da No One Lives Forever 2, seleziona le impostazioni iniziali delle prestazioni che desideri usare. Le puoi cambiare in un secondo momento usando i menu di gioco di No One Lives Forever 2."
 IDS_DETAIL_LOW                             "La bassa risoluzione fornisce le migliori prestazioni di gioco, a discapito perň della qualitŕ visiva. I requisiti di sistema raccomandati sono: PIII 500 MHz, 128 MB di Ram, scheda video GeForce 1 con 32 MB o equivalente."
 IDS_DETAIL_MEDIUM                          "La risoluzione media fornisce un accettabile compromesso tra grafica e prestazioni di gioco. I requisiti di sistema raccomandati sono: PIII 1 GHz, 256 MB di Ram, scheda video GeForce 3 con 6 4MB o equivalente."

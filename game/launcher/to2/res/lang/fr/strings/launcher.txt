@@ -84,7 +84,7 @@ IDS_HELP_DISABLEANIMATEDLOADSCREEN         "Ceci va désactiver l'utilisation de
 IDS_HELP_RESTOREDEFAULTS                   "Cette option permet de reconfigurer tous les paramčtres ŕ leur valeur par défaut. Cela comprend la configuration des touches, du niveau de détail et des options sonores. Cela peut ętre utile si vous avez modifié différentes choses mais voulez revenir aux paramčtres originaux."
 IDS_HELP_ALWAYSSPECIFY                     "Uniquement pour les utilisateurs avancés."
 IDS_CANTFINDREZFILE                        "ERREUR - impossible de trouver le fichier Game.rez. Vérifiez que NOLF 2 est correctement installé et que le CD 1 de No One Lives Forever 2 est dans votre lecteur."
-IDS_CANTLAUNCHCLIENTEXE                    "ERREUR - impossible de lancer LITHTECH.EXE. Vérifiez que No One Lives Forever 2 est correctement installé."
+IDS_CANTLAUNCHCLIENTEXE                    "ERREUR - impossible de lancer ltjs_lithtech.exe. Vérifiez que No One Lives Forever 2 est correctement installé."
 IDS_DETAIL_HEADER                          "Pour profiter pleinement de No One Lives Forever 2, choisissez le réglage de performances que vous souhaitez utiliser.  Vous pouvez changer ce réglage depuis les menus de No One Lives Forever 2."
 IDS_DETAIL_LOW                             "Des détails faibles offrent les meilleures performances au sacrifice de la qualité visuelle. Configuration recommandée: PIII 500 MHz, 128 Mo de Ram, GeForce 1 32 Mo ou équivalent."
 IDS_DETAIL_MEDIUM                          "Des détails moyens offrent un bon compromis entre performances et qualité graphique. Configuration recommandée: PIII 1 GHz, 256 Mo de Ram, GeForce 3 64 Mo ou équivalent."

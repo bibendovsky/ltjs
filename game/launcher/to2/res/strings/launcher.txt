@@ -26,7 +26,7 @@ Encoding: UTF-8
 
 // Strings.
 //
-IDS_APPEXE                                 "NOLF2.exe"
+IDS_APPEXE                                 "ltjs_nolf2.exe"
 IDS_APPCD1CHECK                            "\\NOLF2.EXE"
 IDS_APPCD2CHECK                            "\\DATA\\GAME2.REZ"
 IDS_REZBASE                                "GAME"
