@@ -13,14 +13,8 @@ Encoding: UTF-8
 // Identifiers.
 //
 #define IDS_APPNAME                        1
-#define IDS_APPEXE                         2
 #define IDS_DISPLAY_WARNING                3
 #define IDS_OPTIONS_WARNING                4
-#define IDS_APPCD1CHECK                    5
-#define IDS_APPCD2CHECK                    6
-#define IDS_REZBASE                        7
-#define IDS_SETUPEXE                       8
-#define IDS_SERVEREXE                      9
 #define IDS_LANGUAGE                       10
 #define IDS_INSERTCD2                      11
 #define IDS_INSERTCD                       12
@@ -43,11 +37,8 @@ Encoding: UTF-8
 #define IDS_DETAIL_MEDIUM                  29
 #define IDS_DETAIL_HIGH                    30
 #define IDS_CANTLAUNCHSERVER               31
-#define IDS_APPVERSION                     32
 #define IDS_CANTUNINSTALL                  33
-#define IDS_COMPANYWEBPAGE                 34
 #define IDS_CANTOPENAVI                    35
-#define IDS_PUBLISHERWEBPAGE               36
 #define IDS_OD_DISABLESOUND                37
 #define IDS_OD_DISABLEMUSIC                38
 #define IDS_OD_DISABLEMOVIES               39
@@ -69,22 +60,14 @@ Encoding: UTF-8
 #define IDS_OD_DISABLEHARDWARESOUND        54
 #define IDS_OD_DISABLESOUNDFILTERS         55
 #define IDS_CANTOPENCOMMANDFILE            56
-#define IDS_LITHTECHWEBPAGE                57
-#define IDS_SIERRAWEBPAGE                  58
 #define IDS_NOCUSTOMDIR                    59
 
 
 // Strings.
 //
 IDS_APPNAME                                "No One Lives Forever 2 "
-IDS_APPEXE                                 "NOLF2.exe"
 IDS_DISPLAY_WARNING                        "Las opciones de pantalla disponibles en el sistema se enumerarán a continuación. Esto puede llevar algún tiempo en función del hardware instalado.\n\nSi no se muestra nada en el cuadro de diálogo de la pantalla, comprueba si DirectX se ha instalado correctamente en el sistema."
 IDS_OPTIONS_WARNING                        "ADVERTENCIA: si haces pequeños ajustes en las opciones avanzadas puedes empeorar el funcionamiento del juego (o hacer que deje de funcionar) dependiendo de la configuración del sistema. "
-IDS_APPCD1CHECK                            "\\NOLF2.EXE"
-IDS_APPCD2CHECK                            "\\DATA\\GAME2.REZ"
-IDS_REZBASE                                "GAME"
-IDS_SETUPEXE                               "SETUP.EXE"
-IDS_SERVEREXE                              "NOLF2Svr.EXE"
 IDS_LANGUAGE                               "English"
 IDS_INSERTCD2                              "Retira el CD-ROM 2 de No One Lives Forever de la unidad y sustitúyelo por el CD-ROM 1 de No One Lives Forever."
 IDS_INSERTCD                               "Inserta el CD-ROM 1 de No One Lives Forever 2 en la unidad correspondiente."
@@ -116,14 +99,9 @@ IDS_HELP_DISABLESOUNDFILTERS               "De este modo se desactiva el uso de 
 IDS_OD_DISABLEHARDWARESOUND                "Desactivar sonido de hardware"
 IDS_OD_DISABLESOUNDFILTERS                 "Desactivar filtros de sonido"
 IDS_CANTOPENCOMMANDFILE                    "ERROR: No se pudo abrir el archivo launchcmds.txt para escritura. Por favor, asegúrate de que se puede escribir en este archivo e inténtalo de nuevo. "
-IDS_LITHTECHWEBPAGE                        "http://www.lithtech.com"
-IDS_SIERRAWEBPAGE                          "http://www.sierra.com"
 IDS_NOCUSTOMDIR                            "ERROR: no se ha encontrado ningún directorio personalizado."
-IDS_APPVERSION                             "1.0"
 IDS_CANTUNINSTALL                          "ERROR: no se puede desinstalar el juego. Si No One Lives Forever 2 todavía está instalado, prueba a utilizar la opción Agregar o quitar programas. Para volver a instalar el juego, ejecuta el programa Setup.exe del CD-ROM 1 de No One Lives Forever 2."
-IDS_COMPANYWEBPAGE                         "http://www.lith.com"
 IDS_CANTOPENAVI                            "ERROR: no se puede abrir un archivo .avi"
-IDS_PUBLISHERWEBPAGE                       "http://www.foxinteractive.com"
 IDS_OD_DISABLESOUND                        "Desactivar sonido"
 IDS_OD_DISABLEMUSIC                        "Desactivar música"
 IDS_OD_DISABLEMOVIES                       "Desactivar películas"
