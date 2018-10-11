@@ -88,28 +88,12 @@ if (MSVC)
 	)
 endif ()
 
-if (MINGW)
-	target_link_libraries(
-		ltjs_nolf2
-		mingw32
-	)
-endif ()
-
 target_link_libraries(
 	ltjs_nolf2
 	${LTJS_SDL2_LIBRARY}
 	bibendovsky_spul_lib
 	spdlog
 )
-
-if (WIN32)
-	target_link_libraries(
-		ltjs_nolf2
-		imm32
-		version
-		winmm
-	)
-endif ()
 
 install(
 	TARGETS
