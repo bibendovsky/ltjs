@@ -177,6 +177,71 @@ enum class DetailLevel
 }; // DetailLevel
 
 
+struct ResourceStringId final
+{
+	static constexpr int ids_appname = 1;
+	static constexpr int ids_appexe = 2;
+	static constexpr int ids_display_warning = 3;
+	static constexpr int ids_options_warning = 4;
+	static constexpr int ids_appcd1check = 5;
+	static constexpr int ids_appcd2check = 6;
+	static constexpr int ids_rezbase = 7;
+	static constexpr int ids_setupexe = 8;
+	static constexpr int ids_serverexe = 9;
+	static constexpr int ids_language = 10;
+	static constexpr int ids_insertcd2 = 11;
+	static constexpr int ids_insertcd = 12;
+	static constexpr int ids_cantlaunchsetup = 13;
+	static constexpr int ids_norens = 14;
+	static constexpr int ids_help_disablesound = 15;
+	static constexpr int ids_help_disablemusic = 16;
+	static constexpr int ids_help_disablemovies = 17;
+	static constexpr int ids_help_disablefog = 18;
+	static constexpr int ids_help_disablejoysticks = 19;
+	static constexpr int ids_help_disabletriplebuffering = 20;
+	static constexpr int ids_help_disablehardwarecursor = 21;
+	static constexpr int ids_help_disableanimatedloadscreen = 22;
+	static constexpr int ids_help_restoredefaults = 23;
+	static constexpr int ids_help_alwaysspecify = 24;
+	static constexpr int ids_cantfindrezfile = 25;
+	static constexpr int ids_cantlaunchclientexe = 26;
+	static constexpr int ids_detail_header = 27;
+	static constexpr int ids_detail_low = 28;
+	static constexpr int ids_detail_medium = 29;
+	static constexpr int ids_detail_high = 30;
+	static constexpr int ids_cantlaunchserver = 31;
+	static constexpr int ids_appversion = 32;
+	static constexpr int ids_cantuninstall = 33;
+	static constexpr int ids_companywebpage = 34;
+	static constexpr int ids_cantopenavi = 35;
+	static constexpr int ids_publisherwebpage = 36;
+	static constexpr int ids_od_disablesound = 37;
+	static constexpr int ids_od_disablemusic = 38;
+	static constexpr int ids_od_disablemovies = 39;
+	static constexpr int ids_od_disablefog = 40;
+	static constexpr int ids_appname_demo = 40;
+	static constexpr int ids_od_disablejoysticks = 41;
+	static constexpr int ids_od_disabletriplebuffering = 42;
+	static constexpr int ids_od_disablehardwarecursor = 43;
+	static constexpr int ids_od_disableanimatedloadscreens = 44;
+	static constexpr int ids_od_restoredefaults = 45;
+	static constexpr int ids_od_alwaysspecify = 46;
+	static constexpr int ids_debug_regcreateerror = 47;
+	static constexpr int ids_debug_installsuccess = 48;
+	static constexpr int ids_debug_uninstallsuccess = 49;
+	static constexpr int ids_launchbrowsererror = 50;
+	static constexpr int ids_help_default = 51;
+	static constexpr int ids_help_disablehardwaresound = 52;
+	static constexpr int ids_help_disablesoundfilters = 53;
+	static constexpr int ids_od_disablehardwaresound = 54;
+	static constexpr int ids_od_disablesoundfilters = 55;
+	static constexpr int ids_cantopencommandfile = 56;
+	static constexpr int ids_lithtechwebpage = 57;
+	static constexpr int ids_sierrawebpage = 58;
+	static constexpr int ids_nocustomdir = 59;
+}; // ResourceStringId
+
+
 struct DisplayMode
 {
 	int width_;
@@ -1349,71 +1414,6 @@ class Launcher final :
 	public Base
 {
 public:
-	// Resource strings identifiers.
-	//
-
-	static constexpr auto IDS_APPNAME = 1;
-	static constexpr auto IDS_APPEXE = 2;
-	static constexpr auto IDS_DISPLAY_WARNING = 3;
-	static constexpr auto IDS_OPTIONS_WARNING = 4;
-	static constexpr auto IDS_APPCD1CHECK = 5;
-	static constexpr auto IDS_APPCD2CHECK = 6;
-	static constexpr auto IDS_REZBASE = 7;
-	static constexpr auto IDS_SETUPEXE = 8;
-	static constexpr auto IDS_SERVEREXE = 9;
-	static constexpr auto IDS_LANGUAGE = 10;
-	static constexpr auto IDS_INSERTCD2 = 11;
-	static constexpr auto IDS_INSERTCD = 12;
-	static constexpr auto IDS_CANTLAUNCHSETUP = 13;
-	static constexpr auto IDS_NORENS = 14;
-	static constexpr auto IDS_HELP_DISABLESOUND = 15;
-	static constexpr auto IDS_HELP_DISABLEMUSIC = 16;
-	static constexpr auto IDS_HELP_DISABLEMOVIES = 17;
-	static constexpr auto IDS_HELP_DISABLEFOG = 18;
-	static constexpr auto IDS_HELP_DISABLEJOYSTICKS = 19;
-	static constexpr auto IDS_HELP_DISABLETRIPLEBUFFERING = 20;
-	static constexpr auto IDS_HELP_DISABLEHARDWARECURSOR = 21;
-	static constexpr auto IDS_HELP_DISABLEANIMATEDLOADSCREEN = 22;
-	static constexpr auto IDS_HELP_RESTOREDEFAULTS = 23;
-	static constexpr auto IDS_HELP_ALWAYSSPECIFY = 24;
-	static constexpr auto IDS_CANTFINDREZFILE = 25;
-	static constexpr auto IDS_CANTLAUNCHCLIENTEXE = 26;
-	static constexpr auto IDS_DETAIL_HEADER = 27;
-	static constexpr auto IDS_DETAIL_LOW = 28;
-	static constexpr auto IDS_DETAIL_MEDIUM = 29;
-	static constexpr auto IDS_DETAIL_HIGH = 30;
-	static constexpr auto IDS_CANTLAUNCHSERVER = 31;
-	static constexpr auto IDS_APPVERSION = 32;
-	static constexpr auto IDS_CANTUNINSTALL = 33;
-	static constexpr auto IDS_COMPANYWEBPAGE = 34;
-	static constexpr auto IDS_CANTOPENAVI = 35;
-	static constexpr auto IDS_PUBLISHERWEBPAGE = 36;
-	static constexpr auto IDS_OD_DISABLESOUND = 37;
-	static constexpr auto IDS_OD_DISABLEMUSIC = 38;
-	static constexpr auto IDS_OD_DISABLEMOVIES = 39;
-	static constexpr auto IDS_OD_DISABLEFOG = 40;
-	static constexpr auto IDS_APPNAME_DEMO = 40;
-	static constexpr auto IDS_OD_DISABLEJOYSTICKS = 41;
-	static constexpr auto IDS_OD_DISABLETRIPLEBUFFERING = 42;
-	static constexpr auto IDS_OD_DISABLEHARDWARECURSOR = 43;
-	static constexpr auto IDS_OD_DISABLEANIMATEDLOADSCREENS = 44;
-	static constexpr auto IDS_OD_RESTOREDEFAULTS = 45;
-	static constexpr auto IDS_OD_ALWAYSSPECIFY = 46;
-	static constexpr auto IDS_DEBUG_REGCREATEERROR = 47;
-	static constexpr auto IDS_DEBUG_INSTALLSUCCESS = 48;
-	static constexpr auto IDS_DEBUG_UNINSTALLSUCCESS = 49;
-	static constexpr auto IDS_LAUNCHBROWSERERROR = 50;
-	static constexpr auto IDS_HELP_DEFAULT = 51;
-	static constexpr auto IDS_HELP_DISABLEHARDWARESOUND = 52;
-	static constexpr auto IDS_HELP_DISABLESOUNDFILTERS = 53;
-	static constexpr auto IDS_OD_DISABLEHARDWARESOUND = 54;
-	static constexpr auto IDS_OD_DISABLESOUNDFILTERS = 55;
-	static constexpr auto IDS_CANTOPENCOMMANDFILE = 56;
-	static constexpr auto IDS_LITHTECHWEBPAGE = 57;
-	static constexpr auto IDS_SIERRAWEBPAGE = 58;
-	static constexpr auto IDS_NOCUSTOMDIR = 59;
-
-
 	static std::string launcher_commands_file_name;
 	static std::string resource_strings_directory;
 	static std::string resource_strings_file_name;
@@ -5235,7 +5235,7 @@ void MainWindow::handle_check_for_renderers()
 		state_ = State::display_settings_no_renderers;
 
 		const auto& resource_strings = launcher.get_resource_strings();
-		const auto& message = resource_strings.get(Launcher::IDS_NORENS, "IDS_NORENS");
+		const auto& message = resource_strings.get(ResourceStringId::ids_norens, "IDS_NORENS");
 
 		auto message_box_window_ptr = launcher.get_message_box_window();
 		message_box_window_ptr->show(MessageBoxType::error, MessageBoxButtons::ok, message);
@@ -5415,7 +5415,7 @@ void MainWindow::no_lithtech_exe_error()
 {
 	auto& launcher = Launcher::get_instance();
 	const auto& resource_strings = launcher.get_resource_strings();
-	const auto& message = resource_strings.get(Launcher::IDS_CANTLAUNCHCLIENTEXE, "IDS_CANTLAUNCHCLIENTEXE");
+	const auto& message = resource_strings.get(ResourceStringId::ids_cantlaunchclientexe, "IDS_CANTLAUNCHCLIENTEXE");
 
 	state_ = State::main_window_message_box;
 	attach_to_message_box_result_event(true, AttachPoint::message_box);
@@ -5487,12 +5487,12 @@ std::string MainWindow::build_command_line(
 
 	// Window title.
 	//
-	const auto& app_name = resource_strings.get(Launcher::IDS_APPNAME, "IDS_APPNAME");
+	const auto& app_name = resource_strings.get(ResourceStringId::ids_appname, "IDS_APPNAME");
 	command_line += " -windowtitle \"" + app_name + "\"";
 
 	// .REZ files.
 	//
-	const auto& rez_base = resource_strings.get(Launcher::IDS_REZBASE, "IDS_REZBASE");
+	const auto& rez_base = resource_strings.get(ResourceStringId::ids_rezbase, "IDS_REZBASE");
 
 	command_line += " -rez " + rez_base + ".REZ";
 	command_line += " -rez " + rez_base + "2.REZ";
@@ -6313,7 +6313,7 @@ void MainWindow::do_im_handle_events()
 		{
 			state_ = State::display_settings_warning;
 
-			const auto& message = resource_strings.get(Launcher::IDS_DISPLAY_WARNING, "IDS_DISPLAY_WARNING");
+			const auto& message = resource_strings.get(ResourceStringId::ids_display_warning, "IDS_DISPLAY_WARNING");
 
 			auto message_box_window_ptr = launcher.get_message_box_window();
 			message_box_window_ptr->show(MessageBoxType::warning, MessageBoxButtons::ok_cancel, message);
@@ -6331,7 +6331,7 @@ void MainWindow::do_im_handle_events()
 
 			attach_to_message_box_result_event(true, AttachPoint::message_box);
 
-			const auto& message = resource_strings.get(Launcher::IDS_OPTIONS_WARNING, "IDS_OPTIONS_WARNING");
+			const auto& message = resource_strings.get(ResourceStringId::ids_options_warning, "IDS_OPTIONS_WARNING");
 
 			auto message_box_window_ptr = launcher.get_message_box_window();
 			message_box_window_ptr->show(MessageBoxType::warning, MessageBoxButtons::ok_cancel, message);
@@ -6581,7 +6581,7 @@ void DetailSettingsWindow::do_draw()
 	const auto header_pos = ImVec2{14.0F, 45.0F} * scale;
 	const auto header_size = ImVec2{428.0F, 51.0F} * scale;
 
-	const auto& header_text = resource_strings.get(Launcher::IDS_DETAIL_HEADER, "IDS_DETAIL_HEADER");
+	const auto& header_text = resource_strings.get(ResourceStringId::ids_detail_header, "IDS_DETAIL_HEADER");
 
 	ImGui::SetCursorPos(header_pos);
 	ImGui::BeginChild("##header_child", header_size);
@@ -6604,7 +6604,7 @@ void DetailSettingsWindow::do_draw()
 	const auto high_header_pos = ImVec2{14.0F, 119.0F} * scale;
 	const auto high_header_size = ImVec2{428.0F, 40.0F} * scale;
 
-	const auto& high_header_text = resource_strings.get(Launcher::IDS_DETAIL_HIGH, "IDS_DETAIL_HIGH");
+	const auto& high_header_text = resource_strings.get(ResourceStringId::ids_detail_high, "IDS_DETAIL_HIGH");
 
 	ImGui::SetCursorPos(high_header_pos);
 	ImGui::BeginChild("##high_header_child", high_header_size);
@@ -6677,7 +6677,7 @@ void DetailSettingsWindow::do_draw()
 	const auto medium_header_pos = ImVec2{14.0F, 228.0F} * scale;
 	const auto medium_header_size = ImVec2{428.0F, 43.0F} * scale;
 
-	const auto& medium_header_text = resource_strings.get(Launcher::IDS_DETAIL_MEDIUM, "IDS_DETAIL_MEDIUM");
+	const auto& medium_header_text = resource_strings.get(ResourceStringId::ids_detail_medium, "IDS_DETAIL_MEDIUM");
 
 	ImGui::SetCursorPos(medium_header_pos);
 	ImGui::BeginChild("##medium_header_child", medium_header_size);
@@ -6750,7 +6750,7 @@ void DetailSettingsWindow::do_draw()
 	const auto low_header_pos = ImVec2{14.0F, 337.0F} * scale;
 	const auto low_header_size = ImVec2{428.0F, 43.0F} * scale;
 
-	const auto& low_header_text = resource_strings.get(Launcher::IDS_DETAIL_LOW, "IDS_DETAIL_LOW");
+	const auto& low_header_text = resource_strings.get(ResourceStringId::ids_detail_low, "IDS_DETAIL_LOW");
 
 	ImGui::SetCursorPos(low_header_pos);
 	ImGui::BeginChild("##low_header_child", low_header_size);
@@ -7360,9 +7360,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 69.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLESOUND;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablesound;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLESOUND";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLESOUND;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablesound;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLESOUND";
 		check_box_content.setting_value_ptr_ = &configuration.is_disable_sound_effects_;
 	}
@@ -7375,9 +7375,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 94.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEMUSIC;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablemusic;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEMUSIC";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEMUSIC;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablemusic;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEMUSIC";
 		check_box_content.setting_value_ptr_ = &configuration.is_disable_music_;
 	}
@@ -7390,9 +7390,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 119.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEMOVIES;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablemovies;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEMOVIES";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEMOVIES;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablemovies;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEMOVIES";
 		check_box_content.setting_value_ptr_ = &configuration.is_disable_fmvs_;
 	}
@@ -7405,9 +7405,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 144.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEHARDWARESOUND;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablehardwaresound;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEHARDWARESOUND";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEHARDWARESOUND;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablehardwaresound;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEHARDWARESOUND";
 		check_box_content.setting_value_ptr_ = &configuration.is_disable_hardware_sound_;
 	}
@@ -7420,9 +7420,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 169.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEANIMATEDLOADSCREENS;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disableanimatedloadscreens;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEANIMATEDLOADSCREENS";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEANIMATEDLOADSCREEN;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disableanimatedloadscreen;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEANIMATEDLOADSCREEN";
 		check_box_content.setting_value_ptr_ = &configuration.is_disable_animated_loading_screen_;
 	}
@@ -7435,9 +7435,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {228.0F, 69.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLETRIPLEBUFFERING;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disabletriplebuffering;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLETRIPLEBUFFERING";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLETRIPLEBUFFERING;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disabletriplebuffering;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLETRIPLEBUFFERING";
 		check_box_content.setting_value_ptr_ = &configuration.is_disable_triple_buffering_;
 	}
@@ -7450,9 +7450,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {228.0F, 94.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEJOYSTICKS;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablejoysticks;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEJOYSTICKS";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEJOYSTICKS;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablejoysticks;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEJOYSTICKS";
 		check_box_content.setting_value_ptr_ = &configuration.is_disable_controllers_;
 	}
@@ -7465,9 +7465,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {228.0F, 119.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEHARDWARECURSOR;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablehardwarecursor;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEHARDWARECURSOR";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEHARDWARECURSOR;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablehardwarecursor;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEHARDWARECURSOR";
 		check_box_content.setting_value_ptr_ = &configuration.is_disable_hardware_cursor_;
 	}
@@ -7480,9 +7480,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {228.0F, 144.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLESOUNDFILTERS;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablesoundfilters;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLESOUNDFILTERS";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLESOUNDFILTERS;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablesoundfilters;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLESOUNDFILTERS";
 		check_box_content.setting_value_ptr_ = &configuration.is_disable_sound_filters_;
 	}
@@ -7495,9 +7495,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 221.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_RESTOREDEFAULTS;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_restoredefaults;
 		check_box_content.resource_string_default_ = "IDS_OD_RESTOREDEFAULTS";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_RESTOREDEFAULTS;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_restoredefaults;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_RESTOREDEFAULTS";
 		check_box_content.setting_value_ptr_ = &configuration.is_restore_defaults_;
 	}
@@ -7510,9 +7510,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 297.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_ALWAYSSPECIFY;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_alwaysspecify;
 		check_box_content.resource_string_default_ = "IDS_OD_ALWAYSSPECIFY";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_ALWAYSSPECIFY;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_alwaysspecify;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_ALWAYSSPECIFY";
 		check_box_content.setting_value_ptr_ = &configuration.is_pass_custom_arguments_;
 	}
@@ -7563,7 +7563,7 @@ void AdvancedSettingsWindow::do_draw()
 	const auto check_box_text_disabled_color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
 
 
-	hint_ = resource_strings.get(Launcher::IDS_HELP_DEFAULT, "IDS_HELP_DEFAULT");
+	hint_ = resource_strings.get(ResourceStringId::ids_help_default, "IDS_HELP_DEFAULT");
 
 
 	// Begin advanced settings window.
@@ -8419,7 +8419,7 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		const auto& title = resource_strings_.get(IDS_APPNAME, "IDS_APPNAME");
+		const auto& title = resource_strings_.get(ResourceStringId::ids_appname, "IDS_APPNAME");
 
 		message_box_window_uptr_->set_title(title);
 	}
