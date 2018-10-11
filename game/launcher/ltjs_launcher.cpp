@@ -20,6 +20,8 @@
 #include "imgui.h"
 #include "imgui_stl.h"
 #include "SDL.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include "ltjs_resource_strings.h"
 #include "ltjs_script_tokenizer.h"
 
@@ -30,6 +32,9 @@
 #else // LTJS_NOLF2
 #error Unsupported game.
 #endif // LTJS_NOLF2
+
+
+using namespace std::string_literals;
 
 
 namespace ltjs
@@ -137,17 +142,20 @@ enum class ImageId
 	serverx,
 }; // ImageId
 
+
 enum class FontType
 {
 	regular,
 	bold,
 }; // FontType
 
+
 enum class FontId
 {
 	message_box_title,
 	message_box_message,
 }; // FontId
+
 
 enum class MessageBoxType
 {
@@ -156,17 +164,20 @@ enum class MessageBoxType
 	error,
 }; // MessageBoxType
 
+
 enum class MessageBoxButtons
 {
 	ok,
 	ok_cancel,
 }; // MessageBoxButtons
 
+
 enum class MessageBoxResult
 {
 	ok,
 	cancel,
 }; // MessageBoxResult
+
 
 enum class DetailLevel
 {
@@ -179,66 +190,66 @@ enum class DetailLevel
 
 struct ResourceStringId final
 {
-	static constexpr int ids_appname = 1;
-	static constexpr int ids_appexe = 2;
-	static constexpr int ids_display_warning = 3;
-	static constexpr int ids_options_warning = 4;
-	static constexpr int ids_appcd1check = 5;
-	static constexpr int ids_appcd2check = 6;
-	static constexpr int ids_rezbase = 7;
-	static constexpr int ids_setupexe = 8;
-	static constexpr int ids_serverexe = 9;
-	static constexpr int ids_language = 10;
-	static constexpr int ids_insertcd2 = 11;
-	static constexpr int ids_insertcd = 12;
-	static constexpr int ids_cantlaunchsetup = 13;
-	static constexpr int ids_norens = 14;
-	static constexpr int ids_help_disablesound = 15;
-	static constexpr int ids_help_disablemusic = 16;
-	static constexpr int ids_help_disablemovies = 17;
-	static constexpr int ids_help_disablefog = 18;
-	static constexpr int ids_help_disablejoysticks = 19;
-	static constexpr int ids_help_disabletriplebuffering = 20;
-	static constexpr int ids_help_disablehardwarecursor = 21;
-	static constexpr int ids_help_disableanimatedloadscreen = 22;
-	static constexpr int ids_help_restoredefaults = 23;
-	static constexpr int ids_help_alwaysspecify = 24;
-	static constexpr int ids_cantfindrezfile = 25;
-	static constexpr int ids_cantlaunchclientexe = 26;
-	static constexpr int ids_detail_header = 27;
-	static constexpr int ids_detail_low = 28;
-	static constexpr int ids_detail_medium = 29;
-	static constexpr int ids_detail_high = 30;
-	static constexpr int ids_cantlaunchserver = 31;
-	static constexpr int ids_appversion = 32;
-	static constexpr int ids_cantuninstall = 33;
-	static constexpr int ids_companywebpage = 34;
-	static constexpr int ids_cantopenavi = 35;
-	static constexpr int ids_publisherwebpage = 36;
-	static constexpr int ids_od_disablesound = 37;
-	static constexpr int ids_od_disablemusic = 38;
-	static constexpr int ids_od_disablemovies = 39;
-	static constexpr int ids_od_disablefog = 40;
-	static constexpr int ids_appname_demo = 40;
-	static constexpr int ids_od_disablejoysticks = 41;
-	static constexpr int ids_od_disabletriplebuffering = 42;
-	static constexpr int ids_od_disablehardwarecursor = 43;
-	static constexpr int ids_od_disableanimatedloadscreens = 44;
-	static constexpr int ids_od_restoredefaults = 45;
-	static constexpr int ids_od_alwaysspecify = 46;
-	static constexpr int ids_debug_regcreateerror = 47;
-	static constexpr int ids_debug_installsuccess = 48;
-	static constexpr int ids_debug_uninstallsuccess = 49;
-	static constexpr int ids_launchbrowsererror = 50;
-	static constexpr int ids_help_default = 51;
-	static constexpr int ids_help_disablehardwaresound = 52;
-	static constexpr int ids_help_disablesoundfilters = 53;
-	static constexpr int ids_od_disablehardwaresound = 54;
-	static constexpr int ids_od_disablesoundfilters = 55;
-	static constexpr int ids_cantopencommandfile = 56;
-	static constexpr int ids_lithtechwebpage = 57;
-	static constexpr int ids_sierrawebpage = 58;
-	static constexpr int ids_nocustomdir = 59;
+	static constexpr auto ids_appname = 1;
+	static constexpr auto ids_appexe = 2;
+	static constexpr auto ids_display_warning = 3;
+	static constexpr auto ids_options_warning = 4;
+	static constexpr auto ids_appcd1check = 5;
+	static constexpr auto ids_appcd2check = 6;
+	static constexpr auto ids_rezbase = 7;
+	static constexpr auto ids_setupexe = 8;
+	static constexpr auto ids_serverexe = 9;
+	static constexpr auto ids_language = 10;
+	static constexpr auto ids_insertcd2 = 11;
+	static constexpr auto ids_insertcd = 12;
+	static constexpr auto ids_cantlaunchsetup = 13;
+	static constexpr auto ids_norens = 14;
+	static constexpr auto ids_help_disablesound = 15;
+	static constexpr auto ids_help_disablemusic = 16;
+	static constexpr auto ids_help_disablemovies = 17;
+	static constexpr auto ids_help_disablefog = 18;
+	static constexpr auto ids_help_disablejoysticks = 19;
+	static constexpr auto ids_help_disabletriplebuffering = 20;
+	static constexpr auto ids_help_disablehardwarecursor = 21;
+	static constexpr auto ids_help_disableanimatedloadscreen = 22;
+	static constexpr auto ids_help_restoredefaults = 23;
+	static constexpr auto ids_help_alwaysspecify = 24;
+	static constexpr auto ids_cantfindrezfile = 25;
+	static constexpr auto ids_cantlaunchclientexe = 26;
+	static constexpr auto ids_detail_header = 27;
+	static constexpr auto ids_detail_low = 28;
+	static constexpr auto ids_detail_medium = 29;
+	static constexpr auto ids_detail_high = 30;
+	static constexpr auto ids_cantlaunchserver = 31;
+	static constexpr auto ids_appversion = 32;
+	static constexpr auto ids_cantuninstall = 33;
+	static constexpr auto ids_companywebpage = 34;
+	static constexpr auto ids_cantopenavi = 35;
+	static constexpr auto ids_publisherwebpage = 36;
+	static constexpr auto ids_od_disablesound = 37;
+	static constexpr auto ids_od_disablemusic = 38;
+	static constexpr auto ids_od_disablemovies = 39;
+	static constexpr auto ids_od_disablefog = 40;
+	static constexpr auto ids_appname_demo = 40;
+	static constexpr auto ids_od_disablejoysticks = 41;
+	static constexpr auto ids_od_disabletriplebuffering = 42;
+	static constexpr auto ids_od_disablehardwarecursor = 43;
+	static constexpr auto ids_od_disableanimatedloadscreens = 44;
+	static constexpr auto ids_od_restoredefaults = 45;
+	static constexpr auto ids_od_alwaysspecify = 46;
+	static constexpr auto ids_debug_regcreateerror = 47;
+	static constexpr auto ids_debug_installsuccess = 48;
+	static constexpr auto ids_debug_uninstallsuccess = 49;
+	static constexpr auto ids_launchbrowsererror = 50;
+	static constexpr auto ids_help_default = 51;
+	static constexpr auto ids_help_disablehardwaresound = 52;
+	static constexpr auto ids_help_disablesoundfilters = 53;
+	static constexpr auto ids_od_disablehardwaresound = 54;
+	static constexpr auto ids_od_disablesoundfilters = 55;
+	static constexpr auto ids_cantopencommandfile = 56;
+	static constexpr auto ids_lithtechwebpage = 57;
+	static constexpr auto ids_sierrawebpage = 58;
+	static constexpr auto ids_nocustomdir = 59;
 }; // ResourceStringId
 
 
@@ -479,6 +490,8 @@ public:
 
 	const std::string& get_arguments_file_name() const;
 
+	const std::string& get_log_file_name() const;
+
 	void reset();
 
 	bool reload();
@@ -489,6 +502,7 @@ public:
 private:
 	static const std::string configuration_file_name;
 	static const std::string arguments_file_name;
+	static const std::string log_file_name;
 
 
 	static const std::string default_language;
@@ -529,7 +543,7 @@ private:
 
 	bool is_initialized_;
 	std::string configuration_path_;
-	std::string profile_path_;
+	std::string profile_directory_;
 
 
 	Configuration();
@@ -1414,6 +1428,9 @@ class Launcher final :
 	public Base
 {
 public:
+	using Logger = std::shared_ptr<spdlog::logger>;
+
+
 	static std::string launcher_commands_file_name;
 	static std::string resource_strings_directory;
 	static std::string resource_strings_file_name;
@@ -1430,6 +1447,8 @@ public:
 	void uninitialize();
 
 	bool is_initialized();
+
+	Logger& get_logger();
 
 	void run();
 
@@ -1456,6 +1475,7 @@ public:
 private:
 	bool is_initialized_;
 	bool has_direct_3d_9_;
+	Logger logger_;
 	ResourceStrings resource_strings_;
 	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
@@ -1470,9 +1490,11 @@ private:
 
 	bool initialize_ogl_functions();
 
-	void uninitialize_sdl();
+	void uninitialize_ogl();
 
 	bool initialize_sdl();
+
+	bool initialize_ogl();
 }; // Launcher
 
 //
@@ -1789,6 +1811,7 @@ bool DisplayModeManager::sdl_is_pixel_format_valid(
 
 const std::string Configuration::configuration_file_name = LTJS_GAME_ID_STRING "_launcher_config.txt";
 const std::string Configuration::arguments_file_name = LTJS_GAME_ID_STRING "_launcher_arguments.txt";
+const std::string Configuration::log_file_name = LTJS_GAME_ID_STRING "_launcher_log.txt";
 
 
 const std::string Configuration::default_language = "en";
@@ -1904,9 +1927,9 @@ bool Configuration::initialize()
 		return false;
 	}
 
-	profile_path_ = sdl_profile_path;
+	profile_directory_ = sdl_profile_path;
 
-	configuration_path_ = ul::PathUtils::normalize(ul::PathUtils::append(profile_path_, configuration_file_name));
+	configuration_path_ = ul::PathUtils::normalize(ul::PathUtils::append(profile_directory_, configuration_file_name));
 
 	reset();
 
@@ -2308,12 +2331,17 @@ bool Configuration::save()
 
 const std::string& Configuration::get_profile_directory() const
 {
-	return profile_path_;
+	return profile_directory_;
 }
 
 const std::string& Configuration::get_arguments_file_name() const
 {
 	return arguments_file_name;
+}
+
+const std::string& Configuration::get_log_file_name() const
+{
+	return log_file_name;
 }
 
 void Configuration::reset()
@@ -8166,6 +8194,7 @@ Launcher::Launcher()
 	:
 	is_initialized_{},
 	has_direct_3d_9_{},
+	logger_{},
 	resource_strings_{},
 	message_box_window_uptr_{},
 	main_window_uptr_{},
@@ -8179,6 +8208,7 @@ Launcher::Launcher(
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
 	has_direct_3d_9_{std::move(rhs.has_direct_3d_9_)},
+	logger_{std::move(rhs.logger_)},
 	resource_strings_{std::move(rhs.resource_strings_)},
 	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)},
@@ -8214,42 +8244,10 @@ bool Launcher::initialize()
 		}
 	}
 
-	if (is_succeed)
-	{
-		has_direct_3d_9_ = Direct3d9::has_direct3d9();
-
-		auto& display_mode_manager = DisplayModeManager::get_instance();
-		display_mode_manager.initialize();
-	}
+	auto& configuration = Configuration::get_instance();
 
 	if (is_succeed)
 	{
-		auto& supported_languages = SupportedLanguages::get_instance();
-
-		if (!supported_languages.load())
-		{
-			is_succeed = false;
-
-			set_error_message(supported_languages.get_error_message());
-		}
-	}
-
-	if (is_succeed)
-	{
-		auto& supported_languages = SupportedLanguages::get_instance();
-
-		if (supported_languages.get().empty())
-		{
-			is_succeed = false;
-
-			set_error_message("No supported languages.");
-		}
-	}
-
-	if (is_succeed)
-	{
-		auto& configuration = Configuration::get_instance();
-
 		if (!configuration.initialize())
 		{
 			is_succeed = false;
@@ -8260,23 +8258,75 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		auto& configuration = Configuration::get_instance();
+		const auto& profile_directory = configuration.get_profile_directory();
+		const auto& log_file_name = configuration.get_log_file_name();
+		const auto& file_path = ul::PathUtils::append(profile_directory, log_file_name);
 
-		configuration.reload();
+		spdlog::set_pattern("[%Y-%m-%d %H:%M:%S %z] [%L] %v");
 
-		auto& supported_languages = SupportedLanguages::get_instance();
+		logger_ = spdlog::basic_logger_st("file", file_path, true);
+	}
 
-		if (!supported_languages.has_id(configuration.language_))
+	if (is_succeed)
+	{
+		if (!initialize_ogl())
 		{
 			is_succeed = false;
-			set_error_message("Unsupported language id \"" + static_cast<const std::string&>(configuration.language_) + "\".");
 		}
 	}
 
 	if (is_succeed)
 	{
-		auto& configuration = Configuration::get_instance();
+		has_direct_3d_9_ = Direct3d9::has_direct3d9();
 
+		auto& display_mode_manager = DisplayModeManager::get_instance();
+		display_mode_manager.initialize();
+	}
+
+	auto& supported_languages = SupportedLanguages::get_instance();
+
+	if (is_succeed)
+	{
+		logger_->info("[Supported languages]");
+
+		if (!supported_languages.load())
+		{
+			is_succeed = false;
+
+			const auto& error_message = supported_languages.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
+		}
+	}
+
+	if (is_succeed)
+	{
+		if (supported_languages.get().empty())
+		{
+			is_succeed = false;
+
+			const auto& error_message = "No supported languages."s;
+			set_error_message(error_message);
+			logger_->error(error_message);
+		}
+	}
+
+	if (is_succeed)
+	{
+		configuration.reload();
+
+		if (!supported_languages.has_id(configuration.language_))
+		{
+			is_succeed = false;
+
+			const auto& error_message = "Unsupported language id \""s + static_cast<const std::string&>(configuration.language_) + "\"."s;
+			set_error_message(error_message);
+			logger_->error(error_message);
+		}
+	}
+
+	if (is_succeed)
+	{
 		const auto resource_strings_result = resource_strings_.initialize(
 			configuration.language_,
 			resource_strings_directory,
@@ -8285,7 +8335,10 @@ bool Launcher::initialize()
 		if (!resource_strings_result)
 		{
 			is_succeed = false;
-			set_error_message(resource_strings_.get_error_message());
+
+			const auto& error_message = resource_strings_.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8318,11 +8371,15 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		logger_->info("[Font manager]");
+
 		if (!font_manager.initialize())
 		{
 			is_succeed = false;
 
-			set_error_message(font_manager.get_error_message());
+			const auto& error_message = font_manager.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8335,7 +8392,9 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			set_error_message(font_manager.get_error_message());
+			const auto& error_message = font_manager.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8345,11 +8404,15 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		logger_->info("[OpenGL texture manager]");
+
 		if (!ogl_texture_manager.initialize())
 		{
 			is_succeed = false;
 
-			set_error_message(ogl_texture_manager.get_error_message());
+			const auto& error_message = ogl_texture_manager.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8359,7 +8422,9 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			set_error_message(ogl_texture_manager.get_error_message());
+			const auto& error_message = ogl_texture_manager.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8369,51 +8434,73 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			set_error_message(ogl_texture_manager.get_error_message());
+			const auto& error_message = ogl_texture_manager.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
 	if (is_succeed)
 	{
+		logger_->info("[Message box window]");
+
 		message_box_window_uptr_.reset(MessageBoxWindow::create());
 
 		if (!message_box_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to initialize message box window. " + message_box_window_uptr_->get_error_message());
+
+			const auto& error_message = "Failed to initialize message box window. "s + message_box_window_uptr_->get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
 	if (is_succeed)
 	{
+		logger_->info("[Display settings window]");
+
 		display_settings_window_uptr_.reset(DisplaySettingsWindow::create());
 
 		if (!display_settings_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to initialize display settings window. " + display_settings_window_uptr_->get_error_message());
+
+			const auto& error_message = "Failed to initialize display settings window. "s + display_settings_window_uptr_->get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
 	if (is_succeed)
 	{
+		logger_->info("[Advanced settings window]");
+
 		advanced_settings_window_uptr_.reset(AdvancedSettingsWindow::create());
 
 		if (!advanced_settings_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to initialize advanced settings window. " + advanced_settings_window_uptr_->get_error_message());
+
+			const auto& error_message = "Failed to initialize advanced settings window. "s + advanced_settings_window_uptr_->get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
 	if (is_succeed)
 	{
+		logger_->info("[Detail settings window]");
+
 		detail_settings_window_uptr_.reset(DetailSettingsWindow::create());
 
 		if (!detail_settings_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to initialize detail settings window. " + detail_settings_window_uptr_->get_error_message());
+
+			const auto& error_message = "Failed to initialize detail settings window. "s + detail_settings_window_uptr_->get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8426,12 +8513,17 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		logger_->info("[Main window]");
+
 		main_window_uptr_.reset(MainWindow::create());
 
 		if (!main_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to initialize main window. " + main_window_uptr_->get_error_message());
+
+			const auto& error_message = "Failed to initialize main window. "s + main_window_uptr_->get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8477,6 +8569,7 @@ void Launcher::uninitialize()
 	auto& font_manager = FontManager::get_instance();
 	font_manager.uninitialize();
 
+
 	// Clipboard
 	//
 	auto& clipboard = Clipboard::get_instance();
@@ -8489,9 +8582,9 @@ void Launcher::uninitialize()
 	system_cursors.uninitialize();
 
 
-	// SDL
+	// OpenGL
 	//
-	uninitialize_sdl();
+	uninitialize_ogl();
 }
 
 bool Launcher::is_initialized()
@@ -8499,11 +8592,21 @@ bool Launcher::is_initialized()
 	return is_initialized_;
 }
 
+Launcher::Logger& Launcher::get_logger()
+{
+	return logger_;
+}
+
 void Launcher::run()
 {
+	logger_->info("[Main loop]");
+
 	if (!is_initialized_)
 	{
-		set_error_message("Not initialized.");
+		const auto& error_message = "Not initialized."s;
+		set_error_message(error_message);
+		logger_->error(error_message);
+
 		return;
 	}
 
@@ -8665,7 +8768,7 @@ bool Launcher::initialize_ogl_functions()
 	return is_succeed;
 }
 
-void Launcher::uninitialize_sdl()
+void Launcher::uninitialize_ogl()
 {
 	::SDL_GL_UnloadLibrary();
 	::SDL_Quit();
@@ -8676,16 +8779,25 @@ bool Launcher::initialize_sdl()
 	auto is_succeed = true;
 	auto sdl_result = 0;
 
-	if (is_succeed)
-	{
-		sdl_result = ::SDL_Init(SDL_INIT_VIDEO);
+	sdl_result = ::SDL_Init(SDL_INIT_VIDEO);
 
-		if (sdl_result)
-		{
-			is_succeed = false;
-			set_error_message("Failed to initialize SDL. " + std::string{::SDL_GetError()});
-		}
+	if (sdl_result)
+	{
+		is_succeed = false;
+		set_error_message("Failed to initialize SDL. " + std::string{::SDL_GetError()});
+
+		return false;
 	}
+
+	return true;
+}
+
+bool Launcher::initialize_ogl()
+{
+	auto is_succeed = true;
+	auto sdl_result = 0;
+
+	logger_->info("[OpenGL]");
 
 	if (is_succeed)
 	{
@@ -8694,7 +8806,10 @@ bool Launcher::initialize_sdl()
 		if (sdl_result)
 		{
 			is_succeed = false;
-			set_error_message("Failed to load OpenGL library. " + std::string{::SDL_GetError()});
+
+			const auto& error_message = "Failed to load OpenGL library. "s + ::SDL_GetError();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8703,12 +8818,13 @@ bool Launcher::initialize_sdl()
 		if (!initialize_ogl_functions())
 		{
 			is_succeed = false;
+			logger_->error(get_error_message());
 		}
 	}
 
 	if (!is_succeed)
 	{
-		uninitialize_sdl();
+		uninitialize_ogl();
 	}
 
 	return is_succeed;

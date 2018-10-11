@@ -23,6 +23,7 @@ target_include_directories(
 		../../../libs/glad/1_1
 		../../../libs/imgui
 		../../../libs/imgui/misc/stl
+		../../../libs/spdlog/include
 		../../shared
 		..
 )
@@ -98,6 +99,7 @@ target_link_libraries(
 	ltjs_nolf2
 	${LTJS_SDL2_LIBRARY}
 	bibendovsky_spul_lib
+	spdlog
 )
 
 if (WIN32)
