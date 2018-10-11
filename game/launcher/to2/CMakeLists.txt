@@ -58,6 +58,14 @@ target_sources(
 		../ltjs_launcher.cpp
 )
 
+if (WIN32)
+	target_sources(
+		ltjs_nolf2
+		PRIVATE
+			res/ltjs_launcher.rc
+	)
+endif ()
+
 ltjs_add_defaults(ltjs_nolf2)
 
 set_target_properties(
