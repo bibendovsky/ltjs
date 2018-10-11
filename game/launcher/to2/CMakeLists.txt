@@ -137,6 +137,7 @@ install(
 		res/bmp/closeu.bmp
 		res/bmp/error.bmp
 		res/bmp/information.bmp
+		res/bmp/icon_48x48.bmp
 		res/bmp/minimized.bmp
 		res/bmp/minimizeu.bmp
 		res/bmp/warning.bmp

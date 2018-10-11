@@ -677,6 +677,9 @@ public:
 	bool is_event_for_me(
 		const SDL_Event& sdl_event);
 
+	void set_icon(
+		SDL_Surface* sdl_surface);
+
 
 private:
 	bool is_initialized_;
@@ -973,6 +976,9 @@ public:
 	WindowEvent& get_message_box_result_event();
 
 	MessageBoxResult get_message_box_result() const;
+
+	void set_icon(
+		SDL_Surface* sdl_surface);
 
 
 protected:
@@ -1473,9 +1479,13 @@ public:
 
 
 private:
+	static std::string icon_path;
+
+
 	bool is_initialized_;
 	bool has_direct_3d_9_;
 	Logger logger_;
+	SDL_Surface* sdl_icon_surface_;
 	ResourceStrings resource_strings_;
 	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
@@ -3012,6 +3022,12 @@ bool SdlOglWindow::is_event_for_me(
 	}
 }
 
+void SdlOglWindow::set_icon(
+	SDL_Surface* sdl_surface)
+{
+	::SDL_SetWindowIcon(sdl_window_, sdl_surface);
+}
+
 void SdlOglWindow::uninitialize()
 {
 	if (!is_initialized_)
@@ -4213,6 +4229,12 @@ WindowEvent& Window::get_message_box_result_event()
 MessageBoxResult Window::get_message_box_result() const
 {
 	return message_box_result_;
+}
+
+void Window::set_icon(
+	SDL_Surface* sdl_surface)
+{
+	sdl_ogl_window_.set_icon(sdl_surface);
 }
 
 void Window::set_message_box_result(
@@ -8188,6 +8210,7 @@ void WindowManager::unregister_window(
 std::string Launcher::launcher_commands_file_name = "launchcmds.txt";
 std::string Launcher::resource_strings_directory = "ltjs/" LTJS_GAME_ID_STRING "/launcher/strings";
 std::string Launcher::resource_strings_file_name = "launcher.txt";
+std::string Launcher::icon_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/images/icon_48x48.bmp";
 
 
 Launcher::Launcher()
@@ -8195,6 +8218,7 @@ Launcher::Launcher()
 	is_initialized_{},
 	has_direct_3d_9_{},
 	logger_{},
+	sdl_icon_surface_{},
 	resource_strings_{},
 	message_box_window_uptr_{},
 	main_window_uptr_{},
@@ -8209,6 +8233,7 @@ Launcher::Launcher(
 	is_initialized_{std::move(rhs.is_initialized_)},
 	has_direct_3d_9_{std::move(rhs.has_direct_3d_9_)},
 	logger_{std::move(rhs.logger_)},
+	sdl_icon_surface_{std::move(sdl_icon_surface_)},
 	resource_strings_{std::move(rhs.resource_strings_)},
 	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)},
@@ -8265,6 +8290,20 @@ bool Launcher::initialize()
 		spdlog::set_pattern("[%Y-%m-%d %H:%M:%S %z] [%L] %v");
 
 		logger_ = spdlog::basic_logger_st("file", file_path, true);
+	}
+
+	if (is_succeed)
+	{
+		logger_->info("[Window icon]");
+
+		const auto& normalized_icon_path = ul::PathUtils::normalize(icon_path);
+
+		sdl_icon_surface_ = ::SDL_LoadBMP(normalized_icon_path.c_str());
+
+		if (!sdl_icon_surface_)
+		{
+			logger_->warn("Failed to load icon \""s + normalized_icon_path + "\"."s);
+		}
 	}
 
 	if (is_succeed)
@@ -8458,6 +8497,11 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		message_box_window_uptr_->set_icon(sdl_icon_surface_);
+	}
+
+	if (is_succeed)
+	{
 		logger_->info("[Display settings window]");
 
 		display_settings_window_uptr_.reset(DisplaySettingsWindow::create());
@@ -8470,6 +8514,11 @@ bool Launcher::initialize()
 			set_error_message(error_message);
 			logger_->error(error_message);
 		}
+	}
+
+	if (is_succeed)
+	{
+		display_settings_window_uptr_->set_icon(sdl_icon_surface_);
 	}
 
 	if (is_succeed)
@@ -8490,6 +8539,11 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		advanced_settings_window_uptr_->set_icon(sdl_icon_surface_);
+	}
+
+	if (is_succeed)
+	{
 		logger_->info("[Detail settings window]");
 
 		detail_settings_window_uptr_.reset(DetailSettingsWindow::create());
@@ -8502,6 +8556,11 @@ bool Launcher::initialize()
 			set_error_message(error_message);
 			logger_->error(error_message);
 		}
+	}
+
+	if (is_succeed)
+	{
+		detail_settings_window_uptr_->set_icon(sdl_icon_surface_);
 	}
 
 	if (is_succeed)
@@ -8527,6 +8586,11 @@ bool Launcher::initialize()
 		}
 	}
 
+	if (is_succeed)
+	{
+		main_window_uptr_->set_icon(sdl_icon_surface_);
+	}
+
 	if (!is_succeed)
 	{
 		uninitialize();
@@ -8543,7 +8607,6 @@ void Launcher::uninitialize()
 	is_initialized_ = false;
 	has_direct_3d_9_ = false;
 
-
 	resource_strings_.uninitialize();
 	message_box_window_uptr_ = {};
 	main_window_uptr_ = {};
@@ -8551,6 +8614,12 @@ void Launcher::uninitialize()
 	advanced_settings_window_uptr_ = {};
 	detail_settings_window_uptr_ = {};
 
+
+	if (sdl_icon_surface_)
+	{
+		::SDL_FreeSurface(sdl_icon_surface_);
+		sdl_icon_surface_ = nullptr;
+	}
 
 	// WindowManager
 	//
