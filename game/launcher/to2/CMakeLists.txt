@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(ltjs_nolf2_launcher VERSION 0.0.1 LANGUAGES CXX)
+project(ltjs_nolf2 VERSION 0.0.1 LANGUAGES CXX)
 
 if (NOT WIN32)
 	message(FATAL_ERROR "Windows only.")
@@ -13,22 +13,23 @@ else ()
 	find_package(LTJS_SDL2 REQUIRED 2.0.4)
 endif ()
 
-add_executable(ltjs_nolf2_launcher)
+add_executable(ltjs_nolf2)
 
 target_include_directories(
-	ltjs_nolf2_launcher
+	ltjs_nolf2
 	PRIVATE
 		${LTJS_SDL2_INCLUDE_DIR}
 		../../../libs/bibendovsky_spul_lib/include
 		../../../libs/glad/1_1
 		../../../libs/imgui
 		../../../libs/imgui/misc/stl
+		../../../libs/spdlog/include
 		../../shared
 		..
 )
 
 target_sources(
-	ltjs_nolf2_launcher
+	ltjs_nolf2
 	PRIVATE
 		../../../libs/glad/1_1/glad.h
 		../../../libs/imgui/imconfig.h
@@ -44,7 +45,7 @@ target_sources(
 )
 
 target_sources(
-	ltjs_nolf2_launcher
+	ltjs_nolf2
 	PRIVATE
 		../../../libs/glad/1_1/glad.cpp
 		../../../libs/imgui/imgui.cpp
@@ -57,10 +58,18 @@ target_sources(
 		../ltjs_launcher.cpp
 )
 
-ltjs_add_defaults(ltjs_nolf2_launcher)
+if (WIN32)
+	target_sources(
+		ltjs_nolf2
+		PRIVATE
+			res/ltjs_launcher.rc
+	)
+endif ()
+
+ltjs_add_defaults(ltjs_nolf2)
 
 set_target_properties(
-	ltjs_nolf2_launcher
+	ltjs_nolf2
 	PROPERTIES
 	CXX_STANDARD 14
 	CXX_STANDARD_REQUIRED ON
@@ -68,50 +77,35 @@ set_target_properties(
 )
 
 target_compile_definitions(
-	ltjs_nolf2_launcher
+	ltjs_nolf2
 	PRIVATE
 		LTJS_NOLF2
 )
 
 set_target_properties(
-	ltjs_nolf2_launcher
+	ltjs_nolf2
 	PROPERTIES
 		OUTPUT_NAME ltjs_nolf2
 )
 
 if (MSVC)
 	set_target_properties(
-		ltjs_nolf2_launcher
+		ltjs_nolf2
 		PROPERTIES
 			LINK_FLAGS /SUBSYSTEM:WINDOWS
 	)
 endif ()
 
-if (MINGW)
-	target_link_libraries(
-		ltjs_nolf2_launcher
-		mingw32
-	)
-endif ()
-
 target_link_libraries(
-	ltjs_nolf2_launcher
+	ltjs_nolf2
 	${LTJS_SDL2_LIBRARY}
 	bibendovsky_spul_lib
+	spdlog
 )
-
-if (WIN32)
-	target_link_libraries(
-		ltjs_nolf2_launcher
-		imm32
-		version
-		winmm
-	)
-endif ()
 
 install(
 	TARGETS
-	ltjs_nolf2_launcher
+	ltjs_nolf2
 	RUNTIME DESTINATION "."
 )
 
@@ -151,6 +145,7 @@ install(
 		res/bmp/closeu.bmp
 		res/bmp/error.bmp
 		res/bmp/information.bmp
+		res/bmp/icon_48x48.bmp
 		res/bmp/minimized.bmp
 		res/bmp/minimizeu.bmp
 		res/bmp/warning.bmp
@@ -531,6 +526,16 @@ install(
 		res/lang/it/bmp/serverx.bmp
 	DESTINATION
 		ltjs/nolf2/launcher/images/it
+)
+
+#
+# Strings (common).
+#
+install(
+	FILES
+		res/strings/launcher.txt
+	DESTINATION
+		ltjs/nolf2/launcher/strings
 )
 
 #

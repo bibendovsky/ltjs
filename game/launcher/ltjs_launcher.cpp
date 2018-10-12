@@ -20,6 +20,8 @@
 #include "imgui.h"
 #include "imgui_stl.h"
 #include "SDL.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include "ltjs_resource_strings.h"
 #include "ltjs_script_tokenizer.h"
 
@@ -30,6 +32,9 @@
 #else // LTJS_NOLF2
 #error Unsupported game.
 #endif // LTJS_NOLF2
+
+
+using namespace std::string_literals;
 
 
 namespace ltjs
@@ -137,17 +142,20 @@ enum class ImageId
 	serverx,
 }; // ImageId
 
+
 enum class FontType
 {
 	regular,
 	bold,
 }; // FontType
 
+
 enum class FontId
 {
 	message_box_title,
 	message_box_message,
 }; // FontId
+
 
 enum class MessageBoxType
 {
@@ -156,17 +164,20 @@ enum class MessageBoxType
 	error,
 }; // MessageBoxType
 
+
 enum class MessageBoxButtons
 {
 	ok,
 	ok_cancel,
 }; // MessageBoxButtons
 
+
 enum class MessageBoxResult
 {
 	ok,
 	cancel,
 }; // MessageBoxResult
+
 
 enum class DetailLevel
 {
@@ -175,6 +186,71 @@ enum class DetailLevel
 	medium,
 	high,
 }; // DetailLevel
+
+
+struct ResourceStringId final
+{
+	static constexpr auto ids_appname = 1;
+	static constexpr auto ids_appexe = 2;
+	static constexpr auto ids_display_warning = 3;
+	static constexpr auto ids_options_warning = 4;
+	static constexpr auto ids_appcd1check = 5;
+	static constexpr auto ids_appcd2check = 6;
+	static constexpr auto ids_rezbase = 7;
+	static constexpr auto ids_setupexe = 8;
+	static constexpr auto ids_serverexe = 9;
+	static constexpr auto ids_language = 10;
+	static constexpr auto ids_insertcd2 = 11;
+	static constexpr auto ids_insertcd = 12;
+	static constexpr auto ids_cantlaunchsetup = 13;
+	static constexpr auto ids_norens = 14;
+	static constexpr auto ids_help_disablesound = 15;
+	static constexpr auto ids_help_disablemusic = 16;
+	static constexpr auto ids_help_disablemovies = 17;
+	static constexpr auto ids_help_disablefog = 18;
+	static constexpr auto ids_help_disablejoysticks = 19;
+	static constexpr auto ids_help_disabletriplebuffering = 20;
+	static constexpr auto ids_help_disablehardwarecursor = 21;
+	static constexpr auto ids_help_disableanimatedloadscreen = 22;
+	static constexpr auto ids_help_restoredefaults = 23;
+	static constexpr auto ids_help_alwaysspecify = 24;
+	static constexpr auto ids_cantfindrezfile = 25;
+	static constexpr auto ids_cantlaunchclientexe = 26;
+	static constexpr auto ids_detail_header = 27;
+	static constexpr auto ids_detail_low = 28;
+	static constexpr auto ids_detail_medium = 29;
+	static constexpr auto ids_detail_high = 30;
+	static constexpr auto ids_cantlaunchserver = 31;
+	static constexpr auto ids_appversion = 32;
+	static constexpr auto ids_cantuninstall = 33;
+	static constexpr auto ids_companywebpage = 34;
+	static constexpr auto ids_cantopenavi = 35;
+	static constexpr auto ids_publisherwebpage = 36;
+	static constexpr auto ids_od_disablesound = 37;
+	static constexpr auto ids_od_disablemusic = 38;
+	static constexpr auto ids_od_disablemovies = 39;
+	static constexpr auto ids_od_disablefog = 40;
+	static constexpr auto ids_appname_demo = 40;
+	static constexpr auto ids_od_disablejoysticks = 41;
+	static constexpr auto ids_od_disabletriplebuffering = 42;
+	static constexpr auto ids_od_disablehardwarecursor = 43;
+	static constexpr auto ids_od_disableanimatedloadscreens = 44;
+	static constexpr auto ids_od_restoredefaults = 45;
+	static constexpr auto ids_od_alwaysspecify = 46;
+	static constexpr auto ids_debug_regcreateerror = 47;
+	static constexpr auto ids_debug_installsuccess = 48;
+	static constexpr auto ids_debug_uninstallsuccess = 49;
+	static constexpr auto ids_launchbrowsererror = 50;
+	static constexpr auto ids_help_default = 51;
+	static constexpr auto ids_help_disablehardwaresound = 52;
+	static constexpr auto ids_help_disablesoundfilters = 53;
+	static constexpr auto ids_od_disablehardwaresound = 54;
+	static constexpr auto ids_od_disablesoundfilters = 55;
+	static constexpr auto ids_cantopencommandfile = 56;
+	static constexpr auto ids_lithtechwebpage = 57;
+	static constexpr auto ids_sierrawebpage = 58;
+	static constexpr auto ids_nocustomdir = 59;
+}; // ResourceStringId
 
 
 struct DisplayMode
@@ -382,20 +458,18 @@ public:
 
 
 	SettingValue<std::string> language_;
-	SettingValue<bool> is_warned_about_display_;
-	SettingValue<bool> is_warned_about_settings_;
-	SettingValue<bool> is_sound_effects_disabled_;
-	SettingValue<bool> is_music_disabled_;
-	SettingValue<bool> is_fmv_disabled_;
-	SettingValue<bool> is_fog_disabled_;
-	SettingValue<bool> is_controller_disabled_;
-	SettingValue<bool> is_triple_buffering_enabled_;
-	SettingValue<bool> is_hardware_cursor_disabled_;
-	SettingValue<bool> is_animated_loading_screen_disabled_;
-	SettingValue<bool> is_detail_level_selected_;
-	SettingValue<bool> is_hardware_sound_disabled_;
-	SettingValue<bool> is_sound_filter_disabled_;
-	SettingValue<bool> is_always_pass_custom_arguments_;
+	SettingValue<bool> is_disable_display_settings_warning_;
+	SettingValue<bool> is_disable_advanced_settings_warning_;
+	SettingValue<bool> is_disable_sound_effects_;
+	SettingValue<bool> is_disable_music_;
+	SettingValue<bool> is_disable_fmvs_;
+	SettingValue<bool> is_disable_controllers_;
+	SettingValue<bool> is_disable_triple_buffering_;
+	SettingValue<bool> is_disable_hardware_cursor_;
+	SettingValue<bool> is_disable_animated_loading_screen_;
+	SettingValue<bool> is_disable_hardware_sound_;
+	SettingValue<bool> is_disable_sound_filters_;
+	SettingValue<bool> is_pass_custom_arguments_;
 	SettingValue<std::string> custom_arguments_;
 	SettingValue<int> screen_width_;
 	SettingValue<int> screen_height_;
@@ -412,6 +486,12 @@ public:
 
 	bool is_initialized() const;
 
+	const std::string& get_profile_directory() const;
+
+	const std::string& get_arguments_file_name() const;
+
+	const std::string& get_log_file_name() const;
+
 	void reset();
 
 	bool reload();
@@ -421,42 +501,41 @@ public:
 
 private:
 	static const std::string configuration_file_name;
+	static const std::string arguments_file_name;
+	static const std::string log_file_name;
 
 
 	static const std::string default_language;
 	static const bool default_is_warned_about_display;
-	static const bool default_is_warned_about_settings;
-	static const bool default_is_sound_effects_disabled;
-	static const bool default_is_music_disabled;
-	static const bool default_is_fmv_disabled;
-	static const bool default_is_fog_disabled;
-	static const bool default_is_controller_disabled;
-	static const bool default_is_triple_buffering_enabled;
-	static const bool default_is_hardware_cursor_disabled;
-	static const bool default_is_animated_loading_screen_disabled;
+	static const bool default_is_disable_advanced_settings_warning;
+	static const bool default_is_disable_sound_effects;
+	static const bool default_is_disable_music;
+	static const bool default_is_disable_fmvs;
+	static const bool default_is_disable_controllers;
+	static const bool default_is_disable_triple_buffering;
+	static const bool default_is_disable_hardware_cursor;
+	static const bool default_is_disable_animated_loading_screen;
 	static const bool default_is_detail_level_selected;
-	static const bool default_is_hardware_sound_disabled;
-	static const bool default_is_sound_filter_disabled;
-	static const bool default_is_always_pass_custom_arguments;
+	static const bool default_is_disable_hardware_sound;
+	static const bool default_is_disable_sound_filters;
+	static const bool default_is_pass_custom_arguments;
 	static const std::string default_custom_arguments;
 	static const int default_screen_width;
 	static const int default_screen_height;
 
 	static const std::string language_setting_name;
-	static const std::string is_warned_about_display_setting_name;
-	static const std::string is_warned_about_settings_setting_name;
-	static const std::string is_sound_effects_disabled_setting_name;
-	static const std::string is_music_disabled_setting_name;
-	static const std::string is_fmv_disabled_setting_name;
-	static const std::string is_fog_disabled_setting_name;
-	static const std::string is_controller_disabled_setting_name;
-	static const std::string is_triple_buffering_enabled_setting_name;
-	static const std::string is_hardware_cursor_disabled_setting_name;
-	static const std::string is_animated_loading_screen_disabled_setting_name;
-	static const std::string is_detail_level_selected_setting_name;
-	static const std::string is_hardware_sound_disabled_setting_name;
-	static const std::string is_sound_filter_disabled_setting_name;
-	static const std::string is_always_pass_custom_arguments_setting_name;
+	static const std::string is_disable_display_settings_warning_setting_name;
+	static const std::string is_disable_advanced_settings_warning_setting_name;
+	static const std::string is_disable_sound_effects_setting_name;
+	static const std::string is_disable_music_setting_name;
+	static const std::string is_disable_fmvs_setting_name;
+	static const std::string is_disable_controllers_setting_name;
+	static const std::string is_disable_triple_buffering_setting_name;
+	static const std::string is_disable_hardware_cursor_setting_name;
+	static const std::string is_disable_animated_loading_screen_setting_name;
+	static const std::string is_disable_hardware_sound_setting_name;
+	static const std::string is_disable_sound_filters_setting_name;
+	static const std::string is_pass_custom_arguments_setting_name;
 	static const std::string custom_arguments_setting_name;
 	static const std::string screen_width_setting_name;
 	static const std::string screen_height_setting_name;
@@ -464,6 +543,7 @@ private:
 
 	bool is_initialized_;
 	std::string configuration_path_;
+	std::string profile_directory_;
 
 
 	Configuration();
@@ -596,6 +676,9 @@ public:
 
 	bool is_event_for_me(
 		const SDL_Event& sdl_event);
+
+	void set_icon(
+		SDL_Surface* sdl_surface);
 
 
 private:
@@ -894,6 +977,9 @@ public:
 
 	MessageBoxResult get_message_box_result() const;
 
+	void set_icon(
+		SDL_Surface* sdl_surface);
+
 
 protected:
 	friend class WindowManager;
@@ -1060,6 +1146,7 @@ private:
 	enum class State
 	{
 		main_window,
+		main_window_message_box,
 		display_settings_warning,
 		display_settings_no_renderers,
 		display_settings_window,
@@ -1111,7 +1198,15 @@ private:
 
 	void run_the_game();
 
+	void no_lithtech_exe_error();
+
 	void change_language();
+
+	std::string build_command_line(
+		const bool has_detail_settings) const;
+
+	bool save_arguments(
+		const std::string& command_line) const;
 
 
 	void do_draw() override;
@@ -1339,69 +1434,7 @@ class Launcher final :
 	public Base
 {
 public:
-	// Resource strings identifiers.
-	//
-
-	static constexpr auto IDS_APPNAME = 1;
-	static constexpr auto IDS_APPEXE = 2;
-	static constexpr auto IDS_DISPLAY_WARNING = 3;
-	static constexpr auto IDS_OPTIONS_WARNING = 4;
-	static constexpr auto IDS_APPCD1CHECK = 5;
-	static constexpr auto IDS_APPCD2CHECK = 6;
-	static constexpr auto IDS_REZBASE = 7;
-	static constexpr auto IDS_SETUPEXE = 8;
-	static constexpr auto IDS_SERVEREXE = 9;
-	static constexpr auto IDS_LANGUAGE = 10;
-	static constexpr auto IDS_INSERTCD2 = 11;
-	static constexpr auto IDS_INSERTCD = 12;
-	static constexpr auto IDS_CANTLAUNCHSETUP = 13;
-	static constexpr auto IDS_NORENS = 14;
-	static constexpr auto IDS_HELP_DISABLESOUND = 15;
-	static constexpr auto IDS_HELP_DISABLEMUSIC = 16;
-	static constexpr auto IDS_HELP_DISABLEMOVIES = 17;
-	static constexpr auto IDS_HELP_DISABLEFOG = 18;
-	static constexpr auto IDS_HELP_DISABLEJOYSTICKS = 19;
-	static constexpr auto IDS_HELP_DISABLETRIPLEBUFFERING = 20;
-	static constexpr auto IDS_HELP_DISABLEHARDWARECURSOR = 21;
-	static constexpr auto IDS_HELP_DISABLEANIMATEDLOADSCREEN = 22;
-	static constexpr auto IDS_HELP_RESTOREDEFAULTS = 23;
-	static constexpr auto IDS_HELP_ALWAYSSPECIFY = 24;
-	static constexpr auto IDS_CANTFINDREZFILE = 25;
-	static constexpr auto IDS_CANTLAUNCHCLIENTEXE = 26;
-	static constexpr auto IDS_DETAIL_HEADER = 27;
-	static constexpr auto IDS_DETAIL_LOW = 28;
-	static constexpr auto IDS_DETAIL_MEDIUM = 29;
-	static constexpr auto IDS_DETAIL_HIGH = 30;
-	static constexpr auto IDS_CANTLAUNCHSERVER = 31;
-	static constexpr auto IDS_APPVERSION = 32;
-	static constexpr auto IDS_CANTUNINSTALL = 33;
-	static constexpr auto IDS_COMPANYWEBPAGE = 34;
-	static constexpr auto IDS_CANTOPENAVI = 35;
-	static constexpr auto IDS_PUBLISHERWEBPAGE = 36;
-	static constexpr auto IDS_OD_DISABLESOUND = 37;
-	static constexpr auto IDS_OD_DISABLEMUSIC = 38;
-	static constexpr auto IDS_OD_DISABLEMOVIES = 39;
-	static constexpr auto IDS_OD_DISABLEFOG = 40;
-	static constexpr auto IDS_APPNAME_DEMO = 40;
-	static constexpr auto IDS_OD_DISABLEJOYSTICKS = 41;
-	static constexpr auto IDS_OD_DISABLETRIPLEBUFFERING = 42;
-	static constexpr auto IDS_OD_DISABLEHARDWARECURSOR = 43;
-	static constexpr auto IDS_OD_DISABLEANIMATEDLOADSCREENS = 44;
-	static constexpr auto IDS_OD_RESTOREDEFAULTS = 45;
-	static constexpr auto IDS_OD_ALWAYSSPECIFY = 46;
-	static constexpr auto IDS_DEBUG_REGCREATEERROR = 47;
-	static constexpr auto IDS_DEBUG_INSTALLSUCCESS = 48;
-	static constexpr auto IDS_DEBUG_UNINSTALLSUCCESS = 49;
-	static constexpr auto IDS_LAUNCHBROWSERERROR = 50;
-	static constexpr auto IDS_HELP_DEFAULT = 51;
-	static constexpr auto IDS_HELP_DISABLEHARDWARESOUND = 52;
-	static constexpr auto IDS_HELP_DISABLESOUNDFILTERS = 53;
-	static constexpr auto IDS_OD_DISABLEHARDWARESOUND = 54;
-	static constexpr auto IDS_OD_DISABLESOUNDFILTERS = 55;
-	static constexpr auto IDS_CANTOPENCOMMANDFILE = 56;
-	static constexpr auto IDS_LITHTECHWEBPAGE = 57;
-	static constexpr auto IDS_SIERRAWEBPAGE = 58;
-	static constexpr auto IDS_NOCUSTOMDIR = 59;
+	using Logger = std::shared_ptr<spdlog::logger>;
 
 
 	static std::string launcher_commands_file_name;
@@ -1420,6 +1453,8 @@ public:
 	void uninitialize();
 
 	bool is_initialized();
+
+	Logger& get_logger();
 
 	void run();
 
@@ -1444,8 +1479,13 @@ public:
 
 
 private:
+	static std::string icon_path;
+
+
 	bool is_initialized_;
 	bool has_direct_3d_9_;
+	Logger logger_;
+	SDL_Surface* sdl_icon_surface_;
 	ResourceStrings resource_strings_;
 	MessageBoxWindowUPtr message_box_window_uptr_;
 	MainWindowUPtr main_window_uptr_;
@@ -1460,9 +1500,11 @@ private:
 
 	bool initialize_ogl_functions();
 
-	void uninitialize_sdl();
+	void uninitialize_ogl();
 
 	bool initialize_sdl();
+
+	bool initialize_ogl();
 }; // Launcher
 
 //
@@ -1778,43 +1820,42 @@ bool DisplayModeManager::sdl_is_pixel_format_valid(
 //
 
 const std::string Configuration::configuration_file_name = LTJS_GAME_ID_STRING "_launcher_config.txt";
+const std::string Configuration::arguments_file_name = LTJS_GAME_ID_STRING "_launcher_arguments.txt";
+const std::string Configuration::log_file_name = LTJS_GAME_ID_STRING "_launcher_log.txt";
 
 
 const std::string Configuration::default_language = "en";
 const bool Configuration::default_is_warned_about_display = false;
-const bool Configuration::default_is_warned_about_settings = false;
-const bool Configuration::default_is_sound_effects_disabled = false;
-const bool Configuration::default_is_music_disabled = false;
-const bool Configuration::default_is_fmv_disabled = false;
-const bool Configuration::default_is_fog_disabled = false;
-const bool Configuration::default_is_controller_disabled = false;
-const bool Configuration::default_is_triple_buffering_enabled = false;
-const bool Configuration::default_is_hardware_cursor_disabled = false;
-const bool Configuration::default_is_animated_loading_screen_disabled = false;
+const bool Configuration::default_is_disable_advanced_settings_warning = false;
+const bool Configuration::default_is_disable_sound_effects = false;
+const bool Configuration::default_is_disable_music = false;
+const bool Configuration::default_is_disable_fmvs = false;
+const bool Configuration::default_is_disable_controllers = false;
+const bool Configuration::default_is_disable_triple_buffering = true;
+const bool Configuration::default_is_disable_hardware_cursor = false;
+const bool Configuration::default_is_disable_animated_loading_screen = false;
 const bool Configuration::default_is_detail_level_selected = false;
-const bool Configuration::default_is_hardware_sound_disabled = false;
-const bool Configuration::default_is_sound_filter_disabled = false;
-const bool Configuration::default_is_always_pass_custom_arguments = false;
+const bool Configuration::default_is_disable_hardware_sound = false;
+const bool Configuration::default_is_disable_sound_filters = false;
+const bool Configuration::default_is_pass_custom_arguments = false;
 const std::string Configuration::default_custom_arguments = {};
 const int Configuration::default_screen_width = 0;
 const int Configuration::default_screen_height = 0;
 
 
 const std::string Configuration::language_setting_name = "language";
-const std::string Configuration::is_warned_about_display_setting_name = "disable_display_settings_warning";
-const std::string Configuration::is_warned_about_settings_setting_name = "disable_advanced_settings_warning";
-const std::string Configuration::is_sound_effects_disabled_setting_name = "disable_sound_effects";
-const std::string Configuration::is_music_disabled_setting_name = "disable_music";
-const std::string Configuration::is_fmv_disabled_setting_name = "disable_fmv";
-const std::string Configuration::is_fog_disabled_setting_name = "disable_fog";
-const std::string Configuration::is_controller_disabled_setting_name = "disable_controllers";
-const std::string Configuration::is_triple_buffering_enabled_setting_name = "enable_triple_buffering";
-const std::string Configuration::is_hardware_cursor_disabled_setting_name = "disable_hardware_cursor";
-const std::string Configuration::is_animated_loading_screen_disabled_setting_name = "disable_animated_loading_screen";
-const std::string Configuration::is_detail_level_selected_setting_name = "skip_detail_level";
-const std::string Configuration::is_hardware_sound_disabled_setting_name = "disable_hardware_sound";
-const std::string Configuration::is_sound_filter_disabled_setting_name = "disable_sound_filter";
-const std::string Configuration::is_always_pass_custom_arguments_setting_name = "always_pass_custom_arguments";
+const std::string Configuration::is_disable_display_settings_warning_setting_name = "disable_display_settings_warning";
+const std::string Configuration::is_disable_advanced_settings_warning_setting_name = "disable_advanced_settings_warning";
+const std::string Configuration::is_disable_sound_effects_setting_name = "disable_sound_effects";
+const std::string Configuration::is_disable_music_setting_name = "disable_music";
+const std::string Configuration::is_disable_fmvs_setting_name = "disable_fmvs";
+const std::string Configuration::is_disable_controllers_setting_name = "disable_controllers";
+const std::string Configuration::is_disable_triple_buffering_setting_name = "disable_triple_buffering";
+const std::string Configuration::is_disable_hardware_cursor_setting_name = "disable_hardware_cursor";
+const std::string Configuration::is_disable_animated_loading_screen_setting_name = "disable_animated_loading_screen";
+const std::string Configuration::is_disable_hardware_sound_setting_name = "disable_hardware_sound";
+const std::string Configuration::is_disable_sound_filters_setting_name = "disable_sound_filters";
+const std::string Configuration::is_pass_custom_arguments_setting_name = "pass_custom_arguments";
 const std::string Configuration::custom_arguments_setting_name = "custom_arguments";
 const std::string Configuration::screen_width_setting_name = "screen_width";
 const std::string Configuration::screen_height_setting_name = "screen_height";
@@ -1825,20 +1866,18 @@ Configuration::Configuration()
 	is_initialized_{},
 	configuration_path_{},
 	language_{},
-	is_warned_about_display_{},
-	is_warned_about_settings_{},
-	is_sound_effects_disabled_{},
-	is_music_disabled_{},
-	is_fmv_disabled_{},
-	is_fog_disabled_{},
-	is_controller_disabled_{},
-	is_triple_buffering_enabled_{},
-	is_hardware_cursor_disabled_{},
-	is_animated_loading_screen_disabled_{},
-	is_detail_level_selected_{},
-	is_hardware_sound_disabled_{},
-	is_sound_filter_disabled_{},
-	is_always_pass_custom_arguments_{},
+	is_disable_display_settings_warning_{},
+	is_disable_advanced_settings_warning_{},
+	is_disable_sound_effects_{},
+	is_disable_music_{},
+	is_disable_fmvs_{},
+	is_disable_controllers_{},
+	is_disable_triple_buffering_{},
+	is_disable_hardware_cursor_{},
+	is_disable_animated_loading_screen_{},
+	is_disable_hardware_sound_{},
+	is_disable_sound_filters_{},
+	is_pass_custom_arguments_{},
 	custom_arguments_{},
 	screen_width_{},
 	screen_height_{},
@@ -1852,20 +1891,18 @@ Configuration::Configuration(
 	is_initialized_{std::move(is_initialized_)},
 	configuration_path_{std::move(configuration_path_)},
 	language_{std::move(language_)},
-	is_warned_about_display_{std::move(is_warned_about_display_)},
-	is_warned_about_settings_{std::move(is_warned_about_settings_)},
-	is_sound_effects_disabled_{std::move(is_sound_effects_disabled_)},
-	is_music_disabled_{std::move(is_music_disabled_)},
-	is_fmv_disabled_{std::move(is_fmv_disabled_)},
-	is_fog_disabled_{std::move(is_fog_disabled_)},
-	is_controller_disabled_{std::move(is_controller_disabled_)},
-	is_triple_buffering_enabled_{std::move(is_triple_buffering_enabled_)},
-	is_hardware_cursor_disabled_{std::move(is_hardware_cursor_disabled_)},
-	is_animated_loading_screen_disabled_{std::move(is_animated_loading_screen_disabled_)},
-	is_detail_level_selected_{std::move(is_detail_level_selected_)},
-	is_hardware_sound_disabled_{std::move(is_hardware_sound_disabled_)},
-	is_sound_filter_disabled_{std::move(is_sound_filter_disabled_)},
-	is_always_pass_custom_arguments_{std::move(is_always_pass_custom_arguments_)},
+	is_disable_display_settings_warning_{std::move(is_disable_display_settings_warning_)},
+	is_disable_advanced_settings_warning_{std::move(is_disable_advanced_settings_warning_)},
+	is_disable_sound_effects_{std::move(is_disable_sound_effects_)},
+	is_disable_music_{std::move(is_disable_music_)},
+	is_disable_fmvs_{std::move(is_disable_fmvs_)},
+	is_disable_controllers_{std::move(is_disable_controllers_)},
+	is_disable_triple_buffering_{std::move(is_disable_triple_buffering_)},
+	is_disable_hardware_cursor_{std::move(is_disable_hardware_cursor_)},
+	is_disable_animated_loading_screen_{std::move(is_disable_animated_loading_screen_)},
+	is_disable_hardware_sound_{std::move(is_disable_hardware_sound_)},
+	is_disable_sound_filters_{std::move(is_disable_sound_filters_)},
+	is_pass_custom_arguments_{std::move(is_pass_custom_arguments_)},
 	custom_arguments_{std::move(custom_arguments_)},
 	screen_width_{std::move(screen_width_)},
 	screen_height_{std::move(screen_height_)},
@@ -1900,7 +1937,9 @@ bool Configuration::initialize()
 		return false;
 	}
 
-	configuration_path_ = ul::PathUtils::normalize(ul::PathUtils::append(sdl_profile_path, configuration_file_name));
+	profile_directory_ = sdl_profile_path;
+
+	configuration_path_ = ul::PathUtils::normalize(ul::PathUtils::append(profile_directory_, configuration_file_name));
 
 	reset();
 
@@ -1970,202 +2009,146 @@ bool Configuration::reload()
 		if (false)
 		{
 		}
-		// language
-		//
 		else if (tokens[0].content_ == language_setting_name)
 		{
 			language_.set_and_accept(tokens[1].content_);
 		}
-		// is_warned_about_display
-		//
-		else if (tokens[0].content_ == is_warned_about_display_setting_name)
+		else if (tokens[0].content_ == is_disable_display_settings_warning_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_warned_about_display_.set_and_accept(value != 0);
+				is_disable_display_settings_warning_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_warned_about_settings
-		//
-		else if (tokens[0].content_ == is_warned_about_settings_setting_name)
+		else if (tokens[0].content_ == is_disable_advanced_settings_warning_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_warned_about_settings_.set_and_accept(value != 0);
+				is_disable_advanced_settings_warning_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_sound_effects_disabled
-		//
-		else if (tokens[0].content_ == is_sound_effects_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_sound_effects_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_sound_effects_disabled_.set_and_accept(value != 0);
+				is_disable_sound_effects_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_music_disabled
-		//
-		else if (tokens[0].content_ == is_music_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_music_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_music_disabled_.set_and_accept(value != 0);
+				is_disable_music_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_fmv_disabled
-		//
-		else if (tokens[0].content_ == is_fmv_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_fmvs_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_fmv_disabled_.set_and_accept(value != 0);
+				is_disable_fmvs_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_fog_disabled
-		//
-		else if (tokens[0].content_ == is_fog_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_controllers_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_fog_disabled_.set_and_accept(value != 0);
+				is_disable_controllers_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_controller_disabled
-		//
-		else if (tokens[0].content_ == is_controller_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_triple_buffering_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_controller_disabled_.set_and_accept(value != 0);
+				is_disable_triple_buffering_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_triple_buffering_enabled
-		//
-		else if (tokens[0].content_ == is_triple_buffering_enabled_setting_name)
+		else if (tokens[0].content_ == is_disable_hardware_cursor_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_triple_buffering_enabled_.set_and_accept(value != 0);
+				is_disable_hardware_cursor_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_hardware_cursor_disabled
-		//
-		else if (tokens[0].content_ == is_hardware_cursor_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_animated_loading_screen_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_hardware_cursor_disabled_.set_and_accept(value != 0);
+				is_disable_animated_loading_screen_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_animated_loading_screen_disabled
-		//
-		else if (tokens[0].content_ == is_animated_loading_screen_disabled_setting_name)
+		else if (tokens[0].content_ == is_disable_hardware_sound_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_animated_loading_screen_disabled_.set_and_accept(value != 0);
+				is_disable_hardware_sound_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_detail_level_selected
-		//
-		else if (tokens[0].content_ == is_detail_level_selected_setting_name)
+		else if (tokens[0].content_ == is_disable_sound_filters_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_detail_level_selected_.set_and_accept(value != 0);
+				is_disable_sound_filters_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_hardware_sound_disabled
-		//
-		else if (tokens[0].content_ == is_hardware_sound_disabled_setting_name)
+		else if (tokens[0].content_ == is_pass_custom_arguments_setting_name)
 		{
 			try
 			{
 				const auto value = std::stoi(tokens[1].content_);
-				is_hardware_sound_disabled_.set_and_accept(value != 0);
+				is_pass_custom_arguments_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		// is_sound_filter_disabled
-		//
-		else if (tokens[0].content_ == is_sound_filter_disabled_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(tokens[1].content_);
-				is_sound_filter_disabled_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		// is_always_pass_custom_arguments
-		//
-		else if (tokens[0].content_ == is_always_pass_custom_arguments_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(tokens[1].content_);
-				is_always_pass_custom_arguments_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		// custom_arguments
-		//
 		else if (tokens[0].content_ == custom_arguments_setting_name)
 		{
 			custom_arguments_.set_and_accept(deserialize_cl_args(tokens[1].content_));
 		}
-		// screen_width
-		//
 		else if (tokens[0].content_ == screen_width_setting_name)
 		{
 			try
@@ -2176,8 +2159,6 @@ bool Configuration::reload()
 			{
 			}
 		}
-		// screen_height
-		//
 		else if (tokens[0].content_ == screen_height_setting_name)
 		{
 			try
@@ -2224,135 +2205,104 @@ bool Configuration::save()
 	string_buffer += "*/\n";
 	string_buffer += '\n';
 
-	// language
 	//
-	is_warned_about_display_.accept();
+	is_disable_display_settings_warning_.accept();
 	string_buffer += language_setting_name;
 	string_buffer += " \"";
 	string_buffer += language_;
 	string_buffer += "\"\n";
 
-	// is_warned_about_display
 	//
-	is_warned_about_display_.accept();
-	string_buffer += is_warned_about_display_setting_name;
+	is_disable_display_settings_warning_.accept();
+	string_buffer += is_disable_display_settings_warning_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_warned_about_display_);
+	string_buffer += std::to_string(is_disable_display_settings_warning_);
 	string_buffer += '\n';
 
-	// is_warned_about_settings
 	//
-	is_warned_about_settings_.accept();
-	string_buffer += is_warned_about_settings_setting_name;
+	is_disable_advanced_settings_warning_.accept();
+	string_buffer += is_disable_advanced_settings_warning_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_warned_about_settings_);
+	string_buffer += std::to_string(is_disable_advanced_settings_warning_);
 	string_buffer += '\n';
 
-	// is_sound_effects_disabled
 	//
-	is_sound_effects_disabled_.accept();
-	string_buffer += is_sound_effects_disabled_setting_name;
+	is_disable_sound_effects_.accept();
+	string_buffer += is_disable_sound_effects_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_sound_effects_disabled_);
+	string_buffer += std::to_string(is_disable_sound_effects_);
 	string_buffer += '\n';
 
-	// is_music_disabled
 	//
-	is_music_disabled_.accept();
-	string_buffer += is_music_disabled_setting_name;
+	is_disable_music_.accept();
+	string_buffer += is_disable_music_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_music_disabled_);
+	string_buffer += std::to_string(is_disable_music_);
 	string_buffer += '\n';
 
-	// is_fmv_disabled
 	//
-	is_fmv_disabled_.accept();
-	string_buffer += is_fmv_disabled_setting_name;
+	is_disable_fmvs_.accept();
+	string_buffer += is_disable_fmvs_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_fmv_disabled_);
+	string_buffer += std::to_string(is_disable_fmvs_);
 	string_buffer += '\n';
 
-	// is_fog_disabled
 	//
-	is_fog_disabled_.accept();
-	string_buffer += is_fog_disabled_setting_name;
+	is_disable_controllers_.accept();
+	string_buffer += is_disable_controllers_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_fog_disabled_);
+	string_buffer += std::to_string(is_disable_controllers_);
 	string_buffer += '\n';
 
-	// is_controller_disabled
 	//
-	is_controller_disabled_.accept();
-	string_buffer += is_controller_disabled_setting_name;
+	is_disable_triple_buffering_.accept();
+	string_buffer += is_disable_triple_buffering_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_controller_disabled_);
+	string_buffer += std::to_string(is_disable_triple_buffering_);
 	string_buffer += '\n';
 
-	// is_triple_buffering_enabled
 	//
-	is_triple_buffering_enabled_.accept();
-	string_buffer += is_triple_buffering_enabled_setting_name;
+	is_disable_hardware_cursor_.accept();
+	string_buffer += is_disable_hardware_cursor_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_triple_buffering_enabled_);
+	string_buffer += std::to_string(is_disable_hardware_cursor_);
 	string_buffer += '\n';
 
-	// is_hardware_cursor_disabled
 	//
-	is_hardware_cursor_disabled_.accept();
-	string_buffer += is_hardware_cursor_disabled_setting_name;
+	is_disable_animated_loading_screen_.accept();
+	string_buffer += is_disable_animated_loading_screen_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_hardware_cursor_disabled_);
+	string_buffer += std::to_string(is_disable_animated_loading_screen_);
 	string_buffer += '\n';
 
-	// is_animated_loading_screen_disabled
 	//
-	is_animated_loading_screen_disabled_.accept();
-	string_buffer += is_animated_loading_screen_disabled_setting_name;
+	is_disable_hardware_sound_.accept();
+	string_buffer += is_disable_hardware_sound_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_animated_loading_screen_disabled_);
+	string_buffer += std::to_string(is_disable_hardware_sound_);
 	string_buffer += '\n';
 
-	// is_detail_level_selected
 	//
-	is_detail_level_selected_.accept();
-	string_buffer += is_detail_level_selected_setting_name;
+	is_disable_sound_filters_.accept();
+	string_buffer += is_disable_sound_filters_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_detail_level_selected_);
+	string_buffer += std::to_string(is_disable_sound_filters_);
 	string_buffer += '\n';
 
-	// is_hardware_sound_disabled
 	//
-	is_hardware_sound_disabled_.accept();
-	string_buffer += is_hardware_sound_disabled_setting_name;
+	is_pass_custom_arguments_.accept();
+	string_buffer += is_pass_custom_arguments_setting_name;
 	string_buffer += ' ';
-	string_buffer += std::to_string(is_hardware_sound_disabled_);
+	string_buffer += std::to_string(is_pass_custom_arguments_);
 	string_buffer += '\n';
 
-	// is_sound_filter_disabled
-	//
-	is_sound_filter_disabled_.accept();
-	string_buffer += is_sound_filter_disabled_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_sound_filter_disabled_);
-	string_buffer += '\n';
-
-	// is_always_pass_custom_arguments
-	//
-	is_always_pass_custom_arguments_.accept();
-	string_buffer += is_always_pass_custom_arguments_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_always_pass_custom_arguments_);
-	string_buffer += '\n';
-
-	// custom_arguments
 	//
 	custom_arguments_.accept();
 	string_buffer += custom_arguments_setting_name;
 	string_buffer += " \"";
-	string_buffer += (is_always_pass_custom_arguments_ ? serialize_cl_args(custom_arguments_) : "");
+	string_buffer += (is_pass_custom_arguments_ ? serialize_cl_args(custom_arguments_) : "");
 	string_buffer += "\"\n";
 
-	// screen_width
 	//
 	screen_width_.accept();
 	string_buffer += screen_width_setting_name;
@@ -2360,7 +2310,6 @@ bool Configuration::save()
 	string_buffer += std::to_string(screen_width_);
 	string_buffer += '\n';
 
-	// screen_height
 	//
 	screen_height_.accept();
 	string_buffer += screen_height_setting_name;
@@ -2390,23 +2339,36 @@ bool Configuration::save()
 	return true;
 }
 
+const std::string& Configuration::get_profile_directory() const
+{
+	return profile_directory_;
+}
+
+const std::string& Configuration::get_arguments_file_name() const
+{
+	return arguments_file_name;
+}
+
+const std::string& Configuration::get_log_file_name() const
+{
+	return log_file_name;
+}
+
 void Configuration::reset()
 {
 	language_.set_and_accept(default_language);
-	is_warned_about_display_.set_and_accept(default_is_warned_about_display);
-	is_warned_about_settings_.set_and_accept(default_is_warned_about_settings);
-	is_sound_effects_disabled_.set_and_accept(default_is_sound_effects_disabled);
-	is_music_disabled_.set_and_accept(default_is_music_disabled);
-	is_fmv_disabled_.set_and_accept(default_is_fmv_disabled);
-	is_fog_disabled_.set_and_accept(default_is_fog_disabled);
-	is_controller_disabled_.set_and_accept(default_is_controller_disabled);
-	is_triple_buffering_enabled_.set_and_accept(default_is_triple_buffering_enabled);
-	is_hardware_cursor_disabled_.set_and_accept(default_is_hardware_cursor_disabled);
-	is_animated_loading_screen_disabled_.set_and_accept(default_is_animated_loading_screen_disabled);
-	is_detail_level_selected_.set_and_accept(default_is_detail_level_selected);
-	is_hardware_sound_disabled_.set_and_accept(default_is_hardware_sound_disabled);
-	is_sound_filter_disabled_.set_and_accept(default_is_sound_filter_disabled);
-	is_always_pass_custom_arguments_.set_and_accept(default_is_always_pass_custom_arguments);
+	is_disable_display_settings_warning_.set_and_accept(default_is_warned_about_display);
+	is_disable_advanced_settings_warning_.set_and_accept(default_is_disable_advanced_settings_warning);
+	is_disable_sound_effects_.set_and_accept(default_is_disable_sound_effects);
+	is_disable_music_.set_and_accept(default_is_disable_music);
+	is_disable_fmvs_.set_and_accept(default_is_disable_fmvs);
+	is_disable_controllers_.set_and_accept(default_is_disable_controllers);
+	is_disable_triple_buffering_.set_and_accept(default_is_disable_triple_buffering);
+	is_disable_hardware_cursor_.set_and_accept(default_is_disable_hardware_cursor);
+	is_disable_animated_loading_screen_.set_and_accept(default_is_disable_animated_loading_screen);
+	is_disable_hardware_sound_.set_and_accept(default_is_disable_hardware_sound);
+	is_disable_sound_filters_.set_and_accept(default_is_disable_sound_filters);
+	is_pass_custom_arguments_.set_and_accept(default_is_pass_custom_arguments);
 	custom_arguments_.set_and_accept(default_custom_arguments);
 	screen_width_.set_and_accept(default_screen_width);
 	screen_height_.set_and_accept(default_screen_height);
@@ -3058,6 +3020,12 @@ bool SdlOglWindow::is_event_for_me(
 	default:
 		return true;
 	}
+}
+
+void SdlOglWindow::set_icon(
+	SDL_Surface* sdl_surface)
+{
+	::SDL_SetWindowIcon(sdl_window_, sdl_surface);
 }
 
 void SdlOglWindow::uninitialize()
@@ -4263,6 +4231,12 @@ MessageBoxResult Window::get_message_box_result() const
 	return message_box_result_;
 }
 
+void Window::set_icon(
+	SDL_Surface* sdl_surface)
+{
+	sdl_ogl_window_.set_icon(sdl_surface);
+}
+
 void Window::set_message_box_result(
 	const MessageBoxResult message_box_result)
 {
@@ -5311,7 +5285,7 @@ void MainWindow::handle_check_for_renderers()
 		state_ = State::display_settings_no_renderers;
 
 		const auto& resource_strings = launcher.get_resource_strings();
-		const auto& message = resource_strings.get(Launcher::IDS_NORENS, "IDS_NORENS");
+		const auto& message = resource_strings.get(ResourceStringId::ids_norens, "IDS_NORENS");
 
 		auto message_box_window_ptr = launcher.get_message_box_window();
 		message_box_window_ptr->show(MessageBoxType::error, MessageBoxButtons::ok, message);
@@ -5371,13 +5345,17 @@ void MainWindow::handle_message_box_result_event(
 
 	switch (state_)
 	{
+	case State::main_window_message_box:
+		attach_to_message_box_result_event(false, AttachPoint::message_box);
+		break;
+
 	case State::display_settings_warning:
 	{
 		state_ = State::main_window;
 
 		if (message_box_result == MessageBoxResult::ok)
 		{
-			configuration.is_warned_about_display_ = true;
+			configuration.is_disable_display_settings_warning_ = true;
 			handle_check_for_renderers();
 			show(true);
 		}
@@ -5418,7 +5396,7 @@ void MainWindow::handle_message_box_result_event(
 			attach_to_message_box_result_event(true, AttachPoint::advanced_settings);
 
 			state_ = State::advanced_settings_window;
-			configuration.is_warned_about_settings_ = true;
+			configuration.is_disable_advanced_settings_warning_ = true;
 			advanced_options_window_ptr->show(true);
 		}
 
@@ -5457,14 +5435,16 @@ void MainWindow::handle_message_box_result_event(
 
 void MainWindow::run_the_game()
 {
-	auto& launcher = Launcher::get_instance();
 	auto& configuration = Configuration::get_instance();
 
 	show(false);
 
 	configuration.save();
 
-	const auto command = lithtech_executable + " -cmdfile " + Launcher::launcher_commands_file_name;
+	const auto arguments = build_command_line(configuration.is_restore_defaults_);
+	save_arguments(arguments);
+
+	const auto command = lithtech_executable + arguments;
 	const auto exec_result = std::system(command.c_str());
 
 	is_show_play_button_ = is_lithtech_executable_exists();
@@ -5473,15 +5453,24 @@ void MainWindow::run_the_game()
 
 	if (exec_result != 0)
 	{
-		launcher.show_message_box(
-			MessageBoxType::error,
-			MessageBoxButtons::ok,
-			"Failed to run LithTech executable \"" + lithtech_executable + "\".");
+		no_lithtech_exe_error();
 	}
 	else
 	{
 		configuration.is_restore_defaults_.set_and_accept(false);
 	}
+}
+
+void MainWindow::no_lithtech_exe_error()
+{
+	auto& launcher = Launcher::get_instance();
+	const auto& resource_strings = launcher.get_resource_strings();
+	const auto& message = resource_strings.get(ResourceStringId::ids_cantlaunchclientexe, "IDS_CANTLAUNCHCLIENTEXE");
+
+	state_ = State::main_window_message_box;
+	attach_to_message_box_result_event(true, AttachPoint::message_box);
+
+	launcher.show_message_box(MessageBoxType::error, MessageBoxButtons::ok, message);
 }
 
 void MainWindow::change_language()
@@ -5537,6 +5526,164 @@ void MainWindow::change_language()
 	configuration.language_.accept();
 }
 
+std::string MainWindow::build_command_line(
+	const bool has_detail_settings) const
+{
+	auto& launcher = Launcher::get_instance();
+	const auto& resource_strings = launcher.get_resource_strings();
+	const auto& configuration = Configuration::get_instance();
+
+	auto command_line = std::string{};
+
+	// Window title.
+	//
+	const auto& app_name = resource_strings.get(ResourceStringId::ids_appname, "IDS_APPNAME");
+	command_line += " -windowtitle \"" + app_name + "\"";
+
+	// .REZ files.
+	//
+	const auto& rez_base = resource_strings.get(ResourceStringId::ids_rezbase, "IDS_REZBASE");
+
+	command_line += " -rez " + rez_base + ".REZ";
+	command_line += " -rez " + rez_base + "2.REZ";
+	command_line += " -rez " + rez_base + "DLL.REZ";
+	command_line += " -rez SOUND.REZ";
+	command_line += " -rez " + rez_base + "L.REZ";
+	command_line += " -rez custom";
+	command_line += " -rez " + rez_base + "P.REZ";
+	command_line += " -rez " + rez_base + "P2.REZ";
+
+#ifdef LTJS_NOLF2
+	command_line += " -rez Update_v1x3.rez";
+#endif // LTJS_NOLF2
+
+
+	// Advanced settings.
+	//
+	command_line += " +DisableSound " + std::string{configuration.is_disable_sound_effects_ ? "1" : "0"};
+	command_line += " +DisableMusic " + std::string{configuration.is_disable_music_ ? "1" : "0"};
+	command_line += " +DisableMovies " + std::string{configuration.is_disable_fmvs_ ? "1" : "0"};
+	command_line += " +DisableJoystick " + std::string{configuration.is_disable_controllers_ ? "1" : "0"};
+	command_line += " +DisableTripBuf " + std::string{configuration.is_disable_triple_buffering_ ? "1" : "0"};
+	command_line += " +DisableHardwareCursor " + std::string{configuration.is_disable_hardware_cursor_ ? "1" : "0"};
+	command_line += " +DynamicLoadScreen " + std::string{configuration.is_disable_animated_loading_screen_ ? "0" : "1"};
+	command_line += " +DisableHardwareSound " + std::string{configuration.is_disable_hardware_sound_ ? "1" : "0"};
+	command_line += " +DisableSoundFilters " + std::string{configuration.is_disable_sound_filters_ ? "1" : "0"};
+
+
+	// Display settings.
+	//
+	if (configuration.screen_width_ <= 0 || configuration.screen_height_ <= 0)
+	{
+		const auto& display_mode_manager = DisplayModeManager::get_instance();
+		const auto& native_display_mode = display_mode_manager.get_native();
+
+		if (native_display_mode.width_ > 0 && native_display_mode.height_)
+		{
+			command_line += " +ScreenWidth " + std::to_string(native_display_mode.width_);
+			command_line += " +ScreenHeight " + std::to_string(native_display_mode.height_);
+		}
+		else
+		{
+			command_line += " +ScreenWidth 640 +ScreenHeight 480";
+		}
+	}
+	else
+	{
+		command_line += " +ScreenWidth " + std::to_string(configuration.screen_width_);
+		command_line += " +ScreenHeight " + std::to_string(configuration.screen_height_);
+	}
+
+	command_line += " +BitDepth 32";
+
+
+	// Restore defaults.
+	//
+	if (configuration.is_restore_defaults_)
+	{
+		command_line += " +RestoreDefaults 1";
+		command_line += " +HardwareCursor 1";
+		command_line += " +VSyncOnFlip 1";
+		command_line += " +GammaR 1.0";
+		command_line += " +GammaG 1.0";
+		command_line += " +GammaB 1.0";
+	}
+
+	// Detail settings.
+	//
+	if (has_detail_settings)
+	{
+		const auto detail_level_id = launcher.get_detail_settings_window()->get_detail_level();
+
+		auto detail_level_string = std::string{};
+
+		switch (detail_level_id)
+		{
+		case DetailLevel::low:
+			detail_level_string = ".DefaultLow";
+			break;
+
+		case DetailLevel::medium:
+			detail_level_string = ".DefaultMid";
+			break;
+
+		case DetailLevel::high:
+			detail_level_string = ".DefaultHigh";
+			break;
+
+		default:
+			break;
+		}
+
+		if (!detail_level_string.empty())
+		{
+			command_line += " +SetPerformanceLevel " + detail_level_string;
+		}
+	}
+
+	// Custom command line.
+	//
+	if (!configuration.custom_arguments_.get_ref().empty())
+	{
+		command_line += " " + static_cast<const std::string&>(configuration.custom_arguments_);
+	}
+
+	//
+	return command_line;
+}
+
+bool MainWindow::save_arguments(
+	const std::string& command_line) const
+{
+	const auto& configuration = Configuration::get_instance();
+	const auto& profile_directory = configuration.get_profile_directory();
+	const auto& arguments_file_name = configuration.get_arguments_file_name();
+	const auto file_name = ul::PathUtils::append(profile_directory, arguments_file_name);
+
+	auto file_stream = ul::FileStream{file_name, ul::Stream::OpenMode::write | ul::Stream::OpenMode::truncate};
+
+	if (!file_stream.is_open())
+	{
+		return false;
+	}
+
+	const auto data_size = static_cast<int>(command_line.size());
+
+	if (data_size == 0)
+	{
+		return true;
+	}
+
+	const auto write_result = file_stream.write(command_line.c_str(), data_size);
+
+	if (write_result != data_size)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void MainWindow::do_draw()
 {
 	const auto& window_manager = WindowManager::get_instance();
@@ -5548,7 +5695,8 @@ void MainWindow::do_draw()
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-	const auto is_escape_down = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
+
+	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
 
 	const auto is_modal = (state_ != State::main_window);
 
@@ -6202,10 +6350,7 @@ void MainWindow::do_im_handle_events()
 		}
 		else
 		{
-			launcher.show_message_box(
-				MessageBoxType::error,
-				MessageBoxButtons::ok,
-				"LithTech executable \"" + lithtech_executable + "\" not found.");
+			no_lithtech_exe_error();
 
 			is_show_play_button_ = is_lithtech_executable_exists();
 		}
@@ -6214,11 +6359,11 @@ void MainWindow::do_im_handle_events()
 	{
 		attach_to_message_box_result_event(true, AttachPoint::message_box);
 
-		if (!configuration.is_warned_about_display_)
+		if (!configuration.is_disable_display_settings_warning_)
 		{
 			state_ = State::display_settings_warning;
 
-			const auto& message = resource_strings.get(Launcher::IDS_DISPLAY_WARNING, "IDS_DISPLAY_WARNING");
+			const auto& message = resource_strings.get(ResourceStringId::ids_display_warning, "IDS_DISPLAY_WARNING");
 
 			auto message_box_window_ptr = launcher.get_message_box_window();
 			message_box_window_ptr->show(MessageBoxType::warning, MessageBoxButtons::ok_cancel, message);
@@ -6230,13 +6375,13 @@ void MainWindow::do_im_handle_events()
 	}
 	else if (is_options_button_clicked_)
 	{
-		if (!configuration.is_warned_about_settings_)
+		if (!configuration.is_disable_advanced_settings_warning_)
 		{
 			state_ = State::advanced_settings_warning;
 
 			attach_to_message_box_result_event(true, AttachPoint::message_box);
 
-			const auto& message = resource_strings.get(Launcher::IDS_OPTIONS_WARNING, "IDS_OPTIONS_WARNING");
+			const auto& message = resource_strings.get(ResourceStringId::ids_options_warning, "IDS_OPTIONS_WARNING");
 
 			auto message_box_window_ptr = launcher.get_message_box_window();
 			message_box_window_ptr->show(MessageBoxType::warning, MessageBoxButtons::ok_cancel, message);
@@ -6486,7 +6631,7 @@ void DetailSettingsWindow::do_draw()
 	const auto header_pos = ImVec2{14.0F, 45.0F} * scale;
 	const auto header_size = ImVec2{428.0F, 51.0F} * scale;
 
-	const auto& header_text = resource_strings.get(Launcher::IDS_DETAIL_HEADER, "IDS_DETAIL_HEADER");
+	const auto& header_text = resource_strings.get(ResourceStringId::ids_detail_header, "IDS_DETAIL_HEADER");
 
 	ImGui::SetCursorPos(header_pos);
 	ImGui::BeginChild("##header_child", header_size);
@@ -6509,7 +6654,7 @@ void DetailSettingsWindow::do_draw()
 	const auto high_header_pos = ImVec2{14.0F, 119.0F} * scale;
 	const auto high_header_size = ImVec2{428.0F, 40.0F} * scale;
 
-	const auto& high_header_text = resource_strings.get(Launcher::IDS_DETAIL_HIGH, "IDS_DETAIL_HIGH");
+	const auto& high_header_text = resource_strings.get(ResourceStringId::ids_detail_high, "IDS_DETAIL_HIGH");
 
 	ImGui::SetCursorPos(high_header_pos);
 	ImGui::BeginChild("##high_header_child", high_header_size);
@@ -6582,7 +6727,7 @@ void DetailSettingsWindow::do_draw()
 	const auto medium_header_pos = ImVec2{14.0F, 228.0F} * scale;
 	const auto medium_header_size = ImVec2{428.0F, 43.0F} * scale;
 
-	const auto& medium_header_text = resource_strings.get(Launcher::IDS_DETAIL_MEDIUM, "IDS_DETAIL_MEDIUM");
+	const auto& medium_header_text = resource_strings.get(ResourceStringId::ids_detail_medium, "IDS_DETAIL_MEDIUM");
 
 	ImGui::SetCursorPos(medium_header_pos);
 	ImGui::BeginChild("##medium_header_child", medium_header_size);
@@ -6655,7 +6800,7 @@ void DetailSettingsWindow::do_draw()
 	const auto low_header_pos = ImVec2{14.0F, 337.0F} * scale;
 	const auto low_header_size = ImVec2{428.0F, 43.0F} * scale;
 
-	const auto& low_header_text = resource_strings.get(Launcher::IDS_DETAIL_LOW, "IDS_DETAIL_LOW");
+	const auto& low_header_text = resource_strings.get(ResourceStringId::ids_detail_low, "IDS_DETAIL_LOW");
 
 	ImGui::SetCursorPos(low_header_pos);
 	ImGui::BeginChild("##low_header_child", low_header_size);
@@ -7265,11 +7410,11 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 69.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLESOUND;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablesound;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLESOUND";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLESOUND;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablesound;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLESOUND";
-		check_box_content.setting_value_ptr_ = &configuration.is_sound_effects_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_sound_effects_;
 	}
 
 	// Disable music.
@@ -7280,11 +7425,11 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 94.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEMUSIC;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablemusic;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEMUSIC";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEMUSIC;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablemusic;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEMUSIC";
-		check_box_content.setting_value_ptr_ = &configuration.is_music_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_music_;
 	}
 
 	// Disable movies.
@@ -7295,11 +7440,11 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 119.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEMOVIES;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablemovies;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEMOVIES";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEMOVIES;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablemovies;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEMOVIES";
-		check_box_content.setting_value_ptr_ = &configuration.is_fmv_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_fmvs_;
 	}
 
 	// Disable hardware sound.
@@ -7310,11 +7455,11 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 144.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEHARDWARESOUND;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablehardwaresound;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEHARDWARESOUND";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEHARDWARESOUND;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablehardwaresound;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEHARDWARESOUND";
-		check_box_content.setting_value_ptr_ = &configuration.is_hardware_sound_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_hardware_sound_;
 	}
 
 	// Disable animated load screens.
@@ -7325,11 +7470,11 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 169.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEANIMATEDLOADSCREENS;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disableanimatedloadscreens;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEANIMATEDLOADSCREENS";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEANIMATEDLOADSCREEN;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disableanimatedloadscreen;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEANIMATEDLOADSCREEN";
-		check_box_content.setting_value_ptr_ = &configuration.is_animated_loading_screen_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_animated_loading_screen_;
 	}
 
 	// Disable triple buffering.
@@ -7338,13 +7483,13 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_contexts_.emplace_back();
 		auto& check_box_content = check_box_contexts_.back();
 		check_box_content.position_ = {228.0F, 69.0F};
-		check_box_content.checked_value_ = false;
+		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLETRIPLEBUFFERING;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disabletriplebuffering;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLETRIPLEBUFFERING";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLETRIPLEBUFFERING;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disabletriplebuffering;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLETRIPLEBUFFERING";
-		check_box_content.setting_value_ptr_ = &configuration.is_triple_buffering_enabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_triple_buffering_;
 	}
 
 	// Disable joysticks.
@@ -7355,11 +7500,11 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {228.0F, 94.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEJOYSTICKS;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablejoysticks;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEJOYSTICKS";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEJOYSTICKS;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablejoysticks;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEJOYSTICKS";
-		check_box_content.setting_value_ptr_ = &configuration.is_controller_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_controllers_;
 	}
 
 	// Disable hardware cursor.
@@ -7370,11 +7515,11 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {228.0F, 119.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLEHARDWARECURSOR;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablehardwarecursor;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLEHARDWARECURSOR";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLEHARDWARECURSOR;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablehardwarecursor;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEHARDWARECURSOR";
-		check_box_content.setting_value_ptr_ = &configuration.is_hardware_cursor_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_hardware_cursor_;
 	}
 
 	// Disable sound filters.
@@ -7385,11 +7530,11 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {228.0F, 144.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_DISABLESOUNDFILTERS;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablesoundfilters;
 		check_box_content.resource_string_default_ = "IDS_OD_DISABLESOUNDFILTERS";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_DISABLESOUNDFILTERS;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablesoundfilters;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLESOUNDFILTERS";
-		check_box_content.setting_value_ptr_ = &configuration.is_sound_filter_disabled_;
+		check_box_content.setting_value_ptr_ = &configuration.is_disable_sound_filters_;
 	}
 
 	// Restore defaults.
@@ -7400,9 +7545,9 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 221.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_RESTOREDEFAULTS;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_restoredefaults;
 		check_box_content.resource_string_default_ = "IDS_OD_RESTOREDEFAULTS";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_RESTOREDEFAULTS;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_restoredefaults;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_RESTOREDEFAULTS";
 		check_box_content.setting_value_ptr_ = &configuration.is_restore_defaults_;
 	}
@@ -7415,11 +7560,11 @@ void AdvancedSettingsWindow::initialize_check_box_contents()
 		check_box_content.position_ = {26.0F, 297.0F};
 		check_box_content.checked_value_ = true;
 		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = Launcher::IDS_OD_ALWAYSSPECIFY;
+		check_box_content.resource_string_id_ = ResourceStringId::ids_od_alwaysspecify;
 		check_box_content.resource_string_default_ = "IDS_OD_ALWAYSSPECIFY";
-		check_box_content.hint_resource_string_id_ = Launcher::IDS_HELP_ALWAYSSPECIFY;
+		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_alwaysspecify;
 		check_box_content.hint_resource_string_default_ = "IDS_HELP_ALWAYSSPECIFY";
-		check_box_content.setting_value_ptr_ = &configuration.is_always_pass_custom_arguments_;
+		check_box_content.setting_value_ptr_ = &configuration.is_pass_custom_arguments_;
 	}
 }
 
@@ -7468,7 +7613,7 @@ void AdvancedSettingsWindow::do_draw()
 	const auto check_box_text_disabled_color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
 
 
-	hint_ = resource_strings.get(Launcher::IDS_HELP_DEFAULT, "IDS_HELP_DEFAULT");
+	hint_ = resource_strings.get(ResourceStringId::ids_help_default, "IDS_HELP_DEFAULT");
 
 
 	// Begin advanced settings window.
@@ -8065,12 +8210,15 @@ void WindowManager::unregister_window(
 std::string Launcher::launcher_commands_file_name = "launchcmds.txt";
 std::string Launcher::resource_strings_directory = "ltjs/" LTJS_GAME_ID_STRING "/launcher/strings";
 std::string Launcher::resource_strings_file_name = "launcher.txt";
+std::string Launcher::icon_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/images/icon_48x48.bmp";
 
 
 Launcher::Launcher()
 	:
 	is_initialized_{},
 	has_direct_3d_9_{},
+	logger_{},
+	sdl_icon_surface_{},
 	resource_strings_{},
 	message_box_window_uptr_{},
 	main_window_uptr_{},
@@ -8084,6 +8232,8 @@ Launcher::Launcher(
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
 	has_direct_3d_9_{std::move(rhs.has_direct_3d_9_)},
+	logger_{std::move(rhs.logger_)},
+	sdl_icon_surface_{std::move(sdl_icon_surface_)},
 	resource_strings_{std::move(rhs.resource_strings_)},
 	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
 	main_window_uptr_{std::move(rhs.main_window_uptr_)},
@@ -8119,42 +8269,10 @@ bool Launcher::initialize()
 		}
 	}
 
-	if (is_succeed)
-	{
-		has_direct_3d_9_ = Direct3d9::has_direct3d9();
-
-		auto& display_mode_manager = DisplayModeManager::get_instance();
-		display_mode_manager.initialize();
-	}
+	auto& configuration = Configuration::get_instance();
 
 	if (is_succeed)
 	{
-		auto& supported_languages = SupportedLanguages::get_instance();
-
-		if (!supported_languages.load())
-		{
-			is_succeed = false;
-
-			set_error_message(supported_languages.get_error_message());
-		}
-	}
-
-	if (is_succeed)
-	{
-		auto& supported_languages = SupportedLanguages::get_instance();
-
-		if (supported_languages.get().empty())
-		{
-			is_succeed = false;
-
-			set_error_message("No supported languages.");
-		}
-	}
-
-	if (is_succeed)
-	{
-		auto& configuration = Configuration::get_instance();
-
 		if (!configuration.initialize())
 		{
 			is_succeed = false;
@@ -8165,23 +8283,89 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		auto& configuration = Configuration::get_instance();
+		const auto& profile_directory = configuration.get_profile_directory();
+		const auto& log_file_name = configuration.get_log_file_name();
+		const auto& file_path = ul::PathUtils::append(profile_directory, log_file_name);
 
-		configuration.reload();
+		spdlog::set_pattern("[%Y-%m-%d %H:%M:%S %z] [%L] %v");
 
-		auto& supported_languages = SupportedLanguages::get_instance();
+		logger_ = spdlog::basic_logger_st("file", file_path, true);
+	}
 
-		if (!supported_languages.has_id(configuration.language_))
+	if (is_succeed)
+	{
+		logger_->info("[Window icon]");
+
+		const auto& normalized_icon_path = ul::PathUtils::normalize(icon_path);
+
+		sdl_icon_surface_ = ::SDL_LoadBMP(normalized_icon_path.c_str());
+
+		if (!sdl_icon_surface_)
 		{
-			is_succeed = false;
-			set_error_message("Unsupported language id \"" + static_cast<const std::string&>(configuration.language_) + "\".");
+			logger_->warn("Failed to load icon \""s + normalized_icon_path + "\"."s);
 		}
 	}
 
 	if (is_succeed)
 	{
-		auto& configuration = Configuration::get_instance();
+		if (!initialize_ogl())
+		{
+			is_succeed = false;
+		}
+	}
 
+	if (is_succeed)
+	{
+		has_direct_3d_9_ = Direct3d9::has_direct3d9();
+
+		auto& display_mode_manager = DisplayModeManager::get_instance();
+		display_mode_manager.initialize();
+	}
+
+	auto& supported_languages = SupportedLanguages::get_instance();
+
+	if (is_succeed)
+	{
+		logger_->info("[Supported languages]");
+
+		if (!supported_languages.load())
+		{
+			is_succeed = false;
+
+			const auto& error_message = supported_languages.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
+		}
+	}
+
+	if (is_succeed)
+	{
+		if (supported_languages.get().empty())
+		{
+			is_succeed = false;
+
+			const auto& error_message = "No supported languages."s;
+			set_error_message(error_message);
+			logger_->error(error_message);
+		}
+	}
+
+	if (is_succeed)
+	{
+		configuration.reload();
+
+		if (!supported_languages.has_id(configuration.language_))
+		{
+			is_succeed = false;
+
+			const auto& error_message = "Unsupported language id \""s + static_cast<const std::string&>(configuration.language_) + "\"."s;
+			set_error_message(error_message);
+			logger_->error(error_message);
+		}
+	}
+
+	if (is_succeed)
+	{
 		const auto resource_strings_result = resource_strings_.initialize(
 			configuration.language_,
 			resource_strings_directory,
@@ -8190,7 +8374,10 @@ bool Launcher::initialize()
 		if (!resource_strings_result)
 		{
 			is_succeed = false;
-			set_error_message(resource_strings_.get_error_message());
+
+			const auto& error_message = resource_strings_.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8223,11 +8410,15 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		logger_->info("[Font manager]");
+
 		if (!font_manager.initialize())
 		{
 			is_succeed = false;
 
-			set_error_message(font_manager.get_error_message());
+			const auto& error_message = font_manager.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8240,7 +8431,9 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			set_error_message(font_manager.get_error_message());
+			const auto& error_message = font_manager.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8250,11 +8443,15 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		logger_->info("[OpenGL texture manager]");
+
 		if (!ogl_texture_manager.initialize())
 		{
 			is_succeed = false;
 
-			set_error_message(ogl_texture_manager.get_error_message());
+			const auto& error_message = ogl_texture_manager.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8264,7 +8461,9 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			set_error_message(ogl_texture_manager.get_error_message());
+			const auto& error_message = ogl_texture_manager.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8274,70 +8473,122 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			set_error_message(ogl_texture_manager.get_error_message());
+			const auto& error_message = ogl_texture_manager.get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
 	if (is_succeed)
 	{
+		logger_->info("[Message box window]");
+
 		message_box_window_uptr_.reset(MessageBoxWindow::create());
 
 		if (!message_box_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to initialize message box window. " + message_box_window_uptr_->get_error_message());
+
+			const auto& error_message = "Failed to initialize message box window. "s + message_box_window_uptr_->get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
 	if (is_succeed)
 	{
+		message_box_window_uptr_->set_icon(sdl_icon_surface_);
+	}
+
+	if (is_succeed)
+	{
+		logger_->info("[Display settings window]");
+
 		display_settings_window_uptr_.reset(DisplaySettingsWindow::create());
 
 		if (!display_settings_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to initialize display settings window. " + display_settings_window_uptr_->get_error_message());
+
+			const auto& error_message = "Failed to initialize display settings window. "s + display_settings_window_uptr_->get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
 	if (is_succeed)
 	{
+		display_settings_window_uptr_->set_icon(sdl_icon_surface_);
+	}
+
+	if (is_succeed)
+	{
+		logger_->info("[Advanced settings window]");
+
 		advanced_settings_window_uptr_.reset(AdvancedSettingsWindow::create());
 
 		if (!advanced_settings_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to initialize advanced settings window. " + advanced_settings_window_uptr_->get_error_message());
+
+			const auto& error_message = "Failed to initialize advanced settings window. "s + advanced_settings_window_uptr_->get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
 	if (is_succeed)
 	{
+		advanced_settings_window_uptr_->set_icon(sdl_icon_surface_);
+	}
+
+	if (is_succeed)
+	{
+		logger_->info("[Detail settings window]");
+
 		detail_settings_window_uptr_.reset(DetailSettingsWindow::create());
 
 		if (!detail_settings_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to initialize detail settings window. " + detail_settings_window_uptr_->get_error_message());
+
+			const auto& error_message = "Failed to initialize detail settings window. "s + detail_settings_window_uptr_->get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
 	if (is_succeed)
 	{
-		const auto& title = resource_strings_.get(IDS_APPNAME, "IDS_APPNAME");
+		detail_settings_window_uptr_->set_icon(sdl_icon_surface_);
+	}
+
+	if (is_succeed)
+	{
+		const auto& title = resource_strings_.get(ResourceStringId::ids_appname, "IDS_APPNAME");
 
 		message_box_window_uptr_->set_title(title);
 	}
 
 	if (is_succeed)
 	{
+		logger_->info("[Main window]");
+
 		main_window_uptr_.reset(MainWindow::create());
 
 		if (!main_window_uptr_->is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to initialize main window. " + main_window_uptr_->get_error_message());
+
+			const auto& error_message = "Failed to initialize main window. "s + main_window_uptr_->get_error_message();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
+	}
+
+	if (is_succeed)
+	{
+		main_window_uptr_->set_icon(sdl_icon_surface_);
 	}
 
 	if (!is_succeed)
@@ -8356,7 +8607,6 @@ void Launcher::uninitialize()
 	is_initialized_ = false;
 	has_direct_3d_9_ = false;
 
-
 	resource_strings_.uninitialize();
 	message_box_window_uptr_ = {};
 	main_window_uptr_ = {};
@@ -8364,6 +8614,12 @@ void Launcher::uninitialize()
 	advanced_settings_window_uptr_ = {};
 	detail_settings_window_uptr_ = {};
 
+
+	if (sdl_icon_surface_)
+	{
+		::SDL_FreeSurface(sdl_icon_surface_);
+		sdl_icon_surface_ = nullptr;
+	}
 
 	// WindowManager
 	//
@@ -8382,6 +8638,7 @@ void Launcher::uninitialize()
 	auto& font_manager = FontManager::get_instance();
 	font_manager.uninitialize();
 
+
 	// Clipboard
 	//
 	auto& clipboard = Clipboard::get_instance();
@@ -8394,9 +8651,9 @@ void Launcher::uninitialize()
 	system_cursors.uninitialize();
 
 
-	// SDL
+	// OpenGL
 	//
-	uninitialize_sdl();
+	uninitialize_ogl();
 }
 
 bool Launcher::is_initialized()
@@ -8404,11 +8661,21 @@ bool Launcher::is_initialized()
 	return is_initialized_;
 }
 
+Launcher::Logger& Launcher::get_logger()
+{
+	return logger_;
+}
+
 void Launcher::run()
 {
+	logger_->info("[Main loop]");
+
 	if (!is_initialized_)
 	{
-		set_error_message("Not initialized.");
+		const auto& error_message = "Not initialized."s;
+		set_error_message(error_message);
+		logger_->error(error_message);
+
 		return;
 	}
 
@@ -8570,7 +8837,7 @@ bool Launcher::initialize_ogl_functions()
 	return is_succeed;
 }
 
-void Launcher::uninitialize_sdl()
+void Launcher::uninitialize_ogl()
 {
 	::SDL_GL_UnloadLibrary();
 	::SDL_Quit();
@@ -8581,16 +8848,25 @@ bool Launcher::initialize_sdl()
 	auto is_succeed = true;
 	auto sdl_result = 0;
 
-	if (is_succeed)
-	{
-		sdl_result = ::SDL_Init(SDL_INIT_VIDEO);
+	sdl_result = ::SDL_Init(SDL_INIT_VIDEO);
 
-		if (sdl_result)
-		{
-			is_succeed = false;
-			set_error_message("Failed to initialize SDL. " + std::string{::SDL_GetError()});
-		}
+	if (sdl_result)
+	{
+		is_succeed = false;
+		set_error_message("Failed to initialize SDL. " + std::string{::SDL_GetError()});
+
+		return false;
 	}
+
+	return true;
+}
+
+bool Launcher::initialize_ogl()
+{
+	auto is_succeed = true;
+	auto sdl_result = 0;
+
+	logger_->info("[OpenGL]");
 
 	if (is_succeed)
 	{
@@ -8599,7 +8875,10 @@ bool Launcher::initialize_sdl()
 		if (sdl_result)
 		{
 			is_succeed = false;
-			set_error_message("Failed to load OpenGL library. " + std::string{::SDL_GetError()});
+
+			const auto& error_message = "Failed to load OpenGL library. "s + ::SDL_GetError();
+			set_error_message(error_message);
+			logger_->error(error_message);
 		}
 	}
 
@@ -8608,12 +8887,13 @@ bool Launcher::initialize_sdl()
 		if (!initialize_ogl_functions())
 		{
 			is_succeed = false;
+			logger_->error(get_error_message());
 		}
 	}
 
 	if (!is_succeed)
 	{
-		uninitialize_sdl();
+		uninitialize_ogl();
 	}
 
 	return is_succeed;

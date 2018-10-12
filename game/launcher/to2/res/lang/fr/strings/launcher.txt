@@ -13,14 +13,8 @@ Encoding: UTF-8
 // Identifiers.
 //
 #define IDS_APPNAME                        1
-#define IDS_APPEXE                         2
 #define IDS_DISPLAY_WARNING                3
 #define IDS_OPTIONS_WARNING                4
-#define IDS_APPCD1CHECK                    5
-#define IDS_APPCD2CHECK                    6
-#define IDS_REZBASE                        7
-#define IDS_SETUPEXE                       8
-#define IDS_SERVEREXE                      9
 #define IDS_LANGUAGE                       10
 #define IDS_INSERTCD2                      11
 #define IDS_INSERTCD                       12
@@ -43,11 +37,8 @@ Encoding: UTF-8
 #define IDS_DETAIL_MEDIUM                  29
 #define IDS_DETAIL_HIGH                    30
 #define IDS_CANTLAUNCHSERVER               31
-#define IDS_APPVERSION                     32
 #define IDS_CANTUNINSTALL                  33
-#define IDS_COMPANYWEBPAGE                 34
 #define IDS_CANTOPENAVI                    35
-#define IDS_PUBLISHERWEBPAGE               36
 #define IDS_OD_DISABLESOUND                37
 #define IDS_OD_DISABLEMUSIC                38
 #define IDS_OD_DISABLEMOVIES               39
@@ -69,22 +60,14 @@ Encoding: UTF-8
 #define IDS_OD_DISABLEHARDWARESOUND        54
 #define IDS_OD_DISABLESOUNDFILTERS         55
 #define IDS_CANTOPENCOMMANDFILE            56
-#define IDS_LITHTECHWEBPAGE                57
-#define IDS_SIERRAWEBPAGE                  58
 #define IDS_NOCUSTOMDIR                    59
 
 
 // Strings.
 //
 IDS_APPNAME                                "No One Lives Forever 2"
-IDS_APPEXE                                 "NOLF2.exe"
 IDS_DISPLAY_WARNING                        "Les options d'affichage disponibles sur votre ordinateur vont ętre listées. Cela peut prendre un peu de temps en fonction de votre matériel.\n\nSi rien n'est indiqué, vérifiez que DirectX est correctement installé."
 IDS_OPTIONS_WARNING                        "Attention! Modifier les réglages des options avancées peut ętre ŕ l'origine de dysfonctionnements du jeu plus graves qu'ŕ l'origine, en fonction de la configuration de votre ordinateur."
-IDS_APPCD1CHECK                            "\\NOLF2.EXE"
-IDS_APPCD2CHECK                            "\\DATA\\GAME2.REZ"
-IDS_REZBASE                                "GAME"
-IDS_SETUPEXE                               "SETUP.EXE"
-IDS_SERVEREXE                              "NOLF2Svr.EXE"
 IDS_LANGUAGE                               "English"
 IDS_INSERTCD2                              "Veuillez retirer le CD 2 de No One Lives Forever de votre lecteur et replacer le CD 1 de No One Lives Forever."
 IDS_INSERTCD                               "Veuillez insérer le CD 1 de No One Lives Forever 2 dans le lecteur."
@@ -101,7 +84,7 @@ IDS_HELP_DISABLEANIMATEDLOADSCREEN         "Ceci va désactiver l'utilisation de
 IDS_HELP_RESTOREDEFAULTS                   "Cette option permet de reconfigurer tous les paramčtres ŕ leur valeur par défaut. Cela comprend la configuration des touches, du niveau de détail et des options sonores. Cela peut ętre utile si vous avez modifié différentes choses mais voulez revenir aux paramčtres originaux."
 IDS_HELP_ALWAYSSPECIFY                     "Uniquement pour les utilisateurs avancés."
 IDS_CANTFINDREZFILE                        "ERREUR - impossible de trouver le fichier Game.rez. Vérifiez que NOLF 2 est correctement installé et que le CD 1 de No One Lives Forever 2 est dans votre lecteur."
-IDS_CANTLAUNCHCLIENTEXE                    "ERREUR - impossible de lancer LITHTECH.EXE. Vérifiez que No One Lives Forever 2 est correctement installé."
+IDS_CANTLAUNCHCLIENTEXE                    "ERREUR - impossible de lancer ltjs_lithtech.exe. Vérifiez que No One Lives Forever 2 est correctement installé."
 IDS_DETAIL_HEADER                          "Pour profiter pleinement de No One Lives Forever 2, choisissez le réglage de performances que vous souhaitez utiliser.  Vous pouvez changer ce réglage depuis les menus de No One Lives Forever 2."
 IDS_DETAIL_LOW                             "Des détails faibles offrent les meilleures performances au sacrifice de la qualité visuelle. Configuration recommandée: PIII 500 MHz, 128 Mo de Ram, GeForce 1 32 Mo ou équivalent."
 IDS_DETAIL_MEDIUM                          "Des détails moyens offrent un bon compromis entre performances et qualité graphique. Configuration recommandée: PIII 1 GHz, 256 Mo de Ram, GeForce 3 64 Mo ou équivalent."
@@ -116,14 +99,9 @@ IDS_HELP_DISABLESOUNDFILTERS               "Cette option désactive l'utilisatio
 IDS_OD_DISABLEHARDWARESOUND                "Désactiver le son matériel"
 IDS_OD_DISABLESOUNDFILTERS                 "Désactiver filtres sonores"
 IDS_CANTOPENCOMMANDFILE                    "ERREUR - impossible d'ouvrir le fichier launchcmds.txt en écriture. Vérifiez que ce fichier n'est pas protégé en écriture et recommencez."
-IDS_LITHTECHWEBPAGE                        "http://www.lithtech.com"
-IDS_SIERRAWEBPAGE                          "http://www.sierra.com"
 IDS_NOCUSTOMDIR                            "ERREUR - impossible de trouver des répertoires personnalisés."
-IDS_APPVERSION                             "1.0"
 IDS_CANTUNINSTALL                          "ERREUR - impossible de désinstaller le jeu. Si No One Lives Forever 2 est toujours installé, essayez d'utilisez Ajout/Suppression de programmes. Pour réinstaller le jeu, lancez Setup.exe depuis le CD 1 de No One Lives Forever 2."
-IDS_COMPANYWEBPAGE                         "http://www.lith.com"
 IDS_CANTOPENAVI                            "ERREUR - impossible d'ouvrir un fichier .avi"
-IDS_PUBLISHERWEBPAGE                       "http://www.foxinteractive.com"
 IDS_OD_DISABLESOUND                        "Désactiver son"
 IDS_OD_DISABLEMUSIC                        "Désactiver musique"
 IDS_OD_DISABLEMOVIES                       "Désactiver films"

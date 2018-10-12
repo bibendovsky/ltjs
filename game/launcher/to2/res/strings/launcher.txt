@@ -1,0 +1,39 @@
+/*
+
+LTJS
+
+Common strings for "No One Lives Forever 2" launcher.
+
+Encoding: UTF-8
+
+*/
+
+
+// Identifiers.
+//
+#define IDS_APPEXE                         2
+#define IDS_APPCD1CHECK                    5
+#define IDS_APPCD2CHECK                    6
+#define IDS_REZBASE                        7
+#define IDS_SETUPEXE                       8
+#define IDS_SERVEREXE                      9
+#define IDS_APPVERSION                     32
+#define IDS_COMPANYWEBPAGE                 34
+#define IDS_PUBLISHERWEBPAGE               36
+#define IDS_LITHTECHWEBPAGE                57
+#define IDS_SIERRAWEBPAGE                  58
+
+
+// Strings.
+//
+IDS_APPEXE                                 "ltjs_nolf2.exe"
+IDS_APPCD1CHECK                            "\\NOLF2.EXE"
+IDS_APPCD2CHECK                            "\\DATA\\GAME2.REZ"
+IDS_REZBASE                                "GAME"
+IDS_SETUPEXE                               "SETUP.EXE"
+IDS_SERVEREXE                              "NOLF2Svr.EXE"
+IDS_APPVERSION                             "1.0"
+IDS_COMPANYWEBPAGE                         "http://www.lith.com"
+IDS_PUBLISHERWEBPAGE                       "http://www.foxinteractive.com"
+IDS_LITHTECHWEBPAGE                        "http://www.lithtech.com"
+IDS_SIERRAWEBPAGE                          "http://www.sierra.com"

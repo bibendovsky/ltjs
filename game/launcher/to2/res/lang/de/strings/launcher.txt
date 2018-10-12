@@ -13,14 +13,8 @@ Encoding: UTF-8
 // Identifiers.
 //
 #define IDS_APPNAME                        1
-#define IDS_APPEXE                         2
 #define IDS_DISPLAY_WARNING                3
 #define IDS_OPTIONS_WARNING                4
-#define IDS_APPCD1CHECK                    5
-#define IDS_APPCD2CHECK                    6
-#define IDS_REZBASE                        7
-#define IDS_SETUPEXE                       8
-#define IDS_SERVEREXE                      9
 #define IDS_LANGUAGE                       10
 #define IDS_INSERTCD2                      11
 #define IDS_INSERTCD                       12
@@ -43,11 +37,8 @@ Encoding: UTF-8
 #define IDS_DETAIL_MEDIUM                  29
 #define IDS_DETAIL_HIGH                    30
 #define IDS_CANTLAUNCHSERVER               31
-#define IDS_APPVERSION                     32
 #define IDS_CANTUNINSTALL                  33
-#define IDS_COMPANYWEBPAGE                 34
 #define IDS_CANTOPENAVI                    35
-#define IDS_PUBLISHERWEBPAGE               36
 #define IDS_OD_DISABLESOUND                37
 #define IDS_OD_DISABLEMUSIC                38
 #define IDS_OD_DISABLEMOVIES               39
@@ -69,22 +60,14 @@ Encoding: UTF-8
 #define IDS_OD_DISABLEHARDWARESOUND        54
 #define IDS_OD_DISABLESOUNDFILTERS         55
 #define IDS_CANTOPENCOMMANDFILE            56
-#define IDS_LITHTECHWEBPAGE                57
-#define IDS_SIERRAWEBPAGE                  58
 #define IDS_NOCUSTOMDIR                    59
 
 
 // Strings.
 //
 IDS_APPNAME                                "NO ONE LIVES FOREVER 2 "
-IDS_APPEXE                                 "NOLF2.exe"
 IDS_DISPLAY_WARNING                        "Die auf Ihrem System zur Verfügung stehenden Anzeigeoptionen werden jetzt enumeriert. Dies kann je nach installierter Hardware einige Zeit dauern.\n\nWenn im Anzeige-Dialog nichts angezeigt wird, sollten Sie sicherstellen, dass DirectX richtig auf Ihrem System installiert ist."
 IDS_OPTIONS_WARNING                        "ACHTUNG! Das Verändern der erweiterten Optionen kann je nach Ihrer Systemkonfiguration dazu führen, dass das Spiel schlechter (oder gar nicht mehr) läuft."
-IDS_APPCD1CHECK                            "\\NOLF2.EXE"
-IDS_APPCD2CHECK                            "\\DATA\\GAME2.REZ"
-IDS_REZBASE                                "GAME"
-IDS_SETUPEXE                               "SETUP.EXE"
-IDS_SERVEREXE                              "NOLF2Svr.EXE"
 IDS_LANGUAGE                               "English"
 IDS_INSERTCD2                              "Bitte nehmen Sie die NO ONE LIVES FOREVER 2-CD Nr. 2 aus dem Laufwerk und ersetzen Sie sie durch die NO ONE LIVES FOREVER 2-CD Nr. 1."
 IDS_INSERTCD                               "Bitte legen Sie die NO ONE LIVES FOREVER 2-CD Nr. 1 ins Laufwerk."
@@ -101,7 +84,7 @@ IDS_HELP_DISABLEANIMATEDLOADSCREEN         "Hiermit schalten Sie die Verwendung 
 IDS_HELP_RESTOREDEFAULTS                   "Hiermit stellen Sie alle Konfigurationseinstellungen wieder auf die Original-Einstellungen zurück. Dazu gehören auch die Tastatur-Konfiguration, die Detailstufen und die Soundoptionen. Dies ist nützlich, wenn Sie Einstellungen verändert haben und alles wieder so haben möchten, wie es ursprünglich war. "
 IDS_HELP_ALWAYSSPECIFY                     "Nur für erfahrene Benutzer."
 IDS_CANTFINDREZFILE                        "FEHLER - Die Datei ""GAME.REZ"" wurde nicht gefunden. Bitte stellen Sie sicher, dass NOLF 2 korrekt installiert ist und sich die No One Lives Forever 2-CD Nr. 1 im Laufwerk befindet."
-IDS_CANTLAUNCHCLIENTEXE                    "FEHLER – LITHTECH.EXE konnte nicht gestartet werden. Bitte stellen Sie sicher, dass NO ONE LIVES FOREVER 2 richtig installiert ist."
+IDS_CANTLAUNCHCLIENTEXE                    "FEHLER – ltjs_lithtech.exe konnte nicht gestartet werden. Bitte stellen Sie sicher, dass NO ONE LIVES FOREVER 2 richtig installiert ist."
 IDS_DETAIL_HEADER                          "Um NO ONE LIVES FOREVER 2 möglichst optimal spielen zu können, sollten Sie die Leistungseinstellung auswählen, die das Spiel zu Beginn verwenden soll. Sie können diese Einstellung später mit Hilfe der Menüs in NO ONE LIVES FOREVER 2 verändern."
 IDS_DETAIL_LOW                             "Niedrigere Detailstufen bieten auf Kosten der visuellen Darstellung die beste Spielperformance. Erforderliche Systemvoraussetzungen: PIII 500 MHz, 128 MB RAM, 32 MB GeForce 1 oder ähnliche Grafikkarte."
 IDS_DETAIL_MEDIUM                          "Mittlere Detailstufen bieten einen guten Kompromiss zwischen Spielleistung und visueller Qualität. Empfohlene Systemvoraussetzungen: PIII 1 GHz, 256 MB RAM, 64 MB GeForce 3 oder ähnliche Grafikkarte."
@@ -116,14 +99,9 @@ IDS_HELP_DISABLESOUNDFILTERS               "Hiermit schalten Sie die Verwendung 
 IDS_OD_DISABLEHARDWARESOUND                "Hardware-Sound deaktivieren."
 IDS_OD_DISABLESOUNDFILTERS                 "Soundfilter deaktivieren."
 IDS_CANTOPENCOMMANDFILE                    "FEHLER - Die Datei ""LAUNCHCMDS.TXT"" konnte zum Schreiben nicht geöffnet werden. Bitte stellen Sie sicher, dass diese Datei geschrieben werden kann, und versuchen Sie es erneut."
-IDS_LITHTECHWEBPAGE                        "http://www.lithtech.com"
-IDS_SIERRAWEBPAGE                          "http://www.sierra.de"
 IDS_NOCUSTOMDIR                            "FEHLER - Es wurden keine selbst erstellten Verzeichnisse gefunden."
-IDS_APPVERSION                             "1.0"
 IDS_CANTUNINSTALL                          "FEHLER - Das Spiel konnte nicht deinstalliert werden. Falls NO ONE LIVES FOREVER 2 noch installiert ist, sollten Sie die Programme Hinzufügen/Entfernen anwenden. Um das Spiel erneut zu installieren, starten Sie das Programm SETUP.EXE auf der NO ONE LIVES FOREVER 2-CD Nr. 1."
-IDS_COMPANYWEBPAGE                         "http://www.lith.com"
 IDS_CANTOPENAVI                            "FEHLER - Eine "".avi""-Datei konnte nicht geöffnet werden."
-IDS_PUBLISHERWEBPAGE                       "http://www.foxinteractive.com"
 IDS_OD_DISABLESOUND                        "Sound deaktivieren."
 IDS_OD_DISABLEMUSIC                        "Musik deaktivieren."
 IDS_OD_DISABLEMOVIES                       "Filme deaktivieren."
