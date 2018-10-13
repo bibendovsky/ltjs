@@ -397,7 +397,7 @@ target_sources(
 		../../world/src/world_tree.cpp
 )
 
-if (WIN32)
+if (MSVC)
 	target_sources(
 		ltjs_server
 		PRIVATE
