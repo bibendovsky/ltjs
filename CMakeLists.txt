@@ -1,14 +1,11 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(ltjs VERSION 0.0.1 LANGUAGES CXX)
 
 if (NOT WIN32)
-    message(FATAL_ERROR "WIN32 only")
+	message(FATAL_ERROR "WIN32 only")
 endif ()
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
-set(LTJS_BIN_DIR ${CMAKE_BINARY_DIR}/build/bin)
-set(LTJS_GAME_BIN_DIR ${LTJS_BIN_DIR}/game)
-set(LTJS_TO2_BIN_DIR ${LTJS_BIN_DIR}/to2)
 
 add_subdirectory(engine/libs/ltmem)
 add_subdirectory(engine/libs/rezmgr)
