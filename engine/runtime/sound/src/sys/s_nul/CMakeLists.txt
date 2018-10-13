@@ -1,33 +1,11 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(ltjs_snd_drv_nul VERSION 0.0.1 LANGUAGES CXX)
 
 option(LTJS_INSTALL_SND_DRV_NUL "Install NUL sound driver." OFF)
 
 include(ltjs_common)
 
-include_directories(
-	../..
-	../../../../../../libs/bibendovsky_spul_lib/include
-	../../../../../../libs/lith
-	../../../../../sdk/inc
-	../../../../kernel/src
-)
-
-set(
-	headers
-	s_nul.h
-)
-
-set(
-	sources
-	s_nul.cpp
-)
-
-add_library(
-	ltjs_snd_drv_nul SHARED
-	${headers}
-	${sources}
-)
+add_library(ltjs_snd_drv_nul SHARED)
 
 ltjs_add_defaults(ltjs_snd_drv_nul)
 
@@ -51,7 +29,29 @@ target_link_libraries(
 	ltjs_lib_lt_mem
 )
 
-if (LTJS_INSTALL_SND_DRV_OAL)
+target_include_directories(
+	ltjs_snd_drv_nul
+	PRIVATE
+		../..
+		../../../../../../libs/bibendovsky_spul_lib/include
+		../../../../../../libs/lith
+		../../../../../sdk/inc
+		../../../../kernel/src
+)
+
+target_sources(
+	ltjs_snd_drv_nul
+	PRIVATE
+		s_nul.h
+)
+
+target_sources(
+	ltjs_snd_drv_nul
+	PRIVATE
+		s_nul.cpp
+)
+
+if (LTJS_INSTALL_SND_DRV_NUL)
 	install(
 		TARGETS
 		ltjs_snd_drv_nul

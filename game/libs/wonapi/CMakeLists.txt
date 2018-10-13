@@ -1,3 +1,5 @@
+message(FATAL_ERROR "Outdated and unused")
+
 set(LTJS_TARGET ltjs_lib_won_api)
 
 include(ltjs_common)

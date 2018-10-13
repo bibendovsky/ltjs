@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(ltjs_nolf2 VERSION 0.0.1 LANGUAGES CXX)
 
 if (NOT WIN32)
@@ -14,6 +14,35 @@ else ()
 endif ()
 
 add_executable(ltjs_nolf2)
+
+ltjs_add_defaults(ltjs_nolf2)
+
+set_target_properties(
+	ltjs_nolf2
+	PROPERTIES
+		OUTPUT_NAME ltjs_nolf2
+)
+
+if (MSVC)
+	set_target_properties(
+		ltjs_nolf2
+		PROPERTIES
+			LINK_FLAGS /SUBSYSTEM:WINDOWS
+	)
+endif ()
+
+target_compile_definitions(
+	ltjs_nolf2
+	PRIVATE
+		LTJS_NOLF2
+)
+
+target_link_libraries(
+	ltjs_nolf2
+	LTJS::SDL2
+	bibendovsky_spul_lib
+	spdlog
+)
 
 target_include_directories(
 	ltjs_nolf2
@@ -66,42 +95,6 @@ if (WIN32)
 	)
 endif ()
 
-ltjs_add_defaults(ltjs_nolf2)
-
-set_target_properties(
-	ltjs_nolf2
-	PROPERTIES
-	CXX_STANDARD 14
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
-)
-
-target_compile_definitions(
-	ltjs_nolf2
-	PRIVATE
-		LTJS_NOLF2
-)
-
-set_target_properties(
-	ltjs_nolf2
-	PROPERTIES
-		OUTPUT_NAME ltjs_nolf2
-)
-
-if (MSVC)
-	set_target_properties(
-		ltjs_nolf2
-		PROPERTIES
-			LINK_FLAGS /SUBSYSTEM:WINDOWS
-	)
-endif ()
-
-target_link_libraries(
-	ltjs_nolf2
-	${LTJS_SDL2_LIBRARY}
-	bibendovsky_spul_lib
-	spdlog
-)
 
 install(
 	TARGETS

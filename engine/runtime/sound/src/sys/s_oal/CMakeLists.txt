@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(ltjs_snd_drv_oal VERSION 0.0.1 LANGUAGES CXX)
 
 find_package(OpenAL REQUIRED 1.1)
@@ -8,35 +8,7 @@ option(LTJS_INSTALL_SND_DRV_OAL "Install OpenAL sound driver." ON)
 
 include(ltjs_common)
 
-include_directories(
-	${LTJS_FFMPEG_INCLUDE_DIR}
-	../..
-	../../../../../../libs/bibendovsky_spul_lib/include
-	../../../../../../libs/lith
-	../../../../../../libs/openal_soft/include/AL
-	../../../../../sdk/inc
-	../../../../kernel/src
-)
-
-set(
-	headers
-	../../ltjs_audio_decoder.h
-	../../ltjs_audio_utils.h
-	s_oal.h
-)
-
-set(
-	sources
-	../../ltjs_audio_decoder.cpp
-	../../ltjs_audio_utils.cpp
-	s_oal.cpp
-)
-
-add_library(
-	ltjs_snd_drv_oal SHARED
-	${headers}
-	${sources}
-)
+add_library(ltjs_snd_drv_oal SHARED)
 
 ltjs_add_defaults(ltjs_snd_drv_oal)
 
@@ -83,6 +55,34 @@ target_link_libraries(
 	bibendovsky_spul_lib
 	ltjs_lib_lt_mem
 	${libs}
+)
+
+target_include_directories(
+	ltjs_snd_drv_oal
+	PRIVATE
+		${LTJS_FFMPEG_INCLUDE_DIR}
+		../..
+		../../../../../../libs/bibendovsky_spul_lib/include
+		../../../../../../libs/lith
+		../../../../../../libs/openal_soft/include/AL
+		../../../../../sdk/inc
+		../../../../kernel/src
+)
+
+target_sources(
+	ltjs_snd_drv_oal
+	PRIVATE
+		../../ltjs_audio_decoder.h
+		../../ltjs_audio_utils.h
+		s_oal.h
+)
+
+target_sources(
+	ltjs_snd_drv_oal
+	PRIVATE
+		../../ltjs_audio_decoder.cpp
+		../../ltjs_audio_utils.cpp
+		s_oal.cpp
 )
 
 if (LTJS_INSTALL_SND_DRV_OAL)
