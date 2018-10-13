@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.3)
+cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(ltjs_to2_server_res VERSION 0.0.1 LANGUAGES CXX)
 
 include(ltjs_common)
