@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(ltjs_launchers VERSION 0.0.1)
 
 if (NOT WIN32)
