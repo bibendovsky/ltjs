@@ -342,7 +342,7 @@ void CScreenHostMission::CreateCampaignList()
 
 	// Get new stuff
 	struct _finddata_t file;
-	long hFile;
+	std::intptr_t hFile;
 
 	CUserProfile* pUserProfile = g_pProfileMgr->GetCurrentProfile( );
 	std::string directory = GetCampaignDir( g_pProfileMgr->GetCurrentProfileName( ), 

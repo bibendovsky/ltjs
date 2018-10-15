@@ -122,11 +122,11 @@ BOOL CWinUtil::CopyDir( char const* pSrc, char const* pDest )
 	sprintf(szFiles, "%s\\*.*", pSrc);
 
 	struct _finddata_t file;
-	long hFile;
+	std::intptr_t hFile;
 	StringSet fileList;
 
 	// find first file
-	if((hFile = _findfirst(szFiles, &file)) != -1L)
+	if((hFile = _findfirst(szFiles, &file)) != -1)
 	{
 		do
 		{
@@ -164,11 +164,11 @@ BOOL CWinUtil::EmptyDir( char const* pDir )
 	sprintf( szFiles, "%s\\*.*", pDir);
 
 	struct _finddata_t file;
-	long hFile;
+	std::intptr_t hFile;
 	StringSet fileList;
 
 	// find first file...
-	if( (hFile = _findfirst( szFiles, &file )) != -1L)
+	if( (hFile = _findfirst( szFiles, &file )) != -1)
 	{
 		do
 		{

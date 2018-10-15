@@ -309,7 +309,7 @@ void TransferDir(CRezDir* pDir, const char* sParamPath, const char * sExts ) {
   strcat(sFindPath,"*.*" );
 
   // being search for everything in this directory using findfirst and findnext
-  long nFindHandle = _findfirst( sFindPath, &fileinfo );
+  auto nFindHandle = _findfirst( sFindPath, &fileinfo );
   if (nFindHandle >= 0) {
 
     // loop through all entries in this directory
@@ -551,7 +551,7 @@ void FreshenDir(CRezDir* pDir, const char* sParamPath) {
   strcat(sFindPath,"*.*");
 
   // being search for everything in this directory using findfirst and findnext
-  long nFindHandle = _findfirst( sFindPath, &fileinfo );
+  auto nFindHandle = _findfirst( sFindPath, &fileinfo );
   if (nFindHandle >= 0) {
 
     // loop through all entries in this directory

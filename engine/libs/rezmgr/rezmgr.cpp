@@ -43,7 +43,7 @@ struct _finddata_t {
 };
 
 enum { _S_IFDIR, _A_SUBDIR };
-long _findfirst(char* filespec, _finddata_t* fileinfo) { return -1; }
+std::intptr_t _findfirst(char* filespec, _finddata_t* fileinfo) { return -1; }
 int _findnext(long handle, _finddata_t* fileinfo) { return -1; }
 int _findclose(long handle) { return -1; } 
 
@@ -1455,7 +1455,7 @@ BOOL CRezMgr::ReadEmulationDirectory(CRezFileDirectoryEmulation* pRezFileEmulati
   strcat(sFindPath,"*.*");
 
   // being search for everything in this directory using findfirst and findnext
-  long nFindHandle = _findfirst( sFindPath, &fileinfo );
+  auto nFindHandle = _findfirst( sFindPath, &fileinfo );
   if (nFindHandle >= 0) {
 
     // loop through all entries in this directory

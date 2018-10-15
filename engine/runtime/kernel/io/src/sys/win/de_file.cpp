@@ -4,6 +4,8 @@
 
 #include "bdefs.h"
 
+#include <cstdint>
+
 #ifndef __STRING_H__
 #include <string.h>
 #define __STRING_H__
@@ -283,7 +285,7 @@ struct LTFindData
 {
 	FileTree		*m_pTree;
 	_finddata_t		m_Data;
-	long			m_Handle;
+	std::intptr_t	m_Handle;
 	CRezDir*		m_pCurDir;
 	CRezTyp*		m_pCurTyp;
 	CRezItm*		m_pCurItm;
@@ -309,7 +311,8 @@ void df_Term()
 int df_OpenTree(const char *pName, HLTFileTree *&pTreePointer)
 {
 	_finddata_t data;
-	long handle, allocSize;
+	std::intptr_t handle;
+	long allocSize;
 	FileTree *pTree;
 
 	
@@ -402,7 +405,8 @@ TreeType df_GetTreeType(HLTFileTree *hTree)
 bool df_GetFileInfo(HLTFileTree *hTree, const char *pName, LTFindInfo *pInfo) {
 	FileTree *pTree;
 	_finddata_t data;
-	long handle, curRet;
+	std::intptr_t handle;
+	std::intptr_t curRet;
 	char fullName[500];
 	CRezItm* pRezItm;
 
@@ -459,7 +463,8 @@ int df_GetDirInfo(HLTFileTree *hTree, char *pName)
 {
 	FileTree *pTree;
 	_finddata_t data;
-	long handle, curRet;
+	std::intptr_t handle;
+	std::intptr_t curRet;
 	char fullName[500];
 	CRezDir* pRezDir;
 
@@ -576,7 +581,7 @@ int df_FindNext(HLTFileTree *hTree, const char *pDirName, LTFindInfo *pInfo)
 	LTFindData *pFindData;
 	char filter[400];
 	FileTree *pTree;
-	long curRet;
+	std::intptr_t curRet;
 	CRezItm* pRezItm;
 	CRezDir* pRezDir;
 	CRezTyp* pRezTyp;
