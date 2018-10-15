@@ -40,10 +40,10 @@ public:
 	void	PrevModel();
 
 protected:
-	void	HandleCallback(uint32 dwParam1, uint32 dwParam2);
+	void	HandleCallback(std::uintptr_t dwParam1, std::uintptr_t dwParam2);
 	void	UpdateChar();
 
-    uint32  OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 dwParam2);
+    uint32  OnCommand(uint32 dwCommand, std::uintptr_t dwParam1, std::uintptr_t dwParam2);
 
 	CLTGUIColumnCtrl*	m_pName;
 	CLTGUITextCtrl*		m_pModel;

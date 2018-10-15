@@ -32,7 +32,7 @@ namespace
 	{
 		CScreenMulti *pThisScreen = (CScreenMulti *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_MULTI);
 		if (pThisScreen)
-			pThisScreen->SendCommand(bReturn ? CMD_OK : CMD_CANCEL,(uint32)pData,CMD_EDIT_CDKEY);
+			pThisScreen->SendCommand(bReturn ? CMD_OK : CMD_CANCEL,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_CDKEY);
 	}
 	void NewVersionCallBack(LTBOOL bReturn, void *pData)
 	{

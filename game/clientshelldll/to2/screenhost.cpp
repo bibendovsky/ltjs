@@ -31,31 +31,31 @@ namespace
 	{
 		CScreenHost *pThisScreen = (CScreenHost *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_HOST);
 		if (bReturn && pThisScreen)
-			pThisScreen->SendCommand(CMD_OK,(uint32)pData,CMD_EDIT_NAME);
+			pThisScreen->SendCommand(CMD_OK,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_NAME);
 	};
 	void EditPassCallBack(LTBOOL bReturn, void *pData)
 	{
 		CScreenHost *pThisScreen = (CScreenHost *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_HOST);
 		if (bReturn && pThisScreen)
-			pThisScreen->SendCommand(CMD_OK,(uint32)pData,CMD_EDIT_PASS);
+			pThisScreen->SendCommand(CMD_OK,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_PASS);
 	};
 	void EditScmdPassCallBack(LTBOOL bReturn, void *pData)
 	{
 		CScreenHost *pThisScreen = (CScreenHost *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_HOST);
 		if (bReturn && pThisScreen)
-			pThisScreen->SendCommand(CMD_OK,(uint32)pData,CMD_EDIT_SCMDPASS);
+			pThisScreen->SendCommand(CMD_OK,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_SCMDPASS);
 	};
 	void EditPortCallBack(LTBOOL bReturn, void *pData)
 	{
 		CScreenHost *pThisScreen = (CScreenHost *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_HOST);
 		if (bReturn && pThisScreen)
-			pThisScreen->SendCommand(CMD_OK,(uint32)pData,CMD_EDIT_PORT);
+			pThisScreen->SendCommand(CMD_OK,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_PORT);
 	};
 	void EditBandwidthCallBack(LTBOOL bReturn, void *pData)
 	{
 		CScreenHost *pThisScreen = (CScreenHost *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_HOST);
 		if (bReturn && pThisScreen)
-			pThisScreen->SendCommand(CMD_OK,(uint32)pData,CMD_EDIT_BANDWIDTH);
+			pThisScreen->SendCommand(CMD_OK,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_BANDWIDTH);
 	};
 
 }

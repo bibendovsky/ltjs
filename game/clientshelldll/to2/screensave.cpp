@@ -53,7 +53,7 @@ namespace
 		{
 			if (bReturn)
 			{
-				pThisScreen->SendCommand(CMD_EDIT_NAME,(uint32)pData,0);
+				pThisScreen->SendCommand(CMD_EDIT_NAME,reinterpret_cast<std::uintptr_t>(pData),0);
 			}
 			else
 			{

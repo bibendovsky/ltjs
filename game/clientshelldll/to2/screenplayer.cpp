@@ -27,13 +27,13 @@ namespace
 	{
 		CScreenPlayer *pThisScreen = (CScreenPlayer *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_PLAYER);
 		if (bReturn && pThisScreen)
-			pThisScreen->SendCommand(CMD_OK,(uint32)pData,CMD_EDIT_NAME);
+			pThisScreen->SendCommand(CMD_OK,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_NAME);
 	};
 	void EditBandwidthCallBack(LTBOOL bReturn, void *pData)
 	{
 		CScreenPlayer *pThisScreen = (CScreenPlayer *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_PLAYER);
 		if (bReturn && pThisScreen)
-			pThisScreen->SendCommand(CMD_OK,(uint32)pData,CMD_EDIT_BANDWIDTH);
+			pThisScreen->SendCommand(CMD_OK,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_BANDWIDTH);
 	};
 
 	#define INVALID_ANI			((HMODELANIM)-1)

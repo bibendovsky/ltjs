@@ -65,7 +65,7 @@ namespace
 		CScreenJoin *pThisScreen = (CScreenJoin *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_JOIN);
 		if (bReturn && pThisScreen)
 		{
-			pThisScreen->SendCommand(CMD_OK,(uint32)pData,CMD_EDIT_PASS);
+			pThisScreen->SendCommand(CMD_OK,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_PASS);
 		}
 	};
 

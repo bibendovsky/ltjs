@@ -28,26 +28,26 @@ namespace
 	{
 		CScreenHostMission *pThisScreen = (CScreenHostMission *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_HOST_MISSION);
 		if (bReturn && pThisScreen)
-			pThisScreen->SendCommand(CMD_CONFIRM,(uint32)pData,CMD_DELETE);
+			pThisScreen->SendCommand(CMD_CONFIRM,reinterpret_cast<std::uintptr_t>(pData),CMD_DELETE);
 	}
 	void CreateCallBack(LTBOOL bReturn, void *pData)
 	{
 		CScreenHostMission *pThisScreen = (CScreenHostMission *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_HOST_MISSION);
 		if (bReturn && pThisScreen)
-			pThisScreen->SendCommand(CMD_CONFIRM,(uint32)pData,CMD_CREATE);
+			pThisScreen->SendCommand(CMD_CONFIRM,reinterpret_cast<std::uintptr_t>(pData),CMD_CREATE);
 	}
 	void LoadCallBack(LTBOOL bReturn, void *pData)
 	{
 		CScreenHostMission *pThisScreen = (CScreenHostMission *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_HOST_MISSION);
 		if (bReturn && pThisScreen)
-			pThisScreen->SendCommand(CMD_CONFIRM,(uint32)pData,CMD_LOAD);
+			pThisScreen->SendCommand(CMD_CONFIRM,reinterpret_cast<std::uintptr_t>(pData),CMD_LOAD);
 	}
 	void EditCallBack(LTBOOL bReturn, void *pData)
 	{
 		CScreenHostMission *pThisScreen = (CScreenHostMission *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_HOST_MISSION);
 		if (bReturn && pThisScreen)
 		{
-			pThisScreen->SendCommand(CMD_EDIT,(uint32)pData,0);
+			pThisScreen->SendCommand(CMD_EDIT,reinterpret_cast<std::uintptr_t>(pData),0);
 		}
 	};
 

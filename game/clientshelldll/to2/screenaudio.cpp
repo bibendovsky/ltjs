@@ -27,7 +27,7 @@ namespace
 		CScreenAudio *pThisScreen = (CScreenAudio *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_AUDIO);
 		if (pThisScreen)
 		{
-			pThisScreen->SendCommand(CMD_CONFIRM,bReturn,(uint32)pData);
+			pThisScreen->SendCommand(CMD_CONFIRM,bReturn,reinterpret_cast<std::uintptr_t>(pData));
 		}
 	}
 }

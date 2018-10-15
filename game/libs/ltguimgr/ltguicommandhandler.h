@@ -17,13 +17,13 @@ public:
 	CLTGUICommandHandler();
 	virtual ~CLTGUICommandHandler();
 
-    uint32  SendCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2)
+    uint32  SendCommand(uint32 nCommand, std::uintptr_t nParam1, std::uintptr_t nParam2)
 	{
 		return OnCommand(nCommand, nParam1, nParam2);
 	}
 
 protected:
-    virtual uint32 OnCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2)
+    virtual uint32 OnCommand(uint32 nCommand, std::uintptr_t nParam1, std::uintptr_t nParam2)
 	{
 		return 0;
 	}
