@@ -37,7 +37,11 @@ static CSymbolEngine g_cSym ;
 // If TRUE, the symbol engine has been initialized.
 static BOOL g_bSymIsInit = FALSE ;
 
+#if defined(_WIN64)
+static DWORD64 __stdcall GetModBase ( HANDLE hProcess , DWORD64 dwAddr )
+#elif defined (_WIN32)
 static DWORD __stdcall GetModBase ( HANDLE hProcess , DWORD dwAddr )
+#endif // _WIN64
 {
     // Check in the symbol engine first.
     IMAGEHLP_MODULE stIHM ;
@@ -94,7 +98,7 @@ static DWORD __stdcall GetModBase ( HANDLE hProcess , DWORD dwAddr )
     return ( 0 ) ;
 }
 
-static DWORD ConvertAddress ( DWORD dwAddr , LPTSTR szOutBuff )
+static DWORD ConvertAddress ( DWORD_PTR dwAddr , LPTSTR szOutBuff )
 {
     char szTemp [ MAX_PATH + sizeof ( IMAGEHLP_SYMBOL ) ] ;
 
@@ -135,7 +139,8 @@ static DWORD ConvertAddress ( DWORD dwAddr , LPTSTR szOutBuff )
 
     // Get the function.
     DWORD dwDisp ;
-    if ( 0 != g_cSym.SymGetSymFromAddr ( dwAddr , &dwDisp , pIHS ) )
+	DWORD_PTR disp;
+    if ( 0 != g_cSym.SymGetSymFromAddr ( dwAddr , &disp , pIHS ) )
     {
         pCurrPos += wsprintf ( pCurrPos , _T ( "%s() " ) , pIHS->Name);
 
@@ -224,12 +229,21 @@ void DoStackTrace ( LPTSTR szString  ,
 
         stFrame.AddrPC.Mode = AddrModeFlat ;
 
+#if defined(_WIN64)
+		dwMachine = IMAGE_FILE_MACHINE_AMD64;
+		stFrame.AddrPC.Offset = stCtx.Rip;
+		stFrame.AddrStack.Offset = stCtx.Rsp;
+		stFrame.AddrStack.Mode = AddrModeFlat;
+		stFrame.AddrFrame.Offset = stCtx.Rbp;
+		stFrame.AddrFrame.Mode = AddrModeFlat;
+#elif defined(_WIN32)
         dwMachine                = IMAGE_FILE_MACHINE_I386 ;
         stFrame.AddrPC.Offset    = stCtx.Eip    ;
         stFrame.AddrStack.Offset = stCtx.Esp    ;
         stFrame.AddrStack.Mode   = AddrModeFlat ;
         stFrame.AddrFrame.Offset = stCtx.Ebp    ;
         stFrame.AddrFrame.Mode   = AddrModeFlat ;
+#endif // _WIN64
 
         // Loop for the first 512 stack elements.
         for ( DWORD i = 0 ; i < 512 ; i++ )

@@ -40,6 +40,8 @@
 
 //need these headers.
 
+#include <cassert>
+
 //for int32, etc.
 #ifndef __LTINTEGER_H__
 #include "ltinteger.h"
@@ -1005,11 +1007,15 @@ int32 CAPIHolderBase::Version() {
     //
 
     #ifdef _DEBUG
+#if 0
         #if defined(__MINGW32__)
             #define BREAK1()
         #else
             #define BREAK1() __asm {int 3}
         #endif
+#else
+		#define BREAK1() assert(!"BREAK1")
+#endif // 0
         #define BREAK(expression) if (expression) {BREAK1();}
     #else
         #define BREAK1()
