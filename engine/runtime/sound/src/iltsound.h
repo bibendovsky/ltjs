@@ -439,11 +439,11 @@ public:
 	virtual void		Set3DPosition( LH3DPOBJECT hObj, const float fX, const float fY, const float fZ) = 0;
 	virtual void		Set3DVelocityVector( LH3DPOBJECT hObj, const float fDX_per_s, const float fDY_per_s, const float fDZ_per_s ) = 0;
 	virtual void		Set3DOrientation( LH3DPOBJECT hObj, const float fX_face, const float fY_face, const float fZ_face, const float fX_up, const float fY_up, const float fZ_up ) = 0;
-	virtual void		Set3DUserData( LH3DPOBJECT hObj, const uint32 uiIndex, const sint32 siValue ) = 0;
+	virtual void		Set3DUserData( LH3DPOBJECT hObj, const uint32 uiIndex, const std::intptr_t siValue ) = 0;
 	virtual void		Get3DPosition( LH3DPOBJECT hObj, float& pfX, float& pfY, float& pfZ) = 0;
 	virtual void		Get3DVelocity( LH3DPOBJECT hObj, float& pfDX_per_ms, float& pfDY_per_ms, float& pfDZ_per_ms ) = 0;
 	virtual void		Get3DOrientation( LH3DPOBJECT hObj, float& pfX_face, float& pfY_face, float& pfZ_face, float& pfX_up, float& pfY_up, float& pfZ_up ) = 0;
-	virtual sint32		Get3DUserData( LH3DPOBJECT hObj, const uint32 uiIndex) = 0;
+	virtual std::intptr_t		Get3DUserData( LH3DPOBJECT hObj, const uint32 uiIndex) = 0;
 
 	// 3d sound sample functions
 	virtual LH3DSAMPLE	Allocate3DSampleHandle( LHPROVIDER hLib ) = 0;
@@ -480,7 +480,7 @@ public:
 	virtual void		SetSamplePan( LHSAMPLE hS, const sint32 siPan ) = 0;
 	virtual sint32		GetSampleVolume( LHSAMPLE hS ) = 0;
 	virtual sint32		GetSamplePan( LHSAMPLE hS ) = 0;
-	virtual void		SetSampleUserData( LHSAMPLE hS, const uint32 uiIndex, const sint32 siValue ) = 0;
+	virtual void		SetSampleUserData( LHSAMPLE hS, const uint32 uiIndex, const std::intptr_t siValue ) = 0;
 	virtual void		GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND& ppDS, PTDIRECTSOUNDBUFFER& ppDSB ) = 0;
 	virtual void		SetSampleReverb( LHSAMPLE hS, const float fReverb_level, const float fReverb_reflect_time, const float fReverb_decay_time ) = 0;
 	virtual sint32		InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const uint32 uiLen, const ul::WaveFormatEx& pWaveFormat, const sint32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData ) = 0;
@@ -488,7 +488,7 @@ public:
 	virtual void		SetSampleLoopBlock( LHSAMPLE hS, const sint32 siLoop_start_offset, const sint32 siLoop_end_offset, const bool bEnable ) = 0;
 	virtual void		SetSampleLoop( LHSAMPLE hS, const bool bLoop ) = 0;
 	virtual void		SetSampleMsPosition( LHSAMPLE hS, const sint32 siMilliseconds ) = 0;
-	virtual sint32		GetSampleUserData( LHSAMPLE hS, const uint32 uiIndex ) = 0;
+	virtual std::intptr_t		GetSampleUserData( LHSAMPLE hS, const uint32 uiIndex ) = 0;
 	virtual uint32		GetSampleStatus( LHSAMPLE hS ) = 0;
 
 	// old 2d sound stream functions
@@ -496,8 +496,8 @@ public:
 	virtual void		SetStreamLoop( LHSTREAM hStream, const bool bLoop ) = 0;
 	virtual void		SetStreamPlaybackRate( LHSTREAM hStream, const sint32 siRate ) = 0;
 	virtual void		SetStreamMsPosition( LHSTREAM hS, const sint32 siMilliseconds ) = 0;
-	virtual void		SetStreamUserData( LHSTREAM hS, const uint32 uiIndex, const sint32 siValue) = 0;
-	virtual sint32		GetStreamUserData( LHSTREAM hS, const uint32 uiIndex) = 0;
+	virtual void		SetStreamUserData( LHSTREAM hS, const uint32 uiIndex, const std::intptr_t siValue) = 0;
+	virtual std::intptr_t		GetStreamUserData( LHSTREAM hS, const uint32 uiIndex) = 0;
 
 	// new 2d sound stream functions
 //	virtual LHSTREAM	OpenStream( streamBufferParams_t* pStreamBufferParams ) = 0;

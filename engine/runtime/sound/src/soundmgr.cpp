@@ -851,7 +851,7 @@ LTRESULT CSoundMgr::Create3DSamples()
             if (!m_p3DSampleList[nSample].m_h3DSample)
                 break;
             g_pSoundSys->Set3DUserData(m_p3DSampleList[nSample].m_h3DSample, SAMPLE_TYPE, SAMPLETYPE_3D);
-            g_pSoundSys->Set3DUserData(m_p3DSampleList[nSample].m_h3DSample, SAMPLE_LISTITEM, (uint32)&m_p3DSampleList[nSample]);
+            g_pSoundSys->Set3DUserData(m_p3DSampleList[nSample].m_h3DSample, SAMPLE_LISTITEM, reinterpret_cast<std::intptr_t>(&m_p3DSampleList[nSample]));
             dl_AddHead(&m_3DFreeSampleList, &m_p3DSampleList[nSample].m_Link, &m_p3DSampleList[nSample]);
         }
 
@@ -943,7 +943,7 @@ LTRESULT CSoundMgr::CreateSWSamples()
             if (!m_pSWSampleList[nSample].m_hSample)
                 break;
             g_pSoundSys->SetSampleUserData(m_pSWSampleList[nSample].m_hSample, SAMPLE_TYPE, SAMPLETYPE_SW);
-            g_pSoundSys->SetSampleUserData(m_pSWSampleList[nSample].m_hSample, SAMPLE_LISTITEM, (uint32)&m_pSWSampleList[nSample]);
+            g_pSoundSys->SetSampleUserData(m_pSWSampleList[nSample].m_hSample, SAMPLE_LISTITEM, reinterpret_cast<std::intptr_t>(&m_pSWSampleList[nSample]));
             
             dl_AddHead(&m_SWFreeSampleList, &m_pSWSampleList[nSample].m_Link, &m_pSWSampleList[nSample]);
         }
@@ -1817,7 +1817,7 @@ LTRESULT CSoundMgr::LinkSampleSoundInstance(HSAMPLE hSample, CSoundInstance *pSo
     if (!hSample || !g_pSoundSys)
         return LT_ERROR;
 
-    g_pSoundSys->SetSampleUserData(hSample, SAMPLE_INSTANCE, (uint32)pSoundInstance);
+    g_pSoundSys->SetSampleUserData(hSample, SAMPLE_INSTANCE, reinterpret_cast<std::intptr_t>(pSoundInstance));
 
     return LT_OK;
 }
@@ -1855,7 +1855,7 @@ LTRESULT CSoundMgr::Link3DSampleSoundInstance(H3DSAMPLE h3DSample, CSoundInstanc
     if (!h3DSample || !g_pSoundSys)
         return LT_ERROR;
 
-    g_pSoundSys->Set3DUserData(h3DSample, SAMPLE_INSTANCE, (uint32)pSoundInstance);
+    g_pSoundSys->Set3DUserData(h3DSample, SAMPLE_INSTANCE, reinterpret_cast<std::intptr_t>(pSoundInstance));
 
     return LT_OK;
 }
@@ -1892,7 +1892,7 @@ LTRESULT CSoundMgr::LinkStreamSoundInstance(HSTREAM hStream, CSoundInstance *pSo
     if (!hStream || !g_pSoundSys)
         return LT_ERROR;
 
-    g_pSoundSys->SetStreamUserData(hStream, SAMPLE_INSTANCE, (uint32)pSoundInstance);
+    g_pSoundSys->SetStreamUserData(hStream, SAMPLE_INSTANCE, reinterpret_cast<std::intptr_t>(pSoundInstance));
 
     return LT_OK;
 }
