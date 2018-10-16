@@ -54,7 +54,7 @@ public:
 
 	virtual void	Escape();
 
-    virtual uint32 OnCommand(uint32 dwCommand, std::uintptr_t dwParam1, std::uintptr_t dwParam2);
+    uint32 OnCommand(uint32 dwCommand, std::uintptr_t dwParam1, std::uintptr_t dwParam2) override;
 
 	// Get the screen ID
 	inline int	GetScreenID() const	{ return m_nScreenID; }

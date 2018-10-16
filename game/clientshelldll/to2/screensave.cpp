@@ -114,7 +114,7 @@ void CScreenSave::OnFocus(LTBOOL bFocus)
 	CBaseScreen::OnFocus(bFocus);
 }
 
-uint32 CScreenSave::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 dwParam2)
+uint32 CScreenSave::OnCommand(uint32 dwCommand, std::uintptr_t dwParam1, std::uintptr_t dwParam2)
 {
 	if (dwCommand >= CMD_CUSTOM && dwCommand <= CMD_CUSTOM+kMaxSave)
 	{

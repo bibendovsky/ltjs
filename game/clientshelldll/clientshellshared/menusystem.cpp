@@ -97,7 +97,7 @@ LTBOOL CMenuSystem::Init()
 	return LTTRUE;
 }
 
-uint32 CMenuSystem::OnCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2)
+uint32 CMenuSystem::OnCommand(uint32 nCommand, std::uintptr_t nParam1, std::uintptr_t nParam2)
 {
 	switch (nCommand)
 	{

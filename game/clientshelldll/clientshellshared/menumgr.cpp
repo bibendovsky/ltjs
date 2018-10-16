@@ -1006,7 +1006,7 @@ bool CMenuSlide::IsDone()
 }
 
 
-uint32 CMenuBar::OnCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2)
+uint32 CMenuBar::OnCommand(uint32 nCommand, std::uintptr_t nParam1, std::uintptr_t nParam2)
 {
 	if (nParam1 >= 0 && nParam1 < MENU_ID_UNASSIGNED)
 	{

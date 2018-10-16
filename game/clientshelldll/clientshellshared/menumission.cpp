@@ -115,7 +115,7 @@ void CMenuMission::Term()
 	CBaseMenu::Term();
 }
 
-uint32 CMenuMission::OnCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2)
+uint32 CMenuMission::OnCommand(uint32 nCommand, std::uintptr_t nParam1, std::uintptr_t nParam2)
 {
 //	switch (nCommand)
 //	{

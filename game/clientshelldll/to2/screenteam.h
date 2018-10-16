@@ -43,7 +43,7 @@ protected:
 	void	HandleCallback(std::uintptr_t dwParam1, std::uintptr_t dwParam2);
 	void	UpdateChar();
 
-    uint32  OnCommand(uint32 dwCommand, std::uintptr_t dwParam1, std::uintptr_t dwParam2);
+    uint32  OnCommand(uint32 dwCommand, std::uintptr_t dwParam1, std::uintptr_t dwParam2) override;
 
 	CLTGUIColumnCtrl*	m_pName;
 	CLTGUITextCtrl*		m_pModel;

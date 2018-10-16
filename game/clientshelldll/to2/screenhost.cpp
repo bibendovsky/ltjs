@@ -179,7 +179,7 @@ LTBOOL CScreenHost::Build()
 	return CBaseScreen::Build();
 }
 
-uint32 CScreenHost::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 dwParam2)
+uint32 CScreenHost::OnCommand(uint32 dwCommand, std::uintptr_t dwParam1, std::uintptr_t dwParam2)
 {
 	if (dwCommand == CMD_OK)
 	{
