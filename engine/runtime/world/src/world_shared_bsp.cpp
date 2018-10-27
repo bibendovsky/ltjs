@@ -503,7 +503,7 @@ void CWorldSharedBSP::AddStaticLights(ILTStream *pStream) {
 
 			//light attenuation...
 			LTVector light_attcoefs(1.0f,0.0f,19.0f), light_exp(0.0f, -1.0f, -2.0f);
-			ELightAttenuationType light_attenuation;
+			auto light_attenuation = ELightAttenuationType{};
 
             //the position of the light.
             LTVector light_position;
