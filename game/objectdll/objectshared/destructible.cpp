@@ -1744,7 +1744,7 @@ void CDestructible::HandleTrigger(LPBASECLASS pObject, HOBJECT hSender, ILTMessa
 {
 	if (m_bDead) return;
 
-	const char* szMsg = (const char*)pMsg->Readuint32();
+	const auto szMsg = reinterpret_cast<const char*>(pMsg->read_uint_ptr());
 	if( !szMsg )
 	{
 		ASSERT( !"CDestructible::HandleTrigger:  Empty trigger message received." );

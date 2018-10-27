@@ -754,7 +754,7 @@ void SendTriggerMsgToObject(LPBASECLASS pSender, LPBASECLASS pObj, LTBOOL, const
 
 	CAutoMessage cMsg;
 	cMsg.Writeuint32(MID_TRIGGER);
-	cMsg.Writeuint32((uint32)szMessage);
+	cMsg.WriteType(szMessage);
 	pObj->ObjectMessageFn((pSender) ? pSender->m_hObject : LTNULL, cMsg.Read());
 }
 
