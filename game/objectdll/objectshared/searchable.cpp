@@ -248,7 +248,7 @@ void CSearchable::InitialUpdate(LPBASECLASS pObject)
 
 void CSearchable::HandleTrigger(LPBASECLASS pObject, HOBJECT hSender, ILTMessage_Read *pMsg)
 {
-	const char *szMsg = (const char *)pMsg->Readuint32();
+	const auto szMsg = reinterpret_cast<const char *>(pMsg->read_uint_ptr());
 
 	ConParse parse;
 	parse.Init( szMsg );

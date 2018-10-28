@@ -131,7 +131,7 @@ LTRESULT CTO2GameServerShell::OnServerInitialized()
 	startupInfo.m_sGameSpySecretKey += "o";
 	startupInfo.m_sGameSpySecretKey += "6";
 	startupInfo.m_sGameSpySecretKey += "x";
-	cMsg.Writeuint32(( uint32 )&startupInfo );
+	cMsg.WriteType(&startupInfo);
 	pServerDir->SetStartupInfo( *cMsg.Read( ));
 
 	return nResult;
@@ -303,7 +303,7 @@ void CTO2GameServerShell::Update(LTFLOAT timeElapsed)
 		}
 
 
-		cMsg.Writeuint32(( uint32 )&peerInfo );
+		cMsg.WriteType(&peerInfo);
 		GetServerDir()->SetActivePeerInfo(IServerDirectory::ePeerInfo_Service, *cMsg.Read());
 
 		// Tell the world about me...

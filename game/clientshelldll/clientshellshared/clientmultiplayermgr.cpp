@@ -628,7 +628,7 @@ bool ClientMultiplayerMgr::HandleMsgHandshake( ILTMessage_Read & msg )
 #ifdef SOURCE_RELEASE
 			cResponse.Writeuint32( GAME_HANDSHAKE_PASSWORD );
 #else // SOURCE_RELEASE
-			cResponse.Writeuint32((uint32)this);
+			cResponse.WriteType(this);
 #endif // SOURCE_RELEASE
 			g_pLTClient->SendToServer(cResponse.Read(), MESSAGE_GUARANTEED);
 		}

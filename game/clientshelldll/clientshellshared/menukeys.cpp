@@ -78,7 +78,7 @@ void CMenuKeys::Term()
 }
 
 
-uint32 CMenuKeys::OnCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2)
+uint32 CMenuKeys::OnCommand(uint32 nCommand, std::uintptr_t nParam1, std::uintptr_t nParam2)
 {
 	switch (nCommand)
 	{

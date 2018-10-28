@@ -156,7 +156,7 @@ public:
 	void Set3DUserData(
 		LH3DPOBJECT object_ptr,
 		const uint32 index,
-		const sint32 value) override;
+		const std::intptr_t value) override;
 
 	void Get3DPosition(
 		LH3DPOBJECT object_ptr,
@@ -179,7 +179,7 @@ public:
 		float& y_up,
 		float& z_up) override;
 
-	sint32 Get3DUserData(
+	std::intptr_t Get3DUserData(
 		LH3DPOBJECT object_ptr,
 		const uint32 index) override;
 
@@ -312,7 +312,7 @@ public:
 	void SetSampleUserData(
 		LHSAMPLE sample_handle,
 		const uint32 index,
-		const sint32 value) override;
+		const std::intptr_t value) override;
 
 	void GetDirectSoundInfo(
 		LHSAMPLE sample_handle,
@@ -354,7 +354,7 @@ public:
 		LHSAMPLE sample_handle,
 		const sint32 milliseconds) override;
 
-	sint32 GetSampleUserData(
+	std::intptr_t GetSampleUserData(
 		LHSAMPLE sample_handle,
 		const uint32 index) override;
 
@@ -386,9 +386,9 @@ public:
 	void SetStreamUserData(
 		LHSTREAM stream_ptr,
 		const uint32 index,
-		const sint32 value) override;
+		const std::intptr_t value) override;
 
-	sint32 GetStreamUserData(
+	std::intptr_t GetStreamUserData(
 		LHSTREAM stream_ptr,
 		const uint32 index) override;
 

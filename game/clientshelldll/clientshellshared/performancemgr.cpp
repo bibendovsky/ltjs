@@ -184,12 +184,12 @@ void CPerformanceMgr::BuildConfigList()
 	m_ConfigList.push_back(&cfgDefaultLow);
 
 	struct _finddata_t file;
-	long hFile;
+	std::intptr_t hFile;
 
 	std::string directory = CONFIG_DIR + "*" + CONFIG_EXT;
 
 	// find first file
-	if((hFile = _findfirst(directory.c_str(), &file)) != -1L)
+	if((hFile = _findfirst(directory.c_str(), &file)) != -1)
 	{
 		do
 		{

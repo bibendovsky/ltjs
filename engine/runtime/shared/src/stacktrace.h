@@ -216,7 +216,7 @@ struct CImageHlp_Line : public IMAGEHLP_LINE
 typedef
 BOOL (__stdcall *PFNSYMGETLINEFROMADDR)
                               ( IN  HANDLE         hProcess         ,
-                                IN  DWORD          dwAddr           ,
+                                IN  DWORD_PTR          dwAddr           ,
                                 OUT PDWORD         pdwDisplacement  ,
                                 OUT PIMAGEHLP_LINE Line              ) ;
 typedef
@@ -472,8 +472,8 @@ public      :
                                          UserContext          ) ) ;
     }
 
-    BOOL SymGetSymFromAddr ( IN  DWORD               dwAddr          ,
-                             OUT PDWORD              pdwDisplacement ,
+    BOOL SymGetSymFromAddr ( IN  DWORD_PTR               dwAddr          ,
+                             OUT PDWORD_PTR              pdwDisplacement ,
                              OUT PIMAGEHLP_SYMBOL    Symbol           )
     {
         return ( ::SymGetSymFromAddr ( m_hProcess       ,
@@ -505,7 +505,7 @@ public      :
 ----------------------------------------------------------------------*/
 public      :
 
-    BOOL SymGetLineFromAddr ( IN  DWORD          dwAddr          ,
+    BOOL SymGetLineFromAddr ( IN  UINT_PTR          dwAddr          ,
                               OUT PDWORD         pdwDisplacement ,
                               OUT PIMAGEHLP_LINE Line             )
     {
@@ -663,9 +663,13 @@ public      :
                                                        CallbackFunction,
                                IN PVOID                UserContext    )
     {
+#if defined(_WIN64)
+		return ::SymRegisterCallback(m_hProcess, CallbackFunction, reinterpret_cast<ULONG64>(UserContext));
+#elif defined(_WIN32)
         return ( ::SymRegisterCallback ( m_hProcess         ,
                                          CallbackFunction   ,
-                                         UserContext         ) ) ;
+                                         UserContext        ) ) ;
+#endif // _WIN64
     }
 
 

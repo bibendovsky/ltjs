@@ -1616,12 +1616,12 @@ void CProfileMgr::Term()
 void CProfileMgr::GetProfileList(StringSet& profileList)
 {
 	struct _finddata_t file;
-	long hFile;
+	std::intptr_t hFile;
 
 	std::string directory = GetProfileFile( "*" );
 
 	// find first file
-	if((hFile = _findfirst(directory.c_str(), &file)) != -1L)
+	if((hFile = _findfirst(directory.c_str(), &file)) != -1)
 	{
 		do
 		{

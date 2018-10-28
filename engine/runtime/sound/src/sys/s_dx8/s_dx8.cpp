@@ -3416,7 +3416,7 @@ void CDx8SoundSys::Set3DOrientation( LH3DPOBJECT hObj, float fX_face, float fY_f
 	p3DObject->SetOrientation( up_vector, face_vector );
 }
 
-void CDx8SoundSys::Set3DUserData( LH3DPOBJECT hObj, U32 uiIndex, S32 siValue )
+void CDx8SoundSys::Set3DUserData( LH3DPOBJECT hObj, U32 uiIndex, std::intptr_t siValue )
 {
 	if( hObj == NULL || uiIndex > MAX_USER_DATA_INDEX )
 		return;
@@ -3465,7 +3465,7 @@ void CDx8SoundSys::Get3DOrientation( LH3DPOBJECT hObj, float& pfX_face, float& p
 	pfZ_face = p3DObject->m_face.z;
 }
 
-S32	CDx8SoundSys::Get3DUserData( LH3DPOBJECT hObj, U32 uiIndex )
+std::intptr_t	CDx8SoundSys::Get3DUserData( LH3DPOBJECT hObj, U32 uiIndex )
 {
 	if( hObj == NULL || uiIndex > MAX_USER_DATA_INDEX )
 		return 0;
@@ -4114,7 +4114,7 @@ S32	CDx8SoundSys::GetSamplePan(LHSAMPLE hS)
 	return sample.lt_pan_;
 }
 
-void CDx8SoundSys::SetSampleUserData( LHSAMPLE hS, U32 uiIndex, S32 siValue )
+void CDx8SoundSys::SetSampleUserData( LHSAMPLE hS, U32 uiIndex, std::intptr_t siValue )
 {
 //	LOG_WRITE( g_pLogFile, "SetSampleUserData( %x, %d, %d )\n", hS, uiIndex, siValue );
 
@@ -4319,7 +4319,7 @@ void CDx8SoundSys::SetSampleMsPosition( LHSAMPLE hS, const S32 siMilliseconds )
 	m_pcLastError = LastError( );
 }
 
-S32	CDx8SoundSys::GetSampleUserData( LHSAMPLE hS, const U32 uiIndex )
+std::intptr_t	CDx8SoundSys::GetSampleUserData( LHSAMPLE hS, const U32 uiIndex )
 {
 //	LOG_WRITE( g_pLogFile, "GetSampleUserData( %x, %d )\n", hS, uiIndex );
 
@@ -4438,12 +4438,12 @@ void CDx8SoundSys::SetStreamMsPosition( LHSTREAM hStream, S32 siMilliseconds )
 	m_pcLastError = LastError( );
 }
 
-void CDx8SoundSys::SetStreamUserData( LHSTREAM hS, U32 uiIndex, S32 siValue)
+void CDx8SoundSys::SetStreamUserData( LHSTREAM hS, U32 uiIndex, std::intptr_t siValue)
 {
 	//OutputDebugString("OLD [CDx8SoundSys::SetStreamUserData]\n");
 }
 
-S32	CDx8SoundSys::GetStreamUserData( LHSTREAM hS, U32 uiIndex)
+std::intptr_t	CDx8SoundSys::GetStreamUserData( LHSTREAM hS, U32 uiIndex)
 {
 	//OutputDebugString("OLD [CDx8SoundSys::GetStreamUserData]\n");
 	return 0;

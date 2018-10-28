@@ -31,7 +31,7 @@ public:
 	LTBOOL SaveGame(uint32 slot);
 
 protected:
-    uint32  OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 dwParam2);
+    uint32  OnCommand(uint32 dwCommand, std::uintptr_t dwParam1, std::uintptr_t dwParam2) override;
 	void	BuildSavedLevelList();
 	void	ClearSavedLevelList();
 

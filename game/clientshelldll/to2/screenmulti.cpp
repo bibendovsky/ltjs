@@ -32,7 +32,7 @@ namespace
 	{
 		CScreenMulti *pThisScreen = (CScreenMulti *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_MULTI);
 		if (pThisScreen)
-			pThisScreen->SendCommand(bReturn ? CMD_OK : CMD_CANCEL,(uint32)pData,CMD_EDIT_CDKEY);
+			pThisScreen->SendCommand(bReturn ? CMD_OK : CMD_CANCEL,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_CDKEY);
 	}
 	void NewVersionCallBack(LTBOOL bReturn, void *pData)
 	{
@@ -227,7 +227,7 @@ LTBOOL CScreenMulti::Build()
 	return CBaseScreen::Build();
 }
 
-uint32 CScreenMulti::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 dwParam2)
+uint32 CScreenMulti::OnCommand(uint32 dwCommand, std::uintptr_t dwParam1, std::uintptr_t dwParam2)
 {
 	if (m_eCurState == eState_Startup || m_eCurState == eState_ValidateCDKey) return 0;
 	switch(dwCommand)

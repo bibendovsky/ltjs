@@ -457,7 +457,7 @@ LTRESULT SpecialFXPlugin::PopulateStringList( const char *szRezPath,
 	// Build the search spec path
 	sprintf( szFile, "%s\\ClientFX\\*.fcf", szRezPath );
 
-	long handle = _findfirst( szFile, &fcfFile );
+	auto handle = _findfirst( szFile, &fcfFile );
 	if( handle == -1 )
 	{
 		strcpy( aszStrings[(*pcStrings)++], "<error> - Couldn't locate a .fcf!" );

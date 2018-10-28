@@ -53,7 +53,7 @@ struct OalSoundSys::Impl
 
 	static constexpr auto max_user_data_count = 8;
 	static constexpr auto max_user_data_index = max_user_data_count - 1;
-	using UserDataArray = std::array<sint32, max_user_data_count>;
+	using UserDataArray = std::array<std::intptr_t, max_user_data_count>;
 
 	using OalContextAttributes = std::vector<ALCint>;
 
@@ -830,7 +830,7 @@ struct OalSoundSys::Impl
 			}
 		}
 
-		sint32 get_user_value(
+		std::intptr_t get_user_value(
 			const uint32 index) const
 		{
 			if (index < 0 || index > max_user_data_index)
@@ -843,7 +843,7 @@ struct OalSoundSys::Impl
 
 		void set_user_value(
 			const uint32 index,
-			const int32 value)
+			const std::intptr_t value)
 		{
 			if (index < 0 || index > max_user_data_index)
 			{
@@ -3628,7 +3628,7 @@ struct OalSoundSys::Impl
 	void api_set_3d_user_data(
 		LH3DPOBJECT object_ptr,
 		const uint32 index,
-		const sint32 value)
+		const std::intptr_t value)
 	{
 		if (!object_ptr)
 		{
@@ -3723,7 +3723,7 @@ struct OalSoundSys::Impl
 		z_up = orientation[5];
 	}
 
-	sint32 api_get_3d_user_data(
+	std::intptr_t api_get_3d_user_data(
 		LH3DPOBJECT object_ptr,
 		const uint32 index)
 	{
@@ -4352,7 +4352,7 @@ struct OalSoundSys::Impl
 	void api_set_sample_user_data(
 		LHSAMPLE sample_handle,
 		const uint32 index,
-		const sint32 value)
+		const std::intptr_t value)
 	{
 		if (!sample_handle)
 		{
@@ -4528,7 +4528,7 @@ struct OalSoundSys::Impl
 		source.set_ms_position(milliseconds);
 	}
 
-	sint32 api_get_sample_user_data(
+	std::intptr_t api_get_sample_user_data(
 		LHSAMPLE sample_handle,
 		const uint32 index)
 	{
@@ -4649,7 +4649,7 @@ struct OalSoundSys::Impl
 	void api_set_stream_user_data(
 		LHSTREAM stream_ptr,
 		const uint32 index,
-		const sint32 value)
+		const std::intptr_t value)
 	{
 		if (!stream_ptr || index > max_user_data_index)
 		{
@@ -4661,7 +4661,7 @@ struct OalSoundSys::Impl
 		source.set_user_value(index, value);
 	}
 
-	sint32 api_get_stream_user_data(
+	std::intptr_t api_get_stream_user_data(
 		LHSTREAM stream_ptr,
 		const uint32 index)
 	{
@@ -5800,7 +5800,7 @@ void OalSoundSys::Set3DOrientation(
 void OalSoundSys::Set3DUserData(
 	LH3DPOBJECT object_ptr,
 	const uint32 index,
-	const sint32 value)
+	const std::intptr_t value)
 {
 	impl_->api_set_3d_user_data(object_ptr, index, value);
 }
@@ -5835,7 +5835,7 @@ void OalSoundSys::Get3DOrientation(
 	impl_->api_get_3d_orientation(object_ptr, x_face, y_face, z_face, x_up, y_up, z_up);
 }
 
-sint32 OalSoundSys::Get3DUserData(
+std::intptr_t OalSoundSys::Get3DUserData(
 	LH3DPOBJECT object_ptr,
 	const uint32 index)
 {
@@ -6062,7 +6062,7 @@ sint32 OalSoundSys::GetSamplePan(
 void OalSoundSys::SetSampleUserData(
 	LHSAMPLE sample_handle,
 	const uint32 index,
-	const sint32 value)
+	const std::intptr_t value)
 {
 	impl_->api_set_sample_user_data(sample_handle, index, value);
 }
@@ -6131,7 +6131,7 @@ void OalSoundSys::SetSampleMsPosition(
 	impl_->api_set_sample_ms_position(sample_handle, milliseconds);
 }
 
-sint32 OalSoundSys::GetSampleUserData(
+std::intptr_t OalSoundSys::GetSampleUserData(
 	LHSAMPLE sample_handle,
 	const uint32 index)
 {
@@ -6179,12 +6179,12 @@ void OalSoundSys::SetStreamMsPosition(
 void OalSoundSys::SetStreamUserData(
 	LHSTREAM stream_ptr,
 	const uint32 index,
-	const sint32 value)
+	const std::intptr_t value)
 {
 	impl_->api_set_stream_user_data(stream_ptr, index,value);
 }
 
-sint32 OalSoundSys::GetStreamUserData(
+std::intptr_t OalSoundSys::GetStreamUserData(
 	LHSTREAM stream_ptr,
 	const uint32 index)
 {

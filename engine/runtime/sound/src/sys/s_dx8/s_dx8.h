@@ -122,7 +122,7 @@ public:
 	LTVector	m_velocity;
 	LTVector	m_up;
 	LTVector	m_face;
-	S32			m_userData[ MAX_USER_DATA_INDEX + 1 ];
+	std::intptr_t m_userData[ MAX_USER_DATA_INDEX + 1 ];
 };
 
 
@@ -183,7 +183,7 @@ public:
 	LPDIRECTSOUNDBUFFER		m_pDSBuffer;
 	void*					m_pSoundData;
 	uint32					m_uiSoundDataLen;
-	S32						m_userData[ MAX_USER_DATA_INDEX + 1 ];
+	std::intptr_t			m_userData[ MAX_USER_DATA_INDEX + 1 ];
 	bool					m_bAllocatedSoundData;
 	S32						m_nLoopStart;
 	S32						m_nLoopEnd;
@@ -312,11 +312,11 @@ public:
 	void		Set3DPosition( LH3DPOBJECT hObj, const float fX, const float fY, const float fZ) override;
 	void		Set3DVelocityVector( LH3DPOBJECT hObj, const float fDX_per_ms, const float fDY_per_ms, const float fDZ_per_ms ) override;
 	void		Set3DOrientation( LH3DPOBJECT hObj, const float fX_face, const float fY_face, const float fZ_face, const float fX_up, const float fY_up, const float fZ_up ) override;
-	void		Set3DUserData( LH3DPOBJECT hObj, const U32 uiIndex, const S32 siValue ) override;
+	void		Set3DUserData( LH3DPOBJECT hObj, const U32 uiIndex, const std::intptr_t siValue ) override;
 	void		Get3DPosition( LH3DPOBJECT hObj, float& pfX, float& pfY, float& pfZ) override;
 	void		Get3DVelocity( LH3DPOBJECT hObj, float& pfDX_per_ms, float& pfDY_per_ms, float& pfDZ_per_ms ) override;
 	void		Get3DOrientation( LH3DPOBJECT hObj, float& pfX_face, float& pfY_face, float& pfZ_face, float& pfX_up, float& pfY_up, float& pfZ_up ) override;
-	S32			Get3DUserData( LH3DPOBJECT hObj, const U32 uiIndex) override;
+	std::intptr_t			Get3DUserData( LH3DPOBJECT hObj, const U32 uiIndex) override;
 
 	// 3d sound sample functions
 	LH3DSAMPLE	Allocate3DSampleHandle( LHPROVIDER hLib ) override;
@@ -353,7 +353,7 @@ public:
 	void		SetSamplePan( LHSAMPLE hS, const S32 siPan ) override;
 	S32			GetSampleVolume( LHSAMPLE hS ) override;
 	S32			GetSamplePan( LHSAMPLE hS ) override;
-	void		SetSampleUserData( LHSAMPLE hS, const U32 uiIndex, const S32 siValue ) override;
+	void		SetSampleUserData( LHSAMPLE hS, const U32 uiIndex, const std::intptr_t siValue ) override;
 	void		GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND& ppDS, PTDIRECTSOUNDBUFFER& ppDSB ) override;
 	void		SetSampleReverb( LHSAMPLE hS, const float fReverb_level, const float fReverb_reflect_time, const float fReverb_decay_time ) override;
 	S32			InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx& pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData ) override;
@@ -361,7 +361,7 @@ public:
 	void		SetSampleLoopBlock( LHSAMPLE hS, const S32 siLoop_start_offset, const S32 siLoop_end_offset, const bool bEnable ) override;
 	void		SetSampleLoop( LHSAMPLE hS, const bool bLoop ) override;
 	void		SetSampleMsPosition( LHSAMPLE hS, const S32 siMilliseconds ) override;
-	S32			GetSampleUserData( LHSAMPLE hS, const U32 uiIndex ) override;
+	std::intptr_t			GetSampleUserData( LHSAMPLE hS, const U32 uiIndex ) override;
 	uint32		GetSampleStatus( LHSAMPLE hS ) override;
 
 
@@ -370,8 +370,8 @@ public:
 	void		SetStreamLoop( LHSTREAM hStream, const bool bLoop ) override;
 	void		SetStreamPlaybackRate( LHSTREAM hStream, const S32 siRate ) override;
 	void		SetStreamMsPosition( LHSTREAM hStream, const S32 siMilliseconds ) override;
-	void		SetStreamUserData( LHSTREAM hS, const U32 uiIndex, const S32 siValue) override;
-	S32			GetStreamUserData( LHSTREAM hS, const U32 uiIndex) override;
+	void		SetStreamUserData( LHSTREAM hS, const U32 uiIndex, const std::intptr_t siValue) override;
+	std::intptr_t			GetStreamUserData( LHSTREAM hS, const U32 uiIndex) override;
 
 	// new 2d sound stream functions
 	LHSTREAM	OpenStream( streamBufferParams_t* pStreamBufferParams, WaveFile* pWaveFile, uint8 nEventNum );

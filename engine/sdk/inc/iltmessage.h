@@ -1,6 +1,9 @@
 /*!  This file defines the ILTMessage_* classes, which handle
 reading/writing of messages.  */
 
+
+#include <cstdint>
+
 #ifndef __ILTMESSAGE_H__
 #define __ILTMESSAGE_H__
 
@@ -147,6 +150,11 @@ public:
 		}
 	}
 
+	std::uintptr_t read_uint_ptr()
+	{
+		return read_uint_ptr_internal();
+	}
+
 	// Basic data peeking functions
 	virtual uint32 PeekBits(uint32 nBits) const = 0;
 	virtual uint64 PeekBits64(uint32 nBits) const = 0;
@@ -188,6 +196,23 @@ public:
 			case 8 : { uint64 nTemp = Peekuint64(); *pValue = reinterpret_cast<const T &>(nTemp); break; }
 			default : { PeekData(pValue, sizeof(T) * 8); break; }
 		}
+	}
+
+
+private:
+	template<std::size_t N = sizeof(std::uintptr_t)>
+	std::uintptr_t read_uint_ptr_internal();
+
+	template<>
+	std::uintptr_t read_uint_ptr_internal<4>()
+	{
+		return Readuint32();
+	}
+
+	template<>
+	std::uintptr_t read_uint_ptr_internal<8>()
+	{
+		return Readuint64();
 	}
 };
 

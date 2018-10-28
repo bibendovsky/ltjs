@@ -65,7 +65,7 @@ namespace
 		CScreenJoin *pThisScreen = (CScreenJoin *)g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_JOIN);
 		if (bReturn && pThisScreen)
 		{
-			pThisScreen->SendCommand(CMD_OK,(uint32)pData,CMD_EDIT_PASS);
+			pThisScreen->SendCommand(CMD_OK,reinterpret_cast<std::uintptr_t>(pData),CMD_EDIT_PASS);
 		}
 	};
 
@@ -378,7 +378,7 @@ LTBOOL CScreenJoin::Build()
 	return LTTRUE;
 }
 
-uint32 CScreenJoin::OnCommand(uint32 dwCommand, uint32 dwParam1, uint32 dwParam2)
+uint32 CScreenJoin::OnCommand(uint32 dwCommand, std::uintptr_t dwParam1, std::uintptr_t dwParam2)
 {
 	switch(dwCommand)
 	{

@@ -286,7 +286,7 @@ void NulSoundSys::Set3DOrientation(
 void NulSoundSys::Set3DUserData(
 	LH3DPOBJECT object_ptr,
 	const uint32 index,
-	const sint32 value)
+	const std::intptr_t value)
 {
 	static_cast<void>(object_ptr);
 	static_cast<void>(index);
@@ -335,7 +335,7 @@ void NulSoundSys::Get3DOrientation(
 	static_cast<void>(z_up);
 }
 
-sint32 NulSoundSys::Get3DUserData(
+std::intptr_t NulSoundSys::Get3DUserData(
 	LH3DPOBJECT object_ptr,
 	const uint32 index)
 {
@@ -610,7 +610,7 @@ sint32 NulSoundSys::GetSamplePan(
 void NulSoundSys::SetSampleUserData(
 	LHSAMPLE sample_handle,
 	const uint32 index,
-	const sint32 value)
+	const std::intptr_t value)
 {
 	static_cast<void>(sample_handle);
 	static_cast<void>(index);
@@ -701,7 +701,7 @@ void NulSoundSys::SetSampleMsPosition(
 	static_cast<void>(milliseconds);
 }
 
-sint32 NulSoundSys::GetSampleUserData(
+std::intptr_t NulSoundSys::GetSampleUserData(
 	LHSAMPLE sample_handle,
 	const uint32 index)
 {
@@ -762,14 +762,14 @@ void NulSoundSys::SetStreamMsPosition(
 void NulSoundSys::SetStreamUserData(
 	LHSTREAM stream_ptr,
 	const uint32 index,
-	const sint32 value)
+	const std::intptr_t value)
 {
 	static_cast<void>(stream_ptr);
 	static_cast<void>(index);
 	static_cast<void>(value);
 }
 
-sint32 NulSoundSys::GetStreamUserData(
+std::intptr_t NulSoundSys::GetStreamUserData(
 	LHSTREAM stream_ptr,
 	const uint32 index)
 {

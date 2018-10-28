@@ -27,8 +27,8 @@ extern int32 g_ScreenWidth;
 extern int32 g_ScreenHeight;
 extern HWND		g_hWnd;
 
-void*	dalloc(unsigned long size);
-void*	dalloc_z(unsigned long size);
+void*	dalloc(uint32 size);
+void*	dalloc_z(uint32 size);
 void	dfree(void *ptr);
 void	AddDebugMessage(uint32 debugLevel, const char *pMsg, ...);
 void	d3d_CreateConsoleVariables();
