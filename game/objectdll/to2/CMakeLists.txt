@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(ltjs_to2_object VERSION 0.0.1 LANGUAGES CXX)
 
+option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
+
 include(ltjs_common)
 
 add_library(ltjs_to2_object SHARED)
@@ -14,13 +16,21 @@ set_target_properties(
 		PREFIX ""
 )
 
+set(LTJS_TMP_LINKER_FLAGS "")
+
 if (MSVC)
-	set_target_properties(
-		ltjs_to2_object
-		PROPERTIES
-			LINK_FLAGS /SUBSYSTEM:WINDOWS
-	)
+	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+
+	if (NOT LTJS_USE_SAFE_SEH)
+		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+	endif ()
 endif ()
+
+set_target_properties(
+	ltjs_to2_object
+	PROPERTIES
+		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
+)
 
 target_compile_definitions(
 	ltjs_to2_object

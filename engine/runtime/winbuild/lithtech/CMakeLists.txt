@@ -4,6 +4,7 @@ project(ltjs_lith_tech VERSION 0.0.1 LANGUAGES CXX)
 option(LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
 option(LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
 option(LTJS_USE_FFMPEG_VIDEO_MGR "Use video manager implemented via FFmpeg." ON)
+option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
 if (LTJS_USE_DIRECT_MUSIC8 OR LTJS_USE_D3DX9)
 	set(LTJS_USE_BUNDLED_DIRECTX ON)
@@ -81,12 +82,14 @@ set(
 	${LTJS_FFMPEG_LIBRARY}
 )
 
+set(LTJS_TMP_LINKER_FLAGS "")
+
 if (MSVC)
-	set_target_properties(
-		ltjs_lith_tech
-		PROPERTIES
-			LINK_FLAGS /SUBSYSTEM:WINDOWS
-	)
+	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+
+	if (NOT LTJS_USE_SAFE_SEH)
+		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+	endif ()
 
 	if (LTJS_USE_BUNDLED_DIRECTX)
 		set(
@@ -132,6 +135,12 @@ if (MSVC)
 		endif ()
 	endif ()
 endif ()
+
+set_target_properties(
+	ltjs_lith_tech
+	PROPERTIES
+		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
+)
 
 if (NOT MSVC)
 	list(
