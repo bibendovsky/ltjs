@@ -51,7 +51,7 @@ target_link_libraries(
 	ltjs_nolf2
 	LTJS::SDL2
 	bibendovsky_spul_lib
-	spdlog
+	#spdlog
 )
 
 target_include_directories(

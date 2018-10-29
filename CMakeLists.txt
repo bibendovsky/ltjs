@@ -34,7 +34,6 @@ add_subdirectory(libs/cryptmgr)
 add_subdirectory(libs/lith)
 add_subdirectory(libs/mfcstub)
 add_subdirectory(libs/regmgr)
-add_subdirectory(libs/spdlog)
 add_subdirectory(libs/stdlith)
 
 if (WIN32)
