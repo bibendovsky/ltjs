@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 project(ltjs_nolf2 VERSION 0.0.1 LANGUAGES CXX)
 
+option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
+
 if (NOT WIN32)
 	message(FATAL_ERROR "Windows only.")
 endif ()
@@ -23,13 +25,21 @@ set_target_properties(
 		OUTPUT_NAME ltjs_nolf2
 )
 
+set(LTJS_TMP_LINKER_FLAGS "")
+
 if (MSVC)
-	set_target_properties(
-		ltjs_nolf2
-		PROPERTIES
-			LINK_FLAGS /SUBSYSTEM:WINDOWS
-	)
+	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+
+	if (NOT LTJS_USE_SAFE_SEH)
+		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+	endif ()
 endif ()
+
+set_target_properties(
+	ltjs_nolf2
+	PROPERTIES
+		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
+)
 
 target_compile_definitions(
 	ltjs_nolf2
@@ -41,7 +51,7 @@ target_link_libraries(
 	ltjs_nolf2
 	LTJS::SDL2
 	bibendovsky_spul_lib
-	spdlog
+	#spdlog
 )
 
 target_include_directories(

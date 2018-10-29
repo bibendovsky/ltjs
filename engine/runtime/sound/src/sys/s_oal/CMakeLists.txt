@@ -5,6 +5,7 @@ find_package(OpenAL REQUIRED 1.1)
 find_package(LTJS_FFmpeg REQUIRED 2.8.11)
 
 option(LTJS_INSTALL_SND_DRV_OAL "Install OpenAL sound driver." ON)
+option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
 include(ltjs_common)
 
@@ -26,12 +27,14 @@ if (LTJS_FFMPEG_LIBRARY_DIR)
 	)
 endif ()
 
+set(LTJS_TMP_LINKER_FLAGS "")
+
 if (MSVC)
-	set_target_properties(
-		ltjs_snd_drv_oal
-		PROPERTIES
-			LINK_FLAGS /SUBSYSTEM:WINDOWS
-	)
+	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+
+	if (NOT LTJS_USE_SAFE_SEH)
+		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+	endif ()
 
 	set(
 		libs
@@ -49,6 +52,12 @@ if (MINGW)
 		z
 	)
 endif ()
+
+set_target_properties(
+	ltjs_snd_drv_oal
+	PROPERTIES
+		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
+)
 
 target_link_libraries(
 	ltjs_snd_drv_oal

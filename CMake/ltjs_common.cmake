@@ -51,8 +51,6 @@ function (ltjs_add_defaults)
 				-W4
 			# Multi-processor Compilation
 				-MP
-			# No Enhanced Instructions (prevents overflow of the x87 FPU stack)
-				-arch:IA32
 			# Suppress "unreferenced formal parameter" warning
 				-wd4100
 			# Suppress "The POSIX name for this item is deprecated" warning
@@ -63,6 +61,15 @@ function (ltjs_add_defaults)
 			# Runtime Library (Multi-threaded Debug)
 				$<$<CONFIG:DEBUG>:-MTd>
 		)
+
+		if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+			target_compile_options(
+				${ARGV0}
+				PRIVATE
+				# No Enhanced Instructions (prevents overflow of the x87 FPU stack)
+					-arch:IA32
+			)
+		endif ()
 	endif ()
 
 	if (MINGW)

@@ -4,6 +4,7 @@ project(ltjs_snd_drv_dx8 VERSION 0.0.1 LANGUAGES CXX)
 find_package(LTJS_FFmpeg REQUIRED 2.8.11)
 
 option(LTJS_INSTALL_SND_DRV_DX8 "Install DirectSound sound driver." OFF)
+option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
 include(ltjs_common)
 
@@ -25,12 +26,14 @@ if (LTJS_FFMPEG_LIBRARY_DIR)
 	)
 endif ()
 
+set(LTJS_TMP_LINKER_FLAGS "")
+
 if (MSVC)
-	set_target_properties(
-		ltjs_snd_drv_dx8
-		PROPERTIES
-			LINK_FLAGS /SUBSYSTEM:WINDOWS
-	)
+	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+
+	if (NOT LTJS_USE_SAFE_SEH)
+		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+	endif ()
 
 	set(
 		libs
@@ -40,6 +43,12 @@ if (MSVC)
 		winmm
 	)
 endif ()
+
+set_target_properties(
+	ltjs_snd_drv_dx8
+	PROPERTIES
+		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
+)
 
 if (MINGW)
 	set(
