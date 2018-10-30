@@ -15,6 +15,8 @@
 #define __CUIMESSAGE_H__
 
 
+#include <cstdint>
+
 #ifndef __CUI_H__
 #include "cui.h"
 #endif
@@ -87,7 +89,7 @@ A  CUIMessage can be constructed by passing in appropriate initialization values
 \see CUIBase
 
 Used for: Text and UI.   */
-		CUIMessage(CUI_MESSAGETYPE message, CUIBase* pSender, CUIBase* pRecipient, uint32 data1, uint32 data2)
+		CUIMessage(CUI_MESSAGETYPE message, CUIBase* pSender, CUIBase* pRecipient, std::uintptr_t data1, std::uintptr_t data2)
 		{
 			m_pUserObject	= NULL;
 			m_pUserData		= NULL;
@@ -150,13 +152,13 @@ Used for: Text and UI.   */
 One of two data storage members.
 
 Used for: Text and UI.   */
-		uint32			m_Data1;
+		std::uintptr_t	m_Data1;
 
 /*!  
 One of two data storage members.
 
 Used for: Text and UI.   */
-		uint32			m_Data2;
+		std::uintptr_t	m_Data2;
 		
 };
 

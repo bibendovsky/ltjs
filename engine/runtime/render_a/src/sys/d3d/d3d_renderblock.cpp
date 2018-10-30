@@ -685,8 +685,8 @@ void CD3D_RenderBlock::FixupChildren(CD3D_RenderBlock *pBase)
 {
 	for (uint32 nChildLoop = 0; nChildLoop < k_NumChildren; ++nChildLoop)
 	{
-		uint nIndex = reinterpret_cast<uint>(m_aChildren[nChildLoop]);
-		if (nIndex == (uint)k_InvalidChild)
+		const auto nIndex = reinterpret_cast<std::uintptr_t>(m_aChildren[nChildLoop]);
+		if (nIndex == (std::uintptr_t)k_InvalidChild)
 			m_aChildren[nChildLoop] = 0;
 		else
 			m_aChildren[nChildLoop] = &pBase[nIndex];

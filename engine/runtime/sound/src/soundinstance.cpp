@@ -664,7 +664,7 @@ LTRESULT CSoundInstance::Acquire3DSample( )
 			}
 		}
 
-		GetSoundSys()->Set3DUserData( m_h3DSample, SAMPLE_BUFFER, ( uint32 )m_pSoundBuffer );
+		GetSoundSys()->Set3DUserData( m_h3DSample, SAMPLE_BUFFER, ( std::intptr_t )m_pSoundBuffer );
 	}
 
 	GetSoundSys()->Set3DSampleDistances( m_h3DSample, m_fOuterRadius, m_fInnerRadius );

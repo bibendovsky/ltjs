@@ -107,8 +107,8 @@ extern ObjectBank<LTLink> g_DLinkBank;
 #define IDFLAG_MASK	 IDFLAG_BLOCKEDID	// All the ID flags.
 
 // Use these to access ID link IDs.
-inline uint32 GetLinkID(LTLink *pLink) {return (uint32)pLink->m_pData;}
-inline void SetLinkID(LTLink *pLink, uint32 id) {pLink->m_pData = (void*)id;}
+inline std::uintptr_t GetLinkID(LTLink *pLink) {return (std::uintptr_t)pLink->m_pData;}
+inline void SetLinkID(LTLink *pLink, std::uintptr_t id) {pLink->m_pData = (void*)id;}
 
 
 

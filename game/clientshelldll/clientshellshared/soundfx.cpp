@@ -63,7 +63,7 @@ LTBOOL CSoundFX::CreateObject(ILTClient *pClientDE)
 LTBOOL CSoundFX::Update()
 {
 	// Stay around as long as we have a valid sound...
-	return (LTBOOL) m_hSnd;
+	return m_hSnd != nullptr;
 }
 
 

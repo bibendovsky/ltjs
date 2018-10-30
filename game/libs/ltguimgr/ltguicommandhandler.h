@@ -11,6 +11,10 @@
 #if !defined(_LTGUICOMMANDHANDLER_H_)
 #define _LTGUICOMMANDHANDLER_H_
 
+
+#include <cstdint>
+
+
 class CLTGUICommandHandler
 {
 public:

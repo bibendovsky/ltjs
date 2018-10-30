@@ -493,9 +493,7 @@ namespace LineSystem
 
 	DebugLineSystem & GetSystem(const void * pOwner, const std::string & name)
 	{
-		char buffer[20];
-
-		return GetSystem( std::string(_ltoa(reinterpret_cast<long>(pOwner),buffer,10)) + name);
+		return GetSystem(std::to_string(reinterpret_cast<std::uintptr_t>(pOwner)) + name);
 	}
 
 	void RemoveSystem( const std::string& name )
@@ -513,9 +511,7 @@ namespace LineSystem
 
 	void RemoveSystem( const void * pOwner, const std::string & name )
 	{
-		char buffer[20];
-
-		RemoveSystem( std::string(_ltoa(reinterpret_cast<long>(pOwner),buffer,10)) + name);
+		RemoveSystem( std::to_string(reinterpret_cast<std::uintptr_t>(pOwner)) + name);
 	}
 
 	void RemoveAll()

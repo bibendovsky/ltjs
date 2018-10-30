@@ -27,6 +27,10 @@
 #ifndef __GENERALHEAP_H__
 #define __GENERALHEAP_H__
 
+
+#include <cstdint>
+
+
 // if this is defined then do not keep searching for the best fit memory
 // this improves performance but creates more fragementation
 #define GENERALHEAPNOBESTFIT
@@ -44,10 +48,10 @@
 #define GENERALHEAPMINALLOCATIONSIZE 32
 
 // flag mask for bits in header
-#define GENERALHEAPFLAGMASK 0x0fffffff
+constexpr auto GENERALHEAPFLAGMASK = (std::uintptr_t{} - 1) >> 8;
 
 // flags
-#define  GENERALHEAPBLOCKFREEFLAG 0x80000000
+constexpr auto GENERALHEAPBLOCKFREEFLAG = ((std::uintptr_t{} - 1) >> 1) + 1;
 
 #ifndef SUPERMEMFILLCHECKING
 //#define GENERALHEAPFILLMEMORY
@@ -84,18 +88,18 @@ struct CGeneralHeapHeader
 	// accessor functions
 	CGeneralHeapHeader* GetPrevMemBlock() 
 	{ 
-		return (CGeneralHeapHeader*)((uint32)m_pPrevMemBlock & GENERALHEAPFLAGMASK); 
+		return (CGeneralHeapHeader*)((std::uintptr_t)m_pPrevMemBlock & GENERALHEAPFLAGMASK); 
 	};
 	
 	void SetPrevMemBlock(CGeneralHeapHeader* pPrevMemBlock) 
 	{ 
-		m_pPrevMemBlock = (CGeneralHeapHeader*)(((uint32)pPrevMemBlock & GENERALHEAPFLAGMASK) | 
-						  ((uint32)m_pPrevMemBlock & ~GENERALHEAPFLAGMASK));
+		m_pPrevMemBlock = (CGeneralHeapHeader*)(((std::uintptr_t)pPrevMemBlock & GENERALHEAPFLAGMASK) | 
+						  ((std::uintptr_t)m_pPrevMemBlock & ~GENERALHEAPFLAGMASK));
 	}
 
 	bool GetFreeFlag()
 	{
-		if (((uint32)m_pPrevMemBlock & GENERALHEAPBLOCKFREEFLAG) == 0) return false;
+		if (((std::uintptr_t)m_pPrevMemBlock & GENERALHEAPBLOCKFREEFLAG) == 0) return false;
 		else return true;
 	}
 
@@ -103,11 +107,11 @@ struct CGeneralHeapHeader
 	{
 		if (bFree) 
 		{
-			m_pPrevMemBlock = (CGeneralHeapHeader*)(((uint32)m_pPrevMemBlock & GENERALHEAPFLAGMASK) | GENERALHEAPBLOCKFREEFLAG);
+			m_pPrevMemBlock = (CGeneralHeapHeader*)(((std::uintptr_t)m_pPrevMemBlock & GENERALHEAPFLAGMASK) | GENERALHEAPBLOCKFREEFLAG);
 		}
 		else
 		{
-			m_pPrevMemBlock = (CGeneralHeapHeader*)(((uint32)m_pPrevMemBlock & GENERALHEAPFLAGMASK) & (~GENERALHEAPBLOCKFREEFLAG));
+			m_pPrevMemBlock = (CGeneralHeapHeader*)(((std::uintptr_t)m_pPrevMemBlock & GENERALHEAPFLAGMASK) & (~GENERALHEAPBLOCKFREEFLAG));
 		}
 	}
 
@@ -136,7 +140,7 @@ public:
 	~CGeneralHeap() { Term(); };
 
 	// must be called to initialize the class before it can be used
-	GENERALHEAPINLINE void Init(uint32 nBaseAddress, uint32 nSize, uint32 nAlign);
+	GENERALHEAPINLINE void Init(std::uintptr_t nBaseAddress, uint32 nSize, uint32 nAlign);
 	
 	// must be called to terminate the class
 	GENERALHEAPINLINE void Term();
@@ -218,11 +222,11 @@ GENERALHEAPINLINE uint32 CGeneralHeap::GetMemBlockSize(CGeneralHeapHeader* pMemB
 {
 	if (pMemBlock->GetNextMemBlock() != NULL)
 	{
-		return (uint32)pMemBlock->GetNextMemBlock() - (uint32)pMemBlock - GENERALHEAPHEADERSIZE;
+		return (std::uintptr_t)pMemBlock->GetNextMemBlock() - (std::uintptr_t)pMemBlock - GENERALHEAPHEADERSIZE;
 	}
 	else
 	{
-		return (uint32)m_pHeapEnd - (uint32)pMemBlock - GENERALHEAPHEADERSIZE;
+		return (std::uintptr_t)m_pHeapEnd - (std::uintptr_t)pMemBlock - GENERALHEAPHEADERSIZE;
 	}
 }
 
@@ -230,7 +234,7 @@ GENERALHEAPINLINE uint32 CGeneralHeap::GetMemBlockSize(CGeneralHeapHeader* pMemB
 // get the pointer to user data in this memory piece
 GENERALHEAPINLINE void* CGeneralHeap::GetMemBlockData(CGeneralHeapHeader* pMemBlock) 
 { 
-	return (void*)((uint32)pMemBlock + GENERALHEAPHEADERSIZE); 
+	return (void*)((std::uintptr_t)pMemBlock + GENERALHEAPHEADERSIZE); 
 };
 
 	
@@ -290,7 +294,7 @@ GENERALHEAPINLINE void CGeneralHeap::DeleteFromFreeList(CGeneralHeapHeader* pMem
 }
 
 
-GENERALHEAPINLINE void CGeneralHeap::Init(uint32 nBaseAddress, uint32 nSize, uint32 nAlign)
+GENERALHEAPINLINE void CGeneralHeap::Init(std::uintptr_t nBaseAddress, uint32 nSize, uint32 nAlign)
 {
 	// base address and size must be of proper alignment
 	if ((nBaseAddress % nAlign) != 0) return;
@@ -455,7 +459,7 @@ GENERALHEAPINLINE void* CGeneralHeap::Alloc(uint32 nSize)
 		if (nBestSizeFound > (nSize + GENERALHEAPMINALLOCATIONSIZE))
 		{
 			// create new free block using the remainder of the space
-			CGeneralHeapHeader* pNewBlock = (CGeneralHeapHeader*)((uint32)pBestHeader + 
+			CGeneralHeapHeader* pNewBlock = (CGeneralHeapHeader*)((std::uintptr_t)pBestHeader + 
 				nSize + GENERALHEAPHEADERSIZE);
 			pNewBlock->SetPrevMemBlock(pBestHeader);
 			pNewBlock->SetNextMemBlock(pBestHeader->GetNextMemBlock());
@@ -488,7 +492,7 @@ GENERALHEAPINLINE void* CGeneralHeap::Alloc(uint32 nSize)
 //		printf("CGeneralHeap::Alloc size=%u location=%x\n",nSize,((uint32)pBestHeader + GENERALHEAPHEADERSIZE));
 
 		// return the new memory address
-		return (void*)((uint32)pBestHeader + GENERALHEAPHEADERSIZE);
+		return (void*)((std::uintptr_t)pBestHeader + GENERALHEAPHEADERSIZE);
 	}
 					
 	// we failed to allocate memory	
@@ -499,7 +503,7 @@ GENERALHEAPINLINE void* CGeneralHeap::Alloc(uint32 nSize)
 GENERALHEAPINLINE void CGeneralHeap::Free(void* free)
 {
 	// get the pointer to the header for this memory and the previous and next headers
-	CGeneralHeapHeader* pHeader = (CGeneralHeapHeader*)((uint32)free - GENERALHEAPHEADERSIZE);
+	CGeneralHeapHeader* pHeader = (CGeneralHeapHeader*)((std::uintptr_t)free - GENERALHEAPHEADERSIZE);
 	CGeneralHeapHeader* pPrevHeader = pHeader->GetPrevMemBlock();
     static_cast<void>(pPrevHeader);
 	CGeneralHeapHeader* pNextHeader = pHeader->GetNextMemBlock();
@@ -635,7 +639,7 @@ GENERALHEAPINLINE void CGeneralHeap::DumpHeap()
 // get the size of a piece of allocated memory
 GENERALHEAPINLINE uint32 CGeneralHeap::GetSize(void* mem)
 {
-	CGeneralHeapHeader* pHeader = (CGeneralHeapHeader*)((uint32)mem - GENERALHEAPHEADERSIZE);
+	CGeneralHeapHeader* pHeader = (CGeneralHeapHeader*)((std::uintptr_t)mem - GENERALHEAPHEADERSIZE);
 	return GetMemBlockSize(pHeader);
 }
 	
@@ -643,7 +647,7 @@ GENERALHEAPINLINE uint32 CGeneralHeap::GetSize(void* mem)
 // return true if this is valid allocated memory
 GENERALHEAPINLINE bool CGeneralHeap::ValidMemory(void* mem)
 {
-	CGeneralHeapHeader* pHeader = (CGeneralHeapHeader*)((uint32)mem - GENERALHEAPHEADERSIZE);
+	CGeneralHeapHeader* pHeader = (CGeneralHeapHeader*)((std::uintptr_t)mem - GENERALHEAPHEADERSIZE);
 
 	if (pHeader->GetFreeFlag() == true) return false;
 	else
@@ -668,7 +672,7 @@ GENERALHEAPINLINE bool CGeneralHeap::ValidMemory(void* mem)
 // dump info about a specific piece of memory
 GENERALHEAPINLINE void CGeneralHeap::DumpMemInfo(void* mem)
 {
-	CGeneralHeapHeader* p = (CGeneralHeapHeader*)((uint32)mem - GENERALHEAPHEADERSIZE);
+	CGeneralHeapHeader* p = (CGeneralHeapHeader*)((std::uintptr_t)mem - GENERALHEAPHEADERSIZE);
     static_cast<void>(p);
 
 /*	

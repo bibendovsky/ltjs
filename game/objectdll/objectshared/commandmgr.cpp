@@ -535,7 +535,7 @@ static eExpressionVal CheckExpression( ConParse &cpExpression )
 				continue;
 			}
 
-			int	nValue1 = (pVar1->m_eType == eCMVar_Obj) ? (int)pVar1->m_pObjVal : pVar1->m_iVal;
+			int	nValue1 = (pVar1->m_eType == eCMVar_Obj) ? (std::intptr_t)pVar1->m_pObjVal : pVar1->m_iVal;
 			int nValue2 = 0;
 					
 			// Is the second arg a number value or another variable...
@@ -567,7 +567,7 @@ static eExpressionVal CheckExpression( ConParse &cpExpression )
 
 					ILTBaseClass *pVar2Obj = 0;
 					FindNamedObject( pArg2, pVar2Obj, LTTRUE );
-					nValue2 = (int)pVar2Obj;
+					nValue2 = (std::intptr_t)pVar2Obj;
 				}
 				else if( pVar1->m_eType != pVar2->m_eType )
 				{
@@ -577,7 +577,7 @@ static eExpressionVal CheckExpression( ConParse &cpExpression )
 				{
 					// Get the comparison value
 
-					nValue2 = (pVar2->m_eType == eCMVar_Obj) ? (int)pVar2->m_pObjVal : pVar2->m_iVal;
+					nValue2 = (pVar2->m_eType == eCMVar_Obj) ? (std::intptr_t)pVar2->m_pObjVal : pVar2->m_iVal;
 				}
 			}
 					
