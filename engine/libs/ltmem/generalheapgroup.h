@@ -176,7 +176,7 @@ inline bool CGeneralHeapGroup::AddHeap(
 
 	// allocate memory for the general heap and round it to even 256 bytes
 	pNewHeap->m_pMem = malloc(nHeapSize + 0xff);
-	uint8* pHeapMem = (uint8*)(((uint32)((uint8*)pNewHeap->m_pMem) + 0xff) & (~0xff));
+	uint8* pHeapMem = (uint8*)(((std::uintptr_t)((uint8*)pNewHeap->m_pMem) + 0xff) & (~0xff));
 	if (pHeapMem == NULL) 
 	{
 		delete pNewHeap;
@@ -186,7 +186,7 @@ inline bool CGeneralHeapGroup::AddHeap(
 	}
 
 	// initialize the general heap
-	pNewHeap->m_heap.Init((uint32)pHeapMem, nHeapSize, nHeapAlign);
+	pNewHeap->m_heap.Init((std::uintptr_t)pHeapMem, nHeapSize, nHeapAlign);
 
 	// add to heap list
 	pNewHeap->m_pNext = m_pHeapList;

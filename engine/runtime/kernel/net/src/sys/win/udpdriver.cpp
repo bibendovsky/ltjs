@@ -2306,7 +2306,7 @@ LTRESULT CUDPDriver::GetQueryResults(NetSession* &pListHead)
 				
 				// Fill in its unique guid.
 				memset(&pSession->m_guidInst, 0, sizeof(pSession->m_guidInst));
-				pSession->m_guidInst.guid.a = (uint32)pQuery;
+				pSession->m_guidInst.guid.a = (std::uintptr_t)pQuery;
 
 				memset(&pSession->m_guidApp, 0, sizeof(pSession->m_guidApp));
 

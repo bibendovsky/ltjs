@@ -1063,7 +1063,7 @@ void CGameServerShell::ProcessHandshake(HCLIENT hClient, ILTMessage_Read *pMsg)
 #ifdef SOURCE_RELEASE
 			cResponse.Writeuint32( GAME_HANDSHAKE_PASSWORD );
 #else // SOURCE_RELEASE
-			cResponse.Writeuint32((uint32)this ^ MessUp32BitValue(nClientKey, (uint32)(szClientName[0])));
+			cResponse.Writeuint32((std::uintptr_t)this ^ MessUp32BitValue(nClientKey, (uint32)(szClientName[0])));
 #endif // SOURCE_RELEASE
 			cResponse.Writebool((!bIsHost && m_ServerGameOptions.m_bUsePassword));
 			g_pLTServer->SendToClient(cResponse.Read(), hClient, MESSAGE_GUARANTEED);
@@ -1091,7 +1091,7 @@ void CGameServerShell::ProcessHandshake(HCLIENT hClient, ILTMessage_Read *pMsg)
 				nClientName &= 0xFF;
 			else if ((nClientName && 0xFF0000) == 0)
 				nClientName &= 0xFFFF;
-			uint32 nXORMask = MessUp32BitValue((uint32)this, (uint32)(szClientName[0]));
+			uint32 nXORMask = MessUp32BitValue((std::uintptr_t)this, (uint32)(szClientName[0]));
 			nClientName ^= nXORMask;
 
 #endif // SOURCE_RELEASE

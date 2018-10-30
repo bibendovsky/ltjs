@@ -5,7 +5,7 @@
 #include <winsock.h>
 #endif //_WINSOCKAPI_
 
-#if _MSC_VER >= 1900
+#if _MSC_VER >= 1900 || defined(__MINGW32__)
 #undef EWOULDBLOCK
 #undef ECONNRESET
 #define EWOULDBLOCK (WSAEWOULDBLOCK)

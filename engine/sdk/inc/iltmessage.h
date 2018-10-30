@@ -3,6 +3,7 @@ reading/writing of messages.  */
 
 
 #include <cstdint>
+#include <type_traits>
 
 #ifndef __ILTMESSAGE_H__
 #define __ILTMESSAGE_H__
@@ -152,7 +153,19 @@ public:
 
 	std::uintptr_t read_uint_ptr()
 	{
-		return read_uint_ptr_internal();
+		using Tag = std::conditional_t<
+			sizeof(void*) == 4,
+			ReadUIntPtrTag32,
+			typename std::conditional_t<
+				sizeof(void*) == 8,
+				ReadUIntPtrTag64,
+				void
+			>
+		>;
+
+		static_assert(!std::is_same<Tag, void>::value, "Unsupported pointer size.");
+
+		return read_uint_ptr_internal(Tag{});
 	}
 
 	// Basic data peeking functions
@@ -200,17 +213,17 @@ public:
 
 
 private:
-	template<std::size_t N = sizeof(std::uintptr_t)>
-	std::uintptr_t read_uint_ptr_internal();
+	struct ReadUIntPtrTag32{};
+	struct ReadUIntPtrTag64{};
 
-	template<>
-	std::uintptr_t read_uint_ptr_internal<4>()
+	std::uintptr_t read_uint_ptr_internal(
+		ReadUIntPtrTag32)
 	{
 		return Readuint32();
 	}
 
-	template<>
-	std::uintptr_t read_uint_ptr_internal<8>()
+	std::uintptr_t read_uint_ptr_internal(
+		ReadUIntPtrTag64)
 	{
 		return Readuint64();
 	}

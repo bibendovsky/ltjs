@@ -496,7 +496,7 @@ CUI_RESULTTYPE CUIWidgetManager::SetFocusWidget(CUIBase* widget)
 
 	// send a lost focus message
 	CUIMessage* lost_focus_message;
-	LT_MEM_TRACK_ALLOC(lost_focus_message = new CUIMessage(CUIM_LOST_FOCUS, m_pFocusWidget, m_pFocusWidget, (uint32)m_pFocusWidget, 0),LT_MEM_TYPE_UI);
+	LT_MEM_TRACK_ALLOC(lost_focus_message = new CUIMessage(CUIM_LOST_FOCUS, m_pFocusWidget, m_pFocusWidget, (std::uintptr_t)m_pFocusWidget, 0),LT_MEM_TYPE_UI);
 
 	EnqueueMessage(lost_focus_message);
 	delete lost_focus_message;
@@ -506,7 +506,7 @@ CUI_RESULTTYPE CUIWidgetManager::SetFocusWidget(CUIBase* widget)
 	
 	// send a got focus message
 	CUIMessage* got_focus_message;
-	LT_MEM_TRACK_ALLOC(got_focus_message =	new CUIMessage(CUIM_GOT_FOCUS, widget, widget, (uint32)widget, 0),LT_MEM_TYPE_UI);
+	LT_MEM_TRACK_ALLOC(got_focus_message =	new CUIMessage(CUIM_GOT_FOCUS, widget, widget, (std::uintptr_t)widget, 0),LT_MEM_TYPE_UI);
 
 	EnqueueMessage(got_focus_message);
 	delete got_focus_message;

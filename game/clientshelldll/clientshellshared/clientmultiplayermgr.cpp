@@ -652,7 +652,7 @@ bool ClientMultiplayerMgr::HandleMsgHandshake( ILTMessage_Read & msg )
 			SAFE_STRCPY(sName,pProfile->m_sPlayerGuid.c_str( ));
 
 			// Decrypt it
-			m_nServerKey ^= MessUp32BitValue((uint32)this, (uint32)(sName[0]));
+			m_nServerKey ^= MessUp32BitValue((std::uintptr_t)this, (uint32)(sName[0]));
 
 			// Encrypt "the string" with it
 			uint32 nPassword = *((uint32*)sName);
