@@ -247,6 +247,7 @@ if (LTJS_SDL2_FOUND)
 		list(
 			APPEND LTJS_SDL2_TMP_LIBRARIES
 			imm32
+			setupapi
 			version
 			winmm
 		)
