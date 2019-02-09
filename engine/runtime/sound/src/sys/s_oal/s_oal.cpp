@@ -591,13 +591,13 @@ struct OalSoundSys::Impl
 
 			const auto oal_pan = ltjs::AudioUtils::lt_pan_to_gain(new_pan);
 
-			if (new_pan == ltjs::AudioUtils::lt_pan_center)
+			if (new_pan == ltjs::AudioUtils::get_lt_pan_center())
 			{
 				// Left and right channels are at full volume.
 
 				oal_pans_.fill(default_gain);
 			}
-			else if (new_pan < ltjs::AudioUtils::lt_pan_center)
+			else if (new_pan < ltjs::AudioUtils::get_lt_pan_center())
 			{
 				// Left channel is at full volume; right channels is attenuated.
 
@@ -1168,7 +1168,10 @@ struct OalSoundSys::Impl
 		{
 			using Value = std::uint8_t;
 
-			static constexpr auto silence = Value{0x80};
+			static Value get_silence()
+			{
+				return 0x80;
+			}
 
 			static float to_gain(
 				const Value value)
@@ -1188,7 +1191,10 @@ struct OalSoundSys::Impl
 		{
 			using Value = std::int16_t;
 
-			static constexpr auto silence = Value{0};
+			static Value get_silence()
+			{
+				return 0;
+			}
 
 			static float to_gain(
 				const Value value)
@@ -1415,7 +1421,7 @@ struct OalSoundSys::Impl
 			has_loop_block_ = {};
 			loop_begin_ = {};
 			loop_end_ = {};
-			volume_ = ltjs::AudioUtils::lt_max_volume;
+			volume_ = ltjs::AudioUtils::get_lt_max_volume();
 			pan_ = pan_center;
 		}
 
@@ -1440,7 +1446,7 @@ struct OalSoundSys::Impl
 			}
 
 			oal_gain_ = default_gain;
-			master_3d_listener_volume_ = ltjs::AudioUtils::lt_max_volume;
+			master_3d_listener_volume_ = ltjs::AudioUtils::get_lt_max_volume();
 			oal_master_3d_listener_gain_ = default_gain;
 			is_3d_listener_muted_ = false;
 
@@ -1768,7 +1774,7 @@ struct OalSoundSys::Impl
 				std::uninitialized_fill_n(
 					reinterpret_cast<typename Sample::Value*>(&dst_buffer[dst_index]),
 					remain_sample_count * 2,
-					Sample::silence);
+					Sample::get_silence());
 			}
 		}
 
@@ -2067,9 +2073,9 @@ struct OalSoundSys::Impl
 		}
 	}
 
-	using EfxReverbPresets = std::array<EFXEAXREVERBPROPERTIES, ltjs::AudioUtils::eax_environment_count>;
+	using EfxReverbPresets = std::vector<EFXEAXREVERBPROPERTIES>;
 
-	static const EfxReverbPresets efx_reverb_presets;
+	static const EfxReverbPresets get_efx_reverb_presets();
 
 	struct OalReverb
 	{
@@ -2083,8 +2089,8 @@ struct OalSoundSys::Impl
 			:
 			is_force_update_{true},
 			lt_flags_{},
-			environment_{ltjs::AudioUtils::eax_default_environment},
-			efx_{efx_reverb_presets[ltjs::AudioUtils::eax_default_environment]}
+			environment_{ltjs::AudioUtils::get_eax_default_environment()},
+			efx_{(get_efx_reverb_presets())[ltjs::AudioUtils::get_eax_default_environment()]}
 		{
 		}
 	}; // OalReverb
@@ -2094,12 +2100,12 @@ struct OalSoundSys::Impl
 	{
 		auto new_preset_index = preset_index;
 
-		if (new_preset_index < 0 || new_preset_index > ltjs::AudioUtils::eax_max_environment)
+		if (new_preset_index < 0 || new_preset_index > ltjs::AudioUtils::get_eax_max_environment())
 		{
-			new_preset_index = ltjs::AudioUtils::eax_default_environment;
+			new_preset_index = ltjs::AudioUtils::get_eax_default_environment();
 		}
 
-		return efx_reverb_presets[new_preset_index];
+		return (get_efx_reverb_presets())[new_preset_index];
 	}
 
 	static void lt_reverb_to_efx_reverb(
@@ -2126,8 +2132,8 @@ struct OalSoundSys::Impl
 
 			const auto eax_environment = ul::Algorithm::clamp(
 				lt_reverb.lEnvironment,
-				ltjs::AudioUtils::eax_min_environment,
-				ltjs::AudioUtils::eax_max_environment);
+				ltjs::AudioUtils::get_eax_min_environment(),
+				ltjs::AudioUtils::get_eax_max_environment());
 
 			if (eax_environment != oal_reverb.environment_)
 			{
@@ -2145,8 +2151,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_environment_diffusion = ul::Algorithm::clamp(
 				lt_reverb.fDiffusion,
-				ltjs::AudioUtils::eax_min_environment_diffusion,
-				ltjs::AudioUtils::eax_max_environment_diffusion);
+				ltjs::AudioUtils::get_eax_min_environment_diffusion(),
+				ltjs::AudioUtils::get_eax_max_environment_diffusion());
 
 			const auto efx_diffusion = ul::Algorithm::clamp(
 				eax_environment_diffusion,
@@ -2167,8 +2173,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_room = ul::Algorithm::clamp(
 				lt_reverb.lRoom,
-				ltjs::AudioUtils::eax_min_room,
-				ltjs::AudioUtils::eax_max_room);
+				ltjs::AudioUtils::get_eax_min_room(),
+				ltjs::AudioUtils::get_eax_max_room());
 
 			const auto efx_gain = ul::Algorithm::clamp(
 				ltjs::AudioUtils::ds_volume_to_gain(eax_room) * eax_room_factor,
@@ -2189,8 +2195,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_room_hf = ul::Algorithm::clamp(
 				lt_reverb.lRoomHF,
-				ltjs::AudioUtils::eax_min_room_hf,
-				ltjs::AudioUtils::eax_max_room_hf);
+				ltjs::AudioUtils::get_eax_min_room_hf(),
+				ltjs::AudioUtils::get_eax_max_room_hf());
 
 			const auto efx_gain_hf = ul::Algorithm::clamp(
 				ltjs::AudioUtils::ds_volume_to_gain(eax_room_hf),
@@ -2211,8 +2217,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_decay_time = ul::Algorithm::clamp(
 				lt_reverb.fDecayTime,
-				ltjs::AudioUtils::eax_min_decay_time,
-				ltjs::AudioUtils::eax_max_decay_time);
+				ltjs::AudioUtils::get_eax_min_decay_time(),
+				ltjs::AudioUtils::get_eax_max_decay_time());
 
 			const auto efx_decay_time = ul::Algorithm::clamp(
 				eax_decay_time,
@@ -2233,8 +2239,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_decay_hf_ratio = ul::Algorithm::clamp(
 				lt_reverb.fDecayHFRatio,
-				ltjs::AudioUtils::eax_min_decay_hf_ratio,
-				ltjs::AudioUtils::eax_max_decay_hf_ratio);
+				ltjs::AudioUtils::get_eax_min_decay_hf_ratio(),
+				ltjs::AudioUtils::get_eax_max_decay_hf_ratio());
 
 			const auto efx_decay_hf_ratio = ul::Algorithm::clamp(
 				eax_decay_hf_ratio,
@@ -2255,8 +2261,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_reflections = ul::Algorithm::clamp(
 				lt_reverb.lReflections,
-				ltjs::AudioUtils::eax_min_reflections,
-				ltjs::AudioUtils::eax_max_reflections);
+				ltjs::AudioUtils::get_eax_min_reflections(),
+				ltjs::AudioUtils::get_eax_max_reflections());
 
 			const auto efx_reflections_gain = ul::Algorithm::clamp(
 				ltjs::AudioUtils::mb_volume_to_gain(eax_reflections) * eax_reflections_factor,
@@ -2277,8 +2283,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_reflections_delay = ul::Algorithm::clamp(
 				lt_reverb.fReflectionsDelay,
-				ltjs::AudioUtils::eax_min_reflections_delay,
-				ltjs::AudioUtils::eax_max_reflections_delay);
+				ltjs::AudioUtils::get_eax_min_reflections_delay(),
+				ltjs::AudioUtils::get_eax_max_reflections_delay());
 
 			const auto efx_reflections_delay = ul::Algorithm::clamp(
 				eax_reflections_delay,
@@ -2299,8 +2305,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_reverb = ul::Algorithm::clamp(
 				lt_reverb.lReverb,
-				ltjs::AudioUtils::eax_min_reverb,
-				ltjs::AudioUtils::eax_max_reverb);
+				ltjs::AudioUtils::get_eax_min_reverb(),
+				ltjs::AudioUtils::get_eax_max_reverb());
 
 			const auto efx_late_reverb_gain = ul::Algorithm::clamp(
 				ltjs::AudioUtils::mb_volume_to_gain(eax_reverb) * eax_reverb_factor,
@@ -2321,8 +2327,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_reverb_delay = ul::Algorithm::clamp(
 				lt_reverb.fReverbDelay,
-				ltjs::AudioUtils::eax_min_reverb_delay,
-				ltjs::AudioUtils::eax_max_reverb_delay);
+				ltjs::AudioUtils::get_eax_min_reverb_delay(),
+				ltjs::AudioUtils::get_eax_max_reverb_delay());
 
 			const auto efx_late_reverb_delay = ul::Algorithm::clamp(
 				eax_reverb_delay,
@@ -2343,8 +2349,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_room_rolloff_factor = ul::Algorithm::clamp(
 				lt_reverb.fRoomRolloffFactor,
-				ltjs::AudioUtils::eax_min_room_rolloff_factor,
-				ltjs::AudioUtils::eax_max_room_rolloff_factor);
+				ltjs::AudioUtils::get_eax_min_room_rolloff_factor(),
+				ltjs::AudioUtils::get_eax_max_room_rolloff_factor());
 
 			const auto efx_room_rolloff_factor = ul::Algorithm::clamp(
 				eax_room_rolloff_factor,
@@ -2366,8 +2372,8 @@ struct OalSoundSys::Impl
 		{
 			const auto eax_air_absorbtion_hf = ul::Algorithm::clamp(
 				lt_reverb.fAirAbsorptionHF,
-				ltjs::AudioUtils::eax_min_air_absorption_hf,
-				ltjs::AudioUtils::eax_max_air_absorption_hf);
+				ltjs::AudioUtils::get_eax_min_air_absorption_hf(),
+				ltjs::AudioUtils::get_eax_max_air_absorption_hf());
 
 			const auto efx_air_absorption_gain_hf = ul::Algorithm::clamp(
 				ltjs::AudioUtils::mb_volume_to_gain(static_cast<int>(eax_air_absorbtion_hf)),
@@ -2600,9 +2606,19 @@ struct OalSoundSys::Impl
 	}; // OalVersion
 
 
-	static constexpr auto oal_ref_version = OalVersion{1, 1};
-	static constexpr auto oal_efx_ref_version = OalVersion{1, 0};
+	static const OalVersion& get_oal_ref_version()
+	{
+		static const auto result = OalVersion{1, 1};
 
+		return result;
+	}
+
+	static const OalVersion& get_oal_efx_ref_version()
+	{
+		static const auto result = OalVersion{1, 0};
+
+		return result;
+	}
 
 	static void oal_clear_error()
 	{
@@ -2684,7 +2700,7 @@ struct OalSoundSys::Impl
 			return false;
 		}
 
-		if (oal_version_ < oal_ref_version)
+		if (oal_version_ < get_oal_ref_version())
 		{
 			error_message_ = "OAL: Expected at least version 1.1.";
 			return false;
@@ -2697,7 +2713,7 @@ struct OalSoundSys::Impl
 	{
 		oal_efx_version_ = oal_get_version(ALC_EFX_MAJOR_VERSION, ALC_EFX_MINOR_VERSION);
 
-		if (oal_efx_version_.is_empty() || oal_efx_version_ < oal_efx_ref_version)
+		if (oal_efx_version_.is_empty() || oal_efx_version_ < get_oal_efx_ref_version())
 		{
 			return false;
 		}
@@ -5141,7 +5157,7 @@ struct OalSoundSys::Impl
 			queued_count_ = 0;
 			buffer_size_ = buffer_size;
 			sample_rate_ = sample_rate;
-			ds_volume_ = ltjs::AudioUtils::ds_max_volume;
+			ds_volume_ = ltjs::AudioUtils::get_ds_max_volume();
 			oal_gain_ = 1.0F;
 
 			if (!initialize_oal_objects())
@@ -5521,35 +5537,40 @@ const OalSoundSys::Impl::Vector3d OalSoundSys::Impl::default_3d_velocity = {};
 const OalSoundSys::Impl::Vector3d OalSoundSys::Impl::default_3d_direction = {};
 const OalSoundSys::Impl::Orientation3d OalSoundSys::Impl::default_3d_orientation = {{0.0F, 0.0F, 1.0F}, {0.0F, 1.0F, 0.0}};
 
-const OalSoundSys::Impl::EfxReverbPresets OalSoundSys::Impl::efx_reverb_presets =
-{{
-	EFX_REVERB_PRESET_GENERIC,
-	EFX_REVERB_PRESET_PADDEDCELL,
-	EFX_REVERB_PRESET_ROOM,
-	EFX_REVERB_PRESET_BATHROOM,
-	EFX_REVERB_PRESET_LIVINGROOM,
-	EFX_REVERB_PRESET_STONEROOM,
-	EFX_REVERB_PRESET_AUDITORIUM,
-	EFX_REVERB_PRESET_CONCERTHALL,
-	EFX_REVERB_PRESET_CAVE,
-	EFX_REVERB_PRESET_ARENA,
-	EFX_REVERB_PRESET_HANGAR,
-	EFX_REVERB_PRESET_CARPETEDHALLWAY,
-	EFX_REVERB_PRESET_HALLWAY,
-	EFX_REVERB_PRESET_STONECORRIDOR,
-	EFX_REVERB_PRESET_ALLEY,
-	EFX_REVERB_PRESET_FOREST,
-	EFX_REVERB_PRESET_CITY,
-	EFX_REVERB_PRESET_MOUNTAINS,
-	EFX_REVERB_PRESET_QUARRY,
-	EFX_REVERB_PRESET_PLAIN,
-	EFX_REVERB_PRESET_PARKINGLOT,
-	EFX_REVERB_PRESET_SEWERPIPE,
-	EFX_REVERB_PRESET_UNDERWATER,
-	EFX_REVERB_PRESET_DRUGGED,
-	EFX_REVERB_PRESET_DIZZY,
-	EFX_REVERB_PRESET_PSYCHOTIC,
-}}; // efx_reverb_presets
+const OalSoundSys::Impl::EfxReverbPresets OalSoundSys::Impl::get_efx_reverb_presets()
+{
+	static const auto result = EfxReverbPresets
+	{{
+		EFX_REVERB_PRESET_GENERIC,
+		EFX_REVERB_PRESET_PADDEDCELL,
+		EFX_REVERB_PRESET_ROOM,
+		EFX_REVERB_PRESET_BATHROOM,
+		EFX_REVERB_PRESET_LIVINGROOM,
+		EFX_REVERB_PRESET_STONEROOM,
+		EFX_REVERB_PRESET_AUDITORIUM,
+		EFX_REVERB_PRESET_CONCERTHALL,
+		EFX_REVERB_PRESET_CAVE,
+		EFX_REVERB_PRESET_ARENA,
+		EFX_REVERB_PRESET_HANGAR,
+		EFX_REVERB_PRESET_CARPETEDHALLWAY,
+		EFX_REVERB_PRESET_HALLWAY,
+		EFX_REVERB_PRESET_STONECORRIDOR,
+		EFX_REVERB_PRESET_ALLEY,
+		EFX_REVERB_PRESET_FOREST,
+		EFX_REVERB_PRESET_CITY,
+		EFX_REVERB_PRESET_MOUNTAINS,
+		EFX_REVERB_PRESET_QUARRY,
+		EFX_REVERB_PRESET_PLAIN,
+		EFX_REVERB_PRESET_PARKINGLOT,
+		EFX_REVERB_PRESET_SEWERPIPE,
+		EFX_REVERB_PRESET_UNDERWATER,
+		EFX_REVERB_PRESET_DRUGGED,
+		EFX_REVERB_PRESET_DIZZY,
+		EFX_REVERB_PRESET_PSYCHOTIC,
+	}}; // result
+
+	return result;
+}
 
 
 OalSoundSys::OalSoundSys()
