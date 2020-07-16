@@ -12,94 +12,94 @@ namespace ltjs
 
 struct AudioUtils
 {
-	static constexpr auto lt_min_volume = sint32{1};
-	static constexpr auto lt_max_volume = sint32{127};
-	static constexpr auto lt_max_volume_delta = lt_max_volume - lt_min_volume;
+	static sint32 get_lt_min_volume();
+	static sint32 get_lt_max_volume();
+	static sint32 get_lt_max_volume_delta();
 
 	// Minimum volume in millibels.
-	static constexpr auto mb_min_volume = -10'000;
+	static int get_mb_min_volume();
 
 	// Maximum volume in millibels.
-	static constexpr auto mb_max_volume = 2'000;
+	static int get_mb_max_volume();
 
-	static constexpr auto ds_min_volume = -10'000;
-	static constexpr auto ds_max_volume = 0;
-	static constexpr auto ds_max_volume_delta = ds_max_volume - ds_min_volume;
+	static int get_ds_min_volume();
+	static int get_ds_max_volume();
+	static int get_ds_max_volume_delta();
 
-	static constexpr auto lt_min_pan = sint32{1};
-	static constexpr auto lt_max_pan = sint32{127};
-	static constexpr auto lt_max_pan_delta = lt_max_pan - lt_min_pan;
-	static constexpr auto lt_pan_center = lt_min_pan + (lt_max_pan_delta / 2);
-	static constexpr auto lt_max_pan_side_delta = lt_max_pan - lt_pan_center;
+	static sint32 get_lt_min_pan();
+	static sint32 get_lt_max_pan();
+	static sint32 get_lt_max_pan_delta();
+	static sint32 get_lt_pan_center();
+	static sint32 get_lt_max_pan_side_delta();
 
-	static constexpr auto ds_min_pan = -10'000;
-	static constexpr auto ds_max_pan = 10'000;
-	static constexpr auto ds_pan_center = 0;
-	static constexpr auto ds_max_pan_side_delta = ds_max_pan - ds_pan_center;
+	static int get_ds_min_pan();
+	static int get_ds_max_pan();
+	static int get_ds_pan_center();
+	static int get_ds_max_pan_side_delta();
 
-	static constexpr auto ds_default_min_distance = 1.0F;
-	static constexpr auto ds_default_max_distance = 1'000'000'000.0F;
+	static float get_ds_default_min_distance();
+	static float get_ds_default_max_distance();
 
-	static constexpr auto ds_min_doppler_factor = 0.0F;
-	static constexpr auto ds_max_doppler_factor = 10.0F;
-	static constexpr auto ds_default_doppler_factor = 1.0F;
+	static float get_ds_min_doppler_factor();
+	static float get_ds_max_doppler_factor();
+	static float get_ds_default_doppler_factor();
 
 
-	static constexpr auto eax_environment_count = 26;
+	static int get_eax_environment_count();
 
-	static constexpr auto eax_decay_hf_limit_flag = 0B0010'0000;
+	static int get_eax_decay_hf_limit_flag();
  
-	static constexpr auto eax_min_room = -10'000;
-	static constexpr auto eax_max_room = 0;
-	static constexpr auto eax_default_room = -1'000;
+	static int get_eax_min_room();
+	static int get_eax_max_room();
+	static int get_eax_default_room();
 
-	static constexpr auto eax_min_room_hf = -10'000;
-	static constexpr auto eax_max_room_hf = 0;
-	static constexpr auto eax_default_room_hf = -100;
+	static int get_eax_min_room_hf();
+	static int get_eax_max_room_hf();
+	static int get_eax_default_room_hf();
 
-	static constexpr auto eax_min_room_rolloff_factor = 0.0F;
-	static constexpr auto eax_max_room_rolloff_factor = 10.0F;
-	static constexpr auto eax_default_room_rolloff_factor = 0.0F;
+	static float get_eax_min_room_rolloff_factor();
+	static float get_eax_max_room_rolloff_factor();
+	static float get_eax_default_room_rolloff_factor();
 
-	static constexpr auto eax_min_decay_time = 0.1F;
-	static constexpr auto eax_max_decay_time = 20.0F;
-	static constexpr auto eax_default_decay_time = 1.49F;
+	static float get_eax_min_decay_time();
+	static float get_eax_max_decay_time();
+	static float get_eax_default_decay_time();
 
-	static constexpr auto eax_min_decay_hf_ratio = 0.1F;
-	static constexpr auto eax_max_decay_hf_ratio = 2.0F;
-	static constexpr auto eax_default_decay_hf_ratio = 0.83F;
+	static float get_eax_min_decay_hf_ratio();
+	static float get_eax_max_decay_hf_ratio();
+	static float get_eax_default_decay_hf_ratio();
 
-	static constexpr auto eax_min_reflections = -10'000;
-	static constexpr auto eax_max_reflections = 1'000;
-	static constexpr auto eax_default_reflections = -2'602;
+	static int get_eax_min_reflections();
+	static int get_eax_max_reflections();
+	static int get_eax_default_reflections();
 
-	static constexpr auto eax_min_reflections_delay = 0.0F;
-	static constexpr auto eax_max_reflections_delay = 0.3F;
-	static constexpr auto eax_default_reflections_delay = 0.007F;
+	static float get_eax_min_reflections_delay();
+	static float get_eax_max_reflections_delay();
+	static float get_eax_default_reflections_delay();
 
-	static constexpr auto eax_min_reverb = -10'000;
-	static constexpr auto eax_max_reverb = 2'000;
-	static constexpr auto eax_default_reverb = 200;
+	static int get_eax_min_reverb();
+	static int get_eax_max_reverb();
+	static int get_eax_default_reverb();
 
-	static constexpr auto eax_min_reverb_delay = 0.0F;
-	static constexpr auto eax_max_reverb_delay = 0.1F;
-	static constexpr auto eax_default_reverb_delay = 0.011F;
+	static float get_eax_min_reverb_delay();
+	static float get_eax_max_reverb_delay();
+	static float get_eax_default_reverb_delay();
 
-	static constexpr auto eax_min_environment = 0;
-	static constexpr auto eax_max_environment = eax_environment_count - 1;
-	static constexpr auto eax_default_environment = eax_min_environment;
+	static int get_eax_min_environment();
+	static int get_eax_max_environment();
+	static int get_eax_default_environment();
 
-	static constexpr auto eax_min_environment_size = 1.0F;
-	static constexpr auto eax_max_environment_size = 100.0F;
-	static constexpr auto eax_default_environment_size = 7.5F;
+	static float get_eax_min_environment_size();
+	static float get_eax_max_environment_size();
+	static float get_eax_default_environment_size();
 
-	static constexpr auto eax_min_environment_diffusion = 0.0F;
-	static constexpr auto eax_max_environment_diffusion = 1.0F;
-	static constexpr auto eax_default_environment_diffusion = 1.0F;
+	static float get_eax_min_environment_diffusion();
+	static float get_eax_max_environment_diffusion();
+	static float get_eax_default_environment_diffusion();
 
-	static constexpr auto eax_min_air_absorption_hf = -100.0F;
-	static constexpr auto eax_max_air_absorption_hf = 0.0F;
-	static constexpr auto eax_default_airabsorption_hf = -5.0F;
+	static float get_eax_min_air_absorption_hf();
+	static float get_eax_max_air_absorption_hf();
+	static float get_eax_default_airabsorption_hf();
 
 
 	//

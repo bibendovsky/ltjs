@@ -84,6 +84,14 @@ set(
 
 set(LTJS_TMP_LINKER_FLAGS "")
 
+if (WIN32)
+	list(
+		APPEND
+		libs
+		dbghelp
+	)
+endif ()
+
 if (MSVC)
 	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 

@@ -2931,7 +2931,7 @@ S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER& phDriver, PHWAVEOUT& pphWaveOut, con
 	InitEAX20Filtering();
 #endif
 
-	lt_master_volume_ = ltjs::AudioUtils::lt_max_volume;
+	lt_master_volume_ = ltjs::AudioUtils::get_lt_max_volume();
 
     return LS_OK;
 
@@ -3072,8 +3072,8 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 
 			const auto clamped = ul::Algorithm::clamp(
 				converted,
-				ltjs::AudioUtils::eax_min_room,
-				ltjs::AudioUtils::eax_max_room);
+				ltjs::AudioUtils::get_eax_min_room(),
+				ltjs::AudioUtils::get_eax_max_room());
 
 			props.lRoom = clamped;
 #endif // LTJS_EAX20_SCALE_ATTRIBUTES
@@ -3107,8 +3107,8 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 
 			const auto clamped = ul::Algorithm::clamp(
 				converted,
-				ltjs::AudioUtils::eax_min_reflections,
-				ltjs::AudioUtils::eax_max_reflections);
+				ltjs::AudioUtils::get_eax_min_reflections(),
+				ltjs::AudioUtils::get_eax_max_reflections());
 
 			props.lReflections = clamped;
 #endif // LTJS_EAX20_SCALE_ATTRIBUTES
@@ -3130,8 +3130,8 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 
 			const auto clamped = ul::Algorithm::clamp(
 				converted,
-				ltjs::AudioUtils::eax_min_reverb,
-				ltjs::AudioUtils::eax_max_reverb);
+				ltjs::AudioUtils::get_eax_min_reverb(),
+				ltjs::AudioUtils::get_eax_max_reverb());
 
 			props.lReverb = clamped;
 #endif // LTJS_EAX20_SCALE_ATTRIBUTES
@@ -3522,8 +3522,8 @@ LH3DSAMPLE CDx8SoundSys::Allocate3DSampleHandle( LHPROVIDER hLib )
 		}
 	}
 
-	pSample->lt_volume_ = ltjs::AudioUtils::lt_max_volume;
-	pSample->lt_pan_ = ltjs::AudioUtils::lt_pan_center;
+	pSample->lt_volume_ = ltjs::AudioUtils::get_lt_max_volume();
+	pSample->lt_pan_ = ltjs::AudioUtils::get_lt_pan_center();
 
 	return p3DSample;
 }
@@ -3936,8 +3936,8 @@ LHSAMPLE CDx8SoundSys::AllocateSampleHandle( LHDIGDRIVER hDig )
 
 	SetSampleNotify( pSample, true );
 
-	pSample->lt_volume_ = ltjs::AudioUtils::lt_max_volume;
-	pSample->lt_pan_ = ltjs::AudioUtils::lt_pan_center;
+	pSample->lt_volume_ = ltjs::AudioUtils::get_lt_max_volume();
+	pSample->lt_pan_ = ltjs::AudioUtils::get_lt_pan_center();
 
 	return pSample;
 }
@@ -4496,8 +4496,8 @@ LHSTREAM CDx8SoundSys::OpenStream( streamBufferParams_t* pStreamBufferParams, Wa
 	// Always need to loop streamed sounds buffers.
 	pStream->m_dwPlayFlags |= DSBPLAY_LOOPING;
 
-	pStream->lt_volume_ = ltjs::AudioUtils::lt_max_volume;
-	pStream->lt_pan_ = ltjs::AudioUtils::lt_pan_center;
+	pStream->lt_volume_ = ltjs::AudioUtils::get_lt_max_volume();
+	pStream->lt_pan_ = ltjs::AudioUtils::get_lt_pan_center();
 
 	if( m_hResult != DS_OK )
 	{

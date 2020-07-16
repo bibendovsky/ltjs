@@ -1,5 +1,7 @@
+.idea/
 .vs/
 build/
+cmake-build-*/
 ipch/
 *.aps
 *.sdf
