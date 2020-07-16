@@ -17,11 +17,11 @@ namespace WONAPI
 // 
 // CheckValidVersion - CheckValidVersionReply
 // Request to determine if said version is valid and if requested to send back an available patch list.
-// ·	ProductName - string
-// ·	ConfigName - string (optional)
-// ·	Version - string
-// ·	VersionType - list of strings (optional)
-// ·	GetPatchList - boolean
+// Â·	ProductName - string
+// Â·	ConfigName - string (optional)
+// Â·	Version - string
+// Â·	VersionType - list of strings (optional)
+// Â·	GetPatchList - boolean
 //
 ///////////////////////////////////////////////////////////////////////////////
 class CheckValidVersionOp: public DBProxyOp

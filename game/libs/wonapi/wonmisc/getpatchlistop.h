@@ -18,11 +18,11 @@ namespace WONAPI
 // 
 // GetPatchListOp - StatusReply
 // Request to add a patch to the database, will be added as valid.  Its active status is based on the specified parameter
-// ·	ProductName - string 
-// ·	ConfigName - string (optional)
-// ·	FromVersion - string
-// ·	ToVersion - string
-// ·	StateFilter - BYTE (All, Active, Inactive) (optional)
+// Â·	ProductName - string 
+// Â·	ConfigName - string (optional)
+// Â·	FromVersion - string
+// Â·	ToVersion - string
+// Â·	StateFilter - BYTE (All, Active, Inactive) (optional)
 //
 ///////////////////////////////////////////////////////////////////////////////
 class GetPatchListOp: public DBProxyOp

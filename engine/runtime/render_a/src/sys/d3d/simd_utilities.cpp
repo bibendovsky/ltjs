@@ -339,13 +339,13 @@ float GPMatrix::Determinant() {
 
 	// First, Let's calculate the first four minterms of the first line
 	t1 = _L4; t2 = _mm_ror_ps(_L3,1); 
-	Vc = _mm_mul_ps(t2,_mm_ror_ps(t1,0));					// V3'稸4
-	Va = _mm_mul_ps(t2,_mm_ror_ps(t1,2));					// V3'稸4"
-	Vb = _mm_mul_ps(t2,_mm_ror_ps(t1,3));					// V3'稸4^
+	Vc = _mm_mul_ps(t2,_mm_ror_ps(t1,0));					// V3'路V4
+	Va = _mm_mul_ps(t2,_mm_ror_ps(t1,2));					// V3'路V4"
+	Vb = _mm_mul_ps(t2,_mm_ror_ps(t1,3));					// V3'路V4^
 
-	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3"稸4^ - V3^稸4"
-	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^稸4' - V3'稸4^
-	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3'稸4" - V3"稸4'
+	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3"路V4^ - V3^路V4"
+	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^路V4' - V3'路V4^
+	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3'路V4" - V3"路V4'
 
 	Va = _mm_ror_ps(_L2,1);		sum = _mm_mul_ps(Va,r1);
 	Vb = _mm_ror_ps(Va,1);		sum = _mm_add_ps(sum,_mm_mul_ps(Vb,r2));
@@ -376,13 +376,13 @@ float GPMatrix::Inverse()
 
 	// _mm_ror_ps is just a macro using _mm_shuffle_ps().
 	tt = _L4; tt2 = _mm_ror_ps(_L3,1); 
-	Vc = _mm_mul_ps(tt2,_mm_ror_ps(tt,0));					// V3'稸4
-	Va = _mm_mul_ps(tt2,_mm_ror_ps(tt,2));					// V3'稸4"
-	Vb = _mm_mul_ps(tt2,_mm_ror_ps(tt,3));					// V3'稸4^
+	Vc = _mm_mul_ps(tt2,_mm_ror_ps(tt,0));					// V3'路V4
+	Va = _mm_mul_ps(tt2,_mm_ror_ps(tt,2));					// V3'路V4"
+	Vb = _mm_mul_ps(tt2,_mm_ror_ps(tt,3));					// V3'路V4^
 
-	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3"稸4^ - V3^稸4"
-	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^稸4' - V3'稸4^
-	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3'稸4" - V3"稸4'
+	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3"路V4^ - V3^路V4"
+	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^路V4' - V3'路V4^
+	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3'路V4" - V3"路V4'
 
 	tt = _L2;
 	Va = _mm_ror_ps(tt,1);		sum = _mm_mul_ps(Va,r1);
@@ -410,13 +410,13 @@ float GPMatrix::Inverse()
 
 	// Calculating the minterms of the third line.
 	tt = _mm_ror_ps(_L1,1);
-	Va = _mm_mul_ps(tt,Vb);									// V1'稸2"
-	Vb = _mm_mul_ps(tt,Vc);									// V1'稸2^
-	Vc = _mm_mul_ps(tt,_L2);								// V1'稸2
+	Va = _mm_mul_ps(tt,Vb);									// V1'路V2"
+	Vb = _mm_mul_ps(tt,Vc);									// V1'路V2^
+	Vc = _mm_mul_ps(tt,_L2);								// V1'路V2
 
-	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V1"稸2^ - V1^稸2"
-	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V1^稸2' - V1'稸2^
-	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V1'稸2" - V1"稸2'
+	r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V1"路V2^ - V1^路V2"
+	r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V1^路V2' - V1'路V2^
+	r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V1'路V2" - V1"路V2'
 
 	tt = _mm_ror_ps(_L4,1);		sum = _mm_mul_ps(tt,r1);
 	tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r2));

@@ -130,19 +130,19 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 // PatchData - Contains relevant information on a patch
-// ·	ConfigName - string (optional)
-// ·	FromVersion - string
-// ·	ToVersion - string
-// ·	DisplayName - string 
-// ·	NetAddress - string
-// ·	Checksum - unsigned long
-// ·	PatchSize - unsigned long
-// ·	HostName - string
-// ·	HostURL - string (optional)
-// ·	HostText - string (optional)
-// ·	HostImageURL - string (optional)
-// ·	MustVisitHost - Boolean (optional, default = false)
-// ·	IsActive - Boolean (optional -default = false)
+// Â·	ConfigName - string (optional)
+// Â·	FromVersion - string
+// Â·	ToVersion - string
+// Â·	DisplayName - string 
+// Â·	NetAddress - string
+// Â·	Checksum - unsigned long
+// Â·	PatchSize - unsigned long
+// Â·	HostName - string
+// Â·	HostURL - string (optional)
+// Â·	HostText - string (optional)
+// Â·	HostImageURL - string (optional)
+// Â·	MustVisitHost - Boolean (optional, default = false)
+// Â·	IsActive - Boolean (optional -default = false)
 //
 class PatchData: public RefCount
 {

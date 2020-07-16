@@ -693,7 +693,7 @@ END_MAINLOOP:;
 //a string delimiter.
 //
 //If an odd number of backslashes is followed by a double quotation mark, one backslash is placed 
-//in the argv array for every pair of backslashes, and the double quotation mark is ìescapedî by the 
+//in the argv array for every pair of backslashes, and the double quotation mark is ‚Äúescaped‚Äù by the 
 //remaining backslash, causing a literal double quotation mark (") to be placed in argv. 
 //
 
