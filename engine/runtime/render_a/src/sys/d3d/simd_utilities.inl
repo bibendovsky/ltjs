@@ -334,7 +334,7 @@ inline GPVector& GPVector::operator *= (const GPMatrix& Mat) {
 
 // ----------------------------------------------------------------------------
 //  Name:	GPVector * GPVector	                     _   _
-//  Desc:	Dot product of the two vectors. Returns [A]·[B].
+//  Desc:	Dot product of the two vectors. Returns [A]Â·[B].
 // ----------------------------------------------------------------------------
 inline float operator * (const GPVector& A, const GPVector& B) {
 	F32vec4 r = _mm_mul_ps(A,B);
@@ -540,7 +540,7 @@ inline GPVector3& GPVector3::operator *= (const GPMatrix& Mat) {
 
 // ----------------------------------------------------------------------------
 //  Name:	GPVector3 * GPVector3	                 _   _
-//  Desc:	Dot product of the two vectors. Returns [A]·[B].
+//  Desc:	Dot product of the two vectors. Returns [A]Â·[B].
 // ----------------------------------------------------------------------------
 inline float operator * (const GPVector3& A, const GPVector3& B) {
 	F32vec4 r = _mm_mul_ps(A,B);

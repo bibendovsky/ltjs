@@ -56,7 +56,7 @@ public:
 
 Initialize the LTDirectMusic interface. This should be called at the start
 of the program to initialize the interface. It is typically called in the
-user’s implementation of the OnEngineInitialized function.
+userâ€™s implementation of the OnEngineInitialized function.
 
 Used for: Music.
 */
@@ -69,7 +69,7 @@ Used for: Music.
 
 Terminate the LTDirectMusic interface. This should be called at the end
 of the program to clean up and terminate the interface. It is typically
-called in the user’s implementation of the OnEngineTerm function.
+called in the userâ€™s implementation of the OnEngineTerm function.
 
 Used for: Music.
 */
@@ -96,7 +96,7 @@ specified in the sControlFileName parameter. Up to three optional
 defines can also be used to pass information to the control file. These
 defines are used when loading the control file to optionally include or
 exclude portions of the file. This function is typically called from the
-user’s implementation of the DoLoadWorld function.
+userâ€™s implementation of the DoLoadWorld function.
 
 Used for: Music.
 */
