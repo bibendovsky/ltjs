@@ -1,41 +1,41 @@
-cmake_minimum_required(VERSION 3.1.3)
-project(ltjs_snd_drv_dx8 VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3)
+project (ltjs_snd_drv_dx8 VERSION 0.0.1 LANGUAGES CXX)
 
-find_package(LTJS_FFmpeg REQUIRED 2.8.11)
+find_package (LTJS_FFmpeg REQUIRED 2.8.11)
 
-option(LTJS_INSTALL_SND_DRV_DX8 "Install DirectSound sound driver." OFF)
-option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
+option (LTJS_INSTALL_SND_DRV_DX8 "Install DirectSound sound driver." OFF)
+option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_snd_drv_dx8 SHARED)
+add_library (${PROJECT_NAME} SHARED)
 
-ltjs_add_defaults(ltjs_snd_drv_dx8)
+ltjs_add_defaults (${PROJECT_NAME})
 
-set_target_properties(
-	ltjs_snd_drv_dx8
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		OUTPUT_NAME ltjs_snddrv
 		PREFIX ""
 )
 
 if (LTJS_FFMPEG_LIBRARY_DIR)
-	set(
+	set (
 		ffmpeg_libs
 		${LTJS_FFMPEG_LIBRARY}
 	)
 endif ()
 
-set(LTJS_TMP_LINKER_FLAGS "")
+set (LTJS_TMP_LINKER_FLAGS "")
 
 if (MSVC)
-	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+	set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 
 	if (NOT LTJS_USE_SAFE_SEH)
-		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+		set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
 	endif ()
 
-	set(
+	set (
 		libs
 		${ffmpeg_libs}
 		dsound
@@ -44,14 +44,14 @@ if (MSVC)
 	)
 endif ()
 
-set_target_properties(
-	ltjs_snd_drv_dx8
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
 )
 
 if (MINGW)
-	set(
+	set (
 		libs
 		${ffmpeg_libs}
 		dsound
@@ -62,15 +62,16 @@ if (MINGW)
 	)
 endif ()
 
-target_link_libraries(
-	ltjs_snd_drv_dx8
-	bibendovsky_spul_lib
-	ltjs_lib_lt_mem
-	${libs}
+target_link_libraries (
+	${PROJECT_NAME}
+	PRIVATE
+		bibendovsky_spul_lib
+		ltjs_lib_lt_mem
+		${libs}
 )
 
-target_include_directories(
-	ltjs_snd_drv_dx8
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		${LTJS_FFMPEG_INCLUDE_DIR}
 		../..
@@ -81,8 +82,8 @@ target_include_directories(
 		../../../../shared/src/sys/win
 )
 
-target_sources(
-	ltjs_snd_drv_dx8
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../ltjs_audio_decoder.h
 		../../ltjs_audio_utils.h
@@ -90,8 +91,8 @@ target_sources(
 		s_dx8.h
 )
 
-target_sources(
-	ltjs_snd_drv_dx8
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../../kernel/src/sys/win/counter.cpp
 		../../ltjs_audio_decoder.cpp
@@ -100,15 +101,17 @@ target_sources(
 )
 
 if (LTJS_INSTALL_SND_DRV_DX8)
-	install(
+	install (
 		TARGETS
-		ltjs_snd_drv_dx8
-		RUNTIME DESTINATION "."
+			${PROJECT_NAME}
+		RUNTIME DESTINATION
+			"."
 	)
 endif ()
 
-install(
+install (
 	TARGETS
-	ltjs_snd_drv_dx8
-	RUNTIME DESTINATION "ltjs_dx8_"
+		${PROJECT_NAME}
+	RUNTIME DESTINATION
+		"ltjs_dx8_"
 )

@@ -1,29 +1,30 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_lib_client_shell VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_lib_client_shell VERSION 0.0.1 LANGUAGES CXX)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_lib_client_shell STATIC)
+add_library (${PROJECT_NAME} STATIC)
 
-ltjs_add_defaults(ltjs_lib_client_shell stdafx.h)
+ltjs_add_defaults (${PROJECT_NAME} stdafx.h)
 
-target_compile_definitions(
-	ltjs_lib_client_shell
+target_compile_definitions (
+	${PROJECT_NAME}
 	PRIVATE
 		_CLIENTBUILD
-		MEMTRACK_CLIENT)
+		MEMTRACK_CLIENT
+)
 
 if (MSVC)
 	# Enable RTTI
-	target_compile_options(
-		ltjs_lib_client_shell
+	target_compile_options (
+		${PROJECT_NAME}
 		PRIVATE
 			-GR
 	)
 endif ()
 
-target_include_directories(
-	ltjs_lib_client_shell
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		.
 		../
@@ -40,8 +41,8 @@ target_include_directories(
 		../../shared
 )
 
-target_sources(
-	ltjs_lib_client_shell
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../engine/sdk/inc/iltbaseclass.h
 		../../../engine/sdk/inc/lteulerangles.h
@@ -251,8 +252,8 @@ target_sources(
 		weatherfx.h
 )
 
-target_sources(
-	ltjs_lib_client_shell
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../engine/sdk/inc/iltbaseclass.cpp
 		../../../engine/sdk/inc/lteulerangles.cpp
@@ -473,7 +474,7 @@ target_sources(
 )
 
 if (MSVC)
-	set_source_files_properties(
+	set_source_files_properties (
 		../../../engine/sdk/inc/iltbaseclass.cpp
 		../../../engine/sdk/inc/lteulerangles.cpp
 		../../../engine/sdk/inc/ltmodule.cpp
@@ -484,7 +485,7 @@ if (MSVC)
 			COMPILE_FLAGS -Y-
 	)
 
-	set_source_files_properties(
+	set_source_files_properties (
 		stdafx.cpp
 		PROPERTIES
 			# Precompiled Header (Create)

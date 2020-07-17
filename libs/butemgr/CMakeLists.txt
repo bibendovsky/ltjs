@@ -1,24 +1,28 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_lib_bute_mgr VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_lib_bute_mgr VERSION 0.0.1 LANGUAGES CXX)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_lib_bute_mgr STATIC)
+add_library (${PROJECT_NAME} STATIC)
 
-ltjs_add_defaults(ltjs_lib_bute_mgr stdafx.h)
+ltjs_add_defaults (${PROJECT_NAME} stdafx.h)
 
-target_compile_definitions(
-	ltjs_lib_bute_mgr
-	PRIVATE _NOMFC)
+target_compile_definitions (
+	${PROJECT_NAME}
+	PRIVATE
+		_NOMFC
+)
 
 if (WIN32)
-	target_compile_definitions(
-		ltjs_lib_bute_mgr
-		PRIVATE WINVER=0x500)
+	target_compile_definitions (
+		${PROJECT_NAME}
+		PRIVATE
+			WINVER=0x0500
+	)
 endif ()
 
-target_include_directories(
-	ltjs_lib_bute_mgr
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		../cryptmgr
 		../lith
@@ -26,8 +30,8 @@ target_include_directories(
 		../stdlith
 )
 
-target_sources(
-	ltjs_lib_bute_mgr
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		arange.h
 		avector.h
@@ -35,8 +39,8 @@ target_sources(
 		stdafx.h
 )
 
-target_sources(
-	ltjs_lib_bute_mgr
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		arange.cpp
 		avector.cpp
@@ -45,10 +49,10 @@ target_sources(
 )
 
 if (MSVC)
-	set_source_files_properties(
+	set_source_files_properties (
 		stdafx.cpp
 		PROPERTIES
 			# Precompiled Header (Create)
 			COMPILE_FLAGS -Yc
-)
+	)
 endif ()

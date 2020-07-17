@@ -1,28 +1,28 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_lib_lt_gui_mgr VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_lib_lt_gui_mgr VERSION 0.0.1 LANGUAGES CXX)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_lib_lt_gui_mgr STATIC)
+add_library (${PROJECT_NAME} STATIC)
 
-ltjs_add_defaults(ltjs_lib_lt_gui_mgr)
+ltjs_add_defaults (${PROJECT_NAME})
 
-target_compile_definitions(
-	ltjs_lib_lt_gui_mgr
+target_compile_definitions (
+	${PROJECT_NAME}
 	PRIVATE
 		_LITHTECH2
 		LT15_COMPAT
 )
 
-target_include_directories(
-	ltjs_lib_lt_gui_mgr
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../engine/sdk/inc
 		../../../engine/sdk/inc/compat
 )
 
-target_sources(
-	ltjs_lib_lt_gui_mgr
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		ltguibutton.h
 		ltguicolumnctrl.h
@@ -42,8 +42,8 @@ target_sources(
 		ltguilargetext.h
 )
 
-target_sources(
-	ltjs_lib_lt_gui_mgr
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		ltguibutton.cpp
 		ltguicolumnctrl.cpp

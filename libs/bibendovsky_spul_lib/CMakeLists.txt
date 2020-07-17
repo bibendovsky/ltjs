@@ -1,18 +1,18 @@
-cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
-project(bibendovsky_spul_lib VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.5.1 FATAL_ERROR)
+project (bibendovsky_spul_lib VERSION 1.0.0 LANGUAGES CXX)
 
 
-option(BIBENDOVSKY_SPUL_CMAKE_ENABLE_INSTALL "Enable install (CMake)." OFF)
-option(BIBENDOVSKY_SPUL_USE_PCH "Use precompiled headers if available." OFF)
-option(BIBENDOVSKY_SPUL_STATIC_CRT "Use static runtime library if available." OFF)
+option (BIBENDOVSKY_SPUL_CMAKE_ENABLE_INSTALL "Enable install (CMake)." OFF)
+option (BIBENDOVSKY_SPUL_USE_PCH "Use precompiled headers if available." OFF)
+option (BIBENDOVSKY_SPUL_STATIC_CRT "Use static runtime library if available." OFF)
 
 if (MSVC)
-	option(BIBENDOVSKY_SPUL_VC_DISABLE_CHECKED_ITERATORS "Disable checked iterators and disables iterator debugging (Visual C++)." OFF)
-	option(BIBENDOVSKY_SPUL_VC_DISABLE_CRT_SECURE_WARNINGS "Disable CRT secure warnings (Visual C++)." OFF)
+	option (BIBENDOVSKY_SPUL_VC_DISABLE_CHECKED_ITERATORS "Disable checked iterators and disables iterator debugging (Visual C++)." OFF)
+	option (BIBENDOVSKY_SPUL_VC_DISABLE_CRT_SECURE_WARNINGS "Disable CRT secure warnings (Visual C++)." OFF)
 endif ()
 
 
-set(
+set (
 	headers
 	include/bibendovsky_spul_algorithm.h
 	include/bibendovsky_spul_ascii_utils.h
@@ -41,7 +41,7 @@ set(
 	include/bibendovsky_spul_wchar_utils.h
 )
 
-set(
+set (
 	sources
 	src/bibendovsky_spul_algorithm.cpp
 	src/bibendovsky_spul_ascii_utils.cpp
@@ -72,7 +72,7 @@ set(
 
 if (BIBENDOVSKY_SPUL_USE_PCH)
 	if (MSVC)
-		set_source_files_properties(
+		set_source_files_properties (
 			src/bibendovsky_spul_precompiled.cpp
 			PROPERTIES
 				COMPILE_FLAGS -Yc
@@ -80,18 +80,18 @@ if (BIBENDOVSKY_SPUL_USE_PCH)
 	endif ()
 endif ()
 
-add_library(
+add_library (
 	bibendovsky_spul_lib STATIC
 	${sources}
 	${headers}
 )
 
-target_include_directories(
+target_include_directories (
 	bibendovsky_spul_lib
 	PRIVATE include
 )
 
-set_target_properties(
+set_target_properties (
 	bibendovsky_spul_lib
 	PROPERTIES
 	PUBLIC_HEADER "${headers}"
@@ -99,12 +99,12 @@ set_target_properties(
 
 if (BIBENDOVSKY_SPUL_USE_PCH)
 	if (MSVC)
-		target_compile_definitions(
+		target_compile_definitions (
 			bibendovsky_spul_lib
 			PRIVATE BIBENDOVSKY_SPUL_USE_PCH
 		)
 
-		target_compile_options(
+		target_compile_options (
 			bibendovsky_spul_lib
 			PRIVATE -Yubibendovsky_spul_precompiled.h
 		)
@@ -113,7 +113,7 @@ endif ()
 
 if (BIBENDOVSKY_SPUL_STATIC_CRT)
 	if (MSVC)
-		target_compile_options(
+		target_compile_options (
 			bibendovsky_spul_lib
 			PRIVATE $<$<CONFIG:DEBUG>:-MTd>
 			PRIVATE $<$<NOT:$<CONFIG:DEBUG>>:-MT>
@@ -123,21 +123,21 @@ endif ()
 
 if (MSVC)
 	if (BIBENDOVSKY_SPUL_VC_DISABLE_CHECKED_ITERATORS)
-		target_compile_definitions(
+		target_compile_definitions (
 			bibendovsky_spul_lib
 			PRIVATE $<$<CONFIG:DEBUG>:_ITERATOR_DEBUG_LEVEL=0>
 		)
 	endif ()
 
 	if (BIBENDOVSKY_SPUL_VC_DISABLE_CRT_SECURE_WARNINGS)
-		target_compile_definitions(
+		target_compile_definitions (
 			bibendovsky_spul_lib
 			PRIVATE _CRT_SECURE_NO_WARNINGS
 		)
 	endif ()
 endif ()
 
-set_target_properties(
+set_target_properties (
 	bibendovsky_spul_lib
 	PROPERTIES
 	CXX_STANDARD 14
@@ -145,7 +145,7 @@ set_target_properties(
 	CXX_EXTENSIONS OFF
 )
 
-set_target_properties(
+set_target_properties (
 	bibendovsky_spul_lib
 	PROPERTIES
 	OUTPUT_NAME "bibendovsky_spul"
@@ -153,7 +153,7 @@ set_target_properties(
 )
 
 if (BIBENDOVSKY_SPUL_CMAKE_ENABLE_INSTALL)
-	install(
+	install (
 		TARGETS
 		bibendovsky_spul_lib
 		ARCHIVE DESTINATION lib

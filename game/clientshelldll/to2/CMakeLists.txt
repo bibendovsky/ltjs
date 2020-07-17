@@ -1,16 +1,16 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_to2_client_shell VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_to2_client_shell VERSION 0.0.1 LANGUAGES CXX)
 
-option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
+option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_to2_client_shell SHARED)
+add_library (${PROJECT_NAME} SHARED)
 
-ltjs_add_defaults(ltjs_to2_client_shell stdafx.h)
+ltjs_add_defaults (${PROJECT_NAME} stdafx.h)
 
-target_compile_definitions(
-	ltjs_to2_client_shell
+target_compile_definitions (
+	${PROJECT_NAME}
 	PRIVATE
 		_CLIENTBUILD
 		MEMTRACK_CLIENT
@@ -19,63 +19,64 @@ target_compile_definitions(
 )
 
 if (MSVC)
-	target_compile_options(
-		ltjs_to2_client_shell
+	target_compile_options (
+		${PROJECT_NAME}
 		PRIVATE
 			-GR
 	)
 endif ()
 
-set_target_properties(
-	ltjs_to2_client_shell
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		OUTPUT_NAME ltjs_cshell
 		PREFIX ""
 )
 
-set(LTJS_TMP_LINKER_FLAGS "")
+set (LTJS_TMP_LINKER_FLAGS "")
 
 if (MSVC)
-	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+	set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 
 	if (NOT LTJS_USE_SAFE_SEH)
-		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+		set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
 	endif ()
 
-	set(
+	set (
 		libs
 		winmm
 	)
 endif ()
 
-set_target_properties(
-	ltjs_to2_client_shell
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
 )
 
 if (MINGW)
-	set(
+	set (
 		libs
 		winmm
 	)
 endif ()
 
-target_link_libraries(
-	ltjs_to2_client_shell
-	ltjs_lib_bute_mgr
-	ltjs_lib_client_shell
-	ltjs_lib_crypt_mgr
-	ltjs_lib_reg_mgr
-	ltjs_lib_lt_gui_mgr
-	ltjs_lib_mfc_stub
-	ltjs_lib_std_lith
-	ltjs_server_dir
-	${libs}
+target_link_libraries (
+	${PROJECT_NAME}
+	PRIVATE
+		ltjs_lib_bute_mgr
+		ltjs_lib_client_shell
+		ltjs_lib_crypt_mgr
+		ltjs_lib_reg_mgr
+		ltjs_lib_lt_gui_mgr
+		ltjs_lib_mfc_stub
+		ltjs_lib_std_lith
+		ltjs_server_dir
+		${libs}
 )
 
-target_include_directories(
-	ltjs_to2_client_shell
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		.
 		../../../engine/sdk/inc
@@ -95,8 +96,8 @@ target_include_directories(
 		../clientshellshared
 )
 
-target_sources(
-	ltjs_to2_client_shell
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../engine/sdk/inc/iltbaseclass.h
 		../../../engine/sdk/inc/ltmodule.h
@@ -166,8 +167,8 @@ target_sources(
 		to2screenmgr.h
 )
 
-target_sources(
-	ltjs_to2_client_shell
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../engine/sdk/inc/iltbaseclass.cpp
 		../../../engine/sdk/inc/ltmodule.cpp
@@ -238,7 +239,7 @@ target_sources(
 )
 
 if (MSVC)
-	set_source_files_properties(
+	set_source_files_properties (
 		../../../engine/sdk/inc/iltbaseclass.cpp
 		../../../engine/sdk/inc/ltmodule.cpp
 		../../../engine/sdk/inc/ltobjref.cpp
@@ -248,7 +249,7 @@ if (MSVC)
 			COMPILE_FLAGS -Y-
 	)
 
-	set_source_files_properties(
+	set_source_files_properties (
 		stdafx.cpp
 		PROPERTIES
 			# Precompiled Header (Create)
@@ -256,8 +257,9 @@ if (MSVC)
 	)
 endif ()
 
-install(
+install (
 	TARGETS
-	ltjs_to2_client_shell
-	RUNTIME DESTINATION "./Game"
+		${PROJECT_NAME}
+	RUNTIME DESTINATION
+		"./Game"
 )

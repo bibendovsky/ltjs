@@ -1,31 +1,31 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_lith_tech VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_lith_tech VERSION 0.0.1 LANGUAGES CXX)
 
-option(LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
-option(LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
-option(LTJS_USE_FFMPEG_VIDEO_MGR "Use video manager implemented via FFmpeg." ON)
-option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
+option (LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
+option (LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
+option (LTJS_USE_FFMPEG_VIDEO_MGR "Use video manager implemented via FFmpeg." ON)
+option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
 if (LTJS_USE_DIRECT_MUSIC8 OR LTJS_USE_D3DX9)
-	set(LTJS_USE_BUNDLED_DIRECTX ON)
+	set (LTJS_USE_BUNDLED_DIRECTX ON)
 endif ()
 
-find_package(LTJS_FFmpeg REQUIRED 2.8.11)
+find_package (LTJS_FFmpeg REQUIRED 2.8.11)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_executable(ltjs_lith_tech)
+add_executable (${PROJECT_NAME})
 
-ltjs_add_defaults(ltjs_lith_tech bdefs.h)
+ltjs_add_defaults (${PROJECT_NAME} bdefs.h)
 
-set_target_properties(
-	ltjs_lith_tech
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		OUTPUT_NAME ltjs_lithtech
 )
 
-target_compile_definitions(
-	ltjs_lith_tech
+target_compile_definitions (
+	${PROJECT_NAME}
 	PRIVATE
 		DE_LOCAL_SERVERBIND
 		DE_CLIENT_COMPILE
@@ -38,51 +38,51 @@ target_compile_definitions(
 )
 
 if (LTJS_USE_FFMPEG_VIDEO_MGR)
-	target_compile_definitions(
-		ltjs_lith_tech
+	target_compile_definitions (
+		${PROJECT_NAME}
 		PRIVATE
 			LTJS_USE_FFMPEG_VIDEO_MGR
 	)
 endif ()
 
 if (NOT MSVC)
-	target_compile_definitions(
-		ltjs_lith_tech
+	target_compile_definitions (
+		${PROJECT_NAME}
 		PRIVATE
 			_XM_NO_INTRINSICS_
 	)
 endif ()
 
 if (LTJS_USE_DIRECT_MUSIC8)
-	target_compile_definitions(
-		ltjs_lith_tech
+	target_compile_definitions (
+		${PROJECT_NAME}
 		PRIVATE
 			LTJS_USE_DIRECT_MUSIC8
 	)
 endif ()
 
 if (LTJS_USE_D3DX9)
-	target_compile_definitions(
-		ltjs_lith_tech
+	target_compile_definitions (
+		${PROJECT_NAME}
 		PRIVATE
 			LTJS_USE_D3DX9
 	)
 endif ()
 
 if (LTJS_USE_BUNDLED_DIRECTX)
-	target_compile_definitions(
-		ltjs_lib_d3d_render
+	target_compile_definitions (
+		${PROJECT_NAME}
 		PRIVATE
 			LTJS_USE_BUNDLED_DIRECTX
 	)
 endif ()
 
-set(
+set (
 	libs
 	${LTJS_FFMPEG_LIBRARY}
 )
 
-set(LTJS_TMP_LINKER_FLAGS "")
+set (LTJS_TMP_LINKER_FLAGS "")
 
 if (WIN32)
 	list(
@@ -93,14 +93,14 @@ if (WIN32)
 endif ()
 
 if (MSVC)
-	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+	set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 
 	if (NOT LTJS_USE_SAFE_SEH)
-		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+		set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
 	endif ()
 
 	if (LTJS_USE_BUNDLED_DIRECTX)
-		set(
+		set (
 			path_to_dx_libs
 			${CMAKE_SOURCE_DIR}/directx/lib/x86
 		)
@@ -144,8 +144,8 @@ if (MSVC)
 	endif ()
 endif ()
 
-set_target_properties(
-	ltjs_lith_tech
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
 )
@@ -179,22 +179,23 @@ if (MINGW)
 	)
 endif ()
 
-target_link_libraries(
-	ltjs_lith_tech
-	bibendovsky_spul_lib
-	ltjs_lib_d3d_render
-	ltjs_lib_lt_mem
-	ltjs_lib_rez_mgr
-	ltjs_lib_std_lith
-	ltjs_lib_ilt_sound
-	ltjs_lib_lith
-	ltjs_lib_ui
-	ltjs_lib_info
-	${libs}
+target_link_libraries (
+	${PROJECT_NAME}
+	PRIVATE
+		bibendovsky_spul_lib
+		ltjs_lib_d3d_render
+		ltjs_lib_lt_mem
+		ltjs_lib_rez_mgr
+		ltjs_lib_std_lith
+		ltjs_lib_ilt_sound
+		ltjs_lib_lith
+		ltjs_lib_ui
+		ltjs_lib_info
+		${libs}
 )
 
-target_include_directories(
-	ltjs_lith_tech
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		${LTJS_FFMPEG_INCLUDE_DIR}
 		.
@@ -235,15 +236,15 @@ target_include_directories(
 )
 
 if (LTJS_USE_BUNDLED_DIRECTX)
-	target_include_directories(
-		ltjs_lith_tech
+	target_include_directories (
+		${PROJECT_NAME}
 		PRIVATE
 			../../../../../../directx/include
 	)
 endif ()
 
-target_sources(
-	ltjs_lith_tech
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../libs/rezmgr/rezfile.h
 		../../../libs/rezmgr/rezhash.h
@@ -524,8 +525,8 @@ target_sources(
 		../../world/src/worldtreehelper.h
 )
 
-target_sources(
-	ltjs_lith_tech
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../sdk/inc/lterror.cpp
 		../../../sdk/inc/ltmodule.cpp
@@ -709,8 +710,8 @@ target_sources(
 )
 
 if (MSVC)
-	target_sources(
-		ltjs_lith_tech
+	target_sources (
+		${PROJECT_NAME}
 		PRIVATE
 			lithtech.rc
 			res/client.rc2
@@ -718,7 +719,7 @@ if (MSVC)
 endif ()
 
 if (MSVC)
-	set_source_files_properties(
+	set_source_files_properties (
 		../../../sdk/inc/lterror.cpp
 		../../../sdk/inc/ltmodule.cpp
 		../../../sdk/inc/ltobjref.cpp
@@ -738,7 +739,7 @@ if (MSVC)
 			COMPILE_FLAGS -Y-
 	)
 
-	set_source_files_properties(
+	set_source_files_properties (
 		../../shared/src/bdefs.cpp
 		PROPERTIES
 			# Precompiled Header (Create)
@@ -746,8 +747,9 @@ if (MSVC)
 	)
 endif ()
 
-install(
+install (
 	TARGETS
-	ltjs_lith_tech
-	RUNTIME DESTINATION "."
+		${PROJECT_NAME}
+	RUNTIME DESTINATION
+		"."
 )

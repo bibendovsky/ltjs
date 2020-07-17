@@ -1,42 +1,42 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_snd_drv_oal VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_snd_drv_oal VERSION 0.0.1 LANGUAGES CXX)
 
-find_package(OpenAL REQUIRED 1.1)
-find_package(LTJS_FFmpeg REQUIRED 2.8.11)
+find_package (OpenAL REQUIRED 1.1)
+find_package (LTJS_FFmpeg REQUIRED 2.8.11)
 
-option(LTJS_INSTALL_SND_DRV_OAL "Install OpenAL sound driver." ON)
-option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
+option (LTJS_INSTALL_SND_DRV_OAL "Install OpenAL sound driver." ON)
+option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_snd_drv_oal SHARED)
+add_library (${PROJECT_NAME} SHARED)
 
-ltjs_add_defaults(ltjs_snd_drv_oal)
+ltjs_add_defaults (${PROJECT_NAME})
 
-set_target_properties(
-	ltjs_snd_drv_oal
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		OUTPUT_NAME ltjs_snddrv
 		PREFIX ""
 )
 
 if (LTJS_FFMPEG_LIBRARY_DIR)
-	set(
+	set (
 		ffmpeg_libs
 		${LTJS_FFMPEG_LIBRARY}
 	)
 endif ()
 
-set(LTJS_TMP_LINKER_FLAGS "")
+set (LTJS_TMP_LINKER_FLAGS "")
 
 if (MSVC)
-	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+	set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 
 	if (NOT LTJS_USE_SAFE_SEH)
-		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+		set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
 	endif ()
 
-	set(
+	set (
 		libs
 		${ffmpeg_libs}
 		${OPENAL_LIBRARY}
@@ -44,7 +44,7 @@ if (MSVC)
 endif ()
 
 if (MINGW)
-	set(
+	set (
 		libs
 		${ffmpeg_libs}
 		${OPENAL_LIBRARY}
@@ -53,21 +53,22 @@ if (MINGW)
 	)
 endif ()
 
-set_target_properties(
-	ltjs_snd_drv_oal
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
 )
 
-target_link_libraries(
-	ltjs_snd_drv_oal
-	bibendovsky_spul_lib
-	ltjs_lib_lt_mem
-	${libs}
+target_link_libraries (
+	${PROJECT_NAME}
+	PRIVATE
+		bibendovsky_spul_lib
+		ltjs_lib_lt_mem
+		${libs}
 )
 
-target_include_directories(
-	ltjs_snd_drv_oal
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		${LTJS_FFMPEG_INCLUDE_DIR}
 		../..
@@ -78,16 +79,16 @@ target_include_directories(
 		../../../../kernel/src
 )
 
-target_sources(
-	ltjs_snd_drv_oal
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../ltjs_audio_decoder.h
 		../../ltjs_audio_utils.h
 		s_oal.h
 )
 
-target_sources(
-	ltjs_snd_drv_oal
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../ltjs_audio_decoder.cpp
 		../../ltjs_audio_utils.cpp
@@ -95,15 +96,17 @@ target_sources(
 )
 
 if (LTJS_INSTALL_SND_DRV_OAL)
-	install(
+	install (
 		TARGETS
-		ltjs_snd_drv_oal
-		RUNTIME DESTINATION "."
+			${PROJECT_NAME}
+		RUNTIME DESTINATION
+			"."
 	)
 endif ()
 
-install(
+install (
 	TARGETS
-	ltjs_snd_drv_oal
-	RUNTIME DESTINATION "ltjs_oal_"
+		${PROJECT_NAME}
+	RUNTIME DESTINATION
+		"ltjs_oal_"
 )
