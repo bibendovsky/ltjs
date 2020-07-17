@@ -1,16 +1,16 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_server VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_server VERSION 0.0.1 LANGUAGES CXX)
 
-option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
+option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_server SHARED)
+add_library (${PROJECT_NAME} SHARED)
 
-ltjs_add_defaults(ltjs_server bdefs.h)
+ltjs_add_defaults (${PROJECT_NAME} bdefs.h)
 
-target_compile_definitions(
-	ltjs_server
+target_compile_definitions (
+	${PROJECT_NAME}
 	PRIVATE
 		DE_SERVER_COMPILE
 		DIRECTENGINE_COMPILE
@@ -21,28 +21,28 @@ target_compile_definitions(
 		__D3DREND
 )
 
-set_target_properties(
-	ltjs_server
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		OUTPUT_NAME ltjs_server
 		PREFIX ""
 )
 
-set(LTJS_TMP_LINKER_FLAGS "")
+set (LTJS_TMP_LINKER_FLAGS "")
 
 if (MSVC)
-	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+	set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 
 	if (NOT LTJS_USE_SAFE_SEH)
-		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+		set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
 	endif ()
 
-	set(
+	set (
 		path_to_dx_libs
 		${CMAKE_SOURCE_DIR}/directx/lib/x86
 	)
 
-	set(
+	set (
 		libs
 		${path_to_dx_libs}/dxguid.lib
 		${path_to_dx_libs}/dplayx.lib
@@ -50,14 +50,14 @@ if (MSVC)
 	)
 endif ()
 
-set_target_properties(
-	ltjs_server
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
 )
 
 if (NOT MSVC)
-	set(
+	set (
 		libs
 		dbghelp
 		winmm
@@ -65,19 +65,20 @@ if (NOT MSVC)
 	)
 endif ()
 
-target_link_libraries(
-	ltjs_server
-	bibendovsky_spul_lib
-	ltjs_lib_rez_mgr
-	ltjs_lib_lith
-	ltjs_lib_std_lith
-	ltjs_lib_lt_mem
-	ltjs_lib_info
-	${libs}
+target_link_libraries (
+	${PROJECT_NAME}
+	PRIVATE
+		bibendovsky_spul_lib
+		ltjs_lib_rez_mgr
+		ltjs_lib_lith
+		ltjs_lib_std_lith
+		ltjs_lib_lt_mem
+		ltjs_lib_info
+		${libs}
 )
 
-target_include_directories(
-	ltjs_server
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		.
 		../../../../directx/include
@@ -106,8 +107,8 @@ target_include_directories(
 		../../world/src
 )
 
-target_sources(
-	ltjs_server
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../libs/rezmgr/rezfile.h
 		../../../libs/rezmgr/rezhash.h
@@ -299,8 +300,8 @@ target_sources(
 		resource.h
 )
 
-target_sources(
-	ltjs_server
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../sdk/inc/ltmodule.cpp
 		../../../sdk/inc/ltobjref.cpp
@@ -408,8 +409,8 @@ target_sources(
 )
 
 if (MSVC)
-	target_sources(
-		ltjs_server
+	target_sources (
+		${PROJECT_NAME}
 		PRIVATE
 			server.def
 			server.rc
@@ -417,7 +418,7 @@ if (MSVC)
 endif ()
 
 if (MSVC)
-	set_source_files_properties(
+	set_source_files_properties (
 		../../../sdk/inc/ltmodule.cpp
 		../../../sdk/inc/ltobjref.cpp
 		../../../sdk/inc/ltquatbase.cpp
@@ -441,7 +442,7 @@ if (MSVC)
 			COMPILE_FLAGS -Y-
 	)
 
-	set_source_files_properties(
+	set_source_files_properties (
 		../../shared/src/bdefs.cpp
 		PROPERTIES
 			# Precompiled Header (Create)
@@ -449,8 +450,9 @@ if (MSVC)
 	)
 endif ()
 
-install(
+install (
 	TARGETS
-	ltjs_server
-	RUNTIME DESTINATION "."
+		${PROJECT_NAME}
+	RUNTIME DESTINATION
+		"."
 )

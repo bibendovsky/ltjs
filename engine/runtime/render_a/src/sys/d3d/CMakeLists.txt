@@ -1,21 +1,21 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_lib_d3d_render VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_lib_d3d_render VERSION 0.0.1 LANGUAGES CXX)
 
-option(LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
-option(LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
+option (LTJS_USE_DIRECT_MUSIC8 "Use DirectMusic8 for music." OFF)
+option (LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
 
 if (LTJS_USE_DIRECT_MUSIC8 OR LTJS_USE_D3DX9)
-	set(LTJS_USE_BUNDLED_DIRECTX ON)
+	set (LTJS_USE_BUNDLED_DIRECTX ON)
 endif ()
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_lib_d3d_render STATIC)
+add_library (${PROJECT_NAME} STATIC)
 
-ltjs_add_defaults(ltjs_lib_d3d_render precompile.h)
+ltjs_add_defaults (${PROJECT_NAME} precompile.h)
 
-target_compile_definitions(
-	ltjs_lib_d3d_render
+target_compile_definitions (
+	${PROJECT_NAME}
 	PRIVATE
 		__D3DREND
 		__D3D
@@ -24,31 +24,31 @@ target_compile_definitions(
 )
 
 if (NOT MSVC)
-	target_compile_definitions(
-		ltjs_lib_d3d_render
+	target_compile_definitions (
+		${PROJECT_NAME}
 		PRIVATE
 			_XM_NO_INTRINSICS_
 	)
 endif ()
 
 if (LTJS_USE_D3DX9)
-	target_compile_definitions(
-		ltjs_lib_d3d_render
+	target_compile_definitions (
+		${PROJECT_NAME}
 		PRIVATE
 			LTJS_USE_D3DX9
 	)
 endif ()
 
 if (LTJS_USE_BUNDLED_DIRECTX)
-	target_compile_definitions(
-		ltjs_lib_d3d_render
+	target_compile_definitions (
+		${PROJECT_NAME}
 		PRIVATE
 			LTJS_USE_BUNDLED_DIRECTX
 	)
 endif ()
 
-target_include_directories(
-	ltjs_lib_d3d_render
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		.
 		../../../../../../libs/DirectXMath/Inc
@@ -69,15 +69,15 @@ target_include_directories(
 )
 
 if (LTJS_USE_BUNDLED_DIRECTX)
-	target_include_directories(
-		ltjs_lib_d3d_render
+	target_include_directories (
+		${PROJECT_NAME}
 		PRIVATE
 			../../../../../../directx/include
 	)
 endif ()
 
-target_sources(
-	ltjs_lib_d3d_render
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../../../sdk/inc/iclientshell.h
 		../../../../../sdk/inc/iltbenchmark.h
@@ -233,8 +233,8 @@ target_sources(
 		vertexbuffercontroller.h
 )
 
-target_sources(
-	ltjs_lib_d3d_render
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../shadows/d3dshadowtexture.cpp
 		3d_ops.cpp
@@ -315,7 +315,7 @@ target_sources(
 )
 
 if (MSVC)
-	set_source_files_properties(
+	set_source_files_properties (
 		precompile.cpp
 		PROPERTIES
 			# Precompiled Header (Create)

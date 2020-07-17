@@ -1,14 +1,14 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_lib_lt_mem VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_lib_lt_mem VERSION 0.0.1 LANGUAGES CXX)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_lib_lt_mem STATIC)
+add_library (${PROJECT_NAME} STATIC)
 
-ltjs_add_defaults(ltjs_lib_lt_mem stdafx.h)
+ltjs_add_defaults (${PROJECT_NAME} stdafx.h)
 
-target_include_directories(
-	ltjs_lib_lt_mem
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../libs/stdlith
 		../../sdk/inc
@@ -17,8 +17,8 @@ target_include_directories(
 		../../runtime/kernel/mem/src
 )
 
-target_sources(
-	ltjs_lib_lt_mem
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		generalheap.h
 		generalheapgroup.h
@@ -31,8 +31,8 @@ target_sources(
 		stdafx.h
 )
 
-target_sources(
-	ltjs_lib_lt_mem
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		ltmem.cpp
 		ltmemdebug.cpp
@@ -43,7 +43,7 @@ target_sources(
 )
 
 if (MSVC)
-	set_source_files_properties(
+	set_source_files_properties (
 		stdafx.cpp
 		PROPERTIES
 			# Precompiled Header (Create)

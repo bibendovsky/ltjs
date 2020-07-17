@@ -1,46 +1,46 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_game_client_fx VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_game_client_fx VERSION 0.0.1 LANGUAGES CXX)
 
-option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
+option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_game_client_fx SHARED)
+add_library (${PROJECT_NAME} SHARED)
 
-ltjs_add_defaults(ltjs_game_client_fx stdafx.h)
+ltjs_add_defaults (${PROJECT_NAME} stdafx.h)
 
-set_target_properties(
-	ltjs_game_client_fx
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		OUTPUT_NAME ltjs_clientfx
 		PREFIX ""
 )
 
-set(LTJS_TMP_LINKER_FLAGS "")
+set (LTJS_TMP_LINKER_FLAGS "")
 
 if (MSVC)
-	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+	set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 
 	if (NOT LTJS_USE_SAFE_SEH)
-		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+		set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
 	endif ()
 endif ()
 
-set_target_properties(
-	ltjs_game_client_fx
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
 )
 
-target_compile_definitions(
-	ltjs_game_client_fx
+target_compile_definitions (
+	${PROJECT_NAME}
 	PRIVATE
 		MEMTRACK_CLIENTFX
 		_NOMFC
 )
 
-target_include_directories(
-	ltjs_game_client_fx
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		../../engine/sdk/inc
 		../../libs/butemgr
@@ -52,8 +52,8 @@ target_include_directories(
 		../shared
 )
 
-target_sources(
-	ltjs_game_client_fx
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../shared/bankedlist.h
 		../shared/bankedlist_impl.h
@@ -86,8 +86,8 @@ target_sources(
 		swaplist.h
 )
 
-target_sources(
-	ltjs_game_client_fx
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../engine/sdk/inc/ltmodule.cpp
 		../../engine/sdk/inc/ltquatbase.cpp
@@ -117,7 +117,7 @@ target_sources(
 )
 
 if (MSVC)
-	set_source_files_properties(
+	set_source_files_properties (
 		../../engine/sdk/inc/ltmodule.cpp
 		../../engine/sdk/inc/ltquatbase.cpp
 		PROPERTIES
@@ -125,7 +125,7 @@ if (MSVC)
 			COMPILE_FLAGS -Y-
 	)
 
-	set_source_files_properties(
+	set_source_files_properties (
 		stdafx.cpp
 		PROPERTIES
 			# Precompiled Header (Create)
@@ -133,8 +133,9 @@ if (MSVC)
 	)
 endif ()
 
-install(
+install (
 	TARGETS
-	ltjs_game_client_fx
-	RUNTIME DESTINATION "./Game"
+		${PROJECT_NAME}
+	RUNTIME DESTINATION
+		"./Game"
 )

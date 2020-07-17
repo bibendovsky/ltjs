@@ -1,20 +1,20 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_lib_std_lith VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_lib_std_lith VERSION 0.0.1 LANGUAGES CXX)
 
-include(ltjs_common)
+include (ltjs_common)
 
-add_library(ltjs_lib_std_lith STATIC)
+add_library (${PROJECT_NAME} STATIC)
 
-ltjs_add_defaults(ltjs_lib_std_lith)
+ltjs_add_defaults (${PROJECT_NAME})
 
-target_include_directories(
-	ltjs_lib_std_lith
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		../zlib
 )
 
-target_sources(
-	ltjs_lib_std_lith
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		abstractio.h
 		copy_lists.h
@@ -42,8 +42,8 @@ target_sources(
 		zfstream.h
 )
 
-target_sources(
-	ltjs_lib_std_lith
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		abstractio.cpp
 		dynarray.cpp

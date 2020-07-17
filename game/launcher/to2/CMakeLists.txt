@@ -1,63 +1,64 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
-project(ltjs_nolf2 VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+project (ltjs_nolf2 VERSION 0.0.1 LANGUAGES CXX)
 
-option(LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
+option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
 if (NOT WIN32)
-	message(FATAL_ERROR "Windows only.")
+	message (FATAL_ERROR "Windows only.")
 endif ()
 
-include(ltjs_common)
+include (ltjs_common)
 
 if (WIN32)
-	set(LTJS_SDL2_MIN_VERSION "2.0.8")
+	set (LTJS_SDL2_MIN_VERSION "2.0.8")
 else ()
-	set(LTJS_SDL2_MIN_VERSION "2.0.4")
+	set (LTJS_SDL2_MIN_VERSION "2.0.4")
 endif ()
 
-find_package(SDL2W ${LTJS_SDL2_MIN_VERSION} REQUIRED)
+find_package (SDL2W ${LTJS_SDL2_MIN_VERSION} REQUIRED)
 
-add_executable(ltjs_nolf2)
+add_executable (${PROJECT_NAME})
 
-ltjs_add_defaults(ltjs_nolf2)
+ltjs_add_defaults (${PROJECT_NAME})
 
-set_target_properties(
-	ltjs_nolf2
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		OUTPUT_NAME ltjs_nolf2
 )
 
-set(LTJS_TMP_LINKER_FLAGS "")
+set (LTJS_TMP_LINKER_FLAGS "")
 
 if (MSVC)
-	set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+	set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 
 	if (NOT LTJS_USE_SAFE_SEH)
-		set(LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
+		set (LTJS_TMP_LINKER_FLAGS "${LTJS_TMP_LINKER_FLAGS} /SAFESEH:NO")
 	endif ()
 endif ()
 
-set_target_properties(
-	ltjs_nolf2
+set_target_properties (
+	${PROJECT_NAME}
 	PROPERTIES
 		LINK_FLAGS "${LTJS_TMP_LINKER_FLAGS}"
 )
 
-target_compile_definitions(
-	ltjs_nolf2
+target_compile_definitions (
+	${PROJECT_NAME}
 	PRIVATE
 		LTJS_NOLF2
 )
 
-target_link_libraries(
-	ltjs_nolf2
-	SDL2W::SDL2Wmain
-	SDL2W::SDL2W
-	bibendovsky_spul_lib
+target_link_libraries (
+	${PROJECT_NAME}
+	PRIVATE
+		SDL2W::SDL2Wmain
+		SDL2W::SDL2W
+		bibendovsky_spul_lib
 )
 
-target_include_directories(
-	ltjs_nolf2
+target_include_directories (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../libs/bibendovsky_spul_lib/include
 		../../../libs/glad/1_1
@@ -68,8 +69,8 @@ target_include_directories(
 		..
 )
 
-target_sources(
-	ltjs_nolf2
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../libs/glad/1_1/glad.h
 		../../../libs/imgui/imconfig.h
@@ -84,8 +85,8 @@ target_sources(
 		../ltjs_launcher.h
 )
 
-target_sources(
-	ltjs_nolf2
+target_sources (
+	${PROJECT_NAME}
 	PRIVATE
 		../../../libs/glad/1_1/glad.cpp
 		../../../libs/imgui/imgui.cpp
@@ -99,24 +100,25 @@ target_sources(
 )
 
 if (WIN32)
-	target_sources(
-		ltjs_nolf2
+	target_sources (
+		${PROJECT_NAME}
 		PRIVATE
 			res/ltjs_launcher.rc
 	)
 endif ()
 
 
-install(
+install (
 	TARGETS
-	ltjs_nolf2
-	RUNTIME DESTINATION "."
+		${PROJECT_NAME}
+		RUNTIME DESTINATION
+	"."
 )
 
 #
 # Supported languages.
 #
-install(
+install (
 	FILES
 		res/languages.txt
 	DESTINATION
@@ -126,7 +128,7 @@ install(
 #
 # Fonts.
 #
-install(
+install (
 	FILES
 		res/fonts/noto_sans_display_condensed.ttf
 		res/fonts/noto_sans_display_condensed_bold.ttf
@@ -139,7 +141,7 @@ install(
 #
 # Images (common).
 #
-install(
+install (
 	FILES
 		res/bmp/boxbackground.bmp
 		res/bmp/checkboxc.bmp
@@ -160,7 +162,7 @@ install(
 #
 # Images (German).
 #
-install(
+install (
 	FILES
 		res/lang/de/bmp/canceld.bmp
 		res/lang/de/bmp/cancelf.bmp
@@ -235,7 +237,7 @@ install(
 #
 # Images (English).
 #
-install(
+install (
 	FILES
 		res/lang/en/bmp/canceld.bmp
 		res/lang/en/bmp/cancelf.bmp
@@ -310,7 +312,7 @@ install(
 #
 # Images (Spanish).
 #
-install(
+install (
 	FILES
 		res/lang/es/bmp/canceld.bmp
 		res/lang/es/bmp/cancelf.bmp
@@ -385,7 +387,7 @@ install(
 #
 # Images (French).
 #
-install(
+install (
 	FILES
 		res/lang/fr/bmp/canceld.bmp
 		res/lang/fr/bmp/cancelf.bmp
@@ -460,7 +462,7 @@ install(
 #
 # Images (Italian).
 #
-install(
+install (
 	FILES
 		res/lang/it/bmp/canceld.bmp
 		res/lang/it/bmp/cancelf.bmp
@@ -535,7 +537,7 @@ install(
 #
 # Strings (common).
 #
-install(
+install (
 	FILES
 		res/strings/launcher.txt
 	DESTINATION
@@ -545,7 +547,7 @@ install(
 #
 # Strings (Germany).
 #
-install(
+install (
 	FILES
 		res/lang/de/strings/launcher.txt
 	DESTINATION
@@ -555,7 +557,7 @@ install(
 #
 # Strings (English).
 #
-install(
+install (
 	FILES
 		res/lang/en/strings/launcher.txt
 	DESTINATION
@@ -565,7 +567,7 @@ install(
 #
 # Strings (Spanish).
 #
-install(
+install (
 	FILES
 		res/lang/es/strings/launcher.txt
 	DESTINATION
@@ -575,7 +577,7 @@ install(
 #
 # Strings (French).
 #
-install(
+install (
 	FILES
 		res/lang/fr/strings/launcher.txt
 	DESTINATION
@@ -585,7 +587,7 @@ install(
 #
 # Strings (Italian).
 #
-install(
+install (
 	FILES
 		res/lang/it/strings/launcher.txt
 	DESTINATION

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
 
 ################
 # Common stuff #
@@ -6,10 +6,10 @@ cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 
 function (ltjs_add_defaults)
 	if (NOT ((${ARGC} EQUAL 1) OR (${ARGC} EQUAL 2)))
-		message(FATAL_ERROR "Usage: ltjs_add_defaults <target_name> [<pch_header>]")
+		message (FATAL_ERROR "Usage: ltjs_add_defaults <target_name> [<pch_header>]")
 	endif ()
 
-	set_target_properties(
+	set_target_properties (
 		${ARGV0}
 		PROPERTIES
 		CXX_STANDARD 14
@@ -17,7 +17,7 @@ function (ltjs_add_defaults)
 		CXX_EXTENSIONS OFF
 	)
 
-	target_compile_definitions(
+	target_compile_definitions (
 		${ARGV0}
 		PRIVATE
 			NOPS2
@@ -26,7 +26,7 @@ function (ltjs_add_defaults)
 	)
 
 	if (MSVC)
-		target_compile_definitions(
+		target_compile_definitions (
 			${ARGV0}
 			PRIVATE
 				$<$<CONFIG:DEBUG>:_CRT_SECURE_NO_WARNINGS>
@@ -36,7 +36,7 @@ function (ltjs_add_defaults)
 	endif ()
 
 	if (WIN32)
-		target_compile_definitions(
+		target_compile_definitions (
 			${ARGV0}
 			PRIVATE
 				NOMINMAX
@@ -44,7 +44,7 @@ function (ltjs_add_defaults)
 	endif ()
 
 	if (MSVC)
-		target_compile_options(
+		target_compile_options (
 			${ARGV0}
 			PRIVATE
 			# Warning Level
@@ -63,7 +63,7 @@ function (ltjs_add_defaults)
 		)
 
 		if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-			target_compile_options(
+			target_compile_options (
 				${ARGV0}
 				PRIVATE
 				# No Enhanced Instructions (prevents overflow of the x87 FPU stack)
@@ -73,7 +73,7 @@ function (ltjs_add_defaults)
 	endif ()
 
 	if (MINGW)
-		target_compile_options(
+		target_compile_options (
 			${ARGV0}
 			# Warning Level
 			PRIVATE
