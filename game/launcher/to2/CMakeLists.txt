@@ -10,10 +10,12 @@ endif ()
 include(ltjs_common)
 
 if (WIN32)
-	find_package(LTJS_SDL2 REQUIRED 2.0.8)
+	set(LTJS_SDL2_MIN_VERSION "2.0.8")
 else ()
-	find_package(LTJS_SDL2 REQUIRED 2.0.4)
+	set(LTJS_SDL2_MIN_VERSION "2.0.4")
 endif ()
+
+find_package(SDL2W ${LTJS_SDL2_MIN_VERSION} REQUIRED)
 
 add_executable(ltjs_nolf2)
 
@@ -49,15 +51,14 @@ target_compile_definitions(
 
 target_link_libraries(
 	ltjs_nolf2
-	LTJS::SDL2
+	SDL2W::SDL2Wmain
+	SDL2W::SDL2W
 	bibendovsky_spul_lib
-	#spdlog
 )
 
 target_include_directories(
 	ltjs_nolf2
 	PRIVATE
-		${LTJS_SDL2_INCLUDE_DIR}
 		../../../libs/bibendovsky_spul_lib/include
 		../../../libs/glad/1_1
 		../../../libs/imgui
