@@ -1,4 +1,5 @@
 #include "s_dx8.h"
+
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -10,30 +11,13 @@
 #include <thread>
 #include <utility>
 #include <vector>
+
 #include "bibendovsky_spul_algorithm.h"
 #include "bibendovsky_spul_memory_stream.h"
 #include "bibendovsky_spul_scope_guard.h"
-#include "eax.h"
+
 #include "ltjs_audio_utils.h"
-
-
-// ==========================================================================
-// EAX GUIDs
-//
-
-extern "C" const GUID DSPROPSETID_EAX20_ListenerProperties =
-{
-	0x306A6A8, 0xB224, 0x11D2, {0x99, 0xE5, 0x0, 0x0, 0xE8, 0xD8, 0xC7, 0x22}
-}; // DSPROPSETID_EAX20_ListenerProperties
-
-extern "C" const GUID DSPROPSETID_EAX20_BufferProperties =
-{
-	0x306A6A7, 0xB224, 0x11D2, {0x99, 0xE5, 0x0, 0x0, 0xE8, 0xD8, 0xC7, 0x22}
-}; // DSPROPSETID_EAX20_BufferProperties
-
-//
-// EAX GUIDs
-// ==========================================================================
+#include "ltjs_eax_api.h"
 
 
 //	===========================================================================
@@ -318,8 +302,6 @@ public:
 	bool set_volume(
 		const int ds_volume)
 	{
-		const auto new_ds_volume = ltjs::AudioUtils::clamp_ds_volume(ds_volume);
-
 		MtLockGuard lock{mt_mutex_};
 
 		if (!is_open_ || is_failed_)
@@ -327,14 +309,14 @@ public:
 			return false;
 		}
 
-		if (new_ds_volume == ds_volume_)
+		if (ds_volume_ == ds_volume)
 		{
 			return true;
 		}
 
-		ds_volume_ = new_ds_volume;
+		ds_volume_ = ds_volume;
 
-		const auto ds_result = ds_buffer_->SetVolume(new_ds_volume);
+		const auto ds_result = ds_buffer_->SetVolume(ds_volume_);
 
 		if (FAILED(ds_result))
 		{
@@ -2611,7 +2593,6 @@ bool CDx8SoundSys::Init( )
 	LOG_OPEN;
 
 	ltjs::AudioDecoder::initialize_current_thread();
-	ltjs::AudioUtils::initialize();
 
 	// Initialize our loop list.
 	dl_TieOff( &CSample::m_lstSampleLoopHead );
@@ -2931,9 +2912,9 @@ S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER& phDriver, PHWAVEOUT& pphWaveOut, con
 	InitEAX20Filtering();
 #endif
 
-	lt_master_volume_ = ltjs::AudioUtils::get_lt_max_volume();
+	lt_master_volume_ = ltjs::AudioUtils::max_lt_volume;
 
-    return LS_OK;
+	return LS_OK;
 
 }
 
@@ -2959,10 +2940,9 @@ void CDx8SoundSys::SetDigitalMasterVolume(LHDIGDRIVER hDig, S32 siMasterVolume)
 		return;
 	}
 
-	const auto lt_volume = ltjs::AudioUtils::clamp_lt_volume(siMasterVolume);
-	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_volume(siMasterVolume);
+	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_level_mb(siMasterVolume);
 
-	lt_master_volume_ = lt_volume;
+	lt_master_volume_ = siMasterVolume;
 	m_hResult = ds_primary_buffer_ptr->SetVolume(ds_volume);
 	m_pcLastError = LastError();
 }
@@ -3062,21 +3042,6 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 		if ( uiFilterParamFlags & SET_REVERB_ROOM )
 		{
 			props.lRoom = pLTReverb->lRoom;
-
-#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
-			const auto scaled =
-				ltjs::AudioUtils::mb_volume_to_gain(props.lRoom) *
-				LTJS_EAX20_ROOM_SCALE_FACTOR;
-
-			const auto converted = ltjs::AudioUtils::gain_to_mb_volume(scaled);
-
-			const auto clamped = ul::Algorithm::clamp(
-				converted,
-				ltjs::AudioUtils::get_eax_min_room(),
-				ltjs::AudioUtils::get_eax_max_room());
-
-			props.lRoom = clamped;
-#endif // LTJS_EAX20_SCALE_ATTRIBUTES
 		}
 		if ( uiFilterParamFlags & SET_REVERB_ROOMHF )
 		{
@@ -3097,21 +3062,6 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 		if ( uiFilterParamFlags & SET_REVERB_REFLECTIONS )
 		{
 			props.lReflections = pLTReverb->lReflections;
-
-#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
-			const auto scaled =
-				ltjs::AudioUtils::mb_volume_to_gain(props.lReflections) *
-				LTJS_EAX20_REFLECTIONS_SCALE_FACTOR;
-
-			const auto converted = ltjs::AudioUtils::gain_to_mb_volume(scaled);
-
-			const auto clamped = ul::Algorithm::clamp(
-				converted,
-				ltjs::AudioUtils::get_eax_min_reflections(),
-				ltjs::AudioUtils::get_eax_max_reflections());
-
-			props.lReflections = clamped;
-#endif // LTJS_EAX20_SCALE_ATTRIBUTES
 		}
 		if ( uiFilterParamFlags & SET_REVERB_REFLECTIONSDELAY )
 		{
@@ -3120,21 +3070,6 @@ bool CDx8SoundSys::SetEAX20Filter( const bool bEnable, const LTSOUNDFILTERDATA& 
 		if ( uiFilterParamFlags & SET_REVERB_REVERB )
 		{
 			props.lReverb = pLTReverb->lReverb;
-
-#ifdef LTJS_EAX20_SCALE_ATTRIBUTES
-			const auto scaled =
-				ltjs::AudioUtils::mb_volume_to_gain(props.lReverb) *
-				LTJS_EAX20_REVERB_SCALE_FACTOR;
-
-			const auto converted = ltjs::AudioUtils::gain_to_mb_volume(scaled);
-
-			const auto clamped = ul::Algorithm::clamp(
-				converted,
-				ltjs::AudioUtils::get_eax_min_reverb(),
-				ltjs::AudioUtils::get_eax_max_reverb());
-
-			props.lReverb = clamped;
-#endif // LTJS_EAX20_SCALE_ATTRIBUTES
 		}
 		if ( uiFilterParamFlags & SET_REVERB_REVERBDELAY )
 		{
@@ -3522,8 +3457,8 @@ LH3DSAMPLE CDx8SoundSys::Allocate3DSampleHandle( LHPROVIDER hLib )
 		}
 	}
 
-	pSample->lt_volume_ = ltjs::AudioUtils::get_lt_max_volume();
-	pSample->lt_pan_ = ltjs::AudioUtils::get_lt_pan_center();
+	pSample->lt_volume_ = ltjs::AudioUtils::max_lt_volume;
+	pSample->lt_pan_ = ltjs::AudioUtils::lt_pan_center;
 
 	return p3DSample;
 }
@@ -3753,10 +3688,9 @@ void CDx8SoundSys::Set3DSampleVolume(LH3DSAMPLE hS, const S32 siVolume)
 	auto& sample_3d = *static_cast<C3DSample*>(hS);
 	auto& sample = sample_3d.m_sample;
 
-	const auto lt_volume = ltjs::AudioUtils::clamp_lt_volume(siVolume);
-	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_volume(siVolume);
+	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_level_mb(siVolume);
 
-	sample.lt_volume_ = lt_volume;
+	sample.lt_volume_ = siVolume;
 	sample.Restore();
 
 	m_hResult = sample.m_pDSBuffer->SetVolume(ds_volume);
@@ -3936,8 +3870,8 @@ LHSAMPLE CDx8SoundSys::AllocateSampleHandle( LHDIGDRIVER hDig )
 
 	SetSampleNotify( pSample, true );
 
-	pSample->lt_volume_ = ltjs::AudioUtils::get_lt_max_volume();
-	pSample->lt_pan_ = ltjs::AudioUtils::get_lt_pan_center();
+	pSample->lt_volume_ = ltjs::AudioUtils::max_lt_volume;
+	pSample->lt_pan_ = ltjs::AudioUtils::lt_pan_center;
 
 	return pSample;
 }
@@ -4055,10 +3989,9 @@ void CDx8SoundSys::SetSampleVolume(LHSAMPLE hS, S32 siVolume)
 
 	auto& sample = *static_cast<CSample*>(hS);
 
-	const auto lt_volume = ltjs::AudioUtils::clamp_lt_volume(siVolume);
-	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_volume(siVolume);
+	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_level_mb(siVolume);
 
-	sample.lt_volume_ = lt_volume;
+	sample.lt_volume_ = siVolume;
 	sample.Restore();
 
 	m_hResult = sample.m_pDSBuffer->SetVolume(ds_volume);
@@ -4090,10 +4023,9 @@ void CDx8SoundSys::SetSamplePan(LHSAMPLE hS, S32 siPan)
 
 	auto& sample = *static_cast<CSample*>(hS);
 
-	const auto lt_pan = ltjs::AudioUtils::clamp_lt_pan(siPan);
 	const auto ds_pan = ltjs::AudioUtils::lt_pan_to_ds_pan(siPan);
 
-	sample.lt_pan_ = lt_pan;
+	sample.lt_pan_ = siPan;
 	sample.Restore();
 
 	m_hResult = sample.m_pDSBuffer->SetPan(ds_pan);
@@ -4496,8 +4428,8 @@ LHSTREAM CDx8SoundSys::OpenStream( streamBufferParams_t* pStreamBufferParams, Wa
 	// Always need to loop streamed sounds buffers.
 	pStream->m_dwPlayFlags |= DSBPLAY_LOOPING;
 
-	pStream->lt_volume_ = ltjs::AudioUtils::get_lt_max_volume();
-	pStream->lt_pan_ = ltjs::AudioUtils::get_lt_pan_center();
+	pStream->lt_volume_ = ltjs::AudioUtils::max_lt_volume;
+	pStream->lt_pan_ = ltjs::AudioUtils::lt_pan_center;
 
 	if( m_hResult != DS_OK )
 	{
@@ -4598,10 +4530,9 @@ void CDx8SoundSys::SetStreamVolume(LHSTREAM hStream, sint32 siVolume)
 
 	auto& stream = *static_cast<CStream*>(hStream);
 
-	const auto lt_volume = ltjs::AudioUtils::clamp_lt_volume(siVolume);
-	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_volume(siVolume);
+	const auto ds_volume = ltjs::AudioUtils::lt_volume_to_ds_level_mb(siVolume);
 
-	stream.lt_volume_ = lt_volume;
+	stream.lt_volume_ = siVolume;
 	stream.Restore();
 
 	m_hResult = stream.m_pDSBuffer->SetVolume(ds_volume);
@@ -4616,10 +4547,9 @@ void CDx8SoundSys::SetStreamPan(LHSTREAM hStream, sint32 siPan)
 
 	auto& stream = *static_cast<CStream*>(hStream);
 
-	const auto lt_pan = ltjs::AudioUtils::clamp_lt_pan(siPan);
 	const auto ds_pan = ltjs::AudioUtils::lt_pan_to_ds_pan(siPan);
 
-	stream.lt_pan_ = lt_pan;
+	stream.lt_pan_ = siPan;
 	stream.Restore();
 
 	m_hResult = stream.m_pDSBuffer->SetPan(ds_pan);

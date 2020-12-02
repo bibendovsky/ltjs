@@ -1,119 +1,108 @@
-//
-// Created by gabi on 6/15/18.
-//
-
+// Copyright(c) 2015-present, Gabi Melman & spdlog contributors.
+// Distributed under the MIT License (http://opensource.org/licenses/MIT)
 #pragma once
 
-#include "chrono"
-#include "spdlog/fmt/fmt.h"
+#include <chrono>
+#include <type_traits>
+#include <spdlog/fmt/fmt.h>
+#include <spdlog/common.h>
 
 // Some fmt helpers to efficiently format and pad ints and strings
 namespace spdlog {
 namespace details {
 namespace fmt_helper {
 
-template<size_t Buffer_Size>
-inline void append_str(const std::string &str, fmt::basic_memory_buffer<char, Buffer_Size> &dest)
+inline spdlog::string_view_t to_string_view(const memory_buf_t &buf) SPDLOG_NOEXCEPT
 {
-    auto *str_ptr = str.data();
-    dest.append(str_ptr, str_ptr + str.size());
+    return spdlog::string_view_t{buf.data(), buf.size()};
 }
 
-template<size_t Buffer_Size>
-inline void append_c_str(const char *c_str, fmt::basic_memory_buffer<char, Buffer_Size> &dest)
+inline void append_string_view(spdlog::string_view_t view, memory_buf_t &dest)
 {
-    auto len = std::char_traits<char>::length(c_str);
-    dest.append(c_str, c_str + len);
+    auto *buf_ptr = view.data();
+    dest.append(buf_ptr, buf_ptr + view.size());
 }
 
-template<size_t Buffer_Size1, size_t Buffer_Size2>
-inline void append_buf(const fmt::basic_memory_buffer<char, Buffer_Size1> &buf, fmt::basic_memory_buffer<char, Buffer_Size2> &dest)
-{
-    auto *buf_ptr = buf.data();
-    dest.append(buf_ptr, buf_ptr + buf.size());
-}
-
-template<typename T, size_t Buffer_Size>
-inline void append_int(T n, fmt::basic_memory_buffer<char, Buffer_Size> &dest)
+template<typename T>
+inline void append_int(T n, memory_buf_t &dest)
 {
     fmt::format_int i(n);
     dest.append(i.data(), i.data() + i.size());
 }
 
-template<size_t Buffer_Size>
-inline void pad2(int n, fmt::basic_memory_buffer<char, Buffer_Size> &dest)
+template<typename T>
+inline unsigned int count_digits(T n)
 {
-    if (n > 99)
-    {
-        append_int(n, dest);
-        return;
-    }
-    if (n > 9) // 10-99
+    using count_type = typename std::conditional<(sizeof(T) > sizeof(uint32_t)), uint64_t, uint32_t>::type;
+    return static_cast<unsigned int>(fmt::
+// fmt 7.0.0 renamed the internal namespace to detail.
+// See: https://github.com/fmtlib/fmt/issues/1538
+#if FMT_VERSION < 70000
+            internal
+#else
+            detail
+#endif
+        ::count_digits(static_cast<count_type>(n)));
+}
+
+inline void pad2(int n, memory_buf_t &dest)
+{
+    if (n >= 0 && n < 100) // 0-99
     {
         dest.push_back(static_cast<char>('0' + n / 10));
         dest.push_back(static_cast<char>('0' + n % 10));
-        return;
     }
-    if (n >= 0) // 0-9
+    else // unlikely, but just in case, let fmt deal with it
     {
-        dest.push_back('0');
-        dest.push_back(static_cast<char>('0' + n));
-        return;
+        fmt::format_to(dest, "{:02}", n);
     }
-    // negatives (unlikely, but just in case, let fmt deal with it)
-    fmt::format_to(dest, "{:02}", n);
 }
 
-template<size_t Buffer_Size>
-inline void pad3(int n, fmt::basic_memory_buffer<char, Buffer_Size> &dest)
+template<typename T>
+inline void pad_uint(T n, unsigned int width, memory_buf_t &dest)
 {
-    if (n > 999)
-    {
-        append_int(n, dest);
-        return;
-    }
-
-    if (n > 99) // 100-999
-    {
-        dest.push_back(static_cast<char>('0' + n / 100));
-        pad2(n % 100, dest);
-        return;
-    }
-    if (n > 9) // 10-99
+    static_assert(std::is_unsigned<T>::value, "pad_uint must get unsigned T");
+    for (auto digits = count_digits(n); digits < width; digits++)
     {
         dest.push_back('0');
-        dest.push_back(static_cast<char>('0' + n / 10));
-        dest.push_back(static_cast<char>('0' + n % 10));
-        return;
     }
-    if (n >= 0)
-    {
-        dest.push_back('0');
-        dest.push_back('0');
-        dest.push_back(static_cast<char>('0' + n));
-        return;
-    }
-    // negatives (unlikely, but just in case let fmt deal with it)
-    fmt::format_to(dest, "{:03}", n);
+    append_int(n, dest);
 }
 
-template<size_t Buffer_Size>
-inline void pad6(size_t n, fmt::basic_memory_buffer<char, Buffer_Size> &dest)
+template<typename T>
+inline void pad3(T n, memory_buf_t &dest)
 {
-    if (n > 99999)
+    static_assert(std::is_unsigned<T>::value, "pad3 must get unsigned T");
+    if (n < 1000)
+    {
+        dest.push_back(static_cast<char>(n / 100 + '0'));
+        n = n % 100;
+        dest.push_back(static_cast<char>((n / 10) + '0'));
+        dest.push_back(static_cast<char>((n % 10) + '0'));
+    }
+    else
     {
         append_int(n, dest);
-        return;
     }
-    pad3(static_cast<int>(n / 1000), dest);
-    pad3(static_cast<int>(n % 1000), dest);
+}
+
+template<typename T>
+inline void pad6(T n, memory_buf_t &dest)
+{
+    pad_uint(n, 6, dest);
+}
+
+template<typename T>
+inline void pad9(T n, memory_buf_t &dest)
+{
+    pad_uint(n, 9, dest);
 }
 
 // return fraction of a second of the given time_point.
 // e.g.
 // fraction<std::milliseconds>(tp) -> will return the millis part of the second
 template<typename ToDuration>
-inline ToDuration time_fraction(const log_clock::time_point &tp)
+inline ToDuration time_fraction(log_clock::time_point tp)
 {
     using std::chrono::duration_cast;
     using std::chrono::seconds;

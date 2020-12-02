@@ -87,7 +87,7 @@ target_sources (
 	PRIVATE
 		../../ltjs_audio_decoder.h
 		../../ltjs_audio_utils.h
-		eax.h
+		../../ltjs_eax_api.h
 		s_dx8.h
 )
 
@@ -97,6 +97,7 @@ target_sources (
 		../../../../kernel/src/sys/win/counter.cpp
 		../../ltjs_audio_decoder.cpp
 		../../ltjs_audio_utils.cpp
+		../../ltjs_eax_api.cpp
 		s_dx8.cpp
 )
 
