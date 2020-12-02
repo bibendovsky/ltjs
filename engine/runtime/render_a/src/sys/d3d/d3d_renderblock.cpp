@@ -3,6 +3,8 @@
 
 #include "precompile.h"
 
+#include <cstdint>
+
 #include "common_stuff.h"
 #include "common_draw.h"
 #include "d3d_device.h"

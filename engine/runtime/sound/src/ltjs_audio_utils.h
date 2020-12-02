@@ -12,131 +12,40 @@ namespace ltjs
 
 struct AudioUtils
 {
-	static sint32 get_lt_min_volume();
-	static sint32 get_lt_max_volume();
-	static sint32 get_lt_max_volume_delta();
+	static constexpr auto min_gain = 0.0F;
+	static constexpr auto max_gain = 1.0F;
+	static constexpr auto default_gain = max_gain;
 
-	// Minimum volume in millibels.
-	static int get_mb_min_volume();
+	static constexpr auto min_level_mb = -10'000;
 
-	// Maximum volume in millibels.
-	static int get_mb_max_volume();
+	static constexpr auto min_lt_volume = 0;
+	static constexpr auto max_lt_volume = 127;
+	static constexpr auto max_lt_volume_delta = max_lt_volume - min_lt_volume;
 
-	static int get_ds_min_volume();
-	static int get_ds_max_volume();
-	static int get_ds_max_volume_delta();
+	static constexpr auto min_lt_pan = 0;
+	static constexpr auto max_lt_pan = 128;
+	static constexpr auto lt_pan_center = min_lt_pan + ((max_lt_pan - min_lt_pan) / 2);
 
-	static sint32 get_lt_min_pan();
-	static sint32 get_lt_max_pan();
-	static sint32 get_lt_max_pan_delta();
-	static sint32 get_lt_pan_center();
-	static sint32 get_lt_max_pan_side_delta();
+	static constexpr auto max_left_lt_pan_delta = lt_pan_center - min_lt_pan;
+	static constexpr auto max_right_lt_pan_delta = max_lt_pan - lt_pan_center;
 
-	static int get_ds_min_pan();
-	static int get_ds_max_pan();
-	static int get_ds_pan_center();
-	static int get_ds_max_pan_side_delta();
+	// -------------------------------------------------------------------------
+	// Generic stream.
 
-	static float get_ds_default_min_distance();
-	static float get_ds_default_max_distance();
+	// (MUSIC_MIN_VOL; profilemgr.h)
+	static constexpr auto min_generic_stream_level_mb = -2'500;
 
-	static float get_ds_min_doppler_factor();
-	static float get_ds_max_doppler_factor();
-	static float get_ds_default_doppler_factor();
+	// (MUSIC_MAX_VOL; profilemgr.h)
+	static constexpr auto max_generic_stream_level_mb = 5'000;
 
+	static constexpr auto max_generic_stream_level_mb_delta = max_generic_stream_level_mb - min_generic_stream_level_mb;
 
-	static int get_eax_environment_count();
+	// Generic stream.
+	// -------------------------------------------------------------------------
 
-	static int get_eax_decay_hf_limit_flag();
- 
-	static int get_eax_min_room();
-	static int get_eax_max_room();
-	static int get_eax_default_room();
+	static constexpr auto min_ds_level_mb = min_level_mb;
+	static constexpr auto max_ds_level_mb = 0;
 
-	static int get_eax_min_room_hf();
-	static int get_eax_max_room_hf();
-	static int get_eax_default_room_hf();
-
-	static float get_eax_min_room_rolloff_factor();
-	static float get_eax_max_room_rolloff_factor();
-	static float get_eax_default_room_rolloff_factor();
-
-	static float get_eax_min_decay_time();
-	static float get_eax_max_decay_time();
-	static float get_eax_default_decay_time();
-
-	static float get_eax_min_decay_hf_ratio();
-	static float get_eax_max_decay_hf_ratio();
-	static float get_eax_default_decay_hf_ratio();
-
-	static int get_eax_min_reflections();
-	static int get_eax_max_reflections();
-	static int get_eax_default_reflections();
-
-	static float get_eax_min_reflections_delay();
-	static float get_eax_max_reflections_delay();
-	static float get_eax_default_reflections_delay();
-
-	static int get_eax_min_reverb();
-	static int get_eax_max_reverb();
-	static int get_eax_default_reverb();
-
-	static float get_eax_min_reverb_delay();
-	static float get_eax_max_reverb_delay();
-	static float get_eax_default_reverb_delay();
-
-	static int get_eax_min_environment();
-	static int get_eax_max_environment();
-	static int get_eax_default_environment();
-
-	static float get_eax_min_environment_size();
-	static float get_eax_max_environment_size();
-	static float get_eax_default_environment_size();
-
-	static float get_eax_min_environment_diffusion();
-	static float get_eax_max_environment_diffusion();
-	static float get_eax_default_environment_diffusion();
-
-	static float get_eax_min_air_absorption_hf();
-	static float get_eax_max_air_absorption_hf();
-	static float get_eax_default_airabsorption_hf();
-
-
-	//
-	// Clamps a LithTech volume.
-	//
-	// Parameters:
-	//    - lt_volume - a LithTech volume to clamp.
-	//
-	// Returns:
-	//    - A clamped LithTech volume.
-	//
-	static sint32 clamp_lt_volume(
-		const sint32 lt_volume);
-
-	//
-	// Clamps a DirectSound volume.
-	//
-	// Parameters:
-	//    - ds_volume - a DirectSound volume to clamp.
-	//
-	// Returns:
-	//    - A clamped DirectSound volume.
-	//
-	static int clamp_ds_volume(
-		const int ds_volume);
-
-	//
-	// Converts a LithTech volume to a DirectSound one.
-	//
-	// Parameters:
-	//    - lt_volume - a LithTech volume.
-	//
-	// Returns:
-	//    - A DirectSound volume.
-	//
-	static int lt_volume_to_ds_volume(
-		const sint32 lt_volume);
 
 	//
 	// Converts a LithTech volume to a gain.
@@ -148,35 +57,23 @@ struct AudioUtils
 	//    A gain [0..1].
 	//
 	static float lt_volume_to_gain(
-		const sint32 lt_volume);
-
+		int lt_volume) noexcept;
 
 	//
-	// Clamps a LithTech pan.
+	// Converts a LithTech volume to a DirectSound one.
 	//
 	// Parameters:
-	//    - lt_pan - a LithTech pan to clamp.
+	//    - lt_volume - a LithTech volume.
 	//
 	// Returns:
-	//    - A clamped LithTech pan.
+	//    - A DirectSound volume.
 	//
-	static sint32 clamp_lt_pan(
-		const sint32 lt_pan);
+	static int lt_volume_to_ds_level_mb(
+		int lt_volume) noexcept;
+
 
 	//
-	// Clamps a DirectSound pan.
-	//
-	// Parameters:
-	//    - ds_pan - a DirectSound pan to clamp.
-	//
-	// Returns:
-	//    - A clamped DirectSound pan.
-	//
-	static int clamp_ds_pan(
-		const int ds_pan);
-
-	//
-	// Converts a LithTech pan to a DirectSound one.
+	// Converts LithTech pan to DirectSound one.
 	//
 	// Parameters:
 	//    - lt_pan - a LithTech pan.
@@ -185,56 +82,44 @@ struct AudioUtils
 	//    - A DirectSound pan.
 	//
 	static int lt_pan_to_ds_pan(
-		const sint32 lt_pan);
+		int lt_pan) noexcept;
 
 	//
-	// Converts a LithTech pan to a gain.
+	// Converts LithTech pan to gains.
 	//
 	// Parameters:
 	//    - lt_pan - a LithTech pan.
+	//    - left_gain - a gain for left channel.
+	//    - right_gain - a gain for right channel.
 	//
-	// Returns:
-	//    A gain [-1..1].
-	//
-	static float lt_pan_to_gain(
-		const sint32 lt_pan);
+	static void lt_pan_to_gains(
+		int lt_pan,
+		float& left_gain,
+		float& right_gain) noexcept;
 
 	//
-	// Converts a DirectSound volume to a gain.
+	// Converts level (millibel) to gain.
 	//
 	// Parameters:
-	//    - ds_volume - a DirectSound volume.
+	//    - level_mb - level (millibel).
 	//
 	// Returns:
-	//    A gain [0..1].
+	//    A gain.
 	//
-	static float ds_volume_to_gain(
-		const int ds_volume);
-
+	static float level_mb_to_gain(
+		float level_mb) noexcept;
 
 	//
-	// Converts a volume in millibels to a gain.
+	// Converts generic stream's level (millibel) to gain.
 	//
 	// Parameters:
-	//    - mb_value - a volume in millibels [mb_min_volume..mb_max_volume].
+	//    - level_mb - level (millibel).
 	//
 	// Returns:
-	//    - A gain.
+	//    A gain.
 	//
-	static float mb_volume_to_gain(
-		const int mb_volume);
-
-	//
-	// Converts a gain to a volume in millibels.
-	//
-	// Parameters:
-	//    - gain - a gain.
-	//
-	// Returns:
-	//    - A volume in millibels [mb_min_volume..mb_max_volume].
-	//
-	static int gain_to_mb_volume(
-		const float gain);
+	static float generic_stream_level_mb_to_gain(
+		int level_mb) noexcept;
 
 
 	//
@@ -283,11 +168,6 @@ struct AudioUtils
 	//
 	static int extract_wave_size(
 		const void* raw_data);
-
-	//
-	// Initializes internal data.
-	//
-	static void initialize();
 
 
 private:

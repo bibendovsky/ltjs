@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include "bdefs.h"
 #include "sysudpdriver.h"
 #include "sysdebugging.h"
