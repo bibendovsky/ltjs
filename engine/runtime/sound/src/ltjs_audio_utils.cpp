@@ -180,6 +180,23 @@ float AudioUtils::generic_stream_level_mb_to_gain(
 	return gain;
 }
 
+int AudioUtils::generic_stream_level_mb_to_ds_level_mb(
+	int level_mb) noexcept
+{
+	assert(level_mb >= min_generic_stream_level_mb && level_mb <= max_generic_stream_level_mb);
+
+	const auto gain = generic_stream_level_mb_to_gain(level_mb);
+
+	if (gain == 0.0F)
+	{
+		return min_ds_level_mb;
+	}
+
+	const auto ds_level_mb = Detail::gain_to_level_mb(gain);
+
+	return ds_level_mb;
+}
+
 void* AudioUtils::allocate(
 	const std::size_t storage_size)
 {

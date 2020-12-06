@@ -42,6 +42,7 @@
 #include "ltjs_audio_decoder.h"
 #include "ltjs_dmusic_manager.h"
 #include "ltjs_dmusic_segment.h"
+#include "ltjs_audio_utils.h"
 
 
 #ifndef NOLITHTECH
@@ -400,7 +401,10 @@ public:
 
 		is_level_initialized_ = true;
 
-		static_cast<void>(sound_sys_->set_generic_stream_volume(music_stream_, initial_volume_));
+		static_cast<void>(sound_sys_->set_generic_stream_volume(
+			music_stream_,
+			AudioUtils::max_generic_stream_level_mb
+		));
 
 		return LT_OK;
 	}
@@ -561,7 +565,7 @@ public:
 			return LT_ERROR;
 		}
 
-		if (!sound_sys_->set_generic_stream_volume(music_stream_, volume + volume_offset_))
+		if (!sound_sys_->set_generic_stream_volume(music_stream_, volume))
 		{
 			return LT_ERROR;
 		}
