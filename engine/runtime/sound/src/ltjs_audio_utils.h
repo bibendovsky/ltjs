@@ -121,6 +121,18 @@ struct AudioUtils
 	static float generic_stream_level_mb_to_gain(
 		int level_mb) noexcept;
 
+	//
+	// Converts generic stream's level (millibel) to DirectSound one.
+	//
+	// Parameters:
+	//    - level_mb - level (millibel).
+	//
+	// Returns:
+	//    Level (millibel).
+	//
+	static int generic_stream_level_mb_to_ds_level_mb(
+		int level_mb) noexcept;
+
 
 	//
 	// Allocates a block of memory.

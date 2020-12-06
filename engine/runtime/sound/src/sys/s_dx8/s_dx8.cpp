@@ -2785,7 +2785,7 @@ bool CDx8SoundSys::get_generic_stream_pause(
 
 bool CDx8SoundSys::set_generic_stream_volume(
 	GenericStreamHandle stream_handle,
-	const int ds_volume)
+	int level_mb)
 {
 	if (!stream_handle)
 	{
@@ -2794,7 +2794,9 @@ bool CDx8SoundSys::set_generic_stream_volume(
 
 	auto& stream = *static_cast<GenericStream*>(stream_handle);
 
-	return stream.set_volume(ds_volume);
+	const auto ds_level_mb = ltjs::AudioUtils::generic_stream_level_mb_to_ds_level_mb(level_mb);
+
+	return stream.set_volume(ds_level_mb);
 }
 
 int CDx8SoundSys::get_generic_stream_volume(

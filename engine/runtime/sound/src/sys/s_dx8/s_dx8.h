@@ -427,7 +427,7 @@ public:
 
 	bool set_generic_stream_volume(
 		GenericStreamHandle stream_handle,
-		const int ds_volume) override;
+		int level_mb) override;
 
 	int get_generic_stream_volume(
 		GenericStreamHandle stream_handle) override;
