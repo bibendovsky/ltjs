@@ -41,6 +41,10 @@ bool CD3D_Device::CreateDevice(D3DAdapterInfo* pAdapter,D3DDeviceInfo* pDevice,D
 	// Create the sucka...
  	uint32 BehaviorFlags = D3DCREATE_MULTITHREADED;
 
+#if LTJS_SDL_BACKEND
+	BehaviorFlags |= D3DCREATE_NOWINDOWCHANGES;
+#endif // LTJS_SDL_BACKEND
+
 	if (pDevice->d3dCaps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT)
 		BehaviorFlags |= D3DCREATE_MIXED_VERTEXPROCESSING;
 	else
@@ -49,14 +53,40 @@ bool CD3D_Device::CreateDevice(D3DAdapterInfo* pAdapter,D3DDeviceInfo* pDevice,D
 	D3DPRESENT_PARAMETERS PresentationParam;
 	SetPresentationParams(PresentationParam,pMode);
 	IDirect3DDevice9 *pD3DDevice;
+
+#if LTJS_SDL_BACKEND
+	auto hResult = PDIRECT3D->CreateDevice(
+		pAdapter->iAdapterNum,
+		pDevice->DeviceType,
+		static_cast<HWND>(g_hWnd->native_handle),
+		BehaviorFlags,
+		&PresentationParam,
+		&pD3DDevice
+	);
+#else
 	HRESULT hResult = PDIRECT3D->CreateDevice(pAdapter->iAdapterNum,pDevice->DeviceType,g_hWnd,BehaviorFlags,&PresentationParam,&pD3DDevice);
+#endif // LTJS_SDL_BACKEND
+
 	if ((hResult != D3D_OK) || !pD3DDevice)
 	{
 		// Give it more more try - Presentation params might have been changed by D3D to something acceptable...
 		OUTPUT_D3D_ERROR(1,hResult);			// Report the error...
 		OutputDebugString("Warning: Create failed. Attempting to fall back...\n");
 		TryFallingBack_OnFailedDevCreate(&PresentationParam);
+
+#if LTJS_SDL_BACKEND
+		hResult = PDIRECT3D->CreateDevice(
+			pAdapter->iAdapterNum,
+			pDevice->DeviceType,
+			static_cast<HWND>(g_hWnd->native_handle),
+			BehaviorFlags,
+			&PresentationParam,
+			&pD3DDevice
+		);
+#else
 		hResult = PDIRECT3D->CreateDevice(pAdapter->iAdapterNum,pDevice->DeviceType,g_hWnd,BehaviorFlags,&PresentationParam,&pD3DDevice);
+#endif // LTJS_SDL_BACKEND
+
 		if ((hResult != D3D_OK) || !pD3DDevice)
 		{
 			OUTPUT_D3D_ERROR(0,hResult); FreeDevice(); return false;
@@ -338,6 +368,7 @@ void CD3D_Device::SetPresentationParams(D3DPRESENT_PARAMETERS& PresentationParam
 {
 	D3DSWAPEFFECT	SwapEffect		= D3DSWAPEFFECT_DISCARD;
 	uint32			BackBufferCount	= g_CV_BackBufferCount;
+
 	if (g_bRunWindowed || g_CV_ForceSwapEffectBlt) { SwapEffect = D3DSWAPEFFECT_COPY; BackBufferCount = 1; }
 
 	PresentationParam.BackBufferWidth					= pMode->Width;
@@ -347,7 +378,13 @@ void CD3D_Device::SetPresentationParams(D3DPRESENT_PARAMETERS& PresentationParam
 	PresentationParam.MultiSampleType					= GetDefaultMultiSampleType(g_CV_AntiAliasFSOverSample);
 	PresentationParam.MultiSampleQuality				= 0;
 	PresentationParam.SwapEffect						= SwapEffect;
+
+#if LTJS_SDL_BACKEND
+	PresentationParam.hDeviceWindow = static_cast<HWND>(g_hWnd->native_handle);
+#else
 	PresentationParam.hDeviceWindow						= g_hWnd;
+#endif // LTJS_SDL_BACKEND
+
 	PresentationParam.Windowed							= g_bRunWindowed;
 	PresentationParam.EnableAutoDepthStencil			= true;
 	PresentationParam.AutoDepthStencilFormat			= GetDefaultDepthStencilFormat(g_CV_ZBitDepth,g_CV_StencilBitDepth);
@@ -403,6 +440,7 @@ D3DFORMAT CD3D_Device::GetDefaultDepthStencilFormat(uint32 iZBitDepth,uint32 iSt
 D3DMULTISAMPLE_TYPE CD3D_Device::GetDefaultMultiSampleType(uint32 Samples)
 {
 	D3DMULTISAMPLE_TYPE MultiSampleType = (D3DMULTISAMPLE_TYPE)Samples;
+
 	if (PDIRECT3D->CheckDeviceMultiSampleType(m_pAdapter->iAdapterNum,m_pDevice->DeviceType,m_pMode->Format,g_bRunWindowed,MultiSampleType, NULL) != D3D_OK) 
 	{
 		if ((uint32)MultiSampleType > 0)

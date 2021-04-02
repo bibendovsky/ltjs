@@ -23,6 +23,7 @@ function (ltjs_add_defaults)
 			NOPS2
 			$<$<NOT:$<CONFIG:DEBUG>>:_FINAL>
 			$<$<CONFIG:DEBUG>:_DEBUG>
+			"LTJS_SDL_BACKEND=$<BOOL:${LTJS_SDL_BACKEND}>"
 	)
 
 	if (MSVC)
@@ -78,6 +79,21 @@ function (ltjs_add_defaults)
 			# Warning Level
 			PRIVATE
 				-Wfatal-errors
+		)
+	endif ()
+
+	target_link_libraries (
+		${ARGV0}
+		PRIVATE
+			SDL2W::SDL2Wmain
+			SDL2W::SDL2W
+	)
+
+	if (NOT ${PROJECT_NAME} STREQUAL "ltjs_lib")
+		target_link_libraries (
+			${ARGV0}
+			PRIVATE
+				ltjs_lib
 		)
 	endif ()
 endfunction (ltjs_add_defaults)

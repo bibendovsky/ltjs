@@ -10,6 +10,11 @@
 
 #include "stdafx.h"
 
+#if LTJS_SDL_BACKEND
+#include <array>
+#include <random>
+#endif // LTJS_SDL_BACKEND
+
 #include "profilemgr.h"
 #include "clientutilities.h"
 #include "commandids.h"
@@ -29,7 +34,11 @@
 extern CGameClientShell* g_pGameClientShell;
 
 #include <direct.h>			// For _rmdir
+
+#if !LTJS_SDL_BACKEND
 #include "dinput.h"
+#endif // !LTJS_SDL_BACKEND
+
 #include <set>
 #include <io.h>
 
@@ -278,8 +287,25 @@ static bool CreatePlayerGuid( char* pszPlayerGuid, int nSize )
 
 	// Create the guid.
 	GUID guid;
+
+#if LTJS_SDL_BACKEND
+	using GuidBytes = std::array<unsigned char, sizeof(::GUID)>;
+
+	auto& guid_bytes = reinterpret_cast<GuidBytes&>(guid);
+
+	static std::random_device random_device{};
+	static std::uniform_int_distribution<int> random_distribution{0, 255};
+
+	for (auto& guid_byte : guid_bytes)
+	{
+		const auto random_value = random_distribution(random_device);
+		const auto random_byte = static_cast<unsigned char>(random_value);
+		guid_byte = static_cast<unsigned char>(random_byte);
+	}
+#else
 	if( !SUCCEEDED( CoCreateGuid( &guid )))
 		return false;
+#endif // LTJS_SDL_BACKEND
 
 	// Write the guid into the string.
 	_snprintf( pszPlayerGuid, nSize, "%X-%X-%X-%X%X-%X%X%X%X%X%X", guid.Data1, guid.Data2, 

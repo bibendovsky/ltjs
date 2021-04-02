@@ -16,11 +16,45 @@ target_include_directories (
 target_sources (
 	${PROJECT_NAME}
 	PRIVATE
+		include/ltjs_c_string.h
+		include/ltjs_circular_queue.h
+		include/ltjs_dinput.h
 		include/ltjs_exception.h
+		include/ltjs_index_type.h
+		include/ltjs_iunknown_uresource.h
+		include/ltjs_main_window_descriptor.h
+		include/ltjs_sdl_ensure_result.h
+		include/ltjs_sdl_exception.h
+		include/ltjs_sdl_joystick_guid.h
+		include/ltjs_sdl_subsystem.h
+		include/ltjs_sdl_uresources.h
+		include/ltjs_sdl_utils.h
+		include/ltjs_system_event.h
+		include/ltjs_system_event_handler.h
+		include/ltjs_system_event_handler_mgr.h
+		include/ltjs_system_event_mgr.h
+		include/ltjs_system_event_queue.h
 )
 
 target_sources (
 	${PROJECT_NAME}
 	PRIVATE
+		src/ltjs_c_string.cpp
+		src/ltjs_circular_queue.cpp
+		src/ltjs_dinput.cpp
 		src/ltjs_exception.cpp
+		src/ltjs_index_type.cpp
+		src/ltjs_iunknown_uresource.cpp
+		src/ltjs_main_window_descriptor.cpp
+		src/ltjs_sdl_ensure_result.cpp
+		src/ltjs_sdl_exception.cpp
+		src/ltjs_sdl_joystick_guid.cpp
+		src/ltjs_sdl_subsystem.cpp
+		src/ltjs_sdl_uresources.cpp
+		src/ltjs_sdl_utils.cpp
+		src/ltjs_system_event.cpp
+		src/ltjs_system_event_handler.cpp
+		src/ltjs_system_event_handler_mgr.cpp
+		src/ltjs_system_event_mgr.cpp
+		src/ltjs_system_event_queue.cpp
 )

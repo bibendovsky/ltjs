@@ -10,8 +10,6 @@ if (LTJS_USE_DIRECT_MUSIC8 OR LTJS_USE_D3DX9)
 	set (LTJS_USE_BUNDLED_DIRECTX ON)
 endif ()
 
-find_package (LTJS_FFmpeg REQUIRED 2.8.11)
-
 include (ltjs_common)
 
 add_executable (${PROJECT_NAME})
@@ -606,6 +604,7 @@ target_sources (
 		../../kernel/src/sys/win/ltthread.cpp
 		../../kernel/src/sys/win/musicdriver.cpp
 		../../kernel/src/sys/win/render.cpp
+		../../kernel/src/sys/win/sdl_input.cpp
 		../../kernel/src/sys/win/streamsim.cpp
 		../../kernel/src/sys/win/stringmgr.cpp
 		../../kernel/src/sys/win/systeminfo.cpp

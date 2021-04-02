@@ -20,6 +20,11 @@
 #include "systimer.h"
 
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
+
+
 // Macros...
 
 #define IsKeyDown(key)  (GetAsyncKeyState(key) & 0x80000000)
@@ -199,7 +204,13 @@ LTRESULT CLTBenchmarkMgr::DoCPUBenchmarking(   LTBENCH_CPU_TEST* pTest,
 
             // Check for abort
 #ifndef __XBOX
+#if LTJS_SDL_BACKEND
+			const auto sdl_key_state = ::SDL_GetKeyboardState(nullptr);
+
+			if (bAllowEscape && sdl_key_state[::SDL_SCANCODE_ESCAPE])
+#else
             if (bAllowEscape && IsKeyDown(VK_ESCAPE))
+#endif // LTJS_SDL_BACKEND
             {
                 result = LT_ESCABORT;
                 break;

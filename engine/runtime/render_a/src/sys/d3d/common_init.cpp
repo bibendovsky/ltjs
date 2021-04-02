@@ -19,10 +19,20 @@
 // Shadow texture map related includes...
 #include "..\shadows\d3dshadowtexture.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+
+#include "ltjs_main_window_descriptor.h"
+#include "ltjs_sdl_utils.h"
+#endif // LTJS_SDL_BACKEND
 
 RMode* g_pModeList;
+
+#if !LTJS_SDL_BACKEND
 RMode* rdll_GetSupportedModes();
 void rdll_FreeModeList(RMode *pModes);
+#endif // !LTJS_SDL_BACKEND
+
 void rdll_RenderDLLSetup(RenderStruct *pStruct);
 
 
@@ -103,13 +113,21 @@ void d3d_Term(bool bFullTerm)						// We don't do a FullTerm on Alt-Tab (will be
 		g_bInStandby = g_Device.Standby();
 	}
 
-
+#if !LTJS_SDL_BACKEND
 	ShowCursor(true);							// Show the cursor
+#else
+	::SDL_ShowCursor(::SDL_TRUE);
+#endif // !LTJS_SDL_BACKEND
 }
 
 int d3d_Init(RenderStructInit *pInit)
 {
+#if LTJS_SDL_BACKEND
+	char* pStr;
+#else
 	char* pStr; RECT wndRect,screenRect;
+#endif // LTJS_SDL_BACKEND
+
 	pInit->m_RendererVersion = LTRENDER_VERSION;
 
 #ifdef _DEBUG
@@ -125,7 +143,15 @@ int d3d_Init(RenderStructInit *pInit)
 	g_bRunWindowed = (pStr && atoi(pStr) == 1);
 
 	// Init globals.
+#if LTJS_SDL_BACKEND
+	// BBi No real fullscreen anymore.
+	g_bRunWindowed = true;
+
+	g_hWnd = static_cast<const ltjs::MainWindowDescriptor*>(pInit->m_hWnd);
+#else
 	g_hWnd				= (HWND)pInit->m_hWnd;
+#endif // LTJS_SDL_BACKEND
+
 	g_ScreenWidth		= pInit->m_Mode.m_Width;
 	g_ScreenHeight		= pInit->m_Mode.m_Height;
 
@@ -211,7 +237,11 @@ int d3d_Init(RenderStructInit *pInit)
 	// We're definitely not in standby mode any more
 	g_bInStandby = false;
 
+#if !LTJS_SDL_BACKEND
 	ShowCursor(false);
+#else
+	::SDL_ShowCursor(::SDL_FALSE);
+#endif // !LTJS_SDL_BACKEND
 
 	g_Device.RestoreDevObjects();					// Let the render objects restore their D3D data (if there is any already created)...
 
@@ -222,6 +252,52 @@ int d3d_Init(RenderStructInit *pInit)
 	// Finish initializing...
 	AddDebugMessage(0, "Using Direct3D Device %s", pDeviceInfo->strDesc);
 
+#if LTJS_SDL_BACKEND
+	auto sdl_display_mode = ::SDL_DisplayMode{};
+	::SDL_GetDesktopDisplayMode(0, &sdl_display_mode);
+
+	const auto is_native_mode =
+		sdl_display_mode.w == static_cast<int>(pInit->m_Mode.m_Width) &&
+		sdl_display_mode.h == static_cast<int>(pInit->m_Mode.m_Height)
+	;
+
+	auto sdl_fullscreen_flags = ::Uint32{};
+
+#if NDEBUG
+	if (is_native_mode)
+	{
+		sdl_fullscreen_flags |= ::SDL_WINDOW_FULLSCREEN_DESKTOP;
+	}
+#endif // NDEBUG
+
+	const auto sdl_set_fullscreen_result = ::SDL_SetWindowFullscreen(g_hWnd->sdl_window, sdl_fullscreen_flags);
+
+	if (sdl_set_fullscreen_result != 0)
+	{
+		AddDebugMessage(0, "%s", "Failed to set fullscreen mode.");
+		AddDebugMessage(0, "%s", ::SDL_GetError());
+		return RENDER_ERROR;
+	}
+
+#if !NDEBUG
+	const auto sdl_is_bordered = is_native_mode ? ::SDL_FALSE : ::SDL_TRUE;
+	::SDL_SetWindowBordered(g_hWnd->sdl_window, sdl_is_bordered);
+#endif // !NDEBUG
+
+	if (!is_native_mode ||
+#if NDEBUG
+		false
+#else
+		true
+#endif // NDEBUG
+		)
+	{
+		::SDL_SetWindowSize(g_hWnd->sdl_window, pInit->m_Mode.m_Width, pInit->m_Mode.m_Height);
+		::SDL_SetWindowPosition(g_hWnd->sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	}
+
+	ltjs::sdl_utils::fill_window_black(g_hWnd->sdl_window);
+#else
 	// Either maximize the window or set its size.
 	if (g_bRunWindowed || d3d_IsNullRenderOn()) 
 	{
@@ -254,6 +330,7 @@ int d3d_Init(RenderStructInit *pInit)
 	{
 		SetWindowPos(g_hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE); 
 	}
+#endif // LTJS_SDL_BACKEND
 
 	if (!d3d_PostInitializeDevice(pInit,!g_bInStandby)) 
 		return RENDER_ERROR;
@@ -286,6 +363,7 @@ void d3d_GetRenderInfo(RenderInfoStruct* pStruct)
 	}
 }
 
+#if !LTJS_SDL_BACKEND
 // Note: if you want to use these in a launcher of some sort, you need to also add the 
 //	CD3D_Shell class. See the Launcher sample.
 RMode* rdll_GetSupportedModes() 
@@ -312,6 +390,7 @@ void rdll_FreeModeList(RMode* pModes)
 		pCur = pNext; 
 	}
 }
+#endif // !LTJS_SDL_BACKEND
 
 void rdll_RenderDLLSetup(RenderStruct *pStruct)
 {

@@ -5,7 +5,31 @@ if (NOT WIN32)
 	message (FATAL_ERROR "WIN32 only")
 endif ()
 
-set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
+set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+#
+# Options
+#
+option (LTJS_SDL_BACKEND "Use SDL backend." ON)
+
+
+#
+# SDL2
+#
+if (WIN32)
+	set (LTJS_SDL2_MIN_VERSION "2.0.8")
+else ()
+	set (LTJS_SDL2_MIN_VERSION "2.0.4")
+endif ()
+
+find_package (SDL2W ${LTJS_SDL2_MIN_VERSION} REQUIRED)
+
+
+#
+# FFmpeg
+#
+find_package (LTJS_FFmpeg REQUIRED 2.8.11)
+
 
 add_subdirectory (libs/bibendovsky_spul_lib)
 add_subdirectory (libs/ltjs)

@@ -18,6 +18,10 @@
 
 #include "gameclientshell.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
+
 void JoinLANCallBack(LTBOOL bReturn, void *pData);
 
 namespace
@@ -451,7 +455,11 @@ LTBOOL CScreenJoinLAN::Render(HSURFACE hDestSurf)
 
 LTBOOL CScreenJoinLAN::HandleKeyDown(int key, int rep)
 {
+#if LTJS_SDL_BACKEND
+	if (key == ::SDLK_F5)
+#else
 	if (key == VK_F5)
+#endif // LTJS_SDL_BACKEND
 	{
 		FindServers();
         return LTTRUE;

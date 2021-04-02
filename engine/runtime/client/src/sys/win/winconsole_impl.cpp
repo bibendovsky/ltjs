@@ -23,6 +23,12 @@
 #include "debuggeometry.h"
 #include "sysdrawprim.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+
+#include "ltjs_sdl_utils.h"
+#endif // LTJS_SDL_BACKEND
+
 //------------------------------------------------------------------
 //------------------------------------------------------------------
 // Holders and their headers.
@@ -66,7 +72,11 @@ CConIterator g_ConEmptyIterator;
 // Convenience functions...
 inline bool IsKeyDown( uint16 vkKey ) 
 {
+#if LTJS_SDL_BACKEND
+	return (::SDL_GetModState() & vkKey) != 0;
+#else
 	return ((GetAsyncKeyState( VK_CONTROL ) & 0x8000) != 0);
+#endif // LTJS_SDL_BACKEND
 }
 
 inline ConsoleState *GetConsoleState()
@@ -333,6 +343,9 @@ void CConCommandBox::MoveWord( int iOffset )
 
 char CConCommandBox::TranslateKey(uint32 key) const
 {
+#if LTJS_SDL_BACKEND
+	return ltjs::sdl_utils::key_code_to_char(static_cast<int>(key));
+#else
 	char aResult[2];
 	uint8 aKeyState[256];
 	if ( !GetKeyboardState( aKeyState ) )
@@ -353,10 +366,75 @@ char CConCommandBox::TranslateKey(uint32 key) const
 		default :
 			return 0;
 	}
+#endif // LTJS_SDL_BACKEND
 }
 
 void CConCommandBox::OnKeyPress(uint32 key)
 {
+#if LTJS_SDL_BACKEND
+	switch (key)
+	{
+		case ::SDLK_ESCAPE:
+			Clear();
+			break;
+
+		case ::SDLK_LEFT:
+			if (IsKeyDown(::KMOD_CTRL))
+				// Ctrl+Left = word left
+				MoveWord(-1);
+			else
+				MoveCursor(-1);
+			break;
+
+		case ::SDLK_RIGHT:
+			if (IsKeyDown(::KMOD_CTRL))
+				// Ctrl+Right = word right
+				MoveWord(1);
+			else
+				MoveCursor(1);
+			break;
+
+		case ::SDLK_HOME:
+			MoveCursor(-m_iCursorPos);
+			break;
+
+		case ::SDLK_END:
+			if (IsKeyDown(::KMOD_CTRL))
+				// Ctrl+End = delete the rest of the buffer
+				AddChar(0);
+			else
+				MoveCursor(m_iCurLength);
+			break;
+
+		case ::SDLK_BACKSPACE:
+			if (IsKeyDown(::KMOD_CTRL))
+				// Ctrl+Backspace = delete the next word
+				DeleteWord(-1);
+			else
+			{
+				DeleteChar(-1);
+				MoveCursor(-1);
+			}
+			break;
+
+		case ::SDLK_DELETE:
+			if (IsKeyDown(::KMOD_CTRL))
+				// Ctrl+Delete = delete the next word
+				DeleteWord(0);
+			else
+				DeleteChar(0);
+			break;
+
+		default:
+			char chChar = TranslateKey(key);
+			if (chChar)
+			{
+				AddChar(chChar);
+				MoveCursor(1);
+			}
+			break;
+	}
+#else
 	switch ( key )
 	{
 		case VK_ESCAPE :
@@ -412,6 +490,7 @@ void CConCommandBox::OnKeyPress(uint32 key)
 			}
 			break;
 	}
+#endif // LTJS_SDL_BACKEND
 }
 
 // ------------------------------------------------------------------ //
@@ -623,7 +702,10 @@ CConsole::CConsole()
 {
 	m_pFontBitmapData = LTNULL;
 
+#if !LTJS_SDL_BACKEND
 	m_hWnd = 0;
+#endif // !LTJS_SDL_BACKEND
+
 	m_CommandHandler = LTNULL;
 	m_FilterLevel = 1;
 	
@@ -656,7 +738,9 @@ CConsole::~CConsole()
 
 bool CConsole::Init(const LTRect *pRect, CommandHandler handler, RenderStruct *pStruct, CConIterator *pCompletionIterator )
 {
+#if !LTJS_SDL_BACKEND
 	HWND hWnd = (HWND)dsi_GetMainWindow();
+#endif // !LTJS_SDL_BACKEND
 
 	if ( m_bInitTerminate )
 		Term( false );
@@ -666,7 +750,10 @@ bool CConsole::Init(const LTRect *pRect, CommandHandler handler, RenderStruct *p
 		Term(true);
 		return false; }
 
+#if !LTJS_SDL_BACKEND
 	m_hWnd = hWnd;
+#endif // !LTJS_SDL_BACKEND
+
 	// Note : This has no effect now that the window position is in a console variable
 	m_ScrRect = *pRect;
 	m_CommandHandler = handler;
@@ -711,8 +798,11 @@ void CConsole::Term(bool bDeleteTextLines)
 
 	TermFont();
 	GetCommandBox()->Term();
-	
+
+#if !LTJS_SDL_BACKEND
 	m_hWnd = 0;
+#endif // !LTJS_SDL_BACKEND
+
 	m_CommandHandler = LTNULL;
 	m_pStruct = LTNULL;
 
@@ -1587,6 +1677,55 @@ void CConsole::Printf(CONCOLOR theColor, int filterLevel, const char *pMsg, ...)
 
 void CConsole::OnKeyPress(uint32 key)
 {
+#if LTJS_SDL_BACKEND
+	switch (key)
+	{
+		case ::SDLK_RETURN:
+			FinishCommand();
+			break;
+
+		case ::SDLK_UP:
+			if (IsKeyDown(::KMOD_CTRL))
+				Scroll(1);
+			else
+				CycleCommands(-1);
+			break;
+
+		case ::SDLK_DOWN:
+			if (IsKeyDown(::KMOD_CTRL))
+				Scroll(-1);
+			else
+				CycleCommands(1);
+			break;
+
+		case ::SDLK_TAB:
+			if (IsKeyDown(::KMOD_CTRL))
+				MatchCommands();
+			else if (IsKeyDown(::KMOD_SHIFT))
+				PrevCommand();
+			else
+				NextCommand();
+			break;
+
+		case ::SDLK_PAGEUP:
+			if (IsKeyDown(::KMOD_CTRL))
+				Scroll((int)m_TextLines.GetSize());
+			else
+				Scroll((int)m_nTextLines);
+			break;
+
+		case ::SDLK_PAGEDOWN:
+			if (IsKeyDown(::KMOD_CTRL))
+				Scroll(-GetScrollOffset());
+			else
+				Scroll(-(int)m_nTextLines);
+			break;
+
+		default:
+			GetCommandBox()->OnKeyPress(key);
+			break;
+	}
+#else
 	switch (key)
 	{
 		case VK_RETURN :
@@ -1628,6 +1767,7 @@ void CConsole::OnKeyPress(uint32 key)
 			GetCommandBox()->OnKeyPress( key );
 			break;
 	}
+#endif // LTJS_SDL_BACKEND
 }
 
 

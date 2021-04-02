@@ -16,6 +16,10 @@
 #include "clientsoundmgr.h"
 #include "scmdconsole.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
+
 //******************************************************************************************
 //**
 //** HUD Air display
@@ -173,19 +177,31 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 {
 	switch (key)
 	{
+#if LTJS_SDL_BACKEND
+		case ::SDLK_ESCAPE:
+#else
 	case VK_ESCAPE:
+#endif // LTJS_SDL_BACKEND
 	{
 		Show(false,false);
 		return LTTRUE;
 	} break;
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_RETURN:
+#else
 	case VK_RETURN:
+#endif // LTJS_SDL_BACKEND
 	{
 		Send();
 		return LTTRUE;
 	} break;
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_UP:
+#else
 	case VK_UP:
+#endif // LTJS_SDL_BACKEND
 	{
 		int nTest = m_nHistory+1;
 		if (nTest >= 0 && nTest < kMaxChatHistory && strlen(m_szChatHistory[nTest]))
@@ -197,7 +213,11 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 		return LTTRUE;
 	} break;
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_DOWN:
+#else
 	case VK_DOWN:
+#endif // LTJS_SDL_BACKEND
 	{
 		int nTest = m_nHistory-1;
 		if (nTest >= 0 && nTest < kMaxChatHistory && strlen(m_szChatHistory[nTest]))
@@ -209,13 +229,21 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 		return LTTRUE;
 	} break;
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_PAGEDOWN:
+#else
 	case VK_PRIOR:
+#endif // LTJS_SDL_BACKEND
 	{
 		g_pChatMsgs->IncHistoryOffset();
 		return LTTRUE;
 	} break;
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_PAGEUP:
+#else
 	case VK_NEXT:
+#endif // LTJS_SDL_BACKEND
 	{
 		g_pChatMsgs->DecHistoryOffset();
 		return LTTRUE;

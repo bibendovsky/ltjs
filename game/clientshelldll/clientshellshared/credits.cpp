@@ -20,6 +20,10 @@
 #include <stdio.h>
 #include <mbstring.h>
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
+
 // Macros...
 
 
@@ -721,30 +725,48 @@ void CCredits::HandleInput(int vkey)
 
 	switch (vkey)
 	{
+#if LTJS_SDL_BACKEND
+		case ::SDLK_UP:
+#else
 		case VK_UP:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (IsIntro()) break;
 			IncSpeed();
 			break;
 		}
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_DOWN:
+#else
 		case VK_DOWN:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (IsIntro()) break;
 			DecSpeed();
 			break;
 		}
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_HOME:
+#else
 		case VK_HOME:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (IsIntro()) break;
 			s_fSpeed = 1.0;
 			break;
 		}
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_RETURN:
+		case ::SDLK_SPACE:
+		case ::SDLK_PAGEDOWN:
+#else
 		case VK_RETURN:
 		case VK_SPACE:
 		case VK_NEXT:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (IsIntro() || IsDemoIntro())
 			{
@@ -764,21 +786,33 @@ void CCredits::HandleInput(int vkey)
 			break;
 		}
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_PAGEUP:
+#else
 		case VK_PRIOR:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (IsIntro() || IsDemoIntro()) break;
 			BackupCredit(CS_HOLDIN);
 			break;
 		}
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_PAUSE:
+#else
 		case VK_PAUSE:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (IsIntro() || IsDemoIntro()) break;
 			s_bPause ^= 1;
 			break;
 		}
 
+#if LTJS_SDL_BACKEND
+		case ::SDLK_ESCAPE:
+#else
 		case VK_ESCAPE:
+#endif // LTJS_SDL_BACKEND
 		{
 //			ExitToMainMenu();
 			break;

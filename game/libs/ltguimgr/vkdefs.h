@@ -1,3 +1,6 @@
+#if !LTJS_SDL_BACKEND
+
+
 //----------------------------------------------------------
 //
 // MODULE  : VKDEFS.DSC
@@ -150,3 +153,5 @@
 #define VK_PA1			253
 #define VK_OEM_CLEAR	254
 
+
+#endif // !LTJS_SDL_BACKEND

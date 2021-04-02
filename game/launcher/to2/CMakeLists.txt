@@ -9,14 +9,6 @@ endif ()
 
 include (ltjs_common)
 
-if (WIN32)
-	set (LTJS_SDL2_MIN_VERSION "2.0.8")
-else ()
-	set (LTJS_SDL2_MIN_VERSION "2.0.4")
-endif ()
-
-find_package (SDL2W ${LTJS_SDL2_MIN_VERSION} REQUIRED)
-
 add_executable (${PROJECT_NAME})
 
 ltjs_add_defaults (${PROJECT_NAME})

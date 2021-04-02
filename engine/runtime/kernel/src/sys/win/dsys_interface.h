@@ -26,6 +26,12 @@
 
 // Client globals.
 #ifdef DE_CLIENT_COMPILE
+
+#if LTJS_SDL_BACKEND
+#include "ltjs_main_window_descriptor.h"
+#include "ltjs_system_event_mgr.h"
+#endif // LTJS_SDL_BACKEND
+
     #define MAX_KEYBUFFER       100
 
     #define SOUND_DRIVER_NAME_LEN   32
@@ -45,8 +51,17 @@
 
         BOOL            m_bProcessWindowMessages;
         jmp_buf         m_MemoryJmp;
+
+#if LTJS_SDL_BACKEND
+		ltjs::MainWindowDescriptor m_hMainWnd{};
+#else
         HWND            m_hMainWnd;
-        
+#endif // LTJS_SDL_BACKEND
+
+#if LTJS_SDL_BACKEND
+		ltjs::SystemEventMgr* system_event_mgr{};
+#endif // LTJS_SDL_BACKEND
+
         HINSTANCE       m_hInstance;
         
         char            *m_WndClassName;
@@ -67,9 +82,15 @@
         const char      *m_pWorldName;
         char            m_CachePath[500];
 
+#if LTJS_SDL_BACKEND
+		unsigned int m_KeyDowns[MAX_KEYBUFFER];
+		unsigned int m_KeyUps[MAX_KEYBUFFER];
+		unsigned int m_KeyDownReps[MAX_KEYBUFFER];
+#else
         DWORD           m_KeyDowns[MAX_KEYBUFFER];
         DWORD           m_KeyUps[MAX_KEYBUFFER];
         BOOL            m_KeyDownReps[MAX_KEYBUFFER];
+#endif // LTJS_SDL_BACKEND
 
         WORD            m_nKeyDowns;
         WORD            m_nKeyUps;
@@ -180,6 +201,10 @@ void dsi_MessageBox(const char *pMsg, const char *pTitle);
 // Get the version info of the executable.
 // Returns LT_OK or an error.
 LTRESULT dsi_GetVersionInfo(LTVersionInfo &info);
+
+#if LTJS_SDL_BACKEND
+void* dsi_get_system_event_handler_mgr() noexcept;
+#endif // LTJS_SDL_BACKEND
 
 
 #endif  // __DSYS_INTERFACE_H__

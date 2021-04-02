@@ -11,6 +11,12 @@
 #include "sysconsole_impl.h"
 #include "dtxmgr.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+
+#include "ltjs_main_window_descriptor.h"
+#endif // LTJS_SDL_BACKEND
+
 //------------------------------------------------------------------
 //------------------------------------------------------------------
 // Holders and their headers.
@@ -602,7 +608,10 @@ LTRESULT r_InitRender(RMode *pMode)
 {
 	RenderStructInit init;
 	int initStatus;
+
+#if !LTJS_SDL_BACKEND
 	HWND hWnd;
+#endif // !LTJS_SDL_BACKEND
 
 	// Don't get in here recursively.
 	if(g_ClientGlob.m_bInitializingRenderer)
@@ -613,9 +622,13 @@ LTRESULT r_InitRender(RMode *pMode)
 
 	r_TermRender(0, false);
 
-
+#if LTJS_SDL_BACKEND
+	const auto hWnd = static_cast<const ltjs::MainWindowDescriptor*>(dsi_GetMainWindow());
+	::SDL_RestoreWindow(hWnd->sdl_window);
+#else
 	hWnd = (HWND)dsi_GetMainWindow();
 	ShowWindow(hWnd, SW_RESTORE);
+#endif // LTJS_SDL_BACKEND
 
 	if (g_bFirstTimeInit) 
 		r_InitSysCache(&g_SysCache);
@@ -668,7 +681,11 @@ LTRESULT r_InitRender(RMode *pMode)
 	}
 
 	// Set focus and capture the mouse.  We leave things like resizing the window to the render DLL.
+#if LTJS_SDL_BACKEND
+	::SDL_RaiseWindow(hWnd->sdl_window);
+#else
 	SetFocus(hWnd);
+#endif // LTJS_SDL_BACKEND
 
 	// Bind any open textures.
 	g_pClientMgr->BindSharedTextures();
@@ -738,12 +755,14 @@ LTRESULT r_TermRender(int surfaceHandling, bool bUnLoadDLL)
 		g_pClientMgr->UnbindClientShellWorlds();
 
 		g_Render.Term(bUnLoadDLL);
-		
+
+#if !LTJS_SDL_BACKEND
 		// Un-clip the cursor.
 		if (g_CV_CursorCenter) 
 		{
 			ClipCursor(LTNULL); 
 		}
+#endif // !LTJS_SDL_BACKEND
 
 		if (bUnLoadDLL) 
 		{

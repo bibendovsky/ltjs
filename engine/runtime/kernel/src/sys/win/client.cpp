@@ -1,3 +1,19 @@
+#if LTJS_SDL_BACKEND
+#include <memory>
+#include <utility>
+
+#include "SDL.h"
+#include "SDL_syswm.h"
+
+#include "ltjs_system_event.h"
+#include "ltjs_system_event_handler_mgr.h"
+#include "ltjs_system_event_mgr.h"
+#include "ltjs_system_event_queue.h"
+#include "ltjs_sdl_subsystem.h"
+#include "ltjs_sdl_utils.h"
+#endif // LTJS_SDL_BACKEND
+
+
 #ifdef LITHTECH_ESD
 #include "ltrealaudio_impl.h"
 #include "ltrealvideo_impl.h"
@@ -70,6 +86,517 @@ typedef int (*GetLithtechCommandLineFn)(int32 argc, char **argv,
 
 ClientGlob g_ClientGlob;
 uint32 g_EngineStartMS;
+
+
+#if LTJS_SDL_BACKEND
+namespace
+{
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+class CSystemEventHandler :
+	public ltjs::SystemEventHandler
+{
+public:
+	bool operator()(
+		const ltjs::SystemEvent& event) override;
+
+
+private:
+	void handle_window_focus(
+		SDL_WindowEventID event_id);
+
+	void handle_window_close();
+
+	bool handle_window(
+		const ::SDL_WindowEvent& e);
+
+
+#ifndef _FINAL
+	void handle_key_down_console(
+		const ::SDL_KeyboardEvent& e);
+#endif
+
+	void handle_key_down(
+		const ::SDL_KeyboardEvent& e);
+
+	void handle_key_up_screenshot();
+
+	void handle_key_up(
+		const ::SDL_KeyboardEvent& e);
+}; // CSystemEventHandler
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+auto g_system_event_handler = CSystemEventHandler{};
+auto g_system_event_mgr = ltjs::SystemEventMgrUPtr{};
+auto g_video_subsystem = ltjs::SdlSubsystem{};
+auto g_main_window = ltjs::SdlWindowUResource{};
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+bool CSystemEventHandler::operator()(
+	const ltjs::SystemEvent& event)
+{
+	const auto is_handle_window_messages = (g_ClientGlob.m_bProcessWindowMessages && g_pClientMgr);
+
+	if (!is_handle_window_messages)
+	{
+		return false;
+	}
+
+	switch (event.type)
+	{
+		case ::SDL_WINDOWEVENT:
+			return handle_window(event.window);
+
+		case ::SDL_KEYDOWN:
+			handle_key_down(event.key);
+			return true;
+
+		case ::SDL_KEYUP:
+			handle_key_up(event.key);
+			return true;
+
+		case ::SDL_TEXTINPUT:
+			return true;
+
+		default:
+			return false;
+	}
+}
+
+void CSystemEventHandler::handle_window_focus(
+	SDL_WindowEventID event_id)
+{
+	const auto wParam = (event_id == SDL_WINDOWEVENT_FOCUS_GAINED);
+
+	// If a dialog is up, let dsi_PreDialog and dsi_PostDialog handle this stuff. 
+	if (!g_bNullRender)
+	{
+		if (!g_ClientGlob.m_bDialogUp)
+		{
+			if (wParam)
+			{
+				if (g_ClientGlob.m_bLostFocus)
+				{
+					// Tell the client
+					i_client_shell->OnEvent(LTEVENT_GAINEDFOCUS, 0);
+
+// BBi
+// FIXME
+// No need if we don't use real fullscreen mode.
+#if 0
+					if (!g_ClientGlob.m_bRendererShutdown)
+					{
+						// Restore the video mode.
+						OutputDebugString("Regained focus.. initializing renderer.\n");
+
+						if (r_InitRender(&g_RMode) != LT_OK)
+						{
+							char messageString[256];
+
+							dsi_SetupMessage(messageString, sizeof(messageString) - 1, LT_UNABLETORESTOREVIDEO, LTNULL);
+							dsi_OnClientShutdown(messageString);
+						}
+#ifdef LITHTECH_ESD
+						if (g_pClientMgr->m_pRealAudioMgr)
+							g_pClientMgr->m_pRealAudioMgr->AppFocus(LTTRUE);
+						if (g_pClientMgr->m_pRealVideoMgr)
+							g_pClientMgr->m_pRealVideoMgr->AppFocus(LTTRUE);
+#endif // LITHTECH_ESD
+					}
+#endif
+
+					if (GetClientILTSoundMgrImpl()->IsValid())
+					{
+						GetClientILTSoundMgrImpl()->ReacquireDigitalHandle();
+					}
+				}
+
+				g_pClientMgr->ClearInput();
+				g_ClientGlob.m_bLostFocus = LTFALSE;
+				g_ClientGlob.m_bClientActive = LTTRUE;
+
+				if (ilt_cursor != NULL)
+				{
+					ilt_cursor->RefreshCursor();
+				}
+			}
+			else if (!g_ClientGlob.m_bLostFocus)
+			{
+				g_ClientGlob.m_bLostFocus = LTTRUE;
+				g_ClientGlob.m_bClientActive = LTFALSE;
+
+				// Tell the client
+				i_client_shell->OnEvent(LTEVENT_LOSTFOCUS, 0);
+
+// BBi
+// FIXME
+// No need if we don't use real fullscreen mode.
+#if 0
+				OutputDebugString("Losing focus.. shutting down renderer.\n");
+				r_TermRender(1, false);
+#endif
+
+				g_pClientMgr->ClearInput();
+
+				if (!g_ClientGlob.m_bAppClosing && GetClientILTSoundMgrImpl()->IsValid())
+				{
+					GetClientILTSoundMgrImpl()->ReleaseDigitalHandle();
+				}
+			}
+		}
+	}
+	else
+	{
+		if (wParam)
+		{
+			if (g_ClientGlob.m_bLostFocus)
+			{
+				OutputDebugString("Regained focus... Sending GAINEDFOCUS event.\n");
+				i_client_shell->OnEvent(LTEVENT_GAINEDFOCUS, 0);
+			}
+
+			g_pClientMgr->ClearInput();
+			g_ClientGlob.m_bLostFocus = LTFALSE;
+		}
+		else
+		{
+			if (!g_ClientGlob.m_bAppClosing)
+			{
+				OutputDebugString("Lost focus... Sending LOSTFOCUS event.\n");
+
+				i_client_shell->OnEvent(LTEVENT_LOSTFOCUS, 0);
+
+				g_ClientGlob.m_bLostFocus = LTTRUE;
+			}
+		}
+#ifdef LITHTECH_ESD
+		if (g_pClientMgr->m_pRealAudioMgr)
+			g_pClientMgr->m_pRealAudioMgr->AppFocus(LTFALSE);
+		if (g_pClientMgr->m_pRealVideoMgr)
+			g_pClientMgr->m_pRealVideoMgr->AppFocus(LTFALSE);
+#endif // LITHTECH_ESD
+	}
+
+	GetClientILTSoundMgrImpl()->handle_focus_lost(wParam == FALSE);
+}
+
+void CSystemEventHandler::handle_window_close()
+{
+	g_ClientGlob.m_bAppClosing = LTTRUE;
+
+	// Kill the music and sound drivers...
+	if (GetClientILTSoundMgrImpl()->IsValid())
+	{
+		GetClientILTSoundMgrImpl()->StopAllSounds();
+	}
+
+	if (GetMusicMgr() && GetMusicMgr()->m_bValid)
+	{
+		GetMusicMgr()->Stop(MUSIC_IMMEDIATE);
+	}
+}
+
+bool CSystemEventHandler::handle_window(
+	const ::SDL_WindowEvent& e)
+{
+	switch (e.event)
+	{
+		case ::SDL_WINDOWEVENT_FOCUS_GAINED:
+		case ::SDL_WINDOWEVENT_FOCUS_LOST:
+			handle_window_focus(static_cast<SDL_WindowEventID>(e.event));
+			break;
+
+		case ::SDL_WINDOWEVENT_CLOSE:
+			handle_window_close();
+			break;
+
+		default:
+			return false;
+	}
+
+	return true;
+}
+
+#ifndef _FINAL
+void CSystemEventHandler::handle_key_down_console(
+	const ::SDL_KeyboardEvent& e)
+{
+	if ((e.keysym.mod & KMOD_ALT) != 0)
+	{
+		//	if the console is disabled allow it to come down if the user hits alt-tilde and
+		//	if the Developer cvar exists and is == 1
+		if (g_ClientGlob.m_bIsConsoleUp == FALSE)
+		{
+			g_ClientGlob.m_bIsConsoleUp = !g_ClientGlob.m_bIsConsoleUp;
+			if (!g_ClientGlob.m_bIsConsoleUp)
+			{
+				if (g_pClientMgr && g_pClientMgr->m_InputMgr)
+					g_pClientMgr->m_InputMgr->FlushInputBuffers(g_pClientMgr->m_InputMgr);
+			}
+		}
+	}
+	else
+	{
+		// Tilde key..
+		if (dsi_IsConsoleEnabled () == FALSE)
+		{
+			//	if the console is disabled, but it's up, hitting tilde will turn it off
+			if (g_ClientGlob.m_bIsConsoleUp == TRUE)
+				g_ClientGlob.m_bIsConsoleUp = FALSE;
+
+			//	if the lithtech console is disabled, just add tilde as a normal keypress
+			if( g_ClientGlob.m_nKeyDowns < MAX_KEYBUFFER )
+			{
+				g_ClientGlob.m_KeyDowns[g_ClientGlob.m_nKeyDowns] = e.keysym.sym;
+				g_ClientGlob.m_KeyDownReps[g_ClientGlob.m_nKeyDowns] = e.repeat;
+				++g_ClientGlob.m_nKeyDowns;
+			}
+		}
+		else
+		{
+			if ((e.keysym.mod & KMOD_SHIFT) != 0 && (e.keysym.mod & KMOD_CTRL) != 0) 
+			{
+				g_nConsoleLines = 0;
+			}
+			else if ((e.keysym.mod & KMOD_SHIFT) != 0) 
+			{
+				++g_nConsoleLines;
+			}
+			else if ((e.keysym.mod & KMOD_CTRL) != 0) 
+			{
+				--g_nConsoleLines;
+			}
+			else
+			{
+				if (g_bConsoleEnable || g_ClientGlob.m_bIsConsoleUp) 
+				{
+					g_ClientGlob.m_bIsConsoleUp = !g_ClientGlob.m_bIsConsoleUp;
+					if (!g_ClientGlob.m_bIsConsoleUp) 
+					{
+						if (g_pClientMgr && g_pClientMgr->m_InputMgr) 
+						{
+							g_pClientMgr->m_InputMgr->FlushInputBuffers(g_pClientMgr->m_InputMgr);
+						}
+					}
+				}
+			}
+		}
+
+		g_nConsoleLines = LTCLAMP(g_nConsoleLines, 0, 90);
+	}
+}
+#endif
+
+void CSystemEventHandler::handle_key_down(
+	const ::SDL_KeyboardEvent& e)
+{
+	const auto key_code = e.keysym.sym;
+
+#ifndef _FINAL
+	if (key_code == SDLK_BACKQUOTE)
+	{
+		handle_key_down_console(e);
+		return;
+	}
+#endif
+
+	if (g_ClientGlob.m_nKeyDowns < MAX_KEYBUFFER)
+	{
+		g_ClientGlob.m_KeyDowns[g_ClientGlob.m_nKeyDowns] = key_code;
+		g_ClientGlob.m_KeyDownReps[g_ClientGlob.m_nKeyDowns] = e.repeat;
+		++g_ClientGlob.m_nKeyDowns;
+	}
+}
+
+void CSystemEventHandler::handle_key_up_screenshot()
+{
+	if (r_GetRenderStruct())
+	{
+		// Get a free filename.
+		for (auto i = 0; i < 3000; i++)
+		{
+			char fileName[_MAX_PATH + 1];
+
+			LTSNPrintF(fileName, sizeof(fileName), "%s%d.bmp", g_SSFile, i);
+			auto fp = fopen(fileName, "rb");
+			if (fp)
+			{
+				fclose(fp);
+			}
+			else
+			{
+				r_GetRenderStruct()->MakeScreenShot(fileName);
+				break;
+			}
+		}
+	}
+}
+
+void CSystemEventHandler::handle_key_up(
+	const ::SDL_KeyboardEvent& e)
+{
+	const auto key_code = e.keysym.sym;
+
+	if (key_code == SDLK_F8)
+	{
+		handle_key_up_screenshot();
+	}
+	else
+	{
+		if (g_ClientGlob.m_nKeyUps < MAX_KEYBUFFER)
+		{
+			g_ClientGlob.m_KeyUps[g_ClientGlob.m_nKeyUps++] = key_code;
+		}
+	}
+}
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+bool initialize_sdl()
+{
+	const auto sdl_init_result = ::SDL_Init(0);
+
+	if (sdl_init_result != 0)
+	{
+		auto sdl_error_message = ::SDL_GetError();
+
+		if ((*sdl_error_message) == '\0')
+		{
+			sdl_error_message = "Failed to initialize SDL.";
+		}
+
+		::SDL_ShowSimpleMessageBox(
+			::SDL_MESSAGEBOX_ERROR,
+			"ltjs_lithtech",
+			sdl_error_message,
+			nullptr
+		);
+
+		return false;
+	}
+
+	return true;
+}
+
+void initialize_system_event_mgr()
+{
+	g_system_event_mgr = ltjs::make_system_event_mgr();
+	g_ClientGlob.system_event_mgr = g_system_event_mgr.get();
+}
+
+void initialize_system_event_handler()
+{
+	const auto handler_mgr = g_system_event_mgr->get_handler_mgr();
+	handler_mgr->add(&g_system_event_handler, ltjs::SystemEventHandlerPriority::normal);
+}
+
+bool initialize()
+{
+	if (!initialize_sdl())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void destroy_main_window()
+{
+	g_main_window = nullptr;
+}
+
+void uninitialize()
+{
+	destroy_main_window();
+
+	::SDL_Quit();
+}
+
+void initialize_video_subsystem()
+{
+	g_video_subsystem = ltjs::SdlSubsystem{SDL_INIT_VIDEO};
+}
+
+void create_main_window(
+	int width,
+	int height)
+{
+	const auto sdl_window_flags = ::Uint32{::SDL_WINDOW_ALLOW_HIGHDPI};
+
+	auto sdl_window = ltjs::SdlWindowUResource{::SDL_CreateWindow(
+		g_ClientGlob.m_WndCaption,
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
+		width,
+		height,
+		sdl_window_flags
+	)};
+
+	if (!sdl_window)
+	{
+		return;
+	}
+
+	void* window_native_handle = nullptr;
+
+#if _WIN32
+	auto sdl_sys_wm_info = ::SDL_SysWMinfo{};
+	SDL_VERSION(&sdl_sys_wm_info.version);
+
+	if (::SDL_GetWindowWMInfo(sdl_window.get(), &sdl_sys_wm_info))
+	{
+		window_native_handle = sdl_sys_wm_info.info.win.window;
+	}
+#endif // _WIN32
+
+	ltjs::sdl_utils::fill_window_black(sdl_window.get());
+
+	g_main_window = std::move(sdl_window);
+
+	auto& descriptor = g_ClientGlob.m_hMainWnd;
+	descriptor.sdl_window = g_main_window.get();
+	descriptor.native_handle = window_native_handle;
+}
+
+void center_cursor_in_main_window()
+{
+	auto window_width = 0;
+	auto window_height = 0;
+	::SDL_GetWindowSize(g_main_window.get(), &window_width, &window_height);
+
+	const auto x = window_width / 2;
+	const auto y = window_height / 2;
+	::SDL_WarpMouseInWindow(g_main_window.get(), x, y);
+}
+
+void show_out_of_memory_message_box()
+{
+	::SDL_ShowSimpleMessageBox(
+		::SDL_MESSAGEBOX_ERROR,
+		g_ClientGlob.m_WndCaption,
+		"Out of memory",
+		g_main_window.get()
+	);
+}
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+}
+#endif // LTJS_SDL_BACKEND
 
 
 ///////////////////////////////////////////////////
@@ -172,7 +699,7 @@ static bool StartClient(ClientGlob *pGlob)
     return LTTRUE;
 }
 
-
+#if !LTJS_SDL_BACKEND
 static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     ClientGlob *pGlob;
     char messageString[256], fileName[_MAX_PATH + 1];
@@ -474,7 +1001,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 
     return DefWindowProc(hwnd, message, wParam, lParam);
 }
-
+#endif // !LTJS_SDL_BACKEND
 
 int LTAllocHook(int allocType, void *userData, size_t size, int blockType, 
    long requestNumber, const unsigned char *filename, int lineNumber)
@@ -560,7 +1087,13 @@ int RunClientApp(HINSTANCE hInstance) {
 
     pGlob->m_bBreakOnError = command_line_args->FindArgDash("breakonerror") != NULL;
 
+#if LTJS_SDL_BACKEND
+	initialize_system_event_mgr();
+	initialize_system_event_handler();
 
+	initialize_video_subsystem();
+	create_main_window(320, 200);
+#else
     // Create the main window.
     wndclass.style         = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
     wndclass.lpfnWndProc   = MainWndProc;
@@ -588,11 +1121,15 @@ int RunClientApp(HINSTANCE hInstance) {
                 LTNULL,													// window menu handle
                 pGlob->m_hInstance,										// program instance handle
                 LTNULL);												// creation parameters
-
+#endif // LTJS_SDL_BACKEND
 
     bPrevHighPriority = LTFALSE;
     if (StartClient(pGlob)) 
 	{
+#if LTJS_SDL_BACKEND
+		auto is_mouse_relative_mode = ::SDL_bool{};
+#endif // LTJS_SDL_BACKEND
+
 		pGlob->m_bProcessWindowMessages = LTTRUE;
 
         for (;;) {
@@ -617,6 +1154,15 @@ int RunClientApp(HINSTANCE hInstance) {
                 dsi_PrintToConsole("Running for %.1f seconds", (float)(timeGetTime() - g_EngineStartMS) / 1000.0f);
             }
 
+#if LTJS_SDL_BACKEND
+			const auto new_is_mouse_relative_mode = (::g_CV_CursorCenter != 0 ? ::SDL_TRUE : ::SDL_FALSE);
+
+			if (is_mouse_relative_mode != new_is_mouse_relative_mode)
+			{
+				is_mouse_relative_mode = new_is_mouse_relative_mode;
+				::SDL_SetRelativeMouseMode(is_mouse_relative_mode);
+			}
+#else
             // Center the mouse in the window.
             if (g_CV_CursorCenter && !g_ClientGlob.m_bLostFocus) {
                 GetWindowRect(pGlob->m_hMainWnd, &wndRect);
@@ -624,7 +1170,19 @@ int RunClientApp(HINSTANCE hInstance) {
                 // when you play in a small window on a big screen
                 SetCursorPos((screenRect.right - screenRect.left) / 2, (screenRect.bottom - screenRect.top) / 2);
             }
-            
+#endif // LTJS_SDL_BACKEND
+
+#if LTJS_SDL_BACKEND
+			g_system_event_mgr->poll_events();
+
+			if (g_system_event_mgr->was_quit_event())
+			{
+				nExitValue = 1;
+				goto END_MAINLOOP;
+			}
+
+			g_system_event_mgr->handle_events();
+#else
             while (PeekMessage(&msg, LTNULL, 0, 0, PM_REMOVE)) {
                 if (msg.message == WM_QUIT) {
                     nExitValue = msg.wParam;
@@ -634,6 +1192,7 @@ int RunClientApp(HINSTANCE hInstance) {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
+#endif // LTJS_SDL_BACKEND
         }
     }
 
@@ -652,13 +1211,21 @@ END_MAINLOOP:;
     delete g_pClientMgr;
     g_pClientMgr = LTNULL;
 
+#if LTJS_SDL_BACKEND
+	destroy_main_window();
+#else
     DestroyWindow(pGlob->m_hMainWnd);
+#endif // LTJS_SDL_BACKEND
 
     dsi_Term();
 
     if (bOutOfMemory) {
+#if LTJS_SDL_BACKEND
+		show_out_of_memory_message_box();
+#else
         ShowWindow(pGlob->m_hMainWnd, SW_HIDE);
         MessageBox(GetDesktopWindow(), "Out of memory", pGlob->m_WndCaption, MB_OK);
+#endif // LTJS_SDL_BACKEND
     }
 
     LTBOOL bShowMemLeaks = LTFALSE;
@@ -1017,6 +1584,13 @@ bool SetupArgs(const char* pszCommandLine)
 
 extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) 
 {
+#if LTJS_SDL_BACKEND
+	if (!initialize())
+	{
+		return 1;
+	}
+#endif // LTJS_SDL_BACKEND
+
 	LTMemInit();
 
     g_EngineStartMS = timeGetTime();
@@ -1044,6 +1618,10 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
             ret = RunClientApp(hInstance);
         }
     }
+
+#if LTJS_SDL_BACKEND
+	uninitialize();
+#endif // LTJS_SDL_BACKEND
 
     return ret;
 }

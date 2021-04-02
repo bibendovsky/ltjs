@@ -33,6 +33,10 @@
 #include "timer.h"
 #include "wavefn.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
+
 CInterfaceMgr*  g_pInterfaceMgr = LTNULL;
 
 #define IM_SPLASH_SOUND		"Interface\\Menu\\Snd\\theme_mp3.wav"
@@ -1132,6 +1136,10 @@ void CInterfaceMgr::UpdateExitingLevelState()
 
 void CInterfaceMgr::UpdateLoadingLevelState()
 {
+#if LTJS_SDL_BACKEND
+	const auto sdl_key_state = ::SDL_GetKeyboardState(nullptr);
+#endif // LTJS_SDL_BACKEND
+
 	if (g_pPlayerMgr->IsPlayerInWorld())
 	{
 		// Make sure the loading screen isn't busy
@@ -1158,7 +1166,11 @@ void CInterfaceMgr::UpdateLoadingLevelState()
 			ChangeState(GS_PLAYING);
 		}
 	}
+#if LTJS_SDL_BACKEND
+	else if ((m_bLoadFailed) || (g_pLTClient->IsConnected() && sdl_key_state[::SDL_SCANCODE_ESCAPE]))
+#else
 	else if ((m_bLoadFailed) || (g_pLTClient->IsConnected() && IsKeyDown(VK_ESCAPE)))
+#endif // LTJS_SDL_BACKEND
 	{
 		m_bLoadFailed = LTFALSE;
 		m_LoadingScreen.Hide();
@@ -2929,7 +2941,11 @@ LTBOOL CInterfaceMgr::OnKeyDown(int key, int rep)
 
 			switch (key)
 			{
+#if LTJS_SDL_BACKEND
+				case ::SDLK_PAUSE:
+#else
 				case VK_PAUSE:
+#endif // LTJS_SDL_BACKEND
 				{
 					if (IsMultiplayerGame()) return LTFALSE;
 
@@ -2944,7 +2960,11 @@ LTBOOL CInterfaceMgr::OnKeyDown(int key, int rep)
 				break;
 
 				// Escape Key Handling
+#if LTJS_SDL_BACKEND
+				case ::SDLK_ESCAPE:
+#else
 				case VK_ESCAPE:
+#endif // LTJS_SDL_BACKEND
 				{
 					bool bHandled = false;
 					if (!g_pPlayerMgr->IsPlayerDead() && g_pPlayerMgr->IsPlayerInWorld())
@@ -3015,7 +3035,11 @@ LTBOOL CInterfaceMgr::OnKeyUp(int key)
 	// if it's the tilde (~) key then the console has been turned off
 	// (this is the only event that causes this key to ever get processed)
 	// so clear the back buffer to get rid of any part of the console still showing
+#if LTJS_SDL_BACKEND
+	if (key == ::SDLK_BACKQUOTE)
+#else
 	if (key == VK_TILDE)
+#endif // LTJS_SDL_BACKEND
 	{
 		AddToClearScreenCount();
         return LTTRUE;

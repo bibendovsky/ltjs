@@ -1,8 +1,6 @@
 cmake_minimum_required (VERSION 3.1.3)
 project (ltjs_snd_drv_dx8 VERSION 0.0.1 LANGUAGES CXX)
 
-find_package (LTJS_FFmpeg REQUIRED 2.8.11)
-
 option (LTJS_INSTALL_SND_DRV_DX8 "Install DirectSound sound driver." OFF)
 option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 

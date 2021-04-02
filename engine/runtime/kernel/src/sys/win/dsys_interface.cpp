@@ -1,3 +1,9 @@
+#if LTJS_SDL_BACKEND
+#include <memory>
+
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
+
 #include "bdefs.h"
 #include "bibendovsky_spul_path_utils.h"
 #include "stringmgr.h"
@@ -369,18 +375,18 @@ LTRESULT dsi_LoadServerObjects(
 	//check for errors.
 	if (status == CB_CANTFINDMODULE)
 	{
-		sm_SetupError(LT_INVALIDOBJECTDLL, object_file_name);
-		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLL, object_file_name);
+		sm_SetupError(LT_INVALIDOBJECTDLL, object_file_name.c_str());
+		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLL, object_file_name.c_str());
 	}
 	else if (status == CB_NOTCLASSMODULE)
 	{
-		sm_SetupError(LT_INVALIDOBJECTDLL, object_file_name);
-		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLL, object_file_name);
+		sm_SetupError(LT_INVALIDOBJECTDLL, object_file_name.c_str());
+		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLL, object_file_name.c_str());
 	}
 	else if (status == CB_VERSIONMISMATCH)
 	{
-		sm_SetupError(LT_INVALIDOBJECTDLLVERSION, object_file_name, version, SERVEROBJ_VERSION);
-		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLLVERSION, object_file_name);
+		sm_SetupError(LT_INVALIDOBJECTDLLVERSION, object_file_name.c_str(), version, SERVEROBJ_VERSION);
+		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLLVERSION, object_file_name.c_str());
 	}
 
 	// Get sres.dll.
@@ -390,8 +396,8 @@ LTRESULT dsi_LoadServerObjects(
 	{
 		cb_UnloadModule(pClassMgr->m_ClassModule);
 
-		sm_SetupError(LT_ERRORCOPYINGFILE, sres_file_name);
-		RETURN_ERROR_PARAM(1, LoadServerObjects, LT_ERRORCOPYINGFILE, sres_file_name);
+		sm_SetupError(LT_ERRORCOPYINGFILE, sres_file_name.c_str());
+		RETURN_ERROR_PARAM(1, LoadServerObjects, LT_ERRORCOPYINGFILE, sres_file_name.c_str());
 	}
 
 	//let the dll know it's instance handle.
@@ -415,6 +421,7 @@ void dsi_ServerSleep(uint32 ms) {
 
 extern int32 g_ScreenWidth, g_ScreenHeight; // Console variables.
 
+#if !LTJS_SDL_BACKEND
 static void dsi_GetDLLModes(char *pDLLName, RMode **pMyList) {
     RMode *pMyMode;
     RMode *pListHead, *pCur;
@@ -446,8 +453,77 @@ RMode* dsi_GetRenderModes() {
  
     return pList;
 }
+#else
+RMode* dsi_GetRenderModes()
+{
+	const auto display_count = ::SDL_GetNumVideoDisplays();
 
+	if (display_count <= 0)
+	{
+		return nullptr;
+	}
 
+	const auto mode_count = ::SDL_GetNumDisplayModes(0);
+
+	if (mode_count <= 0)
+	{
+		return nullptr;
+	}
+
+	auto api_mode_index = 0;
+	auto api_modes = std::make_unique<RMode[]>(mode_count);
+
+	for (auto i = 0; i < mode_count; ++i)
+	{
+		::SDL_DisplayMode mode;
+
+		const auto sdl_result = ::SDL_GetDisplayMode(0, i, &mode);
+
+		if (sdl_result != 0)
+		{
+			continue;
+		}
+
+		if (mode.format != ::SDL_PIXELFORMAT_RGB24 &&
+			mode.format != ::SDL_PIXELFORMAT_BGR24 &&
+			mode.format != ::SDL_PIXELFORMAT_RGB888 &&
+			mode.format != ::SDL_PIXELFORMAT_BGR888 &&
+			mode.format != ::SDL_PIXELFORMAT_RGBX8888 &&
+			mode.format != ::SDL_PIXELFORMAT_BGRX8888 &&
+			mode.format != ::SDL_PIXELFORMAT_ARGB8888 &&
+			mode.format != ::SDL_PIXELFORMAT_RGBA8888 &&
+			mode.format != ::SDL_PIXELFORMAT_ABGR8888 &&
+			mode.format != ::SDL_PIXELFORMAT_BGRA8888)
+		{
+			continue;
+		}
+
+		auto& api_mode = api_modes[api_mode_index];
+		api_mode.m_bHWTnL = true;
+		api_mode.m_Width = mode.w;
+		api_mode.m_Height = mode.h;
+		api_mode.m_BitDepth = 32;
+
+		if (api_mode_index > 0)
+		{
+			api_modes[api_mode_index - 1].m_pNext = &api_mode;
+		}
+
+		api_mode_index += 1;
+	}
+
+	if (api_mode_index <= 0)
+	{
+		return nullptr;
+	}
+
+	api_modes[api_mode_index - 1].m_pNext = nullptr;
+
+	return api_modes.release();
+}
+#endif // !LTJS_SDL_BACKEND
+
+#if !LTJS_SDL_BACKEND
 void dsi_RelinquishRenderModes(RMode *pMode) {
     RMode *pCur, *pNext;
 
@@ -458,7 +534,13 @@ void dsi_RelinquishRenderModes(RMode *pMode) {
         pCur = pNext;
     }
 }
-
+#else
+void dsi_RelinquishRenderModes(
+	RMode* pMode)
+{
+	delete[] pMode;
+}
+#endif // !LTJS_SDL_BACKEND
 
 LTRESULT dsi_GetRenderMode(RMode *pMode) {
     memcpy(pMode, &g_RMode, sizeof(RMode));
@@ -499,11 +581,19 @@ LTRESULT dsi_ShutdownRender(uint32 flags) {
     r_TermRender(1, true);
 
     if (flags & RSHUTDOWN_MINIMIZEWINDOW) {
+#if LTJS_SDL_BACKEND
+		::SDL_MinimizeWindow(g_ClientGlob.m_hMainWnd.sdl_window);
+#else
         ShowWindow(g_ClientGlob.m_hMainWnd, SW_MINIMIZE);
+#endif // LTJS_SDL_BACKEND
     }
 
     if (flags & RSHUTDOWN_HIDEWINDOW) {
+#if LTJS_SDL_BACKEND
+		::SDL_HideWindow(g_ClientGlob.m_hMainWnd.sdl_window);
+#else
         ShowWindow(g_ClientGlob.m_hMainWnd, SW_HIDE);
+#endif // LTJS_SDL_BACKEND
     }
 
     g_ClientGlob.m_bRendererShutdown = LTTRUE;
@@ -646,14 +736,14 @@ LTRESULT dsi_InitClientShellDE()
 	//check if it loaded correctly.
 	if (status == BIND_CANTFINDMODULE)
 	{
-		g_pClientMgr->SetupError(LT_MISSINGSHELLDLL, cshell_file_name);
+		g_pClientMgr->SetupError(LT_MISSINGSHELLDLL, cshell_file_name.c_str());
 		RETURN_ERROR(1, InitClientShellDE, LT_MISSINGSHELLDLL);
 	}
 
 	//check if we now have the IClientShell interface instantiated.
 	if (!i_client_shell)
 	{
-		g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, cshell_file_name);
+		g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, cshell_file_name.c_str());
 		RETURN_ERROR(1, InitClientShellDE, LT_INVALIDSHELLDLL);
 	}
 
@@ -673,8 +763,8 @@ LTRESULT dsi_InitClientShellDE()
 		bm_UnbindModule(g_pClientMgr->m_hShellModule);
 		g_pClientMgr->m_hShellModule = nullptr;
 
-		g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, cres_file_name);
-		RETURN_ERROR_PARAM(1, InitClientShellDE, LT_INVALIDSHELLDLL, cres_file_name);
+		g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, cres_file_name.c_str());
+		RETURN_ERROR_PARAM(1, InitClientShellDE, LT_INVALIDSHELLDLL, cres_file_name.c_str());
 	}
 
 	//let the dll know it's instance handle.
@@ -749,6 +839,10 @@ void dsi_ClearKeyUps() {
 }
 
 void dsi_ClearKeyMessages() {
+#if LTJS_SDL_BACKEND
+	::SDL_FlushEvent(SDL_KEYDOWN);
+	::SDL_FlushEvent(SDL_KEYUP);
+#else
     MSG msg;
     int i;
 
@@ -763,6 +857,7 @@ void dsi_ClearKeyMessages() {
             break;
         }
     }
+#endif // LTJS_SDL_BACKEND
 }
 
 LTBOOL dsi_IsConsoleUp() {
@@ -804,7 +899,11 @@ void dsi_OnClientShutdown(char *pMsg) {
     }
 	
     if (g_ClientGlob.m_bProcessWindowMessages) {
+#if LTJS_SDL_BACKEND
+		g_ClientGlob.system_event_mgr->post_quit_event();
+#else
         PostQuitMessage(0);
+#endif // LTJS_SDL_BACKEND
     }
 }
 
@@ -837,29 +936,56 @@ void* dsi_GetInstanceHandle() {
 }
 
 void* dsi_GetMainWindow() {
+#if LTJS_SDL_BACKEND
+	return &g_ClientGlob.m_hMainWnd;
+#else
     return (void*)g_ClientGlob.m_hMainWnd;
+#endif // LTJS_SDL_BACKEND
 }
 
 LTRESULT dsi_DoErrorMessage(const char *pMessage) {
     con_PrintString(CONRGB(255,255,255), 0, pMessage);
     
     if (!g_Render.m_bInitted) {
+#if LTJS_SDL_BACKEND
+		::SDL_ShowSimpleMessageBox(
+			::SDL_MESSAGEBOX_ERROR,
+			g_ClientGlob.m_WndCaption,
+			pMessage,
+			g_ClientGlob.m_hMainWnd.sdl_window
+		);
+#else
         MessageBox(g_ClientGlob.m_hMainWnd, pMessage, g_ClientGlob.m_WndCaption, MB_OK);
+#endif // LTJS_SDL_BACKEND
     }
 
     return LT_OK;
 }
 
 void dsi_MessageBox(const char *pMessage, const char *pTitle) {
+#if LTJS_SDL_BACKEND
+		::SDL_ShowSimpleMessageBox(
+			::SDL_MESSAGEBOX_INFORMATION,
+			pTitle,
+			pMessage,
+			g_ClientGlob.m_hMainWnd.sdl_window
+		);
+#else
     int i;
     i = MessageBox(g_ClientGlob.m_hMainWnd, pMessage, pTitle, MB_OK);
+#endif // LTJS_SDL_BACKEND
 }
 
 LTRESULT dsi_GetVersionInfo(LTVersionInfo &info) {
     return GetLTExeVersion(g_ClientGlob.m_hInstance, info);
 }
 
-
+#if LTJS_SDL_BACKEND
+void* dsi_get_system_event_handler_mgr() noexcept
+{
+	return g_ClientGlob.system_event_mgr->get_handler_mgr();
+}
+#endif // LTJS_SDL_BACKEND
 
 //----------------------------------------------------------------
 #else //----------------------------------------------------------
