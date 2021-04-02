@@ -5,10 +5,19 @@
 #include "d3d_init.h"
 #include "rendererconsolevars.h"
 
+#if LTJS_SDL_BACKEND
+#include "ltjs_main_window_descriptor.h"
+#endif // LTJS_SDL_BACKEND
+
 RenderStruct *g_pStruct=NULL;
 
 // Main globals.
+#if LTJS_SDL_BACKEND
+const ltjs::MainWindowDescriptor* g_hWnd;
+#else
 HWND	g_hWnd;
+#endif // LTJS_SDL_BACKEND
+
 bool	g_bRunWindowed;
 
 #if 0

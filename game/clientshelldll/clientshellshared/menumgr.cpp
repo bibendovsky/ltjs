@@ -12,6 +12,11 @@
 #include "stdafx.h"
 #include "menumgr.h"
 #include "gameclientshell.h"
+
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
+
 extern CGameClientShell* g_pGameClientShell;
 
 
@@ -160,7 +165,11 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 
 	//if the key is escape, switch to the system menu, only if there is no open menu
 	//otherwise (i.e. either not Escape or there is no open menu) see if we hit a hot key and switch to the menu
+#if LTJS_SDL_BACKEND
+	if (vkey != ::SDLK_ESCAPE || !m_pCurrentMenu)
+#else
 	if (vkey != VK_ESCAPE || !m_pCurrentMenu)
+#endif // LTJS_SDL_BACKEND
 	{
 		LTBOOL found = LTFALSE;
 		KeyArray::iterator iter = m_HotKeys.begin();
@@ -200,7 +209,11 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 	{
 		switch (vkey)
 		{
+#if LTJS_SDL_BACKEND
+			case ::SDLK_LEFT:
+#else
 		case VK_LEFT:
+#endif // LTJS_SDL_BACKEND
 			{
 				handled = pMenu->OnLeft();
 				if (!handled && pMenu == m_pCurrentMenu)
@@ -210,7 +223,11 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 				}
 				break;
 			}
+#if LTJS_SDL_BACKEND
+			case ::SDLK_RIGHT:
+#else
 		case VK_RIGHT:
+#endif // LTJS_SDL_BACKEND
 			{
 				LTBOOL handled2 = LTFALSE;
 				handled2 = pMenu->OnRight();
@@ -221,7 +238,11 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 				}
 				break;
 			}
+#if LTJS_SDL_BACKEND
+			case ::SDLK_UP:
+#else
 		case VK_UP:
+#endif // LTJS_SDL_BACKEND
 			{
 				if (pMenu->OnUp())
 				{
@@ -230,7 +251,11 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 				}
 				break;
 			}
+#if LTJS_SDL_BACKEND
+			case ::SDLK_DOWN:
+#else
 		case VK_DOWN:
+#endif // LTJS_SDL_BACKEND
 			{
 				if (pMenu->OnDown())
 				{
@@ -239,7 +264,11 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 				}
 				break;
 			}
+#if LTJS_SDL_BACKEND
+			case ::SDLK_RETURN:
+#else
 		case VK_RETURN:
+#endif // LTJS_SDL_BACKEND
 			{
 				if (pMenu->OnEnter())
 				{
@@ -293,7 +322,11 @@ void CMenuMgr::HandleKeyUp (int vkey)
 
 	}
 
+#if LTJS_SDL_BACKEND
+	if (vkey == ::SDLK_ESCAPE)
+#else
 	if (vkey == VK_ESCAPE)
+#endif // LTJS_SDL_BACKEND
 	{
 		if (m_pSubMenu)
 		{

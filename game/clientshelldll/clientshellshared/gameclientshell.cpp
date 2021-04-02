@@ -56,6 +56,13 @@
 #include "scmdconsoledriver_cshell.h"
 #include "mmsystem.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+
+#include "ltjs_main_window_descriptor.h"
+#include "ltjs_system_event_handler_mgr.h"
+#endif // LTJS_SDL_BACKEND
+
 #ifdef STRICT
 	WNDPROC g_pfnMainWndProc = NULL;
 #else
@@ -67,17 +74,33 @@
 #define WEAPON_MOVE_INC_VALUE_SLOW		0.0025f
 #define WEAPON_MOVE_INC_VALUE_FAST		0.005f
 
+#if LTJS_SDL_BACKEND
+#define VK_TOGGLE_GHOST_MODE			::SDLK_F1
+#define VK_TOGGLE_SPECTATOR_MODE		::SDLK_F2
+#define VK_TOGGLE_SCREENSHOTMODE		::SDLK_F3
+#define VK_WRITE_CAM_POS				::SDLK_F4
+#define VK_MAKE_CUBIC_ENVMAP			::SDLK_F12
+#else
 #define VK_TOGGLE_GHOST_MODE			VK_F1
 #define VK_TOGGLE_SPECTATOR_MODE		VK_F2
 #define VK_TOGGLE_SCREENSHOTMODE		VK_F3
 #define VK_WRITE_CAM_POS				VK_F4
 #define VK_MAKE_CUBIC_ENVMAP			VK_F12
-
+#endif // LTJS_SDL_BACKEND
 	
 uint32              g_dwSpecial         = 2342349;
 bool				g_bScreenShotMode   = false;
 
+#if LTJS_SDL_BACKEND
+const ltjs::MainWindowDescriptor* g_hMainWnd = nullptr;
+#else
 HWND				g_hMainWnd = NULL;
+#endif // LTJS_SDL_BACKEND
+
+#if LTJS_SDL_BACKEND
+ltjs::SystemEventHandlerMgr* g_system_event_handler_mgr = nullptr;
+#endif // LTJS_SDL_BACKEND
+
 RECT*				g_prcClip = NULL;
 
 CGameClientShell*   g_pGameClientShell = NULL;
@@ -1013,6 +1036,7 @@ uint32 CGameClientShell::OnEngineInitialized(RMode *pMode, LTGUID *pAppGuid)
 
         if (g_pLTClient->SetRenderMode(&rMode) != LT_OK)
 		{
+#if !LTJS_SDL_BACKEND
 			//alright, both of the above failed, so now we need to inform the user that we are unable
 			//to create a HWTnL device. This can be caused by them not having a TnL device, or by
 			//them not having DX8.1. We will let them choose if they want to exit or attempt to 
@@ -1027,6 +1051,7 @@ uint32 CGameClientShell::OnEngineInitialized(RMode *pMode, LTGUID *pAppGuid)
 				g_pLTClient->Shutdown();
 				return LT_ERROR;
 			}
+#endif // !LTJS_SDL_BACKEND
 
 			g_pLTClient->DebugOut("Attempting to create software TnL device.");
 
@@ -1427,8 +1452,10 @@ void CGameClientShell::OnEvent(uint32 dwEventID, uint32 dwParam)
 					HookWindow();
 				}
 
+#if !LTJS_SDL_BACKEND
 				GetWindowRect(g_hMainWnd, g_prcClip);
 				ClipCursor(g_prcClip);
+#endif // !LTJS_SDL_BACKEND
 			}
 
 			if (g_pCursorMgr)
@@ -2084,18 +2111,28 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 	// [RP] - 8/03/02: WinXP likes to add a second OnKeyDown() message with an invalid key of 255
 	//		  for certain single key presses.  Just ignore invalid key codes 255 and larger.
 
+#if !LTJS_SDL_BACKEND
 	if( key >= 0xFF )
 		return;
+#endif // !LTJS_SDL_BACKEND
 
 	// The engine handles the VK_F8 key for screenshots.
+#if LTJS_SDL_BACKEND
+	if (key == ::SDLK_F8)
+#else
 	if( key == VK_F8 )
+#endif // LTJS_SDL_BACKEND
 		return;
 
 	//if we are performance testing...
 	if (IsRunningPerformanceTest())
 	{
 		//allow abort...
+#if LTJS_SDL_BACKEND
+		if (key == ::SDLK_ESCAPE)
+#else
 		if (key == VK_ESCAPE)
+#endif // LTJS_SDL_BACKEND
 			AbortPerformanceTest();
 
 		//but don't process anything else
@@ -2145,7 +2182,11 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 #ifndef _DEMO
 #ifndef _TRON_E3_DEMO
 #ifndef _FINAL
+#if LTJS_SDL_BACKEND
+	if (key == ::SDLK_KP_MULTIPLY)
+#else
 	if (key == VK_MULTIPLY)
+#endif // LTJS_SDL_BACKEND
 	{
 		static bool g_bCycleOn = false;
 		g_bCycleOn = !g_bCycleOn;
@@ -2181,7 +2222,11 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 	// Allow quickload from anywhere, anytime.
 	// jrg - 8/31/02 - well, almost anywhere and almost anytime, except...
 	GameState eGameState = g_pInterfaceMgr->GetGameState();
+#if LTJS_SDL_BACKEND
+	if	(key == ::SDLK_F9 && 
+#else
 	if	( key == VK_F9 && 
+#endif // LTJS_SDL_BACKEND
 			(	GS_PLAYING == eGameState ||
 				GS_SCREEN == eGameState ||
 				GS_POPUP == eGameState ||
@@ -2224,7 +2269,11 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 		}
 		return;
 	}
+#if LTJS_SDL_BACKEND
+	else if( key == ::SDLK_F6 )
+#else
 	else if( key == VK_F6 )
+#endif // LTJS_SDL_BACKEND
 	{
 		// Only allow quicksave if we're in a world and not a remote client.
 		if( GetPlayerMgr()->IsPlayerInWorld() && !g_pClientMultiplayerMgr->IsConnectedToRemoteServer( ))
@@ -2265,7 +2314,11 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 void CGameClientShell::OnKeyUp(int key)
 {
 	// The engine handles the VK_F8 key for screenshots.
+#if LTJS_SDL_BACKEND
+	if (key == ::SDLK_F8)
+#else
 	if( key == VK_F8 )
+#endif // LTJS_SDL_BACKEND
 		return;
 
 	if (IsRunningPerformanceTest())
@@ -4486,6 +4539,132 @@ void DefaultModelHook (ModelHookData *pData, void *pUser)
 //
 // --------------------------------------------------------------------------- //
 
+#if LTJS_SDL_BACKEND
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+class GcsSystemEventHandler final :
+	public ltjs::SystemEventHandler
+{
+public:
+	bool operator()(
+		const ltjs::SystemEvent& event) override;
+
+private:
+	void handle_text_input(
+		const ::SDL_TextInputEvent& e);
+
+	void handle_mouse_motion(
+		const ::SDL_MouseMotionEvent& e);
+
+	void handle_mouse_button_down(
+		const ::SDL_MouseButtonEvent& e);
+
+	void handle_mouse_button_up(
+		const ::SDL_MouseButtonEvent& e);
+}; // GcsSystemEventHandler
+
+// ==========================================================================
+
+bool GcsSystemEventHandler::operator()(
+	const ltjs::SystemEvent& event)
+{
+	switch (event.type)
+	{
+		case ::SDL_TEXTINPUT:
+			handle_text_input(event.text);
+			break;
+
+		case ::SDL_MOUSEMOTION:
+			handle_mouse_motion(event.motion);
+			break;
+
+		case ::SDL_MOUSEBUTTONDOWN:
+			handle_mouse_button_down(event.button);
+			break;
+
+		case ::SDL_MOUSEBUTTONUP:
+			handle_mouse_button_up(event.button);
+			break;
+
+		default:
+			return false;
+	}
+
+	return true;
+}
+
+void GcsSystemEventHandler::handle_text_input(
+	const ::SDL_TextInputEvent& e)
+{
+	for (const auto ch : e.text)
+	{
+		if (ch == '\0')
+		{
+			break;
+		}
+
+		CGameClientShell::OnChar(nullptr, ch, 1);
+	}
+}
+
+void GcsSystemEventHandler::handle_mouse_motion(
+	const ::SDL_MouseMotionEvent& e)
+{
+	CGameClientShell::OnMouseMove(nullptr, e.x, e.y, 0);
+}
+
+void GcsSystemEventHandler::handle_mouse_button_down(
+	const ::SDL_MouseButtonEvent& e)
+{
+	const auto is_double_click = (e.clicks == 2);
+
+	const auto func = (
+		e.button == SDL_BUTTON_LEFT ?
+		(
+			is_double_click ?
+			CGameClientShell::OnLButtonDblClick :
+			CGameClientShell::OnLButtonDown
+		) :
+		(
+			e.button == SDL_BUTTON_RIGHT ?
+			(
+				is_double_click ?
+				CGameClientShell::OnRButtonDblClick :
+				CGameClientShell::OnRButtonDown
+			) :
+			nullptr
+		)
+	);
+
+	if (func)
+	{
+		func(nullptr, is_double_click, e.x, e.y, 0);
+	}
+}
+
+void GcsSystemEventHandler::handle_mouse_button_up(
+	const ::SDL_MouseButtonEvent& e)
+{
+	const auto func = (
+		e.button == SDL_BUTTON_LEFT ?
+		CGameClientShell::OnLButtonUp :
+		(
+			e.button == SDL_BUTTON_RIGHT ?
+			CGameClientShell::OnRButtonUp :
+			nullptr
+		)
+	);
+
+	if (func)
+	{
+		func(nullptr, e.x, e.y, 0);
+	}
+}
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+auto g_system_event_handler = GcsSystemEventHandler{};
+#else
 LRESULT CALLBACK HookedWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)
@@ -4503,6 +4682,7 @@ LRESULT CALLBACK HookedWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	_ASSERT(g_pfnMainWndProc);
 	return(CallWindowProc(g_pfnMainWndProc,hWnd,uMsg,wParam,lParam));
 }
+#endif // LTJS_SDL_BACKEND
 
 void CGameClientShell::OnChar(HWND hWnd, char c, int rep)
 {
@@ -4585,6 +4765,10 @@ BOOL SetWindowSize(uint32 nWidth, uint32 nHeight)
 			bClip = FALSE;
 	}
 
+#if LTJS_SDL_BACKEND
+	::SDL_ShowWindow(g_hMainWnd->sdl_window);
+	::SDL_SetWindowPosition(g_hMainWnd->sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+#else
 	RECT screenRect;
 	GetWindowRect(GetDesktopWindow(), &screenRect);
 
@@ -4606,6 +4790,7 @@ BOOL SetWindowSize(uint32 nWidth, uint32 nHeight)
 					nWidth, nHeight,SWP_FRAMECHANGED);
 		ShowWindow(g_hMainWnd, SW_NORMAL);
 	}
+#endif // LTJS_SDL_BACKEND
 
 	return TRUE;
 }
@@ -4627,6 +4812,15 @@ BOOL HookWindow()
 		return FALSE;
 	}
 
+#if LTJS_SDL_BACKEND
+	if (g_pLTClient->GetEngineHook("system_event_handler_mgr", (void **)&g_system_event_handler_mgr) != LT_OK)
+	{
+		TRACE("HookWindow - ERROR - could not get the system event handlers!\n");
+		return FALSE;
+	}
+
+	g_system_event_handler_mgr->add(&g_system_event_handler, ltjs::SystemEventHandlerPriority::normal);
+#else
 	// Get the window procedure
 #ifdef STRICT
 	g_pfnMainWndProc = (WNDPROC)GetWindowLongPtr(g_hMainWnd,GWLP_WNDPROC);
@@ -4646,6 +4840,7 @@ BOOL HookWindow()
 		TRACE("HookWindow - ERROR - could not set the window procedure!\n");
 		return FALSE;
 	}
+#endif // LTJS_SDL_BACKEND
 
 	return TRUE;
 }
@@ -4662,7 +4857,11 @@ void UnhookWindow()
 {
 	if(g_pfnMainWndProc && g_hMainWnd)
 	{
+#if LTJS_SDL_BACKEND
+		g_system_event_handler_mgr->remove(&g_system_event_handler);
+#else
 		SetWindowLongPtr(g_hMainWnd, GWLP_WNDPROC, (LONG_PTR)g_pfnMainWndProc);
+#endif // LTJS_SDL_BACKEND
 		g_hMainWnd = 0;
 		g_pfnMainWndProc = NULL;
 	}

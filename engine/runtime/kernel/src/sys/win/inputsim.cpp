@@ -4,6 +4,9 @@
 // while debugging.  This input manager does NOT save bindings.
 
 #include "bdefs.h"
+
+#if !LTJS_SDL_BACKEND
+
 #include "input.h"
 #include "dsys_interface.h"
 #include "dinput.h"
@@ -502,3 +505,4 @@ InputMgr g_InputSimMgr =
 
 #endif // _DEBUG
 
+#endif // !LTJS_SDL_BACKEND

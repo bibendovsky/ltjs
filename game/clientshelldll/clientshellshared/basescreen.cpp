@@ -18,6 +18,11 @@
 #include "transitionfxmgr.h"
 #include "fxbutemgr.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
+
+
 LTBOOL		CBaseScreen::s_bReadLayout = LTFALSE;
 LTRect		CBaseScreen::s_HelpRect;
 uint8		CBaseScreen::s_HelpSize;
@@ -532,7 +537,11 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 
 	switch (key)
 	{
+#if LTJS_SDL_BACKEND
+		case ::SDLK_LEFT:
+#else
 	case VK_LEFT:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (m_pCaptureCtrl)
 				handled = m_pCaptureCtrl->OnLeft();
@@ -540,7 +549,11 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 				handled = OnLeft();
 			break;
 		}
+#if LTJS_SDL_BACKEND
+		case ::SDLK_RIGHT:
+#else
 	case VK_RIGHT:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (m_pCaptureCtrl)
 				handled = m_pCaptureCtrl->OnRight();
@@ -548,7 +561,11 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 				handled = OnRight();
 			break;
 		}
+#if LTJS_SDL_BACKEND
+		case ::SDLK_UP:
+#else
 	case VK_UP:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (m_pCaptureCtrl)
 				handled = m_pCaptureCtrl->OnUp();
@@ -556,7 +573,11 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 				handled = OnUp();
 			break;
 		}
+#if LTJS_SDL_BACKEND
+		case ::SDLK_DOWN:
+#else
 	case VK_DOWN:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (m_pCaptureCtrl)
 				handled = m_pCaptureCtrl->OnDown();
@@ -564,7 +585,11 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 				handled = OnDown();
 			break;
 		}
+#if LTJS_SDL_BACKEND
+		case ::SDLK_RETURN:
+#else
 	case VK_RETURN:
+#endif // LTJS_SDL_BACKEND
 		{
 			if (m_pCaptureCtrl)
 				handled = m_pCaptureCtrl->OnEnter();
@@ -582,7 +607,11 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 				if (pCtrl)
 				{
 					handled = pCtrl->HandleKeyDown(key,rep);
+#if LTJS_SDL_BACKEND
+					if (handled && (key == ::SDLK_PAGEDOWN || key == ::SDLK_PAGEUP))
+#else
 					if (handled && (key == VK_NEXT || key == VK_PRIOR))
+#endif // LTJS_SDL_BACKEND
 						g_pInterfaceMgr->RequestInterfaceSound(IS_CHANGE);
 				}
 				else
@@ -2227,49 +2256,93 @@ void HandleEditKey(int key)
 {
 	switch (key)
 	{
+#if LTJS_SDL_BACKEND
+		case ::SDLK_LEFT:
+#else
 	case VK_LEFT:
+#endif // LTJS_SDL_BACKEND
 		{
 			vSFXPos.x -= fEditDelta;
 		} break;
+#if LTJS_SDL_BACKEND
+		case ::SDLK_RIGHT:
+#else
 	case VK_RIGHT:
+#endif // LTJS_SDL_BACKEND
 		{
 			vSFXPos.x += fEditDelta;
 		} break;
+#if LTJS_SDL_BACKEND
+		case ::SDLK_UP:
+#else
 	case VK_UP:
+#endif // LTJS_SDL_BACKEND
 		{
 			vSFXPos.y += fEditDelta;
 		} break;
+#if LTJS_SDL_BACKEND
+		case ::SDLK_DOWN:
+#else
 	case VK_DOWN:
+#endif // LTJS_SDL_BACKEND
 		{
 			vSFXPos.y -= fEditDelta;
 		} break;
+#if LTJS_SDL_BACKEND
+		case ::SDLK_a:
+#else
 	case VK_A:
+#endif // LTJS_SDL_BACKEND
 		{
 			vSFXScale.x -= fEditDelta / 10.0f;
 		} break;
+#if LTJS_SDL_BACKEND
+		case ::SDLK_d:
+#else
 	case VK_D:
+#endif // LTJS_SDL_BACKEND
 		{
 			vSFXScale.x += fEditDelta / 10.0f;
 		} break;
+#if LTJS_SDL_BACKEND
+		case ::SDLK_w:
+#else
 	case VK_W:
+#endif // LTJS_SDL_BACKEND
 		{
 			vSFXScale.y -= fEditDelta / 10.0f;
 		} break;
+#if LTJS_SDL_BACKEND
+		case ::SDLK_s:
+#else
 	case VK_S:
+#endif // LTJS_SDL_BACKEND
 		{
 			vSFXScale.y += fEditDelta / 10.0f;
 		} break;
+#if LTJS_SDL_BACKEND
+		case ::SDLK_PAGEDOWN:
+#else
 	case VK_PRIOR:
+#endif // LTJS_SDL_BACKEND
 		{
 			fEditDelta *= 10.0f;
 			g_pLTClient->CPrint("Edit scale = %0.3f",fEditDelta);
 		}break;
+#if LTJS_SDL_BACKEND
+		case ::SDLK_PAGEUP:
+#else
 	case VK_NEXT:
+#endif // LTJS_SDL_BACKEND
 		{
 			fEditDelta /= 10.0f;
 			g_pLTClient->CPrint("Edit scale = %0.3f",fEditDelta);
 		}break;
+#if LTJS_SDL_BACKEND
+		case ::SDLK_RETURN:
+#else
 	case VK_RETURN:
+#endif // LTJS_SDL_BACKEND
 		{
 			bEditSFXMode = false;
 			g_pLTClient->CPrint("Exiting SFX edit mode.");

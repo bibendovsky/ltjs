@@ -1670,7 +1670,12 @@ static LTRESULT cis_GetEngineHook(const char *pName, void **pData)
 {
 	if(stricmp(pName, "hwnd") == 0)
 	{
+#if LTJS_SDL_BACKEND
+		*pData = &g_ClientGlob.m_hMainWnd;
+#else
 		*pData = g_ClientGlob.m_hMainWnd;
+#endif // LTJS_SDL_BACKEND
+
 		return LT_OK;
 	}
 	else if(stricmp(pName, "cres_hinstance")==0)
@@ -1691,6 +1696,13 @@ static LTRESULT cis_GetEngineHook(const char *pName, void **pData)
 		*pData = (void*)r_GetRenderStruct()->GetD3DDevice();
 		return LT_OK;
 	}
+#if LTJS_SDL_BACKEND
+	else if (stricmp(pName, "system_event_handler_mgr") == 0)
+	{
+		*pData = g_ClientGlob.system_event_mgr->get_handler_mgr();
+		return LT_OK;
+	}
+#endif // LTJS_SDL_BACKEND
 	
 	return LT_ERROR;
 }

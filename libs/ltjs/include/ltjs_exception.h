@@ -3,6 +3,7 @@
 
 
 #include <exception>
+#include <memory>
 
 
 namespace ltjs
@@ -11,12 +12,39 @@ namespace ltjs
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+class Exception :
+	public std::exception
+{
+public:
+	explicit Exception(
+		const char* message);
+
+	Exception(
+		const char* context,
+		const char* message);
+
+	Exception(
+		const Exception& rhs);
+
+	const char* what() const noexcept override;
+
+
+private:
+	using What = std::unique_ptr<char[]>;
+
+
+	What what_{};
+}; // Exception
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 class SafeException :
 	public std::exception
 {
 public:
-	SafeException() noexcept;
-
 	explicit SafeException(
 		const char* message) noexcept;
 
@@ -24,7 +52,7 @@ public:
 
 
 private:
-	const char* message_;
+	const char* message_{};
 }; // SafeException
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

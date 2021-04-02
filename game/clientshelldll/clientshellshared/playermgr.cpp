@@ -44,6 +44,10 @@
 #include "lteulerangles.h"
 #include "doomsdaypiecefx.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
+
 CPlayerMgr* g_pPlayerMgr = NULL;
 
 #define MAX_SHAKE_AMOUNT		10.0f
@@ -771,7 +775,11 @@ LTBOOL CPlayerMgr::OnKeyDown(int key, int rep)
 
 	if (m_bUsingExternalCamera)
 	{
+#if LTJS_SDL_BACKEND
+		if (key == ::SDLK_SPACE)
+#else
 		if (key == VK_SPACE)
+#endif // LTJS_SDL_BACKEND
 		{
 			// Send an activate message to stop the cinemaitc...
 

@@ -280,8 +280,10 @@ protected:
 	// Error log function.
 	ErrorLogFn	m_ErrorLogFn;
 
+#if !LTJS_SDL_BACKEND
 	// The window it uses to get the DC and stuff.
 	HWND	m_hWnd;
+#endif // !LTJS_SDL_BACKEND
 
 	CConTextList	m_TextLines;
 	uint32			m_nTextLines;
@@ -357,8 +359,10 @@ public:
 	LTRect	GetRect() const { return m_Rect; };
 	void	SetRect( const LTRect &cRect );
 
+#if !LTJS_SDL_BACKEND
 	HWND	GetWnd() const { return m_hWnd; };
 	void	SetWnd( HWND hWnd ) { m_hWnd = hWnd; };
+#endif // !LTJS_SDL_BACKEND
 
 	// All the text lines and how many it actually can display in its rectangle.
 	const CConTextList*		GetTextLines() const { return &m_TextLines; };

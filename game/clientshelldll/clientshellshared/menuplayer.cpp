@@ -14,6 +14,9 @@
 #include "msgids.h"
 #include "clientresshared.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
 
 namespace
 {
@@ -56,8 +59,11 @@ LTBOOL CSkillPopup::OnMouseMove(int x, int y)
 
 LTBOOL CSkillPopup::HandleKeyDown (int vkey, int rep)
 {
-
+#if LTJS_SDL_BACKEND
+	if (vkey == ::SDLK_ESCAPE)
+#else
 	if (vkey == VK_ESCAPE)
+#endif // LTJS_SDL_BACKEND
 	{
 		m_bWaitForUpdate = LTFALSE;
 		g_pInterfaceMgr->GetMenuMgr()->HideSubMenu(true);

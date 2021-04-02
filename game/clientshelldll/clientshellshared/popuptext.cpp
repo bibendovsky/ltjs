@@ -9,6 +9,9 @@
 #include "clientweaponmgr.h"
 #include "popupmgr.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
 
 namespace
 {
@@ -145,7 +148,11 @@ void CPopupText::Update()
 LTBOOL CPopupText::OnKeyDown(int key, int rep)
 {
 	// They pressed escape - close the popup
+#if LTJS_SDL_BACKEND
+	if (key == ::SDLK_ESCAPE)
+#else
 	if (key == VK_ESCAPE)
+#endif // LTJS_SDL_BACKEND
 	{
 		Close();
         return LTTRUE;

@@ -9,6 +9,11 @@
 //----------------------------------------------------------
 
 #include "stdafx.h"
+
+
+#if !LTJS_SDL_BACKEND
+
+
 #include "iltclient.h"
 
 char VKToASCII (int nKey)
@@ -91,3 +96,6 @@ char VKToASCII (int nKey)
 
 	return static_cast<char>(nKey);
 }
+
+
+#endif // !LTJS_SDL_BACKEND

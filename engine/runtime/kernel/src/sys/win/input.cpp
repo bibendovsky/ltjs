@@ -10,13 +10,16 @@
 //
 //------------------------------------------------------------------
 
+
 #include "bdefs.h"
 
+#if !LTJS_SDL_BACKEND
 #include "dinput.h"
 #include "concommand.h"
 #include "console.h"
 #include "ltpvalue.h"
 #include "input.h"
+
 
 /*
 
@@ -2875,3 +2878,4 @@ LTRESULT input_GetManager(InputMgr **pMgr)
 }
 
 
+#endif // !LTJS_SDL_BACKEND

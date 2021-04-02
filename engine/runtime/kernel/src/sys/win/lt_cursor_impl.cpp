@@ -2,6 +2,10 @@
 
 #include "iltcursor.h"
 
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+#endif // LTJS_SDL_BACKEND
+
 
 //------------------------------------------------------------------
 //------------------------------------------------------------------
@@ -85,7 +89,31 @@ define_interface(CLTCursor, ILTCursor);
 
 LTRESULT CLTCursor::PreSetMode(CursorMode eNewMode)
 {
-    int temp;
+#if LTJS_SDL_BACKEND
+	auto cursor_mode = -1;
+
+	switch (eNewMode)
+	{
+		case CM_Hardware:
+			cursor_mode = 1;
+			break;
+
+		case CM_None:
+			cursor_mode = 0;
+			break;
+
+		default:
+			break;
+	}
+
+	if (cursor_mode >= 0)
+	{
+		::SDL_ShowCursor(cursor_mode);
+	}
+
+	return LT_OK;
+#else
+	int temp;
 
     temp = 0;
 
@@ -106,6 +134,7 @@ LTRESULT CLTCursor::PreSetMode(CursorMode eNewMode)
     }
 
     return LT_OK;
+#endif // LTJS_SDL_BACKEND
 }
 
 LTRESULT CLTCursor::PostSetMode(CursorMode eOldMode)
@@ -212,7 +241,30 @@ LTRESULT CLTCursor::LoadCursorBitmapResource(const char *pName, HLTCURSOR &hCurs
 
 LTRESULT CLTCursor::RefreshCursor()
 {
-    int temp;
+#if LTJS_SDL_BACKEND
+	auto cursor_mode = -1;
+
+	switch (m_eCursorMode)
+	{
+		case CM_Hardware:
+			cursor_mode = 1;
+			break;
+		case CM_None:
+			cursor_mode = 0;
+			break;
+
+		default:
+			break;
+	}
+
+	if (cursor_mode >= 0)
+	{
+		::SDL_ShowCursor(cursor_mode);
+	}
+
+	return LT_OK;
+#else
+	int temp;
 
     temp = 0;
 
@@ -233,4 +285,5 @@ LTRESULT CLTCursor::RefreshCursor()
     }
 
     return LT_OK;
+#endif
 }

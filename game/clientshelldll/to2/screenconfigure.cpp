@@ -13,9 +13,19 @@
 #include "screenmgr.h"
 #include "screencommands.h"
 #include "clientres.h"
+
+#if !LTJS_SDL_BACKEND
 #include "dinput.h"
+#endif // !LTJS_SDL_BACKEND
+
 #include "interfacemgr.h"
 #include "gameclientshell.h"
+
+#if LTJS_SDL_BACKEND
+#include "SDL.h"
+
+#include "ltjs_dinput.h"
+#endif // LTJS_SDL_BACKEND
 
 // The different columns
 #define SCREEN_COLUMN_ACTION		0
@@ -314,19 +324,24 @@ void CScreenConfigure::SetControlText(CLTGUICtrl *pCtrl)
 		{
 			char szTemp[256] = "";
 
+#if !LTJS_SDL_BACKEND
 			// Get the name twice and take the shorter version.  WinXP has a problem
 			// with occasionally reporting garbage.  Taking the shorter one assumes that
 			// the garbage version is full of bad characters.
 			g_pLTClient->GetDeviceObjectName( m_pProfile->GetDeviceName( 0 ), pData->nDeviceObjectId[0], 
 				szTemp, ARRAY_LEN( szTemp ));
+#endif // !LTJS_SDL_BACKEND
+
 			g_pLTClient->GetDeviceObjectName( m_pProfile->GetDeviceName( 0 ), pData->nDeviceObjectId[0], 
 				szDeviceObjectName, ARRAY_LEN( szDeviceObjectName ));
 
+#if !LTJS_SDL_BACKEND
 			if( strlen( szTemp ) < strlen( szDeviceObjectName ))
 			{
 				SAFE_STRCPY(strControls, szTemp );
 			}
 			else
+#endif // !LTJS_SDL_BACKEND
 			{
 				SAFE_STRCPY(strControls, szDeviceObjectName );
 			}
@@ -476,7 +491,11 @@ LTBOOL CScreenConfigure::HandleKeyDown(int key, int rep)
 
 	switch (key)
 	{
+#if LTJS_SDL_BACKEND
+		case ::SDLK_DELETE:
+#else
 	case VK_DELETE:
+#endif // LTJS_SDL_BACKEND
 		{
 			// Unassign the key
 			if (!m_bWaitingForKey && !m_fInputPauseTimeLeft)
@@ -487,6 +506,10 @@ LTBOOL CScreenConfigure::HandleKeyDown(int key, int rep)
 				CBindingData* pData = m_pProfile->FindBinding(nCommand);
 
 				UnBind( pData->nDeviceObjectId[0], NULL, DEVICETYPE_KEYBOARD);
+
+// BBi
+// `UnBind` uses `nDeviceObjectId` or `strRealName` to compare.
+#if 0
 				UnBind( 0, pData->strTriggerName[1], DEVICETYPE_MOUSE);
 
 				if (g_pGameClientShell->HasGamepad())
@@ -495,6 +518,16 @@ LTBOOL CScreenConfigure::HandleKeyDown(int key, int rep)
 					UnBind(0, pData->strTriggerName[2], DEVICETYPE_JOYSTICK);
 				else
 					UnBind(0, pData->strTriggerName[2], DEVICETYPE_UNKNOWN);
+#else
+				UnBind( 0, pData->strRealName[1], DEVICETYPE_MOUSE);
+
+				if (g_pGameClientShell->HasGamepad())
+					UnBind( 0, pData->strRealName[2], DEVICETYPE_GAMEPAD);
+				else if (g_pGameClientShell->HasJoystick())
+					UnBind(0, pData->strRealName[2], DEVICETYPE_JOYSTICK);
+				else
+					UnBind(0, pData->strRealName[2], DEVICETYPE_UNKNOWN);
+#endif
 
 				SetControlText(pCtrl);
 
