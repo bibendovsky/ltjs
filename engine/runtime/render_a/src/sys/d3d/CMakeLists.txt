@@ -14,7 +14,7 @@ add_library (${PROJECT_NAME} STATIC)
 
 ltjs_add_defaults (${PROJECT_NAME})
 
-if (NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
+if (LTJS_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
 	target_precompile_headers(
 		${PROJECT_NAME}
 		PRIVATE

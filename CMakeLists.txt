@@ -11,6 +11,7 @@ set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # Options
 #
 option (LTJS_SDL_BACKEND "Use SDL backend." ON)
+option (LTJS_USE_PCH "Use precompiled headers." ON)
 
 
 #

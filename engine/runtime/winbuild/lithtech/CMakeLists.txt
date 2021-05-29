@@ -16,7 +16,7 @@ add_executable (${PROJECT_NAME})
 
 ltjs_add_defaults (${PROJECT_NAME})
 
-if (NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
+if (LTJS_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
 	target_precompile_headers(
 		${PROJECT_NAME}
 		PRIVATE
@@ -106,10 +106,19 @@ if (MSVC)
 	endif ()
 
 	if (LTJS_USE_BUNDLED_DIRECTX)
-		set (
-			path_to_dx_libs
-			${CMAKE_SOURCE_DIR}/directx/lib/x86
-		)
+		if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+			set (
+				path_to_dx_libs
+				${CMAKE_SOURCE_DIR}/directx/lib/x86
+			)
+		elseif (CMAKE_SIZEOF_VOID_P EQUAL 8)
+			set (
+				path_to_dx_libs
+				${CMAKE_SOURCE_DIR}/directx/lib/x64
+			)
+		else ()
+			message (FATAL_ERROR "Unsupported platform.")
+		endif ()
 
 		list(
 			APPEND
@@ -245,7 +254,7 @@ if (LTJS_USE_BUNDLED_DIRECTX)
 	target_include_directories (
 		${PROJECT_NAME}
 		PRIVATE
-			../../../../../../directx/include
+			../../../../directx/include
 	)
 endif ()
 
