@@ -1,0 +1,7 @@
+/*
+LTJS
+LTMSG
+Default code page
+*/
+
+"utf-8"

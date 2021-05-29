@@ -1,0 +1,7 @@
+/*
+LTJS
+NOLF2 CRES
+Default code page
+*/
+
+"windows-1252"

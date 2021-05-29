@@ -22,6 +22,9 @@
 
 #if LTJS_SDL_BACKEND
 #include "SDL.h"
+
+#include "ltjs_shared_data_mgr.h"
+#include "ltjs_shell_resource_mgr.h"
 #endif // LTJS_SDL_BACKEND
 
 // Macros...
@@ -48,7 +51,11 @@ namespace
 	char*	s_sBuf    = LTNULL;
 }
 
+#if !LTJS_SDL_BACKEND
 static char* GetTextBuffer(const char* sName);
+#else
+static const char* GetTextBuffer(const char* sName);
+#endif // !LTJS_SDL_BACKEND
 
 
 // Functions...
@@ -923,7 +930,11 @@ void CCredits::AddCredits()
 		default: sName = "CREDITS";
 	}
 
+#if !LTJS_SDL_BACKEND
 	char* sBuf = GetTextBuffer(sName);
+#else
+	auto sBuf = GetTextBuffer(sName);
+#endif // !LTJS_SDL_BACKEND
 	if (!sBuf) return;
 
 
@@ -993,6 +1004,7 @@ CCredit* CCredits::GetCredit(uint16 iCredit)
 
 // Functions...
 
+#if !LTJS_SDL_BACKEND
 char* GetTextBuffer(const char* sName)
 {
 	//if (s_sBuf)
@@ -1018,3 +1030,19 @@ char* GetTextBuffer(const char* sName)
 		return(s_sBuf);
 	}
 }
+#else
+const char* GetTextBuffer(
+	const char* sName)
+{
+	const auto cres_mgr = ltjs::get_shared_data_mgr().get_cres_mgr();
+
+	if (!cres_mgr)
+	{
+		return nullptr;
+	}
+
+	const auto text = cres_mgr->find_text(sName);
+
+	return text->data.data;
+}
+#endif // !LTJS_SDL_BACKEND

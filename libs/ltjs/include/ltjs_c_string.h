@@ -18,7 +18,7 @@ namespace c_string
 template<
 	typename TChar
 >
-constexpr Index get_size(
+inline constexpr Index get_size(
 	const TChar* string) noexcept
 {
 	assert(string);

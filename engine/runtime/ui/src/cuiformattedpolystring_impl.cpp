@@ -12,10 +12,13 @@
 //-------------------------------------------------------------------
 
 
-
 #ifndef __CUIFORMATTEDPOLYSTRING_IMPL_H__
 #include "cuiformattedpolystring_impl.h"
 #endif
+
+#if LTJS_SDL_BACKEND
+#include <algorithm>
+#endif // LTJS_SDL_BACKEND
 
 #ifndef __CUIDEBUG_H__
 #include "cuidebug.h"
@@ -235,6 +238,10 @@ CUI_RESULTTYPE	CUIFormattedPolyString_Impl::SetText(const char* pBuf)
 		if (m_pLetters)
 			delete [] m_pLetters;
 		LT_MEM_TRACK_ALLOC(m_pLetters = new uint8[m_NumAllocatedChars*2],LT_MEM_TYPE_UI);
+
+#if LTJS_SDL_BACKEND
+		ltjs_is_newline_or_space_letter_.resize(m_NumAllocatedChars);
+#endif // LTJS_SDL_BACKEND
 	}
 
 	if (m_Length && (!m_pChars || !m_pLetters)) {
@@ -339,6 +346,14 @@ void CUIFormattedPolyString_Impl::Parse()
 	memset(m_pLines, 0, sizeof(uint16) * MAX_POLYSTRING_LINES);
 	memset(m_pLetters, 0, sizeof(uint8) * m_NumAllocatedChars * 2);
 
+#if LTJS_SDL_BACKEND
+	std::fill(
+		ltjs_is_newline_or_space_letter_.begin(),
+		ltjs_is_newline_or_space_letter_.end(),
+		false
+	);
+#endif // LTJS_SDL_BACKEND
+
 	old_wordcount = 0;
 
 	for (i=0; i<m_Length; i++) 
@@ -357,11 +372,17 @@ void CUIFormattedPolyString_Impl::Parse()
 				bNoDraw  = true;
 				bNewline = true;
 				cidx = 254;
+#if LTJS_SDL_BACKEND
+				ltjs_is_newline_or_space_letter_[i] = true;
+#endif // LTJS_SDL_BACKEND
 				break;
 
 			case 32:
 				bNoDraw = true;
 				cidx = 255;
+#if LTJS_SDL_BACKEND
+				ltjs_is_newline_or_space_letter_[i] = true;
+#endif // LTJS_SDL_BACKEND
 				break;
 
 			default:
@@ -683,19 +704,30 @@ void CUIFormattedPolyString_Impl::ApplyFont()
 
 	// the main polygon texturing loop 
 	for (i=0; i<m_Length; i++) {
-		
+
 		// get the initial character index
 		cidx = m_pLetters[i*2];
 
+#if !LTJS_SDL_BACKEND
 		switch (cidx) {
 			
 			case 254:  // newline
 			case 255:  // space
+#else
+		if (ltjs_is_newline_or_space_letter_[i])
+		{
+#endif // !LTJS_SDL_BACKEND
 				this->MakeBlankPoly(&m_pPolys[i]);
+#if !LTJS_SDL_BACKEND
 				break;
 
 			default:
 				
+#else
+		}
+		else
+		{
+#endif // LTJS_SDL_BACKEND
 				// choose between monospace and proportional
 				if ( m_pFont->IsProportional() ) {
 					tw = pFontTable[(cidx) *3];

@@ -33,6 +33,7 @@ CVersionMgr::CVersionMgr()
 
 	m_regMgr.Init("Monolith Productions", GAME_NAME, "1.0");
 
+#if !LTJS_SDL_BACKEND
 	// Get the language registry key...
 
 	if (m_regMgr.IsValid())
@@ -57,6 +58,10 @@ CVersionMgr::CVersionMgr()
 	{
 		strcpy(m_szNetRegion, "EN");
 	}
+#else
+	(*m_szLanguage) = '\0';
+	(*m_szNetRegion) = '\0';
+#endif // !LTJS_SDL_BACKEND
 
 	m_nCurrentSaveVersion = 0;
 }

@@ -53,6 +53,27 @@ using SdlGameControllerUResource = std::unique_ptr<::SDL_GameController, SdlGame
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+struct SdlRwOpsUDeleter
+{
+	void operator()(
+		::SDL_RWops* resource) const noexcept;
+}; // SdlRwOpsUDeleter
+
+using SdlRwOpsUResource = std::unique_ptr<::SDL_RWops, SdlRwOpsUDeleter>;
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+using SdlSurfaceUDeleter = SdlUResourceDeleter<::SDL_Surface, ::SDL_FreeSurface>;
+using SdlSurfaceUResource = std::unique_ptr<::SDL_Surface, SdlSurfaceUDeleter>;
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
 } // ltjs
 
 

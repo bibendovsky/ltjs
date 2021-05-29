@@ -19,7 +19,9 @@
 #include "cuifont_impl.h"
 #endif
 
+#if !LTJS_SDL_BACKEND
 class InstalledFontFace;
+#endif // !LTJS_SDL_BACKEND
 class LTFontParams;
 
 class CUIVectorFont : public CUIFont_Impl
@@ -51,10 +53,14 @@ class CUIVectorFont : public CUIFont_Impl
 		
 		void Term( );
 		
-	private:
 
+	private:
+#if !LTJS_SDL_BACKEND
 		bool 					CreateFontTextureAndTable( InstalledFontFace& installedFontFace, 
 									char const* pszChars, bool bMakeMap);
+#else
+	class Detail;
+#endif // !LTJS_SDL_BACKEND
 };
 
 

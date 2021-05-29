@@ -1,0 +1,11 @@
+/*
+LTJS
+SHARED
+Supported languages
+*/
+
+"en" "ENGLISH"
+"de" "DEUTSCHE"
+"es" "ESPAÑOL"
+"fr" "FRANÇAIS"
+"it" "ITALIANO"

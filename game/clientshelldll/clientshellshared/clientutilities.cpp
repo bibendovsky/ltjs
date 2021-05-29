@@ -12,6 +12,14 @@
 
 #include "stdafx.h"
 #include <stdlib.h>
+
+#if LTJS_SDL_BACKEND
+#include <cassert>
+
+#include <algorithm>
+#include <string>
+#endif // LTJS_SDL_BACKEND
+
 #include "clientutilities.h"
 #include "gameclientshell.h"
 #include "vartrack.h"
@@ -19,6 +27,13 @@
 #include "weaponmgr.h"
 #include "clientservershared.h"
 #include "clientmultiplayermgr.h"
+
+#if LTJS_SDL_BACKEND
+#include "ltjs_ascii.h"
+#include "ltjs_language_mgr.h"
+#include "ltjs_shared_data_mgr.h"
+#endif // LTJS_SDL_BACKEND
+
 
 //-------------------------------------------------------------------------------------------
 // CropSurface
@@ -366,7 +381,7 @@ LTRESULT SendEmptyServerMsg(uint32 nMsgID, uint32 nFlags)
 
 
 
-
+#if !LTJS_SDL_BACKEND
 void FormatString(int messageCode, char *outBuf, int outBufLen,  ...)
 {
     va_list marker;
@@ -394,7 +409,35 @@ void FormatString(int messageCode, char *outBuf, int outBufLen,  ...)
 
 
 }
+#else
+void ltjs_format_string(
+	int messageCode,
+	char* outBuf,
+	int outBufLen,
+	ltjs::ShellStringFormatter& formatter) noexcept
+{
+	*outBuf = '\0';
 
+	const auto cres_mgr = ltjs_get_cres_mgr();
+
+	if (cres_mgr)
+	{
+		const auto src_string = cres_mgr->find_string(messageCode);
+
+		if (src_string)
+		{
+			formatter.format(
+				src_string->data.data,
+				src_string->data.size,
+				outBuf,
+				outBufLen
+			);
+		}
+	}
+}
+#endif // !LTJS_SDL_BACKEND
+
+#if !LTJS_SDL_BACKEND
 void LoadString(int messageCode, char *outBuf, int outBufLen)
 {
 	void* pModule;
@@ -409,8 +452,31 @@ void LoadString(int messageCode, char *outBuf, int outBufLen)
         static_cast<void>(nBytes);
     }
 }
+#else
+void LoadString(
+	int messageCode,
+	char* outBuf,
+	int outBufLen)
+{
+	assert(outBuf);
+	assert(outBufLen >= 0);
+
+	*outBuf = '\0';
+
+	auto cres_mgr = ltjs_get_cres_mgr();
+
+	if (!cres_mgr)
+	{
+		return;
+	}
+
+	cres_mgr->load_string(messageCode, outBuf, outBufLen);
+}
+#endif // !LTJS_SDL_BACKEND
 
 static char s_szStringBuffer[kMaxStringBuffer];
+
+#if !LTJS_SDL_BACKEND
 char* FormatTempString(int messageCode, ...)
 {
     va_list marker;
@@ -439,7 +505,35 @@ char* FormatTempString(int messageCode, ...)
 	return s_szStringBuffer;
 
 }
+#else
+char* ltjs_format_temp_string(
+	int messageCode,
+	ltjs::ShellStringFormatter& formatter) noexcept
+{
+	*s_szStringBuffer = '\0';
 
+	const auto cres_mgr = ltjs_get_cres_mgr();
+
+	if (cres_mgr)
+	{
+		const auto src_string = cres_mgr->find_string(messageCode);
+
+		if (src_string)
+		{
+			formatter.format(
+				src_string->data.data,
+				src_string->data.size,
+				s_szStringBuffer,
+				sizeof(s_szStringBuffer)
+			);
+		}
+	}
+
+	return s_szStringBuffer;
+}
+#endif // !LTJS_SDL_BACKEND
+
+#if !LTJS_SDL_BACKEND
 char* LoadTempString(int messageCode)
 {
 	void* pModule;
@@ -456,6 +550,22 @@ char* LoadTempString(int messageCode)
 
 	return s_szStringBuffer;
 }
+#else
+char* LoadTempString(
+	int messageCode)
+{
+	s_szStringBuffer[0] = '\0';
+
+	auto cres_mgr = ltjs_get_cres_mgr();
+
+	if (cres_mgr)
+	{
+		cres_mgr->load_string(messageCode, s_szStringBuffer, sizeof(s_szStringBuffer));
+	}
+
+	return s_szStringBuffer;
+}
+#endif // !LTJS_SDL_BACKEND
 
 // --------------------------------------------------------------------------- //
 //
@@ -636,3 +746,51 @@ void GetContouringInfo( LTVector &vForward, LTVector &vNormal,
 
 	fOutAmount = MATH_HALFPI - (float)atan2( vNormal.y, fXZLen );
 }
+
+#if LTJS_SDL_BACKEND
+ltjs::ShellResourceMgr* ltjs_get_cres_mgr()
+{
+	return ltjs::get_shared_data_mgr().get_cres_mgr();
+}
+
+void ltjs_initialize_cres_mgr(
+	const char* game_net_name)
+{
+	assert(game_net_name);
+
+	auto cres_mgr = ltjs_get_cres_mgr();
+
+	if (!cres_mgr)
+	{
+		return;
+	}
+
+
+	auto game_net_name_string = std::string{game_net_name};
+
+	ltjs::ascii::to_lower(
+		&game_net_name_string[0],
+		static_cast<ltjs::Index>(game_net_name_string.size())
+	);
+
+
+	auto language_id_name_string = std::string{};
+
+	const auto language_mgr = ltjs::get_shared_data_mgr().get_language_mgr();
+
+	if (language_mgr)
+	{
+		const auto& language = *language_mgr->get_current();
+		language_id_name_string.assign(language.id_string.data, static_cast<ltjs::Index>(language.id_string.size));
+	}
+
+	auto base_path = std::string{};
+	base_path.reserve(128);
+	base_path += "ltjs/";
+	base_path += game_net_name_string;
+	base_path += "/cres";
+
+	cres_mgr->initialize(base_path.c_str());
+	cres_mgr->set_language(language_id_name_string.c_str());
+}
+#endif // LTJS_SDL_BACKEND

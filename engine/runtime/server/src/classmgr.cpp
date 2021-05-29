@@ -419,11 +419,13 @@ void CClassMgr::Term()
 
 	cb_UnloadModule(m_ClassModule);
 
+#if !LTJS_SDL_BACKEND
     if (m_hServerResourceModule)
     {
         bm_UnbindModule(m_hServerResourceModule);
         m_hServerResourceModule = LTNULL;
     }
+#endif // !LTJS_SDL_BACKEND
 
     if (m_hClassNameHash)
     {
@@ -813,9 +815,9 @@ LTRESULT LoadServerBinaries(CClassMgr *pClassMgr)
     ClassBindModule *pModule;
     LTRESULT dResult;
 
-
+#if !LTJS_SDL_BACKEND
     ASSERT(!pClassMgr->m_hServerResourceModule);
-
+#endif // !LTJS_SDL_BACKEND
 
     //Load the server module.
     if ((dResult = dsi_LoadServerObjects(pClassMgr)) != LT_OK) {

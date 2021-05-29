@@ -1,4 +1,6 @@
 #if LTJS_SDL_BACKEND
+#include <cassert>
+
 #include <memory>
 
 #include "SDL.h"
@@ -16,6 +18,11 @@
 #include "classbind.h"
 #include "bindmgr.h"
 #include "console.h"
+
+#if LTJS_SDL_BACKEND
+#include "ltjs_shared_data_mgr.h"
+#include "ltjs_shell_resource_mgr.h"
+#endif // LTJS_SDL_BACKEND
 
 
 namespace ltjs
@@ -77,7 +84,11 @@ void dsi_OnReturnError(int err) {
 
 
 LTBOOL g_bComInitialized = LTFALSE;
+#if !LTJS_SDL_BACKEND
 HINSTANCE g_hResourceModule = LTNULL;
+#else
+ltjs::ShellResourceMgr* g_hResourceModule = nullptr;
+#endif // LTJS_SDL_BACKEND
 HINSTANCE g_hModuleInstanceHandle = LTNULL;
 
 #define DO_CODE(x)  LT_##x, IDS_##x
@@ -125,6 +136,7 @@ LTSysResultString g_StringMap[] = {
 // Internal functions.
 // --------------------------------------------------------------- //
 
+#if !LTJS_SDL_BACKEND
 static LTBOOL dsi_LoadResourceModule() {
     g_hResourceModule = LoadLibrary("ltjs_ltmsg.dll");
 
@@ -152,15 +164,30 @@ static LTBOOL dsi_LoadResourceModule() {
 
     return !!g_hResourceModule;
 }
+#else
+static LTBOOL dsi_LoadResourceModule()
+{
+	g_hResourceModule = ltjs::get_shared_data_mgr().get_ltmsg_mgr();
 
+	return g_hResourceModule != nullptr;
+}
+#endif // !LTJS_SDL_BACKEND
+
+#if !LTJS_SDL_BACKEND
 static void dsi_UnloadResourceModule() {
     if (g_hResourceModule) {
         FreeLibrary(g_hResourceModule);
         g_hResourceModule = LTNULL;
     }
 }
+#else
+static void dsi_UnloadResourceModule()
+{
+	g_hResourceModule = nullptr;
+}
+#endif // !LTJS_SDL_BACKEND
 
-
+#if !LTJS_SDL_BACKEND
 LTRESULT dsi_SetupMessage(char *pMsg, int maxMsgLen, LTRESULT dResult, va_list marker) {
     int i;
     unsigned long resultCode, stringID;
@@ -211,7 +238,62 @@ LTRESULT dsi_SetupMessage(char *pMsg, int maxMsgLen, LTRESULT dResult, va_list m
         return LT_ERROR;
     }
 }
+#else
+LTRESULT dsi_SetupMessage(
+	char* pMsg,
+	int maxMsgLen,
+	LTRESULT dResult,
+	ltjs::ShellStringFormatter& formatter)
+{
+	pMsg[0] = 0;
 
+	if (!g_hResourceModule)
+	{
+		LTSNPrintF(pMsg, maxMsgLen, "<missing resource DLL>");
+		return LT_ERROR;
+	}
+
+	// Try to find the error code.
+	auto bFound = false;
+	auto resultCode = ERROR_CODE(dResult);
+	auto stringID = static_cast<unsigned long>(0);
+
+	for (auto i = 0; i < STRINGMAP_SIZE; ++i)
+	{
+		if (g_StringMap[i].dResult == resultCode)
+		{
+			bFound = true;
+			stringID = g_StringMap[i].string_id;
+			break;
+		}
+	}
+
+	if (bFound)
+	{
+		char tempBuffer[500];
+
+		const auto string_size = g_hResourceModule->load_string(stringID, tempBuffer, sizeof(tempBuffer) - 1);
+
+		if (string_size > 0)
+		{
+			// Format it.
+			formatter.format(
+				tempBuffer,
+				string_size,
+				pMsg,
+				maxMsgLen
+			);
+
+			return LT_OK;
+		}
+	}
+
+	// Ok, format the default message.
+	LTSNPrintF(pMsg, maxMsgLen, "<invalid resource DLL>");
+
+	return LT_ERROR;
+}
+#endif // !LTJS_SDL_BACKEND
 
 // --------------------------------------------------------------- //
 // External functions.
@@ -389,6 +471,7 @@ LTRESULT dsi_LoadServerObjects(
 		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLLVERSION, object_file_name.c_str());
 	}
 
+#if !LTJS_SDL_BACKEND
 	// Get sres.dll.
 	const auto sres_file_name = ltjs::ul::PathUtils::append("game", "ltjs_sres.dll");
 
@@ -399,6 +482,7 @@ LTRESULT dsi_LoadServerObjects(
 		sm_SetupError(LT_ERRORCOPYINGFILE, sres_file_name.c_str());
 		RETURN_ERROR_PARAM(1, LoadServerObjects, LT_ERRORCOPYINGFILE, sres_file_name.c_str());
 	}
+#endif // !LTJS_SDL_BACKEND
 
 	//let the dll know it's instance handle.
 	if (instance_handle_server != NULL)
@@ -553,7 +637,12 @@ LTRESULT dsi_SetRenderMode(RMode *pMode) {
     char message[256];
     
     if (r_TermRender(1, false) != LT_OK) {
+#if !LTJS_SDL_BACKEND
         dsi_SetupMessage(message, sizeof(message)-1, LT_UNABLETORESTOREVIDEO, LTNULL);
+#else
+		auto formatter = ltjs::ShellStringFormatter{};
+		dsi_SetupMessage(message, sizeof(message)-1, LT_UNABLETORESTOREVIDEO, formatter);
+#endif // !LTJS_SDL_BACKEND
         dsi_OnClientShutdown(message);
         RETURN_ERROR(0, SetRenderMode, LT_UNABLETORESTOREVIDEO);
     }
@@ -724,7 +813,9 @@ LTRESULT dsi_InitClientShellDE()
 	int status;
 
 	g_pClientMgr->m_hClientResourceModule = nullptr;
+#if !LTJS_SDL_BACKEND
 	g_pClientMgr->m_hLocalizedClientResourceModule = nullptr;
+#endif // !LTJS_SDL_BACKEND
 	g_pClientMgr->m_hShellModule = nullptr;
 
 	// Setup the cshell.dll file.
@@ -747,11 +838,11 @@ LTRESULT dsi_InitClientShellDE()
 		RETURN_ERROR(1, InitClientShellDE, LT_INVALIDSHELLDLL);
 	}
 
+#if !LTJS_SDL_BACKEND
 	//
 	// Try to setup cres.dll.
 	//
 	const auto cres_file_name = ltjs::ul::PathUtils::append("game" , "ltjs_cres.dll");
-
 
 	//load the DLL.
 	status = bm_BindModule(cres_file_name.c_str(), false, g_pClientMgr->m_hClientResourceModule);
@@ -766,6 +857,7 @@ LTRESULT dsi_InitClientShellDE()
 		g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, cres_file_name.c_str());
 		RETURN_ERROR_PARAM(1, InitClientShellDE, LT_INVALIDSHELLDLL, cres_file_name.c_str());
 	}
+#endif // !LTJS_SDL_BACKEND
 
 	//let the dll know it's instance handle.
 	if (instance_handle_client)
@@ -984,6 +1076,79 @@ LTRESULT dsi_GetVersionInfo(LTVersionInfo &info) {
 void* dsi_get_system_event_handler_mgr() noexcept
 {
 	return g_ClientGlob.system_event_mgr->get_handler_mgr();
+}
+
+
+struct ILtStreamUDeleter
+{
+	void operator()(
+		ILTStream* resource) const noexcept
+	{
+		assert(resource);
+		resource->Release();
+	}
+}; // ILtStreamUDeleter
+
+using ILtStreamUPtr = std::unique_ptr<ILTStream, ILtStreamUDeleter>;
+
+
+ltjs::Index dsi_get_file_size(
+	const char* path) noexcept
+{
+	if (!path || path[0] == '\0')
+	{
+		return 0;
+	}
+
+	auto file_ref = FileRef{};
+	file_ref.m_FileType = FILE_ANYFILE;
+	file_ref.m_pFilename = path;
+
+	auto file_stream = ILtStreamUPtr{client_file_mgr->OpenFile(&file_ref)};
+
+	if (!file_stream)
+	{
+		return 0;
+	}
+
+	auto lt_file_size = uint32{};
+
+	const auto get_len_result = file_stream->GetLen(&lt_file_size);
+
+	if (get_len_result != LT_OK)
+	{
+		return 0;
+	}
+
+	return static_cast<ltjs::Index>(lt_file_size);
+}
+
+bool dsi_load_file_into_memory(
+	const char* path,
+	void* buffer,
+	ltjs::Index max_buffer_size) noexcept
+{
+	if (!path || path[0] == '\0' ||
+		!buffer ||
+		max_buffer_size <= 0)
+	{
+		return false;
+	}
+
+	auto file_ref = FileRef{};
+	file_ref.m_FileType = FILE_ANYFILE;
+	file_ref.m_pFilename = path;
+
+	auto file_stream = ILtStreamUPtr{client_file_mgr->OpenFile(&file_ref)};
+
+	if (!file_stream)
+	{
+		return false;
+	}
+
+	const auto read_result = file_stream->Read(buffer, static_cast<uint32>(max_buffer_size));
+
+	return read_result == LT_OK;
 }
 #endif // LTJS_SDL_BACKEND
 

@@ -1,0 +1,34 @@
+/*
+LTJS
+LTMSG
+German strings
+*/
+
+1 "Interner LithTech-Fehler: %1!d!."
+2 "Fehlendes Welt-Modell: %1!s!."
+3 "Die Spiel-Ressourcen in %1!s! können nicht geladen werden."
+4 "DirectInput kann nicht initialisiert werden."
+5 "Grafikmodus kann nicht wiederhergestellt werden."
+6 "Abbruch durch Benutzer."
+7 "%1!s! ist eine ungültige Welt-Datei."
+8 "Modell-Datei %1!s! fehlt."
+9 "%1!s! ist eine ungültige Modell-Datei."
+10 "Sprite-Datei %1!s! fehlt."
+11 "%1!s! ist eine ungültige Sprite-Datei."
+12 "Keine Spiel-Ressourcen angegeben."
+13 "Welt-Datei %1!s! fehlt."
+14 "Objekt (Klasse %1!s!) kann nicht wiederhergestellt werden."
+15 "Server-Fehler: %1!s!."
+16 "Fehler beim Laden der Render-DLL %1!s!."
+17 "Fehler beim Kopieren von Datei %1!s!."
+42 "Server-Shell kann nicht erzeugt werden."
+66 "Die Objekt-DLL %1!s! hat eine ungültige Version (%2!d!). Die aktuelle Version ist %3!d!."
+76 "Ungültige Shell-DLL %1!s!."
+77 "Ungültige Version der Shell-DLL für %1!s!. Die DLL-Version ist %2!d!, die aktuelle Version ist %3!d!."
+78 "Shell-DLL %1!s! fehlt."
+82 "Client-Shell kann nicht erzeugt werden."
+89 "Sound-System kann nicht initialisiert werden."
+92 "Ungültiges Server-Paket erhalten."
+93 "Fehlende Klasse: %1!s!."
+94 "Netzwerk-Treiber %1!s! kann nicht initialisiert werden."
+95 "Netzwerkprotokoll-Versionskonflikt - Ihre Version: %1!d!, Version des Servers: %2!d!."

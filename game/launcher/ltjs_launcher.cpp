@@ -2,17 +2,21 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+
 #include <array>
 #include <algorithm>
 #include <deque>
+#include <exception>
 #include <functional>
 #include <iterator>
 #include <limits>
+#include <stdexcept>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 #include "bibendovsky_spul_file_stream.h"
 #include "bibendovsky_spul_path_utils.h"
 #include "bibendovsky_spul_scope_guard.h"
@@ -22,8 +26,14 @@
 #include "SDL.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
-#include "ltjs_resource_strings.h"
+
+#include "ltjs_index_type.h"
+#include "ltjs_language_mgr.h"
+#include "ltjs_sdl_uresources.h"
 #include "ltjs_script_tokenizer.h"
+
+#include "ltjs_launcher_resource_strings.h"
+#include "ltjs_launcher_search_paths.h"
 
 
 #if defined(LTJS_NOLF2)
@@ -38,6 +48,8 @@ using namespace std::string_literals;
 
 
 namespace ltjs
+{
+namespace launcher
 {
 
 
@@ -454,7 +466,7 @@ class Configuration final :
 	public Base
 {
 public:
-	static constexpr auto max_file_size = 64 * 1'024;
+	static constexpr auto max_file_size = 4 * 1'024;
 
 
 	SettingValue<std::string> language_;
@@ -486,7 +498,16 @@ public:
 
 	bool is_initialized() const;
 
-	const std::string& get_profile_directory() const;
+	ltjs::LanguageMgr* get_language_mgr() const noexcept;
+
+	static const std::string& get_base_path();
+
+	static const std::string& get_game_base_path();
+
+	static const std::string& get_resources_base_path();
+
+	static const std::string& get_config_path();
+
 
 	const std::string& get_arguments_file_name() const;
 
@@ -543,7 +564,7 @@ private:
 
 	bool is_initialized_;
 	std::string configuration_path_;
-	std::string profile_directory_;
+	ltjs::LanguageMgrUPtr language_mgr_{};
 
 
 	Configuration();
@@ -555,7 +576,7 @@ private:
 		const std::string& custom_command_line);
 
 	static std::string deserialize_cl_args(
-		const std::string& custom_command_line);
+		const ScriptTokenizerToken& token);
 }; // Configuration
 
 
@@ -572,6 +593,8 @@ class SupportedLanguages final :
 	public Base
 {
 public:
+	SupportedLanguages();
+
 	SupportedLanguages(
 		SupportedLanguages&& rhs);
 
@@ -593,13 +616,8 @@ private:
 	static constexpr auto max_file_size = 4'096;
 
 
-	static const std::string config_file_path;
+	Languages languages_{};
 
-
-	Languages languages_;
-
-
-	SupportedLanguages();
 
 	~SupportedLanguages();
 }; // SupportedLanguages
@@ -1477,6 +1495,11 @@ public:
 
 	DetailSettingsWindowPtr get_detail_settings_window();
 
+	const SearchPaths& get_search_paths() const;
+
+	void setup_search_paths(
+		const std::string& language_id_string);
+
 
 private:
 	static std::string icon_path;
@@ -1485,6 +1508,7 @@ private:
 	bool is_initialized_;
 	bool has_direct_3d_9_;
 	Logger logger_;
+	SearchPaths search_paths_{};
 	SDL_Surface* sdl_icon_surface_;
 	ResourceStrings resource_strings_;
 	MessageBoxWindowUPtr message_box_window_uptr_;
@@ -1784,7 +1808,7 @@ int DisplayModeManager::get_mode_index(
 		return -1;
 	}
 
-	const auto index = display_mode_it - display_mode_begin_it;
+	const auto index = static_cast<int>(display_mode_it - display_mode_begin_it);
 
 	return index;
 }
@@ -1819,9 +1843,9 @@ bool DisplayModeManager::sdl_is_pixel_format_valid(
 // Configuration
 //
 
-const std::string Configuration::configuration_file_name = LTJS_GAME_ID_STRING "_launcher_config.txt";
-const std::string Configuration::arguments_file_name = LTJS_GAME_ID_STRING "_launcher_arguments.txt";
-const std::string Configuration::log_file_name = LTJS_GAME_ID_STRING "_launcher_log.txt";
+const std::string Configuration::configuration_file_name = "config.txt";
+const std::string Configuration::arguments_file_name = "arguments.txt";
+const std::string Configuration::log_file_name = "log.txt";
 
 
 const std::string Configuration::default_language = "en";
@@ -1883,6 +1907,7 @@ Configuration::Configuration()
 	screen_height_{},
 	is_restore_defaults_{}
 {
+	language_mgr_ = ltjs::make_language_mgr();
 }
 
 Configuration::Configuration(
@@ -1906,13 +1931,12 @@ Configuration::Configuration(
 	custom_arguments_{std::move(custom_arguments_)},
 	screen_width_{std::move(screen_width_)},
 	screen_height_{std::move(screen_height_)},
-	is_restore_defaults_{std::move(is_restore_defaults_)}
+	is_restore_defaults_{std::move(is_restore_defaults_)},
+	language_mgr_{std::move(language_mgr_)}
 {
 }
 
-Configuration::~Configuration()
-{
-}
+Configuration::~Configuration() = default;
 
 Configuration& Configuration::get_instance()
 {
@@ -1928,18 +1952,10 @@ bool Configuration::initialize()
 		return true;
 	}
 
-
-	const auto sdl_profile_path = ::SDL_GetPrefPath("bibendovsky", "ltjs");
-
-	if (!sdl_profile_path)
-	{
-		set_error_message("Failed to get profile path." + std::string{::SDL_GetError()});
-		return false;
-	}
-
-	profile_directory_ = sdl_profile_path;
-
-	configuration_path_ = ul::PathUtils::normalize(ul::PathUtils::append(profile_directory_, configuration_file_name));
+	configuration_path_ = ul::PathUtils::normalize(ul::PathUtils::append(
+		get_config_path(),
+		configuration_file_name
+	));
 
 	reset();
 
@@ -1951,6 +1967,11 @@ bool Configuration::initialize()
 bool Configuration::is_initialized() const
 {
 	return is_initialized_;
+}
+
+ltjs::LanguageMgr* Configuration::get_language_mgr() const noexcept
+{
+	return language_mgr_.get();
 }
 
 bool Configuration::reload()
@@ -1989,187 +2010,233 @@ bool Configuration::reload()
 		return false;
 	}
 
-	auto script_tokenizer = ltjs::ScriptTokenizer{};
+	auto script_tokenizer = ScriptTokenizer{};
 
-	if (!script_tokenizer.tokenize(string_buffer.data(), file_size))
+	auto script_tokenizer_init_param = ScriptTokenizerInitParam{};
+	script_tokenizer_init_param.data = string_buffer.data();
+	script_tokenizer_init_param.size = file_size;
+
+	try
 	{
-		set_error_message("Failed to parse configuration file \"" + configuration_path_ + "\". " + script_tokenizer.get_error_message());
+		script_tokenizer.initialize(script_tokenizer_init_param);
+	}
+	catch (const std::exception& ex)
+	{
+		set_error_message("Failed to parse configuration file \"" + configuration_path_ + "\". " + ex.what());
 		return false;
 	}
 
-	for (const auto& script_line : script_tokenizer.get_lines())
-	{
-		const auto& tokens = script_line.tokens_;
+	ScriptTokenizerToken tokens[2];
 
-		if (tokens.size() != 2)
+	while (true)
+	{
+		auto script_line = ScriptTokenizerLine{};
+
+		try
+		{
+			script_line = script_tokenizer.tokenize_line(
+				tokens,
+				2,
+				2,
+				2
+			);
+		}
+		catch (const std::exception& ex)
+		{
+			set_error_message("Failed to tokenize \"" + configuration_path_ + "\". " + ex.what());
+			return false;
+		}
+
+		if (script_line.is_end_of_data)
+		{
+			break;
+		}
+
+		if (script_line.is_empty())
 		{
 			continue;
 		}
 
+		if (script_line.size != 2)
+		{
+			set_error_message(
+				"Expected two tokens in \"" + configuration_path_ +
+				"\" at line " + std::to_string(script_line.get_line_number()) + ".");
+
+			return false;
+		}
+
+		const auto& key_string = std::string{tokens[0].data, static_cast<std::size_t>(tokens[0].size)};
+		const auto& value_string = std::string{tokens[1].data, static_cast<std::size_t>(tokens[1].size)};
+
 		if (false)
 		{
 		}
-		else if (tokens[0].content_ == language_setting_name)
+		else if (key_string == language_setting_name)
 		{
-			language_.set_and_accept(tokens[1].content_);
+			language_.set_and_accept(value_string);
 		}
-		else if (tokens[0].content_ == is_disable_display_settings_warning_setting_name)
+		else if (key_string == is_disable_display_settings_warning_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_display_settings_warning_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_disable_advanced_settings_warning_setting_name)
+		else if (key_string == is_disable_advanced_settings_warning_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_advanced_settings_warning_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_disable_sound_effects_setting_name)
+		else if (key_string == is_disable_sound_effects_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_sound_effects_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_disable_music_setting_name)
+		else if (key_string == is_disable_music_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_music_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_disable_fmvs_setting_name)
+		else if (key_string == is_disable_fmvs_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_fmvs_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_disable_controllers_setting_name)
+		else if (key_string == is_disable_controllers_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_controllers_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_disable_triple_buffering_setting_name)
+		else if (key_string == is_disable_triple_buffering_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_triple_buffering_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_disable_hardware_cursor_setting_name)
+		else if (key_string == is_disable_hardware_cursor_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_hardware_cursor_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_disable_animated_loading_screen_setting_name)
+		else if (key_string == is_disable_animated_loading_screen_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_animated_loading_screen_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_disable_hardware_sound_setting_name)
+		else if (key_string == is_disable_hardware_sound_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_hardware_sound_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_disable_sound_filters_setting_name)
+		else if (key_string == is_disable_sound_filters_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_disable_sound_filters_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == is_pass_custom_arguments_setting_name)
+		else if (key_string == is_pass_custom_arguments_setting_name)
 		{
 			try
 			{
-				const auto value = std::stoi(tokens[1].content_);
+				const auto value = std::stoi(value_string);
 				is_pass_custom_arguments_.set_and_accept(value != 0);
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == custom_arguments_setting_name)
+		else if (key_string == custom_arguments_setting_name)
 		{
-			custom_arguments_.set_and_accept(deserialize_cl_args(tokens[1].content_));
+			custom_arguments_.set_and_accept(deserialize_cl_args(tokens[1]));
 		}
-		else if (tokens[0].content_ == screen_width_setting_name)
+		else if (key_string == screen_width_setting_name)
 		{
 			try
 			{
-				screen_width_.set_and_accept(std::stoi(tokens[1].content_));
+				screen_width_.set_and_accept(std::stoi(value_string));
 			}
 			catch(...)
 			{
 			}
 		}
-		else if (tokens[0].content_ == screen_height_setting_name)
+		else if (key_string == screen_height_setting_name)
 		{
 			try
 			{
-				screen_height_.set_and_accept(std::stoi(tokens[1].content_));
+				screen_height_.set_and_accept(std::stoi(value_string));
 			}
-			catch(...)
+			catch (...)
 			{
 			}
 		}
 	}
+
+	language_mgr_->load();
+	const auto current_language = language_mgr_->get_current();
+	language_.set_and_accept(current_language->id_string.data);
 
 	return true;
 }
@@ -2196,21 +2263,16 @@ bool Configuration::save()
 	// Header.
 	//
 	string_buffer += "/*\n";
-	string_buffer += '\n';
 	string_buffer += "LTJS\n";
-	string_buffer += '\n';
-	string_buffer += LTJS_GAME_ID_STRING_UC " launcher configuration.\n";
-	string_buffer += "WARNING! This is auto-generated file.\n";
-	string_buffer += '\n';
+	string_buffer += LTJS_GAME_ID_STRING_UC " LAUNCHER CONFIGURATION\n";
+	string_buffer += "WARNING This is auto-generated file.\n";
 	string_buffer += "*/\n";
 	string_buffer += '\n';
 
 	//
-	is_disable_display_settings_warning_.accept();
-	string_buffer += language_setting_name;
-	string_buffer += " \"";
-	string_buffer += language_;
-	string_buffer += "\"\n";
+	language_.accept();
+	language_mgr_->set_current_by_id_string(language_.get_ref().c_str());
+	language_mgr_->save();
 
 	//
 	is_disable_display_settings_warning_.accept();
@@ -2339,9 +2401,22 @@ bool Configuration::save()
 	return true;
 }
 
-const std::string& Configuration::get_profile_directory() const
+const std::string& Configuration::get_base_path()
 {
-	return profile_directory_;
+	static const auto result = std::string{"ltjs"};
+	return result;
+}
+
+const std::string& Configuration::get_game_base_path()
+{
+	static const auto result = std::string{get_base_path() + "/" LTJS_GAME_ID_STRING};
+	return result;
+}
+
+const std::string& Configuration::get_config_path()
+{
+	static const auto result = get_resources_base_path() + "/config";
+	return result;
 }
 
 const std::string& Configuration::get_arguments_file_name() const
@@ -2352,6 +2427,12 @@ const std::string& Configuration::get_arguments_file_name() const
 const std::string& Configuration::get_log_file_name() const
 {
 	return log_file_name;
+}
+
+const std::string& Configuration::get_resources_base_path()
+{
+	static const auto result = get_game_base_path() + "/launcher";
+	return result;
 }
 
 void Configuration::reset()
@@ -2372,42 +2453,51 @@ void Configuration::reset()
 	custom_arguments_.set_and_accept(default_custom_arguments);
 	screen_width_.set_and_accept(default_screen_width);
 	screen_height_.set_and_accept(default_screen_height);
+
+	language_mgr_->initialize(get_base_path().c_str());
 }
 
 std::string Configuration::serialize_cl_args(
 	const std::string& custom_command_line)
 {
-	auto result = ScriptTokenizer::escape_string(custom_command_line);
+	const auto src_string_size = static_cast<ltjs::Index>(custom_command_line.size());
+	const auto dst_string_size = src_string_size * 2;
 
-	std::replace_if(
-		result.begin(),
-		result.end(),
-		[](const auto& item)
-		{
-			return item < ' ';
-		},
-		' '
+	auto result = std::string{};
+	result.resize(dst_string_size);
+
+	const auto escaped_size = ScriptTokenizer::escape_string(
+		custom_command_line.c_str(),
+		src_string_size,
+		&result[0],
+		2 * src_string_size
 	);
+
+	result.resize(escaped_size);
 
 	return result;
 }
 
 std::string Configuration::deserialize_cl_args(
-	const std::string& custom_command_line)
+	const ScriptTokenizerToken& token)
 {
-	auto result = custom_command_line;
+	if (token.is_escaped())
+	{
+		auto result = std::string{};
+		result.resize(token.unescaped_size);
 
-	std::replace_if(
-		result.begin(),
-		result.end(),
-		[](const auto& item)
-		{
-			return item < ' ';
-		},
-		' '
-	);
+		ScriptTokenizer::unescape_string(
+			token,
+			&result[0],
+			token.unescaped_size
+		);
 
-	return result;
+		return result;
+	}
+	else
+	{
+		return std::string{token.data, static_cast<std::size_t>(token.size)};
+	}
 }
 
 //
@@ -2419,14 +2509,7 @@ std::string Configuration::deserialize_cl_args(
 // SupportedLanguages
 //
 
-const std::string SupportedLanguages::config_file_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/languages.txt";
-
-
-SupportedLanguages::SupportedLanguages()
-	:
-	languages_{}
-{
-}
+SupportedLanguages::SupportedLanguages() = default;
 
 SupportedLanguages::SupportedLanguages(
 	SupportedLanguages&& rhs)
@@ -2435,9 +2518,7 @@ SupportedLanguages::SupportedLanguages(
 {
 }
 
-SupportedLanguages::~SupportedLanguages()
-{
-}
+SupportedLanguages::~SupportedLanguages() = default;
 
 SupportedLanguages& SupportedLanguages::get_instance()
 {
@@ -2450,135 +2531,31 @@ bool SupportedLanguages::load()
 {
 	clear_error_message();
 
-	languages_ = {};
+	languages_.clear();
 
-	const auto file_path = ul::PathUtils::normalize(config_file_path);
+	auto& configuration = Configuration::get_instance();
+	auto language_mgr = configuration.get_language_mgr();
 
-	auto file_stream = ul::FileStream{file_path, ul::Stream::OpenMode::read};
-
-	if (!file_stream.is_open())
+	if (!language_mgr)
 	{
-		set_error_message("Failed to open file with supported languages: \"" + file_path + "\".");
+		set_error_message("Null language manager.");
 		return false;
 	}
 
-	const auto stream_size = file_stream.get_size();
+	language_mgr->load();
 
-	if (stream_size > max_file_size)
+	const auto languages = language_mgr->get_languages();
+	const auto language_count = languages.size;
+
+	languages_.resize(language_count);
+
+	for (auto i = 0; i < language_count; ++i)
 	{
-		set_error_message("File with supported languages too big: \"" + file_path + "\".");
-		return false;
-	}
+		const auto& src_language = languages.data[i];
+		auto& dst_language = languages_[i];
 
-	const auto file_size = static_cast<int>(stream_size);
-
-	using Buffer = std::vector<char>;
-
-	auto buffer = Buffer{};
-	buffer.resize(file_size);
-
-	const auto read_result = file_stream.read(buffer.data(), file_size);
-
-	if (read_result != file_size)
-	{
-		set_error_message("Failed to read file with supported languages: \"" + file_path + "\".");
-		return false;
-	}
-
-	auto script_tokenizer = ScriptTokenizer{};
-
-	if (!script_tokenizer.tokenize(buffer.data(), file_size))
-	{
-		set_error_message("Failed to parse \"" + file_path + "\" with supported languages. " + script_tokenizer.get_error_message());
-		return false;
-	}
-
-	using LanguageMap = std::unordered_map<std::string, Language>;
-
-	auto language_map = LanguageMap{};
-	auto last_id = std::string{};
-
-	for (const auto& script_line : script_tokenizer.get_lines())
-	{
-		const auto& tokens = script_line.tokens_;
-
-		if (tokens.size() != 2)
-		{
-			set_error_message("Expected two tokens in \"" + file_path + "\" at line " + std::to_string(script_line.number_) + ".");
-			return false;
-		}
-
-		const auto& content_1 = tokens[0].content_;
-		const auto& content_2 = tokens[1].content_;
-
-		if (false)
-		{
-		}
-		else if (content_1 == "id")
-		{
-			if (content_2.empty())
-			{
-				set_error_message("Empty id in \"" + file_path + "\" at line " + std::to_string(script_line.number_) + ".");
-				return false;
-			}
-
-			if (language_map.find(content_1) == language_map.cend())
-			{
-				last_id = content_2;
-				language_map[content_2] = {};
-				language_map[content_2].id_ = content_2;
-			}
-			else
-			{
-				set_error_message(
-					"Id \"" + content_2 + "\" already defined in \"" + file_path + "\" at line " +
-						std::to_string(script_line.number_) + ".");
-
-				return false;
-			}
-		}
-		else if (content_1 == "name")
-		{
-			if (language_map.find(last_id) == language_map.cend())
-			{
-				set_error_message(
-					"Name \"" + content_2 + "\" without id in \"" + file_path + "\" at line " +
-						std::to_string(script_line.number_) + ".");
-
-				return false;
-			}
-			else
-			{
-				language_map[last_id].name_ = content_2;
-			}
-		}
-		else
-		{
-			set_error_message("Unsupported token in \"" + file_path + "\" at line " + std::to_string(script_line.number_) + ".");
-			return false;
-		}
-	}
-
-	auto empty_name_it = std::find_if(
-		language_map.cbegin(),
-		language_map.cend(),
-		[](const auto& item)
-		{
-			return item.second.name_.empty();
-		}
-	);
-
-	if (empty_name_it != language_map.cend())
-	{
-		set_error_message("Empty name with id \"" + empty_name_it->first + "\" in \"" + file_path + "\".");
-		return false;
-	}
-
-	languages_.reserve(language_map.size());
-
-	for (const auto& language_item : language_map)
-	{
-		languages_.push_back(language_item.second);
+		dst_language.id_.assign(src_language.id_string.data, static_cast<std::size_t>(src_language.id_string.size));
+		dst_language.name_.assign(src_language.name.data, static_cast<std::size_t>(src_language.name.size));
 	}
 
 	return true;
@@ -3053,8 +3030,8 @@ void SdlOglWindow::uninitialize()
 // FontManager
 //
 
-const std::string FontManager::regular_font_file_name = "ltjs/" LTJS_GAME_ID_STRING "/launcher/fonts/noto_sans_display_condensed.ttf";
-const std::string FontManager::bold_font_file_name = "ltjs/" LTJS_GAME_ID_STRING "/launcher/fonts/noto_sans_display_condensed_bold.ttf";
+const std::string FontManager::regular_font_file_name = "ltjs/" LTJS_GAME_ID_STRING "/launcher/noto_sans_display_condensed.ttf";
+const std::string FontManager::bold_font_file_name = "ltjs/" LTJS_GAME_ID_STRING "/launcher/noto_sans_display_condensed_bold.ttf";
 
 const FontManager::Descriptions FontManager::descriptions =
 {
@@ -3177,7 +3154,7 @@ bool FontManager::load_font_data(
 
 	const auto read_size = sdl_rw->read(sdl_rw, font_data.data(), 1, static_cast<std::size_t>(file_size));
 
-	if (read_size != file_size)
+	if (read_size != static_cast<std::size_t>(file_size))
 	{
 		regular_font_data_.clear();
 		set_error_message("Failed to read font file: \"" + normalized_file_name + "\".");
@@ -3250,7 +3227,7 @@ bool FontManager::add_font(
 // OglTextureManager
 //
 
-const std::string OglTextureManager::images_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/images";
+const std::string OglTextureManager::images_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher";
 
 const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 {
@@ -3544,106 +3521,83 @@ OglTexture OglTextureManager::create_texture_from_surface(
 		return {};
 	}
 
-	switch (sdl_surface->format->BitsPerPixel)
+	const auto src_width = sdl_surface->w;
+	const auto src_height = sdl_surface->h;
+
+	static constexpr auto rgba_sdl_pixel_format =
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		::SDL_PIXELFORMAT_RGBA8888
+#else
+		::SDL_PIXELFORMAT_ABGR8888
+#endif
+	;
+
+	auto rgba_sdl_surface = ltjs::SdlSurfaceUResource{};
+
+	if (sdl_surface->format->format != rgba_sdl_pixel_format)
 	{
-	case 24:
-	case 32:
-		break;
+		rgba_sdl_surface = ltjs::SdlSurfaceUResource{::SDL_ConvertSurfaceFormat(
+			sdl_surface,
+			rgba_sdl_pixel_format,
+			0
+		)};
 
-	default:
-		set_error_message("Unsupported bit depth.");
-		return {};
+		if (!rgba_sdl_surface)
+		{
+			set_error_message("Failed to create \"RGBA\" SDL surface.");
+			return {};
+		}
+
+		sdl_surface = rgba_sdl_surface.get();
 	}
-
-
-	static auto buffer = std::vector<std::uint8_t>{};
-
-	auto result = OglTexture{};
-
-	const auto alignment = 4;
-	const auto bpp = sdl_surface->format->BytesPerPixel;
 
 	const auto pot_width = ogl_calculate_npot_dimension(sdl_surface->w);
 	const auto pot_height = ogl_calculate_npot_dimension(sdl_surface->h);
 
-	const auto is_npot = (sdl_surface->w != pot_width || sdl_surface->h != pot_height);
+	const auto is_npot = (src_width != pot_width || src_height != pot_height);
 	const auto is_make_pot = is_npot && !GLAD_GL_ARB_texture_non_power_of_two;
 
-	auto dst_pitch = sdl_surface->w * bpp;
-	dst_pitch += alignment - 1;
-	dst_pitch /= alignment;
-	dst_pitch *= alignment;
+	auto dst_width = src_width;
+	auto dst_height = src_height;
 
-	auto dst_width = sdl_surface->w;
-	auto dst_height = sdl_surface->h;
+	auto pot_sdl_surface = ltjs::SdlSurfaceUResource{};
 
-	const auto is_convert = (
-		!GLAD_GL_EXT_bgra ||
-		is_make_pot ||
-		sdl_surface->pitch != dst_pitch);
-
-	if (is_convert)
+	if (is_make_pot)
 	{
-		if (is_make_pot)
-		{
-			dst_pitch = pot_width * bpp;
+		dst_width = pot_width;
+		dst_height = pot_height;
 
-			dst_width = pot_width;
-			dst_height = pot_height;
+		pot_sdl_surface = ltjs::SdlSurfaceUResource{::SDL_CreateRGBSurfaceWithFormat(
+			0,
+			dst_width,
+			dst_height,
+			0,
+			rgba_sdl_pixel_format
+		)};
+
+		if (!pot_sdl_surface)
+		{
+			set_error_message("Failed to create \"POT\" SDL surface.");
+			return {};
 		}
 
-		const auto area = dst_pitch * dst_height;
+		const auto sdl_result = ::SDL_BlitScaled(
+			sdl_surface,
+			nullptr,
+			pot_sdl_surface.get(),
+			nullptr
+		);
 
-		if (static_cast<int>(buffer.size()) < area)
+		if (sdl_result != 0)
 		{
-			buffer.resize(area);
+			set_error_message("Failed to blit \"POT\" SDL surface.");
+			return {};
 		}
 
-		for (auto i = 0; i < sdl_surface->h; ++i)
-		{
-			auto src_pixels = static_cast<const std::uint8_t*>(sdl_surface->pixels) + (i * sdl_surface->pitch);
-			auto dst_pixels = buffer.data() + (i * dst_pitch);
-
-			for (auto j = 0; j < sdl_surface->w; ++j)
-			{
-				if (bpp == 3)
-				{
-					dst_pixels[0] = src_pixels[2];
-					dst_pixels[1] = src_pixels[1];
-					dst_pixels[2] = src_pixels[0];
-				}
-				else
-				{
-					dst_pixels[0] = src_pixels[3];
-					dst_pixels[1] = src_pixels[2];
-					dst_pixels[2] = src_pixels[1];
-					dst_pixels[3] = src_pixels[0];
-				}
-
-				src_pixels += bpp;
-				dst_pixels += bpp;
-			}
-		}
+		sdl_surface = pot_sdl_surface.get();
 	}
 
-	auto ogl_format = GLenum{};
-	auto ogl_internal_format = GLenum{};
-
-	switch (sdl_surface->format->BitsPerPixel)
-	{
-	case 24:
-		ogl_format = (is_convert ? GL_RGB : GL_BGR_EXT);
-		ogl_internal_format = GL_RGB;
-		break;
-
-	case 32:
-		ogl_format = (is_convert ? GL_RGBA : GL_BGRA_EXT);
-		ogl_internal_format = GL_RGBA;
-		break;
-
-	default:
-		break;
-	}
+	auto result = OglTexture{};
 
 	::glGenTextures(1, &result.ogl_id_);
 	::glBindTexture(GL_TEXTURE_2D, result.ogl_id_);
@@ -3651,13 +3605,14 @@ OglTexture OglTextureManager::create_texture_from_surface(
 	::glTexImage2D(
 		GL_TEXTURE_2D,
 		0,
-		ogl_internal_format,
-		is_convert ? dst_width : sdl_surface->w,
-		is_convert ? dst_height : sdl_surface->h,
+		GL_RGBA,
+		dst_width,
+		dst_height,
 		0,
-		ogl_format,
+		GL_RGBA,
 		GL_UNSIGNED_BYTE,
-		is_convert ? buffer.data() : sdl_surface->pixels);
+		sdl_surface->pixels
+	);
 
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -3666,12 +3621,7 @@ OglTexture OglTextureManager::create_texture_from_surface(
 	const auto v_offset = 0.0F;
 
 	result.uv0_ = {u_offset, v_offset};
-
-	result.uv1_ =
-	{
-		(static_cast<float>(sdl_surface->w) / static_cast<float>(dst_width)) - u_offset,
-		(static_cast<float>(sdl_surface->h) / static_cast<float>(dst_height)) - v_offset,
-	};
+	result.uv1_ = {1.0F - u_offset, 1.0F - v_offset};
 
 	return result;
 }
@@ -5485,9 +5435,13 @@ void MainWindow::change_language()
 
 	if (is_succeed)
 	{
+		launcher.setup_search_paths(configuration.language_);
+	}
+
+	if (is_succeed)
+	{
 		const auto resource_strings_result = resource_strings.initialize(
-			configuration.language_,
-			Launcher::resource_strings_directory,
+			launcher.get_search_paths(),
 			Launcher::resource_strings_file_name);
 
 		if (!resource_strings_result)
@@ -5656,9 +5610,9 @@ bool MainWindow::save_arguments(
 	const std::string& command_line) const
 {
 	const auto& configuration = Configuration::get_instance();
-	const auto& profile_directory = configuration.get_profile_directory();
+	const auto& config_path = configuration.get_config_path();
 	const auto& arguments_file_name = configuration.get_arguments_file_name();
-	const auto file_name = ul::PathUtils::append(profile_directory, arguments_file_name);
+	const auto file_name = ul::PathUtils::append(config_path, arguments_file_name);
 
 	auto file_stream = ul::FileStream{file_name, ul::Stream::OpenMode::write | ul::Stream::OpenMode::truncate};
 
@@ -8208,9 +8162,8 @@ void WindowManager::unregister_window(
 //
 
 std::string Launcher::launcher_commands_file_name = "launchcmds.txt";
-std::string Launcher::resource_strings_directory = "ltjs/" LTJS_GAME_ID_STRING "/launcher/strings";
-std::string Launcher::resource_strings_file_name = "launcher.txt";
-std::string Launcher::icon_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/images/icon_48x48.bmp";
+std::string Launcher::resource_strings_file_name = "strings.txt";
+std::string Launcher::icon_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/icon_48x48.bmp";
 
 
 Launcher::Launcher()
@@ -8283,9 +8236,9 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		const auto& profile_directory = configuration.get_profile_directory();
+		const auto& config_directory = configuration.get_config_path();
 		const auto& log_file_name = configuration.get_log_file_name();
-		const auto& file_path = ul::PathUtils::append(profile_directory, log_file_name);
+		const auto& file_path = ul::PathUtils::append(config_directory, log_file_name);
 
 		spdlog::set_pattern("[%Y-%m-%d %H:%M:%S %z] [%L] %v");
 
@@ -8366,9 +8319,13 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
+		setup_search_paths(configuration.language_);
+	}
+
+	if (is_succeed)
+	{
 		const auto resource_strings_result = resource_strings_.initialize(
-			configuration.language_,
-			resource_strings_directory,
+			search_paths_,
 			resource_strings_file_name);
 
 		if (!resource_strings_result)
@@ -8730,7 +8687,7 @@ void Launcher::show_message_box(
 	message_box_window_uptr_->show(type, buttons, message);
 }
 
-ResourceStrings& Launcher::get_resource_strings()
+launcher::ResourceStrings& Launcher::get_resource_strings()
 {
 	return resource_strings_;
 }
@@ -8763,6 +8720,26 @@ AdvancedSettingsWindowPtr Launcher::get_advanced_settings_window()
 DetailSettingsWindowPtr Launcher::get_detail_settings_window()
 {
 	return detail_settings_window_uptr_.get();
+}
+
+const SearchPaths& Launcher::get_search_paths() const
+{
+	return search_paths_;
+}
+
+void Launcher::setup_search_paths(
+	const std::string& language_id_string)
+{
+	search_paths_.clear();
+	search_paths_.reserve(2);
+
+	const auto& base_path = Configuration::get_resources_base_path();
+
+	search_paths_.emplace_back(ul::PathUtils::normalize(base_path));
+
+	search_paths_.emplace_back(ul::PathUtils::normalize(
+		ul::PathUtils::append(base_path, language_id_string))
+	);
 }
 
 bool Launcher::initialize_ogl_functions()
@@ -8922,6 +8899,7 @@ ImVec2& operator*=(
 }
 
 
+} // launcher
 } // ltjs
 
 
@@ -8929,7 +8907,7 @@ int main(
 	int,
 	char**)
 {
-	auto& launcher = ltjs::Launcher::get_instance();
+	auto& launcher = ltjs::launcher::Launcher::get_instance();
 
 	if (!launcher.initialize())
 	{

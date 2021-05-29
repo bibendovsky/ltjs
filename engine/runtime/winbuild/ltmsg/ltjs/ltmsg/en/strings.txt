@@ -1,0 +1,34 @@
+/*
+LTJS
+LTMSG
+English strings
+*/
+
+1 "Internal LithTech error: %1!d!."
+2 "Missing WorldModel: %1!s!."
+3 "Can't load game resources in %1!s!."
+4 "Can't initialize DirectInput."
+5 "Unable to restore video mode."
+6 "User canceled."
+7 "%1!s! is an invalid world file."
+8 "Missing model file %1!s!."
+9 "%1!s! is an invalid model file."
+10 "Missing sprite file %1!s!."
+11 "%1!s! is an invalid sprite file."
+12 "No game resources specified."
+13 "Missing world file %1!s!."
+14 "Unable to restore object (class %1!s!)."
+15 "Server error: %1!s!."
+16 "Error loading render DLL %1!s!."
+17 "Error copying file %1!s!."
+42 "Unable to create server shell."
+66 "Object DLL %1!s! is an invalid version (%2!d!).  Current version is %3!d!."
+76 "Invalid shell DLL %1!s!."
+77 "Invalid shell DLL version for %1!s!.  DLL version is %2!d!, current version is %3!d!."
+78 "Missing shell DLL %1!s!."
+82 "Can't create client shell."
+89 "Unable to initialize sound system."
+92 "Got an invalid server packet."
+93 "Missing class: %1!s!."
+94 "Unable to initialize network driver %1!s!."
+95 "Network protocol version mismatch - your version: %1!d!, server's version: %2!d!."

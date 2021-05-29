@@ -35,6 +35,7 @@ add_subdirectory (libs/bibendovsky_spul_lib)
 add_subdirectory (libs/ltjs)
 add_subdirectory (libs/butemgr)
 add_subdirectory (libs/cryptmgr)
+add_subdirectory (libs/freetype)
 add_subdirectory (libs/lith)
 add_subdirectory (libs/mfcstub)
 add_subdirectory (libs/regmgr)
@@ -65,3 +66,11 @@ add_subdirectory (game/serverres/to2)
 if (WIN32)
 	add_subdirectory (engine/runtime/sound/src/sys/s_dx8)
 endif ()
+
+
+install (
+	DIRECTORY
+		"ltjs"
+	DESTINATION
+		"."
+)

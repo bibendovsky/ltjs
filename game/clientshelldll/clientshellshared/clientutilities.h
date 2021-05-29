@@ -19,6 +19,11 @@
 #include "soundmgr.h"
 #include "clientservershared.h"
 
+#if LTJS_SDL_BACKEND
+#include "ltjs_shell_resource_mgr.h"
+#include "ltjs_shell_string_formatter.h"
+#endif // LTJS_SDL_BACKEND
+
 #define DEG2RAD(x)		(((x)*MATH_PI)/180.0f)
 #define RAD2DEG(x)		(((x)*180.0f)/MATH_PI)
 
@@ -107,11 +112,18 @@ LTRESULT SendEmptyServerMsg(uint32 nMsgID, uint32 nFlags = MESSAGE_GUARANTEED);
 
 //load and/or format a string from CRes
 const int kMaxStringBuffer = 2048;
+
+#if !LTJS_SDL_BACKEND
 void FormatString(int messageCode, char *outBuf, int outBufLen,  ...);
+#endif // !LTJS_SDL_BACKEND
+
 void LoadString(int messageCode, char *outBuf, int outBufLen);
 
 //load and format a string from CRes and return a pointer to a static buffer containing that string
+#if !LTJS_SDL_BACKEND
 char* FormatTempString(int messageCode, ...);
+#endif // !LTJS_SDL_BACKEND
+
 char* LoadTempString(int messageCode);
 
 
@@ -125,5 +137,50 @@ LTVector GetContouringNormal( LTVector &vPos, LTVector &vDims, LTVector &vForwar
 
 // Get the pitch amount and percents to apply for pitch and roll based on the forward direction and plane normal.
 void GetContouringInfo( LTVector &vForward, LTVector &vNormal, float &fOutAmount, float &fOutPitchPercent, float &fOutRollPercent );
+
+
+#if LTJS_SDL_BACKEND
+void ltjs_format_string(
+	int messageCode,
+	char* outBuf,
+	int outBufLen,
+	ltjs::ShellStringFormatter& formatter) noexcept;
+
+template<
+	typename ...TArgs
+>
+inline void FormatString(
+	int messageCode,
+	char* outBuf,
+	int outBufLen,
+	TArgs... args) noexcept
+{
+	auto formatter = ltjs::ShellStringFormatter{std::forward<TArgs>(args)...};
+	ltjs_format_string(messageCode, outBuf, outBufLen, formatter);
+}
+
+
+char* ltjs_format_temp_string(
+	int messageCode,
+	ltjs::ShellStringFormatter& formatter) noexcept;
+
+template<
+	typename ...TArgs
+>
+inline char* FormatTempString(
+	int messageCode,
+	TArgs... args) noexcept
+{
+	auto formatter = ltjs::ShellStringFormatter{std::forward<TArgs>(args)...};
+	return ltjs_format_temp_string(messageCode, formatter);
+}
+
+
+ltjs::ShellResourceMgr* ltjs_get_cres_mgr();
+
+void ltjs_initialize_cres_mgr(
+	const char* game_net_name);
+#endif // LTJS_SDL_BACKEND
+
 
 #endif // __CLIENT_UTILITIES_H__

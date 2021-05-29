@@ -10,6 +10,10 @@
 //
 //-------------------------------------------------------------------
 
+
+#if !LTJS_SDL_BACKEND
+
+
 #include <string>
 
 #include "bdefs.h"
@@ -471,7 +475,12 @@ static void GetTextureSizeFromCharSizes( GLYPHMETRICS const* pGlyphMetrics, SIZE
 		{
 			// Doesn't fit in the current row.  Englarge by one row
 			// and start at the left again.
+// BBi BUGFIX
+#if 0
 			nXOffset = 0;
+#else
+			nXOffset = nCharWidth + kCharSpacing;
+#endif
 			nRawHeight += sizeMaxGlyphSize.cy + kCharSpacing;
 		}
 	}
@@ -1275,3 +1284,5 @@ bool CUIVectorFont::CreateFontTextureAndTable( InstalledFontFace& installedFontF
 
 	return bOk;
 }
+
+#endif // !LTJS_SDL_BACKEND

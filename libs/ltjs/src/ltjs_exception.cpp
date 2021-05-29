@@ -23,6 +23,8 @@ Exception::Exception(
 	const char* context,
 	const char* message)
 {
+	assert(message);
+
 	constexpr auto context_prefix = "[";
 	constexpr auto context_prefix_size = c_string::get_size(context_prefix);
 

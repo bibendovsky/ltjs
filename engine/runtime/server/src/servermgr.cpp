@@ -2061,7 +2061,7 @@ LTRESULT sm_CreateNewID(LTLink **pID)
 	return LT_OK;
 }
 
-
+#if !LTJS_SDL_BACKEND
 LTRESULT sm_SetupError(LTRESULT theError, ...)
 {
 	va_list marker;
@@ -2074,6 +2074,23 @@ LTRESULT sm_SetupError(LTRESULT theError, ...)
 	g_pServerMgr->m_LastErrorCode = theError;
 	return dResult;
 }
+#else
+LTRESULT ltjs_sm_setup_error(
+	LTRESULT theError,
+	ltjs::ShellStringFormatter& formatter)
+{
+	const auto dResult = dsi_SetupMessage(
+		g_pServerMgr->m_ErrorString,
+		sizeof(g_pServerMgr->m_ErrorString) - 1,
+		theError,
+		formatter
+	);
+
+	g_pServerMgr->m_LastErrorCode = theError;
+
+	return dResult;
+}
+#endif // !LTJS_SDL_BACKEND
 
 void CServerMgr::UntouchAllSoundData()
 {

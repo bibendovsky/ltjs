@@ -15,6 +15,10 @@
 #define __CUIFORMATTEDPOLYSTRING_IMPL_H__
 
 
+#if LTJS_SDL_BACKEND
+#include <vector>
+#endif // LTJS_SDL_BACKEND
+
 #ifndef __CUIFORMATTEDPOLYSTRING_H__
 #include "cuiformattedpolystring.h"
 #endif
@@ -74,7 +78,13 @@ class CUIFormattedPolyString_Impl : public CUIPolyString_Impl
 		uint16 				m_pLines[MAX_POLYSTRING_LINES * 2];
 
 		uint8*				m_pLetters;
-	
+
+#if LTJS_SDL_BACKEND
+		using LtjsIsNewLineOrSpaceLetter = std::vector<bool>;
+
+		LtjsIsNewLineOrSpaceLetter ltjs_is_newline_or_space_letter_{};
+#endif // LTJS_SDL_BACKEND
+
 		CUI_ALIGNMENTTYPE	m_Alignment;
 
 		uint16				m_WrapWidth;

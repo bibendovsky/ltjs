@@ -98,6 +98,7 @@ Sound* CClientMgr::GetSound(sound_type soundType, FileRef *pFileRef, uint32 dwSo
 }
 */
 
+#if !LTJS_SDL_BACKEND
 LTRESULT CClientMgr::SetupError(LTRESULT theError, ...) {
     va_list marker;
     LTRESULT dResult;
@@ -108,7 +109,14 @@ LTRESULT CClientMgr::SetupError(LTRESULT theError, ...) {
 
     return dResult;
 }
-
+#else
+LTRESULT CClientMgr::ltjs_setup_error(
+	LTRESULT theError,
+	ltjs::ShellStringFormatter& formatter)
+{
+	return dsi_SetupMessage(m_ErrorString, sizeof(m_ErrorString)-1, theError, formatter);
+}
+#endif // !LTJS_SDL_BACKEND
 
 LTRESULT CClientMgr::ProcessError(LTRESULT theError) {
     if (theError & ERROR_DISCONNECT)

@@ -922,6 +922,7 @@ uint32 CLTServer::GetContainedObjects(HOBJECT hContainer,
 
 HSTRING CLTServer::FormatString(int messageCode, ...)
 {
+#if !LTJS_SDL_BACKEND
 	if (!g_pServerMgr->m_ClassMgr.m_hServerResourceModule)
 		return LTNULL;
 
@@ -941,6 +942,9 @@ HSTRING CLTServer::FormatString(int messageCode, ...)
 	HSTRING ret = str_CreateString(pBuf);
 	str_FreeStringBuffer(pBuf);
 	return ret;
+#else
+	return nullptr;
+#endif // !LTJS_SDL_BACKEND
 }
 
 HSTRING CLTServer::CopyString(HSTRING hString)

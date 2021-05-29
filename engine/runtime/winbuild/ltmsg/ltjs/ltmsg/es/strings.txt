@@ -1,0 +1,34 @@
+/*
+LTJS
+LTMSG
+Spanish strings
+*/
+
+1 "Error de LithTech interno: %1!d!."
+2 "Falta ModeloMundos: %1!s!."
+3 "No se pueden cargar los recursos del juego en %1!s!."
+4 "No se puede iniciar DirectInput."
+5 "No se puede restaurar el modo gráfico."
+6 "Cancelado por el usuario."
+7 "%1!s! es un archivo de mundo no válido."
+8 "Falta el archivo de modelo %1!s!."
+9 "%1!s! es un archivo de modelo no válido."
+10 "Falta el archivo de objeto gráfico %1!s!."
+11 "%1!s! es un archivo de objeto gráfico independiente (sprite)."
+12 "No se ha especificado ningún recurso del juego."
+13 "Falta el archivo de mundo %1!s!."
+14 "No se puede restaurar el objeto (clase %1!s!)."
+15 "Error de servidor: %1!s!."
+16 "Error al cargar el archivo DLL de renderización %1!s!."
+17 "Error al copiar el archivo %1!s!."
+42 "No se puede crear el intérprete de comandos (shell) del servidor."
+66 "La versión del archivo DLL de objeto %1!s! no es válida (%2!d!). La versión actual es %3!d!."
+76 "Archivo DLL del intérprete de comandos (shell) %1!s! no válido."
+77 "La versión del archivo DLL del intérprete de comandos (shell) no es válida para %1!s!. La versión del archivo DLL es %2!d! y la versión actual es %3!d!."
+78 "Falta el archivo DDL del intérprete de comandos (shell) %1!s!."
+82 "No se puede crear el intérprete de comandos (shell) del cliente."
+89 "No se puede iniciar el sistema de sonido."
+92 "Se ha obtenido un paquete de servidor no válido."
+93 "Falta la clase: %1!s!."
+94 "No se puede iniciar el controlador de red %1!s!."
+95 "La versión del protocolo de red no coincide; tu versión: %1!d!, versión del servidor: %2!d!."

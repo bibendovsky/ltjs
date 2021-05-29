@@ -7,11 +7,21 @@ add_library (${PROJECT_NAME} STATIC)
 
 ltjs_add_defaults (${PROJECT_NAME})
 
+if (!LTJS_SDL_BACKEND)
+message (FATAL_ERROR "WTF")
+endif ()
+
 target_compile_definitions (
 	${PROJECT_NAME}
 	PRIVATE
 		__D3D
 		__D3DREND
+)
+
+target_link_libraries (
+	${PROJECT_NAME}
+	PRIVATE
+		ltjs_lib_freetype
 )
 
 target_include_directories (
@@ -139,5 +149,6 @@ target_sources (
 		cuiwidgetmanager.cpp
 		cuiwindow.cpp
 		cuiwindow_impl.cpp
+		sdl_cuivectorfont.cpp
 		sys/d3d/cuidebug.cpp
 )

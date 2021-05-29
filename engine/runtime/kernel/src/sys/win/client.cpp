@@ -5,6 +5,12 @@
 #include "SDL.h"
 #include "SDL_syswm.h"
 
+#if LTJS_SDL_BACKEND
+#include "ltjs_language_mgr.h"
+#include "ltjs_shared_data_mgr.h"
+#include "ltjs_shell_resource_mgr.h"
+#endif // LTJS_SDL_BACKEND
+
 #include "ltjs_system_event.h"
 #include "ltjs_system_event_handler_mgr.h"
 #include "ltjs_system_event_mgr.h"
@@ -132,6 +138,9 @@ private:
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+auto g_language_mgr = ltjs::LanguageMgrUPtr{};
+auto g_cres_mgr = ltjs::ShellResourceMgrUPtr{};
+auto g_ltmsg_mgr = ltjs::ShellResourceMgrUPtr{};
 auto g_system_event_handler = CSystemEventHandler{};
 auto g_system_event_mgr = ltjs::SystemEventMgrUPtr{};
 auto g_video_subsystem = ltjs::SdlSubsystem{};
@@ -509,6 +518,22 @@ bool initialize()
 	{
 		return false;
 	}
+
+#if LTJS_SDL_BACKEND
+	auto& shared_data_mgr = ltjs::get_shared_data_mgr();
+
+	g_language_mgr = ltjs::make_language_mgr();
+	g_language_mgr->initialize("ltjs");
+	ltjs::get_shared_data_mgr().set_language_mgr(g_language_mgr.get());
+
+	g_cres_mgr = ltjs::make_shell_resource_mgr();
+	ltjs::get_shared_data_mgr().set_cres_mgr(g_cres_mgr.get());
+
+	g_ltmsg_mgr = ltjs::make_shell_resource_mgr();
+	g_ltmsg_mgr->initialize("ltjs/ltmsg");
+	g_ltmsg_mgr->set_language(g_language_mgr->get_current()->id_string.data);
+	ltjs::get_shared_data_mgr().set_ltmsg_mgr(g_ltmsg_mgr.get());
+#endif // LTJS_SDL_BACKEND
 
 	return true;
 }

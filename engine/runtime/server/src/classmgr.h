@@ -153,8 +153,10 @@ public:
 public:
 
 	ClassBindModule		m_ClassModule;
+#if !LTJS_SDL_BACKEND
 	CBindModuleType     *m_hServerResourceModule;
-	
+#endif // !LTJS_SDL_BACKEND
+
 	ClassDef			*m_pBaseClass;
 	
 	// Extra data associated with each class.

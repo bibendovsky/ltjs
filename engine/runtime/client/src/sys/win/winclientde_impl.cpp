@@ -1678,6 +1678,7 @@ static LTRESULT cis_GetEngineHook(const char *pName, void **pData)
 
 		return LT_OK;
 	}
+#if !LTJS_SDL_BACKEND
 	else if(stricmp(pName, "cres_hinstance")==0)
 	{
 		return bm_GetInstanceHandle(g_pClientMgr->m_hClientResourceModule, pData);
@@ -1686,6 +1687,7 @@ static LTRESULT cis_GetEngineHook(const char *pName, void **pData)
 	{
 		return bm_GetInstanceHandle(g_pClientMgr->m_hLocalizedClientResourceModule, pData);
 	}
+#endif // !LTJS_SDL_BACKEND
 	else if(stricmp(pName, "cshell_hinstance")==0)
 	{
 		return bm_GetInstanceHandle(g_pClientMgr->m_hShellModule, pData);

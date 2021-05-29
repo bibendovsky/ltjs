@@ -1,0 +1,34 @@
+/*
+LTJS
+LTMSG
+Italian strings
+*/
+
+1 "Errore interno LithTech: %1!d!."
+2 "Modello di mondo mancante: %1!s!."
+3 "Impossibile caricare le risorse di gioco in %1!s!."
+4 "Impossibile inizializzare DirectInput."
+5 "Impossibile ripristinare la modalità video."
+6 "Annullato dall'utente."
+7 "%1!s! è un file di mondo non valido."
+8 "File di modello mancante %1!s!."
+9 "%1!s! è un file di modello non valido."
+10 "File di sprite mancante %1!s!."
+11 "%1!s! è un file di sprite non valido."
+12 "Nessuna risorsa di gioco specificata."
+13 "File di mondo mancante %1!s!."
+14 "Impossibile ripristinare l'oggetto (classe %1!s!)."
+15 "Errore di server: %1!s!."
+16 "Errore nel caricamento della DLL di renderizzazione %1!s!."
+17 "Errore nella copia del file %1!s!."
+42 "Impossibile creare la shell server."
+66 "La versione della DLL oggetto %1!s! non è valida (%2!d!).  La versione attuale è %3!d!."
+76 "DLL di shell %1!s! non valida."
+77 "Versione non valida della DLL di shell %1!s!. La versione della DLL è %2!d!, quella attuale è %3!d!."
+78 "DLL di shell mancante %1!s!."
+82 "Impossibile creare la shell client."
+89 "Impossibile inizializzare il sistema audio."
+92 "Ricevuto un pacchetto di server non valido."
+93 "Classe mancante: %1!s!."
+94 "Impossibile inizializzare il driver di rete %1!s!."
+95 "Incompatibilità delle versioni di protocollo di rete - la tua versione: %1!d!, la versione del server: %2!d!."

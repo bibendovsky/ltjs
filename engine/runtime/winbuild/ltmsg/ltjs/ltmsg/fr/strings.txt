@@ -1,0 +1,34 @@
+/*
+LTJS
+LTMSG
+French strings
+*/
+
+1 "Erreur interne LithTech: %1!d!."
+2 "Modèle monde manquant: %1!s!."
+3 "Impossible de charger les ressources du jeu dans %1!s!."
+4 "Impossible d'initialiser DirectInput."
+5 "Impossible d'initialiser le mode vidéo."
+6 "Utilisateur annulé."
+7 "%1!s! est un fichier monde incorrect."
+8 "Fichier modèle manquant %1!s!."
+9 "%1!s! n'est pas un nom de fichier modèle correct."
+10 "Fichier sprite manquant %1!s!."
+11 "%1!s! est un fichier sprite incorrect."
+12 "Aucune ressource de jeu indiquée."
+13 "Fichier monde manquant %1!s!."
+14 "Impossible de retrouver l'objet (classe %1!s!)."
+15 "Erreur serveur: %1!s!."
+16 "Erreur de chargement de la DLL de rendu %1!s!."
+17 "Erreur lors de la copie du fichier %1!s!."
+42 "Impossible de créer le cadre serveur."
+66 "La DLL objet %1!s! est une version incorrecte (%2!d!).  La version actuelle est la %3!d!."
+76 "DLL cadre %1!s! incorrecte."
+77 "DLL cadre incorrecte, version pour %1!s!. Version DLL %2!d!, la version actuelle est la %3!d!."
+78 "DLL cadre manquante %1!s!."
+82 "Impossible de créer le cadre client."
+89 "Impossible d'initialiser le système son."
+92 "Réception d'un paquet serveur incorrect."
+93 "Classe manquante: %1!s!."
+94 "Impossible d'initialiser le pilote réseau %1!s!."
+95 "Différence des versions des protocoles réseau - votre version: %1!d!, version du serveur: %2!d!."

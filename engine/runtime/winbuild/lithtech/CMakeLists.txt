@@ -605,6 +605,7 @@ target_sources (
 		../../kernel/src/sys/win/musicdriver.cpp
 		../../kernel/src/sys/win/render.cpp
 		../../kernel/src/sys/win/sdl_input.cpp
+		../../kernel/src/sys/win/sdl_lt_cursor_impl.cpp
 		../../kernel/src/sys/win/streamsim.cpp
 		../../kernel/src/sys/win/stringmgr.cpp
 		../../kernel/src/sys/win/systeminfo.cpp

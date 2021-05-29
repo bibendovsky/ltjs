@@ -1,5 +1,6 @@
 #include "bdefs.h"
 
+#if !LTJS_SDL_BACKEND
 #include "iltcursor.h"
 
 #if LTJS_SDL_BACKEND
@@ -287,3 +288,4 @@ LTRESULT CLTCursor::RefreshCursor()
     return LT_OK;
 #endif
 }
+#endif // !LTJS_SDL_BACKEND

@@ -55,6 +55,10 @@ CTO2GameClientShell::~CTO2GameClientShell()
 
 uint32 CTO2GameClientShell::OnEngineInitialized(RMode *pMode, LTGUID *pAppGuid)
 {
+#if LTJS_SDL_BACKEND
+	ltjs_initialize_cres_mgr(m_VersionMgr.GetNetGameName());
+#endif // LTJS_SDL_BACKEND
+
 	uint32 nResult = CGameClientShell::OnEngineInitialized(pMode, pAppGuid);
 	m_VersionMgr.Update();
 

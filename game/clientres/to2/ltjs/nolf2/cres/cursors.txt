@@ -1,0 +1,7 @@
+/*
+LTJS
+NOLF2 CRES
+Cursors
+*/
+
+630 "arrow.bmp" 1 1

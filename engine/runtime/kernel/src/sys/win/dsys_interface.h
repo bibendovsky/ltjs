@@ -117,6 +117,11 @@
 #include "version_info.h"
 #endif
 
+#if LTJS_SDL_BACKEND
+#include "ltjs_index_type.h"
+#include "ltjs_shell_string_formatter.h"
+#endif // LTJS_SDL_BACKEND
+
 class CClientMgr;
 class CClassMgr;
 
@@ -174,7 +179,15 @@ const char* dsi_GetDefaultWorld();
 
 
 // Sets up a message for a LTRESULT.
+#if !LTJS_SDL_BACKEND
 LTRESULT dsi_SetupMessage(char *pMsg, int maxMsgLen, LTRESULT dResult, va_list marker);
+#else
+LTRESULT dsi_SetupMessage(
+	char* pMsg,
+	int maxMsgLen,
+	LTRESULT dResult,
+	ltjs::ShellStringFormatter& formatter);
+#endif // !LTJS_SDL_BACKEND
           
 // Puts an error message in the console if the renderer is initialized or
 // a message box otherwise.
@@ -204,6 +217,14 @@ LTRESULT dsi_GetVersionInfo(LTVersionInfo &info);
 
 #if LTJS_SDL_BACKEND
 void* dsi_get_system_event_handler_mgr() noexcept;
+
+ltjs::Index dsi_get_file_size(
+	const char* path) noexcept;
+
+bool dsi_load_file_into_memory(
+	const char* path,
+	void* buffer,
+	ltjs::Index max_buffer_size) noexcept;
 #endif // LTJS_SDL_BACKEND
 
 
