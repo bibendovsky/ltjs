@@ -7,10 +7,6 @@ add_library (${PROJECT_NAME} STATIC)
 
 ltjs_add_defaults (${PROJECT_NAME})
 
-if (!LTJS_SDL_BACKEND)
-message (FATAL_ERROR "WTF")
-endif ()
-
 target_compile_definitions (
 	${PROJECT_NAME}
 	PRIVATE

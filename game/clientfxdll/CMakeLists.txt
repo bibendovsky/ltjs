@@ -7,7 +7,15 @@ include (ltjs_common)
 
 add_library (${PROJECT_NAME} SHARED)
 
-ltjs_add_defaults (${PROJECT_NAME} stdafx.h)
+ltjs_add_defaults (${PROJECT_NAME})
+
+if (NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
+	target_precompile_headers(
+		${PROJECT_NAME}
+		PRIVATE
+			stdafx.h
+	)
+endif ()
 
 set_target_properties (
 	${PROJECT_NAME}
@@ -116,22 +124,6 @@ target_sources (
 		stdafx.cpp
 )
 
-if (MSVC)
-	set_source_files_properties (
-		../../engine/sdk/inc/ltmodule.cpp
-		../../engine/sdk/inc/ltquatbase.cpp
-		PROPERTIES
-			# Precompiled Header (None)
-			COMPILE_FLAGS -Y-
-	)
-
-	set_source_files_properties (
-		stdafx.cpp
-		PROPERTIES
-			# Precompiled Header (Create)
-			COMPILE_FLAGS -Yc
-	)
-endif ()
 
 install (
 	TARGETS

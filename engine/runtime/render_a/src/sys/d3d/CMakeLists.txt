@@ -12,7 +12,15 @@ include (ltjs_common)
 
 add_library (${PROJECT_NAME} STATIC)
 
-ltjs_add_defaults (${PROJECT_NAME} precompile.h)
+ltjs_add_defaults (${PROJECT_NAME})
+
+if (NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
+	target_precompile_headers(
+		${PROJECT_NAME}
+		PRIVATE
+			[["precompile.h"]]
+	)
+endif ()
 
 target_compile_definitions (
 	${PROJECT_NAME}
@@ -313,12 +321,3 @@ target_sources (
 		texturescriptvarmgr.cpp
 		vertexbuffercontroller.cpp
 )
-
-if (MSVC)
-	set_source_files_properties (
-		precompile.cpp
-		PROPERTIES
-			# Precompiled Header (Create)
-			COMPILE_FLAGS -Yc
-	)
-endif ()

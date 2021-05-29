@@ -14,7 +14,15 @@ include (ltjs_common)
 
 add_executable (${PROJECT_NAME})
 
-ltjs_add_defaults (${PROJECT_NAME} bdefs.h)
+ltjs_add_defaults (${PROJECT_NAME})
+
+if (NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
+	target_precompile_headers(
+		${PROJECT_NAME}
+		PRIVATE
+			[["bdefs.h"]]
+	)
+endif ()
 
 set_target_properties (
 	${PROJECT_NAME}
@@ -718,34 +726,6 @@ if (MSVC)
 	)
 endif ()
 
-if (MSVC)
-	set_source_files_properties (
-		../../../sdk/inc/lterror.cpp
-		../../../sdk/inc/ltmodule.cpp
-		../../../sdk/inc/ltobjref.cpp
-		../../../sdk/inc/ltquatbase.cpp
-		../../client/src/client_formatmgr.cpp
-		../../client/src/clientmgr.cpp
-		../../controlfilemgr/controlfilemgr.cpp
-		../../kernel/src/icommandlineargs.cpp
-		../../kernel/src/sys/win/client.cpp
-		../../kernel/src/sys/win/counter.cpp
-		../../shared/src/compress.cpp
-		../../shared/src/interface_linkage.cpp
-		../../shared/src/modellt_impl.cpp
-		../../sound/src/ltjs_audio_decoder.cpp
-		PROPERTIES
-			# Precompiled Header (None)
-			COMPILE_FLAGS -Y-
-	)
-
-	set_source_files_properties (
-		../../shared/src/bdefs.cpp
-		PROPERTIES
-			# Precompiled Header (Create)
-			COMPILE_FLAGS -Yc
-	)
-endif ()
 
 install (
 	TARGETS

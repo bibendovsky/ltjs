@@ -5,7 +5,7 @@ include (ltjs_common)
 
 add_library (${PROJECT_NAME} STATIC)
 
-ltjs_add_defaults (${PROJECT_NAME} stdafx.h)
+ltjs_add_defaults (${PROJECT_NAME})
 
 target_compile_definitions (
 	${PROJECT_NAME}
@@ -47,12 +47,3 @@ target_sources (
 		butemgr.cpp
 		stdafx.cpp
 )
-
-if (MSVC)
-	set_source_files_properties (
-		stdafx.cpp
-		PROPERTIES
-			# Precompiled Header (Create)
-			COMPILE_FLAGS -Yc
-	)
-endif ()

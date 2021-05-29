@@ -5,8 +5,8 @@ cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
 ################
 
 function (ltjs_add_defaults)
-	if (NOT ((${ARGC} EQUAL 1) OR (${ARGC} EQUAL 2)))
-		message (FATAL_ERROR "Usage: ltjs_add_defaults <target_name> [<pch_header>]")
+	if (NOT (${ARGC} EQUAL 1))
+		message (FATAL_ERROR "Usage: ltjs_add_defaults <target_name>")
 	endif ()
 
 	set_target_properties (
@@ -56,9 +56,6 @@ function (ltjs_add_defaults)
 				-wd4100
 			# Suppress "The POSIX name for this item is deprecated" warning
 				-wd4996
-			# Use Precompiled Headers
-				$<$<EQUAL:${ARGC},1>:-Y->
-				$<$<EQUAL:${ARGC},2>:-Yu${ARGV1}>
 			# Runtime Library (Multi-threaded Debug)
 				$<$<CONFIG:DEBUG>:-MTd>
 		)

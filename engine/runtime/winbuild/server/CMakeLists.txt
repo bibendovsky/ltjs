@@ -7,7 +7,15 @@ include (ltjs_common)
 
 add_library (${PROJECT_NAME} SHARED)
 
-ltjs_add_defaults (${PROJECT_NAME} bdefs.h)
+ltjs_add_defaults (${PROJECT_NAME})
+
+if (NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
+	target_precompile_headers(
+		${PROJECT_NAME}
+		PRIVATE
+			[["bdefs.h"]]
+	)
+endif ()
 
 target_compile_definitions (
 	${PROJECT_NAME}
@@ -417,38 +425,6 @@ if (MSVC)
 	)
 endif ()
 
-if (MSVC)
-	set_source_files_properties (
-		../../../sdk/inc/ltmodule.cpp
-		../../../sdk/inc/ltobjref.cpp
-		../../../sdk/inc/ltquatbase.cpp
-		../../kernel/io/src/sys/win/de_file.cpp
-		../../kernel/mem/src/sys/win/de_memory.cpp
-		../../kernel/src/debugging.cpp
-		../../kernel/src/server_interface.cpp
-		../../kernel/src/sys/win/counter.cpp
-		../../kernel/src/sys/win/dsys_interface.cpp
-		../../kernel/src/sys/win/dutil.cpp
-		../../kernel/src/sys/win/lthread.cpp
-		../../kernel/src/sys/win/streamsim.cpp
-		../../kernel/src/sys/win/stringmgr.cpp
-		../../kernel/src/sys/win/timemgr.cpp
-		../../shared/src/interface_linkage.cpp
-		../../sound/src/sounddata.cpp
-		../../sound/src/wave.cpp
-		../../world/src/de_nodes.cpp
-		PROPERTIES
-			# Precompiled Header (None)
-			COMPILE_FLAGS -Y-
-	)
-
-	set_source_files_properties (
-		../../shared/src/bdefs.cpp
-		PROPERTIES
-			# Precompiled Header (Create)
-			COMPILE_FLAGS -Yc
-	)
-endif ()
 
 install (
 	TARGETS

@@ -5,7 +5,7 @@ include (ltjs_common)
 
 add_library (${PROJECT_NAME} STATIC)
 
-ltjs_add_defaults (${PROJECT_NAME} stdafx.h)
+ltjs_add_defaults (${PROJECT_NAME})
 
 target_include_directories (
 	${PROJECT_NAME}
@@ -41,12 +41,3 @@ target_sources (
 		ltmemtrack.cpp
 		stdafx.cpp
 )
-
-if (MSVC)
-	set_source_files_properties (
-		stdafx.cpp
-		PROPERTIES
-			# Precompiled Header (Create)
-			COMPILE_FLAGS -Yc
-)
-endif ()
