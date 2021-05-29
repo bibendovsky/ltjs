@@ -3,7 +3,6 @@ project (ltjs_snd_drv_oal VERSION 0.0.1 LANGUAGES CXX)
 
 find_package (OpenAL REQUIRED 1.1)
 
-option (LTJS_INSTALL_SND_DRV_OAL "Install OpenAL sound driver." ON)
 option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
 include (ltjs_common)
@@ -123,7 +122,7 @@ target_sources (
 		s_oal.cpp
 )
 
-if (LTJS_INSTALL_SND_DRV_OAL)
+if (LTJS_SND_DRV STREQUAL ${LTJS_SND_DRV_OAL_DEFINE})
 	install (
 		TARGETS
 			${PROJECT_NAME}

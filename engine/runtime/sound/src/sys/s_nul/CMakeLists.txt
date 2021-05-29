@@ -1,7 +1,6 @@
 cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
 project (ltjs_snd_drv_nul VERSION 0.0.1 LANGUAGES CXX)
 
-option (LTJS_INSTALL_SND_DRV_NUL "Install NUL sound driver." OFF)
 option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
 include (ltjs_common)
@@ -61,7 +60,7 @@ target_sources (
 		s_nul.cpp
 )
 
-if (LTJS_INSTALL_SND_DRV_NUL)
+if (LTJS_SND_DRV STREQUAL ${LTJS_SND_DRV_NUL_DEFINE})
 	install (
 		TARGETS
 			${PROJECT_NAME}

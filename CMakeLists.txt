@@ -46,8 +46,7 @@ add_subdirectory (engine/libs/rezmgr)
 add_subdirectory (engine/runtime/info/src)
 add_subdirectory (engine/runtime/render_a/src/sys/d3d)
 add_subdirectory (engine/runtime/sound/src)
-add_subdirectory (engine/runtime/sound/src/sys/s_nul)
-add_subdirectory (engine/runtime/sound/src/sys/s_oal)
+add_subdirectory (engine/runtime/sound/src/sys)
 add_subdirectory (engine/runtime/ui/src)
 add_subdirectory (engine/runtime/winbuild/lithtech)
 add_subdirectory (engine/runtime/winbuild/ltmsg)
@@ -62,10 +61,6 @@ add_subdirectory (game/libs/serverdir)
 add_subdirectory (game/objectdll/objectshared)
 add_subdirectory (game/objectdll/to2)
 add_subdirectory (game/serverres/to2)
-
-if (WIN32)
-	add_subdirectory (engine/runtime/sound/src/sys/s_dx8)
-endif ()
 
 
 install (

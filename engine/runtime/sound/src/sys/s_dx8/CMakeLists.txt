@@ -1,7 +1,6 @@
 cmake_minimum_required (VERSION 3.1.3)
 project (ltjs_snd_drv_dx8 VERSION 0.0.1 LANGUAGES CXX)
 
-option (LTJS_INSTALL_SND_DRV_DX8 "Install DirectSound sound driver." OFF)
 option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
 
 include (ltjs_common)
@@ -99,7 +98,7 @@ target_sources (
 		s_dx8.cpp
 )
 
-if (LTJS_INSTALL_SND_DRV_DX8)
+if (LTJS_SND_DRV STREQUAL ${LTJS_SND_DRV_DX8_DEFINE})
 	install (
 		TARGETS
 			${PROJECT_NAME}
