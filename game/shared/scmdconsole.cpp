@@ -35,6 +35,12 @@
 class ScmdConsoleCommandHandler
 {
 	public:
+// BBi BUGFIX
+		ScmdConsoleCommandHandler() noexcept = default;
+
+		virtual ~ScmdConsoleCommandHandler() = default;
+// BBi
+
 
 		// String token.
 		virtual CParsedMsg::CToken const& Token( ) = 0;

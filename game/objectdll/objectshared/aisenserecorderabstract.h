@@ -102,8 +102,13 @@ class CAISenseRecorderAbstract : public ILTObjRefReceiver
 	public : // Public methods
 
 		 CAISenseRecorderAbstract();
+// BBi BUGFIX
+#if 0
 		~CAISenseRecorderAbstract();
-
+#else
+		 virtual ~CAISenseRecorderAbstract();
+#endif
+// BBi
         virtual void	Save(ILTMessage_Write *pMsg);
         virtual void	Load(ILTMessage_Read *pMsg);
 
