@@ -723,7 +723,13 @@ void RelationData::SetTraitValue(RelationTraits::eRelationTraits Trait, char con
 	// then assign a null value.
 	if ( pszString == NULL )
 	{
+// BBi BUGFIX
+#if 0
 		szString == "";
+#else
+		szString.clear();
+#endif
+// BBi
 	}
 	else
 	{

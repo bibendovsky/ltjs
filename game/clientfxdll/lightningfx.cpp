@@ -408,7 +408,12 @@ void CLightningFX::EmitBolts( float tmFrameTime )
 		CLightningBolt *pBolt = LTNULL;
 		LightningBolts::iterator iter;
 
+// BBi BUGFIX
+#if 0
 		for( nBolt = 0, iter = m_lstBolts.begin(); iter != m_lstBolts.end(), nBolt < nActiveBolts; ++iter, ++nBolt )
+#else
+		for( nBolt = 0, iter = m_lstBolts.begin(); iter != m_lstBolts.end() && nBolt < nActiveBolts; ++iter, ++nBolt )
+#endif
 		{
 			pBolt = *iter;
 			
