@@ -73,7 +73,7 @@ public:
 
 	inline HRESULT		SetVertexShader(HD3DVERTEXSHADER hVertShader)
 	{
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 		HRESULT hr;
 		//m_VertexShader = hVertShader;
 		// right now this is only an FVF format

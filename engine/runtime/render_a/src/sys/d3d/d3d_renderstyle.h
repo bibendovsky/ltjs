@@ -19,7 +19,7 @@
 #include "ltrenderstyle.h"
 #endif
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 #include <d3dx9.h>
 #endif // LTJS_USE_D3DX9
 

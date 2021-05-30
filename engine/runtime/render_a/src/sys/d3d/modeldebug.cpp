@@ -340,7 +340,7 @@ void NModelDebug::DrawModelVertexNormals(ModelInstance* pInstance)
 					pRenderStyle->GetDirect3D_Options(&options);
 					if(options.bUseEffectShader)
 					{
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 						LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(options.EffectShaderID);
 						IDirect3DVertexDeclaration9* pDecl = pEffect->GetVertexDeclaration();
 						if(pDecl)

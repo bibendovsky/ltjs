@@ -47,7 +47,7 @@ extern int32 g_ScreenHeight;
 extern ViewParams g_ViewParams;
 
 //Not a fan of this, but it makes the code below much easier to read.
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 #define EFFECT_SHADER_MACRO(result, primcall)\
 LTEffectImpl* pEffectShader = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(m_nEffectShaderID);\
 if(pEffectShader)\
@@ -296,7 +296,7 @@ void CD3DDrawPrim::SetTexture(LPDIRECT3DDEVICE9 pDevice)
 	{
 		r_GetRenderStruct()->DrawPrimSetTexture(m_pTexture);
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 		// If we've got an effect
 		LTEffectImpl* pEffectShader = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(m_nEffectShaderID);
 		if(pEffectShader)

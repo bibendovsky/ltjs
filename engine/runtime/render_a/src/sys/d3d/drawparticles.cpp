@@ -310,7 +310,7 @@ static PSParticle* d3d_DrawParticleBatch(LTParticleSystem *pSystem, PSParticle *
 
 	if (pCurVert != CParticleVertex::m_BatchVerts)
 	{
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 		LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pSystem->m_nEffectShaderID);
 		if(pEffect)
 		{

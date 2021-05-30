@@ -200,7 +200,7 @@ bool CD3D_Device::ReleaseDevObjects(bool bFullRelease)
 	//free the screen glow's resources
 	CScreenGlowMgr::GetSingleton().FreeDeviceObjects();
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 	// free the vertex shaders
 	LTVertexShaderMgr::GetSingleton().FreeDeviceObjects();
 
@@ -246,7 +246,7 @@ bool CD3D_Device::ReleaseDevObjects(bool bFullRelease)
 // If device we lost, restores the objects (calls ReCreateObject on all the Render Objects)...
 bool CD3D_Device::RestoreDevObjects()
 {
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 	LTVertexShaderMgr::GetSingleton().RecreateVertexShaders();
 	LTPixelShaderMgr::GetSingleton().RecreatePixelShaders();
 	LTEffectShaderMgr::GetSingleton().RecreateEffectShaders();

@@ -259,7 +259,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 			ReCreateObject();
 		}
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 		// Store the pointer to the actual shader during rendering.
 		m_pVertexShader = LTVertexShaderMgr::GetSingleton().GetVertexShader(pPass->VertexShaderID);
 		if (m_pVertexShader != NULL)
@@ -291,7 +291,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 	    pPass->bUsePixelShader &&
 		pPass->PixelShaderID != LTPixelShader::PIXELSHADER_INVALID)
 	{
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 		// Store the pointer to the actual shader during rendering.
 		m_pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(pPass->PixelShaderID);
 		if (m_pPixelShader != NULL)
@@ -319,7 +319,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 
 	m_VBController.SetStreamSources();
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 	// Set the vertex shader constants.
 	if (m_pVertexShader != NULL)
 	{
@@ -351,7 +351,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 
 	if(rsD3DOptions.bUseEffectShader)
 	{
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 		LTEffectImpl* _pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(rsD3DOptions.EffectShaderID);
 		ID3DXEffect* pEffect = _pEffect->GetEffect();
 
@@ -379,7 +379,7 @@ void CD3DVAMesh::Render(ModelInstance *pInstance, D3DMATRIX& WorldTransform, CD3
 	PD3DDEVICE->SetStreamSource(0, 0, 0, 0);
 	PD3DDEVICE->SetIndices(0);
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 	// Uninstall the vertex shader.
 	if (NULL != m_pVertexShader)
 	{

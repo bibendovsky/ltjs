@@ -12,7 +12,7 @@
 #define __LTPIXELSHADERMGR_H__
 
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 
 
 #include "ltbasedefs.h"

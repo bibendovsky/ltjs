@@ -252,7 +252,7 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 			}
 			else
 			{
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 				//if it passed and we have an Associated Effect, we need to upload the texture to the effect
 				LTEffectImpl* pEffectShader = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pEffect->m_nEffectShaderID);
 				if(pEffectShader)
@@ -283,7 +283,7 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 				return;
 			}
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 			LTEffectImpl* pEffectShader = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pEffect->m_nEffectShaderID);
 			if(pEffectShader)
 			{
@@ -338,7 +338,7 @@ static void DrawDynamicParticles(const ViewParams& Params, LTVolumeEffect* pEffe
 				return;
 			}
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 			LTEffectImpl* pEffectShader = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pEffect->m_nEffectShaderID);
 			if(pEffectShader)			
 			{

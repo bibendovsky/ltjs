@@ -336,7 +336,7 @@ static void d3d_DrawRotatableSprite(const ViewParams& Params, SpriteInstance *pI
 		}
 	}
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 	LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pInstance->m_nEffectShaderID);
 	if(pEffect)
 	{
@@ -467,7 +467,7 @@ static void d3d_DrawSprite(const ViewParams& Params, SpriteInstance *pInstance, 
 	}
 
 	//Render our lovely verts
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 	LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pInstance->m_nEffectShaderID);
 	if(pEffect)
 	{

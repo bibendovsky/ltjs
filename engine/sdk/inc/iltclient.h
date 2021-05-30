@@ -1132,7 +1132,7 @@ Used for: Glow rendering
 
 	virtual LTRESULT SetNoGlowRenderStyle(const char* pszFilename)=0;
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 /*!
 \param pFileName  Vertex shader file name.
 \param VertexShaderID  Id to assign to the loaded vertex shader.

@@ -36,7 +36,7 @@ void CLTRenderMgr::Term()
 
 }
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 LTRESULT CLTRenderMgr::AddEffectShader (const char *pFileName, 
 								  int EffectShaderID, 
 								  const uint32 *pVertexElements, 
@@ -342,7 +342,7 @@ LTRESULT CLTRenderMgr::SaveCurrentFrameToPrevious()
 	return LT_OK;
 }
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 LTRESULT CLTRenderMgr::UploadCurrentFrameToEffect(LTEffectShader* pEffect, const char* szParam)
 {
 	LTEffectImpl* pEffectImpl = (LTEffectImpl*)pEffect;

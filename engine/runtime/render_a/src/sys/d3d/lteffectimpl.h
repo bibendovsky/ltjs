@@ -2,7 +2,7 @@
 #define _LT_EFFECTIMPL_H_
 
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 
 
 #include "ltbasedefs.h"

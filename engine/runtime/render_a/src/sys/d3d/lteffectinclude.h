@@ -1,4 +1,4 @@
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 
 
 #include <list>

@@ -359,7 +359,7 @@ class CLTClient : public ILTClient {
 	virtual void SetModelLooping(HLOCALOBJ hObj, bool bLoop);
 	virtual HMODELANIM GetAnimIndex(HOBJECT hObj, const char *pAnimName);
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 	// vertex shaders
 	virtual bool				AddVertexShader(const char *pFileName, int VertexShaderID,
 												const uint32 *pVertexElements, uint32 VertexElementsSize,
@@ -1078,7 +1078,7 @@ HMODELANIM CLTClient::GetAnimIndex(HOBJECT hObj, const char *pAnimName)
 	return ic_GetAnimIndex(hObj, pAnimName);
 }
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 bool CLTClient::AddVertexShader(const char *pFileName, int VertexShaderID,
 								const uint32 *pVertexElements, uint32 VertexElementsSize, bool bCompileShader)
 {

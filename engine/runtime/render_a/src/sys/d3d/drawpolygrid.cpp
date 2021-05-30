@@ -760,7 +760,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 					//see if we need to load it
 					if (!s_bPixelShaderFailed)
 					{
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 						// Get the pixel shader.
 						pPixelShader = LTPixelShaderMgr::GetSingleton().GetPixelShader(LTPixelShader::PIXELSHADER_ENVBUMPMAP);
 						if (NULL == pPixelShader)
@@ -810,7 +810,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 				}
 				else
 				{
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 					LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 					if(pEffect)
 					{
@@ -940,7 +940,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 
 	bool bEffect = false;
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 	LTEffectImpl* pEffect = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 	if(pEffect)
 	{
@@ -1157,7 +1157,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			}
 
 			//now we need to generate the normals for the polygrid
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 			LTEffectImpl* pEffect2 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 			if(pEffect2)
 			{
@@ -1275,7 +1275,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			}
 
 			//now we need to generate the normals for the polygrid
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 			LTEffectImpl* pEffect3 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 			if(pEffect3)
 			{
@@ -1321,7 +1321,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 	//setup the pixel shader if we are bumpmapping
 	if(bBumpMap)
 	{
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 		assert(NULL != pPixelShader && pPixelShader->IsValidShader());
 
 		// Set the pixel shader constants.
@@ -1385,7 +1385,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 			{
 				uint32 nPoliesThisFrame = (nRemainingPolies > g_CV_PolyGridBufferSize) ? g_CV_PolyGridBufferSize: nRemainingPolies;
 
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 				LTEffectImpl* pEffect4 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 				if(pEffect4)
 				{
@@ -1422,7 +1422,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 		}
 		else
 		{
-#ifdef LTJS_USE_D3DX9
+#if LTJS_USE_D3DX9
 			LTEffectImpl* pEffect5 = (LTEffectImpl*)LTEffectShaderMgr::GetSingleton().GetEffectShader(pGrid->m_nEffectShaderID);
 			if(pEffect5)
 			{
