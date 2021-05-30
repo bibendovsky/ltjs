@@ -418,7 +418,7 @@ public      :
     BOOL SymLoadModule ( IN  HANDLE hFile       ,
                          IN  PSTR   ImageName   ,
                          IN  PSTR   ModuleName  ,
-                         IN  DWORD  BaseOfDll   ,
+                         IN  DWORD_PTR  BaseOfDll   ,
                          IN  DWORD  SizeOfDll    )
     {
         return ( ::SymLoadModule ( m_hProcess   ,
@@ -426,7 +426,7 @@ public      :
                                    ImageName    ,
                                    ModuleName   ,
                                    BaseOfDll    ,
-                                   SizeOfDll     ) ) ;
+                                   SizeOfDll     ) != 0 ) ;
     }
 
     BOOL EnumerateLoadedModules ( IN PENUMLOADED_MODULES_CALLBACK
@@ -438,12 +438,12 @@ public      :
                                             UserContext              ));
     }
 
-    BOOL SymUnloadModule ( IN  DWORD BaseOfDll )
+    BOOL SymUnloadModule ( IN  DWORD_PTR BaseOfDll )
     {
         return ( ::SymUnloadModule ( m_hProcess , BaseOfDll ) ) ;
     }
 
-    BOOL SymGetModuleInfo ( IN  DWORD            dwAddr     ,
+    BOOL SymGetModuleInfo ( IN  DWORD_PTR            dwAddr     ,
                             OUT PIMAGEHLP_MODULE ModuleInfo  )
     {
         return ( ::SymGetModuleInfo ( m_hProcess    ,
@@ -451,7 +451,7 @@ public      :
                                       ModuleInfo     ) ) ;
     }
 
-    DWORD SymGetModuleBase ( IN DWORD dwAddr )
+    DWORD_PTR SymGetModuleBase ( IN DWORD dwAddr )
     {
         return ( ::SymGetModuleBase ( m_hProcess , dwAddr ) ) ;
     }

@@ -27,7 +27,7 @@ bool COutputRedir::OpenLogFile(ECOutput_ReDir logfile, const char* pFilename)
 	// open a file and associate it with one of the logfile enums
 	FILE* f = fopen(pFilename, "w");
 
-	m_pLogFiles[logfile - OUTPUT_REDIR_FILE0] = (uint32)f;
+	m_pLogFiles[logfile - OUTPUT_REDIR_FILE0] = reinterpret_cast<std::uintptr_t>(f);
 	
 	return (f != NULL);
 }

@@ -21,7 +21,7 @@
 #include <vector>
 
 // The address typedef.
-typedef std::vector<ULONG> ADDRVECTOR ;
+typedef std::vector<ULONG_PTR> ADDRVECTOR ;
 
 //====================================================================================
 //
@@ -37,11 +37,7 @@ static CSymbolEngine g_cSym ;
 // If TRUE, the symbol engine has been initialized.
 static BOOL g_bSymIsInit = FALSE ;
 
-#if defined(_WIN64)
-static DWORD64 __stdcall GetModBase ( HANDLE hProcess , DWORD64 dwAddr )
-#elif defined (_WIN32)
-static DWORD __stdcall GetModBase ( HANDLE hProcess , DWORD dwAddr )
-#endif // _WIN64
+static DWORD_PTR __stdcall GetModBase ( HANDLE hProcess , DWORD_PTR dwAddr )
 {
     // Check in the symbol engine first.
     IMAGEHLP_MODULE stIHM ;
@@ -89,16 +85,16 @@ static DWORD __stdcall GetModBase ( HANDLE hProcess , DWORD dwAddr )
             g_cSym.SymLoadModule ( hFile                            ,
                                    ( dwNameLen ? szFile : NULL )    ,
                                    NULL                             ,
-                                   (DWORD)stMBI.AllocationBase      ,
+                                   (DWORD_PTR)stMBI.AllocationBase      ,
                                    0                                 ) ;
-            return ( (DWORD)stMBI.AllocationBase ) ;
+			return ( (DWORD_PTR)stMBI.AllocationBase ) ;
         }
     }
 
     return ( 0 ) ;
 }
 
-static DWORD ConvertAddress ( DWORD_PTR dwAddr , LPTSTR szOutBuff )
+static DWORD_PTR ConvertAddress ( DWORD_PTR dwAddr , LPTSTR szOutBuff )
 {
     char szTemp [ MAX_PATH + sizeof ( IMAGEHLP_SYMBOL ) ] ;
 
@@ -276,8 +272,8 @@ void DoStackTrace ( LPTSTR szString  ,
         }
 
         // Now start converting the addresses.
-        DWORD dwSizeLeft = dwSize ;
-        DWORD dwSymSize ;
+        DWORD_PTR dwSizeLeft = dwSize ;
+        DWORD_PTR dwSymSize ;
 
         TCHAR szSym [ MAX_PATH * 2 ] ;
         LPTSTR szCurrPos = szString ;

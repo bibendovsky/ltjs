@@ -18,6 +18,10 @@
 #include <stdarg.h>
 #include <ltbasedefs.h>
 
+// BBi
+#include <cstdint>
+// BBi
+
 
 //	-------------------------------------------------------------------------
 //	DEFINES
@@ -136,7 +140,7 @@ class COutputRedir : public ILTOutputRedir
 		uint32		m_PrintColor;
 
 		// log file handles
-		uint32		m_pLogFiles[MAX_LOG_FILES];
+		std::uintptr_t		m_pLogFiles[MAX_LOG_FILES];
 
 		// nesting levels
 		uint8		m_NestLevels[OUTPUT_REDIR_ALL];

@@ -24,7 +24,7 @@
 #include <vector>
 
 // The address typedef.
-typedef std::vector<ULONG> ADDRVECTOR ;
+typedef std::vector<ULONG_PTR> ADDRVECTOR ;
 
 //====================================================================================
 //
@@ -88,16 +88,16 @@ static DWORD_PTR __stdcall GetModBase ( HANDLE hProcess , DWORD_PTR dwAddr )
             g_cSym.SymLoadModule ( hFile                            ,
                                    ( dwNameLen ? szFile : NULL )    ,
                                    NULL                             ,
-                                   (DWORD)stMBI.AllocationBase      ,
+                                   (DWORD_PTR)stMBI.AllocationBase      ,
                                    0                                 ) ;
-            return ( (DWORD)stMBI.AllocationBase ) ;
+            return ( (DWORD_PTR)stMBI.AllocationBase ) ;
         }
     }
 
     return ( 0 ) ;
 }
 
-static DWORD ConvertAddress ( DWORD_PTR dwAddr , LPTSTR szOutBuff )
+static DWORD_PTR ConvertAddress ( DWORD_PTR dwAddr , LPTSTR szOutBuff )
 {
     char szTemp [ MAX_PATH + sizeof ( IMAGEHLP_SYMBOL ) ] ;
 
@@ -275,8 +275,8 @@ void DoStackTrace ( LPTSTR szString  ,
         }
 
         // Now start converting the addresses.
-        DWORD dwSizeLeft = dwSize ;
-        DWORD dwSymSize ;
+        DWORD_PTR dwSizeLeft = dwSize ;
+        DWORD_PTR dwSymSize ;
 
         TCHAR szSym [ MAX_PATH * 2 ] ;
         LPTSTR szCurrPos = szString ;

@@ -132,7 +132,7 @@ void* LAllocSimpleBlock::Alloc(uint32 size, bool bQuadWordAlign)
 
 	pRet = &m_pBlock[m_CurBlockPos];
 	m_CurBlockPos += size;
-	assert(!bQuadWordAlign || ((uint32)pRet & 0xf) == 0);
+	assert(!bQuadWordAlign || ((std::uintptr_t)pRet & 0xf) == 0);
 	return pRet;
 }
 

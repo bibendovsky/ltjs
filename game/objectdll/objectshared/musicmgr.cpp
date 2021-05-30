@@ -312,8 +312,28 @@ void CMusicMgr::DoEvent(Event eEvent)
 bool CMusicMgr::SetMood( Mood eMood )
 {
 	char szMusic[128];
+
+// BBi BUGFIX
+#if 0
 	uint32 iLevel = GetRandom(0, m_acMoods[eMood]-1);
 	sprintf(szMusic, "MUSIC I %d measure", m_aanMoods[eMood][iLevel]);
+#else
+	if (eMood < 0 || eMood >= kNumMoods)
+	{
+		eMood = eMoodNone;
+	}
+
+	auto ac_level = m_acMoods[eMood] - 1;
+
+	if (ac_level <= 0 || ac_level >= kMaxLevelsPerMood)
+	{
+		ac_level = 0;
+	}
+
+	uint32 iLevel = GetRandom(0, ac_level);
+	sprintf(szMusic, "MUSIC I %d measure", m_aanMoods[eMood][iLevel]);
+#endif
+// BBi
 
 #ifndef _FINAL
 	if ( g_ShowMusicTrack.GetFloat() > 0 )
