@@ -436,7 +436,12 @@ LTBOOL CAISpatialRepresentationMgr::FindDangerScatterPosition(AISpatialRepresent
 
 		_ASSERT(iCornerBest >= 0 && iCornerBest <= 3);
 
+// BBi BUGFIX
+#if 0
 		uint32 iCornerOpposite;
+#else
+		uint32 iCornerOpposite = 0;
+#endif
 
 		switch ( iCornerBest )
 		{

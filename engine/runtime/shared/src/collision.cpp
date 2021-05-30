@@ -1229,7 +1229,12 @@ bool CMovingCylinder::CollideWith(WorldPoly *pPoly, const Node *pNode)
 	SBlockerSeg sClosestSeg;
 	float fClosestDist = FLT_MAX;
 	float fClosestP0 = 1.0f;
+// BBi BUGFIX
+#if 0
 	float fClosestP1;
+#else
+	float fClosestP1 = 0.0F;
+#endif
 
 	SBlockerSeg sMoveSeg;
 	sMoveSeg.m_vOrigin.Init(m_vStart.x, 0.0f, m_vStart.z);
@@ -1821,7 +1826,13 @@ static bool StairStep_Segment
 	const Node** stackPos = stack;
 
 	LTVector vCylinderBase;
+// BBi BUGFIX
+#if 0
 	float fCylinderHeight, fCylinderRadius;
+#else
+	float fCylinderHeight = 0.0F;
+	float fCylinderRadius = 0.0F;
+#endif
 	if (request.m_pObject->m_Flags2 & FLAG2_PLAYERCOLLIDE)
 	{
 		float fHalfBoxWidth = (box.Max.x - box.Min.x) * 0.5f;
@@ -1866,7 +1877,12 @@ static bool StairStep_Segment
 				if( fullVel.Dot(pRoot->GetPlane()->m_Normal) <= 0.0f )
 				{
 					// Does it really intersect?
+// BBi BUGFIX
+#if 0
 					float fMaxY;
+#else
+					float fMaxY = 0.0F;
+#endif
 					bool bPolyIntersect;
 					if (request.m_pObject->m_Flags2 & FLAG2_PLAYERCOLLIDE)
 					{

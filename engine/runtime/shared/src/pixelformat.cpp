@@ -812,8 +812,8 @@ LTRESULT ConvertDXTGeneric(FormatMgr *pFormatMgr,
 	uint32 i, blockData, bytesPerBlockShift, alphaExtra, invAlphaMask;
 	LTBOOL bAlpha, bInterpolatedAlpha;
 	uint32 tempIndex;
-	uint32 alphaData[2], alphaShift, defaultPValueAlphaMask, defaultByteAlphaMask;
-	uint8 *pAlphaScaleTable;
+	uint32 alphaData[2], alphaShift = 0, defaultPValueAlphaMask, defaultByteAlphaMask;
+	uint8 *pAlphaScaleTable = nullptr;
 
 
 	// Will we be decompressing with alpha?

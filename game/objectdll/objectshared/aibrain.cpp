@@ -132,7 +132,12 @@ void CAIBrain::GetDodgeStatus(DodgeStatus* peDodgeStatus, Direction* peDirection
 			{
 				// Randomly choose dodge action (roll, shuffle, block).
 
+// BBi BUGFIX
+#if 0
 				LTFLOAT fCheckDistance;
+#else
+				LTFLOAT fCheckDistance = 0.0F;
+#endif
 				LTFLOAT fRandom = GetRandom(0.0f, 1.0f);
 
 				if ( fRandom > m_pBrain->fDodgeVectorRollChance + m_pBrain->fDodgeVectorBlockChance )

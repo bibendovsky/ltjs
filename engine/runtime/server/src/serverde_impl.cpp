@@ -1928,7 +1928,12 @@ LPBASECLASS si_CreateObjectProps(HCLASS hClass, ObjectCreateStruct *pStruct, con
 	// Clear out the current object create struct pointer
 	g_pServerMgr->m_pCurOCS = pOldOCS;
 
+// BBi BUGFIX
+#if 0
 	LTRESULT nAddObjectResult;
+#else
+	LTRESULT nAddObjectResult = LT_OK;
+#endif
 	if (nPreCreateResult)
 	{
 		// Class-only objects are done, at this point.

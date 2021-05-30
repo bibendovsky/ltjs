@@ -704,7 +704,7 @@ void d3d_DrawPolyGrid(const ViewParams &Params, LTObject *pObj)
 	float	fPGVScale	= 1.0f;
 
 	// Set the texture if necessary.
-	SpriteTracker* pTracker;
+	SpriteTracker* pTracker = nullptr;
 
 	LTPixelShader *pPixelShader = NULL;
 
