@@ -74,6 +74,14 @@ using SdlSurfaceUResource = std::unique_ptr<::SDL_Surface, SdlSurfaceUDeleter>;
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+using SdlObjectUDeleter = SdlUResourceDeleter<void, ::SDL_UnloadObject>;
+using SdlObjectUResource = std::unique_ptr<void, SdlObjectUDeleter>;
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
 } // ltjs
 
 

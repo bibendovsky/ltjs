@@ -39,6 +39,7 @@ target_sources (
 		include/ltjs_sdl_utils.h
 		include/ltjs_shell_string_formatter.h
 		include/ltjs_shared_data_mgr.h
+		include/ltjs_shared_library.h
 		include/ltjs_shell_resource_mgr.h
 		include/ltjs_system_event.h
 		include/ltjs_system_event_handler.h
@@ -77,6 +78,7 @@ target_sources (
 		src/ltjs_sdl_uresources.cpp
 		src/ltjs_sdl_utils.cpp
 		src/ltjs_shared_data_mgr.cpp
+		src/ltjs_shared_library.cpp
 		src/ltjs_shell_string_formatter.cpp
 		src/ltjs_shell_resource_mgr.cpp
 		src/ltjs_system_event.cpp

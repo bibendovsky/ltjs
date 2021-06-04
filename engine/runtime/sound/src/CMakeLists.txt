@@ -30,4 +30,5 @@ target_sources (
 	${PROJECT_NAME}
 	PRIVATE
 		iltsound.cpp
+		sdl_iltsound.cpp
 )

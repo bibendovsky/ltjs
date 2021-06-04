@@ -12,7 +12,7 @@ ltjs_add_defaults (${PROJECT_NAME})
 set_target_properties (
 	${PROJECT_NAME}
 	PROPERTIES
-		OUTPUT_NAME ltjs_snddrv
+		OUTPUT_NAME "${PROJECT_NAME}"
 		PREFIX ""
 )
 
@@ -60,18 +60,9 @@ target_sources (
 		s_nul.cpp
 )
 
-if (LTJS_SND_DRV STREQUAL ${LTJS_SND_DRV_NUL_DEFINE})
-	install (
-		TARGETS
-			${PROJECT_NAME}
-		RUNTIME DESTINATION
-			"."
-	)
-endif ()
-
 install (
 	TARGETS
 		${PROJECT_NAME}
 	RUNTIME DESTINATION
-		"ltjs_nul_"
+		"."
 )

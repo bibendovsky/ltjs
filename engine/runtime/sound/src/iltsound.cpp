@@ -1,3 +1,6 @@
+#if !LTJS_SDL_BACKEND
+
+
 //	===========================================================================
 
 #include <windows.h>
@@ -686,3 +689,6 @@ void LTFILTERREVERB::SetParam( const char* pszParam, float fValue )
 }
 
 #endif
+
+
+#endif // !LTJS_SDL_BACKEND

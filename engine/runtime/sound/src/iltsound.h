@@ -374,6 +374,11 @@ class ILTSoundSys
 {
 protected:
 	ILTSoundSys( ) {}
+
+
+#if LTJS_SDL_BACKEND
+public:
+#endif // LTJS_SDL_BACKEND
 	virtual ~ILTSoundSys( ) {}
 
 public:
