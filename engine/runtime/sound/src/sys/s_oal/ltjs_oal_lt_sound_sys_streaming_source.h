@@ -85,7 +85,7 @@ public:
 
 	using Data = std::vector<std::uint8_t>;
 	using OalPans = std::array<float, oal_max_pans>;
-	using OalBuffers = std::array<ALuint, oal_max_buffer_count>;
+	using OalBuffers = std::array<::ALuint, oal_max_buffer_count>;
 
 
 	OalLtSoundSysStreamingSource(
@@ -104,7 +104,7 @@ public:
 	~OalLtSoundSysStreamingSource();
 
 
-	ALuint get_al_source() const noexcept;
+	::ALuint get_al_source() const noexcept;
 
 	int& get_lt_filter_direct_mb() noexcept;
 
@@ -307,16 +307,16 @@ private:
 	float oal_gain_;
 	OalPans oal_pans_;
 
-	ALuint oal_source_;
+	::ALuint oal_source_;
 
-	ALenum oal_buffer_format_;
+	::ALenum oal_buffer_format_;
 	OalBuffers oal_buffers_;
 	int oal_queued_count_;
 
 	int lt_filter_direct_mb_;
 
 
-	static ALenum get_oal_buffer_format(
+	static ::ALenum get_oal_buffer_format(
 		const int channel_count,
 		const int bit_depth);
 

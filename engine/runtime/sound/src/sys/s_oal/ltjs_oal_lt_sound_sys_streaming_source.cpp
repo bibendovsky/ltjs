@@ -174,7 +174,7 @@ OalLtSoundSysStreamingSource::~OalLtSoundSysStreamingSource()
 }
 
 
-ALuint OalLtSoundSysStreamingSource::get_al_source() const noexcept
+::ALuint OalLtSoundSysStreamingSource::get_al_source() const noexcept
 {
 	return oal_source_;
 }
@@ -303,7 +303,7 @@ void OalLtSoundSysStreamingSource::set_volume(
 
 	oal_gain_ = AudioUtils::lt_volume_to_gain(volume_);
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alSourcef(oal_source_, AL_GAIN, oal_gain_));
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcef(oal_source_, AL_GAIN, oal_gain_));
 }
 
 int32 OalLtSoundSysStreamingSource::get_pan() const
@@ -435,7 +435,7 @@ void OalLtSoundSysStreamingSource::mix()
 	{
 		if (is_sample_playing)
 		{
-			LTJS_OAL_ENSURE_CALL_DEBUG(alSourcePause(oal_source_));
+			LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcePause(oal_source_));
 
 			status_ = OalLtSoundSysStreamingSourceStatus::stopped;
 			return;
@@ -446,15 +446,15 @@ void OalLtSoundSysStreamingSource::mix()
 		}
 	}
 
-	auto oal_processed = ALint{};
+	auto oal_processed = ::ALint{};
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alGetSourcei(oal_source_, AL_BUFFERS_PROCESSED, &oal_processed));
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alGetSourcei(oal_source_, AL_BUFFERS_PROCESSED, &oal_processed));
 
 	if (oal_processed > 0)
 	{
 		std::rotate(oal_buffers_.begin(), oal_buffers_.begin() + oal_processed, oal_buffers_.end());
 
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourceUnqueueBuffers(
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourceUnqueueBuffers(
 			oal_source_,
 			oal_processed,
 			&oal_buffers_[oal_max_buffer_count - oal_processed]));
@@ -468,7 +468,7 @@ void OalLtSoundSysStreamingSource::mix()
 		if (oal_queued_count_ == 0)
 		{
 			is_playing_ = false;
-			LTJS_OAL_ENSURE_CALL_DEBUG(alSourcePause(oal_source_));
+			LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcePause(oal_source_));
 
 			status_ = OalLtSoundSysStreamingSourceStatus::stopped;
 			return;
@@ -503,14 +503,14 @@ void OalLtSoundSysStreamingSource::mix()
 
 		const auto oal_buffer = oal_buffers_[oal_queued_count_];
 
-		LTJS_OAL_ENSURE_CALL_DEBUG(alBufferData(
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alBufferData(
 			oal_buffer,
 			oal_buffer_format_,
 			buffer_data,
 			buffer_size,
 			get_dst_sample_rate()));
 
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourceQueueBuffers(oal_source_, 1, &oal_buffer));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourceQueueBuffers(oal_source_, 1, &oal_buffer));
 
 		queued_count += 1;
 		oal_queued_count_ += 1;
@@ -532,7 +532,7 @@ void OalLtSoundSysStreamingSource::mix()
 
 		if (oal_status != OalLtSoundSysStreamingSourceStatus::playing)
 		{
-			LTJS_OAL_ENSURE_CALL_DEBUG(alSourcePlay(oal_source_));
+			LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcePlay(oal_source_));
 
 			status_ = OalLtSoundSysStreamingSourceStatus::playing;
 		}
@@ -586,13 +586,13 @@ void OalLtSoundSysStreamingSource::set_master_3d_listener_volume(
 
 	if (is_3d_listener_muted_)
 	{
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerf(AL_GAIN, AudioUtils::min_gain));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerf(AL_GAIN, AudioUtils::min_gain));
 	}
 	else
 	{
 		const auto oal_gain = oal_gain_ * oal_master_3d_listener_gain_;
 
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerf(AL_GAIN, oal_gain));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerf(AL_GAIN, oal_gain));
 	}
 }
 
@@ -614,13 +614,13 @@ void OalLtSoundSysStreamingSource::mute_3d_listener(
 
 	if (is_3d_listener_muted_)
 	{
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerf(AL_GAIN, AudioUtils::min_gain));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerf(AL_GAIN, AudioUtils::min_gain));
 	}
 	else
 	{
 		const auto oal_gain = oal_gain_ * oal_master_3d_listener_gain_;
 
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerf(AL_GAIN, oal_gain));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerf(AL_GAIN, oal_gain));
 	}
 }
 
@@ -652,11 +652,11 @@ void OalLtSoundSysStreamingSource::set_3d_volume(
 			oal_gain_ *= oal_master_3d_listener_gain_;
 		}
 
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerf(AL_GAIN, oal_gain_));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerf(AL_GAIN, oal_gain_));
 	}
 	else
 	{
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcef(oal_source_, AL_GAIN, oal_gain_));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcef(oal_source_, AL_GAIN, oal_gain_));
 	}
 }
 
@@ -683,7 +683,7 @@ void OalLtSoundSysStreamingSource::set_3d_doppler_factor(
 
 	doppler_factor_ = new_doppler_factor;
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alDopplerFactor(doppler_factor_));
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alDopplerFactor(doppler_factor_));
 }
 
 float OalLtSoundSysStreamingSource::get_3d_doppler_factor() const
@@ -716,8 +716,8 @@ void OalLtSoundSysStreamingSource::set_3d_distances(
 	min_distance_ = new_min_distance;
 	max_distance_ = new_max_distance;
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alSourcef(oal_source_, AL_REFERENCE_DISTANCE, min_distance_));
-	LTJS_OAL_ENSURE_CALL_DEBUG(alSourcef(oal_source_, AL_MAX_DISTANCE, max_distance_));
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcef(oal_source_, AL_REFERENCE_DISTANCE, min_distance_));
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcef(oal_source_, AL_MAX_DISTANCE, max_distance_));
 }
 
 float OalLtSoundSysStreamingSource::get_3d_min_distance() const
@@ -750,11 +750,11 @@ void OalLtSoundSysStreamingSource::set_3d_position(
 
 	if (is_listener())
 	{
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerfv(AL_POSITION, oal_position_c_array));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerfv(AL_POSITION, oal_position_c_array));
 	}
 	else
 	{
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcefv(oal_source_, AL_POSITION, oal_position_c_array));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcefv(oal_source_, AL_POSITION, oal_position_c_array));
 	}
 }
 
@@ -783,11 +783,11 @@ void OalLtSoundSysStreamingSource::set_3d_velocity(
 
 	if (is_listener())
 	{
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerfv(AL_VELOCITY, oal_velocity_c_array));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerfv(AL_VELOCITY, oal_velocity_c_array));
 	}
 	else
 	{
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcefv(oal_source_, AL_VELOCITY, oal_velocity_c_array));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcefv(oal_source_, AL_VELOCITY, oal_velocity_c_array));
 	}
 }
 
@@ -813,7 +813,7 @@ void OalLtSoundSysStreamingSource::set_3d_direction(
 
 	const auto& oal_direction = direction_.to_rhs();
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alSourcefv(oal_source_, AL_DIRECTION, oal_direction.get_c_array()));
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcefv(oal_source_, AL_DIRECTION, oal_direction.get_c_array()));
 }
 
 const OalLtSoundSysVector3d& OalLtSoundSysStreamingSource::get_3d_direction() const
@@ -838,7 +838,7 @@ void OalLtSoundSysStreamingSource::set_3d_orientation(
 
 	const auto& oal_orientation = orientation_.to_rhs();
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alListenerfv(AL_ORIENTATION, oal_orientation.get_c_array()));
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerfv(AL_ORIENTATION, oal_orientation.get_c_array()));
 }
 
 const OalLtSoundSysOrientation3d& OalLtSoundSysStreamingSource::get_3d_orientation() const
@@ -896,7 +896,7 @@ struct OalLtSoundSysStreamingSource::MonoToStereoSample<16, TDummy>
 	}
 }; // MonoToStereoSample<16>
 
-ALenum OalLtSoundSysStreamingSource::get_oal_buffer_format(
+::ALenum OalLtSoundSysStreamingSource::get_oal_buffer_format(
 	const int channel_count,
 	const int bit_depth)
 {
@@ -976,7 +976,7 @@ void OalLtSoundSysStreamingSource::create()
 
 	oal::clear_error();
 
-	alGenBuffers(oal_max_buffer_count, oal_buffers_.data());
+	::alGenBuffers(oal_max_buffer_count, oal_buffers_.data());
 
 	if (oal::is_succeed())
 	{
@@ -988,7 +988,7 @@ void OalLtSoundSysStreamingSource::create()
 		assert(!"alGenBuffers");
 	}
 
-	alGenSources(1, &oal_source_);
+	::alGenSources(1, &oal_source_);
 
 	if (oal::is_succeed())
 	{
@@ -1023,15 +1023,15 @@ void OalLtSoundSysStreamingSource::destroy()
 	{
 		oal_is_source_created_ = false;
 
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourceStop(oal_source_));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alDeleteSources(1, &oal_source_));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourceStop(oal_source_));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alDeleteSources(1, &oal_source_));
 	}
 
 	if (oal_are_buffers_created_)
 	{
 		oal_are_buffers_created_ = false;
 
-		LTJS_OAL_ENSURE_CALL_DEBUG(alDeleteBuffers(oal_max_buffer_count, oal_buffers_.data()));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alDeleteBuffers(oal_max_buffer_count, oal_buffers_.data()));
 	}
 
 	decoder_.close();
@@ -1053,9 +1053,9 @@ OalLtSoundSysStreamingSourceStatus OalLtSoundSysStreamingSource::get_status()
 		break;
 	}
 
-	auto oal_state = ALint{};
+	auto oal_state = ::ALint{};
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state));
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state));
 
 	auto status = OalLtSoundSysStreamingSourceStatus::none;
 
@@ -1086,7 +1086,7 @@ void OalLtSoundSysStreamingSource::fail()
 	is_playing_ = false;
 	status_ = OalLtSoundSysStreamingSourceStatus::failed;
 
-	alSourceStop(oal_source_);
+	::alSourceStop(oal_source_);
 
 	oal::clear_error();
 }
@@ -1125,10 +1125,10 @@ void OalLtSoundSysStreamingSource::oal_reset_common()
 	oal_gain_ = AudioUtils::default_gain;
 	AudioUtils::lt_pan_to_gains(AudioUtils::lt_pan_center, oal_pans_[0], oal_pans_[1]);
 
-	alSourceStop(oal_source_);
-	alSourcei(oal_source_, AL_BUFFER, AL_NONE);
-	alSourcef(oal_source_, AL_PITCH, default_pitch);
-	alSourcef(oal_source_, AL_GAIN, AudioUtils::default_gain);
+	::alSourceStop(oal_source_);
+	::alSourcei(oal_source_, AL_BUFFER, AL_NONE);
+	::alSourcef(oal_source_, AL_PITCH, default_pitch);
+	::alSourcef(oal_source_, AL_GAIN, AudioUtils::default_gain);
 }
 
 void OalLtSoundSysStreamingSource::oal_reset_spatial()
@@ -1159,11 +1159,11 @@ void OalLtSoundSysStreamingSource::oal_reset_spatial()
 		const auto oal_velocity = velocity_.to_rhs();
 		const auto oal_orientation = orientation_.to_rhs();
 
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerf(AL_GAIN, oal_gain_));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alDopplerFactor(doppler_factor_));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerfv(AL_POSITION, oal_position.get_c_array()));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerfv(AL_VELOCITY, oal_velocity.get_c_array()));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alListenerfv(AL_ORIENTATION, oal_orientation.get_c_array()));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerf(AL_GAIN, oal_gain_));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alDopplerFactor(doppler_factor_));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerfv(AL_POSITION, oal_position.get_c_array()));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerfv(AL_VELOCITY, oal_velocity.get_c_array()));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alListenerfv(AL_ORIENTATION, oal_orientation.get_c_array()));
 	}
 	else
 	{
@@ -1171,13 +1171,13 @@ void OalLtSoundSysStreamingSource::oal_reset_spatial()
 		const auto oal_velocity = velocity_.to_rhs();
 		const auto oal_direction = direction_.to_rhs();
 
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcef(oal_source_, AL_GAIN, oal_gain_));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcei(oal_source_, AL_SOURCE_RELATIVE, AL_FALSE));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcef(oal_source_, AL_REFERENCE_DISTANCE, min_distance_));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcef(oal_source_, AL_MAX_DISTANCE, max_distance_));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcefv(oal_source_, AL_POSITION, oal_position.get_c_array()));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcefv(oal_source_, AL_VELOCITY, oal_velocity.get_c_array()));
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcefv(oal_source_, AL_DIRECTION, oal_direction.get_c_array()));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcef(oal_source_, AL_GAIN, oal_gain_));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcei(oal_source_, AL_SOURCE_RELATIVE, AL_FALSE));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcef(oal_source_, AL_REFERENCE_DISTANCE, min_distance_));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcef(oal_source_, AL_MAX_DISTANCE, max_distance_));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcefv(oal_source_, AL_POSITION, oal_position.get_c_array()));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcefv(oal_source_, AL_VELOCITY, oal_velocity.get_c_array()));
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcefv(oal_source_, AL_DIRECTION, oal_direction.get_c_array()));
 	}
 
 	if (!oal::is_succeed())
@@ -1357,7 +1357,7 @@ bool OalLtSoundSysStreamingSource::open_initialize_internal(
 
 	oal::clear_error();
 
-	alSourcef(oal_source_, AL_PITCH, pitch_);
+	::alSourcef(oal_source_, AL_PITCH, pitch_);
 
 	if (!oal::is_succeed())
 	{

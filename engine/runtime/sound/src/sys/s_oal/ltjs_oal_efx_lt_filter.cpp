@@ -68,18 +68,18 @@ const LtFilterInfo& EfxLtFilter::get_info() const noexcept
 }
 
 void EfxLtFilter::initialize_source(
-	ALuint al_source,
+	::ALuint al_source,
 	int& lt_filter_direct_mb)
 {
 	ensure_al_source(al_source);
 
-	lt_filter_direct_mb = EAXBUFFER_DEFAULTDIRECT;
+	lt_filter_direct_mb = ::EAXBUFFER_DEFAULTDIRECT;
 
 	set_source_direct(al_source, lt_filter_direct_mb);
 
 	clear_error_debug();
 
-	alSource3i(
+	::alSource3i(
 		al_source,
 		AL_AUXILIARY_SEND_FILTER,
 		reverb_effect_.get(),
@@ -183,7 +183,7 @@ void EfxLtFilter::set_listener(
 }
 
 void EfxLtFilter::set_source(
-	ALuint al_source,
+	::ALuint al_source,
 	const LTSOUNDFILTERDATA& lt_filter_data,
 	int& lt_filter_direct_mb)
 {
@@ -463,7 +463,7 @@ EffectObject EfxLtFilter::make_reverb_effect()
 
 	efx_symbols_.alEffecti(reverb_effect.get(), AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
 
-	if (alGetError() == AL_NO_ERROR)
+	if (::alGetError() == AL_NO_ERROR)
 	{
 		is_std_reverb_ = false;
 		return reverb_effect;
@@ -475,7 +475,7 @@ EffectObject EfxLtFilter::make_reverb_effect()
 
 	efx_symbols_.alEffecti(reverb_effect.get(), AL_EFFECT_TYPE, AL_EFFECT_REVERB);
 
-	if (alGetError() == AL_NO_ERROR)
+	if (::alGetError() == AL_NO_ERROR)
 	{
 		is_std_reverb_ = true;
 		return reverb_effect;
@@ -493,7 +493,7 @@ FilterObject EfxLtFilter::make_direct_filter()
 
 	efx_symbols_.alFilteri(direct_filter.get(), AL_FILTER_TYPE, AL_FILTER_LOWPASS);
 
-	if (alGetError() == AL_NO_ERROR)
+	if (::alGetError() == AL_NO_ERROR)
 	{
 		return direct_filter;
 	}
@@ -535,9 +535,9 @@ void EfxLtFilter::ensure_lt_reverb_filter(
 }
 
 void EfxLtFilter::ensure_al_source(
-	ALuint al_source)
+	::ALuint al_source)
 {
-	if (al_source == ALuint{})
+	if (al_source == 0)
 	{
 		throw EfxLtFilterException{"Null AL source."};
 	}
@@ -547,7 +547,7 @@ bool EfxLtFilter::detect_al_softx_filter_gain_ex()
 {
 	const auto extension_name = "AL_SOFTX_filter_gain_ex";
 
-	const auto has_al_softx_filter_gain_ex = (alIsExtensionPresent(extension_name) != AL_FALSE);
+	const auto has_al_softx_filter_gain_ex = (::alIsExtensionPresent(extension_name) != AL_FALSE);
 
 	if (has_al_softx_filter_gain_ex)
 	{
@@ -574,13 +574,13 @@ void EfxLtFilter::detect_max_low_pass_gain()
 
 	if (is_detected)
 	{
-		max_low_pass_gain_ = AudioUtils::level_mb_to_gain(EAXBUFFER_MAXDIRECT);
+		max_low_pass_gain_ = AudioUtils::level_mb_to_gain(::EAXBUFFER_MAXDIRECT);
 	}
 }
 
 void EfxLtFilter::set_eax_reverb_defaults()
 {
-	eax_reverb_ = EAXREVERB_PRESETS[EAX_ENVIRONMENT_GENERIC];
+	eax_reverb_ = ::EAXREVERB_PRESETS[::EAX_ENVIRONMENT_GENERIC];
 }
 
 void EfxLtFilter::set_efx_reverb_density()
@@ -1084,11 +1084,11 @@ void EfxLtFilter::set_reverb_environment(
 	std::uint32_t environment)
 {
 	assert(
-		environment >= EAXREVERB_MINENVIRONMENT &&
-		environment <= EAX20REVERB_MAXENVIRONMENT);
+		environment >= ::EAXREVERB_MINENVIRONMENT &&
+		environment <= ::EAX20REVERB_MAXENVIRONMENT);
 
 	is_reverb_dirty_ = true;
-	eax_reverb_ = EAXREVERB_PRESETS[environment];
+	eax_reverb_ = ::EAXREVERB_PRESETS[environment];
 
 	set_efx_reverb_all();
 }
@@ -1097,8 +1097,8 @@ void EfxLtFilter::set_reverb_room(
 	std::int32_t room)
 {
 	assert(
-		room >= EAXREVERB_MINROOM &&
-		room <=	EAXREVERB_MAXROOM);
+		room >= ::EAXREVERB_MINROOM &&
+		room <=	::EAXREVERB_MAXROOM);
 
 	if (eax_reverb_.lRoom == room)
 	{
@@ -1115,8 +1115,8 @@ void EfxLtFilter::set_reverb_room_hf(
 	std::int32_t room_hf)
 {
 	assert(
-		room_hf >= EAXREVERB_MINROOMHF &&
-		room_hf <= EAXREVERB_MAXROOMHF);
+		room_hf >= ::EAXREVERB_MINROOMHF &&
+		room_hf <= ::EAXREVERB_MAXROOMHF);
 
 	if (eax_reverb_.lRoomHF == room_hf)
 	{
@@ -1133,8 +1133,8 @@ void EfxLtFilter::set_reverb_room_rolloff_factor(
 	float room_rolloff_factor)
 {
 	assert(
-		room_rolloff_factor >= EAXREVERB_MINROOMROLLOFFFACTOR &&
-		room_rolloff_factor <= EAXREVERB_MAXROOMROLLOFFFACTOR);
+		room_rolloff_factor >= ::EAXREVERB_MINROOMROLLOFFFACTOR &&
+		room_rolloff_factor <= ::EAXREVERB_MAXROOMROLLOFFFACTOR);
 
 	if (eax_reverb_.flRoomRolloffFactor == room_rolloff_factor)
 	{
@@ -1151,8 +1151,8 @@ void EfxLtFilter::set_reverb_decay_time(
 	float decay_time)
 {
 	assert(
-		decay_time >= EAXREVERB_MINDECAYTIME &&
-		decay_time <= EAXREVERB_MAXDECAYTIME);
+		decay_time >= ::EAXREVERB_MINDECAYTIME &&
+		decay_time <= ::EAXREVERB_MAXDECAYTIME);
 
 	if (eax_reverb_.flDecayTime == decay_time)
 	{
@@ -1169,8 +1169,8 @@ void EfxLtFilter::set_reverb_decay_hf_ratio(
 	float decay_hf_ratio)
 {
 	assert(
-		decay_hf_ratio >= EAXREVERB_MINDECAYHFRATIO &&
-		decay_hf_ratio <= EAXREVERB_MAXDECAYHFRATIO);
+		decay_hf_ratio >= ::EAXREVERB_MINDECAYHFRATIO &&
+		decay_hf_ratio <= ::EAXREVERB_MAXDECAYHFRATIO);
 
 	if (eax_reverb_.flDecayHFRatio == decay_hf_ratio)
 	{
@@ -1187,8 +1187,8 @@ void EfxLtFilter::set_reverb_reflections(
 	std::int32_t reflections)
 {
 	assert(
-		reflections >= EAXREVERB_MINREFLECTIONS &&
-		reflections <= EAXREVERB_MAXREFLECTIONS);
+		reflections >= ::EAXREVERB_MINREFLECTIONS &&
+		reflections <= ::EAXREVERB_MAXREFLECTIONS);
 
 	if (eax_reverb_.lReflections == reflections)
 	{
@@ -1205,8 +1205,8 @@ void EfxLtFilter::set_reverb_reflections_delay(
 	float reflections_delay)
 {
 	assert(
-		reflections_delay >= EAXREVERB_MINREFLECTIONSDELAY &&
-		reflections_delay <= EAXREVERB_MAXREFLECTIONSDELAY);
+		reflections_delay >= ::EAXREVERB_MINREFLECTIONSDELAY &&
+		reflections_delay <= ::EAXREVERB_MAXREFLECTIONSDELAY);
 
 	if (eax_reverb_.flReflectionsDelay == reflections_delay)
 	{
@@ -1223,8 +1223,8 @@ void EfxLtFilter::set_reverb_reverb(
 	std::int32_t reverb)
 {
 	assert(
-		reverb >= EAXREVERB_MINREVERB &&
-		reverb <= EAXREVERB_MAXREVERB);
+		reverb >= ::EAXREVERB_MINREVERB &&
+		reverb <= ::EAXREVERB_MAXREVERB);
 
 	if (eax_reverb_.lReverb == reverb)
 	{
@@ -1241,8 +1241,8 @@ void EfxLtFilter::set_reverb_reverb_delay(
 	float reverb_delay)
 {
 	assert(
-		reverb_delay >= EAXREVERB_MINREVERBDELAY &&
-		reverb_delay <= EAXREVERB_MAXREVERBDELAY);
+		reverb_delay >= ::EAXREVERB_MINREVERBDELAY &&
+		reverb_delay <= ::EAXREVERB_MAXREVERBDELAY);
 
 	if (eax_reverb_.flReverbDelay == reverb_delay)
 	{
@@ -1259,8 +1259,8 @@ void EfxLtFilter::set_reverb_diffusion(
 	float diffusion)
 {
 	assert(
-		diffusion >= EAXREVERB_MINENVIRONMENTDIFFUSION &&
-		diffusion <= EAXREVERB_MAXENVIRONMENTDIFFUSION);
+		diffusion >= ::EAXREVERB_MINENVIRONMENTDIFFUSION &&
+		diffusion <= ::EAXREVERB_MAXENVIRONMENTDIFFUSION);
 
 	if (eax_reverb_.flEnvironmentDiffusion == diffusion)
 	{
@@ -1277,8 +1277,8 @@ void EfxLtFilter::set_reverb_environment_size(
 	float environment_size)
 {
 	assert(
-		environment_size >= EAXREVERB_MINENVIRONMENTSIZE &&
-		environment_size <= EAXREVERB_MAXENVIRONMENTSIZE);
+		environment_size >= ::EAXREVERB_MINENVIRONMENTSIZE &&
+		environment_size <= ::EAXREVERB_MAXENVIRONMENTSIZE);
 
 	if (eax_reverb_.flEnvironmentSize == environment_size)
 	{
@@ -1295,8 +1295,8 @@ void EfxLtFilter::set_reverb_air_absorption_hf(
 	float air_absorption_hf)
 {
 	assert(
-		air_absorption_hf >= EAXREVERB_MINAIRABSORPTIONHF &&
-		air_absorption_hf <= EAXREVERB_MAXAIRABSORPTIONHF);
+		air_absorption_hf >= ::EAXREVERB_MINAIRABSORPTIONHF &&
+		air_absorption_hf <= ::EAXREVERB_MAXAIRABSORPTIONHF);
 
 	if (eax_reverb_.flAirAbsorptionHF == air_absorption_hf)
 	{
@@ -1310,12 +1310,12 @@ void EfxLtFilter::set_reverb_air_absorption_hf(
 }
 
 void EfxLtFilter::set_source_direct(
-	ALuint al_source,
+	::ALuint al_source,
 	int direct)
 {
 	assert(
-		direct >= EAXBUFFER_MINDIRECT &&
-		direct <= EAXBUFFER_MAXDIRECT);
+		direct >= ::EAXBUFFER_MINDIRECT &&
+		direct <= ::EAXBUFFER_MAXDIRECT);
 
 	const auto direct_gain = ul::Algorithm::clamp(
 		AudioUtils::level_mb_to_gain(static_cast<float>(direct)),
@@ -1329,10 +1329,10 @@ void EfxLtFilter::set_source_direct(
 		direct_gain
 	));
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alSourcei(
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcei(
 		al_source,
 		AL_DIRECT_FILTER,
-		static_cast<ALint>(direct_filter_.get())
+		static_cast<::ALint>(direct_filter_.get())
 	));
 }
 

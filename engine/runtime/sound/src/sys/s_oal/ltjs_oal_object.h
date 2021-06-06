@@ -253,7 +253,7 @@ template<
 class Object
 {
 public:
-	using Value = ALuint;
+	using Value = ::ALuint;
 	using Deleter = TDeleter;
 	static constexpr auto deleter_state_type = TDeleterStateType;
 
@@ -369,10 +369,10 @@ private:
 struct DeviceObjectDeleter
 {
 	void operator()(
-		ALCdevice* al_device) noexcept;
+		::ALCdevice* al_device) noexcept;
 }; // DeviceObjectDeleter
 
-using DeviceObjectUPtr = std::unique_ptr<ALCdevice, DeviceObjectDeleter>;
+using DeviceObjectUPtr = std::unique_ptr<::ALCdevice, DeviceObjectDeleter>;
 
 DeviceObjectUPtr make_device_object(
 	const char* device_name);
@@ -385,14 +385,14 @@ DeviceObjectUPtr make_device_object(
 struct ContextObjectDeleter
 {
 	void operator()(
-		ALCcontext* al_context) noexcept;
+		::ALCcontext* al_context) noexcept;
 }; // ContextObjectDeleter
 
-using ContextObjectUPtr = std::unique_ptr<ALCcontext, ContextObjectDeleter>;
+using ContextObjectUPtr = std::unique_ptr<::ALCcontext, ContextObjectDeleter>;
 
 ContextObjectUPtr make_context_object(
-	ALCdevice* al_device,
-	ALCint* al_attributes);
+	::ALCdevice* al_device,
+	::ALCint* al_attributes);
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -402,7 +402,7 @@ ContextObjectUPtr make_context_object(
 struct BufferObjectDeleter
 {
 	void operator()(
-		ALuint al_buffer) noexcept;
+		::ALuint al_buffer) noexcept;
 }; // BufferObjectDeleter
 
 using BufferObject = Object<BufferObjectDeleter, ObjectDeleterStateType::mono>;
@@ -417,7 +417,7 @@ BufferObject make_buffer_object();
 struct SourceObjectDeleter
 {
 	void operator()(
-		ALuint al_buffer) noexcept;
+		::ALuint al_buffer) noexcept;
 }; // SourceObjectDeleter
 
 using SourceObject = Object<SourceObjectDeleter, ObjectDeleterStateType::mono>;
@@ -438,7 +438,7 @@ public:
 		LPALDELETEAUXILIARYEFFECTSLOTS al_deleter) noexcept;
 
 	void operator()(
-		ALuint al_effect_slot) noexcept;
+		::ALuint al_effect_slot) noexcept;
 
 
 private:
@@ -464,7 +464,7 @@ public:
 		LPALDELETEEFFECTS al_deleter) noexcept;
 
 	void operator()(
-		ALuint al_effect) noexcept;
+		::ALuint al_effect) noexcept;
 
 
 private:
@@ -490,7 +490,7 @@ public:
 		LPALDELETEFILTERS al_deleter) noexcept;
 
 	void operator()(
-		ALuint al_filter) noexcept;
+		::ALuint al_filter) noexcept;
 
 
 private:

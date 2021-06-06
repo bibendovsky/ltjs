@@ -3,17 +3,24 @@
 
 
 #include <array>
+#include <mutex>
 
 #include "al.h"
+
+#include "iltsound.h"
 
 
 namespace ltjs
 {
 
 
-class OalLtSoundSysGenericStream
+class OalLtSoundSysGenericStream final :
+	public LtjsLtSoundSysGenericStream
 {
 public:
+	using MtMutex = std::mutex;
+
+
 	static constexpr auto channel_count = 2;
 	static constexpr auto bit_depth = 16;
 	static constexpr auto byte_depth = bit_depth / 8;
@@ -22,7 +29,8 @@ public:
 	static constexpr auto queue_size = 3;
 
 
-	OalLtSoundSysGenericStream();
+	OalLtSoundSysGenericStream(
+		MtMutex& mutex);
 
 	OalLtSoundSysGenericStream(
 		const OalLtSoundSysGenericStream& that) = delete;
@@ -31,7 +39,7 @@ public:
 		const OalLtSoundSysGenericStream& that) = delete;
 
 	OalLtSoundSysGenericStream(
-		OalLtSoundSysGenericStream&& that);
+		OalLtSoundSysGenericStream&& that) noexcept;
 
 	~OalLtSoundSysGenericStream();
 
@@ -41,44 +49,54 @@ public:
 		const int sample_rate,
 		const int buffer_size);
 
-	bool set_pause(
-		const bool is_pause);
 
-	bool get_pause() const;
+	// =========================================================================
+	// LtjsLtSoundSysGenericStream
+
+	int get_free_buffer_count() noexcept override;
+
+	bool enqueue_buffer(
+		const void* buffer) noexcept override;
+
+	bool set_pause(
+		bool is_pause) noexcept override;
+
+	bool get_pause() noexcept override;
 
 	bool set_volume(
-		int level_mb);
+		int level_mb) noexcept override;
 
-	int get_volume() const;
+	int get_volume() noexcept override;
 
-	int get_free_buffer_count();
-
-	bool enqueue_data(
-		const void* buffer);
+	// LtjsLtSoundSysGenericStream
+	// =========================================================================
 
 
 private:
-	static constexpr auto oal_buffer_format = ALenum{AL_FORMAT_STEREO16};
+	static constexpr auto oal_buffer_format = ::ALenum{AL_FORMAT_STEREO16};
 
 
-	using OalBuffers = std::array<ALuint, queue_size>;
+	using MtLockGuard = std::lock_guard<MtMutex>;
+	using OalBuffers = std::array<::ALuint, queue_size>;
 
 
-	bool is_open_;
-	bool is_failed_;
-	bool is_playing_;
-	int queued_count_;
-	int buffer_size_;
-	int sample_rate_;
-	int level_mb_;
+	MtMutex* mutex_;
 
-	float oal_gain_;
+	bool is_open_{};
+	bool is_failed_{};
+	bool is_playing_{};
+	int queued_count_{};
+	int buffer_size_{};
+	int sample_rate_{};
+	int level_mb_{};
 
-	bool oal_is_source_created_;
-	bool oal_are_buffers_created_;
+	float oal_gain_{};
 
-	ALuint oal_source_;
-	OalBuffers oal_buffers_;
+	bool oal_is_source_created_{};
+	bool oal_are_buffers_created_{};
+
+	::ALuint oal_source_{};
+	OalBuffers oal_buffers_{};
 
 
 	bool initialize_oal_objects();

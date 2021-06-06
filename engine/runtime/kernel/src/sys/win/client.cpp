@@ -296,7 +296,7 @@ void CSystemEventHandler::handle_window_focus(
 #endif // LITHTECH_ESD
 	}
 
-	GetClientILTSoundMgrImpl()->handle_focus_lost(wParam == FALSE);
+	GetClientILTSoundMgrImpl()->ltjs_handle_focus_lost(wParam == FALSE);
 }
 
 void CSystemEventHandler::handle_window_close()
@@ -980,7 +980,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 #endif // LITHTECH_ESD
                 }
 
-				GetClientILTSoundMgrImpl()->handle_focus_lost(wParam == FALSE);
+				GetClientILTSoundMgrImpl()->ltjs_handle_focus_lost(wParam == FALSE);
 
                 return (message == WM_NCACTIVATE) ? TRUE : 0;
             }

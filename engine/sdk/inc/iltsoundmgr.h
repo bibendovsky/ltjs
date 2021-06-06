@@ -525,8 +525,8 @@ Used for: Audio.
 		virtual LTRESULT	SetListener( bool bListenerInClient, 
 			LTVector *pPos, LTRotation *pRot, bool bTeleport ) = 0;
 
-		virtual LTRESULT handle_focus_lost(
-			const bool is_focus_lost) = 0;
+		virtual LTRESULT ltjs_handle_focus_lost(
+			bool is_focus_lost) = 0;
 	};
 
 

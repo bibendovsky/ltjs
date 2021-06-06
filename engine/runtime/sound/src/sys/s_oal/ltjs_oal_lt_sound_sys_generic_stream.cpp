@@ -10,26 +10,17 @@ namespace ltjs
 {
 
 
-OalLtSoundSysGenericStream::OalLtSoundSysGenericStream()
+OalLtSoundSysGenericStream::OalLtSoundSysGenericStream(
+	MtMutex& mutex)
 	:
-	is_open_{},
-	is_failed_{},
-	is_playing_{},
-	queued_count_{},
-	buffer_size_{},
-	sample_rate_{},
-	level_mb_{},
-	oal_gain_{},
-	oal_is_source_created_{},
-	oal_are_buffers_created_{},
-	oal_source_{},
-	oal_buffers_{}
+	mutex_{&mutex}
 {
 }
 
 OalLtSoundSysGenericStream::OalLtSoundSysGenericStream(
-	OalLtSoundSysGenericStream&& that)
+	OalLtSoundSysGenericStream&& that) noexcept
 	:
+	mutex_{std::move(that.mutex_)},
 	is_open_{std::move(that.is_open_)},
 	is_failed_{std::move(that.is_failed_)},
 	is_playing_{std::move(that.is_playing_)},
@@ -67,13 +58,13 @@ void OalLtSoundSysGenericStream::close()
 	if (oal_is_source_created_)
 	{
 		oal_is_source_created_ = false;
-		alDeleteSources(1, &oal_source_);
+		::alDeleteSources(1, &oal_source_);
 	}
 
 	if (oal_are_buffers_created_)
 	{
 		oal_are_buffers_created_ = false;
-		alDeleteBuffers(1, oal_buffers_.data());
+		::alDeleteBuffers(1, oal_buffers_.data());
 	}
 }
 
@@ -107,87 +98,10 @@ bool OalLtSoundSysGenericStream::open(
 	return true;
 }
 
-bool OalLtSoundSysGenericStream::set_pause(
-	const bool is_pause)
+int OalLtSoundSysGenericStream::get_free_buffer_count() noexcept
 {
-	if (!is_open_ || is_failed_)
-	{
-		return false;
-	}
+	MtLockGuard lock_guard{*mutex_};
 
-	if (is_pause == !is_playing_)
-	{
-		return true;
-	}
-
-	is_playing_ = !is_pause;
-
-	if (is_playing_)
-	{
-		auto oal_state = ALint{};
-
-		alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state);
-
-		switch (oal_state)
-		{
-			case AL_INITIAL:
-			case AL_PAUSED:
-			case AL_STOPPED:
-				LTJS_OAL_ENSURE_CALL_DEBUG(alSourcePlay(oal_source_));
-				break;
-
-			case AL_PLAYING:
-				break;
-
-			default:
-				is_failed_ = true;
-				return false;
-		}
-
-		return true;
-	}
-	else
-	{
-		LTJS_OAL_ENSURE_CALL_DEBUG(alSourcePause(oal_source_));
-
-		return true;
-	}
-}
-
-bool OalLtSoundSysGenericStream::get_pause() const
-{
-	return !is_playing_;
-}
-
-bool OalLtSoundSysGenericStream::set_volume(
-	int level_mb)
-{
-	if (!is_open_ || is_failed_)
-	{
-		return false;
-	}
-
-	if (level_mb_ == level_mb)
-	{
-		return true;
-	}
-
-	level_mb_ = level_mb;
-
-	oal_gain_ = AudioUtils::generic_stream_level_mb_to_gain(level_mb_);
-
-	LTJS_OAL_ENSURE_CALL_DEBUG(alSourcef(oal_source_, AL_GAIN, oal_gain_));
-
-	return true;
-}
-
-int OalLtSoundSysGenericStream::get_volume() const
-{
-	return level_mb_;
-}
-
-int OalLtSoundSysGenericStream::get_free_buffer_count()
-{
 	if (!is_open_ || is_failed_)
 	{
 		return false;
@@ -201,9 +115,11 @@ int OalLtSoundSysGenericStream::get_free_buffer_count()
 	return queue_size - queued_count_;
 }
 
-bool OalLtSoundSysGenericStream::enqueue_data(
-	const void* buffer)
+bool OalLtSoundSysGenericStream::enqueue_buffer(
+	const void* buffer) noexcept
 {
+	MtLockGuard lock_guard{*mutex_};
+
 	if (!is_open_ || is_failed_ || !buffer)
 	{
 		return false;
@@ -221,16 +137,16 @@ bool OalLtSoundSysGenericStream::enqueue_data(
 
 	const auto oal_free_buffer = oal_buffers_[queued_count_];
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alBufferData(
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alBufferData(
 		oal_free_buffer, oal_buffer_format, buffer, buffer_size_, sample_rate_));
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alSourceQueueBuffers(oal_source_, 1, &oal_free_buffer));
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alSourceQueueBuffers(oal_source_, 1, &oal_free_buffer));
 
 	queued_count_ += 1;
 
-	auto oal_state = ALint{};
+	auto oal_state = ::ALint{};
 
-	LTJS_OAL_ENSURE_CALL_DEBUG(alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state));
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state));
 
 	switch (oal_state)
 	{
@@ -239,7 +155,7 @@ bool OalLtSoundSysGenericStream::enqueue_data(
 		case AL_STOPPED:
 			if (is_playing_)
 			{
-				LTJS_OAL_ENSURE_CALL_DEBUG(alSourcePlay(oal_source_));
+				LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcePlay(oal_source_));
 			}
 
 			break;
@@ -258,11 +174,98 @@ bool OalLtSoundSysGenericStream::enqueue_data(
 	return true;
 }
 
+bool OalLtSoundSysGenericStream::set_pause(
+	bool is_pause) noexcept
+{
+	MtLockGuard lock_guard{*mutex_};
+
+	if (!is_open_ || is_failed_)
+	{
+		return false;
+	}
+
+	if (is_pause == !is_playing_)
+	{
+		return true;
+	}
+
+	is_playing_ = !is_pause;
+
+	if (is_playing_)
+	{
+		auto oal_state = ::ALint{};
+
+		::alGetSourcei(oal_source_, AL_SOURCE_STATE, &oal_state);
+
+		switch (oal_state)
+		{
+			case AL_INITIAL:
+			case AL_PAUSED:
+			case AL_STOPPED:
+				LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcePlay(oal_source_));
+				break;
+
+			case AL_PLAYING:
+				break;
+
+			default:
+				is_failed_ = true;
+				return false;
+		}
+
+		return true;
+	}
+	else
+	{
+		LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcePause(oal_source_));
+
+		return true;
+	}
+}
+
+bool OalLtSoundSysGenericStream::get_pause() noexcept
+{
+	MtLockGuard lock_guard{*mutex_};
+
+	return !is_playing_;
+}
+
+bool OalLtSoundSysGenericStream::set_volume(
+	int level_mb) noexcept
+{
+	MtLockGuard lock_guard{*mutex_};
+
+	if (!is_open_ || is_failed_)
+	{
+		return false;
+	}
+
+	if (level_mb_ == level_mb)
+	{
+		return true;
+	}
+
+	level_mb_ = level_mb;
+
+	oal_gain_ = AudioUtils::generic_stream_level_mb_to_gain(level_mb_);
+
+	LTJS_OAL_ENSURE_CALL_DEBUG(::alSourcef(oal_source_, AL_GAIN, oal_gain_));
+
+	return true;
+}
+
+int OalLtSoundSysGenericStream::get_volume() noexcept
+{
+	MtLockGuard lock_guard{*mutex_};
+
+	return level_mb_;
+}
+
 bool OalLtSoundSysGenericStream::initialize_oal_objects()
 {
 	oal::clear_error();
 
-	alGenSources(1, &oal_source_);
+	::alGenSources(1, &oal_source_);
 
 	if (oal::is_succeed())
 	{
@@ -273,7 +276,7 @@ bool OalLtSoundSysGenericStream::initialize_oal_objects()
 		return false;
 	}
 
-	alGenBuffers(queue_size, oal_buffers_.data());
+	::alGenBuffers(queue_size, oal_buffers_.data());
 
 	if (oal::is_succeed())
 	{
@@ -284,16 +287,16 @@ bool OalLtSoundSysGenericStream::initialize_oal_objects()
 		return false;
 	}
 
-	alSourcei(oal_source_, AL_SOURCE_RELATIVE, AL_TRUE);
+	::alSourcei(oal_source_, AL_SOURCE_RELATIVE, AL_TRUE);
 
 	return oal::is_succeed();
 }
 
 bool OalLtSoundSysGenericStream::unqueue_processed_buffers()
 {
-	auto oal_processed_count = ALint{};
+	auto oal_processed_count = ::ALint{};
 
-	alGetSourcei(oal_source_, AL_BUFFERS_PROCESSED, &oal_processed_count);
+	::alGetSourcei(oal_source_, AL_BUFFERS_PROCESSED, &oal_processed_count);
 
 	if (!oal::is_succeed())
 	{
@@ -310,7 +313,7 @@ bool OalLtSoundSysGenericStream::unqueue_processed_buffers()
 
 	queued_count_ -= oal_processed_count;
 
-	alSourceUnqueueBuffers(oal_source_, oal_processed_count, &oal_buffers_[queue_size - oal_processed_count]);
+	::alSourceUnqueueBuffers(oal_source_, oal_processed_count, &oal_buffers_[queue_size - oal_processed_count]);
 
 	if (!oal::is_succeed())
 	{

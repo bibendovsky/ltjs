@@ -26,14 +26,6 @@ typedef struct _GUID
 
 #endif // !GUID_DEFINED
 
-struct EAXGUID
-{
-	std::uint32_t Data1;
-	std::uint16_t Data2;
-	std::uint16_t Data3;
-	std::uint8_t Data4[8];
-};
-
 struct EAXVECTOR
 {
 	float x;
@@ -46,7 +38,7 @@ struct EAXVECTOR
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-extern "C" const GUID DSPROPSETID_EAX20_ListenerProperties;
+extern "C" const ::GUID DSPROPSETID_EAX20_ListenerProperties;
 #define DSPROPSETID_EAX_ListenerProperties DSPROPSETID_EAX20_ListenerProperties
 
 
@@ -128,7 +120,7 @@ struct EAXLISTENERPROPERTIES
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-extern "C" const GUID DSPROPSETID_EAX20_BufferProperties;
+extern "C" const ::GUID DSPROPSETID_EAX20_BufferProperties;
 #define DSPROPSETID_EAX_BufferProperties DSPROPSETID_EAX20_BufferProperties
 
 
@@ -223,7 +215,7 @@ constexpr auto EAXREVERB_MINREFLECTIONSDELAY = 0.0F;
 constexpr auto EAXREVERB_MAXREFLECTIONSDELAY = 0.3F;
 constexpr auto EAXREVERB_DEFAULTREFLECTIONSDELAY = 0.007F;
 
-constexpr auto EAXREVERB_DEFAULTREFLECTIONSPAN = EAXVECTOR{};
+constexpr auto EAXREVERB_DEFAULTREFLECTIONSPAN = ::EAXVECTOR{};
 
 constexpr auto EAXREVERB_MINREVERB = std::int32_t{-10'000};
 constexpr auto EAXREVERB_MAXREVERB = std::int32_t{2'000};
@@ -233,7 +225,7 @@ constexpr auto EAXREVERB_MINREVERBDELAY = 0.0F;
 constexpr auto EAXREVERB_MAXREVERBDELAY = 0.1F;
 constexpr auto EAXREVERB_DEFAULTREVERBDELAY = 0.011F;
 
-constexpr auto EAXREVERB_DEFAULTREVERBPAN = EAXVECTOR{};
+constexpr auto EAXREVERB_DEFAULTREVERBPAN = ::EAXVECTOR{};
 
 constexpr auto EAXREVERB_MINECHOTIME = 0.075F;
 constexpr auto EAXREVERB_MAXECHOTIME = 0.25F;
@@ -279,12 +271,13 @@ constexpr auto EAXREVERBFLAGS_DECAYHFLIMIT = std::uint32_t{0x00000020};
 
 
 constexpr auto EAXREVERB_DEFAULTFLAGS =
-	EAXREVERBFLAGS_DECAYTIMESCALE |
-	EAXREVERBFLAGS_REFLECTIONSSCALE |
-	EAXREVERBFLAGS_REFLECTIONSDELAYSCALE |
-	EAXREVERBFLAGS_REVERBSCALE |
-	EAXREVERBFLAGS_REVERBDELAYSCALE |
-	EAXREVERBFLAGS_DECAYHFLIMIT;
+	::EAXREVERBFLAGS_DECAYTIMESCALE |
+	::EAXREVERBFLAGS_REFLECTIONSSCALE |
+	::EAXREVERBFLAGS_REFLECTIONSDELAYSCALE |
+	::EAXREVERBFLAGS_REVERBSCALE |
+	::EAXREVERBFLAGS_REVERBDELAYSCALE |
+	::EAXREVERBFLAGS_DECAYHFLIMIT
+;
 
 struct EAXREVERBPROPERTIES
 {
@@ -299,10 +292,10 @@ struct EAXREVERBPROPERTIES
 	float flDecayLFRatio;
 	std::int32_t lReflections;
 	float flReflectionsDelay;
-	EAXVECTOR vReflectionsPan;
+	::EAXVECTOR vReflectionsPan;
 	std::int32_t lReverb;
 	float flReverbDelay;
-	EAXVECTOR vReverbPan;
+	::EAXVECTOR vReverbPan;
 	float flEchoTime;
 	float flEchoDepth;
 	float flModulationTime;
@@ -355,19 +348,19 @@ extern const EaxReverbPresets EAXREVERB_PRESETS;
 
 #ifdef AL_VERSION_1_1
 
-using EAXSet = ALenum (AL_APIENTRY *)(
-	const GUID* property_set_guid,
-	ALuint property_id,
-	ALuint property_source,
-	ALvoid* property_buffer,
-	ALuint property_size);
+using EAXSet = ::ALenum (AL_APIENTRY *)(
+	const ::GUID* property_set_guid,
+	::ALuint property_id,
+	::ALuint property_source,
+	::ALvoid* property_buffer,
+	::ALuint property_size);
 
-using EAXGet = ALenum (AL_APIENTRY *)(
-	const GUID* property_set_guid,
-	ALuint property_id,
-	ALuint property_source,
-	ALvoid* property_buffer,
-	ALuint property_size);
+using EAXGet = ::ALenum (AL_APIENTRY *)(
+	const ::GUID* property_set_guid,
+	::ALuint property_id,
+	::ALuint property_source,
+	::ALvoid* property_buffer,
+	::ALuint property_size);
 
 #endif // AL_VERSION_1_1
 

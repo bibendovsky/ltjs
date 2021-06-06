@@ -87,7 +87,7 @@ private:
 	FmvPlayer fmv_player_;
 	ul::FileStream file_stream_;
 	bool is_audio_stream_started_;
-	ILTSoundSys::GenericStreamHandle audio_stream_;
+	LtjsLtSoundSysGenericStream* audio_stream_;
 	ILTSoundSys* sound_sys_ptr_;
 	int audio_max_buffer_count_;
 
@@ -251,8 +251,7 @@ LTRESULT FfmpegVideoInst::Impl::api_draw_video()
 	if (sound_sys_ptr_ && !is_audio_stream_started_)
 	{
 		is_audio_stream_started_ = true;
-
-		static_cast<void>(sound_sys_ptr_->set_generic_stream_pause(audio_stream_, false));
+		audio_stream_->set_pause(false);
 	}
 
 	return LT_OK;
@@ -291,7 +290,7 @@ bool FfmpegVideoInst::Impl::initialize_internal(
 
 	if (sound_sys_ptr_)
 	{
-		audio_max_buffer_count_ = sound_sys_ptr_->get_generic_stream_queue_size();
+		audio_max_buffer_count_ = sound_sys_ptr_->ltjs_get_generic_stream_queue_size();
 
 		if (audio_max_buffer_count_ <= 0)
 		{
@@ -332,7 +331,7 @@ bool FfmpegVideoInst::Impl::initialize_internal(
 		const auto sample_rate = fmv_player_.get_sample_rate();
 		const auto buffer_size = fmv_player_.get_audio_buffer_size();
 
-		audio_stream_ = sound_sys_ptr_->open_generic_stream(sample_rate, buffer_size);
+		audio_stream_ = sound_sys_ptr_->ltjs_open_generic_stream(sample_rate, buffer_size);
 
 		if (!audio_stream_)
 		{
@@ -357,18 +356,18 @@ void FfmpegVideoInst::Impl::uninitialize_internal()
 
 	if (sound_sys_ptr_)
 	{
-		is_audio_stream_started_ = {};
+		is_audio_stream_started_ = false;
 
 		if (audio_stream_)
 		{
-			sound_sys_ptr_->close_generic_stream(audio_stream_);
-			audio_stream_ = {};
+			sound_sys_ptr_->ltjs_close_generic_stream(audio_stream_);
+			audio_stream_ = nullptr;
 		}
 
-		sound_sys_ptr_ = {};
+		sound_sys_ptr_ = nullptr;
 	}
 
-	audio_max_buffer_count_ = {};
+	audio_max_buffer_count_ = 0;
 }
 
 int FfmpegVideoInst::Impl::io_read_func(
@@ -435,7 +434,7 @@ void FfmpegVideoInst::Impl::audio_present_func(
 {
 	static_cast<void>(data_size);
 
-	static_cast<void>(sound_sys_ptr_->enqueue_generic_stream_buffer(audio_stream_, data));
+	audio_stream_->enqueue_buffer(data);
 }
 
 void FfmpegVideoInst::Impl::audio_present_func_proxy(
@@ -450,7 +449,7 @@ void FfmpegVideoInst::Impl::audio_present_func_proxy(
 
 int FfmpegVideoInst::Impl::audio_get_free_buffer_count_func()
 {
-	return sound_sys_ptr_->get_generic_stream_free_buffer_count(audio_stream_);
+	return audio_stream_->get_free_buffer_count();
 }
 
 int FfmpegVideoInst::Impl::audio_get_free_buffer_count_func_proxy(
@@ -799,7 +798,7 @@ LTRESULT FfmpegVideoMgr::Impl::api_create_screen_video(
 {
 	static_cast<void>(flags);
 
-	video_inst_ptr = {};
+	video_inst_ptr = nullptr;
 
 	auto ffmpeg_video_inst_ptr = std::make_unique<FfmpegVideoInst>(video_mgr_ptr);
 

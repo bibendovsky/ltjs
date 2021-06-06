@@ -35,7 +35,7 @@ public:
 
 
 	void initialize_source(
-		ALuint al_source,
+		::ALuint al_source,
 		int& lt_filter_direct_mb) override;
 
 	void set_listener(
@@ -43,7 +43,7 @@ public:
 		const LTSOUNDFILTERDATA& lt_filter_data) override;
 
 	void set_source(
-		ALuint al_source,
+		::ALuint al_source,
 		const LTSOUNDFILTERDATA& lt_filter_data,
 		int& lt_filter_direct_mb) override;
 
@@ -83,7 +83,7 @@ private:
 
 	struct AlXReverbDescriptor
 	{
-		ALenum param;
+		::ALenum param;
 		float min_value;
 		float max_value;
 	}; // AlXReverbDescriptor
@@ -127,7 +127,7 @@ private:
 		const LTSOUNDFILTERDATA& lt_filter_data);
 
 	static void ensure_al_source(
-		ALuint al_source);
+		::ALuint al_source);
 
 
 	bool detect_al_softx_filter_gain_ex();
@@ -237,7 +237,7 @@ private:
 		float air_absorption_hf);
 
 	void set_source_direct(
-		ALuint al_source,
+		::ALuint al_source,
 		int direct);
 }; // EfxLtFilter
 

@@ -100,7 +100,7 @@ EfxSymbols make_efx_symbols()
 
 	for (auto& efx_symbol_descriptor : efx_symbol_descriptors)
 	{
-		const auto symbol_address = alGetProcAddress(efx_symbol_descriptor.symbol_name);
+		const auto symbol_address = ::alGetProcAddress(efx_symbol_descriptor.symbol_name);
 
 		if (symbol_address == nullptr)
 		{

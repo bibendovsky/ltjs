@@ -194,7 +194,7 @@ int AudioUtils::generic_stream_level_mb_to_ds_level_mb(
 
 	const auto ds_level_mb = Detail::gain_to_level_mb(gain);
 
-	return ds_level_mb;
+	return static_cast<int>(ds_level_mb);
 }
 
 void* AudioUtils::allocate(

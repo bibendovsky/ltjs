@@ -70,11 +70,11 @@ private:
 
 
 	const char* get_al_string(
-		ALenum al_param);
+		::ALenum al_param);
 
 	const char* get_alc_string(
-		ALCdevice* al_device,
-		ALenum al_param);
+		::ALCdevice* al_device,
+		::ALenum al_param);
 }; // SystemImpl
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -117,9 +117,9 @@ const SystemInfo& SystemImpl::get_info() const noexcept
 // ----------------------------------------------------------------------
 
 const char* SystemImpl::get_al_string(
-	ALenum al_param)
+	::ALenum al_param)
 {
-	const auto al_string = alGetString(al_param);
+	const auto al_string = ::alGetString(al_param);
 
 	if (al_string == nullptr)
 	{
@@ -130,8 +130,8 @@ const char* SystemImpl::get_al_string(
 }
 
 const char* SystemImpl::get_alc_string(
-	ALCdevice* al_device,
-	ALenum al_param)
+	::ALCdevice* al_device,
+	::ALenum al_param)
 {
 	const auto al_string = alcGetString(al_device, al_param);
 

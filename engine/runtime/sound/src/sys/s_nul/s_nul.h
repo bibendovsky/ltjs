@@ -456,42 +456,21 @@ public:
 
 	bool HasOnBoardMemory() override;
 
-	void handle_focus_lost(
-		const bool is_focus_lost) override;
+	void ltjs_handle_focus_lost(
+		bool is_focus_lost) override;
 
 
 	// Generic stream.
 	//
 
-	GenericStreamHandle open_generic_stream(
-		const int sample_rate,
-		const int buffer_size) override;
+	int ltjs_get_generic_stream_queue_size() noexcept override;
 
-	void close_generic_stream(
-		GenericStreamHandle stream_handle) override;
+	LtjsLtSoundSysGenericStream* ltjs_open_generic_stream(
+		int sample_rate,
+		int buffer_size) noexcept override;
 
-	int get_generic_stream_queue_size() override;
-
-	int get_generic_stream_free_buffer_count(
-		GenericStreamHandle stream_handle) override;
-
-	bool enqueue_generic_stream_buffer(
-		GenericStreamHandle stream_handle,
-		const void* buffer) override;
-
-	bool set_generic_stream_pause(
-		GenericStreamHandle stream_handle,
-		const bool is_pause) override;
-
-	bool get_generic_stream_pause(
-		GenericStreamHandle stream_handle) override;
-
-	bool set_generic_stream_volume(
-		GenericStreamHandle stream_handle,
-		const int ds_volume) override;
-
-	int get_generic_stream_volume(
-		GenericStreamHandle stream_handle) override;
+	void ltjs_close_generic_stream(
+		LtjsLtSoundSysGenericStream* generic_stream) noexcept override;
 
 
 	static NulSoundSys& get_singleton();

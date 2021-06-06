@@ -1691,17 +1691,22 @@ bool OalLtSoundSys::HasOnBoardMemory()
 	return false;
 }
 
-void OalLtSoundSys::handle_focus_lost(
-	const bool is_focus_lost)
+void OalLtSoundSys::ltjs_handle_focus_lost(
+	bool is_focus_lost)
 {
 	listener_3d_uptr_->mute_3d_listener(is_focus_lost);
 }
 
-ILTSoundSys::GenericStreamHandle OalLtSoundSys::open_generic_stream(
-	const int sample_rate,
-	const int buffer_size)
+int OalLtSoundSys::ltjs_get_generic_stream_queue_size() noexcept
 {
-	auto generic_stream = OalLtSoundSysGenericStream{};
+	return OalLtSoundSysGenericStream::queue_size;
+}
+
+LtjsLtSoundSysGenericStream* OalLtSoundSys::ltjs_open_generic_stream(
+	int sample_rate,
+	int buffer_size) noexcept
+{
+	auto generic_stream = OalLtSoundSysGenericStream{mt_generic_streams_mutex_};
 
 	if (!generic_stream.open(sample_rate, buffer_size))
 	{
@@ -1715,10 +1720,10 @@ ILTSoundSys::GenericStreamHandle OalLtSoundSys::open_generic_stream(
 	return &generic_streams_.back();
 }
 
-void OalLtSoundSys::close_generic_stream(
-	GenericStreamHandle stream_handle)
+void OalLtSoundSys::ltjs_close_generic_stream(
+	LtjsLtSoundSysGenericStream* generic_stream) noexcept
 {
-	if (stream_handle == nullptr)
+	if (!generic_stream)
 	{
 		return;
 	}
@@ -1726,109 +1731,12 @@ void OalLtSoundSys::close_generic_stream(
 	MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
 
 	generic_streams_.remove_if(
-		[&](const auto& item)
+		[generic_stream](
+			const OalLtSoundSysGenericStream& item)
 		{
-			return &item == stream_handle;
+			return &item == generic_stream;
 		}
 	);
-}
-
-int OalLtSoundSys::get_generic_stream_queue_size()
-{
-	return OalLtSoundSysGenericStream::queue_size;
-}
-
-int OalLtSoundSys::get_generic_stream_free_buffer_count(
-	GenericStreamHandle stream_handle)
-{
-	if (stream_handle == nullptr)
-	{
-		return false;
-	}
-
-	MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
-
-	auto& stream = *static_cast<OalLtSoundSysGenericStream*>(stream_handle);
-
-	return stream.get_free_buffer_count();
-}
-
-bool OalLtSoundSys::enqueue_generic_stream_buffer(
-	GenericStreamHandle stream_handle,
-	const void* buffer)
-{
-	if (stream_handle == nullptr)
-	{
-		return false;
-	}
-
-	MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
-
-	auto& stream = *static_cast<OalLtSoundSysGenericStream*>(stream_handle);
-
-	return stream.enqueue_data(buffer);
-}
-
-bool OalLtSoundSys::set_generic_stream_pause(
-	GenericStreamHandle stream_handle,
-	const bool is_pause)
-{
-	if (stream_handle == nullptr)
-	{
-		return false;
-	}
-
-	MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
-
-	auto& stream = *static_cast<OalLtSoundSysGenericStream*>(stream_handle);
-
-	return stream.set_pause(is_pause);
-}
-
-bool OalLtSoundSys::get_generic_stream_pause(
-	GenericStreamHandle stream_handle)
-{
-	if (stream_handle == nullptr)
-	{
-		return false;
-	}
-
-	MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
-
-	auto& stream = *static_cast<OalLtSoundSysGenericStream*>(stream_handle);
-
-	return stream.get_pause();
-}
-
-bool OalLtSoundSys::set_generic_stream_volume(
-	GenericStreamHandle stream_handle,
-	const int ds_volume)
-{
-	if (stream_handle == nullptr)
-	{
-		return false;
-	}
-
-	MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
-
-	auto& stream = *static_cast<OalLtSoundSysGenericStream*>(stream_handle);
-
-	return stream.set_volume(ds_volume);
-}
-
-int OalLtSoundSys::get_generic_stream_volume(
-	GenericStreamHandle stream_handle)
-{
-	if (stream_handle == nullptr)
-	{
-		return false;
-	}
-
-	MtMutexGuard mutex_guard{mt_generic_streams_mutex_};
-
-	auto& stream = *static_cast<OalLtSoundSysGenericStream*>(stream_handle);
-
-	return stream.get_volume();
 }
 
 // ILTSoundSys

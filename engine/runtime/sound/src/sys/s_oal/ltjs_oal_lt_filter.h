@@ -46,7 +46,7 @@ public:
 
 
 	virtual void initialize_source(
-		ALuint al_source,
+		::ALuint al_source,
 		int& lt_filter_direct_mb) = 0;
 
 	virtual void set_listener(
@@ -54,7 +54,7 @@ public:
 		const LTSOUNDFILTERDATA& lt_filter_data) = 0;
 
 	virtual void set_source(
-		ALuint al_source,
+		::ALuint al_source,
 		const LTSOUNDFILTERDATA& lt_filter_data,
 		int& lt_filter_direct_mb) = 0;
 }; // LtFilter

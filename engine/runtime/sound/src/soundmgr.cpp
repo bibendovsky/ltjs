@@ -2936,15 +2936,15 @@ LTRESULT CSoundMgr::SetListener(bool bListenerInClient, LTVector *pPos, LTRotati
     return LT_OK;
 }
 
-LTRESULT CSoundMgr::handle_focus_lost(
-	const bool is_focus_lost)
+LTRESULT CSoundMgr::ltjs_handle_focus_lost(
+	bool is_focus_lost)
 {
 	if (!::g_pSoundSys)
 	{
 		return LT_ERROR;
 	}
 
-	g_pSoundSys->handle_focus_lost(is_focus_lost);
+	g_pSoundSys->ltjs_handle_focus_lost(is_focus_lost);
 
 	return LT_OK;
 }

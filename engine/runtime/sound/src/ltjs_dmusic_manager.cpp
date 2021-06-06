@@ -369,7 +369,7 @@ public:
 		mix_sample_count_ = mix_s16_size_ / byte_depth;
 		mix_f_size_ = mix_sample_count_ * byte_depth_f;
 
-		music_stream_ = sound_sys_->open_generic_stream(sample_rate_, mix_s16_size_);
+		music_stream_ = sound_sys_->ltjs_open_generic_stream(sample_rate_, mix_s16_size_);
 
 		if (!music_stream_)
 		{
@@ -400,11 +400,7 @@ public:
 		mt_mixer_thread_ = MtThread{std::bind(&Impl::mt_mixer_worker, this)};
 
 		is_level_initialized_ = true;
-
-		static_cast<void>(sound_sys_->set_generic_stream_volume(
-			music_stream_,
-			AudioUtils::max_generic_stream_level_mb
-		));
+		music_stream_->set_volume(AudioUtils::max_generic_stream_level_mb);
 
 		return LT_OK;
 	}
@@ -433,7 +429,7 @@ public:
 
 		if (music_stream_)
 		{
-			sound_sys_->close_generic_stream(music_stream_);
+			sound_sys_->ltjs_close_generic_stream(music_stream_);
 			music_stream_ = nullptr;
 		}
 
@@ -486,7 +482,7 @@ public:
 			enforced_intensity_index_ = initial_intensity_;
 		}
 
-		if (!sound_sys_->set_generic_stream_pause(music_stream_, false))
+		if (!music_stream_->set_pause(false))
 		{
 			return LT_ERROR;
 		}
@@ -504,7 +500,7 @@ public:
 			return LT_ERROR;
 		}
 
-		if (!sound_sys_->set_generic_stream_pause(music_stream_, true))
+		if (!music_stream_->set_pause(true))
 		{
 			return LT_ERROR;
 		}
@@ -530,7 +526,7 @@ public:
 			return LT_ERROR;
 		}
 
-		if (!sound_sys_->set_generic_stream_pause(music_stream_, true))
+		if (!music_stream_->set_pause(true))
 		{
 			return LT_ERROR;
 		}
@@ -547,7 +543,7 @@ public:
 			return LT_ERROR;
 		}
 
-		if (!sound_sys_->set_generic_stream_pause(music_stream_, false))
+		if (!music_stream_->set_pause(false))
 		{
 			return LT_ERROR;
 		}
@@ -565,7 +561,7 @@ public:
 			return LT_ERROR;
 		}
 
-		if (!sound_sys_->set_generic_stream_volume(music_stream_, volume))
+		if (!music_stream_->set_volume(volume))
 		{
 			return LT_ERROR;
 		}
@@ -893,7 +889,7 @@ private:
 	BufferS16 decoder_buffer_;
 	BufferS16 device_buffer_;
 	BufferF mix_buffer_;
-	ILTSoundSys::GenericStreamHandle music_stream_;
+	LtjsLtSoundSysGenericStream* music_stream_;
 	MtThread mt_mixer_thread_;
 	MtCondVar mt_mixer_cv_;
 	MtMutex mt_mixer_cv_mutex_;
@@ -1654,9 +1650,9 @@ private:
 		{
 			auto is_delay = true;
 
-			if (!sound_sys_->get_generic_stream_pause(music_stream_))
+			if (!music_stream_->get_pause())
 			{
-				const auto free_buffer_count = sound_sys_->get_generic_stream_free_buffer_count(music_stream_);
+				const auto free_buffer_count = music_stream_->get_free_buffer_count();
 
 				if (free_buffer_count > 0)
 				{
@@ -1666,7 +1662,7 @@ private:
 
 						update_device_buffer();
 
-						if (!sound_sys_->enqueue_generic_stream_buffer(music_stream_, device_buffer_.data()))
+						if (!music_stream_->enqueue_buffer(device_buffer_.data()))
 						{
 							return;
 						}

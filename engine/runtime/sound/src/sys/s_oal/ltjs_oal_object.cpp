@@ -36,7 +36,7 @@ public:
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 void DeviceObjectDeleter::operator()(
-	ALCdevice* al_device) noexcept
+	::ALCdevice* al_device) noexcept
 {
 	const auto al_result = alcCloseDevice(al_device);
 	assert(al_result != ALC_FALSE);
@@ -61,7 +61,7 @@ DeviceObjectUPtr make_device_object(
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 void ContextObjectDeleter::operator()(
-	ALCcontext* al_context) noexcept
+	::ALCcontext* al_context) noexcept
 {
 	const auto al_current_context = alcGetCurrentContext();
 
@@ -75,8 +75,8 @@ void ContextObjectDeleter::operator()(
 }
 
 ContextObjectUPtr make_context_object(
-	ALCdevice* al_device,
-	ALCint* al_attributes)
+	::ALCdevice* al_device,
+	::ALCint* al_attributes)
 {
 	const auto al_context = alcCreateContext(al_device, al_attributes);
 
@@ -102,18 +102,18 @@ template<
 	typename TCreateException
 >
 TObject make_al_object(
-	void (AL_APIENTRY* al_generator)(ALsizei, ALuint*))
+	void (AL_APIENTRY* al_generator)(::ALsizei, ::ALuint*))
 {
 	if (al_generator == nullptr)
 	{
 		throw TNullGeneratorException{};
 	}
 
-	auto al_object = ALuint{};
+	auto al_object = ::ALuint{};
 
 	al_generator(1, &al_object);
 
-	if (al_object == ALuint{})
+	if (al_object == ::ALuint{})
 	{
 		throw TCreateException{};
 	}
@@ -151,9 +151,9 @@ public:
 
 
 void BufferObjectDeleter::operator()(
-	ALuint al_buffer) noexcept
+	::ALuint al_buffer) noexcept
 {
-	alDeleteBuffers(1, &al_buffer);
+	::alDeleteBuffers(1, &al_buffer);
 }
 
 BufferObject make_buffer_object()
@@ -164,7 +164,7 @@ BufferObject make_buffer_object()
 		BufferObjectCreateException
 	>
 	(
-		alGenBuffers
+		::alGenBuffers
 	);
 }
 
@@ -197,9 +197,9 @@ public:
 
 
 void SourceObjectDeleter::operator()(
-	ALuint al_buffer) noexcept
+	::ALuint al_buffer) noexcept
 {
-	alDeleteSources(1, &al_buffer);
+	::alDeleteSources(1, &al_buffer);
 }
 
 SourceObject make_source_object()
@@ -210,7 +210,7 @@ SourceObject make_source_object()
 		SourceObjectCreateException
 	>
 	(
-		alGenSources
+		::alGenSources
 	);
 }
 
@@ -228,19 +228,19 @@ template<
 	typename TCreateException
 >
 TObject make_efx_object(
-	void (AL_APIENTRY* al_generator)(ALsizei, ALuint*),
-	void (AL_APIENTRY* al_deleter)(ALsizei, const ALuint*))
+	void (AL_APIENTRY* al_generator)(::ALsizei, ::ALuint*),
+	void (AL_APIENTRY* al_deleter)(::ALsizei, const ::ALuint*))
 {
 	if (al_generator == nullptr || al_deleter == nullptr)
 	{
 		throw TNullException{};
 	}
 
-	auto al_object = ALuint{};
+	auto al_object = ::ALuint{};
 
 	al_generator(1, &al_object);
 
-	if (al_object == ALuint{})
+	if (al_object == ::ALuint{})
 	{
 		throw TCreateException{};
 	}
@@ -295,7 +295,7 @@ EffectSlotObjectDeleter::EffectSlotObjectDeleter(
 }
 
 void EffectSlotObjectDeleter::operator()(
-	ALuint al_effect_slot) noexcept
+	::ALuint al_effect_slot) noexcept
 {
 	al_deleter_(1, &al_effect_slot);
 }
@@ -356,7 +356,7 @@ EffectObjectDeleter::EffectObjectDeleter(
 }
 
 void EffectObjectDeleter::operator()(
-	ALuint al_effect) noexcept
+	::ALuint al_effect) noexcept
 {
 	al_deleter_(1, &al_effect);
 }
@@ -417,7 +417,7 @@ FilterObjectDeleter::FilterObjectDeleter(
 }
 
 void FilterObjectDeleter::operator()(
-	ALuint al_filter) noexcept
+	::ALuint al_filter) noexcept
 {
 	al_deleter_(1, &al_filter);
 }

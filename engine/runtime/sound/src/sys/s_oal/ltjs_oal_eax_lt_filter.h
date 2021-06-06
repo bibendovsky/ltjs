@@ -35,7 +35,7 @@ public:
 
 
 	void initialize_source(
-		ALuint al_source,
+		::ALuint al_source,
 		int& lt_filter_direct_mb) override;
 
 	void set_listener(
@@ -43,7 +43,7 @@ public:
 		const LTSOUNDFILTERDATA& lt_filter_data) override;
 
 	void set_source(
-		ALuint al_source,
+		::ALuint al_source,
 		const LTSOUNDFILTERDATA& lt_filter_data,
 		int& lt_filter_direct_mb) override;
 
@@ -73,7 +73,7 @@ private:
 		const LTSOUNDFILTERDATA& lt_filter_data);
 
 	static void ensure_al_source(
-		ALuint al_source);
+		::ALuint al_source);
 
 
 	static EAXLISTENERPROPERTIES make_eax_listener(
@@ -124,7 +124,7 @@ private:
 	void set_eax_listener();
 
 	void set_source_direct(
-		ALuint al_source,
+		::ALuint al_source,
 		std::int32_t direct);
 }; // EaxLtFilter
 

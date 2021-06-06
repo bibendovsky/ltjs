@@ -23,7 +23,7 @@ void* NulSoundSys::GetDDInterface(
 {
 	static_cast<void>(dd_interface_id);
 
-	return {};
+	return nullptr;
 }
 
 void NulSoundSys::Lock()
@@ -36,7 +36,7 @@ void NulSoundSys::Unlock()
 
 sint32 NulSoundSys::Startup()
 {
-	return {};
+	return 0;
 }
 
 void NulSoundSys::Shutdown()
@@ -45,7 +45,7 @@ void NulSoundSys::Shutdown()
 
 uint32 NulSoundSys::MsCount()
 {
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::SetPreference(
@@ -55,7 +55,7 @@ sint32 NulSoundSys::SetPreference(
 	static_cast<void>(index);
 	static_cast<void>(value);
 
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::GetPreference(
@@ -63,7 +63,7 @@ sint32 NulSoundSys::GetPreference(
 {
 	static_cast<void>(index);
 
-	return {};
+	return 0;
 }
 
 void NulSoundSys::MemFreeLock(
@@ -95,7 +95,7 @@ sint32 NulSoundSys::WaveOutOpen(
 	static_cast<void>(device_id);
 	static_cast<void>(wave_format);
 
-	return {};
+	return 0;
 }
 
 void NulSoundSys::WaveOutClose(
@@ -117,7 +117,7 @@ sint32 NulSoundSys::GetDigitalMasterVolume(
 {
 	static_cast<void>(driver_ptr);
 
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::DigitalHandleRelease(
@@ -125,7 +125,7 @@ sint32 NulSoundSys::DigitalHandleRelease(
 {
 	static_cast<void>(driver_ptr);
 
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::DigitalHandleReacquire(
@@ -133,7 +133,7 @@ sint32 NulSoundSys::DigitalHandleReacquire(
 {
 	static_cast<void>(driver_ptr);
 
-	return {};
+	return 0;
 }
 
 #ifdef USE_EAX20_HARDWARE_FILTERS
@@ -144,12 +144,12 @@ bool NulSoundSys::SetEAX20Filter(
 	static_cast<void>(is_enable);
 	static_cast<void>(filter_data);
 
-	return {};
+	return 0;
 }
 
 bool NulSoundSys::SupportsEAX20Filter()
 {
-	return {};
+	return false;
 }
 
 bool NulSoundSys::SetEAX20BufferSettings(
@@ -159,7 +159,7 @@ bool NulSoundSys::SetEAX20BufferSettings(
 	static_cast<void>(sample_handle);
 	static_cast<void>(filter_data);
 
-	return {};
+	return false;
 }
 #endif // USE_EAX20_HARDWARE_FILTERS
 
@@ -174,7 +174,7 @@ sint32 NulSoundSys::Open3DProvider(
 {
 	static_cast<void>(provider_id);
 
-	return {};
+	return 0;
 }
 
 void NulSoundSys::Close3DProvider(
@@ -212,7 +212,7 @@ sint32 NulSoundSys::Enumerate3DProviders(
 	static_cast<void>(id);
 	static_cast<void>(name);
 
-	return {};
+	return 0;
 }
 
 LH3DPOBJECT NulSoundSys::Open3DListener(
@@ -220,7 +220,7 @@ LH3DPOBJECT NulSoundSys::Open3DListener(
 {
 	static_cast<void>(provider_id);
 
-	return {};
+	return nullptr;
 }
 
 void NulSoundSys::Close3DListener(
@@ -342,7 +342,7 @@ std::intptr_t NulSoundSys::Get3DUserData(
 	static_cast<void>(object_ptr);
 	static_cast<void>(index);
 
-	return {};
+	return 0;
 }
 
 LH3DSAMPLE NulSoundSys::Allocate3DSampleHandle(
@@ -350,7 +350,7 @@ LH3DSAMPLE NulSoundSys::Allocate3DSampleHandle(
 {
 	static_cast<void>(driver_id);
 
-	return {};
+	return nullptr;
 }
 
 void NulSoundSys::Release3DSampleHandle(
@@ -398,7 +398,7 @@ sint32 NulSoundSys::Init3DSampleFromAddress(
 	static_cast<void>(playback_rate);
 	static_cast<void>(filter_data_ptr);
 
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::Init3DSampleFromFile(
@@ -414,7 +414,7 @@ sint32 NulSoundSys::Init3DSampleFromFile(
 	static_cast<void>(playback_rate);
 	static_cast<void>(filter_data_ptr);
 
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::Get3DSampleVolume(
@@ -422,7 +422,7 @@ sint32 NulSoundSys::Get3DSampleVolume(
 {
 	static_cast<void>(sample_handle);
 
-	return {};
+	return 0;
 }
 
 void NulSoundSys::Set3DSampleVolume(
@@ -438,7 +438,7 @@ uint32 NulSoundSys::Get3DSampleStatus(
 {
 	static_cast<void>(sample_handle);
 
-	return {};
+	return 0;
 }
 
 void NulSoundSys::Set3DSampleMsPosition(
@@ -456,7 +456,7 @@ sint32 NulSoundSys::Set3DSampleInfo(
 	static_cast<void>(sample_handle);
 	static_cast<void>(sound_info);
 
-	return {};
+	return 0;
 }
 
 void NulSoundSys::Set3DSampleDistances(
@@ -512,7 +512,7 @@ float NulSoundSys::Get3DSampleObstruction(
 {
 	static_cast<void>(sample_handle);
 
-	return {};
+	return 0.0F;
 }
 
 void NulSoundSys::Set3DSampleOcclusion(
@@ -528,7 +528,7 @@ float NulSoundSys::Get3DSampleOcclusion(
 {
 	static_cast<void>(sample_handle);
 
-	return {};
+	return 0.0F;
 }
 
 LHSAMPLE NulSoundSys::AllocateSampleHandle(
@@ -536,7 +536,7 @@ LHSAMPLE NulSoundSys::AllocateSampleHandle(
 {
 	static_cast<void>(driver_ptr);
 
-	return {};
+	return nullptr;
 }
 
 void NulSoundSys::ReleaseSampleHandle(
@@ -596,7 +596,7 @@ sint32 NulSoundSys::GetSampleVolume(
 {
 	static_cast<void>(sample_handle);
 
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::GetSamplePan(
@@ -604,7 +604,7 @@ sint32 NulSoundSys::GetSamplePan(
 {
 	static_cast<void>(sample_handle);
 
-	return {};
+	return 0;
 }
 
 void NulSoundSys::SetSampleUserData(
@@ -654,7 +654,7 @@ sint32 NulSoundSys::InitSampleFromAddress(
 	static_cast<void>(playback_rate);
 	static_cast<void>(filter_data_ptr);
 
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::InitSampleFromFile(
@@ -670,7 +670,7 @@ sint32 NulSoundSys::InitSampleFromFile(
 	static_cast<void>(playback_rate);
 	static_cast<void>(filter_data_ptr);
 
-	return {};
+	return 0;
 }
 
 void NulSoundSys::SetSampleLoopBlock(
@@ -708,7 +708,7 @@ std::intptr_t NulSoundSys::GetSampleUserData(
 	static_cast<void>(sample_handle);
 	static_cast<void>(index);
 
-	return {};
+	return 0;
 }
 
 uint32 NulSoundSys::GetSampleStatus(
@@ -716,7 +716,7 @@ uint32 NulSoundSys::GetSampleStatus(
 {
 	static_cast<void>(sample_handle);
 
-	return {};
+	return 0;
 }
 
 LHSTREAM NulSoundSys::OpenStream(
@@ -732,7 +732,7 @@ LHSTREAM NulSoundSys::OpenStream(
 	static_cast<void>(file_image);
 	static_cast<void>(storage_size);
 
-	return {};
+	return nullptr;
 }
 
 void NulSoundSys::SetStreamLoop(
@@ -776,7 +776,7 @@ std::intptr_t NulSoundSys::GetStreamUserData(
 	static_cast<void>(stream_ptr);
 	static_cast<void>(index);
 
-	return {};
+	return 0;
 }
 
 void NulSoundSys::CloseStream(
@@ -826,7 +826,7 @@ sint32 NulSoundSys::GetStreamVolume(
 {
 	static_cast<void>(stream_ptr);
 
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::GetStreamPan(
@@ -834,7 +834,7 @@ sint32 NulSoundSys::GetStreamPan(
 {
 	static_cast<void>(stream_ptr);
 
-	return {};
+	return 0;
 }
 
 uint32 NulSoundSys::GetStreamStatus(
@@ -842,7 +842,7 @@ uint32 NulSoundSys::GetStreamStatus(
 {
 	static_cast<void>(stream_ptr);
 
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::GetStreamBufferParam(
@@ -852,7 +852,7 @@ sint32 NulSoundSys::GetStreamBufferParam(
 	static_cast<void>(stream_ptr);
 	static_cast<void>(index);
 
-	return {};
+	return 0;
 }
 
 void NulSoundSys::ClearStreamBuffer(
@@ -872,7 +872,7 @@ sint32 NulSoundSys::DecompressADPCM(
 	static_cast<void>(dst_data);
 	static_cast<void>(dst_size);
 
-	return {};
+	return 0;
 }
 
 sint32 NulSoundSys::DecompressASI(
@@ -890,28 +890,33 @@ sint32 NulSoundSys::DecompressASI(
 	static_cast<void>(dst_wav_image_size);
 	static_cast<void>(callback);
 
-	return {};
+	return 0;
 }
 
 uint32 NulSoundSys::GetThreadedSoundTicks()
 {
-	return {};
+	return 0;
 }
 
 bool NulSoundSys::HasOnBoardMemory()
 {
-	return {};
+	return false;
 }
 
-void NulSoundSys::handle_focus_lost(
-	const bool is_focus_lost)
+void NulSoundSys::ltjs_handle_focus_lost(
+	bool is_focus_lost)
 {
 	static_cast<void>(is_focus_lost);
 }
 
-ILTSoundSys::GenericStreamHandle NulSoundSys::open_generic_stream(
-	const int sample_rate,
-	const int buffer_size)
+int NulSoundSys::ltjs_get_generic_stream_queue_size() noexcept
+{
+	return 0;
+}
+
+LtjsLtSoundSysGenericStream* NulSoundSys::ltjs_open_generic_stream(
+	int sample_rate,
+	int buffer_size) noexcept
 {
 	static_cast<void>(sample_rate);
 	static_cast<void>(buffer_size);
@@ -919,70 +924,12 @@ ILTSoundSys::GenericStreamHandle NulSoundSys::open_generic_stream(
 	return nullptr;
 }
 
-void NulSoundSys::close_generic_stream(
-	GenericStreamHandle stream_handle)
+void NulSoundSys::ltjs_close_generic_stream(
+	LtjsLtSoundSysGenericStream* generic_stream) noexcept
 {
-	static_cast<void>(stream_handle);
+	static_cast<void>(generic_stream);
 }
 
-int NulSoundSys::get_generic_stream_queue_size()
-{
-	return 0;
-}
-
-int NulSoundSys::get_generic_stream_free_buffer_count(
-	GenericStreamHandle stream_handle)
-{
-	static_cast<void>(stream_handle);
-
-	return 0;
-}
-
-bool NulSoundSys::enqueue_generic_stream_buffer(
-	GenericStreamHandle stream_handle,
-	const void* buffer)
-{
-	static_cast<void>(stream_handle);
-	static_cast<void>(buffer);
-
-	return false;
-}
-
-bool NulSoundSys::set_generic_stream_pause(
-	GenericStreamHandle stream_handle,
-	const bool is_pause)
-{
-	static_cast<void>(stream_handle);
-	static_cast<void>(is_pause);
-
-	return false;
-}
-
-bool NulSoundSys::get_generic_stream_pause(
-	GenericStreamHandle stream_handle)
-{
-	static_cast<void>(stream_handle);
-
-	return false;
-}
-
-bool NulSoundSys::set_generic_stream_volume(
-	GenericStreamHandle stream_handle,
-	const int ds_volume)
-{
-	static_cast<void>(stream_handle);
-	static_cast<void>(ds_volume);
-
-	return false;
-}
-
-int NulSoundSys::get_generic_stream_volume(
-	GenericStreamHandle stream_handle)
-{
-	static_cast<void>(stream_handle);
-
-	return 0;
-}
 
 NulSoundSys& NulSoundSys::get_singleton()
 {

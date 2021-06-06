@@ -112,7 +112,8 @@ namespace
 {
 
 
-class GenericStream
+class GenericStream final :
+	public LtjsLtSoundSysGenericStream
 {
 public:
 	static constexpr auto channel_count = 2;
@@ -233,8 +234,29 @@ public:
 		ds_buffer_ = nullptr;
 	}
 
-	bool get_pause()
+	// =========================================================================
+	// LtjsLtSoundSysGenericStream
+
+	int get_free_buffer_count() noexcept override
 	{
+		MtLockGuard lock{mt_mutex_};
+
+		if (!is_open_ || is_failed_)
+		{
+			return 0;
+		}
+
+		return queue_size - queued_count_;
+	}
+
+	bool enqueue_buffer(
+		const void* buffer) noexcept override
+	{
+		if (!buffer)
+		{
+			return false;
+		}
+
 		MtLockGuard lock{mt_mutex_};
 
 		if (!is_open_ || is_failed_)
@@ -242,11 +264,23 @@ public:
 			return false;
 		}
 
-		return !is_playing_;
+		if (queued_count_ == queue_size)
+		{
+			return false;
+		}
+
+		const auto src_buffer = static_cast<const std::uint8_t*>(buffer);
+		auto dst_buffer = buffer_queue_[queued_count_];
+
+		std::uninitialized_copy_n(src_buffer, buffer_size_, dst_buffer);
+
+		queued_count_ += 1;
+
+		return true;
 	}
 
 	bool set_pause(
-		const bool is_pause)
+		bool is_pause) noexcept override
 	{
 		MtLockGuard lock{mt_mutex_};
 
@@ -287,20 +321,20 @@ public:
 		return true;
 	}
 
-	int get_volume()
+	bool get_pause() noexcept override
 	{
 		MtLockGuard lock{mt_mutex_};
 
 		if (!is_open_ || is_failed_)
 		{
-			return 0;
+			return false;
 		}
 
-		return ds_volume_;
+		return !is_playing_;
 	}
 
 	bool set_volume(
-		const int ds_volume)
+		int ds_volume) noexcept override
 	{
 		MtLockGuard lock{mt_mutex_};
 
@@ -327,7 +361,7 @@ public:
 		return true;
 	}
 
-	int get_free_buffer_count()
+	int get_volume() noexcept override
 	{
 		MtLockGuard lock{mt_mutex_};
 
@@ -336,38 +370,12 @@ public:
 			return 0;
 		}
 
-		return queue_size - queued_count_;
+		return ds_volume_;
 	}
 
-	bool enqueue_buffer(
-		const void* buffer)
-	{
-		if (!buffer)
-		{
-			return false;
-		}
+	// LtjsLtSoundSysGenericStream
+	// =========================================================================
 
-		MtLockGuard lock{mt_mutex_};
-
-		if (!is_open_ || is_failed_)
-		{
-			return false;
-		}
-
-		if (queued_count_ == queue_size)
-		{
-			return false;
-		}
-
-		const auto src_buffer = static_cast<const std::uint8_t*>(buffer);
-		auto dst_buffer = buffer_queue_[queued_count_];
-
-		std::uninitialized_copy_n(src_buffer, buffer_size_, dst_buffer);
-
-		queued_count_ += 1;
-
-		return true;
-	}
 
 	static GenericStream* add_stream(
 		LPDIRECTSOUND8 ds8,
@@ -394,16 +402,16 @@ public:
 	}
 
 	static void remove_stream(
-		ILTSoundSys::GenericStreamHandle stream_handle)
+		LtjsLtSoundSysGenericStream* generic_stream)
 	{
-		if (!stream_handle)
+		if (!generic_stream)
 		{
 			return;
 		}
 
 		MtLockGuard lock{mt_mixer_mutex_};
 
-		mt_stream_ptrs_to_remove_.emplace_back(static_cast<GenericStream*>(stream_handle));
+		mt_stream_ptrs_to_remove_.emplace_back(static_cast<GenericStream*>(generic_stream));
 
 		for (auto removed_stream_ptr : mt_removed_stream_ptrs_)
 		{
@@ -2650,8 +2658,8 @@ bool CDx8SoundSys::HasOnBoardMemory( )
 	return ( m_dscaps.dwMaxHwMixingStaticBuffers > 0 && m_dscaps.dwMaxHwMixingStreamingBuffers == 0 );
 }
 
-void CDx8SoundSys::handle_focus_lost(
-	const bool is_focus_lost)
+void CDx8SoundSys::ltjs_handle_focus_lost(
+	bool is_focus_lost)
 {
 	static_cast<void>(is_focus_lost);
 }
@@ -2711,105 +2719,22 @@ void CDx8SoundSys::Unlock( void )
 	m_bLocked = false;
 }
 
-ILTSoundSys::GenericStreamHandle CDx8SoundSys::open_generic_stream(
-	const int sample_rate,
-	const int buffer_size)
-{
-	return GenericStream::add_stream(m_pDirectSound, sample_rate, buffer_size);
-}
-
-void CDx8SoundSys::close_generic_stream(
-	GenericStreamHandle stream_handle)
-{
-	return GenericStream::remove_stream(stream_handle);
-}
-
-int CDx8SoundSys::get_generic_stream_queue_size()
+int CDx8SoundSys::ltjs_get_generic_stream_queue_size() noexcept
 {
 	return GenericStream::queue_size;
 }
 
-int CDx8SoundSys::get_generic_stream_free_buffer_count(
-	GenericStreamHandle stream_handle)
+LtjsLtSoundSysGenericStream* CDx8SoundSys::ltjs_open_generic_stream(
+	int sample_rate,
+	int buffer_size) noexcept
 {
-	if (!stream_handle)
-	{
-		return 0;
-	}
-
-	auto& stream = *static_cast<GenericStream*>(stream_handle);
-
-	return stream.get_free_buffer_count();
+	return GenericStream::add_stream(m_pDirectSound, sample_rate, buffer_size);
 }
 
-bool CDx8SoundSys::enqueue_generic_stream_buffer(
-	GenericStreamHandle stream_handle,
-	const void* buffer)
+void CDx8SoundSys::ltjs_close_generic_stream(
+	LtjsLtSoundSysGenericStream* generic_stream) noexcept
 {
-	if (!stream_handle)
-	{
-		return false;
-	}
-
-	auto& stream = *static_cast<GenericStream*>(stream_handle);
-
-	return stream.enqueue_buffer(buffer);
-}
-
-bool CDx8SoundSys::set_generic_stream_pause(
-	GenericStreamHandle stream_handle,
-	const bool is_pause)
-{
-	if (!stream_handle)
-	{
-		return false;
-	}
-
-	auto& stream = *static_cast<GenericStream*>(stream_handle);
-
-	return stream.set_pause(is_pause);
-}
-
-bool CDx8SoundSys::get_generic_stream_pause(
-	GenericStreamHandle stream_handle)
-{
-	if (!stream_handle)
-	{
-		return false;
-	}
-
-	auto& stream = *static_cast<GenericStream*>(stream_handle);
-
-	return stream.get_pause();
-}
-
-bool CDx8SoundSys::set_generic_stream_volume(
-	GenericStreamHandle stream_handle,
-	int level_mb)
-{
-	if (!stream_handle)
-	{
-		return false;
-	}
-
-	auto& stream = *static_cast<GenericStream*>(stream_handle);
-
-	const auto ds_level_mb = ltjs::AudioUtils::generic_stream_level_mb_to_ds_level_mb(level_mb);
-
-	return stream.set_volume(ds_level_mb);
-}
-
-int CDx8SoundSys::get_generic_stream_volume(
-	GenericStreamHandle stream_handle)
-{
-	if (!stream_handle)
-	{
-		return 0;
-	}
-
-	auto& stream = *static_cast<GenericStream*>(stream_handle);
-
-	return stream.get_volume();
+	return GenericStream::remove_stream(generic_stream);
 }
 
 //	===========================================================================
