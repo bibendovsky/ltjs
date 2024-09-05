@@ -10,7 +10,7 @@
 
 #include "stdafx.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include <array>
 #include <random>
 #endif // LTJS_SDL_BACKEND
@@ -35,9 +35,9 @@ extern CGameClientShell* g_pGameClientShell;
 
 #include <direct.h>			// For _rmdir
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 #include "dinput.h"
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 #include <set>
 #include <io.h>
@@ -288,7 +288,7 @@ static bool CreatePlayerGuid( char* pszPlayerGuid, int nSize )
 	// Create the guid.
 	GUID guid;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	using GuidBytes = std::array<unsigned char, sizeof(::GUID)>;
 
 	auto& guid_bytes = reinterpret_cast<GuidBytes&>(guid);

@@ -33,7 +33,7 @@
 #include "timer.h"
 #include "wavefn.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -1136,7 +1136,7 @@ void CInterfaceMgr::UpdateExitingLevelState()
 
 void CInterfaceMgr::UpdateLoadingLevelState()
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	const auto sdl_key_state = ::SDL_GetKeyboardState(nullptr);
 #endif // LTJS_SDL_BACKEND
 
@@ -1166,7 +1166,7 @@ void CInterfaceMgr::UpdateLoadingLevelState()
 			ChangeState(GS_PLAYING);
 		}
 	}
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	else if ((m_bLoadFailed) || (g_pLTClient->IsConnected() && sdl_key_state[::SDL_SCANCODE_ESCAPE]))
 #else
 	else if ((m_bLoadFailed) || (g_pLTClient->IsConnected() && IsKeyDown(VK_ESCAPE)))
@@ -2941,7 +2941,7 @@ LTBOOL CInterfaceMgr::OnKeyDown(int key, int rep)
 
 			switch (key)
 			{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 				case ::SDLK_PAUSE:
 #else
 				case VK_PAUSE:
@@ -2960,7 +2960,7 @@ LTBOOL CInterfaceMgr::OnKeyDown(int key, int rep)
 				break;
 
 				// Escape Key Handling
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 				case ::SDLK_ESCAPE:
 #else
 				case VK_ESCAPE:
@@ -3035,7 +3035,7 @@ LTBOOL CInterfaceMgr::OnKeyUp(int key)
 	// if it's the tilde (~) key then the console has been turned off
 	// (this is the only event that causes this key to ever get processed)
 	// so clear the back buffer to get rid of any part of the console still showing
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	if (key == ::SDLK_BACKQUOTE)
 #else
 	if (key == VK_TILDE)

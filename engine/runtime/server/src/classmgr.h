@@ -153,9 +153,9 @@ public:
 public:
 
 	ClassBindModule		m_ClassModule;
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	CBindModuleType     *m_hServerResourceModule;
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 	ClassDef			*m_pBaseClass;
 	

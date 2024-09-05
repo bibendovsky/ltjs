@@ -14,7 +14,7 @@
 #include "interfacemgr.h"
 #include "gameclientshell.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -359,13 +359,13 @@ LTBOOL CMessageBox::HandleKeyDown(int key, int rep)
 		// when the edit box is not selected
 		if (m_Dlg.GetSelectedControl() != m_pEdit)
 		{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 			if (key == ::SDLK_LEFT)
 #else
 			if (key == VK_LEFT)
 #endif // LTJS_SDL_BACKEND
 				return m_Dlg.OnUp();
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 			if (key == ::SDLK_RIGHT)
 #else
 			if (key == VK_RIGHT)
@@ -380,7 +380,7 @@ LTBOOL CMessageBox::HandleKeyDown(int key, int rep)
     LTBOOL handled = LTFALSE;
 	switch (key)
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_LEFT:
 		case ::SDLK_UP:
 #else
@@ -391,7 +391,7 @@ LTBOOL CMessageBox::HandleKeyDown(int key, int rep)
 			handled = m_Dlg.OnUp();
 			break;
 		}
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_RIGHT:
 		case ::SDLK_DOWN:
 #else
@@ -402,7 +402,7 @@ LTBOOL CMessageBox::HandleKeyDown(int key, int rep)
 			handled = m_Dlg.OnDown();
 			break;
 		}
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_RETURN:
 #else
 	case VK_RETURN:
@@ -411,7 +411,7 @@ LTBOOL CMessageBox::HandleKeyDown(int key, int rep)
 			handled = m_Dlg.OnEnter();
 			break;
 		}
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_ESCAPE:
 #else
 	case VK_ESCAPE:

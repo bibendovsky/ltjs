@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <mbstring.h>
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 
 #include "ltjs_shared_data_mgr.h"
@@ -51,11 +51,11 @@ namespace
 	char*	s_sBuf    = LTNULL;
 }
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 static char* GetTextBuffer(const char* sName);
 #else
 static const char* GetTextBuffer(const char* sName);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 
 // Functions...
@@ -732,7 +732,7 @@ void CCredits::HandleInput(int vkey)
 
 	switch (vkey)
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_UP:
 #else
 		case VK_UP:
@@ -743,7 +743,7 @@ void CCredits::HandleInput(int vkey)
 			break;
 		}
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_DOWN:
 #else
 		case VK_DOWN:
@@ -754,7 +754,7 @@ void CCredits::HandleInput(int vkey)
 			break;
 		}
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_HOME:
 #else
 		case VK_HOME:
@@ -765,7 +765,7 @@ void CCredits::HandleInput(int vkey)
 			break;
 		}
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_RETURN:
 		case ::SDLK_SPACE:
 		case ::SDLK_PAGEDOWN:
@@ -793,7 +793,7 @@ void CCredits::HandleInput(int vkey)
 			break;
 		}
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_PAGEUP:
 #else
 		case VK_PRIOR:
@@ -804,7 +804,7 @@ void CCredits::HandleInput(int vkey)
 			break;
 		}
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_PAUSE:
 #else
 		case VK_PAUSE:
@@ -815,7 +815,7 @@ void CCredits::HandleInput(int vkey)
 			break;
 		}
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_ESCAPE:
 #else
 		case VK_ESCAPE:
@@ -930,11 +930,11 @@ void CCredits::AddCredits()
 		default: sName = "CREDITS";
 	}
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	char* sBuf = GetTextBuffer(sName);
 #else
 	auto sBuf = GetTextBuffer(sName);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 	if (!sBuf) return;
 
 
@@ -1004,7 +1004,7 @@ CCredit* CCredits::GetCredit(uint16 iCredit)
 
 // Functions...
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 char* GetTextBuffer(const char* sName)
 {
 	//if (s_sBuf)
@@ -1045,4 +1045,4 @@ const char* GetTextBuffer(
 
 	return text->data.data;
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND

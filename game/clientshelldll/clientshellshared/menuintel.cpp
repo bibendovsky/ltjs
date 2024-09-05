@@ -14,7 +14,7 @@
 #include "clientresshared.h"
 #include "missionmgr.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -301,7 +301,7 @@ LTBOOL CMenuIntel::HandleKeyDown(int key, int rep)
 {
 	// Close popup if necessary...Use OnEscape
 	// to handle escape key...
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	if (m_PopupText.IsVisible() && (::SDLK_ESCAPE != key))
 #else
 	if (m_PopupText.IsVisible() && (VK_ESCAPE != key))

@@ -11,10 +11,10 @@ struct RMode;
 //  Functions that used to be extracted from the render DLL with GetProcAddress
 //  but are now staticly linked.
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 extern RMode* rdll_GetSupportedModes();
 extern void rdll_FreeModeList(RMode *pModes);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 extern void rdll_RenderDLLSetup(RenderStruct *pStruct);
 

@@ -11,7 +11,7 @@
 //-------------------------------------------------------------------
 
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 
 
 #include <string>
@@ -1285,4 +1285,4 @@ bool CUIVectorFont::CreateFontTextureAndTable( InstalledFontFace& installedFontF
 	return bOk;
 }
 
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND

@@ -18,7 +18,7 @@
 
 #include "gameclientshell.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -455,7 +455,7 @@ LTBOOL CScreenJoinLAN::Render(HSURFACE hDestSurf)
 
 LTBOOL CScreenJoinLAN::HandleKeyDown(int key, int rep)
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	if (key == ::SDLK_F5)
 #else
 	if (key == VK_F5)

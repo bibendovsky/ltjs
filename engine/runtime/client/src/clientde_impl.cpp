@@ -44,7 +44,7 @@
 #include "lteffectshadermgr.h"
 #include "ltinfo_impl.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "ltjs_shared_data_mgr.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -1298,7 +1298,7 @@ uint32 CLTClient::GetContainedObjects(HOBJECT hContainer,
 
 HSTRING CLTClient::FormatString(int messageCode, ...)
 {
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	uint8 *pBuffer;
 	int bufferLen;
 	va_list marker;
@@ -1338,7 +1338,7 @@ HSTRING CLTClient::FormatString(int messageCode, ...)
 			return ret;
 		}
 	}
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 	return LTNULL;
 }

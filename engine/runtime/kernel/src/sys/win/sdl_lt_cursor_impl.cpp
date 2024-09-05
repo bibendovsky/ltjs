@@ -1,7 +1,7 @@
 #include "bdefs.h"
 
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 
 
 #include "SDL.h"

@@ -15,7 +15,7 @@
 #include "soundmgr.h"
 #include "transitionfxmgr.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -106,7 +106,7 @@ void CScreenMgr::HandleKeyDown (int vkey, int rep)
 {
 	if (m_pCurrentScreen)
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		if (vkey == ::SDLK_ESCAPE)
 #else
 		if (vkey == VK_ESCAPE)

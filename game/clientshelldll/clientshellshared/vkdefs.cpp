@@ -11,7 +11,7 @@
 #include "stdafx.h"
 
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 
 
 #include "iltclient.h"
@@ -98,4 +98,4 @@ char VKToASCII (int nKey)
 }
 
 
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND

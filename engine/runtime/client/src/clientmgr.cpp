@@ -433,21 +433,21 @@ void CClientMgr::TermClientShellDE()
 
     if (m_hClientResourceModule)
     {
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
         bm_UnbindModule(m_hClientResourceModule);
         m_hClientResourceModule = NULL;
 #else
 		m_hClientResourceModule = nullptr;
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
     }
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
     if (m_hLocalizedClientResourceModule)
     {
         bm_UnbindModule(m_hLocalizedClientResourceModule);
         m_hLocalizedClientResourceModule = NULL;
     }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 }
 
 
@@ -1205,9 +1205,9 @@ void cm_Init()
     g_pClientMgr->m_bInCurShellUpdate = false;
     g_pClientMgr->m_hShellModule = NULL;
     g_pClientMgr->m_hClientResourceModule = NULL;
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
     g_pClientMgr->m_hLocalizedClientResourceModule = NULL;
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
     LTStrCpy(g_pClientMgr->m_MusicDLLName, "cdaudio.dll", sizeof(g_pClientMgr->m_MusicDLLName));
     g_pClientMgr->m_MusicMgr.m_bValid = 0;
 

@@ -8,7 +8,7 @@
 #include "ctype.h"
 #include <locale.h>
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -372,7 +372,7 @@ LTBOOL CLTGUIEditCtrl::HandleKeyDown(int key, int rep)
 
 	switch (key)
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_BACKSPACE:
 #else
 	case VK_BACK:
@@ -383,21 +383,21 @@ LTBOOL CLTGUIEditCtrl::HandleKeyDown(int key, int rep)
 			RemoveCharacter();
 		}
 		break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_DELETE:
 #else
 	case VK_DELETE:
 #endif // LTJS_SDL_BACKEND
 		RemoveCharacter();
 		break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_HOME:
 #else
 	case VK_HOME:
 #endif // LTJS_SDL_BACKEND
 		m_nCaretPos = 0;
 		break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_END:
 #else
 	case VK_END:
@@ -405,14 +405,14 @@ LTBOOL CLTGUIEditCtrl::HandleKeyDown(int key, int rep)
 		if (m_pText)
 			m_nCaretPos = m_pText->GetLength();
 		break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_LEFT:
 #else
 	case VK_LEFT:
 #endif // LTJS_SDL_BACKEND
 		if (m_nCaretPos > 0) m_nCaretPos--;
 		break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_RIGHT:
 #else
 	case VK_RIGHT:

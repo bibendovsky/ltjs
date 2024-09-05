@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -781,7 +781,7 @@ LTBOOL CScreenJoin::Render(HSURFACE hDestSurf)
 
 LTBOOL CScreenJoin::HandleKeyDown(int key, int rep)
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	if (key == ::SDLK_F5)
 #else
 	if (key == VK_F5)

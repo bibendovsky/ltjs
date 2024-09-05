@@ -1670,7 +1670,7 @@ static LTRESULT cis_GetEngineHook(const char *pName, void **pData)
 {
 	if(stricmp(pName, "hwnd") == 0)
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		*pData = &g_ClientGlob.m_hMainWnd;
 #else
 		*pData = g_ClientGlob.m_hMainWnd;
@@ -1678,7 +1678,7 @@ static LTRESULT cis_GetEngineHook(const char *pName, void **pData)
 
 		return LT_OK;
 	}
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	else if(stricmp(pName, "cres_hinstance")==0)
 	{
 		return bm_GetInstanceHandle(g_pClientMgr->m_hClientResourceModule, pData);
@@ -1687,7 +1687,7 @@ static LTRESULT cis_GetEngineHook(const char *pName, void **pData)
 	{
 		return bm_GetInstanceHandle(g_pClientMgr->m_hLocalizedClientResourceModule, pData);
 	}
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 	else if(stricmp(pName, "cshell_hinstance")==0)
 	{
 		return bm_GetInstanceHandle(g_pClientMgr->m_hShellModule, pData);
@@ -1698,7 +1698,7 @@ static LTRESULT cis_GetEngineHook(const char *pName, void **pData)
 		*pData = (void*)r_GetRenderStruct()->GetD3DDevice();
 		return LT_OK;
 	}
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	else if (stricmp(pName, "system_event_handler_mgr") == 0)
 	{
 		*pData = g_ClientGlob.system_event_mgr->get_handler_mgr();

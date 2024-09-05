@@ -16,7 +16,7 @@
 #include "clientsoundmgr.h"
 #include "scmdconsole.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -177,7 +177,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 {
 	switch (key)
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_ESCAPE:
 #else
 	case VK_ESCAPE:
@@ -187,7 +187,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 		return LTTRUE;
 	} break;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_RETURN:
 #else
 	case VK_RETURN:
@@ -197,7 +197,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 		return LTTRUE;
 	} break;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_UP:
 #else
 	case VK_UP:
@@ -213,7 +213,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 		return LTTRUE;
 	} break;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_DOWN:
 #else
 	case VK_DOWN:
@@ -229,7 +229,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 		return LTTRUE;
 	} break;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_PAGEDOWN:
 #else
 	case VK_PRIOR:
@@ -239,7 +239,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 		return LTTRUE;
 	} break;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_PAGEUP:
 #else
 	case VK_NEXT:

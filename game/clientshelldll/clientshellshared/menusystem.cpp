@@ -15,7 +15,7 @@
 #include "clientmultiplayermgr.h"
 #include "clientsaveloadmgr.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -96,7 +96,7 @@ LTBOOL CMenuSystem::Init()
 	uint16 nServerCtrlId = AddControl("",0,LTTRUE);
 	m_pServerCtrl = ( CLTGUITextCtrl* )m_List.GetControl( nServerCtrlId );
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	g_pInterfaceMgr->GetMenuMgr()->RegisterHotKey(::SDLK_ESCAPE, MENU_ID_SYSTEM);
 #else
 	g_pInterfaceMgr->GetMenuMgr()->RegisterHotKey(VK_ESCAPE,MENU_ID_SYSTEM);

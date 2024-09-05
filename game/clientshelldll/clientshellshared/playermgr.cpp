@@ -44,7 +44,7 @@
 #include "lteulerangles.h"
 #include "doomsdaypiecefx.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -775,7 +775,7 @@ LTBOOL CPlayerMgr::OnKeyDown(int key, int rep)
 
 	if (m_bUsingExternalCamera)
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		if (key == ::SDLK_SPACE)
 #else
 		if (key == VK_SPACE)

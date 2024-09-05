@@ -19,7 +19,7 @@
 #include "soundmgr.h"
 #include "clientservershared.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "ltjs_shell_resource_mgr.h"
 #include "ltjs_shell_string_formatter.h"
 #endif // LTJS_SDL_BACKEND
@@ -113,16 +113,16 @@ LTRESULT SendEmptyServerMsg(uint32 nMsgID, uint32 nFlags = MESSAGE_GUARANTEED);
 //load and/or format a string from CRes
 const int kMaxStringBuffer = 2048;
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 void FormatString(int messageCode, char *outBuf, int outBufLen,  ...);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 void LoadString(int messageCode, char *outBuf, int outBufLen);
 
 //load and format a string from CRes and return a pointer to a static buffer containing that string
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 char* FormatTempString(int messageCode, ...);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 char* LoadTempString(int messageCode);
 
@@ -139,7 +139,7 @@ LTVector GetContouringNormal( LTVector &vPos, LTVector &vDims, LTVector &vForwar
 void GetContouringInfo( LTVector &vForward, LTVector &vNormal, float &fOutAmount, float &fOutPitchPercent, float &fOutRollPercent );
 
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 void ltjs_format_string(
 	int messageCode,
 	char* outBuf,

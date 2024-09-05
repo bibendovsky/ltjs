@@ -13,7 +13,7 @@
 
 #include "bdefs.h"
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 #include "dinput.h"
 #include "concommand.h"
 #include "console.h"
@@ -2878,4 +2878,4 @@ LTRESULT input_GetManager(InputMgr **pMgr)
 }
 
 
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND

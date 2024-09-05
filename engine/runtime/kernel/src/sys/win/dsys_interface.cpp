@@ -1,4 +1,4 @@
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include <cassert>
 
 #include <memory>
@@ -19,7 +19,7 @@
 #include "bindmgr.h"
 #include "console.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "ltjs_shared_data_mgr.h"
 #include "ltjs_shell_resource_mgr.h"
 #endif // LTJS_SDL_BACKEND
@@ -84,7 +84,7 @@ void dsi_OnReturnError(int err) {
 
 
 LTBOOL g_bComInitialized = LTFALSE;
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 HINSTANCE g_hResourceModule = LTNULL;
 #else
 ltjs::ShellResourceMgr* g_hResourceModule = nullptr;
@@ -136,7 +136,7 @@ LTSysResultString g_StringMap[] = {
 // Internal functions.
 // --------------------------------------------------------------- //
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 static LTBOOL dsi_LoadResourceModule() {
     g_hResourceModule = LoadLibrary("ltjs_ltmsg.dll");
 
@@ -171,9 +171,9 @@ static LTBOOL dsi_LoadResourceModule()
 
 	return g_hResourceModule != nullptr;
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 static void dsi_UnloadResourceModule() {
     if (g_hResourceModule) {
         FreeLibrary(g_hResourceModule);
@@ -185,9 +185,9 @@ static void dsi_UnloadResourceModule()
 {
 	g_hResourceModule = nullptr;
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 LTRESULT dsi_SetupMessage(char *pMsg, int maxMsgLen, LTRESULT dResult, va_list marker) {
     int i;
     unsigned long resultCode, stringID;
@@ -293,7 +293,7 @@ LTRESULT dsi_SetupMessage(
 
 	return LT_ERROR;
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 // --------------------------------------------------------------- //
 // External functions.
@@ -471,7 +471,7 @@ LTRESULT dsi_LoadServerObjects(
 		RETURN_ERROR_PARAM(1, LoadObjectsInDirectory, LT_INVALIDOBJECTDLLVERSION, object_file_name.c_str());
 	}
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	// Get sres.dll.
 	const auto sres_file_name = ltjs::ul::PathUtils::append("game", "ltjs_sres.dll");
 
@@ -482,7 +482,7 @@ LTRESULT dsi_LoadServerObjects(
 		sm_SetupError(LT_ERRORCOPYINGFILE, sres_file_name.c_str());
 		RETURN_ERROR_PARAM(1, LoadServerObjects, LT_ERRORCOPYINGFILE, sres_file_name.c_str());
 	}
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 	//let the dll know it's instance handle.
 	if (instance_handle_server != NULL)
@@ -505,7 +505,7 @@ void dsi_ServerSleep(uint32 ms) {
 
 extern int32 g_ScreenWidth, g_ScreenHeight; // Console variables.
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 static void dsi_GetDLLModes(char *pDLLName, RMode **pMyList) {
     RMode *pMyMode;
     RMode *pListHead, *pCur;
@@ -605,9 +605,9 @@ RMode* dsi_GetRenderModes()
 
 	return api_modes.release();
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 void dsi_RelinquishRenderModes(RMode *pMode) {
     RMode *pCur, *pNext;
 
@@ -624,7 +624,7 @@ void dsi_RelinquishRenderModes(
 {
 	delete[] pMode;
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 LTRESULT dsi_GetRenderMode(RMode *pMode) {
     memcpy(pMode, &g_RMode, sizeof(RMode));
@@ -637,12 +637,12 @@ LTRESULT dsi_SetRenderMode(RMode *pMode) {
     char message[256];
     
     if (r_TermRender(1, false) != LT_OK) {
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
         dsi_SetupMessage(message, sizeof(message)-1, LT_UNABLETORESTOREVIDEO, LTNULL);
 #else
 		auto formatter = ltjs::ShellStringFormatter{};
 		dsi_SetupMessage(message, sizeof(message)-1, LT_UNABLETORESTOREVIDEO, formatter);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
         dsi_OnClientShutdown(message);
         RETURN_ERROR(0, SetRenderMode, LT_UNABLETORESTOREVIDEO);
     }
@@ -670,7 +670,7 @@ LTRESULT dsi_ShutdownRender(uint32 flags) {
     r_TermRender(1, true);
 
     if (flags & RSHUTDOWN_MINIMIZEWINDOW) {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		::SDL_MinimizeWindow(g_ClientGlob.m_hMainWnd.sdl_window);
 #else
         ShowWindow(g_ClientGlob.m_hMainWnd, SW_MINIMIZE);
@@ -678,7 +678,7 @@ LTRESULT dsi_ShutdownRender(uint32 flags) {
     }
 
     if (flags & RSHUTDOWN_HIDEWINDOW) {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		::SDL_HideWindow(g_ClientGlob.m_hMainWnd.sdl_window);
 #else
         ShowWindow(g_ClientGlob.m_hMainWnd, SW_HIDE);
@@ -813,9 +813,9 @@ LTRESULT dsi_InitClientShellDE()
 	int status;
 
 	g_pClientMgr->m_hClientResourceModule = nullptr;
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	g_pClientMgr->m_hLocalizedClientResourceModule = nullptr;
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 	g_pClientMgr->m_hShellModule = nullptr;
 
 	// Setup the cshell.dll file.
@@ -838,7 +838,7 @@ LTRESULT dsi_InitClientShellDE()
 		RETURN_ERROR(1, InitClientShellDE, LT_INVALIDSHELLDLL);
 	}
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	//
 	// Try to setup cres.dll.
 	//
@@ -857,7 +857,7 @@ LTRESULT dsi_InitClientShellDE()
 		g_pClientMgr->SetupError(LT_INVALIDSHELLDLL, cres_file_name.c_str());
 		RETURN_ERROR_PARAM(1, InitClientShellDE, LT_INVALIDSHELLDLL, cres_file_name.c_str());
 	}
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 	//let the dll know it's instance handle.
 	if (instance_handle_client)
@@ -931,7 +931,7 @@ void dsi_ClearKeyUps() {
 }
 
 void dsi_ClearKeyMessages() {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	::SDL_FlushEvent(SDL_KEYDOWN);
 	::SDL_FlushEvent(SDL_KEYUP);
 #else
@@ -991,7 +991,7 @@ void dsi_OnClientShutdown(char *pMsg) {
     }
 	
     if (g_ClientGlob.m_bProcessWindowMessages) {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		g_ClientGlob.system_event_mgr->post_quit_event();
 #else
         PostQuitMessage(0);
@@ -1028,7 +1028,7 @@ void* dsi_GetInstanceHandle() {
 }
 
 void* dsi_GetMainWindow() {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	return &g_ClientGlob.m_hMainWnd;
 #else
     return (void*)g_ClientGlob.m_hMainWnd;
@@ -1039,7 +1039,7 @@ LTRESULT dsi_DoErrorMessage(const char *pMessage) {
     con_PrintString(CONRGB(255,255,255), 0, pMessage);
     
     if (!g_Render.m_bInitted) {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		::SDL_ShowSimpleMessageBox(
 			::SDL_MESSAGEBOX_ERROR,
 			g_ClientGlob.m_WndCaption,
@@ -1055,7 +1055,7 @@ LTRESULT dsi_DoErrorMessage(const char *pMessage) {
 }
 
 void dsi_MessageBox(const char *pMessage, const char *pTitle) {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		::SDL_ShowSimpleMessageBox(
 			::SDL_MESSAGEBOX_INFORMATION,
 			pTitle,
@@ -1072,7 +1072,7 @@ LTRESULT dsi_GetVersionInfo(LTVersionInfo &info) {
     return GetLTExeVersion(g_ClientGlob.m_hInstance, info);
 }
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 void* dsi_get_system_event_handler_mgr() noexcept
 {
 	return g_ClientGlob.system_event_mgr->get_handler_mgr();

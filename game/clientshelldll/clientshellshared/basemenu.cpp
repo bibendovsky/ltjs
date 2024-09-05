@@ -13,7 +13,7 @@
 #include "basemenu.h"
 #include "interfacemgr.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -49,7 +49,7 @@ LTBOOL CSubMenu::Init(HTEXTURE hFrame,HTEXTURE hFrameTip, LTIntPt size)
 
 LTBOOL CSubMenu::HandleKeyUp (int vkey )
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	if (vkey == ::SDLK_ESCAPE)
 #else
 	if (vkey == VK_ESCAPE)

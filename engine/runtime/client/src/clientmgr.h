@@ -62,7 +62,7 @@ class CLTRealVideoMgr;
 #include "watermark.h"
 #endif
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include <utility>
 #endif // LTJS_SDL_BACKEND
 
@@ -77,7 +77,7 @@ class CLTRealVideoMgr;
 #include "version_info.h"
 #endif
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "ltjs_shell_string_formatter.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -273,9 +273,9 @@ class CClientMgr {
 
         // The ClientShellDE we're using.
         CBindModuleType         *m_hClientResourceModule;
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
         CBindModuleType         *m_hLocalizedClientResourceModule;
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
         CBindModuleType         *m_hShellModule;
 
         char                    m_ErrorString[MAX_CLIENTERRORSTRING_LEN+1];
@@ -470,7 +470,7 @@ class CClientMgr {
         // ------------------------------------------------------------------ //
 
         // Sets up the error string for the error.
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
         LTRESULT SetupError(LTRESULT theError, ...);
 #else
 	private:
@@ -489,7 +489,7 @@ class CClientMgr {
 			auto formatter = ltjs::ShellStringFormatter{std::forward<TArgs>(args)...};
 			return ltjs_setup_error(theError, formatter);
 		}
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
         // Processes an error (disconnects, prints error message, etc).  This will
         // usually return LT_OK, but may return LT_ERROR if the error was fatal

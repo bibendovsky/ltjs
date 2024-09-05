@@ -41,7 +41,7 @@ bool CD3D_Device::CreateDevice(D3DAdapterInfo* pAdapter,D3DDeviceInfo* pDevice,D
 	// Create the sucka...
  	uint32 BehaviorFlags = D3DCREATE_MULTITHREADED;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	BehaviorFlags |= D3DCREATE_NOWINDOWCHANGES;
 #endif // LTJS_SDL_BACKEND
 
@@ -54,7 +54,7 @@ bool CD3D_Device::CreateDevice(D3DAdapterInfo* pAdapter,D3DDeviceInfo* pDevice,D
 	SetPresentationParams(PresentationParam,pMode);
 	IDirect3DDevice9 *pD3DDevice;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	auto hResult = PDIRECT3D->CreateDevice(
 		pAdapter->iAdapterNum,
 		pDevice->DeviceType,
@@ -74,7 +74,7 @@ bool CD3D_Device::CreateDevice(D3DAdapterInfo* pAdapter,D3DDeviceInfo* pDevice,D
 		OutputDebugString("Warning: Create failed. Attempting to fall back...\n");
 		TryFallingBack_OnFailedDevCreate(&PresentationParam);
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		hResult = PDIRECT3D->CreateDevice(
 			pAdapter->iAdapterNum,
 			pDevice->DeviceType,
@@ -379,7 +379,7 @@ void CD3D_Device::SetPresentationParams(D3DPRESENT_PARAMETERS& PresentationParam
 	PresentationParam.MultiSampleQuality				= 0;
 	PresentationParam.SwapEffect						= SwapEffect;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	PresentationParam.hDeviceWindow = static_cast<HWND>(g_hWnd->native_handle);
 #else
 	PresentationParam.hDeviceWindow						= g_hWnd;

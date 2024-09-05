@@ -23,7 +23,7 @@
 #include "debuggeometry.h"
 #include "sysdrawprim.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 
 #include "ltjs_sdl_utils.h"
@@ -72,7 +72,7 @@ CConIterator g_ConEmptyIterator;
 // Convenience functions...
 inline bool IsKeyDown( uint16 vkKey ) 
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	return (::SDL_GetModState() & vkKey) != 0;
 #else
 	return ((GetAsyncKeyState( VK_CONTROL ) & 0x8000) != 0);
@@ -343,7 +343,7 @@ void CConCommandBox::MoveWord( int iOffset )
 
 char CConCommandBox::TranslateKey(uint32 key) const
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	return ltjs::sdl_utils::key_code_to_char(static_cast<int>(key));
 #else
 	char aResult[2];
@@ -371,7 +371,7 @@ char CConCommandBox::TranslateKey(uint32 key) const
 
 void CConCommandBox::OnKeyPress(uint32 key)
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	switch (key)
 	{
 		case ::SDLK_ESCAPE:
@@ -702,9 +702,9 @@ CConsole::CConsole()
 {
 	m_pFontBitmapData = LTNULL;
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	m_hWnd = 0;
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 	m_CommandHandler = LTNULL;
 	m_FilterLevel = 1;
@@ -738,9 +738,9 @@ CConsole::~CConsole()
 
 bool CConsole::Init(const LTRect *pRect, CommandHandler handler, RenderStruct *pStruct, CConIterator *pCompletionIterator )
 {
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	HWND hWnd = (HWND)dsi_GetMainWindow();
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 	if ( m_bInitTerminate )
 		Term( false );
@@ -750,9 +750,9 @@ bool CConsole::Init(const LTRect *pRect, CommandHandler handler, RenderStruct *p
 		Term(true);
 		return false; }
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	m_hWnd = hWnd;
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 	// Note : This has no effect now that the window position is in a console variable
 	m_ScrRect = *pRect;
@@ -799,9 +799,9 @@ void CConsole::Term(bool bDeleteTextLines)
 	TermFont();
 	GetCommandBox()->Term();
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	m_hWnd = 0;
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 	m_CommandHandler = LTNULL;
 	m_pStruct = LTNULL;
@@ -1677,7 +1677,7 @@ void CConsole::Printf(CONCOLOR theColor, int filterLevel, const char *pMsg, ...)
 
 void CConsole::OnKeyPress(uint32 key)
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	switch (key)
 	{
 		case ::SDLK_RETURN:

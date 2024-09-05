@@ -11,7 +11,7 @@
 //-------------------------------------------------------------------
 
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 
 
 #include <cmath>

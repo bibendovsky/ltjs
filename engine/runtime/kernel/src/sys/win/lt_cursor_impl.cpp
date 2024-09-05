@@ -1,9 +1,9 @@
 #include "bdefs.h"
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 #include "iltcursor.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -90,7 +90,7 @@ define_interface(CLTCursor, ILTCursor);
 
 LTRESULT CLTCursor::PreSetMode(CursorMode eNewMode)
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	auto cursor_mode = -1;
 
 	switch (eNewMode)
@@ -242,7 +242,7 @@ LTRESULT CLTCursor::LoadCursorBitmapResource(const char *pName, HLTCURSOR &hCurs
 
 LTRESULT CLTCursor::RefreshCursor()
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	auto cursor_mode = -1;
 
 	switch (m_eCursorMode)
@@ -288,4 +288,4 @@ LTRESULT CLTCursor::RefreshCursor()
     return LT_OK;
 #endif
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND

@@ -15,7 +15,7 @@
 #define __CUIFORMATTEDPOLYSTRING_IMPL_H__
 
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include <vector>
 #endif // LTJS_SDL_BACKEND
 
@@ -79,7 +79,7 @@ class CUIFormattedPolyString_Impl : public CUIPolyString_Impl
 
 		uint8*				m_pLetters;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		using LtjsIsNewLineOrSpaceLetter = std::vector<bool>;
 
 		LtjsIsNewLineOrSpaceLetter ltjs_is_newline_or_space_letter_{};

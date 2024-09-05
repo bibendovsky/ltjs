@@ -13,7 +13,7 @@
 #include "stdafx.h"
 #include <stdlib.h>
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include <cassert>
 
 #include <algorithm>
@@ -28,7 +28,7 @@
 #include "clientservershared.h"
 #include "clientmultiplayermgr.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "ltjs_ascii.h"
 #include "ltjs_language_mgr.h"
 #include "ltjs_shared_data_mgr.h"
@@ -381,7 +381,7 @@ LTRESULT SendEmptyServerMsg(uint32 nMsgID, uint32 nFlags)
 
 
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 void FormatString(int messageCode, char *outBuf, int outBufLen,  ...)
 {
     va_list marker;
@@ -435,9 +435,9 @@ void ltjs_format_string(
 		}
 	}
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 void LoadString(int messageCode, char *outBuf, int outBufLen)
 {
 	void* pModule;
@@ -472,11 +472,11 @@ void LoadString(
 
 	cres_mgr->load_string(messageCode, outBuf, outBufLen);
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 static char s_szStringBuffer[kMaxStringBuffer];
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 char* FormatTempString(int messageCode, ...)
 {
     va_list marker;
@@ -531,9 +531,9 @@ char* ltjs_format_temp_string(
 
 	return s_szStringBuffer;
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 char* LoadTempString(int messageCode)
 {
 	void* pModule;
@@ -565,7 +565,7 @@ char* LoadTempString(
 
 	return s_szStringBuffer;
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 // --------------------------------------------------------------------------- //
 //
@@ -747,7 +747,7 @@ void GetContouringInfo( LTVector &vForward, LTVector &vNormal,
 	fOutAmount = MATH_HALFPI - (float)atan2( vNormal.y, fXZLen );
 }
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 ltjs::ShellResourceMgr* ltjs_get_cres_mgr()
 {
 	return ltjs::get_shared_data_mgr().get_cres_mgr();

@@ -18,7 +18,7 @@
 #include "transitionfxmgr.h"
 #include "fxbutemgr.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -537,7 +537,7 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 
 	switch (key)
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_LEFT:
 #else
 	case VK_LEFT:
@@ -549,7 +549,7 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 				handled = OnLeft();
 			break;
 		}
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_RIGHT:
 #else
 	case VK_RIGHT:
@@ -561,7 +561,7 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 				handled = OnRight();
 			break;
 		}
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_UP:
 #else
 	case VK_UP:
@@ -573,7 +573,7 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 				handled = OnUp();
 			break;
 		}
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_DOWN:
 #else
 	case VK_DOWN:
@@ -585,7 +585,7 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 				handled = OnDown();
 			break;
 		}
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_RETURN:
 #else
 	case VK_RETURN:
@@ -607,7 +607,7 @@ LTBOOL CBaseScreen::HandleKeyDown(int key, int rep)
 				if (pCtrl)
 				{
 					handled = pCtrl->HandleKeyDown(key,rep);
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 					if (handled && (key == ::SDLK_PAGEDOWN || key == ::SDLK_PAGEUP))
 #else
 					if (handled && (key == VK_NEXT || key == VK_PRIOR))
@@ -2256,7 +2256,7 @@ void HandleEditKey(int key)
 {
 	switch (key)
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_LEFT:
 #else
 	case VK_LEFT:
@@ -2264,7 +2264,7 @@ void HandleEditKey(int key)
 		{
 			vSFXPos.x -= fEditDelta;
 		} break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_RIGHT:
 #else
 	case VK_RIGHT:
@@ -2272,7 +2272,7 @@ void HandleEditKey(int key)
 		{
 			vSFXPos.x += fEditDelta;
 		} break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_UP:
 #else
 	case VK_UP:
@@ -2280,7 +2280,7 @@ void HandleEditKey(int key)
 		{
 			vSFXPos.y += fEditDelta;
 		} break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_DOWN:
 #else
 	case VK_DOWN:
@@ -2288,7 +2288,7 @@ void HandleEditKey(int key)
 		{
 			vSFXPos.y -= fEditDelta;
 		} break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_a:
 #else
 	case VK_A:
@@ -2296,7 +2296,7 @@ void HandleEditKey(int key)
 		{
 			vSFXScale.x -= fEditDelta / 10.0f;
 		} break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_d:
 #else
 	case VK_D:
@@ -2304,7 +2304,7 @@ void HandleEditKey(int key)
 		{
 			vSFXScale.x += fEditDelta / 10.0f;
 		} break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_w:
 #else
 	case VK_W:
@@ -2312,7 +2312,7 @@ void HandleEditKey(int key)
 		{
 			vSFXScale.y -= fEditDelta / 10.0f;
 		} break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_s:
 #else
 	case VK_S:
@@ -2320,7 +2320,7 @@ void HandleEditKey(int key)
 		{
 			vSFXScale.y += fEditDelta / 10.0f;
 		} break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_PAGEDOWN:
 #else
 	case VK_PRIOR:
@@ -2329,7 +2329,7 @@ void HandleEditKey(int key)
 			fEditDelta *= 10.0f;
 			g_pLTClient->CPrint("Edit scale = %0.3f",fEditDelta);
 		}break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_PAGEUP:
 #else
 	case VK_NEXT:
@@ -2338,7 +2338,7 @@ void HandleEditKey(int key)
 			fEditDelta /= 10.0f;
 			g_pLTClient->CPrint("Edit scale = %0.3f",fEditDelta);
 		}break;
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_RETURN:
 #else
 	case VK_RETURN:

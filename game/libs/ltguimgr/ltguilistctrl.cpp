@@ -12,7 +12,7 @@
 #include "ltguilistctrl.h"
 #include "vkdefs.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -143,13 +143,13 @@ uint16	CLTGUIListCtrl::GetWidth ( )
 // Handle a keypress
 LTBOOL CLTGUIListCtrl::HandleKeyDown(int key, int rep)
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	if (key == ::SDLK_PAGEDOWN)
 #else
 	if (key == VK_PRIOR)
 #endif // LTJS_SDL_BACKEND
 		return OnPageUp();
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	if (key == ::SDLK_PAGEUP)
 #else
 	if (key == VK_NEXT)

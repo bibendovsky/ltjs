@@ -19,7 +19,7 @@
 // Shadow texture map related includes...
 #include "..\shadows\d3dshadowtexture.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 
 #include "ltjs_main_window_descriptor.h"
@@ -28,10 +28,10 @@
 
 RMode* g_pModeList;
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 RMode* rdll_GetSupportedModes();
 void rdll_FreeModeList(RMode *pModes);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 void rdll_RenderDLLSetup(RenderStruct *pStruct);
 
@@ -113,16 +113,16 @@ void d3d_Term(bool bFullTerm)						// We don't do a FullTerm on Alt-Tab (will be
 		g_bInStandby = g_Device.Standby();
 	}
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	ShowCursor(true);							// Show the cursor
 #else
 	::SDL_ShowCursor(::SDL_TRUE);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 }
 
 int d3d_Init(RenderStructInit *pInit)
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	char* pStr;
 #else
 	char* pStr; RECT wndRect,screenRect;
@@ -143,7 +143,7 @@ int d3d_Init(RenderStructInit *pInit)
 	g_bRunWindowed = (pStr && atoi(pStr) == 1);
 
 	// Init globals.
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	// BBi No real fullscreen anymore.
 	g_bRunWindowed = true;
 
@@ -237,11 +237,11 @@ int d3d_Init(RenderStructInit *pInit)
 	// We're definitely not in standby mode any more
 	g_bInStandby = false;
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	ShowCursor(false);
 #else
 	::SDL_ShowCursor(::SDL_FALSE);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 	g_Device.RestoreDevObjects();					// Let the render objects restore their D3D data (if there is any already created)...
 
@@ -252,7 +252,7 @@ int d3d_Init(RenderStructInit *pInit)
 	// Finish initializing...
 	AddDebugMessage(0, "Using Direct3D Device %s", pDeviceInfo->strDesc);
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	auto sdl_display_mode = ::SDL_DisplayMode{};
 	::SDL_GetDesktopDisplayMode(0, &sdl_display_mode);
 
@@ -363,7 +363,7 @@ void d3d_GetRenderInfo(RenderInfoStruct* pStruct)
 	}
 }
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 // Note: if you want to use these in a launcher of some sort, you need to also add the 
 //	CD3D_Shell class. See the Launcher sample.
 RMode* rdll_GetSupportedModes() 
@@ -390,7 +390,7 @@ void rdll_FreeModeList(RMode* pModes)
 		pCur = pNext; 
 	}
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 void rdll_RenderDLLSetup(RenderStruct *pStruct)
 {

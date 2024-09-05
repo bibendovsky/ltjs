@@ -20,7 +20,7 @@
 #include "systimer.h"
 
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -204,7 +204,7 @@ LTRESULT CLTBenchmarkMgr::DoCPUBenchmarking(   LTBENCH_CPU_TEST* pTest,
 
             // Check for abort
 #ifndef __XBOX
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 			const auto sdl_key_state = ::SDL_GetKeyboardState(nullptr);
 
 			if (bAllowEscape && sdl_key_state[::SDL_SCANCODE_ESCAPE])

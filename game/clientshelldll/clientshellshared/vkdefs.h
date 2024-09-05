@@ -2,7 +2,7 @@
 #define __VK__DEFS__H__
 
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 
 
 //----------------------------------------------------------
@@ -171,7 +171,7 @@ char VKToASCII (int nKey);
 #define VK_Z			90
 
 
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 
 #endif // __VK__DEFS__H__

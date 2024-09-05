@@ -23,7 +23,7 @@ function (ltjs_add_defaults)
 			NOPS2
 			$<$<NOT:$<CONFIG:DEBUG>>:_FINAL>
 			$<$<CONFIG:DEBUG>:_DEBUG>
-			"LTJS_SDL_BACKEND=$<BOOL:${LTJS_SDL_BACKEND}>"
+			$<$<BOOL:${LTJS_SDL_BACKEND}>:LTJS_SDL_BACKEND>
 			$<$<BOOL:${LTJS_USE_D3DX9}>:LTJS_USE_D3DX9>
 	)
 

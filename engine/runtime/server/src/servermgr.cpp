@@ -2061,7 +2061,7 @@ LTRESULT sm_CreateNewID(LTLink **pID)
 	return LT_OK;
 }
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 LTRESULT sm_SetupError(LTRESULT theError, ...)
 {
 	va_list marker;
@@ -2090,7 +2090,7 @@ LTRESULT ltjs_sm_setup_error(
 
 	return dResult;
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 void CServerMgr::UntouchAllSoundData()
 {

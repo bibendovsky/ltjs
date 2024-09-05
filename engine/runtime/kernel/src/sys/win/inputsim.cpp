@@ -5,7 +5,7 @@
 
 #include "bdefs.h"
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 
 #include "input.h"
 #include "dsys_interface.h"
@@ -505,4 +505,4 @@ InputMgr g_InputSimMgr =
 
 #endif // _DEBUG
 
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND

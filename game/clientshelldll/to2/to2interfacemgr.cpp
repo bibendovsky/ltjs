@@ -14,7 +14,7 @@
 #include "to2interfacemgr.h"
 #include "gameclientshell.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -200,7 +200,7 @@ LTBOOL CTO2InterfaceMgr::OnCommandOn(int command)
 LTBOOL CTO2InterfaceMgr::OnKeyDown(int key, int rep)
 {
 	//handle stuff before default handling
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	if (g_pRadio->IsVisible() && m_eGameState == GS_PLAYING && key == ::SDLK_ESCAPE)
 #else
 	if (g_pRadio->IsVisible() && m_eGameState == GS_PLAYING && key == VK_ESCAPE)

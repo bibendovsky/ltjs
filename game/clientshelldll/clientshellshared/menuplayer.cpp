@@ -14,7 +14,7 @@
 #include "msgids.h"
 #include "clientresshared.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -59,7 +59,7 @@ LTBOOL CSkillPopup::OnMouseMove(int x, int y)
 
 LTBOOL CSkillPopup::HandleKeyDown (int vkey, int rep)
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	if (vkey == ::SDLK_ESCAPE)
 #else
 	if (vkey == VK_ESCAPE)

@@ -14,14 +14,14 @@
 #include "screencommands.h"
 #include "clientres.h"
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 #include "dinput.h"
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 #include "interfacemgr.h"
 #include "gameclientshell.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "SDL.h"
 
 #include "ltjs_dinput.h"
@@ -324,24 +324,24 @@ void CScreenConfigure::SetControlText(CLTGUICtrl *pCtrl)
 		{
 			char szTemp[256] = "";
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 			// Get the name twice and take the shorter version.  WinXP has a problem
 			// with occasionally reporting garbage.  Taking the shorter one assumes that
 			// the garbage version is full of bad characters.
 			g_pLTClient->GetDeviceObjectName( m_pProfile->GetDeviceName( 0 ), pData->nDeviceObjectId[0], 
 				szTemp, ARRAY_LEN( szTemp ));
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 			g_pLTClient->GetDeviceObjectName( m_pProfile->GetDeviceName( 0 ), pData->nDeviceObjectId[0], 
 				szDeviceObjectName, ARRAY_LEN( szDeviceObjectName ));
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 			if( strlen( szTemp ) < strlen( szDeviceObjectName ))
 			{
 				SAFE_STRCPY(strControls, szTemp );
 			}
 			else
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 			{
 				SAFE_STRCPY(strControls, szDeviceObjectName );
 			}
@@ -491,7 +491,7 @@ LTBOOL CScreenConfigure::HandleKeyDown(int key, int rep)
 
 	switch (key)
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		case ::SDLK_DELETE:
 #else
 	case VK_DELETE:

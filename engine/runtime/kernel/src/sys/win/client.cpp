@@ -1,11 +1,11 @@
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include <memory>
 #include <utility>
 
 #include "SDL.h"
 #include "SDL_syswm.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "ltjs_language_mgr.h"
 #include "ltjs_shared_data_mgr.h"
 #include "ltjs_shell_resource_mgr.h"
@@ -94,7 +94,7 @@ ClientGlob g_ClientGlob;
 uint32 g_EngineStartMS;
 
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 namespace
 {
 
@@ -519,7 +519,7 @@ bool initialize()
 		return false;
 	}
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	auto& shared_data_mgr = ltjs::get_shared_data_mgr();
 
 	g_language_mgr = ltjs::make_language_mgr();
@@ -724,7 +724,7 @@ static bool StartClient(ClientGlob *pGlob)
     return LTTRUE;
 }
 
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     ClientGlob *pGlob;
     char messageString[256], fileName[_MAX_PATH + 1];
@@ -1026,7 +1026,7 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 
     return DefWindowProc(hwnd, message, wParam, lParam);
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 int LTAllocHook(int allocType, void *userData, size_t size, int blockType, 
    long requestNumber, const unsigned char *filename, int lineNumber)
@@ -1112,7 +1112,7 @@ int RunClientApp(HINSTANCE hInstance) {
 
     pGlob->m_bBreakOnError = command_line_args->FindArgDash("breakonerror") != NULL;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	initialize_system_event_mgr();
 	initialize_system_event_handler();
 
@@ -1151,7 +1151,7 @@ int RunClientApp(HINSTANCE hInstance) {
     bPrevHighPriority = LTFALSE;
     if (StartClient(pGlob)) 
 	{
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		auto is_mouse_relative_mode = ::SDL_bool{};
 #endif // LTJS_SDL_BACKEND
 
@@ -1179,7 +1179,7 @@ int RunClientApp(HINSTANCE hInstance) {
                 dsi_PrintToConsole("Running for %.1f seconds", (float)(timeGetTime() - g_EngineStartMS) / 1000.0f);
             }
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 			const auto new_is_mouse_relative_mode = (::g_CV_CursorCenter != 0 ? ::SDL_TRUE : ::SDL_FALSE);
 
 			if (is_mouse_relative_mode != new_is_mouse_relative_mode)
@@ -1197,7 +1197,7 @@ int RunClientApp(HINSTANCE hInstance) {
             }
 #endif // LTJS_SDL_BACKEND
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 			g_system_event_mgr->poll_events();
 
 			if (g_system_event_mgr->was_quit_event())
@@ -1236,7 +1236,7 @@ END_MAINLOOP:;
     delete g_pClientMgr;
     g_pClientMgr = LTNULL;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	destroy_main_window();
 #else
     DestroyWindow(pGlob->m_hMainWnd);
@@ -1245,7 +1245,7 @@ END_MAINLOOP:;
     dsi_Term();
 
     if (bOutOfMemory) {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		show_out_of_memory_message_box();
 #else
         ShowWindow(pGlob->m_hMainWnd, SW_HIDE);
@@ -1609,7 +1609,7 @@ bool SetupArgs(const char* pszCommandLine)
 
 extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) 
 {
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	if (!initialize())
 	{
 		return 1;
@@ -1644,7 +1644,7 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPST
         }
     }
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 	uninitialize();
 #endif // LTJS_SDL_BACKEND
 

@@ -459,9 +459,9 @@ IServerDirectory* ClientMultiplayerMgr::CreateServerDir( )
 	// Get the resource module so we can give it to the serverdir for
 	// error messages.
 	void* pModule = NULL;
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 	g_pLTClient->GetEngineHook("cres_hinstance",&pModule);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 	HMODULE hModule = (HINSTANCE)pModule;
 
 	m_pServerDir = Factory_Create_IServerDirectory_Titan( true, *g_pLTClient, hModule );

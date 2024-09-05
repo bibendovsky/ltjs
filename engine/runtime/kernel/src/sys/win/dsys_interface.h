@@ -27,7 +27,7 @@
 // Client globals.
 #ifdef DE_CLIENT_COMPILE
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "ltjs_main_window_descriptor.h"
 #include "ltjs_system_event_mgr.h"
 #endif // LTJS_SDL_BACKEND
@@ -52,13 +52,13 @@
         BOOL            m_bProcessWindowMessages;
         jmp_buf         m_MemoryJmp;
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		ltjs::MainWindowDescriptor m_hMainWnd{};
 #else
         HWND            m_hMainWnd;
 #endif // LTJS_SDL_BACKEND
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		ltjs::SystemEventMgr* system_event_mgr{};
 #endif // LTJS_SDL_BACKEND
 
@@ -82,7 +82,7 @@
         const char      *m_pWorldName;
         char            m_CachePath[500];
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 		unsigned int m_KeyDowns[MAX_KEYBUFFER];
 		unsigned int m_KeyUps[MAX_KEYBUFFER];
 		unsigned int m_KeyDownReps[MAX_KEYBUFFER];
@@ -117,7 +117,7 @@
 #include "version_info.h"
 #endif
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "ltjs_index_type.h"
 #include "ltjs_shell_string_formatter.h"
 #endif // LTJS_SDL_BACKEND
@@ -179,7 +179,7 @@ const char* dsi_GetDefaultWorld();
 
 
 // Sets up a message for a LTRESULT.
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 LTRESULT dsi_SetupMessage(char *pMsg, int maxMsgLen, LTRESULT dResult, va_list marker);
 #else
 LTRESULT dsi_SetupMessage(
@@ -187,7 +187,7 @@ LTRESULT dsi_SetupMessage(
 	int maxMsgLen,
 	LTRESULT dResult,
 	ltjs::ShellStringFormatter& formatter);
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
           
 // Puts an error message in the console if the renderer is initialized or
 // a message box otherwise.
@@ -215,7 +215,7 @@ void dsi_MessageBox(const char *pMsg, const char *pTitle);
 // Returns LT_OK or an error.
 LTRESULT dsi_GetVersionInfo(LTVersionInfo &info);
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 void* dsi_get_system_event_handler_mgr() noexcept;
 
 ltjs::Index dsi_get_file_size(

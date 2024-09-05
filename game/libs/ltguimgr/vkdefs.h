@@ -1,4 +1,4 @@
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 
 
 //----------------------------------------------------------
@@ -154,4 +154,4 @@
 #define VK_OEM_CLEAR	254
 
 
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND

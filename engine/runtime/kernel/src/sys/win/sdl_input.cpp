@@ -12,7 +12,7 @@
 
 #include "bdefs.h"
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include <string.h>
 
 #include <cassert>

@@ -1,4 +1,4 @@
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 
 
 //	===========================================================================
@@ -691,4 +691,4 @@ void LTFILTERREVERB::SetParam( const char* pszParam, float fValue )
 #endif
 
 
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND

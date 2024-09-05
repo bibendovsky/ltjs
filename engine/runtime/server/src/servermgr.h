@@ -14,7 +14,7 @@
 #ifndef __SERVERMGR_H__
 #define __SERVERMGR_H__
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include <utility>
 #endif // LTJS_SDL_BACKEND
 
@@ -62,7 +62,7 @@ class ServerAppHandler;
 //are removed from the client mgr.
 //----------------------------------------------------------------------------
 
-#if LTJS_SDL_BACKEND
+#ifdef LTJS_SDL_BACKEND
 #include "ltjs_shell_string_formatter.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -491,7 +491,7 @@ LTRESULT sm_CreateNewID(LTLink **ppID);
 void BPrint(const char *pMsg, ...);
 
 // Sets up the error string for the given error and parameters.
-#if !LTJS_SDL_BACKEND
+#ifndef LTJS_SDL_BACKEND
 LTRESULT sm_SetupError(LTRESULT theError, ...);
 #else
 LTRESULT ltjs_sm_setup_error(
@@ -508,7 +508,7 @@ LTRESULT sm_SetupError(
 	auto formatter = ltjs::ShellStringFormatter{std::forward<TArgs>(args)...};
 	return ltjs_sm_setup_error(theError, formatter);
 }
-#endif // !LTJS_SDL_BACKEND
+#endif // LTJS_SDL_BACKEND
 
 // Removes all sound file data and instances.
 void sm_RemoveAllSounds();
