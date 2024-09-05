@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.5.0 FATAL_ERROR)
 project (ltjs_server VERSION 0.0.1 LANGUAGES CXX)
 
 option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)

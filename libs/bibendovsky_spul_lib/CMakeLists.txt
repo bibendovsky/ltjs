@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.5.1 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.5.0 FATAL_ERROR)
 project (bibendovsky_spul_lib VERSION 1.0.0 LANGUAGES CXX)
 
 

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.1.3)
+cmake_minimum_required (VERSION 3.5.0)
 project (ltjs_snd_drv_dx8 VERSION 0.0.1 LANGUAGES CXX)
 
 option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)

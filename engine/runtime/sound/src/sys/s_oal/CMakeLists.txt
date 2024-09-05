@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.1.3 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.5.0 FATAL_ERROR)
 project (ltjs_snd_drv_oal VERSION 0.0.1 LANGUAGES CXX)
 
 find_package (OpenAL REQUIRED 1.1)
