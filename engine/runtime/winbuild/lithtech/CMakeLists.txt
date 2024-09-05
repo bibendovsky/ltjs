@@ -67,14 +67,6 @@ if (LTJS_USE_DIRECT_MUSIC8)
 	)
 endif ()
 
-if (LTJS_USE_D3DX9)
-	target_compile_definitions (
-		${PROJECT_NAME}
-		PRIVATE
-			LTJS_USE_D3DX9
-	)
-endif ()
-
 if (LTJS_USE_BUNDLED_DIRECTX)
 	target_compile_definitions (
 		${PROJECT_NAME}

@@ -24,7 +24,7 @@ function (ltjs_add_defaults)
 			$<$<NOT:$<CONFIG:DEBUG>>:_FINAL>
 			$<$<CONFIG:DEBUG>:_DEBUG>
 			"LTJS_SDL_BACKEND=$<BOOL:${LTJS_SDL_BACKEND}>"
-			"LTJS_USE_D3DX9=$<BOOL:${LTJS_USE_D3DX9}>"
+			$<$<BOOL:${LTJS_USE_D3DX9}>:LTJS_USE_D3DX9>
 	)
 
 	if (MSVC)
