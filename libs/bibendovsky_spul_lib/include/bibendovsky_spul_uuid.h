@@ -36,6 +36,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <cstdint>
 #include <array>
+#include <string>
 #include "bibendovsky_spul_stream.h"
 
 
