@@ -108,7 +108,7 @@ private:
 	static constexpr int pixel_size = 4; // ARGB/BGRA
 
 
-	using AVInputFormatPtr = AVInputFormat*;
+	using AVInputFormatPtr = const AVInputFormat*;
 	using FfPointers = std::array<std::uint8_t*, max_ff_video_planes>;
 	using FfStrides = std::array<int, max_ff_video_planes>;
 
@@ -166,12 +166,12 @@ private:
 	AVIOContext* ff_io_context_;
 	std::uint8_t* ff_io_buffer_;
 	AVFormatContext* ff_format_context_;
-	AVCodec* ff_audio_codec_;
-	AVCodec* ff_video_codec_;
+	const AVCodec* ff_audio_codec_;
+	const AVCodec* ff_video_codec_;
 	AVCodecContext* ff_codec_context_;
 	AVCodecContext* ff_audio_codec_context_;
 	AVCodecContext* ff_video_codec_context_;
-	AVPacket ff_packet_;
+	AVPacket* ff_packet_;
 	AVFrame* ff_frame_;
 	AVFrame* ff_audio_frame_;
 	AVFrame* ff_video_frame_;
@@ -356,7 +356,7 @@ FmvPlayer::Impl::Impl()
 	ff_codec_context_{},
 	ff_audio_codec_context_{},
 	ff_video_codec_context_{},
-	ff_packet_{},
+	ff_packet_{::av_packet_alloc()},
 	ff_frame_{},
 	ff_audio_frame_{},
 	ff_video_frame_{},
@@ -400,12 +400,18 @@ FmvPlayer::Impl::Impl()
 FmvPlayer::Impl::~Impl()
 {
 	uninitialize();
+	av_packet_free(&ff_packet_);
 }
 
 bool FmvPlayer::Impl::initialize(
 	const InitializeParam& param)
 {
 	uninitialize();
+
+	if (ff_packet_ == nullptr)
+	{
+		return false;
+	}
 
 	if (!initialize_internal(param))
 	{
@@ -420,9 +426,6 @@ bool FmvPlayer::Impl::initialize(
 
 void FmvPlayer::Impl::uninitialize()
 {
-	::av_packet_unref(&ff_packet_);
-	ff_packet_ = {};
-
 	::avcodec_free_context(&ff_audio_codec_context_);
 	::avcodec_free_context(&ff_video_codec_context_);
 	::avformat_close_input(&ff_format_context_);
@@ -605,19 +608,17 @@ void FmvPlayer::Impl::handle_audio_buffer_flush()
 
 void FmvPlayer::Impl::handle_read_state()
 {
-	::av_init_packet(&ff_packet_);
-
-	const auto ff_result = ::av_read_frame(ff_format_context_, &ff_packet_);
+	const auto ff_result = ::av_read_frame(ff_format_context_, ff_packet_);
 
 	if (ff_result == 0)
 	{
-		if (ff_packet_.stream_index == ff_audio_stream_index_)
+		if (ff_packet_->stream_index == ff_audio_stream_index_)
 		{
 			ff_is_audio_frame_ = true;
 			ff_frame_ = ff_audio_frame_;
 			ff_codec_context_ = ff_audio_codec_context_;
 		}
-		else if (ff_packet_.stream_index == ff_video_stream_index_)
+		else if (ff_packet_->stream_index == ff_video_stream_index_)
 		{
 			ff_is_audio_frame_ = false;
 			ff_frame_ = ff_video_frame_;
@@ -625,7 +626,7 @@ void FmvPlayer::Impl::handle_read_state()
 		}
 		else
 		{
-			::av_packet_unref(&ff_packet_);
+			::av_packet_unref(ff_packet_);
 			return;
 		}
 
@@ -643,7 +644,7 @@ void FmvPlayer::Impl::handle_read_state()
 
 void FmvPlayer::Impl::handle_send_state()
 {
-	const auto ff_result = ::avcodec_send_packet(ff_codec_context_, &ff_packet_);
+	const auto ff_result = ::avcodec_send_packet(ff_codec_context_, ff_packet_);
 
 	if (ff_result == 0)
 	{
@@ -674,7 +675,7 @@ void FmvPlayer::Impl::handle_receive_state()
 	else if (ff_result == AVERROR(EAGAIN))
 	{
 		ff_state_ = FfState::read;
-		::av_packet_unref(&ff_packet_);
+		::av_packet_unref(ff_packet_);
 	}
 	else if (ff_result == AVERROR_EOF)
 	{
@@ -1218,12 +1219,12 @@ bool FmvPlayer::Impl::initialize_decoder(
 	}
 
 	auto src_sample_format = AV_SAMPLE_FMT_NONE;
-	auto src_channel_layout = std::uint64_t{};
+	auto src_channel_layout = AVChannelLayout{};
 	auto src_sample_rate = 0;
 
 	auto dst_sample_format = AV_SAMPLE_FMT_NONE;
 	auto dst_channel_count = 0;
-	auto dst_channel_layout = std::uint64_t{};
+	auto dst_channel_layout = AVChannelLayout{};
 	auto dst_sample_rate = 0;
 
 	auto need_audio_converter = false;
@@ -1231,12 +1232,12 @@ bool FmvPlayer::Impl::initialize_decoder(
 	if (has_audio_data)
 	{
 		src_sample_format = ff_audio_codec_context_->sample_fmt;
-		src_channel_layout = ff_audio_codec_context_->channel_layout;
+		src_channel_layout = ff_audio_codec_context_->ch_layout;
 		src_sample_rate = ff_audio_codec_context_->sample_rate;
 
 		dst_sample_format = AV_SAMPLE_FMT_S16;
 		dst_channel_count = FmvPlayerDetail::audio_dst_channel_count;
-		dst_channel_layout = static_cast<std::uint64_t>(::av_get_default_channel_layout(dst_channel_count));
+		::av_channel_layout_default(&dst_channel_layout, dst_channel_count);
 		dst_sample_rate = param.dst_sample_rate_;
 
 		if (dst_sample_rate == 0)
@@ -1246,24 +1247,24 @@ bool FmvPlayer::Impl::initialize_decoder(
 
 		need_audio_converter = (
 			src_sample_format != dst_sample_format ||
-			src_channel_layout != dst_channel_layout ||
+			memcmp(&src_channel_layout, &dst_channel_layout, sizeof(AVChannelLayout)) != 0 ||
 			src_sample_rate != ff_dst_sample_rate_);
 	}
 
 	if (has_audio_data && need_audio_converter)
 	{
-		ff_swr_context_ = ::swr_alloc_set_opts(
-			ff_swr_context_,
-			dst_channel_layout,
+		ff_result = ::swr_alloc_set_opts2(
+			&ff_swr_context_,
+			&dst_channel_layout,
 			dst_sample_format,
 			dst_sample_rate,
-			src_channel_layout,
+			&src_channel_layout,
 			src_sample_format,
 			src_sample_rate,
 			0,
 			nullptr);
 
-		if (!ff_swr_context_)
+		if (ff_result != 0)
 		{
 			return false;
 		}
@@ -1695,8 +1696,6 @@ bool FmvPlayer::Impl::is_presentation_finished() const
 void FmvPlayer::Impl::initialize_current_thread()
 {
 	::av_log_set_level(AV_LOG_QUIET);
-	::av_register_all();
-
 	get_ff_bik_input_format() = ::av_find_input_format("bik");
 }
 

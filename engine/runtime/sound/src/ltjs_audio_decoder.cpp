@@ -20,7 +20,7 @@ namespace ltjs
 
 struct AudioDecoder::Impl
 {
-	using AVInputFormatPtr = AVInputFormat*;
+	using AVInputFormatPtr = const AVInputFormat*;
 
 	using Parameter = OpenParam;
 
@@ -67,6 +67,7 @@ struct AudioDecoder::Impl
 		is_draining_{},
 		is_flushing_{}
 	{
+		ff_packet_ = ::av_packet_alloc();
 	}
 
 	Impl(
@@ -78,6 +79,7 @@ struct AudioDecoder::Impl
 	~Impl()
 	{
 		close();
+		::av_packet_free(&ff_packet_);
 	}
 
 	bool open(
@@ -165,44 +167,41 @@ struct AudioDecoder::Impl
 		auto decoded_size = 0;
 		auto dst_buffer = static_cast<std::uint8_t*>(buffer);
 
-		auto ff_packet = AVPacket{};
-		::av_init_packet(&ff_packet);
-
 		while (!is_buffer_filled)
 		{
 			switch (state_)
 			{
 			case State::read_packet:
 			{
-				const auto ff_result = ::av_read_frame(ff_format_context_, &ff_packet);
+				const auto ff_result = ::av_read_frame(ff_format_context_, ff_packet_);
 
 				if (ff_result == 0)
 				{
-					if (ff_packet.stream_index == ff_stream_index_)
+					if (ff_packet_->stream_index == ff_stream_index_)
 					{
 						state_ = State::send_packet;
 					}
 					else
 					{
-						::av_packet_unref(&ff_packet);
+						::av_packet_unref(ff_packet_);
 					}
 				}
 				else if (ff_result == AVERROR_EOF)
 				{
-					if (ff_packet.stream_index == ff_stream_index_)
+					if (ff_packet_->stream_index == ff_stream_index_)
 					{
 						is_draining_ = true;
 						state_ = State::send_packet;
 					}
 					else
 					{
-						::av_packet_unref(&ff_packet);
+						::av_packet_unref(ff_packet_);
 					}
 				}
 				else
 				{
 					state_ = State::is_failed;
-					::av_packet_unref(&ff_packet);
+					::av_packet_unref(ff_packet_);
 				}
 
 				break;
@@ -210,9 +209,8 @@ struct AudioDecoder::Impl
 
 			case State::send_packet:
 			{
-				const auto ff_result = ::avcodec_send_packet(ff_codec_context_, is_draining_ ? nullptr : &ff_packet);
-
-				::av_packet_unref(&ff_packet);
+				const auto ff_result = ::avcodec_send_packet(ff_codec_context_, is_draining_ ? nullptr : ff_packet_);
+				::av_packet_unref(ff_packet_);
 
 				if (ff_result == 0)
 				{
@@ -258,7 +256,7 @@ struct AudioDecoder::Impl
 						state_ = State::output_frame;
 					}
 				}
-				else if (ff_result ==  AVERROR(EAGAIN))
+				else if (ff_result == AVERROR(EAGAIN))
 				{
 					state_ = State::read_packet;
 				}
@@ -541,8 +539,6 @@ struct AudioDecoder::Impl
 	static void initialize_current_thread()
 	{
 		::av_log_set_level(AV_LOG_QUIET);
-		::av_register_all();
-
 		get_ff_wav_input_format() = ::av_find_input_format("wav");
 	}
 
@@ -776,7 +772,7 @@ struct AudioDecoder::Impl
 
 		// Channel count.
 		//
-		src_channel_count_ = ff_codec_context_->channels;
+		src_channel_count_ = ff_codec_context_->ch_layout.nb_channels;
 
 		if (param.dst_channel_count_ > 0)
 		{
@@ -830,21 +826,24 @@ struct AudioDecoder::Impl
 
 		if (need_converter)
 		{
-			const auto src_channel_layout = ::av_get_default_channel_layout(src_channel_count_);
-			const auto dst_channel_layout = ::av_get_default_channel_layout(dst_channel_count_);
+			auto src_channel_layout = AVChannelLayout{};
+			::av_channel_layout_default(&src_channel_layout, dst_channel_count_);
 
-			ff_swr_context_ = ::swr_alloc_set_opts(
-				ff_swr_context_,
-				dst_channel_layout,
+			auto dst_channel_layout = AVChannelLayout{};
+			::av_channel_layout_default(&dst_channel_layout, dst_channel_count_);
+
+			ff_result = ::swr_alloc_set_opts2(
+				&ff_swr_context_,
+				&dst_channel_layout,
 				dst_sample_format,
 				dst_sample_rate_,
-				src_channel_layout,
+				&src_channel_layout,
 				src_sample_format,
 				src_sample_rate_,
 				0,
 				nullptr);
 
-			if (!ff_swr_context_)
+			if (ff_result != 0)
 			{
 				return false;
 			}
@@ -935,8 +934,9 @@ struct AudioDecoder::Impl
 	AVIOContext* ff_io_context_;
 	std::uint8_t* ff_io_buffer_;
 	AVFormatContext* ff_format_context_;
-	AVCodec* ff_codec_;
+	const AVCodec* ff_codec_;
 	AVCodecContext* ff_codec_context_;
+	AVPacket* ff_packet_{};
 	AVFrame* ff_frame_;
 	SwrContext* ff_swr_context_;
 	int ff_stream_index_;
