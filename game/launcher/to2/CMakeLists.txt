@@ -96,6 +96,7 @@ if (WIN32)
 		${PROJECT_NAME}
 		PRIVATE
 			res/ltjs_launcher.rc
+			res/ltjs_launcher_win32_msvc.manifest
 	)
 endif ()
 

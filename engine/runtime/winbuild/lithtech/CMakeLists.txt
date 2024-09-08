@@ -724,6 +724,7 @@ if (MSVC)
 		PRIVATE
 			lithtech.rc
 			res/client.rc2
+			ltjs_lithtech_win32_msvc.manifest
 	)
 endif ()
 
