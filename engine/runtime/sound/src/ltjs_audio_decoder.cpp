@@ -551,9 +551,9 @@ struct AudioDecoder::Impl
 
 		const auto read_result = stream.read(buffer, buffer_size);
 
-		if (read_result < 0)
+		if (read_result <= 0)
 		{
-			return AVERROR_UNKNOWN;
+			return AVERROR_EOF;
 		}
 
 		return read_result;

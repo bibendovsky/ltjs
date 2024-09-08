@@ -975,9 +975,9 @@ int FmvPlayer::Impl::io_read_function_proxy(
 
 	const auto read_result = pimpl.ff_io_read_function_(pimpl.ff_io_user_data_, buffer, buffer_size);
 
-	if (read_result < 0)
+	if (read_result <= 0)
 	{
-		return AVERROR_UNKNOWN;
+		return AVERROR_EOF;
 	}
 
 	return read_result;
