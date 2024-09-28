@@ -1,26 +1,21 @@
 #ifndef LTJS_AUDIO_DECODER_INCLUDED
 #define LTJS_AUDIO_DECODER_INCLUDED
 
-
-#include <cstdint>
 #include <memory>
+
 #include "bibendovsky_spul_stream.h"
 #include "bibendovsky_spul_wave_format.h"
 
+// ==========================================================================
 
-namespace ltjs
-{
-
+namespace ltjs {
 
 namespace ul = bibendovsky::spul;
 
-
-class AudioDecoder final
+class AudioDecoder
 {
 public:
-	//
 	// Open object parameter.
-	//
 	struct OpenParam
 	{
 		// An output channel count.
@@ -38,7 +33,6 @@ public:
 		// An input data stream.
 		ul::Stream* stream_ptr_;
 
-
 		//
 		// Validates all parameters.
 		//
@@ -46,12 +40,12 @@ public:
 		//    - "true" if all parameters are valid.
 		//    - "false" otherwise.
 		//
-		bool validate() const;
-	}; // OpenParam
+		bool validate() const noexcept;
+	};
 
 
 	//
-	// Creates an uninitialized instance.
+	// Creates an empty instance.
 	//
 	AudioDecoder();
 
@@ -61,23 +55,13 @@ public:
 	// Parameters:
 	//    - parameters - a set of parameters.
 	//
-	explicit AudioDecoder(
-		const OpenParam& param);
+	explicit AudioDecoder(const OpenParam& param);
 
-	AudioDecoder(
-		const AudioDecoder& that) = delete;
-
-	AudioDecoder& operator=(
-		const AudioDecoder& that) = delete;
-
-	AudioDecoder(
-		AudioDecoder&& that) noexcept;
-
-	AudioDecoder& operator=(
-		AudioDecoder&& that) noexcept;
-
+	AudioDecoder(const AudioDecoder&) = delete;
+	AudioDecoder& operator=(const AudioDecoder&) = delete;
+	AudioDecoder(AudioDecoder&& rhs) noexcept;
+	AudioDecoder& operator=(AudioDecoder&& rhs) noexcept;
 	~AudioDecoder();
-
 
 	//
 	// Initializes the instance.
@@ -89,28 +73,25 @@ public:
 	//    - "true" on sucess.
 	//    - "false" on error.
 	//
-	bool open(
-		const OpenParam& param);
+	bool open(const OpenParam& param) noexcept;
 
 	//
 	// Uninitializes the instance.
 	//
-	void close();
+	void close() noexcept;
 
 	//
 	// Decodes the samples.
 	//
 	// Parameters:
 	//    - buffer - a buffer to decode samples to.
-	//    - buffer_size - a maximum buffer size in bytes.
+	//    - buffer_size - maximum buffer size in bytes.
 	//
 	// Returns:
-	//    - A decoded size of samples in bytes.
+	//    - A decoded size of data in bytes.
 	//    - A negative value on error.
 	//
-	int decode(
-		void* buffer,
-		const int buffer_size);
+	int decode(void* buffer, int buffer_size) noexcept;
 
 	//
 	// Sets an internal position to the first sample.
@@ -119,20 +100,19 @@ public:
 	//    - "true" on success.
 	//    - "false" on error.
 	//
-	bool rewind();
+	bool rewind() noexcept;
 
 	//
 	// Sets an internal position to the specified sample.
 	//
 	// Parameters:
-	//    - sample_offset - a sample index to set position to.
+	//    - frame_offset - a frame index to set position to.
 	//
 	// Returns:
 	//    - "true" on success.
 	//    - "false" on error.
 	//
-	bool set_position(
-		const int sample_offset);
+	bool set_position(int frame_offset) noexcept;
 
 	//
 	// Gets an initialization status of the decoder.
@@ -141,106 +121,99 @@ public:
 	//    - "true" - if the decode is initialized.
 	//    - "false" - if the decode is not initialized.
 	//
-	bool is_open() const;
+	bool is_open() const noexcept;
 
 	//
 	// Gets a fatal error status of the decoder.
 	//
 	// Returns:
 	//    - "true" - if the decoder encountered a fatal error.
-	//    - "true" - if the decoder not encountered a fatal error.
+	//    - "false" - if the decoder not encountered a fatal error.
 	//
-	bool is_failed() const;
+	bool is_failed() const noexcept;
 
 	//
 	// Gets PCM encoded status of the stream.
 	//
 	// Returns:
 	//    - "true" - if the stream is PCM encoded.
-	//    - "false" - if the stream is not PCM encoded or on error.
+	//    - "false" - if the stream is not PCM encoded.
 	//
-	bool is_pcm() const;
+	bool is_pcm() const noexcept;
 
 	//
-	// Gets IMA ADPCM encoded status of the stream.
+	// Gets Microsoft IMA ADPCM encoded status of the stream.
 	//
 	// Returns:
-	//    - "true" - if the stream is IMA ADPCM encoded.
-	//    - "false" - if the stream is not IMA ADPCM encoded or on error.
+	//    - "true" - if the stream is Microsoft IMA ADPCM encoded.
+	//    - "false" - if the stream is not Microsoft IMA ADPCM encoded.
 	//
-	bool is_ima_adpcm() const;
+	bool is_ima_adpcm() const noexcept;
 
 	//
 	// Gets MP3 encoded status of the stream.
 	//
 	// Returns:
 	//    - "true" - if the stream is MP3 encoded.
-	//    - "false" - if the stream is not MP3 encoded or on error.
+	//    - "false" - if the stream is not MP3 encoded.
 	//
-	bool is_mp3() const;
+	bool is_mp3() const noexcept;
 
 	//
 	// Gets an input channel count.
 	//
 	// Returns:
 	//    - Channel count.
-	//    - Zero on error.
 	//
-	int get_src_channel_count() const;
+	int get_src_channel_count() const noexcept;
 
 	//
 	// Gets an input sample rate.
 	//
 	// Returns:
 	//    - Sample rate.
-	//    - Zero on error.
 	//
-	int get_src_sample_rate() const;
+	int get_src_sample_rate() const noexcept;
 
 	//
 	// Gets an output channel count.
 	//
 	// Returns:
 	//    - Channel count.
-	//    - Zero on error.
 	//
-	int get_dst_channel_count() const;
+	int get_dst_channel_count() const noexcept;
 
 	//
 	// Gets an output bit depth.
 	//
 	// Returns:
 	//    - A bit depth.
-	//    - Zero on error.
 	//
-	int get_dst_bit_depth() const;
+	int get_dst_bit_depth() const noexcept;
 
 	//
 	// Gets an output sample rate.
 	//
 	// Returns:
 	//    - Sample rate.
-	//    - Zero on error.
 	//
-	int get_dst_sample_rate() const;
+	int get_dst_sample_rate() const noexcept;
 
 	//
 	// Gets an output sample size.
 	//
 	// Returns:
 	//    - Sample size.
-	//    - Zero on error.
 	//
-	int get_dst_sample_size() const;
+	int get_dst_sample_size() const noexcept;
 
 	//
 	// Gets audio parameters in WAVEFORMATEX-compatible structure.
 	//
 	// Returns:
 	//    - A structure with parameters.
-	//    - An empty structure on error.
 	//
-	ul::WaveFormatEx get_wave_format_ex() const;
+	const ul::WaveFormatEx& get_wave_format_ex() const noexcept;
 
 	//
 	// Gets a maximum sample count of the decoded data.
@@ -248,7 +221,7 @@ public:
 	// Returns:
 	//    - A maximum sample count.
 	//
-	int get_sample_count() const;
+	int get_sample_count() const noexcept;
 
 	//
 	// Gets a maximum data size of the decoded data.
@@ -256,7 +229,7 @@ public:
 	// Returns:
 	//    - A maximum data size.
 	//
-	int get_data_size() const;
+	int get_data_size() const noexcept;
 
 	//
 	// Gets a decoded data size so far.
@@ -264,24 +237,28 @@ public:
 	// Returns:
 	//    - A decoded size.
 	//
-	int get_decoded_size() const;
+	int get_decoded_size() const noexcept;
 
 	//
 	// Initializes a current thread.
 	//
-	static void initialize_current_thread();
+	static void initialize_current_thread() noexcept;
 
 
 private:
-	struct Impl;
+	class Impl;
 
-	using ImplUPtr = std::unique_ptr<Impl>;
+	struct ImplDeleter
+	{
+		void operator()(Impl* impl) const noexcept;
+	};
 
-	ImplUPtr impl_;
-}; // AudioDecoder
+	using ImplUPtr = std::unique_ptr<Impl, ImplDeleter>;
 
+private:
+	ImplUPtr impl_{};
+};
 
-} // ltjs
-
+} // namespace ltjs
 
 #endif // LTJS_AUDIO_DECODER_INCLUDED

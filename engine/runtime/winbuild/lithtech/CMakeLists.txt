@@ -190,6 +190,7 @@ target_link_libraries (
 	${PROJECT_NAME}
 	PRIVATE
 		bibendovsky_spul_lib
+		ltjs::audio
 		ltjs_lib_d3d_render
 		ltjs_lib_lt_mem
 		ltjs_lib_rez_mgr
@@ -207,7 +208,6 @@ target_include_directories (
 		${LTJS_FFMPEG_INCLUDE_DIR}
 		.
 		../../../../libs/DirectXMath/Inc
-		../../../../libs/bibendovsky_spul_lib/include
 		../../../../libs/lith
 		../../../../libs/mfcstub
 		../../../../libs/stdlith
@@ -501,7 +501,6 @@ target_sources (
 		../../shared/src/varsetter.h
 		../../shared/src/version_info.h
 		../../sound/src/iltsound.h
-		../../sound/src/ltjs_audio_decoder.h
 		../../sound/src/ltjs_dmusic_manager.h
 		../../sound/src/ltjs_dmusic_segment.h
 		../../sound/src/soundbuffer.h
@@ -695,7 +694,6 @@ target_sources (
 		../../shared/src/sys/win/dstreamopenqueuemgr.cpp
 		../../shared/src/transformlt_impl.cpp
 		../../shared/src/version_info.cpp
-		../../sound/src/ltjs_audio_decoder.cpp
 		../../sound/src/ltjs_dmusic_manager.cpp
 		../../sound/src/ltjs_dmusic_segment.cpp
 		../../sound/src/soundbuffer.cpp

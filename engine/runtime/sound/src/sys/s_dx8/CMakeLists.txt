@@ -16,13 +16,6 @@ set_target_properties (
 		PREFIX ""
 )
 
-if (LTJS_FFMPEG_LIBRARY_DIR)
-	set (
-		ffmpeg_libs
-		${LTJS_FFMPEG_LIBRARY}
-	)
-endif ()
-
 set (LTJS_TMP_LINKER_FLAGS "")
 
 if (MSVC)
@@ -34,7 +27,6 @@ if (MSVC)
 
 	set (
 		libs
-		${ffmpeg_libs}
 		dsound
 		dxguid
 		winmm
@@ -50,7 +42,6 @@ set_target_properties (
 if (MINGW)
 	set (
 		libs
-		${ffmpeg_libs}
 		dsound
 		dxguid
 		winmm
@@ -64,15 +55,14 @@ target_link_libraries (
 	PRIVATE
 		bibendovsky_spul_lib
 		ltjs_lib_lt_mem
+		ltjs::audio
 		${libs}
 )
 
 target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
-		${LTJS_FFMPEG_INCLUDE_DIR}
 		../..
-		../../../../../../libs/bibendovsky_spul_lib/include
 		../../../../../../libs/lith
 		../../../../../sdk/inc
 		../../../../kernel/src
@@ -82,7 +72,6 @@ target_include_directories (
 target_sources (
 	${PROJECT_NAME}
 	PRIVATE
-		../../ltjs_audio_decoder.h
 		../../ltjs_audio_utils.h
 		../../ltjs_eax_api.h
 		s_dx8.h
@@ -92,7 +81,6 @@ target_sources (
 	${PROJECT_NAME}
 	PRIVATE
 		../../../../kernel/src/sys/win/counter.cpp
-		../../ltjs_audio_decoder.cpp
 		../../ltjs_audio_utils.cpp
 		../../ltjs_eax_api.cpp
 		s_dx8.cpp

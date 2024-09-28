@@ -35,6 +35,7 @@ find_package (LTJS_FFmpeg REQUIRED 2.8.11)
 
 add_subdirectory (libs/bibendovsky_spul_lib)
 add_subdirectory (libs/ltjs)
+add_subdirectory (libs/ltjs_audio)
 add_subdirectory (libs/butemgr)
 add_subdirectory (libs/cryptmgr)
 add_subdirectory (libs/freetype)

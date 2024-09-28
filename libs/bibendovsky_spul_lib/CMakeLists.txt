@@ -88,7 +88,7 @@ add_library (
 
 target_include_directories (
 	bibendovsky_spul_lib
-	PRIVATE include
+	PUBLIC include
 )
 
 set_target_properties (

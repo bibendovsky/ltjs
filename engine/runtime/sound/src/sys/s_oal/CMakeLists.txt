@@ -18,13 +18,6 @@ set_target_properties (
 		PREFIX ""
 )
 
-if (LTJS_FFMPEG_LIBRARY_DIR)
-	set (
-		ffmpeg_libs
-		${LTJS_FFMPEG_LIBRARY}
-	)
-endif ()
-
 set (LTJS_TMP_LINKER_FLAGS "")
 
 if (MSVC)
@@ -36,7 +29,6 @@ if (MSVC)
 
 	set (
 		libs
-		${ffmpeg_libs}
 		${OPENAL_LIBRARY}
 	)
 endif ()
@@ -44,7 +36,6 @@ endif ()
 if (MINGW)
 	set (
 		libs
-		${ffmpeg_libs}
 		${OPENAL_LIBRARY}
 		iconv
 		z
@@ -63,15 +54,14 @@ target_link_libraries (
 		bibendovsky_spul_lib
 		ltjs_lib
 		ltjs_lib_lt_mem
+		ltjs::audio
 		${libs}
 )
 
 target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
-		${LTJS_FFMPEG_INCLUDE_DIR}
 		../..
-		../../../../../../libs/bibendovsky_spul_lib/include
 		../../../../../../libs/lith
 		../../../../../../libs/openal_soft/include/AL
 		../../../../../../libs/spdlog/include
@@ -82,7 +72,6 @@ target_include_directories (
 target_sources (
 	${PROJECT_NAME}
 	PRIVATE
-		../../ltjs_audio_decoder.h
 		../../ltjs_audio_utils.h
 		../../ltjs_eax_api.h
 		ltjs_oal_efx_symbols.h
@@ -104,7 +93,6 @@ target_sources (
 target_sources (
 	${PROJECT_NAME}
 	PRIVATE
-		../../ltjs_audio_decoder.cpp
 		../../ltjs_audio_utils.cpp
 		../../ltjs_eax_api.cpp
 		ltjs_oal_efx_symbols.cpp
