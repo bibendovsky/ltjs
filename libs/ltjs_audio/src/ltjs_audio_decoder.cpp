@@ -1071,6 +1071,4 @@ int AudioDecoder::get_decoded_size() const noexcept
 	return impl_->get_decoded_size();
 }
 
-void AudioDecoder::initialize_current_thread() noexcept {}
-
 } // namespace ltjs

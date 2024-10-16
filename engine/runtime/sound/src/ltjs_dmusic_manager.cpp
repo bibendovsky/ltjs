@@ -180,8 +180,6 @@ public:
 			return LT_ERROR;
 		}
 
-		ltjs::AudioDecoder::initialize_current_thread();
-
 		is_initialized_ = true;
 
 #ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS

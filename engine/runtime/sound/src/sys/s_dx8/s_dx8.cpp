@@ -2600,8 +2600,6 @@ bool CDx8SoundSys::Init( )
 {
 	LOG_OPEN;
 
-	ltjs::AudioDecoder::initialize_current_thread();
-
 	// Initialize our loop list.
 	dl_TieOff( &CSample::m_lstSampleLoopHead );
 

@@ -239,11 +239,6 @@ public:
 	//
 	int get_decoded_size() const noexcept;
 
-	//
-	// Initializes a current thread.
-	//
-	static void initialize_current_thread() noexcept;
-
 
 private:
 	class Impl;

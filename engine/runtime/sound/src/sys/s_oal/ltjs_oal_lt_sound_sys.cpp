@@ -31,8 +31,6 @@ OalLtSoundSys::~OalLtSoundSys()
 
 bool OalLtSoundSys::Init()
 {
-	AudioDecoder::initialize_current_thread();
-
 	return true;
 }
 
