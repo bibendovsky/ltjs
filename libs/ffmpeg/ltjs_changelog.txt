@@ -1,0 +1,7 @@
+LTJS changelog for FFmpeg
+=========================
+
+Based on FFmpeg v7.0.2 (https://ffmpeg.org/releases/ffmpeg-7.0.2.tar.xz).
+- Kept essential code to decode Bink 1 audio and video.
+- The code was minimized as much as possible (made comments brief for public API, removed needless code, .etc).
+- Assember code and intrinsics was removed as well.

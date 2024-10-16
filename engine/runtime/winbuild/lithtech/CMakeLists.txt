@@ -75,10 +75,11 @@ if (LTJS_USE_BUNDLED_DIRECTX)
 	)
 endif ()
 
-set (
-	libs
-	${LTJS_FFMPEG_LIBRARY}
-)
+set (libs "")
+
+if (LTJS_USE_FFMPEG_VIDEO_MGR)
+	list(APPEND libs ltjs::ffmpeg)
+endif ()
 
 set (LTJS_TMP_LINKER_FLAGS "")
 
@@ -205,7 +206,6 @@ target_link_libraries (
 target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
-		${LTJS_FFMPEG_INCLUDE_DIR}
 		.
 		../../../../libs/DirectXMath/Inc
 		../../../../libs/lith

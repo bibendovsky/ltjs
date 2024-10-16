@@ -1,6 +1,7 @@
 #include "bdefs.h"
 
 #include "ltjs_fmv_player.h"
+#include <cassert>
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -14,14 +15,10 @@
 #include <utility>
 #include <vector>
 
-extern "C"
-{
+extern "C" {
 #include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
 #include "libavutil/avutil.h"
-#include "libavutil/opt.h"
-#include "libswresample/swresample.h"
-#include "libswscale/swscale.h"
 } // extern "C"
 
 
@@ -152,6 +149,81 @@ private:
 		std::int64_t frame_rate_ms_;
 	}; // PresentFrameContext
 
+	class YCbCrBt601
+	{
+		/*
+		Reference code to calculate analog R'G'B' from digital Y'CbCr.
+
+		Constants:
+		    - k_r = 0.299,
+		    - k_g = 0.587,
+		    - k_b = 0.114.
+
+		Input:
+		    - y_d (digital Y' [16..235]),
+		    - cb_d (digital Cb [16..240),
+		    - cr_d (digital Cr [16..240]).
+
+		y_p = 255 * (y_d - 16) / 219;
+		cb_p = 255 * 1.772 * (cb_d - 128) / 224;
+		cr_p = 255 * 1.402 * (cr_d - 128) / 224;
+
+		r_p = y_p + cr_p;
+		g_p = y_p - (k_b * cb_p + k_r * cr_p) / k_g;
+		b_p = y_p + cb_p;
+		*/
+
+	private:
+		static constexpr auto k_r = 0.299;
+		static constexpr auto k_g = 0.587;
+		static constexpr auto k_b = 0.114;
+
+		static constexpr auto k_bg = k_b / k_g;
+		static constexpr auto k_rg = k_r / k_g;
+
+		static constexpr auto k_y_p = 1.164383561643835616;
+		static constexpr auto k_cb_p = 2.017232142857142857;
+		static constexpr auto k_cr_p = 1.596026785714285714;
+
+	public:
+		static constexpr void make_chroma_intermediates(
+			std::uint8_t cb_d, // [in] Digital Cb (16..240).
+			std::uint8_t cr_d, // [in] Digital Cr (16..240).
+			double& cb_p, // [out] Analog Cb.
+			double& cr_p, // [out] Analog Cr.
+			double& cbr_p // [out] Analog mix of Cb and Cr.
+		) noexcept
+		{
+			cb_p = k_cb_p * (cb_d - 128);
+			cr_p = k_cr_p * (cr_d - 128);
+			cbr_p = k_bg * cb_p + k_rg * cr_p;
+		};
+
+		static constexpr std::uint32_t make_rgba_pixel(
+			std::uint8_t y_d, // [in] Digital Y' (16..235).
+			double cb_p, // [in] Analog Cb.
+			double cr_p, // [in] Analog Cr.
+			double cbr_p // [in] Analog mix of Cb and Cr.
+		) noexcept
+		{
+			const auto y_p = k_y_p * (y_d - 16); // Analog Y'.
+
+			const auto r_p = y_p + cr_p; // Analog R'.
+			const auto g_p = y_p - cbr_p; // Analog G'.
+			const auto b_p = y_p + cb_p; // Analog B'.
+
+			const auto r_d = static_cast<unsigned char>(clamp(static_cast<int>(r_p), 0, 255)); // Digital R'.
+			const auto g_d = static_cast<unsigned char>(clamp(static_cast<int>(g_p), 0, 255)); // Digital G'.
+			const auto b_d = static_cast<unsigned char>(clamp(static_cast<int>(b_p), 0, 255)); // Digital B'.
+
+			return
+				(static_cast<std::uint32_t>(0xFF) << 24) |
+				(static_cast<std::uint32_t>(r_d) << 16) |
+				(static_cast<std::uint32_t>(g_d) << 8) |
+				(static_cast<std::uint32_t>(b_d) << 0);
+		}
+	};
+
 
 	using Mutex = std::mutex;
 	using MutexGuard = std::lock_guard<Mutex>;
@@ -167,7 +239,7 @@ private:
 	std::uint8_t* ff_io_buffer_;
 	AVFormatContext* ff_format_context_;
 	const AVCodec* ff_audio_codec_;
-	const AVCodec* ff_video_codec_;
+	const AVCodec* ff_video_decoder_;
 	AVCodecContext* ff_codec_context_;
 	AVCodecContext* ff_audio_codec_context_;
 	AVCodecContext* ff_video_codec_context_;
@@ -175,8 +247,7 @@ private:
 	AVFrame* ff_frame_;
 	AVFrame* ff_audio_frame_;
 	AVFrame* ff_video_frame_;
-	SwrContext* ff_swr_context_;
-	SwsContext* ff_sws_context_;
+	int sample_rate_counter_{};
 	int ff_audio_stream_index_;
 	int ff_video_stream_index_;
 	bool ff_is_audio_frame_;
@@ -213,6 +284,12 @@ private:
 	int audio_buffer_size_;
 	PresentFrameContext present_frame_context_;
 
+
+	template<typename T>
+	static constexpr T clamp(T x, T x_min, T x_max) noexcept
+	{
+		return x < x_min ? x_min : (x > x_max ? x_max : x);
+	}
 
 	bool initialize_internal(
 		const InitializeParam& param);
@@ -287,6 +364,9 @@ private:
 		const std::int64_t size);
 
 	bool present_frame_initialize();
+
+	const Frame& mt_get_video_frame_by_index(int frame_index);
+	const Frame& mt_get_audio_frame_by_index(int frame_index);
 }; // FmvPlayer::Impl
 
 
@@ -325,8 +405,6 @@ bool FmvPlayer::InitializeParam::validate() const
 			return false;
 		}
 
-		const auto sample_size = FmvPlayerDetail::audio_dst_sample_size;
-
 		if (audio_buffer_size_ms_ <= 0)
 		{
 			return false;
@@ -352,7 +430,7 @@ FmvPlayer::Impl::Impl()
 	ff_io_buffer_{},
 	ff_format_context_{},
 	ff_audio_codec_{},
-	ff_video_codec_{},
+	ff_video_decoder_{},
 	ff_codec_context_{},
 	ff_audio_codec_context_{},
 	ff_video_codec_context_{},
@@ -360,8 +438,6 @@ FmvPlayer::Impl::Impl()
 	ff_frame_{},
 	ff_audio_frame_{},
 	ff_video_frame_{},
-	ff_swr_context_{},
-	ff_sws_context_{},
 	ff_audio_stream_index_{},
 	ff_video_stream_index_{},
 	ff_is_audio_frame_{},
@@ -454,14 +530,11 @@ void FmvPlayer::Impl::uninitialize()
 		ff_io_buffer_ = nullptr;
 	}
 
-	::swr_free(&ff_swr_context_);
-
-	::sws_freeContext(ff_sws_context_);
-	ff_sws_context_ = nullptr;
+	sample_rate_counter_ = 0;
 
 	ff_frame_ = nullptr;
 	ff_audio_codec_ = nullptr;
-	ff_video_codec_ = nullptr;
+	ff_video_decoder_ = nullptr;
 	ff_codec_context_ = nullptr;
 	ff_audio_codec_context_ = nullptr;
 	ff_video_codec_context_ = nullptr;
@@ -547,7 +620,7 @@ void FmvPlayer::Impl::handle_audio_frame_buffer()
 		frame.initialize_data(audio_buffer_size_);
 		frame.data_size_ = audio_buffer_size_;
 
-		std::uninitialized_copy_n(
+		std::copy_n(
 			audio_frame_buffer_.data_.cbegin() + data_offset,
 			audio_buffer_size_,
 			frame.data_.begin());
@@ -558,9 +631,7 @@ void FmvPlayer::Impl::handle_audio_frame_buffer()
 
 		{
 			MutexGuard mutex_guard{mt_audio_mutex_};
-
-			mt_audio_frames_.emplace_back();
-			Frame::swap(mt_audio_frames_.back(), frame);
+			mt_audio_frames_.emplace_back(frame);
 		}
 	}
 
@@ -574,7 +645,7 @@ void FmvPlayer::Impl::handle_audio_frame_buffer()
 
 	const auto new_offset = audio_frame_buffer_.data_size_ - buffer_remain;
 
-	std::uninitialized_copy_n(
+	std::copy_n(
 		&audio_frame_buffer_.data_[new_offset],
 		buffer_remain,
 		audio_frame_buffer_.data_.data());
@@ -595,7 +666,7 @@ void FmvPlayer::Impl::handle_audio_buffer_flush()
 
 	if (fill_count > 0)
 	{
-		std::uninitialized_fill_n(
+		std::fill_n(
 			&audio_frame_buffer_.data_[audio_frame_buffer_.data_size_],
 			fill_count,
 			std::uint8_t{});
@@ -689,123 +760,224 @@ void FmvPlayer::Impl::handle_receive_state()
 
 void FmvPlayer::Impl::handle_decode_audio_state()
 {
-	if (ff_swr_context_)
+	switch (ff_frame_->format)
 	{
-		auto max_dst_sample_count = ::swr_get_out_samples(ff_swr_context_, ff_frame_->nb_samples);
+		case AV_SAMPLE_FMT_FLT:
+		case AV_SAMPLE_FMT_FLTP:
+			break;
 
-		if (max_dst_sample_count < 0)
-		{
+		default:
 			ff_state_ = FfState::failed;
 			return;
-		}
-
-		if (max_dst_sample_count < ff_frame_->nb_samples)
-		{
-			max_dst_sample_count = ff_frame_->nb_samples;
-		}
-
-		const auto max_dst_size = max_dst_sample_count * FmvPlayerDetail::audio_dst_sample_size;
-
-		const auto new_audio_buffer_size = max_dst_size + audio_frame_buffer_.data_size_;
-
-		if (static_cast<int>(audio_frame_buffer_.data_.size()) < new_audio_buffer_size)
-		{
-			audio_frame_buffer_.data_.resize(new_audio_buffer_size);
-		}
-
-		std::uint8_t* dst_samples[] = {&audio_frame_buffer_.data_[audio_frame_buffer_.data_size_]};
-
-		const auto dst_sample_count = ::swr_convert(
-			ff_swr_context_,
-			dst_samples,
-			max_dst_sample_count,
-			const_cast<const std::uint8_t**>(ff_frame_->data),
-			ff_frame_->nb_samples);
-
-		if (dst_sample_count >= 0)
-		{
-			const auto dst_size = FmvPlayerDetail::audio_dst_sample_size * dst_sample_count;
-
-			audio_frame_buffer_.data_size_ += dst_size;
-
-			handle_audio_frame_buffer();
-		}
-		else
-		{
-			ff_state_ = FfState::failed;
-			return;
-		}
 	}
-	else
-	{
-		const auto dst_size = FmvPlayerDetail::audio_dst_sample_size * ff_frame_->nb_samples;
 
-		if (dst_size > 0)
+	const auto is_planar = ff_frame_->data[1] != nullptr;
+	const auto src_channel_count = ff_frame_->ch_layout.nb_channels;
+	const auto src_sample_rate = ff_audio_codec_context_->sample_rate;
+	const auto src_frame_count = ff_frame_->nb_samples;
+	constexpr auto dst_channel_count = FmvPlayerDetail::audio_dst_channel_count;
+	const auto dst_frame_size = FmvPlayerDetail::audio_dst_sample_size;
+	const auto dst_sample_rate = ff_dst_sample_rate_;
+	const auto max_dst_frame_count = (src_frame_count * dst_sample_rate + src_sample_rate - 1) / src_sample_rate;
+	const auto max_dst_size = dst_frame_size * max_dst_frame_count;
+	const auto audio_buffer_size = static_cast<int>(audio_frame_buffer_.data_.size());
+	const auto new_audio_buffer_size = audio_buffer_size + max_dst_size;
+
+#if 0
+	static FILE* file = nullptr;
+
+	if (file == nullptr)
+	{
+		file = fopen("out.data", "wb");
+	}
+
+	float dump[1920] = {};
+
+	for (auto i = 0; i < 960; ++i)
+	{
+		dump[(i * 2) + 0] = reinterpret_cast<const float*>(ff_frame_->data[0])[i];
+		dump[(i * 2) + 1] = reinterpret_cast<const float*>(ff_frame_->data[1])[i];
+	}
+
+	fwrite(dump, 1, 1920 * 4, file);
+#endif
+
+	if (audio_buffer_size < new_audio_buffer_size)
+	{
+		audio_frame_buffer_.data_.resize(new_audio_buffer_size);
+	}
+
+	const float* const src_planes[] =
+	{
+		reinterpret_cast<const float*>(ff_frame_->data[0]),
+		reinterpret_cast<const float*>(ff_frame_->data[1]),
+	};
+
+	auto src_frame_offset = 0;
+
+	float src_frame_cache[2] = {};
+	std::int16_t dst_frame_cache[2] = {};
+
+	auto dst_samples = reinterpret_cast<std::int16_t*>(&audio_frame_buffer_.data_[audio_frame_buffer_.data_size_]);
+	auto dst_frame_offset = 0;
+
+	while (dst_frame_offset < max_dst_frame_count)
+	{
+		if (sample_rate_counter_ >= dst_sample_rate)
 		{
-			if (static_cast<int>(audio_frame_buffer_.data_.size()) < dst_size)
+			if (src_frame_offset == src_frame_count)
 			{
-				audio_frame_buffer_.data_.resize(dst_size);
+				break;
 			}
 
-			std::uninitialized_copy_n(
-				ff_frame_->data[0],
-				dst_size,
-				&audio_frame_buffer_.data_[audio_frame_buffer_.data_size_]);
+			if (is_planar)
+			{
+				for (auto i = 0; i < src_channel_count; ++i)
+				{
+					src_frame_cache[i] = src_planes[i][src_frame_offset];
+				}
+			}
+			else
+			{
+				const auto base_offset = src_channel_count * src_frame_offset;
 
-			audio_frame_buffer_.data_size_ += dst_size;
+				for (auto i = 0; i < src_channel_count; ++i)
+				{
+					src_frame_cache[i] = src_planes[0][base_offset + i];
+				}
+			}
 
-			handle_audio_frame_buffer();
+			++src_frame_offset;
+
+			if (src_channel_count != dst_channel_count)
+			{
+				src_frame_cache[1] = src_frame_cache[0];
+			}
+
+			for (auto i = 0; i < dst_channel_count; ++i)
+			{
+				const auto sample_i = static_cast<int>(src_frame_cache[i] * 32767.5F - 0.5F);
+				dst_frame_cache[i] = static_cast<std::int16_t>(clamp(sample_i, int{INT16_MIN}, int{INT16_MAX}));
+			}
+
+			sample_rate_counter_ -= dst_sample_rate;
 		}
+
+		sample_rate_counter_ += src_sample_rate;
+
+		for (auto i = 0; i < dst_channel_count; ++i)
+		{
+			*dst_samples++ = dst_frame_cache[i];
+		}
+
+		++dst_frame_offset;
 	}
 
+	assert(sample_rate_counter_ >= dst_sample_rate);
+
+	const auto dst_size = dst_frame_size * dst_frame_offset;
+	audio_frame_buffer_.data_size_ += dst_size;
+
+	handle_audio_frame_buffer();
 	ff_is_await_ = true;
 	ff_state_ = FfState::receive;
 }
 
 void FmvPlayer::Impl::handle_decode_video_state()
 {
-	const auto dst_stride = ff_video_codec_context_->width * pixel_size;
-	const auto dst_size = ff_video_codec_context_->height * dst_stride;
-
-	if (ff_sws_context_)
+	if (ff_frame_->data[0] == nullptr ||
+		ff_frame_->data[1] == nullptr ||
+		ff_frame_->data[2] == nullptr ||
+		ff_frame_->linesize[0] < ff_video_codec_context_->width ||
+		ff_frame_->linesize[1] != ff_frame_->linesize[0] / 2 ||
+		ff_frame_->linesize[2] != ff_frame_->linesize[0] / 2)
 	{
-		auto frame = Frame{};
-		auto& frame_data = frame.initialize_data(dst_size);
+		ff_state_ = FfState::failed;
+		return;
+	}
 
-		auto dst_pointers = FfPointers{};
-		dst_pointers[0] = frame_data.data();
+	auto frame = Frame{};
+	const auto width = ff_video_codec_context_->width;
+	const auto height = ff_video_codec_context_->height;
+	const auto dst_size = width * height * pixel_size;
 
-		auto dst_strides = FfStrides{};
-		dst_strides[0] = dst_stride;
+	const auto y_stride = ff_frame_->linesize[0];
+	const auto c_stride = ff_frame_->linesize[1];
 
-		const auto ff_result = ::sws_scale(
-			ff_sws_context_,
-			ff_frame_->data,
-			ff_frame_->linesize,
-			0,
-			ff_video_codec_context_->height,
-			dst_pointers.data(),
-			dst_strides.data());
+	auto y_plane = ff_frame_->data[0];
+	auto cb_plane = ff_frame_->data[1];
+	auto cr_plane = ff_frame_->data[2];
 
-		if (ff_result != ff_video_codec_context_->height)
+	const auto dst_bytes = frame.initialize_data(dst_size).data();
+	auto dst_pixels = reinterpret_cast<std::uint32_t*>(dst_bytes);
+
+	const auto is_odd_width = (width & 1) != 0;
+	const auto is_odd_height = (height & 1) != 0;
+
+	const auto blocks_per_width = width / 2;
+	const auto blocks_per_height = height / 2;
+
+	double cb_p;
+	double cr_p;
+	double cbr_p;
+
+	for (auto i = 0; i < blocks_per_height; ++i)
+	{
+		auto y_line = y_plane;
+		auto cb_line = cb_plane;
+		auto cr_line = cr_plane;
+
+		auto dst_line = dst_pixels;
+
+		for (auto j = 0; j < blocks_per_width; ++j)
 		{
-			ff_state_ = FfState::failed;
-			return;
+			YCbCrBt601::make_chroma_intermediates(cb_line[0], cr_line[0], cb_p, cr_p, cbr_p);
+			dst_line[0        ] = YCbCrBt601::make_rgba_pixel(y_line[0           ], cb_p, cr_p, cbr_p);
+			dst_line[1        ] = YCbCrBt601::make_rgba_pixel(y_line[1           ], cb_p, cr_p, cbr_p);
+			dst_line[width    ] = YCbCrBt601::make_rgba_pixel(y_line[y_stride    ], cb_p, cr_p, cbr_p);
+			dst_line[width + 1] = YCbCrBt601::make_rgba_pixel(y_line[y_stride + 1], cb_p, cr_p, cbr_p);
+
+			y_line += 2;
+			++cb_line;
+			++cr_line;
+
+			dst_line += 2;
 		}
 
-		mt_video_frames_.emplace_back();
-		Frame::swap(mt_video_frames_.back(), frame);
+		if (is_odd_width)
+		{
+			YCbCrBt601::make_chroma_intermediates(cb_line[0], cr_line[0], cb_p, cr_p, cbr_p);
+			dst_line[0    ] = YCbCrBt601::make_rgba_pixel(y_line[0       ], cb_p, cr_p, cbr_p);
+			dst_line[width] = YCbCrBt601::make_rgba_pixel(y_line[y_stride], cb_p, cr_p, cbr_p);
+		}
+
+		y_plane += 2 * y_stride;
+		cb_plane += c_stride;
+		cr_plane += c_stride;
+		dst_pixels += 2 * width;
 	}
-	else
+
+	if (is_odd_height)
 	{
-		mt_video_frames_.emplace_back();
-		auto& frame = mt_video_frames_.back();
-		auto& frame_data = frame.initialize_data(dst_size);
+		for (auto i = 0; i < blocks_per_width; ++i)
+		{
+			YCbCrBt601::make_chroma_intermediates(cb_plane[0], cr_plane[0], cb_p, cr_p, cbr_p);
+			dst_pixels[0] = YCbCrBt601::make_rgba_pixel(y_plane[0], cb_p, cr_p, cbr_p);
+			dst_pixels[1] = YCbCrBt601::make_rgba_pixel(y_plane[1], cb_p, cr_p, cbr_p);
 
-		std::uninitialized_copy_n(ff_frame_->data[0], dst_size, frame_data.begin());
+			y_plane += 2;
+			++cb_plane;
+			++cr_plane;
+
+			dst_pixels += 2;
+		}
+
+		if (is_odd_width)
+		{
+			YCbCrBt601::make_chroma_intermediates(cb_plane[0], cr_plane[0], cb_p, cr_p, cbr_p);
+			dst_pixels[0] = YCbCrBt601::make_rgba_pixel(y_plane[0], cb_p, cr_p, cbr_p);
+		}
 	}
-
-	auto& frame = mt_video_frames_.back();
 
 	auto fr_num = 0;
 	auto fr_den = 0;
@@ -819,6 +991,11 @@ void FmvPlayer::Impl::handle_decode_video_state()
 
 	ff_is_await_ = true;
 	ff_state_ = FfState::receive;
+
+	{
+		MutexGuard mutex_guard{mt_video_mutex_};
+		mt_video_frames_.emplace_back(frame);
+	}
 }
 
 void FmvPlayer::Impl::handle_decode_state()
@@ -835,58 +1012,11 @@ void FmvPlayer::Impl::handle_decode_state()
 
 void FmvPlayer::Impl::handle_flush_state()
 {
-	ff_state_ = FfState::finished;
-
-	if (!ff_swr_context_)
-	{
-		return;
-	}
-
-	auto max_dst_sample_count = ::swr_get_out_samples(ff_swr_context_, 0);
-
-	if (max_dst_sample_count < 0)
-	{
-		ff_state_ = FfState::failed;
-		return;
-	}
-
-	if (max_dst_sample_count == 0)
+	if (audio_frame_buffer_.data_size_ == 0)
 	{
 		ff_state_ = FfState::finished;
-		handle_audio_buffer_flush();
 		return;
 	}
-
-	const auto max_dst_size = max_dst_sample_count * FmvPlayerDetail::audio_dst_sample_size;
-
-	if (static_cast<int>(audio_frame_buffer_.data_.size()) < max_dst_size)
-	{
-		audio_frame_buffer_.data_.resize(max_dst_size);
-	}
-
-	std::uint8_t* dst_samples[] = {&audio_frame_buffer_.data_[audio_frame_buffer_.data_size_]};
-
-	const auto dst_sample_count = ::swr_convert(
-		ff_swr_context_,
-		dst_samples,
-		max_dst_sample_count,
-		nullptr,
-		0);
-
-	if (dst_sample_count < 0)
-	{
-		ff_state_ = FfState::failed;
-		return;
-	}
-
-	if (dst_sample_count == 0)
-	{
-		handle_audio_buffer_flush();
-		return;
-	}
-
-	const auto dst_size = dst_sample_count * FmvPlayerDetail::audio_dst_sample_size;
-	audio_frame_buffer_.data_size_ += dst_size;
 
 	handle_audio_buffer_flush();
 }
@@ -1106,10 +1236,15 @@ bool FmvPlayer::Impl::initialize_decoder(
 			{
 				if (!param.is_ignore_audio_ && ff_audio_stream_index_ < 0)
 				{
-					ff_audio_stream_index_ = i;
+					if (codec_params.codec_id == AV_CODEC_ID_BINKAUDIO_DCT ||
+						codec_params.codec_id == AV_CODEC_ID_BINKAUDIO_RDFT)
+					{
+						ff_audio_stream_index_ = i;
+					}
 				}
 			}
-			else if (codec_params.codec_type == AVMEDIA_TYPE_VIDEO && codec_params.codec_id == AV_CODEC_ID_BINKVIDEO)
+			else if (codec_params.codec_type == AVMEDIA_TYPE_VIDEO &&
+				codec_params.codec_id == AV_CODEC_ID_BINKVIDEO)
 			{
 				if (ff_video_stream_index_ < 0)
 				{
@@ -1131,8 +1266,8 @@ bool FmvPlayer::Impl::initialize_decoder(
 		}
 	}
 
-	auto has_audio_data = (ff_audio_stream_index_ >= 0);
-	auto has_video_data = (ff_video_stream_index_ >= 0);
+	auto has_audio_data = ff_audio_stream_index_ >= 0;
+	auto has_video_data = ff_video_stream_index_ >= 0;
 
 	if (!has_video_data)
 	{
@@ -1182,6 +1317,21 @@ bool FmvPlayer::Impl::initialize_decoder(
 		{
 			return false;
 		}
+
+		switch (ff_video_codec_context_->pix_fmt)
+		{
+			case AV_PIX_FMT_YUV420P:
+			case AV_PIX_FMT_YUVA420P:
+				break;
+
+			default:
+				return false;
+		}
+
+		if (ff_video_codec_context_->width == 0 || ff_video_codec_context_->height == 0)
+		{
+			return false;
+		}
 	}
 
 	if (has_audio_data)
@@ -1199,108 +1349,29 @@ bool FmvPlayer::Impl::initialize_decoder(
 		{
 			return false;
 		}
+
+		switch (ff_audio_codec_context_->ch_layout.nb_channels)
+		{
+			case 1:
+			case 2:
+				break;
+
+			default: return false;
+		}
 	}
 
 	if (has_video_data)
 	{
-		ff_video_codec_ = ::avcodec_find_decoder(ff_video_codec_context_->codec_id);
+		ff_video_decoder_ = ::avcodec_find_decoder(ff_video_codec_context_->codec_id);
 
-		if (!ff_video_codec_)
+		if (!ff_video_decoder_)
 		{
 			return false;
 		}
 
-		ff_result = ::avcodec_open2(ff_video_codec_context_, ff_video_codec_, nullptr);
+		ff_result = ::avcodec_open2(ff_video_codec_context_, ff_video_decoder_, nullptr);
 
 		if (ff_result != 0)
-		{
-			return false;
-		}
-	}
-
-	auto src_sample_format = AV_SAMPLE_FMT_NONE;
-	auto src_channel_layout = AVChannelLayout{};
-	auto src_sample_rate = 0;
-
-	auto dst_sample_format = AV_SAMPLE_FMT_NONE;
-	auto dst_channel_count = 0;
-	auto dst_channel_layout = AVChannelLayout{};
-	auto dst_sample_rate = 0;
-
-	auto need_audio_converter = false;
-
-	if (has_audio_data)
-	{
-		src_sample_format = ff_audio_codec_context_->sample_fmt;
-		src_channel_layout = ff_audio_codec_context_->ch_layout;
-		src_sample_rate = ff_audio_codec_context_->sample_rate;
-
-		dst_sample_format = AV_SAMPLE_FMT_S16;
-		dst_channel_count = FmvPlayerDetail::audio_dst_channel_count;
-		::av_channel_layout_default(&dst_channel_layout, dst_channel_count);
-		dst_sample_rate = param.dst_sample_rate_;
-
-		if (dst_sample_rate == 0)
-		{
-			dst_sample_rate = src_sample_rate;
-		}
-
-		need_audio_converter = (
-			src_sample_format != dst_sample_format ||
-			memcmp(&src_channel_layout, &dst_channel_layout, sizeof(AVChannelLayout)) != 0 ||
-			src_sample_rate != ff_dst_sample_rate_);
-	}
-
-	if (has_audio_data && need_audio_converter)
-	{
-		ff_result = ::swr_alloc_set_opts2(
-			&ff_swr_context_,
-			&dst_channel_layout,
-			dst_sample_format,
-			dst_sample_rate,
-			&src_channel_layout,
-			src_sample_format,
-			src_sample_rate,
-			0,
-			nullptr);
-
-		if (ff_result != 0)
-		{
-			return false;
-		}
-
-		//
-		ff_result = ::swr_init(ff_swr_context_);
-
-		if (ff_result != 0)
-		{
-			return false;
-		}
-	}
-
-	auto need_video_converter = false;
-
-	if (has_video_data)
-	{
-		need_video_converter = (ff_video_codec_context_->pix_fmt != AV_PIX_FMT_RGB32);
-	}
-
-	if (has_video_data && need_video_converter)
-	{
-		ff_sws_context_ = ::sws_getCachedContext(
-			ff_sws_context_,
-			ff_video_codec_context_->width,
-			ff_video_codec_context_->height,
-			ff_video_codec_context_->pix_fmt,
-			ff_video_codec_context_->width,
-			ff_video_codec_context_->height,
-			AV_PIX_FMT_RGB32,
-			SWS_POINT,
-			nullptr,
-			nullptr,
-			nullptr);
-
-		if (!ff_sws_context_)
 		{
 			return false;
 		}
@@ -1315,9 +1386,12 @@ bool FmvPlayer::Impl::initialize_decoder(
 			return false;
 		}
 
+		ff_dst_sample_rate_ = param.dst_sample_rate_ != 0 ? param.dst_sample_rate_ : ff_audio_codec_context_->sample_rate;
+		sample_rate_counter_ = ff_dst_sample_rate_;
+
 		audio_buffer_size_ = static_cast<int>((
 			param.audio_buffer_size_ms_ *
-				dst_sample_rate * FmvPlayerDetail::audio_dst_sample_size) / 1000LL);
+				ff_dst_sample_rate_ * FmvPlayerDetail::audio_dst_sample_size) / 1000LL);
 
 		audio_buffer_size_ += FmvPlayerDetail::audio_dst_sample_size - 1;
 		audio_buffer_size_ /= FmvPlayerDetail::audio_dst_sample_size;
@@ -1335,7 +1409,6 @@ bool FmvPlayer::Impl::initialize_decoder(
 	}
 
 	ff_state_ = FfState::read;
-	ff_dst_sample_rate_ = dst_sample_rate;
 	initialize_param_ = param;
 
 	return true;
@@ -1450,9 +1523,6 @@ bool FmvPlayer::Impl::present()
 		mt_audio_thread_ = std::thread{std::bind(&Impl::audio_worker, this)};
 	}
 
-
-	constexpr auto max_video_size = 2;
-
 	const auto width = get_width();
 	const auto height = get_height();
 
@@ -1470,28 +1540,20 @@ bool FmvPlayer::Impl::present()
 
 		auto frame_count = 0;
 		auto frame_index = 0;
-		auto frame_it = Frames::const_iterator{};
 
 		if (frame_count_to_remove > 0)
 		{
 			MutexGuard mutex_guard{mt_video_mutex_};
-
 			auto begin_it = mt_video_frames_.cbegin();
 			auto end_it = begin_it + frame_count_to_remove;
-
 			mt_video_frames_.erase(begin_it, end_it);
-
 			frame_count = static_cast<int>(mt_video_frames_.size());
-			frame_it = mt_video_frames_.cbegin();
-
 			frame_count_to_remove = 0;
 		}
 		else
 		{
 			MutexGuard mutex_guard{mt_video_mutex_};
-
 			frame_count = static_cast<int>(mt_video_frames_.size());
-			frame_it = mt_video_frames_.cbegin();
 		}
 
 		const auto pts_ms = mt_pts_ms_.load(std::memory_order_acquire);
@@ -1503,29 +1565,24 @@ bool FmvPlayer::Impl::present()
 
 		while (frame_index < frame_count)
 		{
-			auto& frame = *frame_it;
-
+			const auto& frame = mt_get_video_frame_by_index(frame_index);
 			const auto pts_ms_delta = frame.pts_ms_ - pts_ms;
 
 			if (pts_ms_delta < -10)
 			{
 				frame_count_to_remove += 1;
 				frame_index += 1;
-				++frame_it;
-
 				is_presented = false;
 			}
 			else if (pts_ms_delta <= 10)
 			{
 				initialize_param_.video_present_func_(
 					initialize_param_.user_data_,
-					frame_it->data_.data(),
+					frame.data_.data(),
 					width, height);
 
 				frame_count_to_remove += 1;
 				frame_index += 1;
-				++frame_it;
-
 				is_presented = true;
 
 				const auto end_time_point = std::chrono::system_clock::now();
@@ -1594,28 +1651,20 @@ bool FmvPlayer::Impl::present_frame()
 
 	auto frame_count = 0;
 	auto frame_index = 0;
-	auto frame_it = Frames::const_iterator{};
 
 	if (present_frame_context_.frame_count_to_remove_ > 0)
 	{
 		MutexGuard mutex_guard{mt_video_mutex_};
-
 		auto begin_it = mt_video_frames_.cbegin();
 		auto end_it = begin_it + present_frame_context_.frame_count_to_remove_;
-
 		mt_video_frames_.erase(begin_it, end_it);
-
 		frame_count = static_cast<int>(mt_video_frames_.size());
-		frame_it = mt_video_frames_.cbegin();
-
 		present_frame_context_.frame_count_to_remove_ = 0;
 	}
 	else
 	{
 		MutexGuard mutex_guard{mt_video_mutex_};
-
 		frame_count = static_cast<int>(mt_video_frames_.size());
-		frame_it = mt_video_frames_.cbegin();
 	}
 
 	const auto pts_ms = mt_pts_ms_.load(std::memory_order_acquire);
@@ -1627,30 +1676,25 @@ bool FmvPlayer::Impl::present_frame()
 
 	while (frame_index < frame_count)
 	{
-		auto& frame = *frame_it;
-
+		const auto& frame = mt_get_video_frame_by_index(frame_index);
 		const auto pts_ms_delta = frame.pts_ms_ - pts_ms;
 
 		if (pts_ms_delta < -20)
 		{
 			present_frame_context_.frame_count_to_remove_ += 1;
 			frame_index += 1;
-			++frame_it;
-
 			is_presented = false;
 		}
 		else if (pts_ms_delta <= 20)
 		{
 			initialize_param_.video_present_func_(
 				initialize_param_.user_data_,
-				frame_it->data_.data(),
+				frame.data_.data(),
 				width,
 				height);
 
 			present_frame_context_.frame_count_to_remove_ += 1;
 			frame_index += 1;
-			++frame_it;
-
 			is_presented = true;
 
 			const auto end_time_point = std::chrono::system_clock::now();
@@ -1724,7 +1768,6 @@ void FmvPlayer::Impl::clock_worker()
 void FmvPlayer::Impl::decoder_worker()
 {
 	const auto min_video_frame_count = 3;
-	const auto has_audio = (ff_audio_codec_context_ != nullptr);
 
 	const auto sleep_delay_ms = std::chrono::milliseconds{FmvPlayerDetail::default_sleep_delay_ms};
 
@@ -1742,7 +1785,6 @@ void FmvPlayer::Impl::decoder_worker()
 
 				{
 					MutexGuard mutex_guard{mt_video_mutex_};
-
 					video_frame_count = static_cast<int>(mt_video_frames_.size());
 				}
 
@@ -1762,7 +1804,6 @@ void FmvPlayer::Impl::decoder_worker()
 				{
 					{
 						MutexGuard mutex_guard{mt_audio_mutex_};
-
 						audio_frame_count = static_cast<int>(mt_audio_frames_.size());
 					}
 
@@ -1792,7 +1833,6 @@ void FmvPlayer::Impl::decoder_worker()
 
 			{
 				MutexGuard mutex_guard{mt_video_mutex_};
-
 				video_frame_count = static_cast<int>(mt_video_frames_.size());
 			}
 
@@ -1800,7 +1840,6 @@ void FmvPlayer::Impl::decoder_worker()
 
 			{
 				MutexGuard mutex_guard{mt_audio_mutex_};
-
 				audio_frame_count = static_cast<int>(mt_audio_frames_.size());
 			}
 
@@ -1822,8 +1861,6 @@ void FmvPlayer::Impl::audio_worker()
 {
 	const auto sleep_delay_ms = std::chrono::milliseconds{FmvPlayerDetail::default_sleep_delay_ms};
 
-	const auto threshold_ms = 20LL;
-
 	auto frame_count_to_remove = 0;
 
 	wait_for_preload();
@@ -1831,28 +1868,20 @@ void FmvPlayer::Impl::audio_worker()
 	while (!is_stop_threads_ && !is_audio_worker_finished_)
 	{
 		auto frame_count = 0;
-		auto frame_it = Frames::const_iterator{};
 
 		if (frame_count_to_remove > 0)
 		{
 			MutexGuard mutex_guard{mt_audio_mutex_};
-
 			auto begin_it = mt_audio_frames_.cbegin();
 			auto end_it = begin_it + frame_count_to_remove;
-
 			mt_audio_frames_.erase(begin_it, end_it);
-
 			frame_count = static_cast<int>(mt_audio_frames_.size());
-			frame_it = mt_audio_frames_.cbegin();
-
 			frame_count_to_remove = 0;
 		}
 		else
 		{
 			MutexGuard mutex_guard{mt_audio_mutex_};
-
 			frame_count = static_cast<int>(mt_audio_frames_.size());
-			frame_it = mt_audio_frames_.cbegin();
 		}
 
 		auto is_filled = false;
@@ -1866,8 +1895,7 @@ void FmvPlayer::Impl::audio_worker()
 
 		while (frame_index < frame_count && buffer_count < free_buffer_count)
 		{
-			const auto& frame = *frame_it;
-
+			const auto& frame = mt_get_audio_frame_by_index(frame_index);
 			const auto frame_ms = size_to_ms(frame.data_size_);
 			const auto frame_end_ms = frame.pts_ms_ + frame_ms;
 
@@ -1883,13 +1911,11 @@ void FmvPlayer::Impl::audio_worker()
 
 				frame_index += 1;
 				frame_count_to_remove += 1;
-				++frame_it;
 			}
 			else
 			{
 				frame_index += 1;
 				frame_count_to_remove += 1;
-				++frame_it;
 
 				for (auto i = 0; i < already_queued_count - 1; ++i)
 				{
@@ -1900,7 +1926,6 @@ void FmvPlayer::Impl::audio_worker()
 
 					frame_index += 1;
 					frame_count_to_remove += 1;
-					++frame_it;
 				}
 			}
 		}
@@ -2019,6 +2044,18 @@ bool FmvPlayer::Impl::present_frame_initialize()
 
 	return true;
 }
+
+auto FmvPlayer::Impl::mt_get_video_frame_by_index(int frame_index) -> const Frame&
+{
+	MutexGuard mutex_guard{mt_video_mutex_};
+	return mt_video_frames_[frame_index];
+};
+
+auto FmvPlayer::Impl::mt_get_audio_frame_by_index(int frame_index) -> const Frame&
+{
+	MutexGuard mutex_guard{mt_audio_mutex_};
+	return mt_audio_frames_[frame_index];
+};
 
 FmvPlayer::FmvPlayer()
 	:
