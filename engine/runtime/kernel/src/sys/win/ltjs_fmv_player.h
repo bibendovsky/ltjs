@@ -1,18 +1,11 @@
 #ifndef LTJS_FMV_PLAYER_INCLUDED
 #define LTJS_FMV_PLAYER_INCLUDED
 
-
 #include <cstdint>
 #include <memory>
 
+namespace ltjs {
 
-namespace ltjs
-{
-
-
-//
-// FMV player.
-//
 class FmvPlayer final
 {
 public:
@@ -26,8 +19,7 @@ public:
 	//    - "true" if presentation shoul be cancelled.
 	//    - "false" if presentation should be continued.
 	//
-	using IsCancelledFunc = bool (*)(
-		void* user_data);
+	using IsCancelledFunc = bool (*)(void* user_data);
 
 	//
 	// Callback to present audio data.
@@ -37,10 +29,7 @@ public:
 	//    - data - audio data.
 	//    - data_size - audio data size in bytes.
 	//
-	using AudioPresentFunc = void (*)(
-		void* user_data,
-		const void* data,
-		const int data_size);
+	using AudioPresentFunc = void (*)(void* user_data, const void* data, int data_size);
 
 	//
 	// Callback to get free audio buffer count.
@@ -50,8 +39,7 @@ public:
 	//
 	// Returns:
 	//    - Free audio buffer count.
-	using AudioGetFreeBufferCountFunc = int (*)(
-		void* user_data);
+	using AudioGetFreeBufferCountFunc = int (*)(void* user_data);
 
 	//
 	// Callback to present video data.
@@ -62,34 +50,17 @@ public:
 	//    - width - video frame width.
 	//    - height - video frame height.
 	//
-	using VideoPresentFunc = void (*)(
-		void* user_data,
-		const void* data,
-		const int width,
-		const int height);
+	using VideoPresentFunc = void (*)(void* user_data, const void* data, int width, int height);
 
-
-	//
 	// I/O seek origin.
-	//
 	enum class SeekOrigin
 	{
-		// Invalid value.
-		none,
-
-		// From the beginning.
-		begin,
-
-		// From the current position.
-		current,
-
-		// From the end position.
-		end,
-
-		// Should return a size of the stream.
-		size,
-	}; // SeekOrigin
-
+		none, // Invalid value.
+		begin, // From the beginning.
+		current, // From the current position.
+		end, // From the end position.
+		size, // Should return a size of the stream.
+	};
 
 	//
 	// I/O read callback.
@@ -103,10 +74,7 @@ public:
 	//    - Actual size of data written into the buffer.
 	//    - Negative value on error.
 	//
-	using IoReadFunction = int (*)(
-		void* user_data,
-		std::uint8_t* buffer,
-		const int buffer_size);
+	using IoReadFunction = int (*)(void* user_data, std::uint8_t* buffer, int buffer_size);
 
 	//
 	// I/O seek callback.
@@ -120,15 +88,9 @@ public:
 	//    - A new position.
 	//    - Negative value on error.
 	//
-	using IoSeekFunction = std::int64_t (*)(
-		void* user_data,
-		const std::int64_t offset,
-		const SeekOrigin origin);
+	using IoSeekFunction = std::int64_t (*)(void* user_data, std::int64_t offset, SeekOrigin origin);
 
-
-	//
 	// Initialization object parameter.
-	//
 	struct InitializeParam
 	{
 		// Pass "true" to skip audio data.
@@ -143,7 +105,6 @@ public:
 
 		// Maximum allowed audio buffer count.
 		int audio_max_buffer_count_;
-
 
 		// User defined data for callbacks.
 		void* user_data_;
@@ -166,7 +127,6 @@ public:
 		// Audio callback to get free buffer count.
 		AudioGetFreeBufferCountFunc audio_get_free_buffer_count_func_;
 
-
 		//
 		// Validates the instance.
 		//
@@ -175,22 +135,13 @@ public:
 		//    - "false" otherwise.
 		//
 		bool validate() const;
-	}; // InitializeParam
-
+	};
 
 	FmvPlayer();
-
-	FmvPlayer(
-		const FmvPlayer& that) = delete;
-
-	FmvPlayer& operator=(
-		const FmvPlayer& that) = delete;
-
-	FmvPlayer(
-		FmvPlayer&& that);
-
+	FmvPlayer(const FmvPlayer& that) = delete;
+	FmvPlayer& operator=(const FmvPlayer& that) = delete;
+	FmvPlayer(FmvPlayer&& that) noexcept;
 	~FmvPlayer();
-
 
 	//
 	// Initializes current thread.
@@ -199,7 +150,6 @@ public:
 	//    - Should be called before actual using of the player.
 	//
 	static void initialize_current_thread();
-
 
 	//
 	// Initializes the player.
@@ -211,8 +161,7 @@ public:
 	//    - "true" on success.
 	//    - "false" otherwise.
 	//
-	bool initialize(
-		const InitializeParam& param);
+	bool initialize(const InitializeParam& param);
 
 	//
 	// Uninitializes the player.
@@ -324,14 +273,10 @@ public:
 
 private:
 	class Impl;
-
 	using ImplUPtr = std::unique_ptr<Impl>;
-
 	ImplUPtr impl_;
-}; // FmvPlayer
+};
 
-
-} // ltjs
-
+} // namespace ltjs
 
 #endif // LTJS_FMV_PLAYER_INCLUDED

@@ -21,14 +21,11 @@ extern "C" {
 #include "libavutil/avutil.h"
 } // extern "C"
 
+// ==========================================================================
 
-namespace ltjs
-{
+namespace ltjs {
 
-
-namespace
-{
-
+namespace {
 
 struct FmvPlayerDetail
 {
@@ -40,75 +37,48 @@ struct FmvPlayerDetail
 	static constexpr auto audio_dst_sample_size = audio_dst_channel_count * audio_dst_byte_depth;
 
 	static constexpr auto default_sleep_delay_ms = 5;
-}; // FmvPlayerDetail
-
+};
 
 } // namespace
 
+// ==========================================================================
 
 class FmvPlayer::Impl
 {
 public:
 	using IsCancelledFunc = bool (*)();
-
-	using AudioPresentFunc = void (*)(
-		const void* data,
-		const int data_size);
-
-	using VideoPresentFunc = void (*)(
-		const void* data,
-		const int width,
-		const int height);
-
+	using AudioPresentFunc = void (*)(const void* data, const int data_size);
+	using VideoPresentFunc = void (*)(const void* data, const int width, const int height);
 
 	Impl();
-
-	Impl(
-		const Impl& that) = delete;
-
-	Impl& operator=(
-		const Impl& that) = delete;
-
+	Impl(const Impl& that) = delete;
+	Impl& operator=(const Impl& that) = delete;
 	~Impl();
 
-
-	bool initialize(
-		const InitializeParam& param);
-
+	bool initialize(const InitializeParam& param);
 	void uninitialize();
 
 	bool is_initialized() const;
-
-
 	int get_sample_rate() const;
-
 	int get_audio_buffer_size() const;
-
 	int get_width() const;
-
 	int get_height() const;
-
 	bool has_audio() const;
 
 	bool present();
-
 	bool present_frame();
-
 	bool is_presentation_finished() const;
 
 	static void initialize_current_thread();
-
 
 private:
 	static constexpr int max_ff_io_buffer_size = 4096;
 	static constexpr int max_ff_video_planes = 4;
 	static constexpr int pixel_size = 4; // ARGB/BGRA
 
-
 	using AVInputFormatPtr = const AVInputFormat*;
 	using FfPointers = std::array<std::uint8_t*, max_ff_video_planes>;
 	using FfStrides = std::array<int, max_ff_video_planes>;
-
 
 	enum class FfState
 	{
@@ -120,34 +90,27 @@ private:
 		flush,
 		failed,
 		finished,
-	}; // FfState
-
+	};
 
 	struct Frame
 	{
 		using Data = std::vector<std::uint8_t>;
 
-
 		std::int64_t pts_ms_;
 		int data_size_;
 		Data data_;
 
+		Data& initialize_data(int max_data_size);
 
-		Data& initialize_data(
-			const int max_data_size);
-
-
-		static void swap(
-			Frame& a,
-			Frame& b);
-	}; // Frame
+		static void swap(Frame& a, Frame& b);
+	};
 
 	struct PresentFrameContext
 	{
 		bool is_initialized_;
 		int frame_count_to_remove_;
 		std::int64_t frame_rate_ms_;
-	}; // PresentFrameContext
+	};
 
 	class YCbCrBt601
 	{
@@ -224,7 +187,7 @@ private:
 		}
 	};
 
-
+private:
 	using Mutex = std::mutex;
 	using MutexGuard = std::lock_guard<Mutex>;
 	using UniqueLock = std::unique_lock<Mutex>;
@@ -234,152 +197,110 @@ private:
 	using AudioBuffer = std::vector<std::uint8_t>;
 	using MtPtsMs = std::atomic<std::int64_t>;
 
-
-	AVIOContext* ff_io_context_;
-	std::uint8_t* ff_io_buffer_;
-	AVFormatContext* ff_format_context_;
-	const AVCodec* ff_audio_codec_;
-	const AVCodec* ff_video_decoder_;
-	AVCodecContext* ff_codec_context_;
-	AVCodecContext* ff_audio_codec_context_;
-	AVCodecContext* ff_video_codec_context_;
-	AVPacket* ff_packet_;
-	AVFrame* ff_frame_;
-	AVFrame* ff_audio_frame_;
-	AVFrame* ff_video_frame_;
+private:
+	AVIOContext* ff_io_context_{};
+	std::uint8_t* ff_io_buffer_{};
+	AVFormatContext* ff_format_context_{};
+	const AVCodec* ff_audio_codec_{};
+	const AVCodec* ff_video_decoder_{};
+	AVCodecContext* ff_codec_context_{};
+	AVCodecContext* ff_audio_codec_context_{};
+	AVCodecContext* ff_video_codec_context_{};
+	AVPacket* ff_packet_{};
+	AVFrame* ff_frame_{};
+	AVFrame* ff_audio_frame_{};
+	AVFrame* ff_video_frame_{};
 	int sample_rate_counter_{};
-	int ff_audio_stream_index_;
-	int ff_video_stream_index_;
-	bool ff_is_audio_frame_;
-	void* ff_io_user_data_;
-	IoReadFunction ff_io_read_function_;
-	IoSeekFunction ff_io_seek_function_;
-	FfState ff_state_;
-	bool ff_is_await_;
-	bool ff_is_finished_;
-	int ff_decoded_sample_count_;
-	int ff_dst_sample_rate_;
+	int ff_audio_stream_index_{};
+	int ff_video_stream_index_{};
+	bool ff_is_audio_frame_{};
+	void* ff_io_user_data_{};
+	IoReadFunction ff_io_read_function_{};
+	IoSeekFunction ff_io_seek_function_{};
+	FfState ff_state_{};
+	bool ff_is_await_{};
+	bool ff_is_finished_{};
+	int ff_decoded_sample_count_{};
+	int ff_dst_sample_rate_{};
 
+	bool is_initialized_{};
+	bool is_presentation_finished_{};
+	bool is_stop_threads_{};
+	bool is_decoder_worker_finished_{};
+	bool is_audio_worker_finished_{};
+	bool is_present_all_frames_{};
+	bool is_present_one_frame_{};
+	InitializeParam initialize_param_{};
+	MtPtsMs mt_pts_ms_{};
+	Mutex mt_audio_mutex_{};
+	Mutex mt_video_mutex_{};
+	Mutex mt_preload_mutex_{};
+	CondVar mt_preload_cv_{};
+	bool mt_preload_flag_{};
+	Thread mt_clock_thread_{};
+	Thread mt_decoder_thread_{};
+	Thread mt_audio_thread_{};
+	Frames mt_audio_frames_{};
+	Frames mt_video_frames_{};
+	Frame audio_frame_buffer_{};
+	int audio_buffer_size_{};
+	PresentFrameContext present_frame_context_{};
 
-	bool is_initialized_;
-	bool is_presentation_finished_;
-	bool is_stop_threads_;
-	bool is_decoder_worker_finished_;
-	bool is_audio_worker_finished_;
-	bool is_present_all_frames_;
-	bool is_present_one_frame_;
-	InitializeParam initialize_param_;
-	MtPtsMs mt_pts_ms_;
-	Mutex mt_audio_mutex_;
-	Mutex mt_video_mutex_;
-	Mutex mt_preload_mutex_;
-	CondVar mt_preload_cv_;
-	bool mt_preload_flag_;
-	Thread mt_clock_thread_;
-	Thread mt_decoder_thread_;
-	Thread mt_audio_thread_;
-	Frames mt_audio_frames_;
-	Frames mt_video_frames_;
-	Frame audio_frame_buffer_;
-	int audio_buffer_size_;
-	PresentFrameContext present_frame_context_;
-
-
+private:
 	template<typename T>
 	static constexpr T clamp(T x, T x_min, T x_max) noexcept
 	{
 		return x < x_min ? x_min : (x > x_max ? x_max : x);
 	}
 
-	bool initialize_internal(
-		const InitializeParam& param);
+	bool initialize_internal(const InitializeParam& param);
 
 	void handle_audio_frame_buffer();
-
 	void handle_audio_buffer_flush();
-
 	void handle_read_state();
-
 	void handle_send_state();
-
 	void handle_receive_state();
-
 	void handle_decode_audio_state();
-
 	void handle_decode_video_state();
-
 	void handle_decode_state();
-
 	void handle_flush_state();
 
 	bool decode();
 
-	void get_frame_rate_internal(
-		int& numerator,
-		int& denominator) const;
+	void get_frame_rate_internal(int& numerator, int& denominator) const;
+	bool get_frame_rate(int& numerator, int& denominator) const;
 
-	bool get_frame_rate(
-		int& numerator,
-		int& denominator) const;
+	static int io_read_function_proxy(void* user_data, std::uint8_t* buffer, int buffer_size);
+	static std::int64_t io_seek_function_proxy(void* user_data, std::int64_t offset, int whence);
 
-	static int io_read_function_proxy(
-		void* user_data,
-		std::uint8_t* buffer,
-		const int buffer_size);
+	bool initialize_io(const InitializeParam& param);
+	bool initialize_decoder(const InitializeParam& param);
 
-	static std::int64_t io_seek_function_proxy(
-		void* user_data,
-		const std::int64_t offset,
-		const int whence);
-
-	bool initialize_io(
-		const InitializeParam& param);
-
-	bool initialize_decoder(
-		const InitializeParam& param);
-
-	static std::int64_t normalize_pts(
-		const std::int64_t pts);
-
+	static std::int64_t normalize_pts(std::int64_t pts);
 	static AVInputFormatPtr& get_ff_bik_input_format();
 
-
 	void clock_worker();
-
 	void decoder_worker();
-
 	void audio_worker();
-
 	void stop_workers();
-
 	void wait_for_preload();
-
-	void notify_preload(
-		bool& flag);
-
-	std::int64_t ms_to_size(
-		const std::int64_t milliseconds);
-
-	std::int64_t size_to_ms(
-		const std::int64_t size);
-
+	void notify_preload(bool& flag);
+	std::int64_t ms_to_size(std::int64_t milliseconds) const;
+	std::int64_t size_to_ms(std::int64_t size) const;
 	bool present_frame_initialize();
-
 	const Frame& mt_get_video_frame_by_index(int frame_index);
 	const Frame& mt_get_audio_frame_by_index(int frame_index);
-}; // FmvPlayer::Impl
+};
 
+// --------------------------------------------------------------------------
 
-FmvPlayer::Impl::Frame::Data& FmvPlayer::Impl::Frame::initialize_data(
-	const int max_data_size)
+FmvPlayer::Impl::Frame::Data& FmvPlayer::Impl::Frame::initialize_data(int max_data_size)
 {
 	data_.resize(max_data_size);
 	return data_;
 }
 
-void FmvPlayer::Impl::Frame::swap(
-	Frame& a,
-	Frame& b)
+void FmvPlayer::Impl::Frame::swap(Frame& a, Frame& b)
 {
 	std::swap(a.pts_ms_, b.pts_ms_);
 	std::swap(a.data_size_, b.data_size_);
@@ -426,52 +347,8 @@ bool FmvPlayer::InitializeParam::validate() const
 
 FmvPlayer::Impl::Impl()
 	:
-	ff_io_context_{},
-	ff_io_buffer_{},
-	ff_format_context_{},
-	ff_audio_codec_{},
-	ff_video_decoder_{},
-	ff_codec_context_{},
-	ff_audio_codec_context_{},
-	ff_video_codec_context_{},
-	ff_packet_{::av_packet_alloc()},
-	ff_frame_{},
-	ff_audio_frame_{},
-	ff_video_frame_{},
-	ff_audio_stream_index_{},
-	ff_video_stream_index_{},
-	ff_is_audio_frame_{},
-	ff_io_user_data_{},
-	ff_io_read_function_{},
-	ff_io_seek_function_{},
-	ff_state_{},
-	ff_is_await_{},
-	ff_is_finished_{},
-	ff_decoded_sample_count_{},
-	ff_dst_sample_rate_{},
-	is_initialized_{},
-	is_presentation_finished_{},
-	is_stop_threads_{},
-	is_decoder_worker_finished_{},
-	is_audio_worker_finished_{},
-	is_present_all_frames_{},
-	is_present_one_frame_{},
-	initialize_param_{},
-	mt_pts_ms_{},
-	mt_audio_mutex_{},
-	mt_video_mutex_{},
-	mt_preload_mutex_{},
-	mt_preload_cv_{},
-	mt_preload_flag_{},
-	mt_decoder_thread_{},
-	mt_audio_thread_{},
-	mt_audio_frames_{},
-	mt_video_frames_{},
-	audio_frame_buffer_{},
-	audio_buffer_size_{},
-	present_frame_context_{}
-{
-}
+	ff_packet_{::av_packet_alloc()}
+{}
 
 FmvPlayer::Impl::~Impl()
 {
@@ -479,8 +356,7 @@ FmvPlayer::Impl::~Impl()
 	av_packet_free(&ff_packet_);
 }
 
-bool FmvPlayer::Impl::initialize(
-	const InitializeParam& param)
+bool FmvPlayer::Impl::initialize(const InitializeParam& param)
 {
 	uninitialize();
 
@@ -502,11 +378,11 @@ bool FmvPlayer::Impl::initialize(
 
 void FmvPlayer::Impl::uninitialize()
 {
-	::avcodec_free_context(&ff_audio_codec_context_);
-	::avcodec_free_context(&ff_video_codec_context_);
-	::avformat_close_input(&ff_format_context_);
-	::av_frame_free(&ff_audio_frame_);
-	::av_frame_free(&ff_video_frame_);
+	avcodec_free_context(&ff_audio_codec_context_);
+	avcodec_free_context(&ff_video_codec_context_);
+	avformat_close_input(&ff_format_context_);
+	av_frame_free(&ff_audio_frame_);
+	av_frame_free(&ff_video_frame_);
 
 	auto is_free_io_buffer = true;
 
@@ -515,15 +391,15 @@ void FmvPlayer::Impl::uninitialize()
 		if (ff_io_context_->buffer != ff_io_buffer_)
 		{
 			is_free_io_buffer = false;
-			::av_freep(&ff_io_context_->buffer);
+			av_freep(&ff_io_context_->buffer);
 		}
 	}
 
-	::avio_context_free(&ff_io_context_);
+	avio_context_free(&ff_io_context_);
 
 	if (is_free_io_buffer)
 	{
-		::av_freep(&ff_io_buffer_);
+		av_freep(&ff_io_buffer_);
 	}
 	else
 	{
@@ -531,7 +407,6 @@ void FmvPlayer::Impl::uninitialize()
 	}
 
 	sample_rate_counter_ = 0;
-
 	ff_frame_ = nullptr;
 	ff_audio_codec_ = nullptr;
 	ff_video_decoder_ = nullptr;
@@ -545,11 +420,9 @@ void FmvPlayer::Impl::uninitialize()
 	ff_state_ = FfState::none;
 	ff_is_await_ = false;
 	ff_is_finished_ = false;
-	ff_decoded_sample_count_ = {};
-	ff_dst_sample_rate_ = {};
-
+	ff_decoded_sample_count_ = 0;
+	ff_dst_sample_rate_ = 0;
 	stop_workers();
-
 	is_initialized_ = false;
 	is_presentation_finished_ = false;
 	is_stop_threads_ = false;
@@ -559,13 +432,13 @@ void FmvPlayer::Impl::uninitialize()
 	is_present_one_frame_ = false;
 	initialize_param_ = {};
 	mt_pts_ms_.store(0);
-	mt_preload_flag_ = {};
+	mt_preload_flag_ = false;
 	mt_decoder_thread_ = {};
 	mt_audio_thread_ = {};
 	mt_audio_frames_ = {};
 	mt_video_frames_ = {};
 	audio_frame_buffer_ = {};
-	audio_buffer_size_ = {};
+	audio_buffer_size_ = 0;
 	present_frame_context_ = {};
 }
 
@@ -574,8 +447,7 @@ bool FmvPlayer::Impl::is_initialized() const
 	return is_initialized_;
 }
 
-bool FmvPlayer::Impl::initialize_internal(
-	const InitializeParam& param)
+bool FmvPlayer::Impl::initialize_internal(const InitializeParam& param)
 {
 	if (!param.validate())
 	{
@@ -607,7 +479,6 @@ void FmvPlayer::Impl::handle_audio_frame_buffer()
 	}
 
 	const auto buffer_sample_count = audio_buffer_size_ / FmvPlayerDetail::audio_dst_sample_size;
-
 	auto data_offset = 0;
 
 	for (auto i = 0; i < buffer_count; ++i)
@@ -615,18 +486,12 @@ void FmvPlayer::Impl::handle_audio_frame_buffer()
 		const auto pts_ms = (1000LL * ff_decoded_sample_count_) / ff_dst_sample_rate_;
 
 		auto frame = Frame{};
-
 		frame.pts_ms_ = pts_ms;
 		frame.initialize_data(audio_buffer_size_);
 		frame.data_size_ = audio_buffer_size_;
 
-		std::copy_n(
-			audio_frame_buffer_.data_.cbegin() + data_offset,
-			audio_buffer_size_,
-			frame.data_.begin());
-
+		std::copy_n(audio_frame_buffer_.data_.cbegin() + data_offset, audio_buffer_size_, frame.data_.begin());
 		data_offset += audio_buffer_size_;
-
 		ff_decoded_sample_count_ += buffer_sample_count;
 
 		{
@@ -644,12 +509,7 @@ void FmvPlayer::Impl::handle_audio_frame_buffer()
 	}
 
 	const auto new_offset = audio_frame_buffer_.data_size_ - buffer_remain;
-
-	std::copy_n(
-		&audio_frame_buffer_.data_[new_offset],
-		buffer_remain,
-		audio_frame_buffer_.data_.data());
-
+	std::copy_n(audio_frame_buffer_.data_.cbegin() + new_offset, buffer_remain, audio_frame_buffer_.data_.begin());
 	audio_frame_buffer_.data_size_ = buffer_remain;
 }
 
@@ -666,11 +526,7 @@ void FmvPlayer::Impl::handle_audio_buffer_flush()
 
 	if (fill_count > 0)
 	{
-		std::fill_n(
-			&audio_frame_buffer_.data_[audio_frame_buffer_.data_size_],
-			fill_count,
-			std::uint8_t{});
-
+		std::fill_n(audio_frame_buffer_.data_.begin() + audio_frame_buffer_.data_size_, fill_count, std::uint8_t{});
 		audio_frame_buffer_.data_size_ = audio_buffer_size_;
 	}
 
@@ -679,7 +535,7 @@ void FmvPlayer::Impl::handle_audio_buffer_flush()
 
 void FmvPlayer::Impl::handle_read_state()
 {
-	const auto ff_result = ::av_read_frame(ff_format_context_, ff_packet_);
+	const auto ff_result = av_read_frame(ff_format_context_, ff_packet_);
 
 	if (ff_result == 0)
 	{
@@ -697,7 +553,7 @@ void FmvPlayer::Impl::handle_read_state()
 		}
 		else
 		{
-			::av_packet_unref(ff_packet_);
+			av_packet_unref(ff_packet_);
 			return;
 		}
 
@@ -715,7 +571,7 @@ void FmvPlayer::Impl::handle_read_state()
 
 void FmvPlayer::Impl::handle_send_state()
 {
-	const auto ff_result = ::avcodec_send_packet(ff_codec_context_, ff_packet_);
+	const auto ff_result = avcodec_send_packet(ff_codec_context_, ff_packet_);
 
 	if (ff_result == 0)
 	{
@@ -737,7 +593,7 @@ void FmvPlayer::Impl::handle_send_state()
 
 void FmvPlayer::Impl::handle_receive_state()
 {
-	const auto ff_result = ::avcodec_receive_frame(ff_codec_context_, ff_frame_);
+	const auto ff_result = avcodec_receive_frame(ff_codec_context_, ff_frame_);
 
 	if (ff_result == 0)
 	{
@@ -746,7 +602,7 @@ void FmvPlayer::Impl::handle_receive_state()
 	else if (ff_result == AVERROR(EAGAIN))
 	{
 		ff_state_ = FfState::read;
-		::av_packet_unref(ff_packet_);
+		av_packet_unref(ff_packet_);
 	}
 	else if (ff_result == AVERROR_EOF)
 	{
@@ -783,25 +639,6 @@ void FmvPlayer::Impl::handle_decode_audio_state()
 	const auto audio_buffer_size = static_cast<int>(audio_frame_buffer_.data_.size());
 	const auto new_audio_buffer_size = audio_buffer_size + max_dst_size;
 
-#if 0
-	static FILE* file = nullptr;
-
-	if (file == nullptr)
-	{
-		file = fopen("out.data", "wb");
-	}
-
-	float dump[1920] = {};
-
-	for (auto i = 0; i < 960; ++i)
-	{
-		dump[(i * 2) + 0] = reinterpret_cast<const float*>(ff_frame_->data[0])[i];
-		dump[(i * 2) + 1] = reinterpret_cast<const float*>(ff_frame_->data[1])[i];
-	}
-
-	fwrite(dump, 1, 1920 * 4, file);
-#endif
-
 	if (audio_buffer_size < new_audio_buffer_size)
 	{
 		audio_frame_buffer_.data_.resize(new_audio_buffer_size);
@@ -814,7 +651,6 @@ void FmvPlayer::Impl::handle_decode_audio_state()
 	};
 
 	auto src_frame_offset = 0;
-
 	float src_frame_cache[2] = {};
 	std::int16_t dst_frame_cache[2] = {};
 
@@ -1034,75 +870,65 @@ bool FmvPlayer::Impl::decode()
 	{
 		switch (ff_state_)
 		{
-		case FfState::read:
-			handle_read_state();
-			break;
+			case FfState::read:
+				handle_read_state();
+				break;
 
-		case FfState::send:
-			handle_send_state();
-			break;
+			case FfState::send:
+				handle_send_state();
+				break;
 
-		case FfState::receive:
-			handle_receive_state();
-			break;
+			case FfState::receive:
+				handle_receive_state();
+				break;
 
-		case FfState::decode:
-			handle_decode_state();
-			break;
+			case FfState::decode:
+				handle_decode_state();
+				break;
 
-		case FfState::flush:
-			handle_flush_state();
-			break;
+			case FfState::flush:
+				handle_flush_state();
+				break;
 
-		case FfState::failed:
-		case FfState::finished:
-			ff_is_await_ = true;
-			ff_is_finished_ = true;
-			break;
+			case FfState::failed:
+			case FfState::finished:
+				ff_is_await_ = true;
+				ff_is_finished_ = true;
+				break;
 
-		case FfState::none:
-		default:
-			throw "Invalid state.";
+			default:
+				assert("Unknown state.");
+				ff_state_ = FfState::failed;
+				break;
 		}
 	}
 
 	return ff_state_ != FfState::failed;
 }
 
-void FmvPlayer::Impl::get_frame_rate_internal(
-	int& numerator,
-	int& denominator) const
+void FmvPlayer::Impl::get_frame_rate_internal(int& numerator, int& denominator) const
 {
 	const auto& time_base = ff_format_context_->streams[ff_video_stream_index_]->r_frame_rate;
-
 	numerator = time_base.num;
 	denominator = time_base.den;
 }
 
-bool FmvPlayer::Impl::get_frame_rate(
-	int& numerator,
-	int& denominator) const
+bool FmvPlayer::Impl::get_frame_rate(int& numerator, int& denominator) const
 {
 	if (!is_initialized_)
 	{
 		numerator = 0;
 		denominator = 1;
-
 		return false;
 	}
 
 	get_frame_rate_internal(numerator, denominator);
-
 	return true;
 }
 
-int FmvPlayer::Impl::io_read_function_proxy(
-	void* user_data,
-	std::uint8_t* buffer,
-	const int buffer_size)
+int FmvPlayer::Impl::io_read_function_proxy(void* user_data, std::uint8_t* buffer, int buffer_size)
 {
 	auto& pimpl = *static_cast<Impl*>(user_data);
-
 	const auto read_result = pimpl.ff_io_read_function_(pimpl.ff_io_user_data_, buffer, buffer_size);
 
 	if (read_result <= 0)
@@ -1113,10 +939,7 @@ int FmvPlayer::Impl::io_read_function_proxy(
 	return read_result;
 }
 
-std::int64_t FmvPlayer::Impl::io_seek_function_proxy(
-	void* user_data,
-	const std::int64_t offset,
-	const int whence)
+std::int64_t FmvPlayer::Impl::io_seek_function_proxy(void* user_data, std::int64_t offset, int whence)
 {
 	auto api_whence = SeekOrigin::none;
 
@@ -1128,39 +951,37 @@ std::int64_t FmvPlayer::Impl::io_seek_function_proxy(
 	{
 		switch (whence)
 		{
-		case SEEK_SET:
-			api_whence = SeekOrigin::begin;
-			break;
+			case SEEK_SET:
+				api_whence = SeekOrigin::begin;
+				break;
 
-		case SEEK_CUR:
-			api_whence = SeekOrigin::current;
-			break;
+			case SEEK_CUR:
+				api_whence = SeekOrigin::current;
+				break;
 
-		case SEEK_END:
-			api_whence = SeekOrigin::end;
-			break;
+			case SEEK_END:
+				api_whence = SeekOrigin::end;
+				break;
 
-		default:
-			return -1;
+			default:
+				return -1;
 		}
 	}
 
 	auto& pimpl = *static_cast<Impl*>(user_data);
-
 	return pimpl.ff_io_seek_function_(pimpl.ff_io_user_data_, offset, api_whence);
 }
 
-bool FmvPlayer::Impl::initialize_io(
-	const InitializeParam& param)
+bool FmvPlayer::Impl::initialize_io(const InitializeParam& param)
 {
-	ff_io_buffer_ = static_cast<std::uint8_t*>(::av_malloc(max_ff_io_buffer_size));
+	ff_io_buffer_ = static_cast<std::uint8_t*>(av_malloc(max_ff_io_buffer_size));
 
-	if (!ff_io_buffer_)
+	if (ff_io_buffer_ == nullptr)
 	{
 		return false;
 	}
 
-	ff_io_context_ = ::avio_alloc_context(
+	ff_io_context_ = avio_alloc_context(
 		ff_io_buffer_,
 		max_ff_io_buffer_size,
 		0,
@@ -1169,7 +990,7 @@ bool FmvPlayer::Impl::initialize_io(
 		nullptr,
 		io_seek_function_proxy);
 
-	if (!ff_io_context_)
+	if (ff_io_context_ == nullptr)
 	{
 		return false;
 	}
@@ -1177,29 +998,22 @@ bool FmvPlayer::Impl::initialize_io(
 	ff_io_user_data_ = param.user_data_;
 	ff_io_read_function_ = param.io_read_func_;
 	ff_io_seek_function_ = param.io_seek_func_;
-
 	return true;
 }
 
-bool FmvPlayer::Impl::initialize_decoder(
-	const InitializeParam& param)
+bool FmvPlayer::Impl::initialize_decoder(const InitializeParam& param)
 {
 	auto ff_result = 0;
+	ff_format_context_ = avformat_alloc_context();
 
-	ff_format_context_ = ::avformat_alloc_context();
-
-	if (!ff_format_context_)
+	if (ff_format_context_ == nullptr)
 	{
 		return false;
 	}
 
 	ff_format_context_->pb = ff_io_context_;
 
-	ff_result = ::avformat_open_input(
-		&ff_format_context_,
-		nullptr,
-		get_ff_bik_input_format(),
-		nullptr);
+	ff_result = avformat_open_input(&ff_format_context_, nullptr, get_ff_bik_input_format(), nullptr);
 
 	if (ff_result != 0)
 	{
@@ -1207,7 +1021,6 @@ bool FmvPlayer::Impl::initialize_decoder(
 	}
 
 	const auto stream_count = static_cast<int>(ff_format_context_->nb_streams);
-
 	using AVStreamPtr = AVStream*;
 
 	if (param.is_ignore_audio_)
@@ -1216,12 +1029,10 @@ bool FmvPlayer::Impl::initialize_decoder(
 	}
 	else
 	{
-		ff_audio_stream_index_ = ::av_find_best_stream(
-			ff_format_context_, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
+		ff_audio_stream_index_ = ::av_find_best_stream(ff_format_context_, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
 	}
 
-	ff_video_stream_index_ = ::av_find_best_stream(
-		ff_format_context_, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+	ff_video_stream_index_ = ::av_find_best_stream(ff_format_context_, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
 
 	if (stream_count > 0)
 	{
@@ -1274,7 +1085,7 @@ bool FmvPlayer::Impl::initialize_decoder(
 		return false;
 	}
 
-	ff_result = ::avformat_find_stream_info(ff_format_context_, nullptr);
+	ff_result = avformat_find_stream_info(ff_format_context_, nullptr);
 
 	if (ff_result < 0)
 	{
@@ -1284,15 +1095,14 @@ bool FmvPlayer::Impl::initialize_decoder(
 	if (has_audio_data)
 	{
 		const auto stream = ff_format_context_->streams[ff_audio_stream_index_];
+		ff_audio_codec_context_ = avcodec_alloc_context3(nullptr);
 
-		ff_audio_codec_context_ = ::avcodec_alloc_context3(nullptr);
-
-		if (!ff_audio_codec_context_)
+		if (ff_audio_codec_context_ == nullptr)
 		{
 			return false;
 		}
 
-		ff_result = ::avcodec_parameters_to_context(ff_audio_codec_context_, stream->codecpar);
+		ff_result = avcodec_parameters_to_context(ff_audio_codec_context_, stream->codecpar);
 
 		if (ff_result < 0)
 		{
@@ -1303,15 +1113,14 @@ bool FmvPlayer::Impl::initialize_decoder(
 	if (has_video_data)
 	{
 		const auto stream = ff_format_context_->streams[ff_video_stream_index_];
+		ff_video_codec_context_ = avcodec_alloc_context3(nullptr);
 
-		ff_video_codec_context_ = ::avcodec_alloc_context3(nullptr);
-
-		if (!ff_video_codec_context_)
+		if (ff_video_codec_context_ == nullptr)
 		{
 			return false;
 		}
 
-		ff_result = ::avcodec_parameters_to_context(ff_video_codec_context_, stream->codecpar);
+		ff_result = avcodec_parameters_to_context(ff_video_codec_context_, stream->codecpar);
 
 		if (ff_result < 0)
 		{
@@ -1324,11 +1133,10 @@ bool FmvPlayer::Impl::initialize_decoder(
 			case AV_PIX_FMT_YUVA420P:
 				break;
 
-			default:
-				return false;
+			default: return false;
 		}
 
-		if (ff_video_codec_context_->width == 0 || ff_video_codec_context_->height == 0)
+		if (ff_video_codec_context_->width <= 0 || ff_video_codec_context_->height <= 0)
 		{
 			return false;
 		}
@@ -1336,14 +1144,14 @@ bool FmvPlayer::Impl::initialize_decoder(
 
 	if (has_audio_data)
 	{
-		ff_audio_codec_ = ::avcodec_find_decoder(ff_audio_codec_context_->codec_id);
+		ff_audio_codec_ = avcodec_find_decoder(ff_audio_codec_context_->codec_id);
 
-		if (!ff_audio_codec_)
+		if (ff_audio_codec_ == nullptr)
 		{
 			return false;
 		}
 
-		ff_result = ::avcodec_open2(ff_audio_codec_context_, ff_audio_codec_, nullptr);
+		ff_result = avcodec_open2(ff_audio_codec_context_, ff_audio_codec_, nullptr);
 
 		if (ff_result != 0)
 		{
@@ -1362,14 +1170,14 @@ bool FmvPlayer::Impl::initialize_decoder(
 
 	if (has_video_data)
 	{
-		ff_video_decoder_ = ::avcodec_find_decoder(ff_video_codec_context_->codec_id);
+		ff_video_decoder_ = avcodec_find_decoder(ff_video_codec_context_->codec_id);
 
-		if (!ff_video_decoder_)
+		if (ff_video_decoder_ == nullptr)
 		{
 			return false;
 		}
 
-		ff_result = ::avcodec_open2(ff_video_codec_context_, ff_video_decoder_, nullptr);
+		ff_result = avcodec_open2(ff_video_codec_context_, ff_video_decoder_, nullptr);
 
 		if (ff_result != 0)
 		{
@@ -1379,9 +1187,9 @@ bool FmvPlayer::Impl::initialize_decoder(
 
 	if (has_audio_data)
 	{
-		ff_audio_frame_ = ::av_frame_alloc();
+		ff_audio_frame_ = av_frame_alloc();
 
-		if (!ff_audio_frame_)
+		if (ff_audio_frame_ == nullptr)
 		{
 			return false;
 		}
@@ -1390,7 +1198,7 @@ bool FmvPlayer::Impl::initialize_decoder(
 		sample_rate_counter_ = ff_dst_sample_rate_;
 
 		audio_buffer_size_ = static_cast<int>((
-			param.audio_buffer_size_ms_ *
+			static_cast<long long>(param.audio_buffer_size_ms_) *
 				ff_dst_sample_rate_ * FmvPlayerDetail::audio_dst_sample_size) / 1000LL);
 
 		audio_buffer_size_ += FmvPlayerDetail::audio_dst_sample_size - 1;
@@ -1400,9 +1208,9 @@ bool FmvPlayer::Impl::initialize_decoder(
 
 	if (has_video_data)
 	{
-		ff_video_frame_ = ::av_frame_alloc();
+		ff_video_frame_ = av_frame_alloc();
 
-		if (!ff_video_frame_)
+		if (ff_video_frame_ == nullptr)
 		{
 			return false;
 		}
@@ -1410,12 +1218,10 @@ bool FmvPlayer::Impl::initialize_decoder(
 
 	ff_state_ = FfState::read;
 	initialize_param_ = param;
-
 	return true;
 }
 
-std::int64_t FmvPlayer::Impl::normalize_pts(
-	const std::int64_t pts)
+std::int64_t FmvPlayer::Impl::normalize_pts(std::int64_t pts)
 {
 	return pts != AV_NOPTS_VALUE ? pts : 0LL;
 }
@@ -1513,9 +1319,7 @@ bool FmvPlayer::Impl::present()
 	const auto fr_ms = (1000LL * fr_den) / fr_num;
 
 	mt_pts_ms_.store(0, std::memory_order_release);
-
 	mt_clock_thread_ = std::thread{std::bind(&Impl::clock_worker, this)};
-
 	mt_decoder_thread_ = std::thread{std::bind(&Impl::decoder_worker, this)};
 
 	if (has_audio())
@@ -1525,7 +1329,6 @@ bool FmvPlayer::Impl::present()
 
 	const auto width = get_width();
 	const auto height = get_height();
-
 	auto frame_count_to_remove = 0;
 
 	wait_for_preload();
@@ -1557,9 +1360,7 @@ bool FmvPlayer::Impl::present()
 		}
 
 		const auto pts_ms = mt_pts_ms_.load(std::memory_order_acquire);
-
 		const auto begin_time_point = std::chrono::system_clock::now();
-
 		auto is_presented = false;
 		auto delay_ms = 0LL;
 
@@ -1576,11 +1377,7 @@ bool FmvPlayer::Impl::present()
 			}
 			else if (pts_ms_delta <= 10)
 			{
-				initialize_param_.video_present_func_(
-					initialize_param_.user_data_,
-					frame.data_.data(),
-					width, height);
-
+				initialize_param_.video_present_func_(initialize_param_.user_data_, frame.data_.data(), width, height);
 				frame_count_to_remove += 1;
 				frame_index += 1;
 				is_presented = true;
@@ -1619,7 +1416,6 @@ bool FmvPlayer::Impl::present()
 	}
 
 	stop_workers();
-
 	return true;
 }
 
@@ -1668,9 +1464,7 @@ bool FmvPlayer::Impl::present_frame()
 	}
 
 	const auto pts_ms = mt_pts_ms_.load(std::memory_order_acquire);
-
 	const auto begin_time_point = std::chrono::system_clock::now();
-
 	auto is_presented = false;
 	auto delay_ms = 0LL;
 
@@ -1687,12 +1481,7 @@ bool FmvPlayer::Impl::present_frame()
 		}
 		else if (pts_ms_delta <= 20)
 		{
-			initialize_param_.video_present_func_(
-				initialize_param_.user_data_,
-				frame.data_.data(),
-				width,
-				height);
-
+			initialize_param_.video_present_func_(initialize_param_.user_data_, frame.data_.data(), width, height);
 			present_frame_context_.frame_count_to_remove_ += 1;
 			frame_index += 1;
 			is_presented = true;
@@ -1704,7 +1493,6 @@ bool FmvPlayer::Impl::present_frame()
 				std::chrono::duration_cast<std::chrono::milliseconds>(delta_time_point).count());
 
 			delay_ms = present_frame_context_.frame_rate_ms_ - delta_ms;
-
 			break;
 		}
 		else
@@ -1739,18 +1527,16 @@ bool FmvPlayer::Impl::is_presentation_finished() const
 
 void FmvPlayer::Impl::initialize_current_thread()
 {
-	::av_log_set_level(AV_LOG_QUIET);
-	get_ff_bik_input_format() = ::av_find_input_format("bik");
+	av_log_set_level(AV_LOG_QUIET);
+	get_ff_bik_input_format() = av_find_input_format("bik");
 }
 
 void FmvPlayer::Impl::clock_worker()
 {
 	using Clock = std::chrono::system_clock;
-
-	const auto sleep_delay_ms = std::chrono::milliseconds{FmvPlayerDetail::default_sleep_delay_ms};
+	constexpr auto sleep_delay_ms = std::chrono::milliseconds{FmvPlayerDetail::default_sleep_delay_ms};
 
 	wait_for_preload();
-
 	const auto begin_time_point = Clock::now();
 
 	while (!is_stop_threads_)
@@ -1760,16 +1546,14 @@ void FmvPlayer::Impl::clock_worker()
 		const auto end_time_point = Clock::now();
 		const auto duration_diff = end_time_point - begin_time_point;
 		const auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration_diff).count();
-
 		mt_pts_ms_.store(duration_ms, std::memory_order_release);
 	}
 }
 
 void FmvPlayer::Impl::decoder_worker()
 {
-	const auto min_video_frame_count = 3;
-
-	const auto sleep_delay_ms = std::chrono::milliseconds{FmvPlayerDetail::default_sleep_delay_ms};
+	constexpr auto min_video_frame_count = 3;
+	constexpr auto sleep_delay_ms = std::chrono::milliseconds{FmvPlayerDetail::default_sleep_delay_ms};
 
 	auto is_decoded = false;
 	auto is_preload_notified = false;
@@ -1843,9 +1627,7 @@ void FmvPlayer::Impl::decoder_worker()
 				audio_frame_count = static_cast<int>(mt_audio_frames_.size());
 			}
 
-			if (video_frame_count == 0 &&
-				audio_frame_buffer_.data_size_ == 0 &&
-				audio_frame_count == 0)
+			if (video_frame_count == 0 && audio_frame_buffer_.data_size_ == 0 && audio_frame_count == 0)
 			{
 				is_decoder_worker_finished_ = true;
 			}
@@ -1859,10 +1641,9 @@ void FmvPlayer::Impl::decoder_worker()
 
 void FmvPlayer::Impl::audio_worker()
 {
-	const auto sleep_delay_ms = std::chrono::milliseconds{FmvPlayerDetail::default_sleep_delay_ms};
+	constexpr auto sleep_delay_ms = std::chrono::milliseconds{FmvPlayerDetail::default_sleep_delay_ms};
 
 	auto frame_count_to_remove = 0;
-
 	wait_for_preload();
 
 	while (!is_stop_threads_ && !is_audio_worker_finished_)
@@ -1885,11 +1666,9 @@ void FmvPlayer::Impl::audio_worker()
 		}
 
 		auto is_filled = false;
-
 		const auto pts_ms = mt_pts_ms_.load(std::memory_order_acquire);
 		const auto free_buffer_count = initialize_param_.audio_get_free_buffer_count_func_(initialize_param_.user_data_);
 		const auto already_queued_count = initialize_param_.audio_max_buffer_count_ - free_buffer_count;
-
 		auto buffer_count = 0;
 		auto frame_index = 0;
 
@@ -1904,11 +1683,7 @@ void FmvPlayer::Impl::audio_worker()
 				is_filled = true;
 
 				buffer_count += 1;
-				initialize_param_.audio_present_func_(
-					initialize_param_.user_data_,
-					frame.data_.data(),
-					frame.data_size_);
-
+				initialize_param_.audio_present_func_(initialize_param_.user_data_, frame.data_.data(), frame.data_size_);
 				frame_index += 1;
 				frame_count_to_remove += 1;
 			}
@@ -1965,12 +1740,10 @@ void FmvPlayer::Impl::stop_workers()
 void FmvPlayer::Impl::wait_for_preload()
 {
 	UniqueLock lock{mt_preload_mutex_};
-
 	mt_preload_cv_.wait(lock, [&](){ return mt_preload_flag_; });
 }
 
-void FmvPlayer::Impl::notify_preload(
-	bool& flag)
+void FmvPlayer::Impl::notify_preload(bool& flag)
 {
 	if (flag)
 	{
@@ -1978,32 +1751,24 @@ void FmvPlayer::Impl::notify_preload(
 	}
 
 	flag = true;
-
 	UniqueLock lock{mt_preload_mutex_};
-
 	mt_preload_flag_ = true;
 	mt_preload_cv_.notify_all();
 }
 
-std::int64_t FmvPlayer::Impl::ms_to_size(
-	const std::int64_t milliseconds)
+std::int64_t FmvPlayer::Impl::ms_to_size(std::int64_t milliseconds) const
 {
 	const auto sample_size = static_cast<std::int64_t>(FmvPlayerDetail::audio_dst_sample_size);
 	const auto sample_rate = static_cast<std::int64_t>(ff_dst_sample_rate_);
-
 	const auto size = (milliseconds * sample_size * sample_rate) / 1000LL;
-
 	return size;
 }
 
-std::int64_t FmvPlayer::Impl::size_to_ms(
-	const std::int64_t size)
+std::int64_t FmvPlayer::Impl::size_to_ms(std::int64_t size) const
 {
 	const auto sample_size = static_cast<std::int64_t>(FmvPlayerDetail::audio_dst_sample_size);
 	const auto sample_rate = static_cast<std::int64_t>(ff_dst_sample_rate_);
-
 	const auto ms = (1000LL * size) / (sample_size * sample_rate);
-
 	return ms;
 }
 
@@ -2015,7 +1780,6 @@ bool FmvPlayer::Impl::present_frame_initialize()
 	}
 
 	present_frame_context_.is_initialized_ = true;
-
 	auto fr_num = 0;
 	auto fr_den = 0;
 
@@ -2026,11 +1790,8 @@ bool FmvPlayer::Impl::present_frame_initialize()
 	}
 
 	present_frame_context_.frame_rate_ms_ = (1000LL * fr_den) / fr_num;
-
 	mt_pts_ms_.store(0, std::memory_order_release);
-
 	mt_clock_thread_ = std::thread{std::bind(&Impl::clock_worker, this)};
-
 	mt_decoder_thread_ = std::thread{std::bind(&Impl::decoder_worker, this)};
 
 	if (has_audio())
@@ -2039,9 +1800,7 @@ bool FmvPlayer::Impl::present_frame_initialize()
 	}
 
 	present_frame_context_.frame_count_to_remove_ = 0;
-
 	wait_for_preload();
-
 	return true;
 }
 
@@ -2063,24 +1822,19 @@ FmvPlayer::FmvPlayer()
 {
 }
 
-FmvPlayer::FmvPlayer(
-	FmvPlayer&& that)
+FmvPlayer::FmvPlayer(FmvPlayer&& that) noexcept
 	:
 	impl_{std::move(that.impl_)}
-{
-}
+{}
 
-FmvPlayer::~FmvPlayer()
-{
-}
+FmvPlayer::~FmvPlayer() {}
 
 void FmvPlayer::initialize_current_thread()
 {
 	Impl::initialize_current_thread();
 }
 
-bool FmvPlayer::initialize(
-	const InitializeParam& param)
+bool FmvPlayer::initialize(const InitializeParam& param)
 {
 	return impl_->initialize(param);
 }
@@ -2150,5 +1904,4 @@ bool FmvPlayer::is_presentation_finished() const
 	return impl_->is_presentation_finished();
 }
 
-
-} // ltjs
+} // namespace ltjs
