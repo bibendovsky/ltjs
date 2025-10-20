@@ -27,7 +27,7 @@
 #include <time.h>
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 namespace
@@ -286,7 +286,7 @@ void CScreenLoad::ParseSaveString(char const* pszWorldName, char const* pszTitle
 LTBOOL CScreenLoad::HandleKeyDown(int key, int rep)
 {
 #ifdef LTJS_SDL_BACKEND
-	if (key == ::SDLK_F9)
+	if (key == SDLK_F9)
 #else
 	if (key == VK_F9)
 #endif // LTJS_SDL_BACKEND

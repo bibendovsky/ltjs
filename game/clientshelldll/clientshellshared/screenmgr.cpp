@@ -16,7 +16,7 @@
 #include "transitionfxmgr.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 //screens
@@ -107,7 +107,7 @@ void CScreenMgr::HandleKeyDown (int vkey, int rep)
 	if (m_pCurrentScreen)
 	{
 #ifdef LTJS_SDL_BACKEND
-		if (vkey == ::SDLK_ESCAPE)
+		if (vkey == SDLK_ESCAPE)
 #else
 		if (vkey == VK_ESCAPE)
 #endif // LTJS_SDL_BACKEND

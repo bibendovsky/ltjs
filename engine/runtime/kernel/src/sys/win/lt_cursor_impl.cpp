@@ -109,7 +109,7 @@ LTRESULT CLTCursor::PreSetMode(CursorMode eNewMode)
 
 	if (cursor_mode >= 0)
 	{
-		::SDL_ShowCursor(cursor_mode);
+		SDL_ShowCursor(cursor_mode);
 	}
 
 	return LT_OK;
@@ -260,7 +260,7 @@ LTRESULT CLTCursor::RefreshCursor()
 
 	if (cursor_mode >= 0)
 	{
-		::SDL_ShowCursor(cursor_mode);
+		SDL_ShowCursor(cursor_mode);
 	}
 
 	return LT_OK;

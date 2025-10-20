@@ -15,7 +15,7 @@
 #include "missionmgr.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 namespace
@@ -302,7 +302,7 @@ LTBOOL CMenuIntel::HandleKeyDown(int key, int rep)
 	// Close popup if necessary...Use OnEscape
 	// to handle escape key...
 #ifdef LTJS_SDL_BACKEND
-	if (m_PopupText.IsVisible() && (::SDLK_ESCAPE != key))
+	if (m_PopupText.IsVisible() && (SDLK_ESCAPE != key))
 #else
 	if (m_PopupText.IsVisible() && (VK_ESCAPE != key))
 #endif // LTJS_SDL_BACKEND

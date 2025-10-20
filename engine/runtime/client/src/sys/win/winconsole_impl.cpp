@@ -24,7 +24,8 @@
 #include "sysdrawprim.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keyboard.h"
+#include "SDL3/SDL_keycode.h"
 
 #include "ltjs_sdl_utils.h"
 #endif // LTJS_SDL_BACKEND
@@ -73,7 +74,7 @@ CConIterator g_ConEmptyIterator;
 inline bool IsKeyDown( uint16 vkKey ) 
 {
 #ifdef LTJS_SDL_BACKEND
-	return (::SDL_GetModState() & vkKey) != 0;
+	return (SDL_GetModState() & vkKey) != 0;
 #else
 	return ((GetAsyncKeyState( VK_CONTROL ) & 0x8000) != 0);
 #endif // LTJS_SDL_BACKEND
@@ -374,40 +375,40 @@ void CConCommandBox::OnKeyPress(uint32 key)
 #ifdef LTJS_SDL_BACKEND
 	switch (key)
 	{
-		case ::SDLK_ESCAPE:
+		case SDLK_ESCAPE:
 			Clear();
 			break;
 
-		case ::SDLK_LEFT:
-			if (IsKeyDown(::KMOD_CTRL))
+		case SDLK_LEFT:
+			if (IsKeyDown(SDL_KMOD_CTRL))
 				// Ctrl+Left = word left
 				MoveWord(-1);
 			else
 				MoveCursor(-1);
 			break;
 
-		case ::SDLK_RIGHT:
-			if (IsKeyDown(::KMOD_CTRL))
+		case SDLK_RIGHT:
+			if (IsKeyDown(SDL_KMOD_CTRL))
 				// Ctrl+Right = word right
 				MoveWord(1);
 			else
 				MoveCursor(1);
 			break;
 
-		case ::SDLK_HOME:
+		case SDLK_HOME:
 			MoveCursor(-m_iCursorPos);
 			break;
 
-		case ::SDLK_END:
-			if (IsKeyDown(::KMOD_CTRL))
+		case SDLK_END:
+			if (IsKeyDown(SDL_KMOD_CTRL))
 				// Ctrl+End = delete the rest of the buffer
 				AddChar(0);
 			else
 				MoveCursor(m_iCurLength);
 			break;
 
-		case ::SDLK_BACKSPACE:
-			if (IsKeyDown(::KMOD_CTRL))
+		case SDLK_BACKSPACE:
+			if (IsKeyDown(SDL_KMOD_CTRL))
 				// Ctrl+Backspace = delete the next word
 				DeleteWord(-1);
 			else
@@ -417,8 +418,8 @@ void CConCommandBox::OnKeyPress(uint32 key)
 			}
 			break;
 
-		case ::SDLK_DELETE:
-			if (IsKeyDown(::KMOD_CTRL))
+		case SDLK_DELETE:
+			if (IsKeyDown(SDL_KMOD_CTRL))
 				// Ctrl+Delete = delete the next word
 				DeleteWord(0);
 			else
@@ -1680,42 +1681,42 @@ void CConsole::OnKeyPress(uint32 key)
 #ifdef LTJS_SDL_BACKEND
 	switch (key)
 	{
-		case ::SDLK_RETURN:
+		case SDLK_RETURN:
 			FinishCommand();
 			break;
 
-		case ::SDLK_UP:
-			if (IsKeyDown(::KMOD_CTRL))
+		case SDLK_UP:
+			if (IsKeyDown(SDL_KMOD_CTRL))
 				Scroll(1);
 			else
 				CycleCommands(-1);
 			break;
 
-		case ::SDLK_DOWN:
-			if (IsKeyDown(::KMOD_CTRL))
+		case SDLK_DOWN:
+			if (IsKeyDown(SDL_KMOD_CTRL))
 				Scroll(-1);
 			else
 				CycleCommands(1);
 			break;
 
-		case ::SDLK_TAB:
-			if (IsKeyDown(::KMOD_CTRL))
+		case SDLK_TAB:
+			if (IsKeyDown(SDL_KMOD_CTRL))
 				MatchCommands();
-			else if (IsKeyDown(::KMOD_SHIFT))
+			else if (IsKeyDown(SDL_KMOD_SHIFT))
 				PrevCommand();
 			else
 				NextCommand();
 			break;
 
-		case ::SDLK_PAGEUP:
-			if (IsKeyDown(::KMOD_CTRL))
+		case SDLK_PAGEUP:
+			if (IsKeyDown(SDL_KMOD_CTRL))
 				Scroll((int)m_TextLines.GetSize());
 			else
 				Scroll((int)m_nTextLines);
 			break;
 
-		case ::SDLK_PAGEDOWN:
-			if (IsKeyDown(::KMOD_CTRL))
+		case SDLK_PAGEDOWN:
+			if (IsKeyDown(SDL_KMOD_CTRL))
 				Scroll(-GetScrollOffset());
 			else
 				Scroll(-(int)m_nTextLines);

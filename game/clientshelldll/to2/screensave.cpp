@@ -25,7 +25,7 @@
 #include <time.h>
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 namespace
@@ -309,7 +309,7 @@ LTBOOL CScreenSave::SaveGame(uint32 slot)
 LTBOOL CScreenSave::HandleKeyDown(int key, int rep)
 {
 #ifdef LTJS_SDL_BACKEND
-	if (key == ::SDLK_F6)
+	if (key == SDLK_F6)
 #else
 	if (key == VK_F6)
 #endif // LTJS_SDL_BACKEND

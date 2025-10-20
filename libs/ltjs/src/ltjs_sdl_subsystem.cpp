@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-#include "SDL.h"
+#include "SDL3/SDL_init.h"
 
 #include "ltjs_exception.h"
 #include "ltjs_sdl_ensure_result.h"
@@ -40,7 +40,7 @@ SdlSubsystem::SdlSubsystem(
 	switch (id)
 	{
 		case SDL_INIT_EVENTS:
-		case SDL_INIT_GAMECONTROLLER:
+		case SDL_INIT_GAMEPAD:
 		case SDL_INIT_JOYSTICK:
 		case SDL_INIT_VIDEO:
 			break;
@@ -49,7 +49,7 @@ SdlSubsystem::SdlSubsystem(
 			throw SdlSubsystemException{"Unsupported SDL subsystem."};
 	}
 
-	sdl_ensure_result(::SDL_InitSubSystem(id));
+	sdl_ensure_result(SDL_InitSubSystem(id));
 
 	id_ = id;
 }
@@ -87,7 +87,7 @@ void SdlSubsystem::close()
 		return;
 	}
 
-	::SDL_QuitSubSystem(id_);
+	SDL_QuitSubSystem(id_);
 }
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

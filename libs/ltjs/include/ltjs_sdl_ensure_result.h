@@ -11,6 +11,8 @@ namespace ltjs
 [[noreturn]] void sdl_fail();
 
 
+bool sdl_ensure_result(bool result);
+
 int sdl_ensure_result(
 	int int_result);
 

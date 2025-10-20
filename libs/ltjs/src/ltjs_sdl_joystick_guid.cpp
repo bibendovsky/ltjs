@@ -7,8 +7,8 @@
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 bool operator==(
-	const ::SDL_JoystickGUID& lhs_joystick_guid,
-	const ::SDL_JoystickGUID& rhs_joystick_guid) noexcept
+	const SDL_GUID& lhs_joystick_guid,
+	const SDL_GUID& rhs_joystick_guid) noexcept
 {
 	return std::equal(
 		std::begin(lhs_joystick_guid.data),
@@ -24,8 +24,8 @@ bool operator==(
 }
 
 bool operator!=(
-	const ::SDL_JoystickGUID& lhs_joystick_guid,
-	const ::SDL_JoystickGUID& rhs_joystick_guid) noexcept
+	const SDL_GUID& lhs_joystick_guid,
+	const SDL_GUID& rhs_joystick_guid) noexcept
 {
 	return !(lhs_joystick_guid == rhs_joystick_guid);
 }

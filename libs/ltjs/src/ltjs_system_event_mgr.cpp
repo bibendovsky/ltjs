@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "SDL.h"
+#include "SDL3/SDL.h"
 
 #include "ltjs_sdl_subsystem.h"
 #include "ltjs_system_event.h"
@@ -99,9 +99,9 @@ try
 
 	SystemEvent event;
 
-	while (::SDL_PollEvent(&event))
+	while (SDL_PollEvent(&event))
 	{
-		if (event.type == ::SDL_QUIT)
+		if (event.type == SDL_EVENT_QUIT)
 		{
 			was_quit_event_ = true;
 		}
@@ -148,8 +148,8 @@ bool SystemEventMgrImpl::was_quit_event() const noexcept
 void SystemEventMgrImpl::post_quit_event()
 {
 	SystemEvent event;
-	event.type = ::SDL_QUIT;
-	::SDL_PushEvent(&event);
+	event.type = SDL_EVENT_QUIT;
+	SDL_PushEvent(&event);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

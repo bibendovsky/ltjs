@@ -2,8 +2,7 @@
 #include <memory>
 #include <utility>
 
-#include "SDL.h"
-#include "SDL_syswm.h"
+#include "SDL3/SDL_events.h"
 
 #ifdef LTJS_SDL_BACKEND
 #include "ltjs_language_mgr.h"
@@ -111,26 +110,26 @@ public:
 
 private:
 	void handle_window_focus(
-		SDL_WindowEventID event_id);
+		Uint32 event_id);
 
 	void handle_window_close();
 
 	bool handle_window(
-		const ::SDL_WindowEvent& e);
+		const SDL_WindowEvent& e);
 
 
 #ifndef _FINAL
 	void handle_key_down_console(
-		const ::SDL_KeyboardEvent& e);
+		const SDL_KeyboardEvent& e);
 #endif
 
 	void handle_key_down(
-		const ::SDL_KeyboardEvent& e);
+		const SDL_KeyboardEvent& e);
 
 	void handle_key_up_screenshot();
 
 	void handle_key_up(
-		const ::SDL_KeyboardEvent& e);
+		const SDL_KeyboardEvent& e);
 }; // CSystemEventHandler
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -161,20 +160,22 @@ bool CSystemEventHandler::operator()(
 		return false;
 	}
 
+	if (event.type >= SDL_EVENT_WINDOW_FIRST && event.type <= SDL_EVENT_WINDOW_LAST)
+	{
+		return handle_window(event.window);
+	}
+
 	switch (event.type)
 	{
-		case ::SDL_WINDOWEVENT:
-			return handle_window(event.window);
-
-		case ::SDL_KEYDOWN:
+		case SDL_EVENT_KEY_DOWN:
 			handle_key_down(event.key);
 			return true;
 
-		case ::SDL_KEYUP:
+		case SDL_EVENT_KEY_UP:
 			handle_key_up(event.key);
 			return true;
 
-		case ::SDL_TEXTINPUT:
+		case SDL_EVENT_TEXT_INPUT:
 			return true;
 
 		default:
@@ -183,9 +184,9 @@ bool CSystemEventHandler::operator()(
 }
 
 void CSystemEventHandler::handle_window_focus(
-	SDL_WindowEventID event_id)
+	Uint32 event_id)
 {
-	const auto wParam = (event_id == SDL_WINDOWEVENT_FOCUS_GAINED);
+	const auto wParam = (event_id == SDL_EVENT_WINDOW_FOCUS_GAINED);
 
 	// If a dialog is up, let dsi_PreDialog and dsi_PostDialog handle this stuff. 
 	if (!g_bNullRender)
@@ -316,16 +317,16 @@ void CSystemEventHandler::handle_window_close()
 }
 
 bool CSystemEventHandler::handle_window(
-	const ::SDL_WindowEvent& e)
+	const SDL_WindowEvent& e)
 {
-	switch (e.event)
+	switch (e.type)
 	{
-		case ::SDL_WINDOWEVENT_FOCUS_GAINED:
-		case ::SDL_WINDOWEVENT_FOCUS_LOST:
-			handle_window_focus(static_cast<SDL_WindowEventID>(e.event));
+		case SDL_EVENT_WINDOW_FOCUS_GAINED:
+		case SDL_EVENT_WINDOW_FOCUS_LOST:
+			handle_window_focus(e.type);
 			break;
 
-		case ::SDL_WINDOWEVENT_CLOSE:
+		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			handle_window_close();
 			break;
 
@@ -338,9 +339,9 @@ bool CSystemEventHandler::handle_window(
 
 #ifndef _FINAL
 void CSystemEventHandler::handle_key_down_console(
-	const ::SDL_KeyboardEvent& e)
+	const SDL_KeyboardEvent& e)
 {
-	if ((e.keysym.mod & KMOD_ALT) != 0)
+	if ((e.mod & SDL_KMOD_ALT) != 0)
 	{
 		//	if the console is disabled allow it to come down if the user hits alt-tilde and
 		//	if the Developer cvar exists and is == 1
@@ -366,22 +367,22 @@ void CSystemEventHandler::handle_key_down_console(
 			//	if the lithtech console is disabled, just add tilde as a normal keypress
 			if( g_ClientGlob.m_nKeyDowns < MAX_KEYBUFFER )
 			{
-				g_ClientGlob.m_KeyDowns[g_ClientGlob.m_nKeyDowns] = e.keysym.sym;
+				g_ClientGlob.m_KeyDowns[g_ClientGlob.m_nKeyDowns] = e.key;
 				g_ClientGlob.m_KeyDownReps[g_ClientGlob.m_nKeyDowns] = e.repeat;
 				++g_ClientGlob.m_nKeyDowns;
 			}
 		}
 		else
 		{
-			if ((e.keysym.mod & KMOD_SHIFT) != 0 && (e.keysym.mod & KMOD_CTRL) != 0) 
+			if ((e.mod & SDL_KMOD_SHIFT) != 0 && (e.mod & SDL_KMOD_CTRL) != 0) 
 			{
 				g_nConsoleLines = 0;
 			}
-			else if ((e.keysym.mod & KMOD_SHIFT) != 0) 
+			else if ((e.mod & SDL_KMOD_SHIFT) != 0) 
 			{
 				++g_nConsoleLines;
 			}
-			else if ((e.keysym.mod & KMOD_CTRL) != 0) 
+			else if ((e.mod & SDL_KMOD_CTRL) != 0) 
 			{
 				--g_nConsoleLines;
 			}
@@ -407,12 +408,12 @@ void CSystemEventHandler::handle_key_down_console(
 #endif
 
 void CSystemEventHandler::handle_key_down(
-	const ::SDL_KeyboardEvent& e)
+	const SDL_KeyboardEvent& e)
 {
-	const auto key_code = e.keysym.sym;
+	const auto key_code = e.key;
 
 #ifndef _FINAL
-	if (key_code == SDLK_BACKQUOTE)
+	if (key_code == SDLK_GRAVE)
 	{
 		handle_key_down_console(e);
 		return;
@@ -452,9 +453,9 @@ void CSystemEventHandler::handle_key_up_screenshot()
 }
 
 void CSystemEventHandler::handle_key_up(
-	const ::SDL_KeyboardEvent& e)
+	const SDL_KeyboardEvent& e)
 {
-	const auto key_code = e.keysym.sym;
+	const auto key_code = e.key;
 
 	if (key_code == SDLK_F8)
 	{
@@ -476,19 +477,19 @@ void CSystemEventHandler::handle_key_up(
 
 bool initialize_sdl()
 {
-	const auto sdl_init_result = ::SDL_Init(0);
+	const bool sdl_init_result = SDL_Init(0);
 
-	if (sdl_init_result != 0)
+	if (!sdl_init_result)
 	{
-		auto sdl_error_message = ::SDL_GetError();
+		auto sdl_error_message = SDL_GetError();
 
 		if ((*sdl_error_message) == '\0')
 		{
 			sdl_error_message = "Failed to initialize SDL.";
 		}
 
-		::SDL_ShowSimpleMessageBox(
-			::SDL_MESSAGEBOX_ERROR,
+		SDL_ShowSimpleMessageBox(
+			SDL_MESSAGEBOX_ERROR,
 			"ltjs_lithtech",
 			sdl_error_message,
 			nullptr
@@ -547,7 +548,7 @@ void uninitialize()
 {
 	destroy_main_window();
 
-	::SDL_Quit();
+	SDL_Quit();
 }
 
 void initialize_video_subsystem()
@@ -559,12 +560,10 @@ void create_main_window(
 	int width,
 	int height)
 {
-	const auto sdl_window_flags = ::Uint32{::SDL_WINDOW_ALLOW_HIGHDPI};
+	const auto sdl_window_flags = ::Uint32{SDL_WINDOW_HIGH_PIXEL_DENSITY};
 
-	auto sdl_window = ltjs::SdlWindowUResource{::SDL_CreateWindow(
+	auto sdl_window = ltjs::SdlWindowUResource{SDL_CreateWindow(
 		g_ClientGlob.m_WndCaption,
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
 		width,
 		height,
 		sdl_window_flags
@@ -575,16 +574,16 @@ void create_main_window(
 		return;
 	}
 
+	if (!SDL_SetWindowPosition(sdl_window.get(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED))
+	{
+		return;
+	}
+
 	void* window_native_handle = nullptr;
 
 #if _WIN32
-	auto sdl_sys_wm_info = ::SDL_SysWMinfo{};
-	SDL_VERSION(&sdl_sys_wm_info.version);
-
-	if (::SDL_GetWindowWMInfo(sdl_window.get(), &sdl_sys_wm_info))
-	{
-		window_native_handle = sdl_sys_wm_info.info.win.window;
-	}
+	SDL_PropertiesID sdl_properties_id = SDL_GetWindowProperties(sdl_window.get());
+	window_native_handle = SDL_GetPointerProperty(sdl_properties_id, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
 #endif // _WIN32
 
 	ltjs::sdl_utils::fill_window_black(sdl_window.get());
@@ -600,17 +599,17 @@ void center_cursor_in_main_window()
 {
 	auto window_width = 0;
 	auto window_height = 0;
-	::SDL_GetWindowSize(g_main_window.get(), &window_width, &window_height);
+	SDL_GetWindowSize(g_main_window.get(), &window_width, &window_height);
 
 	const auto x = window_width / 2;
 	const auto y = window_height / 2;
-	::SDL_WarpMouseInWindow(g_main_window.get(), x, y);
+	SDL_WarpMouseInWindow(g_main_window.get(), x, y);
 }
 
 void show_out_of_memory_message_box()
 {
-	::SDL_ShowSimpleMessageBox(
-		::SDL_MESSAGEBOX_ERROR,
+	SDL_ShowSimpleMessageBox(
+		SDL_MESSAGEBOX_ERROR,
 		g_ClientGlob.m_WndCaption,
 		"Out of memory",
 		g_main_window.get()
@@ -1152,7 +1151,7 @@ int RunClientApp(HINSTANCE hInstance) {
     if (StartClient(pGlob)) 
 	{
 #ifdef LTJS_SDL_BACKEND
-		auto is_mouse_relative_mode = ::SDL_bool{};
+		bool is_mouse_relative_mode = false;
 #endif // LTJS_SDL_BACKEND
 
 		pGlob->m_bProcessWindowMessages = LTTRUE;
@@ -1180,12 +1179,12 @@ int RunClientApp(HINSTANCE hInstance) {
             }
 
 #ifdef LTJS_SDL_BACKEND
-			const auto new_is_mouse_relative_mode = (::g_CV_CursorCenter != 0 ? ::SDL_TRUE : ::SDL_FALSE);
+			const auto new_is_mouse_relative_mode = g_CV_CursorCenter != 0;
 
 			if (is_mouse_relative_mode != new_is_mouse_relative_mode)
 			{
 				is_mouse_relative_mode = new_is_mouse_relative_mode;
-				::SDL_SetRelativeMouseMode(is_mouse_relative_mode);
+				SDL_SetWindowRelativeMouseMode(g_ClientGlob.m_hMainWnd.sdl_window, is_mouse_relative_mode);
 			}
 #else
             // Center the mouse in the window.

@@ -17,7 +17,7 @@
 #include "scmdconsole.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 //******************************************************************************************
@@ -178,7 +178,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 	switch (key)
 	{
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_ESCAPE:
+		case SDLK_ESCAPE:
 #else
 	case VK_ESCAPE:
 #endif // LTJS_SDL_BACKEND
@@ -188,7 +188,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 	} break;
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_RETURN:
+		case SDLK_RETURN:
 #else
 	case VK_RETURN:
 #endif // LTJS_SDL_BACKEND
@@ -198,7 +198,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 	} break;
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_UP:
+		case SDLK_UP:
 #else
 	case VK_UP:
 #endif // LTJS_SDL_BACKEND
@@ -214,7 +214,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 	} break;
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_DOWN:
+		case SDLK_DOWN:
 #else
 	case VK_DOWN:
 #endif // LTJS_SDL_BACKEND
@@ -230,7 +230,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 	} break;
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_PAGEDOWN:
+		case SDLK_PAGEDOWN:
 #else
 	case VK_PRIOR:
 #endif // LTJS_SDL_BACKEND
@@ -240,7 +240,7 @@ LTBOOL CHUDChatInput::HandleKeyDown(int key, int rep)
 	} break;
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_PAGEUP:
+		case SDLK_PAGEUP:
 #else
 	case VK_NEXT:
 #endif // LTJS_SDL_BACKEND

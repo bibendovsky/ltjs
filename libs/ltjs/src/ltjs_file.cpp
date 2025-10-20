@@ -1,6 +1,6 @@
 #include "ltjs_file.h"
 
-#include "SDL.h"
+#include "SDL3/SDL_iostream.h"
 
 #include "ltjs_sdl_uresources.h"
 
@@ -14,14 +14,14 @@ namespace file
 Index get_size(
 	const char* path)
 {
-	const auto sdl_rwops = SdlRwOpsUResource{::SDL_RWFromFile(path, "rb")};
+	const auto sdl_rwops = SdlRwOpsUResource{SDL_IOFromFile(path, "rb")};
 
 	if (!sdl_rwops)
 	{
 		return 0;
 	}
 
-	const auto sdl_file_size = sdl_rwops->seek(sdl_rwops.get(), 0, RW_SEEK_END);
+	const auto sdl_file_size = SDL_SeekIO(sdl_rwops.get(), 0, SDL_IO_SEEK_END);
 
 	if (sdl_file_size <= 0)
 	{
@@ -41,26 +41,25 @@ Index load(
 		return 0;
 	}
 
-	const auto sdl_rwops = SdlRwOpsUResource{::SDL_RWFromFile(path, "rb")};
+	const auto sdl_rwops = SdlRwOpsUResource{SDL_IOFromFile(path, "rb")};
 
 	if (!sdl_rwops)
 	{
 		return 0;
 	}
 
-	const auto sdl_file_size = sdl_rwops->seek(sdl_rwops.get(), 0, RW_SEEK_END);
+	const auto sdl_file_size = SDL_SeekIO(sdl_rwops.get(), 0, SDL_IO_SEEK_END);
 
 	if (sdl_file_size <= 0 || sdl_file_size > buffer_size)
 	{
 		return 0;
 	}
 
-	sdl_rwops->seek(sdl_rwops.get(), 0, RW_SEEK_SET);
+	SDL_SeekIO(sdl_rwops.get(), 0, SDL_IO_SEEK_SET);
 
-	const auto sdl_read_size = sdl_rwops->read(
+	const auto sdl_read_size = SDL_ReadIO(
 		sdl_rwops.get(),
 		buffer,
-		1,
 		static_cast<std::size_t>(sdl_file_size)
 	);
 
@@ -82,17 +81,16 @@ bool save(
 		return false;
 	}
 
-	const auto sdl_rwops = SdlRwOpsUResource{::SDL_RWFromFile(path, "wb")};
+	const auto sdl_rwops = SdlRwOpsUResource{SDL_IOFromFile(path, "wb")};
 
 	if (!sdl_rwops)
 	{
 		return false;
 	}
 
-	const auto sdl_written_size = sdl_rwops->write(
+	const auto sdl_written_size = SDL_WriteIO(
 		sdl_rwops.get(),
 		buffer,
-		1,
 		static_cast<std::size_t>(buffer_size)
 	);
 

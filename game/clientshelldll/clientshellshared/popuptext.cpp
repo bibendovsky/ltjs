@@ -10,7 +10,7 @@
 #include "popupmgr.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 namespace
@@ -149,7 +149,7 @@ LTBOOL CPopupText::OnKeyDown(int key, int rep)
 {
 	// They pressed escape - close the popup
 #ifdef LTJS_SDL_BACKEND
-	if (key == ::SDLK_ESCAPE)
+	if (key == SDLK_ESCAPE)
 #else
 	if (key == VK_ESCAPE)
 #endif // LTJS_SDL_BACKEND

@@ -14,18 +14,10 @@ option (LTJS_SDL_BACKEND "Use SDL backend." ON)
 option (LTJS_USE_PCH "Use precompiled headers." ON)
 option (LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
 
-
 #
-# SDL2
+# SDL3
 #
-if (WIN32)
-	set (LTJS_SDL2_MIN_VERSION "2.0.8")
-else ()
-	set (LTJS_SDL2_MIN_VERSION "2.0.4")
-endif ()
-
-find_package (SDL2W ${LTJS_SDL2_MIN_VERSION} REQUIRED)
-
+find_package (SDL3 3.2.0 REQUIRED)
 
 add_subdirectory (libs/bibendovsky_spul_lib)
 add_subdirectory (libs/ffmpeg)

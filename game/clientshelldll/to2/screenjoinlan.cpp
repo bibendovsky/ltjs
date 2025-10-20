@@ -19,7 +19,7 @@
 #include "gameclientshell.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 void JoinLANCallBack(LTBOOL bReturn, void *pData);
@@ -456,7 +456,7 @@ LTBOOL CScreenJoinLAN::Render(HSURFACE hDestSurf)
 LTBOOL CScreenJoinLAN::HandleKeyDown(int key, int rep)
 {
 #ifdef LTJS_SDL_BACKEND
-	if (key == ::SDLK_F5)
+	if (key == SDLK_F5)
 #else
 	if (key == VK_F5)
 #endif // LTJS_SDL_BACKEND

@@ -14,7 +14,7 @@
 #include "gameclientshell.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 extern CGameClientShell* g_pGameClientShell;
@@ -166,7 +166,7 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 	//if the key is escape, switch to the system menu, only if there is no open menu
 	//otherwise (i.e. either not Escape or there is no open menu) see if we hit a hot key and switch to the menu
 #ifdef LTJS_SDL_BACKEND
-	if (vkey != ::SDLK_ESCAPE || !m_pCurrentMenu)
+	if (vkey != SDLK_ESCAPE || !m_pCurrentMenu)
 #else
 	if (vkey != VK_ESCAPE || !m_pCurrentMenu)
 #endif // LTJS_SDL_BACKEND
@@ -210,7 +210,7 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 		switch (vkey)
 		{
 #ifdef LTJS_SDL_BACKEND
-			case ::SDLK_LEFT:
+			case SDLK_LEFT:
 #else
 		case VK_LEFT:
 #endif // LTJS_SDL_BACKEND
@@ -224,7 +224,7 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 				break;
 			}
 #ifdef LTJS_SDL_BACKEND
-			case ::SDLK_RIGHT:
+			case SDLK_RIGHT:
 #else
 		case VK_RIGHT:
 #endif // LTJS_SDL_BACKEND
@@ -239,7 +239,7 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 				break;
 			}
 #ifdef LTJS_SDL_BACKEND
-			case ::SDLK_UP:
+			case SDLK_UP:
 #else
 		case VK_UP:
 #endif // LTJS_SDL_BACKEND
@@ -252,7 +252,7 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 				break;
 			}
 #ifdef LTJS_SDL_BACKEND
-			case ::SDLK_DOWN:
+			case SDLK_DOWN:
 #else
 		case VK_DOWN:
 #endif // LTJS_SDL_BACKEND
@@ -265,7 +265,7 @@ LTBOOL CMenuMgr::HandleKeyDown (int vkey, int rep)
 				break;
 			}
 #ifdef LTJS_SDL_BACKEND
-			case ::SDLK_RETURN:
+			case SDLK_RETURN:
 #else
 		case VK_RETURN:
 #endif // LTJS_SDL_BACKEND
@@ -323,7 +323,7 @@ void CMenuMgr::HandleKeyUp (int vkey)
 	}
 
 #ifdef LTJS_SDL_BACKEND
-	if (vkey == ::SDLK_ESCAPE)
+	if (vkey == SDLK_ESCAPE)
 #else
 	if (vkey == VK_ESCAPE)
 #endif // LTJS_SDL_BACKEND

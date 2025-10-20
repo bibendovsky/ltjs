@@ -44,8 +44,7 @@ target_compile_definitions (
 target_link_libraries (
 	${PROJECT_NAME}
 	PRIVATE
-		SDL2W::SDL2Wmain
-		SDL2W::SDL2W
+		SDL3::SDL3
 		bibendovsky_spul_lib
 )
 

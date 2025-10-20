@@ -45,7 +45,7 @@
 #include "doomsdaypiecefx.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 CPlayerMgr* g_pPlayerMgr = NULL;
@@ -776,7 +776,7 @@ LTBOOL CPlayerMgr::OnKeyDown(int key, int rep)
 	if (m_bUsingExternalCamera)
 	{
 #ifdef LTJS_SDL_BACKEND
-		if (key == ::SDLK_SPACE)
+		if (key == SDLK_SPACE)
 #else
 		if (key == VK_SPACE)
 #endif // LTJS_SDL_BACKEND

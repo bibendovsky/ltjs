@@ -34,7 +34,7 @@
 #include "iltclient.h"
 #include "interface_helpers.h"
 
-#include "SDL.h"
+#include "SDL3/SDL.h"
 
 #include "ftbuild.h"
 #include FT_FREETYPE_H
@@ -504,17 +504,15 @@ void WritePixelDataBitmap(
 
 	const auto sdl_pixel_format =
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		::SDL_PIXELFORMAT_ARGB8888
+		SDL_PIXELFORMAT_ARGB8888
 #else
-		::SDL_PIXELFORMAT_BGRA8888
+		SDL_PIXELFORMAT_BGRA8888
 #endif
 	;
 
-	const auto sdl_surface = ltjs::SdlSurfaceUResource{::SDL_CreateRGBSurfaceWithFormat(
-		0,
+	const auto sdl_surface = ltjs::SdlSurfaceUResource{SDL_CreateSurface(
 		sizeTexture.cx,
 		sizeTexture.cy,
-		32,
 		sdl_pixel_format
 	)};
 
@@ -526,9 +524,9 @@ void WritePixelDataBitmap(
 
 	if (SDL_MUSTLOCK(sdl_surface.get()))
 	{
-		const auto sdl_lock_result = ::SDL_LockSurface(sdl_surface.get());
+		const bool sdl_lock_result = SDL_LockSurface(sdl_surface.get());
 
-		if (sdl_lock_result != 0)
+		if (!sdl_lock_result)
 		{
 			assert(!"Failed to lock SDL surface.");
 			return;
@@ -549,8 +547,8 @@ void WritePixelDataBitmap(
 
 			if (src_pixel == 0x00F0)
 			{
-				(*dst_row++) = ::SDL_MapRGB(
-					sdl_surface->format,
+				(*dst_row++) = SDL_MapSurfaceRGB(
+					sdl_surface.get(),
 					0,
 					0xFF,
 					0
@@ -561,8 +559,8 @@ void WritePixelDataBitmap(
 				const auto src_alpha_4 = (src_pixel >> 12) & 0xF;
 				const auto grey_256 = static_cast<::Uint8>((255 * src_alpha_4) / 15);
 
-				(*dst_row++) = ::SDL_MapRGB(
-					sdl_surface->format,
+				(*dst_row++) = SDL_MapSurfaceRGB(
+					sdl_surface.get(),
 					grey_256,
 					grey_256,
 					grey_256
@@ -576,10 +574,10 @@ void WritePixelDataBitmap(
 
 	if (SDL_MUSTLOCK(sdl_surface.get()))
 	{
-		::SDL_UnlockSurface(sdl_surface.get());
+		SDL_UnlockSurface(sdl_surface.get());
 	}
 
-	::SDL_SaveBMP(sdl_surface.get(), pszFilename);
+	SDL_SaveBMP(sdl_surface.get(), pszFilename);
 }
 
 
@@ -643,11 +641,11 @@ void WritePixelDataTGA(
 		fwrite(&m_YOffset, sizeof(m_YOffset), 1, fp);
 	}
 	{
-		const auto m_Width = SDL_SwapLE16(static_cast<uint16>(sizeTexture.cx));
+		const auto m_Width = SDL_Swap16LE(static_cast<uint16>(sizeTexture.cx));
 		fwrite(&m_Width, sizeof(m_Width), 1, fp);
 	}
 	{
-		const auto m_Height = SDL_SwapLE16(static_cast<uint16>(sizeTexture.cy));
+		const auto m_Height = SDL_Swap16LE(static_cast<uint16>(sizeTexture.cy));
 		fwrite(&m_Height, sizeof(m_Height), 1, fp);
 	}
 	{
@@ -671,7 +669,7 @@ void WritePixelDataTGA(
 			// Special for green dot 
 			if (pSrcPos[0] == 0x00F0)
 			{
-				Dest = SDL_SwapLE32(0x0000FF00);
+				Dest = SDL_Swap32LE(0x0000FF00);
 			}
 			else
 			{
@@ -682,7 +680,7 @@ void WritePixelDataTGA(
 
 				if (nVal)
 				{
-					Dest = SDL_SwapLE32((nVal << 24) | 0x00FFFFFF);
+					Dest = SDL_Swap32LE((nVal << 24) | 0x00FFFFFF);
 				}
 				else
 				{

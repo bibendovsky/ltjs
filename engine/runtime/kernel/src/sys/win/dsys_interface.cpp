@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "SDL.h"
+#include "SDL3/SDL.h"
 #endif // LTJS_SDL_BACKEND
 
 #include "bdefs.h"
@@ -540,49 +540,31 @@ RMode* dsi_GetRenderModes() {
 #else
 RMode* dsi_GetRenderModes()
 {
-	const auto display_count = ::SDL_GetNumVideoDisplays();
+	int mode_count = 0;
+    SDL_DisplayMode** const sdl_display_modes = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &mode_count);
 
-	if (display_count <= 0)
+	int api_mode_index = 0;
+    std::unique_ptr<RMode[]> api_modes{new RMode[mode_count]};
+
+	for (int i_mode = 0; i_mode < mode_count; ++i_mode)
 	{
-		return nullptr;
-	}
+		const SDL_DisplayMode& mode = *(sdl_display_modes[i_mode]);
 
-	const auto mode_count = ::SDL_GetNumDisplayModes(0);
-
-	if (mode_count <= 0)
-	{
-		return nullptr;
-	}
-
-	auto api_mode_index = 0;
-	auto api_modes = std::make_unique<RMode[]>(mode_count);
-
-	for (auto i = 0; i < mode_count; ++i)
-	{
-		::SDL_DisplayMode mode;
-
-		const auto sdl_result = ::SDL_GetDisplayMode(0, i, &mode);
-
-		if (sdl_result != 0)
+		if (mode.format != SDL_PIXELFORMAT_RGB24 &&
+			mode.format != SDL_PIXELFORMAT_BGR24 &&
+			mode.format != SDL_PIXELFORMAT_XRGB8888 &&
+			mode.format != SDL_PIXELFORMAT_XBGR8888 &&
+			mode.format != SDL_PIXELFORMAT_RGBX8888 &&
+			mode.format != SDL_PIXELFORMAT_BGRX8888 &&
+			mode.format != SDL_PIXELFORMAT_ARGB8888 &&
+			mode.format != SDL_PIXELFORMAT_RGBA8888 &&
+			mode.format != SDL_PIXELFORMAT_ABGR8888 &&
+			mode.format != SDL_PIXELFORMAT_BGRA8888)
 		{
 			continue;
 		}
 
-		if (mode.format != ::SDL_PIXELFORMAT_RGB24 &&
-			mode.format != ::SDL_PIXELFORMAT_BGR24 &&
-			mode.format != ::SDL_PIXELFORMAT_RGB888 &&
-			mode.format != ::SDL_PIXELFORMAT_BGR888 &&
-			mode.format != ::SDL_PIXELFORMAT_RGBX8888 &&
-			mode.format != ::SDL_PIXELFORMAT_BGRX8888 &&
-			mode.format != ::SDL_PIXELFORMAT_ARGB8888 &&
-			mode.format != ::SDL_PIXELFORMAT_RGBA8888 &&
-			mode.format != ::SDL_PIXELFORMAT_ABGR8888 &&
-			mode.format != ::SDL_PIXELFORMAT_BGRA8888)
-		{
-			continue;
-		}
-
-		auto& api_mode = api_modes[api_mode_index];
+		RMode& api_mode = api_modes[api_mode_index];
 		api_mode.m_bHWTnL = true;
 		api_mode.m_Width = mode.w;
 		api_mode.m_Height = mode.h;
@@ -593,8 +575,10 @@ RMode* dsi_GetRenderModes()
 			api_modes[api_mode_index - 1].m_pNext = &api_mode;
 		}
 
-		api_mode_index += 1;
+		++api_mode_index;
 	}
+
+    SDL_free(sdl_display_modes);
 
 	if (api_mode_index <= 0)
 	{
@@ -602,7 +586,6 @@ RMode* dsi_GetRenderModes()
 	}
 
 	api_modes[api_mode_index - 1].m_pNext = nullptr;
-
 	return api_modes.release();
 }
 #endif // LTJS_SDL_BACKEND
@@ -671,7 +654,7 @@ LTRESULT dsi_ShutdownRender(uint32 flags) {
 
     if (flags & RSHUTDOWN_MINIMIZEWINDOW) {
 #ifdef LTJS_SDL_BACKEND
-		::SDL_MinimizeWindow(g_ClientGlob.m_hMainWnd.sdl_window);
+		SDL_MinimizeWindow(g_ClientGlob.m_hMainWnd.sdl_window);
 #else
         ShowWindow(g_ClientGlob.m_hMainWnd, SW_MINIMIZE);
 #endif // LTJS_SDL_BACKEND
@@ -679,7 +662,7 @@ LTRESULT dsi_ShutdownRender(uint32 flags) {
 
     if (flags & RSHUTDOWN_HIDEWINDOW) {
 #ifdef LTJS_SDL_BACKEND
-		::SDL_HideWindow(g_ClientGlob.m_hMainWnd.sdl_window);
+		SDL_HideWindow(g_ClientGlob.m_hMainWnd.sdl_window);
 #else
         ShowWindow(g_ClientGlob.m_hMainWnd, SW_HIDE);
 #endif // LTJS_SDL_BACKEND
@@ -932,8 +915,8 @@ void dsi_ClearKeyUps() {
 
 void dsi_ClearKeyMessages() {
 #ifdef LTJS_SDL_BACKEND
-	::SDL_FlushEvent(SDL_KEYDOWN);
-	::SDL_FlushEvent(SDL_KEYUP);
+	SDL_FlushEvent(SDL_EVENT_KEY_DOWN);
+	SDL_FlushEvent(SDL_EVENT_KEY_UP);
 #else
     MSG msg;
     int i;
@@ -1040,8 +1023,8 @@ LTRESULT dsi_DoErrorMessage(const char *pMessage) {
     
     if (!g_Render.m_bInitted) {
 #ifdef LTJS_SDL_BACKEND
-		::SDL_ShowSimpleMessageBox(
-			::SDL_MESSAGEBOX_ERROR,
+		SDL_ShowSimpleMessageBox(
+			SDL_MESSAGEBOX_ERROR,
 			g_ClientGlob.m_WndCaption,
 			pMessage,
 			g_ClientGlob.m_hMainWnd.sdl_window
@@ -1056,8 +1039,8 @@ LTRESULT dsi_DoErrorMessage(const char *pMessage) {
 
 void dsi_MessageBox(const char *pMessage, const char *pTitle) {
 #ifdef LTJS_SDL_BACKEND
-		::SDL_ShowSimpleMessageBox(
-			::SDL_MESSAGEBOX_INFORMATION,
+		SDL_ShowSimpleMessageBox(
+			SDL_MESSAGEBOX_INFORMATION,
 			pTitle,
 			pMessage,
 			g_ClientGlob.m_hMainWnd.sdl_window

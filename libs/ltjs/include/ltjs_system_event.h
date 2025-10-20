@@ -2,7 +2,7 @@
 #define LTJS_SYSTEM_EVENT_INCLUDED
 
 
-#include "SDL.h"
+#include "SDL3/SDL_events.h"
 
 
 namespace ltjs
@@ -11,7 +11,7 @@ namespace ltjs
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-using SystemEvent = ::SDL_Event;
+using SystemEvent = SDL_Event;
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 

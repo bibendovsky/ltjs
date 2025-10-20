@@ -4,7 +4,7 @@
 #ifdef LTJS_SDL_BACKEND
 
 
-#include "SDL.h"
+#include "SDL3/SDL_mouse.h"
 
 #include "iltcursor.h"
 
@@ -33,7 +33,7 @@ class CLTCursorInst final :
 	public ILTCursorInst
 {
 public:
-	using Resource = ::SDL_Cursor*;
+	using Resource = SDL_Cursor*;
 
 
 	LTRESULT IsValid() override 
@@ -133,25 +133,15 @@ define_interface(CLTCursor, ILTCursor);
 LTRESULT CLTCursor::PreSetMode(
 	CursorMode eNewMode)
 {
-	auto cursor_mode = -1;
-
 	switch (eNewMode)
 	{
 		case CM_Hardware:
-			cursor_mode = 1;
+			SDL_ShowCursor();
 			break;
 
 		case CM_None:
-			cursor_mode = 0;
+			SDL_HideCursor();
 			break;
-
-		default:
-			break;
-	}
-
-	if (cursor_mode >= 0)
-	{
-		::SDL_ShowCursor(cursor_mode);
 	}
 
 	return LT_OK;
@@ -208,7 +198,7 @@ LTRESULT CLTCursor::SetCursor(
 
 	const auto sdl_cursor = static_cast<CLTCursorInst*>(hCursor)->GetCursor();
 
-	::SDL_SetCursor(sdl_cursor);
+	SDL_SetCursor(sdl_cursor);
 
 	return LT_OK;
 }
@@ -225,7 +215,7 @@ LTRESULT CLTCursor::FreeCursor(
 	const HLTCURSOR hCursor)
 {
 	const auto sdl_cursor = static_cast<CLTCursorInst*>(hCursor)->GetCursor();
-	::SDL_FreeCursor(sdl_cursor);
+	SDL_DestroyCursor(sdl_cursor);
 
 	delete static_cast<CLTCursorInst*>(hCursor);
 
@@ -258,7 +248,7 @@ LTRESULT CLTCursor::LoadCursorBitmapResource(
 		return LT_MISSINGCURSORRESOURCE;
 	}
 
-	const auto sdl_rwops = ltjs::SdlRwOpsUResource{::SDL_RWFromConstMem(
+	const auto sdl_rwops = ltjs::SdlRwOpsUResource{SDL_IOFromConstMem(
 		shell_cursor->data.data,
 		shell_cursor->data.size
 	)};
@@ -268,14 +258,14 @@ LTRESULT CLTCursor::LoadCursorBitmapResource(
 		return LT_MISSINGCURSORRESOURCE;
 	}
 
-	const auto sdl_surface = ltjs::SdlSurfaceUResource{::SDL_LoadBMP_RW(sdl_rwops.get(), 0)};
+	const auto sdl_surface = ltjs::SdlSurfaceUResource{SDL_LoadBMP_IO(sdl_rwops.get(), 0)};
 
 	if (!sdl_surface)
 	{
 		return LT_MISSINGCURSORRESOURCE;
 	}
 
-	const auto sdl_cursor = ::SDL_CreateColorCursor(
+	const auto sdl_cursor = SDL_CreateColorCursor(
 		sdl_surface.get(),
 		shell_cursor->hot_spot_x,
 		shell_cursor->hot_spot_y
@@ -297,25 +287,15 @@ LTRESULT CLTCursor::LoadCursorBitmapResource(
 
 LTRESULT CLTCursor::RefreshCursor()
 {
-	auto cursor_mode = -1;
-
 	switch (m_eCursorMode)
 	{
 		case CM_Hardware:
-			cursor_mode = 1;
+			SDL_ShowCursor();
 			break;
 
 		case CM_None:
-			cursor_mode = 0;
+			SDL_HideCursor();
 			break;
-
-		default:
-			break;
-	}
-
-	if (cursor_mode >= 0)
-	{
-		::SDL_ShowCursor(cursor_mode);
 	}
 
 	return LT_OK;

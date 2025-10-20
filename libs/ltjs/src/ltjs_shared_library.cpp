@@ -34,13 +34,13 @@ private:
 SharedLibraryImpl::SharedLibraryImpl(
 	const char* path)
 {
-	resource_ = SdlObjectUResource{sdl_ensure_result(::SDL_LoadObject(path))};
+	resource_ = SdlObjectUResource{sdl_ensure_result(SDL_LoadObject(path))};
 }
 
 void* SharedLibraryImpl::find_symbol(
 	const char* symbol_name) noexcept
 {
-	return ::SDL_LoadFunction(resource_.get(), symbol_name);
+	return SDL_LoadFunction(resource_.get(), symbol_name);
 }
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

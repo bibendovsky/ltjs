@@ -425,9 +425,9 @@ void SdlInputMouseDevice::get_state(
 		char{}
 	);
 
-	auto sdl_x = 0;
-	auto sdl_y = 0;
-	const auto sdl_buttons = ::SDL_GetMouseState(&sdl_x, &sdl_y);
+	float sdl_x = 0;
+	float sdl_y = 0;
+	const auto sdl_buttons = SDL_GetMouseState(&sdl_x, &sdl_y);
 
 	for (auto i = 0; i < data_format_.object_count; ++i)
 	{
@@ -556,7 +556,7 @@ int SdlInputMouseDevice::get_data(
 
 		switch (system_event.type)
 		{
-			case ::SDL_MOUSEMOTION:
+			case SDL_EVENT_MOUSE_MOTION:
 				if (has_focus_)
 				{
 					SdlInputDeviceObjectData* const object_data_ptrs[] =
@@ -606,8 +606,8 @@ int SdlInputMouseDevice::get_data(
 
 				break;
 
-			case ::SDL_MOUSEBUTTONDOWN:
-			case ::SDL_MOUSEBUTTONUP:
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			case SDL_EVENT_MOUSE_BUTTON_UP:
 				if (has_focus_)
 				{
 					auto object_id = -1;
@@ -645,7 +645,7 @@ int SdlInputMouseDevice::get_data(
 						if (object_data_format)
 						{
 							object_data.offset = object_data_format->offset;
-							object_data.value = (system_event.button.state == SDL_PRESSED ? 0x80 : 0x00);
+							object_data.value = (system_event.button.down ? 0x80 : 0x00);
 
 							count += 1;
 						}
@@ -654,17 +654,15 @@ int SdlInputMouseDevice::get_data(
 
 				break;
 
-			case ::SDL_MOUSEWHEEL:
+			case SDL_EVENT_MOUSE_WHEEL:
 				if (has_focus_ && system_event.wheel.y != 0)
 				{
 					auto value = system_event.wheel.y;
 
-#if SDL_VERSION_ATLEAST(2, 0, 4)
-					if (system_event.wheel.direction == ::SDL_MOUSEWHEEL_FLIPPED)
+					if (system_event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
 					{
 						value = -value;
 					}
-#endif // SDL_VERSION_ATLEAST(2, 0, 4)
 
 					const auto object_data_format = find_object_data_format_by_id(z_axis_object_id);
 
@@ -702,15 +700,19 @@ void SdlInputMouseDevice::handle_system_event(
 {
 	switch (system_event.type)
 	{
-		case ::SDL_WINDOWEVENT:
-		case ::SDL_MOUSEMOTION:
-		case ::SDL_MOUSEBUTTONDOWN:
-		case ::SDL_MOUSEBUTTONUP:
-		case ::SDL_MOUSEWHEEL:
+		case SDL_EVENT_MOUSE_MOTION:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
+		case SDL_EVENT_MOUSE_WHEEL:
 			event_queue_.push(system_event);
 			break;
 
 		default:
+			if (system_event.type >= SDL_EVENT_WINDOW_FIRST && system_event.type <= SDL_EVENT_WINDOW_LAST)
+			{
+				event_queue_.push(system_event);
+			}
+
 			break;
 	}
 }
@@ -804,22 +806,14 @@ void SdlInputMouseDevice::clear_events()
 void SdlInputMouseDevice::handle_window_event(
 	const ltjs::SystemEvent& system_event)
 {
-	if (system_event.type != ::SDL_WINDOWEVENT)
+	switch (system_event.type)
 	{
-		return;
-	}
-
-	switch (system_event.window.event)
-	{
-		case ::SDL_WINDOWEVENT_ENTER:
+		case SDL_EVENT_WINDOW_MOUSE_ENTER:
 			has_focus_ = true;
 			break;
 
-		case ::SDL_WINDOWEVENT_LEAVE:
+		case SDL_EVENT_WINDOW_MOUSE_LEAVE:
 			has_focus_ = false;
-			break;
-
-		default:
 			break;
 	}
 }
@@ -914,101 +908,101 @@ private:
 	struct DiObject
 	{
 		int key{};
-		::SDL_Keycode sdl_keycode{};
+		SDL_Keycode sdl_keycode{};
 		const char* name{};
 	}; // DiObject
 
 	static constexpr DiObject di_objects[] =
 	{
-		DiObject{DIK_ESCAPE, ::SDLK_ESCAPE, "Esc"},
-		DiObject{DIK_1, ::SDLK_1, "1"},
-		DiObject{DIK_2, ::SDLK_2, "2"},
-		DiObject{DIK_3, ::SDLK_3, "3"},
-		DiObject{DIK_4, ::SDLK_4, "4"},
-		DiObject{DIK_5, ::SDLK_5, "5"},
-		DiObject{DIK_6, ::SDLK_6, "6"},
-		DiObject{DIK_7, ::SDLK_7, "7"},
-		DiObject{DIK_8, ::SDLK_8, "8"},
-		DiObject{DIK_9, ::SDLK_9, "9"},
-		DiObject{DIK_0, ::SDLK_0, "0"},
-		DiObject{DIK_MINUS, ::SDLK_MINUS, "-"},
-		DiObject{DIK_EQUALS, ::SDLK_EQUALS, "="},
-		DiObject{DIK_BACK, ::SDLK_BACKSPACE, "Backspace"},
-		DiObject{DIK_TAB, ::SDLK_TAB, "Tab"},
-		DiObject{DIK_Q, ::SDLK_q, "Q"},
-		DiObject{DIK_W, ::SDLK_w, "W"},
-		DiObject{DIK_E, ::SDLK_e, "E"},
-		DiObject{DIK_R, ::SDLK_r, "R"},
-		DiObject{DIK_T, ::SDLK_t, "T"},
-		DiObject{DIK_Y, ::SDLK_y, "Y"},
-		DiObject{DIK_U, ::SDLK_u, "U"},
-		DiObject{DIK_I, ::SDLK_i, "I"},
-		DiObject{DIK_O, ::SDLK_o, "O"},
-		DiObject{DIK_P, ::SDLK_p, "P"},
-		DiObject{DIK_LBRACKET, ::SDLK_LEFTBRACKET, "["},
-		DiObject{DIK_RBRACKET, ::SDLK_RIGHTBRACKET, "]"},
-		DiObject{DIK_RETURN, ::SDLK_RETURN, "Enter"},
-		DiObject{DIK_LCONTROL, ::SDLK_LCTRL, "Ctrl"},
-		DiObject{DIK_A, ::SDLK_a, "A"},
-		DiObject{DIK_S, ::SDLK_s, "S"},
-		DiObject{DIK_D, ::SDLK_d, "D"},
-		DiObject{DIK_F, ::SDLK_f, "F"},
-		DiObject{DIK_G, ::SDLK_g, "G"},
-		DiObject{DIK_H, ::SDLK_h, "H"},
-		DiObject{DIK_J, ::SDLK_j, "J"},
-		DiObject{DIK_K, ::SDLK_k, "K"},
-		DiObject{DIK_L, ::SDLK_l, "L"},
-		DiObject{DIK_SEMICOLON, ::SDLK_SEMICOLON, ";"},
-		DiObject{DIK_APOSTROPHE, ::SDLK_QUOTE, "'"},
-		DiObject{DIK_GRAVE, ::SDLK_BACKQUOTE, "`"},
-		DiObject{DIK_LSHIFT, ::SDLK_LSHIFT, "Shift"},
-		DiObject{DIK_BACKSLASH, ::SDLK_BACKSLASH, "\\"},
-		DiObject{DIK_Z, ::SDLK_z, "Z"},
-		DiObject{DIK_X, ::SDLK_x, "X"},
-		DiObject{DIK_C, ::SDLK_c, "C"},
-		DiObject{DIK_V, ::SDLK_v, "V"},
-		DiObject{DIK_B, ::SDLK_b, "B"},
-		DiObject{DIK_N, ::SDLK_n, "N"},
-		DiObject{DIK_M, ::SDLK_m, "M"},
-		DiObject{DIK_COMMA, ::SDLK_COMMA, ","},
-		DiObject{DIK_PERIOD, ::SDLK_PERIOD, "."},
-		DiObject{DIK_SLASH, ::SDLK_SLASH, "/"},
-		DiObject{DIK_RSHIFT, ::SDLK_RSHIFT, "Right Shift"},
-		DiObject{DIK_MULTIPLY, ::SDLK_KP_MULTIPLY, "*"},
-		DiObject{DIK_LMENU, ::SDLK_LALT, "Alt"},
-		DiObject{DIK_SPACE, ::SDLK_SPACE, "Space"},
-		DiObject{DIK_CAPITAL, ::SDLK_CAPSLOCK, "Caps Lock"},
-		DiObject{DIK_F1, ::SDLK_F1, "F1"},
-		DiObject{DIK_F2, ::SDLK_F2, "F2"},
-		DiObject{DIK_F3, ::SDLK_F3, "F3"},
-		DiObject{DIK_F4, ::SDLK_F4, "F4"},
-		DiObject{DIK_F5, ::SDLK_F5, "F5"},
-		DiObject{DIK_F6, ::SDLK_F6, "F6"},
-		DiObject{DIK_F7, ::SDLK_F7, "F7"},
-		DiObject{DIK_F8, ::SDLK_F8, "F8"},
-		DiObject{DIK_F9, ::SDLK_F9, "F9"},
-		DiObject{DIK_F10, ::SDLK_F10, "F10"},
-		DiObject{DIK_NUMLOCK, ::SDLK_NUMLOCKCLEAR, "Num Lock"},
-		DiObject{DIK_SCROLL, ::SDLK_SCROLLLOCK, "Scroll Lock"},
-		DiObject{DIK_NUMPAD7, ::SDLK_KP_7, "Num 7"},
-		DiObject{DIK_NUMPAD8, ::SDLK_KP_8, "Num 8"},
-		DiObject{DIK_NUMPAD9, ::SDLK_KP_9, "Num 9"},
-		DiObject{DIK_SUBTRACT, ::SDLK_KP_MINUS, "-"},
-		DiObject{DIK_NUMPAD4, ::SDLK_KP_4, "Num 4"},
-		DiObject{DIK_NUMPAD5, ::SDLK_KP_5, "Num 5"},
-		DiObject{DIK_NUMPAD6, ::SDLK_KP_6, "Num 6"},
-		DiObject{DIK_ADD, ::SDLK_KP_PLUS, "+"},
-		DiObject{DIK_NUMPAD1, ::SDLK_KP_1, "Num 1"},
-		DiObject{DIK_NUMPAD2, ::SDLK_KP_2, "Num 2"},
-		DiObject{DIK_NUMPAD3, ::SDLK_KP_3, "Num 3"},
-		DiObject{DIK_NUMPAD0, ::SDLK_KP_0, "Num 0"},
-		DiObject{DIK_DECIMAL, ::SDLK_KP_DECIMAL, "Num Del"},
+		DiObject{DIK_ESCAPE, SDLK_ESCAPE, "Esc"},
+		DiObject{DIK_1, SDLK_1, "1"},
+		DiObject{DIK_2, SDLK_2, "2"},
+		DiObject{DIK_3, SDLK_3, "3"},
+		DiObject{DIK_4, SDLK_4, "4"},
+		DiObject{DIK_5, SDLK_5, "5"},
+		DiObject{DIK_6, SDLK_6, "6"},
+		DiObject{DIK_7, SDLK_7, "7"},
+		DiObject{DIK_8, SDLK_8, "8"},
+		DiObject{DIK_9, SDLK_9, "9"},
+		DiObject{DIK_0, SDLK_0, "0"},
+		DiObject{DIK_MINUS, SDLK_MINUS, "-"},
+		DiObject{DIK_EQUALS, SDLK_EQUALS, "="},
+		DiObject{DIK_BACK, SDLK_BACKSPACE, "Backspace"},
+		DiObject{DIK_TAB, SDLK_TAB, "Tab"},
+		DiObject{DIK_Q, SDLK_Q, "Q"},
+		DiObject{DIK_W, SDLK_W, "W"},
+		DiObject{DIK_E, SDLK_E, "E"},
+		DiObject{DIK_R, SDLK_R, "R"},
+		DiObject{DIK_T, SDLK_T, "T"},
+		DiObject{DIK_Y, SDLK_Y, "Y"},
+		DiObject{DIK_U, SDLK_U, "U"},
+		DiObject{DIK_I, SDLK_I, "I"},
+		DiObject{DIK_O, SDLK_O, "O"},
+		DiObject{DIK_P, SDLK_P, "P"},
+		DiObject{DIK_LBRACKET, SDLK_LEFTBRACKET, "["},
+		DiObject{DIK_RBRACKET, SDLK_RIGHTBRACKET, "]"},
+		DiObject{DIK_RETURN, SDLK_RETURN, "Enter"},
+		DiObject{DIK_LCONTROL, SDLK_LCTRL, "Ctrl"},
+		DiObject{DIK_A, SDLK_A, "A"},
+		DiObject{DIK_S, SDLK_S, "S"},
+		DiObject{DIK_D, SDLK_D, "D"},
+		DiObject{DIK_F, SDLK_F, "F"},
+		DiObject{DIK_G, SDLK_G, "G"},
+		DiObject{DIK_H, SDLK_H, "H"},
+		DiObject{DIK_J, SDLK_J, "J"},
+		DiObject{DIK_K, SDLK_K, "K"},
+		DiObject{DIK_L, SDLK_L, "L"},
+		DiObject{DIK_SEMICOLON, SDLK_SEMICOLON, ";"},
+		DiObject{DIK_APOSTROPHE, SDLK_APOSTROPHE, "'"},
+		DiObject{DIK_GRAVE, SDLK_GRAVE, "`"},
+		DiObject{DIK_LSHIFT, SDLK_LSHIFT, "Shift"},
+		DiObject{DIK_BACKSLASH, SDLK_BACKSLASH, "\\"},
+		DiObject{DIK_Z, SDLK_Z, "Z"},
+		DiObject{DIK_X, SDLK_X, "X"},
+		DiObject{DIK_C, SDLK_C, "C"},
+		DiObject{DIK_V, SDLK_V, "V"},
+		DiObject{DIK_B, SDLK_B, "B"},
+		DiObject{DIK_N, SDLK_N, "N"},
+		DiObject{DIK_M, SDLK_M, "M"},
+		DiObject{DIK_COMMA, SDLK_COMMA, ","},
+		DiObject{DIK_PERIOD, SDLK_PERIOD, "."},
+		DiObject{DIK_SLASH, SDLK_SLASH, "/"},
+		DiObject{DIK_RSHIFT, SDLK_RSHIFT, "Right Shift"},
+		DiObject{DIK_MULTIPLY, SDLK_KP_MULTIPLY, "*"},
+		DiObject{DIK_LMENU, SDLK_LALT, "Alt"},
+		DiObject{DIK_SPACE, SDLK_SPACE, "Space"},
+		DiObject{DIK_CAPITAL, SDLK_CAPSLOCK, "Caps Lock"},
+		DiObject{DIK_F1, SDLK_F1, "F1"},
+		DiObject{DIK_F2, SDLK_F2, "F2"},
+		DiObject{DIK_F3, SDLK_F3, "F3"},
+		DiObject{DIK_F4, SDLK_F4, "F4"},
+		DiObject{DIK_F5, SDLK_F5, "F5"},
+		DiObject{DIK_F6, SDLK_F6, "F6"},
+		DiObject{DIK_F7, SDLK_F7, "F7"},
+		DiObject{DIK_F8, SDLK_F8, "F8"},
+		DiObject{DIK_F9, SDLK_F9, "F9"},
+		DiObject{DIK_F10, SDLK_F10, "F10"},
+		DiObject{DIK_NUMLOCK, SDLK_NUMLOCKCLEAR, "Num Lock"},
+		DiObject{DIK_SCROLL, SDLK_SCROLLLOCK, "Scroll Lock"},
+		DiObject{DIK_NUMPAD7, SDLK_KP_7, "Num 7"},
+		DiObject{DIK_NUMPAD8, SDLK_KP_8, "Num 8"},
+		DiObject{DIK_NUMPAD9, SDLK_KP_9, "Num 9"},
+		DiObject{DIK_SUBTRACT, SDLK_KP_MINUS, "-"},
+		DiObject{DIK_NUMPAD4, SDLK_KP_4, "Num 4"},
+		DiObject{DIK_NUMPAD5, SDLK_KP_5, "Num 5"},
+		DiObject{DIK_NUMPAD6, SDLK_KP_6, "Num 6"},
+		DiObject{DIK_ADD, SDLK_KP_PLUS, "+"},
+		DiObject{DIK_NUMPAD1, SDLK_KP_1, "Num 1"},
+		DiObject{DIK_NUMPAD2, SDLK_KP_2, "Num 2"},
+		DiObject{DIK_NUMPAD3, SDLK_KP_3, "Num 3"},
+		DiObject{DIK_NUMPAD0, SDLK_KP_0, "Num 0"},
+		DiObject{DIK_DECIMAL, SDLK_KP_DECIMAL, "Num Del"},
 		//DiObject{DIK_OEM_102, ::SDLK_, ""},
-		DiObject{DIK_F11, ::SDLK_F11, "F11"},
-		DiObject{DIK_F12, ::SDLK_F12, "F12"},
-		DiObject{DIK_F13, ::SDLK_F13, "F13"},
-		DiObject{DIK_F14, ::SDLK_F14, "F14"},
-		DiObject{DIK_F15, ::SDLK_F15, "F15"},
+		DiObject{DIK_F11, SDLK_F11, "F11"},
+		DiObject{DIK_F12, SDLK_F12, "F12"},
+		DiObject{DIK_F13, SDLK_F13, "F13"},
+		DiObject{DIK_F14, SDLK_F14, "F14"},
+		DiObject{DIK_F15, SDLK_F15, "F15"},
 		//DiObject{DIK_KANA, ::SDLK_, ""},
 		//DiObject{DIK_ABNT_C1, ::SDLK_, ""},
 		//DiObject{DIK_CONVERT, ::SDLK_, ""},
@@ -1025,8 +1019,8 @@ private:
 		//DiObject{DIK_AX, ::SDLK_, ""},
 		//DiObject{DIK_UNLABELED, ::SDLK_, ""},
 		//DiObject{DIK_NEXTTRACK, ::SDLK_, ""},
-		DiObject{DIK_NUMPADENTER, ::SDLK_KP_ENTER, "Num Enter"},
-		DiObject{DIK_RCONTROL, ::SDLK_RCTRL, "Right Ctrl"},
+		DiObject{DIK_NUMPADENTER, SDLK_KP_ENTER, "Num Enter"},
+		DiObject{DIK_RCONTROL, SDLK_RCTRL, "Right Ctrl"},
 		//DiObject{DIK_MUTE, ::SDLK_, ""},
 		//DiObject{DIK_CALCULATOR, ::SDLK_, ""},
 		//DiObject{DIK_PLAYPAUSE, ::SDLK_, ""},
@@ -1035,20 +1029,20 @@ private:
 		//DiObject{DIK_VOLUMEUP, ::SDLK_, ""},
 		//DiObject{DIK_WEBHOME, ::SDLK_, ""},
 		//DiObject{DIK_NUMPADCOMMA, ::SDLK_, ""},
-		DiObject{DIK_DIVIDE, ::SDLK_KP_DIVIDE, "Num /"},
-		DiObject{DIK_SYSRQ, ::SDLK_PRINTSCREEN, "Prnt Scrn"},
-		DiObject{DIK_RMENU, ::SDLK_RALT, "Right Alt"},
-		DiObject{DIK_PAUSE, ::SDLK_PAUSE, "Pause"},
-		DiObject{DIK_HOME, ::SDLK_HOME, "Home"},
-		DiObject{DIK_UP, ::SDLK_UP, "Up"},
-		DiObject{DIK_PRIOR, ::SDLK_PAGEUP, "Page Up"},
-		DiObject{DIK_LEFT, ::SDLK_LEFT, "Left"},
-		DiObject{DIK_RIGHT, ::SDLK_RIGHT, "Right"},
-		DiObject{DIK_END, ::SDLK_END, "End"},
-		DiObject{DIK_DOWN, ::SDLK_DOWN, "Down"},
-		DiObject{DIK_NEXT, ::SDLK_PAGEDOWN, "Page Down"},
-		DiObject{DIK_INSERT, ::SDLK_INSERT, "Insert"},
-		DiObject{DIK_DELETE, ::SDLK_DELETE, "Delete"},
+		DiObject{DIK_DIVIDE, SDLK_KP_DIVIDE, "Num /"},
+		DiObject{DIK_SYSRQ, SDLK_PRINTSCREEN, "Prnt Scrn"},
+		DiObject{DIK_RMENU, SDLK_RALT, "Right Alt"},
+		DiObject{DIK_PAUSE, SDLK_PAUSE, "Pause"},
+		DiObject{DIK_HOME, SDLK_HOME, "Home"},
+		DiObject{DIK_UP, SDLK_UP, "Up"},
+		DiObject{DIK_PRIOR, SDLK_PAGEUP, "Page Up"},
+		DiObject{DIK_LEFT, SDLK_LEFT, "Left"},
+		DiObject{DIK_RIGHT, SDLK_RIGHT, "Right"},
+		DiObject{DIK_END, SDLK_END, "End"},
+		DiObject{DIK_DOWN, SDLK_DOWN, "Down"},
+		DiObject{DIK_NEXT, SDLK_PAGEDOWN, "Page Down"},
+		DiObject{DIK_INSERT, SDLK_INSERT, "Insert"},
+		DiObject{DIK_DELETE, SDLK_DELETE, "Delete"},
 		//DiObject{DIK_LWIN, ::SDLK_, ""},
 		//DiObject{DIK_RWIN, ::SDLK_, ""},
 		//DiObject{DIK_APPS, ::SDLK_, ""},
@@ -1075,9 +1069,9 @@ private:
 
 	using Name = std::string;
 	using Objects = std::array<SdlInputDeviceObject, max_objects>;
-	using SdlKeycodes = std::array<::SDL_Keycode, max_objects>;
+	using SdlKeycodes = std::array<SDL_Keycode, max_objects>;
 	using ObjectDataFormats = std::array<SdlInputDeviceObjectDataFormat, max_objects>;
-	using SdlKeycodeToDiKeyMap = std::unordered_map<::SDL_Keycode, int>;
+	using SdlKeycodeToDiKeyMap = std::unordered_map<SDL_Keycode, int>;
 
 
 	SdlInputDeviceInfo info_{};
@@ -1212,11 +1206,11 @@ void SdlInputKeyboardDevice::get_state(
 	std::uninitialized_fill_n(
 		static_cast<char*>(state_buffer),
 		data_format_.state_size,
-		char{}
+		'\0'
 	);
 
 	auto sdl_key_count = 0;
-	const auto sdl_scancodes = ::SDL_GetKeyboardState(&sdl_key_count);
+	const auto sdl_scancodes = SDL_GetKeyboardState(&sdl_key_count);
 
 	for (auto i = 0; i < data_format_.object_count; ++i)
 	{
@@ -1226,11 +1220,11 @@ void SdlInputKeyboardDevice::get_state(
 
 		auto is_pressed = false;
 
-		if (sdl_keycode != ::SDLK_UNKNOWN)
+		if (sdl_keycode != SDLK_UNKNOWN)
 		{
-			const auto sdl_scancode = ::SDL_GetScancodeFromKey(sdl_keycode);
+			const auto sdl_scancode = SDL_GetScancodeFromKey(sdl_keycode, nullptr);
 
-			if (sdl_scancode != ::SDL_SCANCODE_UNKNOWN)
+			if (sdl_scancode != SDL_SCANCODE_UNKNOWN)
 			{
 				is_pressed = (sdl_scancodes[sdl_scancode] != 0);
 			}
@@ -1268,10 +1262,10 @@ int SdlInputKeyboardDevice::get_data(
 
 		switch (system_event.type)
 		{
-			case ::SDL_KEYDOWN:
-			case ::SDL_KEYUP:
+			case SDL_EVENT_KEY_DOWN:
+			case SDL_EVENT_KEY_UP:
 				{
-					const auto sdk_key_code = system_event.key.keysym.sym;
+					const auto sdk_key_code = system_event.key.key;
 					const auto di_key = sdl_map_keycode_to_di_key(sdk_key_code);
 
 					if (di_key != 0)
@@ -1281,7 +1275,7 @@ int SdlInputKeyboardDevice::get_data(
 						if (object_data_format)
 						{
 							object_data.offset = object_data_format->offset;
-							object_data.value = (system_event.key.state == SDL_PRESSED ? 0x80 : 0x00);
+							object_data.value = (system_event.key.down ? 0x80 : 0x00);
 
 							count += 1;
 						}
@@ -1311,16 +1305,11 @@ void SdlInputKeyboardDevice::flush_data()
 void SdlInputKeyboardDevice::handle_system_event(
 	const ltjs::SystemEvent& system_event)
 {
-	switch (system_event.type)
+	if (system_event.type == SDL_EVENT_KEY_DOWN ||
+		system_event.type == SDL_EVENT_KEY_UP ||
+		(system_event.type >= SDL_EVENT_WINDOW_FIRST && system_event.type <= SDL_EVENT_WINDOW_LAST))
 	{
-		case ::SDL_WINDOWEVENT:
-		case ::SDL_KEYDOWN:
-		case ::SDL_KEYUP:
-			event_queue_.push(system_event);
-			break;
-
-		default:
-			break;
+		event_queue_.push(system_event);
 	}
 }
 
@@ -1370,22 +1359,14 @@ void SdlInputKeyboardDevice::clear_events()
 void SdlInputKeyboardDevice::handle_window_event(
 	const ltjs::SystemEvent& system_event)
 {
-	if (system_event.type != ::SDL_WINDOWEVENT)
+	switch (system_event.type)
 	{
-		return;
-	}
-
-	switch (system_event.window.event)
-	{
-		case ::SDL_WINDOWEVENT_FOCUS_GAINED:
+		case SDL_EVENT_WINDOW_FOCUS_GAINED:
 			has_focus_ = true;
 			break;
 
-		case ::SDL_WINDOWEVENT_FOCUS_LOST:
+		case SDL_EVENT_WINDOW_FOCUS_LOST:
 			has_focus_ = false;
-			break;
-
-		default:
 			break;
 	}
 }
@@ -1407,7 +1388,7 @@ const SdlInputDeviceObjectDataFormat* SdlInputKeyboardDevice::find_object_data_f
 }
 
 int SdlInputKeyboardDevice::sdl_map_keycode_to_di_key(
-	::SDL_Keycode sdl_keycode) const noexcept
+	SDL_Keycode sdl_keycode) const noexcept
 {
 	const auto sdl_keycode_to_di_key_map_item_it = sdl_keycode_to_di_key_map_.find(sdl_keycode);
 
@@ -1506,38 +1487,40 @@ private:
 
 	static constexpr auto button_base_object_id = 10;
 
+	constexpr static SDL_JoystickID invalid_joystick_id = std::numeric_limits<SDL_JoystickID>::max();
+
 
 	struct ButtonDescriptor
 	{
 		int object_id{};
-		::SDL_GameControllerButton sdl_button{};
+		SDL_GamepadButton sdl_button{};
 		const char* name{};
 	}; // ButtonDescriptor
 
 
 	static constexpr ButtonDescriptor button_defs[] =
 	{
-		ButtonDescriptor{button_base_object_id + 0, ::SDL_CONTROLLER_BUTTON_A, "A"},
-		ButtonDescriptor{button_base_object_id + 1, ::SDL_CONTROLLER_BUTTON_B, "B"},
-		ButtonDescriptor{button_base_object_id + 2, ::SDL_CONTROLLER_BUTTON_X, "X"},
-		ButtonDescriptor{button_base_object_id + 3, ::SDL_CONTROLLER_BUTTON_Y, "Y"},
-		ButtonDescriptor{button_base_object_id + 4, ::SDL_CONTROLLER_BUTTON_BACK, "Back"},
-		ButtonDescriptor{button_base_object_id + 5, ::SDL_CONTROLLER_BUTTON_GUIDE, "Guide"},
-		ButtonDescriptor{button_base_object_id + 6, ::SDL_CONTROLLER_BUTTON_START, "Start"},
-		ButtonDescriptor{button_base_object_id + 7, ::SDL_CONTROLLER_BUTTON_LEFTSTICK, "LStick"},
-		ButtonDescriptor{button_base_object_id + 8, ::SDL_CONTROLLER_BUTTON_RIGHTSTICK, "RStick"},
-		ButtonDescriptor{button_base_object_id + 9, ::SDL_CONTROLLER_BUTTON_LEFTSHOULDER, "LShoulder"},
-		ButtonDescriptor{button_base_object_id + 10, ::SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, "RShoulder"},
-		ButtonDescriptor{button_base_object_id + 11, ::SDL_CONTROLLER_BUTTON_DPAD_UP, "D-Pad Up"},
-		ButtonDescriptor{button_base_object_id + 12, ::SDL_CONTROLLER_BUTTON_DPAD_DOWN, "D-Pad Down"},
-		ButtonDescriptor{button_base_object_id + 13, ::SDL_CONTROLLER_BUTTON_DPAD_LEFT, "D-Pad Left"},
-		ButtonDescriptor{button_base_object_id + 14, ::SDL_CONTROLLER_BUTTON_DPAD_RIGHT, "D-Pad Right"},
-		ButtonDescriptor{button_base_object_id + 15, ::SDL_CONTROLLER_BUTTON_MISC1, "Misc 1"},
-		ButtonDescriptor{button_base_object_id + 16, ::SDL_CONTROLLER_BUTTON_PADDLE1, "Paddle 1"},
-		ButtonDescriptor{button_base_object_id + 17, ::SDL_CONTROLLER_BUTTON_PADDLE2, "Paddle 2"},
-		ButtonDescriptor{button_base_object_id + 18, ::SDL_CONTROLLER_BUTTON_PADDLE3, "Paddle 3"},
-		ButtonDescriptor{button_base_object_id + 19, ::SDL_CONTROLLER_BUTTON_PADDLE4, "Paddle 4"},
-		ButtonDescriptor{button_base_object_id + 20, ::SDL_CONTROLLER_BUTTON_TOUCHPAD, "Touchpad"},
+		ButtonDescriptor{button_base_object_id + 0, SDL_GAMEPAD_BUTTON_SOUTH, "A"},
+		ButtonDescriptor{button_base_object_id + 1, SDL_GAMEPAD_BUTTON_EAST, "B"},
+		ButtonDescriptor{button_base_object_id + 2, SDL_GAMEPAD_BUTTON_WEST, "X"},
+		ButtonDescriptor{button_base_object_id + 3, SDL_GAMEPAD_BUTTON_NORTH, "Y"},
+		ButtonDescriptor{button_base_object_id + 4, SDL_GAMEPAD_BUTTON_BACK, "Back"},
+		ButtonDescriptor{button_base_object_id + 5, SDL_GAMEPAD_BUTTON_GUIDE, "Guide"},
+		ButtonDescriptor{button_base_object_id + 6, SDL_GAMEPAD_BUTTON_START, "Start"},
+		ButtonDescriptor{button_base_object_id + 7, SDL_GAMEPAD_BUTTON_LEFT_STICK, "LStick"},
+		ButtonDescriptor{button_base_object_id + 8, SDL_GAMEPAD_BUTTON_RIGHT_STICK, "RStick"},
+		ButtonDescriptor{button_base_object_id + 9, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, "LShoulder"},
+		ButtonDescriptor{button_base_object_id + 10, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, "RShoulder"},
+		ButtonDescriptor{button_base_object_id + 11, SDL_GAMEPAD_BUTTON_DPAD_UP, "D-Pad Up"},
+		ButtonDescriptor{button_base_object_id + 12, SDL_GAMEPAD_BUTTON_DPAD_DOWN, "D-Pad Down"},
+		ButtonDescriptor{button_base_object_id + 13, SDL_GAMEPAD_BUTTON_DPAD_LEFT, "D-Pad Left"},
+		ButtonDescriptor{button_base_object_id + 14, SDL_GAMEPAD_BUTTON_DPAD_RIGHT, "D-Pad Right"},
+		ButtonDescriptor{button_base_object_id + 15, SDL_GAMEPAD_BUTTON_MISC1, "Misc 1"},
+		ButtonDescriptor{button_base_object_id + 16, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1, "Paddle 1"},
+		ButtonDescriptor{button_base_object_id + 17, SDL_GAMEPAD_BUTTON_LEFT_PADDLE1, "Paddle 2"},
+		ButtonDescriptor{button_base_object_id + 18, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2, "Paddle 3"},
+		ButtonDescriptor{button_base_object_id + 19, SDL_GAMEPAD_BUTTON_LEFT_PADDLE2, "Paddle 4"},
+		ButtonDescriptor{button_base_object_id + 20, SDL_GAMEPAD_BUTTON_TOUCHPAD, "Touchpad"},
 	}; // button_defs
 
 
@@ -1546,9 +1529,9 @@ private:
 	using ObjectDataFormats = std::array<SdlInputDeviceObjectDataFormat, max_objects>;
 
 
-	ltjs::SdlGameControllerUResource game_controller_{};
+	ltjs::SdlGamepadUResource gamepad_{};
 	SdlInputDeviceInfo info_{};
-	::SDL_JoystickID joystick_id_{};
+	SDL_JoystickID joystick_id_{};
 	int object_count_{};
 	Objects objects_{};
 	SdlInputDeviceDataFormat data_format_{};
@@ -1569,9 +1552,9 @@ private:
 	bool is_dpad_right_pressed_{};
 
 
-	void open_game_controller();
+	void open_gamepad();
 
-	void close_game_controller();
+	void close_gamepad();
 
 	void initialize_objects();
 
@@ -1582,7 +1565,7 @@ private:
 	void handle_window_event(
 		const ltjs::SystemEvent& system_event);
 
-	void handle_add_remove_controller_event(
+	void handle_add_remove_gamepad_event(
 		const ltjs::SystemEvent& system_event);
 
 	const SdlInputDeviceObjectDataFormat* find_object_data_format_by_id(
@@ -1614,7 +1597,7 @@ SdlInputGamepadDevice::SdlInputGamepadDevice(
 	}
 
 	info_ = device_info;
-	open_game_controller();
+	open_gamepad();
 	initialize_objects();
 	initialize_event_queue();
 }
@@ -1717,8 +1700,8 @@ void SdlInputGamepadDevice::get_state(
 
 	const auto can_read_state = (
 		has_focus_ &&
-		game_controller_ &&
-		::SDL_GameControllerGetAttached(game_controller_.get()) != ::SDL_FALSE
+		gamepad_ &&
+		SDL_GamepadConnected(gamepad_.get())
 	);
 
 	for (auto i = 0; i < data_format_.object_count; ++i)
@@ -1737,32 +1720,32 @@ void SdlInputGamepadDevice::get_state(
 		}
 		else if (can_read_state && object->id == x_axis_object_id)
 		{
-			const auto value = normalize_axis_value(::SDL_GameControllerGetAxis(
-				game_controller_.get(),
-				::SDL_CONTROLLER_AXIS_LEFTX
+			const auto value = normalize_axis_value(SDL_GetGamepadAxis(
+				gamepad_.get(),
+				SDL_GAMEPAD_AXIS_LEFTX
 			));
 
 			sdl_input_write_axis_data(state_buffer, offset, value);
 		}
 		else if (can_read_state && object->id == y_axis_object_id)
 		{
-			const auto value = normalize_axis_value(::SDL_GameControllerGetAxis(
-				game_controller_.get(),
-				::SDL_CONTROLLER_AXIS_LEFTY
+			const auto value = normalize_axis_value(SDL_GetGamepadAxis(
+				gamepad_.get(),
+				SDL_GAMEPAD_AXIS_LEFTY
 			));
 
 			sdl_input_write_axis_data(state_buffer, offset, value);
 		}
 		else if (can_read_state && object->id == z_axis_object_id)
 		{
-			left_trigger_ = ::SDL_GameControllerGetAxis(
-				game_controller_.get(),
-				::SDL_CONTROLLER_AXIS_TRIGGERLEFT
+			left_trigger_ = SDL_GetGamepadAxis(
+				gamepad_.get(),
+				SDL_GAMEPAD_AXIS_LEFT_TRIGGER
 			);
 
-			right_trigger_ = ::SDL_GameControllerGetAxis(
-				game_controller_.get(),
-				::SDL_CONTROLLER_AXIS_TRIGGERRIGHT
+			right_trigger_ = SDL_GetGamepadAxis(
+				gamepad_.get(),
+				SDL_GAMEPAD_AXIS_RIGHT_TRIGGER
 			);
 
 			const auto value = normalize_axis_value(left_trigger_ - right_trigger_);
@@ -1771,18 +1754,18 @@ void SdlInputGamepadDevice::get_state(
 		}
 		else if (can_read_state && object->id == rx_axis_object_id)
 		{
-			const auto value = normalize_axis_value(::SDL_GameControllerGetAxis(
-				game_controller_.get(),
-				::SDL_CONTROLLER_AXIS_RIGHTX
+			const auto value = normalize_axis_value(SDL_GetGamepadAxis(
+				gamepad_.get(),
+				SDL_GAMEPAD_AXIS_RIGHTX
 			));
 
 			sdl_input_write_axis_data(state_buffer, offset, value);
 		}
 		else if (can_read_state && object->id == ry_axis_object_id)
 		{
-			const auto value = normalize_axis_value(::SDL_GameControllerGetAxis(
-				game_controller_.get(),
-				::SDL_CONTROLLER_AXIS_RIGHTY
+			const auto value = normalize_axis_value(SDL_GetGamepadAxis(
+				gamepad_.get(),
+				SDL_GAMEPAD_AXIS_RIGHTY
 			));
 
 			sdl_input_write_axis_data(state_buffer, offset, value);
@@ -1791,30 +1774,25 @@ void SdlInputGamepadDevice::get_state(
 		{
 			if (can_read_state)
 			{
-				const auto dpad_up = ::SDL_GameControllerGetButton(
-					game_controller_.get(),
-					::SDL_CONTROLLER_BUTTON_DPAD_UP
+				is_dpad_up_pressed_ = SDL_GetGamepadButton(
+					gamepad_.get(),
+					SDL_GAMEPAD_BUTTON_DPAD_UP
 				);
 
-				const auto dpad_down = ::SDL_GameControllerGetButton(
-					game_controller_.get(),
-					::SDL_CONTROLLER_BUTTON_DPAD_DOWN
+				is_dpad_down_pressed_ = SDL_GetGamepadButton(
+					gamepad_.get(),
+					SDL_GAMEPAD_BUTTON_DPAD_DOWN
 				);
 
-				const auto dpad_left = ::SDL_GameControllerGetButton(
-					game_controller_.get(),
-					::SDL_CONTROLLER_BUTTON_DPAD_LEFT
+				is_dpad_left_pressed_ = SDL_GetGamepadButton(
+					gamepad_.get(),
+					SDL_GAMEPAD_BUTTON_DPAD_LEFT
 				);
 
-				const auto dpad_right = ::SDL_GameControllerGetButton(
-					game_controller_.get(),
-					::SDL_CONTROLLER_BUTTON_DPAD_RIGHT
+				is_dpad_right_pressed_ = SDL_GetGamepadButton(
+					gamepad_.get(),
+					SDL_GAMEPAD_BUTTON_DPAD_RIGHT
 				);
-
-				is_dpad_up_pressed_ = (dpad_up != 0);
-				is_dpad_down_pressed_ = (dpad_down != 0);
-				is_dpad_left_pressed_ = (dpad_left != 0);
-				is_dpad_right_pressed_ = (dpad_right != 0);
 
 				const auto value = make_direct_input_pov();
 
@@ -1830,12 +1808,12 @@ void SdlInputGamepadDevice::get_state(
 			const auto button_index = object->id - button_base_object_id;
 			const auto sdl_button = button_defs[button_index].sdl_button;
 
-			const auto sdl_value = ::SDL_GameControllerGetButton(
-				game_controller_.get(),
+			const bool sdl_value = SDL_GetGamepadButton(
+				gamepad_.get(),
 				sdl_button
 			);
 
-			sdl_input_write_button_data(state_buffer, offset, sdl_value != 0);
+			sdl_input_write_button_data(state_buffer, offset, sdl_value);
 		}
 	}
 }
@@ -1856,8 +1834,8 @@ int SdlInputGamepadDevice::get_data(
 
 	const auto can_read_state = (
 		has_focus_ &&
-		game_controller_ &&
-		::SDL_GameControllerGetAttached(game_controller_.get()) != ::SDL_FALSE
+		gamepad_ &&
+		SDL_GamepadConnected(gamepad_.get())
 	);
 
 	auto count = 0;
@@ -1883,37 +1861,37 @@ int SdlInputGamepadDevice::get_data(
 		}
 		else if (
 			can_read_state &&
-			system_event.type == ::SDL_CONTROLLERAXISMOTION &&
-			system_event.caxis.which == joystick_id_)
+			system_event.type == SDL_EVENT_GAMEPAD_AXIS_MOTION &&
+			system_event.gaxis.which == joystick_id_)
 		{
 			auto object_id = -1;
 
-			switch (system_event.caxis.axis)
+			switch (system_event.gaxis.axis)
 			{
-				case ::SDL_CONTROLLER_AXIS_LEFTX:
+				case SDL_GAMEPAD_AXIS_LEFTX:
 					object_id = x_axis_object_id;
 					break;
 
-				case ::SDL_CONTROLLER_AXIS_LEFTY:
+				case SDL_GAMEPAD_AXIS_LEFTY:
 					object_id = y_axis_object_id;
 					break;
 
-				case ::SDL_CONTROLLER_AXIS_RIGHTX:
+				case SDL_GAMEPAD_AXIS_RIGHTX:
 					object_id = rx_axis_object_id;
 					break;
 
-				case ::SDL_CONTROLLER_AXIS_RIGHTY:
+				case SDL_GAMEPAD_AXIS_RIGHTY:
 					object_id = ry_axis_object_id;
 					break;
 
-				case ::SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+				case SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
 					object_id = z_axis_object_id;
-					left_trigger_ = system_event.caxis.value;
+					left_trigger_ = system_event.gaxis.value;
 					break;
 
-				case ::SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
+				case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER:
 					object_id = z_axis_object_id;
-					right_trigger_ = system_event.caxis.value;
+					right_trigger_ = system_event.gaxis.value;
 					break;
 
 				default:
@@ -1927,7 +1905,7 @@ int SdlInputGamepadDevice::get_data(
 				const auto value = normalize_axis_value(
 					object_id == z_axis_object_id ?
 					left_trigger_ - right_trigger_ :
-					system_event.caxis.value
+					system_event.gaxis.value
 				);
 
 				object_data.offset = object_data_format->offset;
@@ -1938,33 +1916,33 @@ int SdlInputGamepadDevice::get_data(
 		}
 		else if (
 			can_read_state &&
-			(system_event.type == ::SDL_CONTROLLERBUTTONDOWN ||
-				system_event.type == ::SDL_CONTROLLERBUTTONUP) &&
-			system_event.cbutton.which == joystick_id_)
+			(system_event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN ||
+				system_event.type == SDL_EVENT_GAMEPAD_BUTTON_UP) &&
+			system_event.gbutton.which == joystick_id_)
 		{
-			const auto is_pressed = (system_event.cbutton.state == SDL_PRESSED);
-			const auto object_id = button_base_object_id + system_event.cbutton.button;
+			const auto is_pressed = system_event.gbutton.down;
+			const auto object_id = button_base_object_id + system_event.gbutton.button;
 
 			auto is_dpad = false;
 
-			switch (system_event.cbutton.button)
+			switch (system_event.gbutton.button)
 			{
-				case SDL_CONTROLLER_BUTTON_DPAD_UP:
+				case SDL_GAMEPAD_BUTTON_DPAD_UP:
 					is_dpad = true;
 					is_dpad_up_pressed_ = is_pressed;
 					break;
 
-				case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+				case SDL_GAMEPAD_BUTTON_DPAD_DOWN:
 					is_dpad = true;
 					is_dpad_down_pressed_ = is_pressed;
 					break;
 
-				case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+				case SDL_GAMEPAD_BUTTON_DPAD_LEFT:
 					is_dpad = true;
 					is_dpad_left_pressed_ = is_pressed;
 					break;
 
-				case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+				case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
 					is_dpad = true;
 					is_dpad_right_pressed_ = is_pressed;
 					break;
@@ -2000,7 +1978,7 @@ int SdlInputGamepadDevice::get_data(
 		else
 		{
 			handle_window_event(system_event);
-			handle_add_remove_controller_event(system_event);
+			handle_add_remove_gamepad_event(system_event);
 		}
 	}
 
@@ -2021,77 +1999,67 @@ void SdlInputGamepadDevice::flush_data()
 void SdlInputGamepadDevice::handle_system_event(
 	const ltjs::SystemEvent& system_event)
 {
-	switch (system_event.type)
+	if (system_event.type == SDL_EVENT_GAMEPAD_AXIS_MOTION ||
+		system_event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN ||
+		system_event.type == SDL_EVENT_GAMEPAD_BUTTON_UP ||
+		system_event.type == SDL_EVENT_GAMEPAD_ADDED ||
+		system_event.type == SDL_EVENT_GAMEPAD_REMOVED ||
+		(system_event.type >= SDL_EVENT_WINDOW_FIRST && system_event.type <= SDL_EVENT_WINDOW_LAST))
 	{
-		case ::SDL_WINDOWEVENT:
-
-		case ::SDL_CONTROLLERAXISMOTION:
-		case ::SDL_CONTROLLERBUTTONDOWN:
-		case ::SDL_CONTROLLERBUTTONUP:
-
-		case ::SDL_CONTROLLERDEVICEADDED:
-		case ::SDL_CONTROLLERDEVICEREMOVED:
-			event_queue_.push(system_event);
-			break;
-
-		default:
-			break;
+		event_queue_.push(system_event);
 	}
 }
 
-void SdlInputGamepadDevice::open_game_controller()
+void SdlInputGamepadDevice::open_gamepad()
 {
-	const auto joystick_count = ::SDL_NumJoysticks();
+	int joystick_count = 0;
+	SDL_JoystickID* const sdl_joystick_id_list = SDL_GetJoysticks(&joystick_count);
 
-	for (auto joystick_index = 0; joystick_index < joystick_count; ++joystick_index)
+	for (int i_joystick = 0; i_joystick < joystick_count; ++i_joystick)
 	{
-		if (::SDL_IsGameController(joystick_index) == ::SDL_FALSE)
+		const SDL_JoystickID& sdl_joystick_id = sdl_joystick_id_list[i_joystick];
+
+		if (!SDL_IsGamepad(sdl_joystick_id))
 		{
 			continue;
 		}
 
-		const auto game_controller_name = ::SDL_GameControllerNameForIndex(joystick_index);
+		const char* const gamepad_name = SDL_GetGamepadNameForID(sdl_joystick_id);
 
-		if (!game_controller_name)
+		if (gamepad_name == nullptr)
 		{
 			continue;
 		}
 
-		if (game_controller_name != info_.name)
+		if (gamepad_name != info_.name)
 		{
 			continue;
 		}
 
-		auto game_controller = ltjs::SdlGameControllerUResource{::SDL_GameControllerOpen(joystick_index)};
+		ltjs::SdlGamepadUResource gamepad{SDL_OpenGamepad(sdl_joystick_id)};
 
-		if (!game_controller)
+		if (gamepad == nullptr)
 		{
-			return;
+			break;
 		}
 
-		const auto joystick_id = ::SDL_JoystickGetDeviceInstanceID(joystick_index);
-
-		if (joystick_id < 0)
-		{
-			return;
-		}
-
-		joystick_id_ = joystick_id;
-		game_controller_ = std::move(game_controller);
-
-		return;
+		joystick_id_ = sdl_joystick_id;
+		gamepad_ = std::move(gamepad);
+		break;
 	}
+
+	SDL_free(sdl_joystick_id_list);
 }
 
-void SdlInputGamepadDevice::close_game_controller()
+void SdlInputGamepadDevice::close_gamepad()
 {
-	joystick_id_ = -1;
-	game_controller_ = nullptr;
+	joystick_id_ = invalid_joystick_id;
+	gamepad_ = nullptr;
 }
 
 void SdlInputGamepadDevice::initialize_objects()
 {
-	if (!game_controller_)
+	if (!gamepad_)
 	{
 		return;
 	}
@@ -2099,12 +2067,12 @@ void SdlInputGamepadDevice::initialize_objects()
 	auto object_index = 0;
 
 	const auto has_axis = [this](
-		const ::SDL_GameControllerAxis axis)
+		const SDL_GamepadAxis axis)
 	{
-		return ::SDL_GameControllerHasAxis(game_controller_.get(), axis) != ::SDL_FALSE;
+		return SDL_GamepadHasAxis(gamepad_.get(), axis);
 	};
 
-	if (has_axis(::SDL_CONTROLLER_AXIS_LEFTX))
+	if (has_axis(SDL_GAMEPAD_AXIS_LEFTX))
 	{
 		auto& object = objects_[object_index++];
 		object.id = x_axis_object_id;
@@ -2113,7 +2081,7 @@ void SdlInputGamepadDevice::initialize_objects()
 		object.name = "X Axis";
 	}
 
-	if (has_axis(::SDL_CONTROLLER_AXIS_LEFTY))
+	if (has_axis(SDL_GAMEPAD_AXIS_LEFTY))
 	{
 		auto& object = objects_[object_index++];
 		object.id = y_axis_object_id;
@@ -2122,8 +2090,8 @@ void SdlInputGamepadDevice::initialize_objects()
 		object.name = "Y Axis";
 	}
 
-	if (has_axis(::SDL_CONTROLLER_AXIS_TRIGGERLEFT) &&
-		has_axis(::SDL_CONTROLLER_AXIS_TRIGGERRIGHT))
+	if (has_axis(SDL_GAMEPAD_AXIS_LEFT_TRIGGER) &&
+		has_axis(SDL_GAMEPAD_AXIS_RIGHT_TRIGGER))
 	{
 		auto& object = objects_[object_index++];
 		object.id = z_axis_object_id;
@@ -2132,7 +2100,7 @@ void SdlInputGamepadDevice::initialize_objects()
 		object.name = "Z Axis";
 	}
 
-	if (has_axis(::SDL_CONTROLLER_AXIS_RIGHTX))
+	if (has_axis(SDL_GAMEPAD_AXIS_RIGHTX))
 	{
 		auto& object = objects_[object_index++];
 		object.id = rx_axis_object_id;
@@ -2141,7 +2109,7 @@ void SdlInputGamepadDevice::initialize_objects()
 		object.name = "X Rotation";
 	}
 
-	if (has_axis(::SDL_CONTROLLER_AXIS_RIGHTY))
+	if (has_axis(SDL_GAMEPAD_AXIS_RIGHTY))
 	{
 		auto& object = objects_[object_index++];
 		object.id = ry_axis_object_id;
@@ -2152,16 +2120,16 @@ void SdlInputGamepadDevice::initialize_objects()
 
 
 	const auto has_button = [this](
-		const ::SDL_GameControllerButton button)
+		const SDL_GamepadButton button)
 	{
-		return ::SDL_GameControllerHasButton(game_controller_.get(), button) != ::SDL_FALSE;
+		return SDL_GamepadHasButton(gamepad_.get(), button);
 	};
 
 	const auto has_hat =
-		has_button(::SDL_CONTROLLER_BUTTON_DPAD_UP) &&
-		has_button(::SDL_CONTROLLER_BUTTON_DPAD_DOWN) &&
-		has_button(::SDL_CONTROLLER_BUTTON_DPAD_LEFT) &&
-		has_button(::SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
+		has_button(SDL_GAMEPAD_BUTTON_DPAD_UP) &&
+		has_button(SDL_GAMEPAD_BUTTON_DPAD_DOWN) &&
+		has_button(SDL_GAMEPAD_BUTTON_DPAD_LEFT) &&
+		has_button(SDL_GAMEPAD_BUTTON_DPAD_RIGHT)
 	;
 
 	if (has_hat)
@@ -2205,45 +2173,37 @@ void SdlInputGamepadDevice::clear_events()
 void SdlInputGamepadDevice::handle_window_event(
 	const ltjs::SystemEvent& system_event)
 {
-	if (system_event.type != ::SDL_WINDOWEVENT)
+	switch (system_event.type)
 	{
-		return;
-	}
-
-	switch (system_event.window.event)
-	{
-		case ::SDL_WINDOWEVENT_FOCUS_GAINED:
+		case SDL_EVENT_WINDOW_FOCUS_GAINED:
 			has_focus_ = true;
 			reset_objects_state();
 			break;
 
-		case ::SDL_WINDOWEVENT_FOCUS_LOST:
+		case SDL_EVENT_WINDOW_FOCUS_LOST:
 			has_focus_ = false;
 			reset_objects_state();
-			break;
-
-		default:
 			break;
 	}
 }
 
-void SdlInputGamepadDevice::handle_add_remove_controller_event(
+void SdlInputGamepadDevice::handle_add_remove_gamepad_event(
 	const ltjs::SystemEvent& system_event)
 {
 	switch (system_event.type)
 	{
-		case ::SDL_CONTROLLERDEVICEADDED:
-			if (!game_controller_)
+		case SDL_EVENT_GAMEPAD_ADDED:
+			if (!gamepad_)
 			{
-				open_game_controller();
+				open_gamepad();
 			}
 
 			break;
 
-		case ::SDL_CONTROLLERDEVICEREMOVED:
-			if (system_event.cdevice.which == joystick_id_)
+		case SDL_EVENT_GAMEPAD_REMOVED:
+			if (system_event.gdevice.which == joystick_id_)
 			{
-				close_game_controller();
+				close_gamepad();
 			}
 
 			break;
@@ -2490,7 +2450,7 @@ private:
 	}; // SdlInputSystemEventHandler
 
 
-	using GameControllerName = std::string;
+	using GamepadName = std::string;
 
 	struct AvailableDeviceInfo
 	{
@@ -2507,7 +2467,7 @@ private:
 	SdlInputSystemEventHandler system_event_handler_{};
 	int device_unique_id_{};
 	ltjs::SdlSubsystem sdl_joystick_subsystem_{};
-	ltjs::SdlSubsystem sdl_game_controller_subsystem_{};
+	ltjs::SdlSubsystem sdl_gamepad_subsystem_{};
 	AvailableDeviceInfos available_device_infos_{};
 	Devices devices_{};
 
@@ -2518,13 +2478,12 @@ private:
 
 	AvailableDeviceInfo make_mouse_device_info() noexcept;
 
-	bool has_available_game_controller(
-		const GameControllerName& game_controller_name) const noexcept;
+	bool has_available_gamepad(
+		const GamepadName& gamepad_name) const noexcept;
 
-	GameControllerName get_game_controller_name_from_joystick_index(
-		int joystick_index) const noexcept;
+	GamepadName get_gamepad_name_from_joystick_id(SDL_JoystickID joystick_id) const noexcept;
 
-	void update_game_controllers();
+	void update_gamepads();
 
 	void initialize_available_devices();
 
@@ -2571,7 +2530,7 @@ SdlInputImpl::SdlInputImpl(
 	if (param.supports_joystick)
 	{
 		sdl_joystick_subsystem_ = ltjs::SdlSubsystem{SDL_INIT_JOYSTICK};
-		sdl_game_controller_subsystem_ = ltjs::SdlSubsystem{SDL_INIT_GAMECONTROLLER};
+		sdl_gamepad_subsystem_ = ltjs::SdlSubsystem{SDL_INIT_GAMEPAD};
 	}
 
 	initialize_available_devices();
@@ -2756,65 +2715,68 @@ SdlInputImpl::AvailableDeviceInfo SdlInputImpl::make_mouse_device_info() noexcep
 	return available_device_info;
 }
 
-bool SdlInputImpl::has_available_game_controller(
-	const GameControllerName& game_controller_name) const noexcept
+bool SdlInputImpl::has_available_gamepad(
+	const GamepadName& gamepad_name) const noexcept
 {
 	return std::any_of(
 		available_device_infos_.cbegin(),
 		available_device_infos_.cend(),
-		[&game_controller_name](
+		[&gamepad_name](
 			const AvailableDeviceInfo& available_device_info)
 		{
-			return available_device_info.device_info.name == game_controller_name;
+			return available_device_info.device_info.name == gamepad_name;
 		}
 	);
 }
 
-SdlInputImpl::GameControllerName SdlInputImpl::get_game_controller_name_from_joystick_index(
-	int joystick_index) const noexcept
+SdlInputImpl::GamepadName SdlInputImpl::get_gamepad_name_from_joystick_id(
+	SDL_JoystickID joystick_id) const noexcept
 {
-	if (::SDL_IsGameController(joystick_index) == ::SDL_FALSE)
+	if (!SDL_IsGamepad(joystick_id))
 	{
-		return GameControllerName{};
+		return GamepadName{};
 	}
 
-	const auto name = ::SDL_GameControllerNameForIndex(joystick_index);
+	const char* const name = SDL_GetGamepadNameForID(joystick_id);
 
-	if (!name)
+	if (name == nullptr)
 	{
-		return GameControllerName{};
+		return GamepadName{};
 	}
 
 	return name;
 }
 
-void SdlInputImpl::update_game_controllers()
+void SdlInputImpl::update_gamepads()
 {
-	const auto joystick_count = ::SDL_NumJoysticks();
+	int joystick_count = 0;
+	SDL_JoystickID* const sdl_joystick_id_list = SDL_GetJoysticks(&joystick_count);
 
-	for (auto joystick_index = 0; joystick_index < joystick_count; ++joystick_index)
+	for (auto i_joystick = 0; i_joystick < joystick_count; ++i_joystick)
 	{
-		const auto game_controller_name = get_game_controller_name_from_joystick_index(joystick_index);
+		const SDL_JoystickID& joystick_id = sdl_joystick_id_list[i_joystick];
+		const GamepadName gamepad_name = get_gamepad_name_from_joystick_id(joystick_id);
 
-		if (game_controller_name.empty())
+		if (gamepad_name.empty())
 		{
 			continue;
 		}
 
-		if (has_available_game_controller(game_controller_name))
+		if (has_available_gamepad(gamepad_name))
 		{
 			continue;
 		}
 
-		auto available_device_info = AvailableDeviceInfo{};
-
+		AvailableDeviceInfo available_device_info{};
 		auto& device_info = available_device_info.device_info;
 		device_info.id = generate_unique_id();
 		device_info.type = SdlInputDeviceType::gamepad;
-		device_info.name = game_controller_name;
+		device_info.name = gamepad_name;
 
 		available_device_infos_.emplace_back(available_device_info);
 	}
+
+	SDL_free(sdl_joystick_id_list);
 }
 
 void SdlInputImpl::initialize_available_devices()
@@ -2824,13 +2786,9 @@ void SdlInputImpl::initialize_available_devices()
 
 	if (sdl_joystick_subsystem_)
 	{
-		const auto joystick_event_state = ::SDL_JoystickEventState(SDL_ENABLE);
-		assert(joystick_event_state == SDL_ENABLE);
-
-		const auto game_controller_event_state = ::SDL_GameControllerEventState(SDL_ENABLE);
-		assert(game_controller_event_state == SDL_ENABLE);
-
-		update_game_controllers();
+		SDL_SetJoystickEventsEnabled(true);
+		SDL_SetGamepadEventsEnabled(true);
+		update_gamepads();
 	}
 }
 
@@ -2841,9 +2799,9 @@ void SdlInputImpl::handle_system_event(
 	{
 		switch (system_event.type)
 		{
-			case ::SDL_CONTROLLERDEVICEADDED:
-			case ::SDL_CONTROLLERDEVICEREMOVED:
-				update_game_controllers();
+			case SDL_EVENT_GAMEPAD_ADDED:
+			case SDL_EVENT_GAMEPAD_REMOVED:
+				update_gamepads();
 				break;
 
 			default:

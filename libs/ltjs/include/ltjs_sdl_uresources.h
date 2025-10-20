@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#include "SDL.h"
+#include "SDL3/SDL.h"
 
 
 namespace ltjs
@@ -31,24 +31,24 @@ struct SdlUResourceDeleter
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-using SdlWindowUDeleter = SdlUResourceDeleter<::SDL_Window, ::SDL_DestroyWindow>;
-using SdlWindowUResource = std::unique_ptr<::SDL_Window, SdlWindowUDeleter>;
+using SdlWindowUDeleter = SdlUResourceDeleter<SDL_Window, SDL_DestroyWindow>;
+using SdlWindowUResource = std::unique_ptr<SDL_Window, SdlWindowUDeleter>;
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-using SdlJoystickUDeleter = SdlUResourceDeleter<::SDL_Joystick, ::SDL_JoystickClose>;
-using SdlJoystickUResource = std::unique_ptr<::SDL_Joystick, SdlJoystickUDeleter>;
+using SdlJoystickUDeleter = SdlUResourceDeleter<SDL_Joystick, SDL_CloseJoystick>;
+using SdlJoystickUResource = std::unique_ptr<SDL_Joystick, SdlJoystickUDeleter>;
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-using SdlGameControllerUDeleter = SdlUResourceDeleter<::SDL_GameController, ::SDL_GameControllerClose>;
-using SdlGameControllerUResource = std::unique_ptr<::SDL_GameController, SdlGameControllerUDeleter>;
+using SdlGamepadUDeleter = SdlUResourceDeleter<SDL_Gamepad, SDL_CloseGamepad>;
+using SdlGamepadUResource = std::unique_ptr<SDL_Gamepad, SdlGamepadUDeleter>;
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -58,26 +58,26 @@ using SdlGameControllerUResource = std::unique_ptr<::SDL_GameController, SdlGame
 struct SdlRwOpsUDeleter
 {
 	void operator()(
-		::SDL_RWops* resource) const noexcept;
+		SDL_IOStream* resource) const noexcept;
 }; // SdlRwOpsUDeleter
 
-using SdlRwOpsUResource = std::unique_ptr<::SDL_RWops, SdlRwOpsUDeleter>;
+using SdlRwOpsUResource = std::unique_ptr<SDL_IOStream, SdlRwOpsUDeleter>;
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-using SdlSurfaceUDeleter = SdlUResourceDeleter<::SDL_Surface, ::SDL_FreeSurface>;
-using SdlSurfaceUResource = std::unique_ptr<::SDL_Surface, SdlSurfaceUDeleter>;
+using SdlSurfaceUDeleter = SdlUResourceDeleter<SDL_Surface, SDL_DestroySurface>;
+using SdlSurfaceUResource = std::unique_ptr<SDL_Surface, SdlSurfaceUDeleter>;
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-using SdlObjectUDeleter = SdlUResourceDeleter<void, ::SDL_UnloadObject>;
-using SdlObjectUResource = std::unique_ptr<void, SdlObjectUDeleter>;
+using SdlObjectUDeleter = SdlUResourceDeleter<SDL_SharedObject, SDL_UnloadObject>;
+using SdlObjectUResource = std::unique_ptr<SDL_SharedObject, SdlObjectUDeleter>;
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 

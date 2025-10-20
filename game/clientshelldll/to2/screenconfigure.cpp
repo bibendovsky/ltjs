@@ -22,7 +22,7 @@
 #include "gameclientshell.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 
 #include "ltjs_dinput.h"
 #endif // LTJS_SDL_BACKEND
@@ -492,7 +492,7 @@ LTBOOL CScreenConfigure::HandleKeyDown(int key, int rep)
 	switch (key)
 	{
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_DELETE:
+		case SDLK_DELETE:
 #else
 	case VK_DELETE:
 #endif // LTJS_SDL_BACKEND

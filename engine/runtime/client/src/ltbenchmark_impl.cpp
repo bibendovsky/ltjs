@@ -21,7 +21,7 @@
 
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL.h"
 #endif // LTJS_SDL_BACKEND
 
 
@@ -205,9 +205,9 @@ LTRESULT CLTBenchmarkMgr::DoCPUBenchmarking(   LTBENCH_CPU_TEST* pTest,
             // Check for abort
 #ifndef __XBOX
 #ifdef LTJS_SDL_BACKEND
-			const auto sdl_key_state = ::SDL_GetKeyboardState(nullptr);
+			const auto sdl_key_state = SDL_GetKeyboardState(nullptr);
 
-			if (bAllowEscape && sdl_key_state[::SDL_SCANCODE_ESCAPE])
+			if (bAllowEscape && sdl_key_state[SDL_SCANCODE_ESCAPE])
 #else
             if (bAllowEscape && IsKeyDown(VK_ESCAPE))
 #endif // LTJS_SDL_BACKEND

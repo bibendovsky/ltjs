@@ -20,7 +20,7 @@
 #include "..\shadows\d3dshadowtexture.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL.h"
 
 #include "ltjs_main_window_descriptor.h"
 #include "ltjs_sdl_utils.h"
@@ -116,7 +116,7 @@ void d3d_Term(bool bFullTerm)						// We don't do a FullTerm on Alt-Tab (will be
 #ifndef LTJS_SDL_BACKEND
 	ShowCursor(true);							// Show the cursor
 #else
-	::SDL_ShowCursor(::SDL_TRUE);
+	SDL_ShowCursor();
 #endif // LTJS_SDL_BACKEND
 }
 
@@ -240,7 +240,7 @@ int d3d_Init(RenderStructInit *pInit)
 #ifndef LTJS_SDL_BACKEND
 	ShowCursor(false);
 #else
-	::SDL_ShowCursor(::SDL_FALSE);
+	SDL_HideCursor();
 #endif // LTJS_SDL_BACKEND
 
 	g_Device.RestoreDevObjects();					// Let the render objects restore their D3D data (if there is any already created)...
@@ -253,35 +253,41 @@ int d3d_Init(RenderStructInit *pInit)
 	AddDebugMessage(0, "Using Direct3D Device %s", pDeviceInfo->strDesc);
 
 #ifdef LTJS_SDL_BACKEND
-	auto sdl_display_mode = ::SDL_DisplayMode{};
-	::SDL_GetDesktopDisplayMode(0, &sdl_display_mode);
+	const SDL_DisplayID sdl_display_id = SDL_GetPrimaryDisplay();
+	const SDL_DisplayMode* const sdl_display_mode = SDL_GetDesktopDisplayMode(sdl_display_id);
+
+	if (sdl_display_mode == nullptr)
+	{
+		AddDebugMessage(0, "%s", "SDL_GetDesktopDisplayMode");
+		AddDebugMessage(0, "%s", SDL_GetError());
+		return RENDER_ERROR;
+	}
 
 	const auto is_native_mode =
-		sdl_display_mode.w == static_cast<int>(pInit->m_Mode.m_Width) &&
-		sdl_display_mode.h == static_cast<int>(pInit->m_Mode.m_Height)
+		sdl_display_mode->w == static_cast<int>(pInit->m_Mode.m_Width) &&
+		sdl_display_mode->h == static_cast<int>(pInit->m_Mode.m_Height)
 	;
 
-	auto sdl_fullscreen_flags = ::Uint32{};
+	bool is_borderless_fullscreen = false;
 
 #if NDEBUG
 	if (is_native_mode)
 	{
-		sdl_fullscreen_flags |= ::SDL_WINDOW_FULLSCREEN_DESKTOP;
+		is_borderless_fullscreen = true;
 	}
 #endif // NDEBUG
 
-	const auto sdl_set_fullscreen_result = ::SDL_SetWindowFullscreen(g_hWnd->sdl_window, sdl_fullscreen_flags);
+	const bool sdl_set_fullscreen_result = SDL_SetWindowFullscreen(g_hWnd->sdl_window, is_borderless_fullscreen);
 
-	if (sdl_set_fullscreen_result != 0)
+	if (!sdl_set_fullscreen_result)
 	{
 		AddDebugMessage(0, "%s", "Failed to set fullscreen mode.");
-		AddDebugMessage(0, "%s", ::SDL_GetError());
+		AddDebugMessage(0, "%s", SDL_GetError());
 		return RENDER_ERROR;
 	}
 
 #if !NDEBUG
-	const auto sdl_is_bordered = is_native_mode ? ::SDL_FALSE : ::SDL_TRUE;
-	::SDL_SetWindowBordered(g_hWnd->sdl_window, sdl_is_bordered);
+	SDL_SetWindowBordered(g_hWnd->sdl_window, !is_native_mode);
 #endif // !NDEBUG
 
 	if (!is_native_mode ||
@@ -292,8 +298,8 @@ int d3d_Init(RenderStructInit *pInit)
 #endif // NDEBUG
 		)
 	{
-		::SDL_SetWindowSize(g_hWnd->sdl_window, pInit->m_Mode.m_Width, pInit->m_Mode.m_Height);
-		::SDL_SetWindowPosition(g_hWnd->sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+		SDL_SetWindowSize(g_hWnd->sdl_window, pInit->m_Mode.m_Width, pInit->m_Mode.m_Height);
+		SDL_SetWindowPosition(g_hWnd->sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	}
 
 	ltjs::sdl_utils::fill_window_black(g_hWnd->sdl_window);

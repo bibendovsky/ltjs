@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-#include "SDL.h"
-
 #include "ltjs_shared_library.h"
 
 #include "iltsound.h"

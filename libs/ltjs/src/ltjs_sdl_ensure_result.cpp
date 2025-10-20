@@ -14,6 +14,16 @@ namespace ltjs
 	throw SdlException{};
 }
 
+bool sdl_ensure_result(bool result)
+{
+	if (!result)
+	{
+		sdl_fail();
+	}
+
+	return result;
+}
+
 int sdl_ensure_result(
 	int int_result)
 {

@@ -23,7 +23,8 @@
 #include "glad.h"
 #include "imgui.h"
 #include "imgui_stl.h"
-#include "SDL.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_main.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 
@@ -1517,6 +1518,7 @@ private:
 	AdvancedSettingsWindowUPtr advanced_settings_window_uptr_;
 	DetailSettingsWindowUPtr detail_settings_window_uptr_;
 
+	static void* glad_load_proc(const char* name);
 
 	Launcher();
 
@@ -1580,7 +1582,7 @@ void Base::prepend_error_message(
 bool Direct3d9::has_direct3d9()
 {
 #ifdef _WIN32
-	auto d3d9_module = ::SDL_LoadObject("d3d9.dll");
+	auto d3d9_module = SDL_LoadObject("d3d9.dll");
 
 	if (!d3d9_module)
 	{
@@ -1590,11 +1592,11 @@ bool Direct3d9::has_direct3d9()
 	auto d3d9_module_guard = ul::ScopeGuard(
 		[&]()
 		{
-			::SDL_UnloadObject(d3d9_module);
+			SDL_UnloadObject(d3d9_module);
 		}
 	);
 
-	auto create_function = ::SDL_LoadFunction(d3d9_module, "Direct3DCreate9");
+	auto create_function = SDL_LoadFunction(d3d9_module, "Direct3DCreate9");
 
 	if (!create_function)
 	{
@@ -1663,46 +1665,48 @@ void DisplayModeManager::initialize()
 	uninitialize();
 
 
-	const auto mode_count = ::SDL_GetNumDisplayModes(0);
+	using SdlGenericUDeleter = SdlUResourceDeleter<void, SDL_free>;
+	using SdlDisplayModeListUResource = std::unique_ptr<SDL_DisplayMode*, SdlGenericUDeleter>;
 
-	if (mode_count == 0)
+	const SDL_DisplayID sdl_primary_display_id = SDL_GetPrimaryDisplay();
+
+	if (sdl_primary_display_id == 0)
 	{
 		return;
 	}
 
-	auto sdl_result = 0;
+	int mode_count = 0;
+	SDL_DisplayMode** sdl_display_mode_list = SDL_GetFullscreenDisplayModes(sdl_primary_display_id, &mode_count);
 
-	auto sdl_native_display_mode = SDL_DisplayMode{};
-	auto native_display_mode = DisplayMode{};
-
-	sdl_result = ::SDL_GetCurrentDisplayMode(0, &sdl_native_display_mode);
-
-	if (sdl_result == 0)
+	if (sdl_display_mode_list == nullptr || mode_count == 0)
 	{
-		if (!sdl_is_pixel_format_valid(sdl_native_display_mode.format))
+		return;
+	}
+
+	SdlDisplayModeListUResource display_mode_list{sdl_display_mode_list};
+
+	DisplayMode native_display_mode{};
+	const SDL_DisplayMode* const sdl_native_display_mode = SDL_GetCurrentDisplayMode(sdl_primary_display_id);
+
+	if (sdl_native_display_mode != nullptr)
+	{
+		if (!sdl_is_pixel_format_valid(sdl_native_display_mode->format))
 		{
 			return;
 		}
 
-		native_display_mode.width_ = sdl_native_display_mode.w;
-		native_display_mode.height_ = sdl_native_display_mode.h;
+		native_display_mode.width_ = sdl_native_display_mode->w;
+		native_display_mode.height_ = sdl_native_display_mode->h;
 	}
 
-	auto display_modes = DisplayModes{};
+	DisplayModes display_modes{};
 	display_modes.reserve(mode_count);
 
-	auto native_display_mode_index = -1;
+	int native_display_mode_index = -1;
 
-	for (auto i = 0; i < mode_count; ++i)
+	for (int i = 0; i < mode_count; ++i)
 	{
-		auto sdl_display_mode = SDL_DisplayMode{};
-
-		sdl_result = ::SDL_GetDisplayMode(0, i, &sdl_display_mode);
-
-		if (sdl_result)
-		{
-			continue;
-		}
+		const SDL_DisplayMode& sdl_display_mode = *(sdl_display_mode_list[i]);
 
 		if (!sdl_is_pixel_format_valid(sdl_display_mode.format))
 		{
@@ -2641,32 +2645,31 @@ SdlOglWindow::SdlOglWindow(
 
 
 	bool is_succeed = true;
-	int sdl_result = 0;
 
 
 	// Set OpenGL attributes.
 	//
 	if (is_succeed)
 	{
-		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, param.is_double_buffering_);
+		const bool sdl_result = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, param.is_double_buffering_);
 
-		if (sdl_result)
+		if (!sdl_result)
 		{
 			is_succeed = false;
 
-			set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()});
+			set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{SDL_GetError()});
 		}
 	}
 
 	if (is_succeed)
 	{
-		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, param.is_share_with_current_ogl_context_);
+		const bool sdl_result = SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, param.is_share_with_current_ogl_context_);
 
-		if (sdl_result)
+		if (!sdl_result)
 		{
 			is_succeed = false;
 
-			set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{::SDL_GetError()});
+			set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{SDL_GetError()});
 		}
 	}
 
@@ -2681,10 +2684,8 @@ SdlOglWindow::SdlOglWindow(
 			SDL_WINDOW_HIDDEN |
 			(param.is_borderless_ ? SDL_WINDOW_BORDERLESS : 0);
 
-		sdl_window = ::SDL_CreateWindow(
+		sdl_window = SDL_CreateWindow(
 			param.title_.c_str(),
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
 			param.width_,
 			param.height_,
 			sdl_window_flags);
@@ -2693,7 +2694,16 @@ SdlOglWindow::SdlOglWindow(
 		{
 			is_succeed = false;
 
-			set_error_message("Failed to create window. " + std::string{::SDL_GetError()});
+			set_error_message("Failed to create window. " + std::string{SDL_GetError()});
+		}
+	}
+
+	if (is_succeed)
+	{
+		if (!SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED))
+		{
+			is_succeed = false;
+			set_error_message("Failed to move a window. " + std::string{SDL_GetError()});
 		}
 	}
 
@@ -2703,13 +2713,13 @@ SdlOglWindow::SdlOglWindow(
 
 	if (is_succeed)
 	{
-		sdl_window_id = ::SDL_GetWindowID(sdl_window);
+		sdl_window_id = SDL_GetWindowID(sdl_window);
 
 		if (sdl_window_id == 0)
 		{
 			is_succeed = false;
 
-			set_error_message("Failed to get window's id. " + std::string{::SDL_GetError()});
+			set_error_message("Failed to get window's id. " + std::string{SDL_GetError()});
 		}
 	}
 
@@ -2719,13 +2729,13 @@ SdlOglWindow::SdlOglWindow(
 
 	if (is_succeed)
 	{
-		sdl_gl_context = ::SDL_GL_CreateContext(sdl_window);
+		sdl_gl_context = SDL_GL_CreateContext(sdl_window);
 
 		if (!sdl_gl_context)
 		{
 			is_succeed = false;
 
-			set_error_message("Failed to create OpenGL context. " + std::string{::SDL_GetError()});
+			set_error_message("Failed to create OpenGL context. " + std::string{SDL_GetError()});
 		}
 	}
 
@@ -2735,7 +2745,7 @@ SdlOglWindow::SdlOglWindow(
 	{
 		if (!param.is_hidden_)
 		{
-			::SDL_ShowWindow(sdl_window);
+			SDL_ShowWindow(sdl_window);
 		}
 	}
 
@@ -2745,12 +2755,12 @@ SdlOglWindow::SdlOglWindow(
 	{
 		if (sdl_gl_context)
 		{
-			::SDL_GL_DeleteContext(sdl_gl_context);
+			SDL_GL_DestroyContext(sdl_gl_context);
 		}
 
 		if (sdl_window)
 		{
-			::SDL_DestroyWindow(sdl_window);
+			SDL_DestroyWindow(sdl_window);
 		}
 
 		return;
@@ -2818,7 +2828,7 @@ void SdlOglWindow::get_size(
 		return;
 	}
 
-	::SDL_GetWindowSize(sdl_window_, &width, &height);
+	SDL_GetWindowSize(sdl_window_, &width, &height);
 }
 
 void SdlOglWindow::get_ogl_drawable_size(
@@ -2833,7 +2843,7 @@ void SdlOglWindow::get_ogl_drawable_size(
 		return;
 	}
 
-	::SDL_GL_GetDrawableSize(sdl_window_, &width, &height);
+	SDL_GetWindowSizeInPixels(sdl_window_, &width, &height);
 }
 
 void SdlOglWindow::show(
@@ -2844,7 +2854,7 @@ void SdlOglWindow::show(
 		return;
 	}
 
-	const auto sdl_func = (is_show ? &::SDL_ShowWindow : &::SDL_HideWindow);
+	const auto sdl_func = (is_show ? &SDL_ShowWindow : &SDL_HideWindow);
 
 	sdl_func(sdl_window_);
 }
@@ -2856,7 +2866,7 @@ void SdlOglWindow::minimize()
 		return;
 	}
 
-	::SDL_MinimizeWindow(sdl_window_);
+	SDL_MinimizeWindow(sdl_window_);
 }
 
 void SdlOglWindow::restore()
@@ -2866,7 +2876,7 @@ void SdlOglWindow::restore()
 		return;
 	}
 
-	::SDL_RestoreWindow(sdl_window_);
+	SDL_RestoreWindow(sdl_window_);
 }
 
 bool SdlOglWindow::is_visible() const
@@ -2876,9 +2886,9 @@ bool SdlOglWindow::is_visible() const
 		return false;
 	}
 
-	const auto sdl_window_flags = ::SDL_GetWindowFlags(sdl_window_);
+	const auto sdl_window_flags = SDL_GetWindowFlags(sdl_window_);
 
-	return (sdl_window_flags & SDL_WINDOW_SHOWN) != 0;
+	return (sdl_window_flags & SDL_WINDOW_HIDDEN) == 0;
 }
 
 void SdlOglWindow::warp_mouse(
@@ -2890,7 +2900,7 @@ void SdlOglWindow::warp_mouse(
 		return;
 	}
 
-	::SDL_WarpMouseInWindow(sdl_window_, x, y);
+	SDL_WarpMouseInWindow(sdl_window_, x, y);
 }
 
 bool SdlOglWindow::are_same(
@@ -2906,7 +2916,7 @@ void SdlOglWindow::ogl_swap()
 		return;
 	}
 
-	::SDL_GL_SwapWindow(sdl_window_);
+	SDL_GL_SwapWindow(sdl_window_);
 }
 
 void SdlOglWindow::make_ogl_context_current(
@@ -2917,24 +2927,26 @@ void SdlOglWindow::make_ogl_context_current(
 		return;
 	}
 
-	static_cast<void>(::SDL_GL_MakeCurrent(sdl_window_, is_current ? sdl_ogl_context_ : nullptr));
+	static_cast<void>(SDL_GL_MakeCurrent(sdl_window_, is_current ? sdl_ogl_context_ : nullptr));
 }
 
 bool SdlOglWindow::is_event_for_me(
 	const SDL_Event& sdl_event)
 {
-	switch (sdl_event.type)
+	if (sdl_event.type >= SDL_EVENT_WINDOW_FIRST && sdl_event.type <= SDL_EVENT_WINDOW_LAST)
 	{
-	case SDL_WINDOWEVENT:
 		if (sdl_event.window.windowID != 0)
 		{
 			return sdl_event.window.windowID == sdl_window_id_;
 		}
 
 		return true;
+	}
 
-	case SDL_KEYDOWN:
-	case SDL_KEYUP:
+	switch (sdl_event.type)
+	{
+	case SDL_EVENT_KEY_DOWN:
+	case SDL_EVENT_KEY_UP:
 		if (sdl_event.key.windowID != 0)
 		{
 			return sdl_event.key.windowID == sdl_window_id_;
@@ -2942,7 +2954,7 @@ bool SdlOglWindow::is_event_for_me(
 
 		return true;
 
-	case SDL_TEXTEDITING:
+	case SDL_EVENT_TEXT_EDITING:
 		if (sdl_event.edit.windowID != 0)
 		{
 			return sdl_event.edit.windowID == sdl_window_id_;
@@ -2950,7 +2962,7 @@ bool SdlOglWindow::is_event_for_me(
 
 		return true;
 
-	case SDL_TEXTINPUT:
+	case SDL_EVENT_TEXT_INPUT:
 		if (sdl_event.text.windowID != 0)
 		{
 			return sdl_event.text.windowID == sdl_window_id_;
@@ -2958,7 +2970,7 @@ bool SdlOglWindow::is_event_for_me(
 
 		return true;
 
-	case SDL_MOUSEMOTION:
+	case SDL_EVENT_MOUSE_MOTION:
 		if (sdl_event.motion.windowID != 0)
 		{
 			return sdl_event.motion.windowID == sdl_window_id_;
@@ -2966,8 +2978,8 @@ bool SdlOglWindow::is_event_for_me(
 
 		return true;
 
-	case SDL_MOUSEBUTTONDOWN:
-	case SDL_MOUSEBUTTONUP:
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
+	case SDL_EVENT_MOUSE_BUTTON_UP:
 		if (sdl_event.motion.windowID != 0)
 		{
 			return sdl_event.motion.windowID == sdl_window_id_;
@@ -2975,7 +2987,7 @@ bool SdlOglWindow::is_event_for_me(
 
 		return true;
 
-	case SDL_MOUSEWHEEL:
+	case SDL_EVENT_MOUSE_WHEEL:
 		if (sdl_event.wheel.windowID != 0)
 		{
 			return sdl_event.wheel.windowID == sdl_window_id_;
@@ -2983,10 +2995,10 @@ bool SdlOglWindow::is_event_for_me(
 
 		return true;
 
-	case SDL_DROPFILE:
-	case SDL_DROPTEXT:
-	case SDL_DROPBEGIN:
-	case SDL_DROPCOMPLETE:
+	case SDL_EVENT_DROP_FILE:
+	case SDL_EVENT_DROP_TEXT:
+	case SDL_EVENT_DROP_BEGIN:
+	case SDL_EVENT_DROP_COMPLETE:
 		if (sdl_event.drop.windowID != 0)
 		{
 			return sdl_event.drop.windowID == sdl_window_id_;
@@ -3002,7 +3014,7 @@ bool SdlOglWindow::is_event_for_me(
 void SdlOglWindow::set_icon(
 	SDL_Surface* sdl_surface)
 {
-	::SDL_SetWindowIcon(sdl_window_, sdl_surface);
+	SDL_SetWindowIcon(sdl_window_, sdl_surface);
 }
 
 void SdlOglWindow::uninitialize()
@@ -3012,9 +3024,9 @@ void SdlOglWindow::uninitialize()
 		return;
 	}
 
-	static_cast<void>(::SDL_GL_MakeCurrent(sdl_window_, nullptr));
-	::SDL_GL_DeleteContext(sdl_ogl_context_);
-	::SDL_DestroyWindow(sdl_window_);
+	static_cast<void>(SDL_GL_MakeCurrent(sdl_window_, nullptr));
+	SDL_GL_DestroyContext(sdl_ogl_context_);
+	SDL_DestroyWindow(sdl_window_);
 
 	is_initialized_ = false;
 	sdl_window_ = nullptr;
@@ -3123,7 +3135,7 @@ bool FontManager::load_font_data(
 {
 	const auto normalized_file_name = ul::PathUtils::normalize(file_name);
 
-	auto sdl_rw = ::SDL_RWFromFile(normalized_file_name.c_str(), "rb");
+	auto sdl_rw = SDL_IOFromFile(normalized_file_name.c_str(), "rb");
 
 	if (!sdl_rw)
 	{
@@ -3136,12 +3148,11 @@ bool FontManager::load_font_data(
 	auto guard_rw = ul::ScopeGuard{
 		[&]()
 		{
-			SDL_RWclose(sdl_rw);
-			::SDL_FreeRW(sdl_rw);
+			SDL_CloseIO(sdl_rw);
 		}
 	};
 
-	const auto file_size = sdl_rw->size(sdl_rw);
+	const auto file_size = SDL_GetIOSize(sdl_rw);
 
 	if (file_size > max_font_file_size)
 	{
@@ -3152,7 +3163,7 @@ bool FontManager::load_font_data(
 
 	font_data.resize(static_cast<Buffer::size_type>(file_size));
 
-	const auto read_size = sdl_rw->read(sdl_rw, font_data.data(), 1, static_cast<std::size_t>(file_size));
+	const auto read_size = SDL_ReadIO(sdl_rw, font_data.data(), static_cast<std::size_t>(file_size));
 
 	if (read_size != static_cast<std::size_t>(file_size))
 	{
@@ -3405,14 +3416,14 @@ bool OglTextureManager::load_all_textures()
 
 		const auto invariant_image_path = ul::PathUtils::normalize(ul::PathUtils::append(images_path, image_file_name));
 
-		auto image_surface = ::SDL_LoadBMP(invariant_image_path.c_str());
+		auto image_surface = SDL_LoadBMP(invariant_image_path.c_str());
 
 		if (!image_surface)
 		{
 			const auto specific_image_path = ul::PathUtils::normalize(
 				ul::PathUtils::append(ul::PathUtils::append(images_path, configuration.language_), image_file_name));
 
-			image_surface = ::SDL_LoadBMP(specific_image_path.c_str());
+			image_surface = SDL_LoadBMP(specific_image_path.c_str());
 
 			if (!image_surface)
 			{
@@ -3423,7 +3434,7 @@ bool OglTextureManager::load_all_textures()
 
 		const auto ogl_texture = create_texture_from_surface(image_surface);
 
-		::SDL_FreeSurface(image_surface);
+		SDL_DestroySurface(image_surface);
 
 		ogl_textures_[i] = ogl_texture;
 
@@ -3526,21 +3537,17 @@ OglTexture OglTextureManager::create_texture_from_surface(
 
 	static constexpr auto rgba_sdl_pixel_format =
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		::SDL_PIXELFORMAT_RGBA8888
+		SDL_PIXELFORMAT_RGBA8888
 #else
-		::SDL_PIXELFORMAT_ABGR8888
+		SDL_PIXELFORMAT_ABGR8888
 #endif
 	;
 
 	auto rgba_sdl_surface = ltjs::SdlSurfaceUResource{};
 
-	if (sdl_surface->format->format != rgba_sdl_pixel_format)
+	if (sdl_surface->format != rgba_sdl_pixel_format)
 	{
-		rgba_sdl_surface = ltjs::SdlSurfaceUResource{::SDL_ConvertSurfaceFormat(
-			sdl_surface,
-			rgba_sdl_pixel_format,
-			0
-		)};
+		rgba_sdl_surface = ltjs::SdlSurfaceUResource{SDL_ConvertSurface(sdl_surface, rgba_sdl_pixel_format)};
 
 		if (!rgba_sdl_surface)
 		{
@@ -3567,11 +3574,9 @@ OglTexture OglTextureManager::create_texture_from_surface(
 		dst_width = pot_width;
 		dst_height = pot_height;
 
-		pot_sdl_surface = ltjs::SdlSurfaceUResource{::SDL_CreateRGBSurfaceWithFormat(
-			0,
+		pot_sdl_surface = ltjs::SdlSurfaceUResource{SDL_CreateSurface(
 			dst_width,
 			dst_height,
-			0,
 			rgba_sdl_pixel_format
 		)};
 
@@ -3581,14 +3586,15 @@ OglTexture OglTextureManager::create_texture_from_surface(
 			return {};
 		}
 
-		const auto sdl_result = ::SDL_BlitScaled(
+		const bool sdl_result = SDL_BlitSurfaceScaled(
 			sdl_surface,
 			nullptr,
 			pot_sdl_surface.get(),
-			nullptr
+			nullptr,
+			SDL_SCALEMODE_NEAREST
 		);
 
-		if (sdl_result != 0)
+		if (!sdl_result)
 		{
 			set_error_message("Failed to blit \"POT\" SDL surface.");
 			return {};
@@ -3752,7 +3758,7 @@ void Clipboard::uninitialize()
 {
 	if (sdl_clipboard_text_)
 	{
-		::SDL_free(sdl_clipboard_text_);
+		SDL_free(sdl_clipboard_text_);
 		sdl_clipboard_text_ = nullptr;
 	}
 }
@@ -3761,11 +3767,11 @@ const char* Clipboard::get_clipboard_text()
 {
 	if (sdl_clipboard_text_)
 	{
-		::SDL_free(sdl_clipboard_text_);
+		SDL_free(sdl_clipboard_text_);
 		sdl_clipboard_text_ = nullptr;
 	}
 
-	sdl_clipboard_text_ = ::SDL_GetClipboardText();
+	sdl_clipboard_text_ = SDL_GetClipboardText();
 
 	return sdl_clipboard_text_;
 }
@@ -3778,7 +3784,7 @@ void Clipboard::set_clipboard_text(
 		return;
 	}
 
-	static_cast<void>(::SDL_SetClipboardText(text));
+	static_cast<void>(SDL_SetClipboardText(text));
 }
 
 const char* Clipboard::get_clipboard_text_proxy(
@@ -3837,14 +3843,14 @@ void SystemCursors::initialize()
 {
 	uninitialize();
 
-	items_[ImGuiMouseCursor_Arrow] = ::SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
-	items_[ImGuiMouseCursor_TextInput] = ::SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
-	items_[ImGuiMouseCursor_ResizeAll] = ::SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
-	items_[ImGuiMouseCursor_ResizeNS] = ::SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
-	items_[ImGuiMouseCursor_ResizeEW] = ::SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
-	items_[ImGuiMouseCursor_ResizeNESW] = ::SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
-	items_[ImGuiMouseCursor_ResizeNWSE] = ::SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
-	items_[ImGuiMouseCursor_Hand] = ::SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+	items_[ImGuiMouseCursor_Arrow] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT);
+	items_[ImGuiMouseCursor_TextInput] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_TEXT);
+	items_[ImGuiMouseCursor_ResizeAll] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_MOVE);
+	items_[ImGuiMouseCursor_ResizeNS] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NS_RESIZE);
+	items_[ImGuiMouseCursor_ResizeEW] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_EW_RESIZE);
+	items_[ImGuiMouseCursor_ResizeNESW] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NESW_RESIZE);
+	items_[ImGuiMouseCursor_ResizeNWSE] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NWSE_RESIZE);
+	items_[ImGuiMouseCursor_Hand] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER);
 }
 
 void SystemCursors::uninitialize()
@@ -3853,7 +3859,7 @@ void SystemCursors::uninitialize()
 	{
 		if (sdl_cursor_ptr)
 		{
-			::SDL_FreeCursor(sdl_cursor_ptr);
+			SDL_DestroyCursor(sdl_cursor_ptr);
 			sdl_cursor_ptr = nullptr;
 		}
 	}
@@ -4236,7 +4242,7 @@ void Window::handle_event(
 
 	switch (sdl_event.type)
 	{
-	case SDL_MOUSEWHEEL:
+	case SDL_EVENT_MOUSE_WHEEL:
 		if (sdl_event.wheel.x > 0)
 		{
 			io.MouseWheelH += 1;
@@ -4259,7 +4265,7 @@ void Window::handle_event(
 
 		break;
 
-	case SDL_MOUSEBUTTONDOWN:
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		if (sdl_event.button.button == SDL_BUTTON_LEFT)
 		{
 			pressed_mouse_buttons_[0] = true;
@@ -4277,24 +4283,24 @@ void Window::handle_event(
 
 		break;
 
-	case SDL_TEXTINPUT:
+	case SDL_EVENT_TEXT_INPUT:
 		io.AddInputCharactersUTF8(sdl_event.text.text);
 		break;
 
-	case SDL_KEYDOWN:
-	case SDL_KEYUP:
+	case SDL_EVENT_KEY_DOWN:
+	case SDL_EVENT_KEY_UP:
 	{
-		const auto key = sdl_event.key.keysym.scancode;
+		const auto key = sdl_event.key.scancode;
 		IM_ASSERT(key >= 0 && key < IM_ARRAYSIZE(io.KeysDown));
 
-		const auto mod_state = ::SDL_GetModState();
+		const auto mod_state = SDL_GetModState();
 
-		io.KeysDown[key] = (sdl_event.type == SDL_KEYDOWN);
+		io.KeysDown[key] = (sdl_event.type == SDL_EVENT_KEY_DOWN);
 
-		io.KeyShift = ((mod_state & KMOD_SHIFT) != 0);
-		io.KeyCtrl = ((mod_state & KMOD_CTRL) != 0);
-		io.KeyAlt = ((mod_state & KMOD_ALT) != 0);
-		io.KeySuper = ((mod_state & KMOD_GUI) != 0);
+		io.KeyShift = ((mod_state & SDL_KMOD_SHIFT) != 0);
+		io.KeyCtrl = ((mod_state & SDL_KMOD_CTRL) != 0);
+		io.KeyAlt = ((mod_state & SDL_KMOD_ALT) != 0);
+		io.KeySuper = ((mod_state & SDL_KMOD_GUI) != 0);
 
 		break;
 	}
@@ -4382,8 +4388,8 @@ void Window::im_new_frame()
 	// Setup time step (we don't use SDL_GetTicks() because it is using millisecond resolution)
 	//
 
-	static auto frequency = ::SDL_GetPerformanceFrequency();
-	auto current_time = ::SDL_GetPerformanceCounter();
+	static auto frequency = SDL_GetPerformanceFrequency();
+	auto current_time = SDL_GetPerformanceCounter();
 
 	io.DeltaTime =
 		time_ > 0
@@ -4412,35 +4418,30 @@ void Window::im_update_mouse_position_and_buttons()
 		io.MousePos = ImVec2{-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max()};
 	}
 
-	auto mx = 0;
-	auto my = 0;
+	float mx = 0;
+	float my = 0;
 
-	const auto mouse_buttons = ::SDL_GetMouseState(&mx, &my);
+	const auto mouse_buttons = SDL_GetMouseState(&mx, &my);
 
 	// If a mouse press event came, always pass it as "mouse held this frame",
 	// so we don't miss click-release events that are shorter than 1 frame.
 	//
 
-	io.MouseDown[0] = pressed_mouse_buttons_[0] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
-	io.MouseDown[1] = pressed_mouse_buttons_[1] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
-	io.MouseDown[2] = pressed_mouse_buttons_[2] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
+	io.MouseDown[0] = pressed_mouse_buttons_[0] || (mouse_buttons & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) != 0;
+	io.MouseDown[1] = pressed_mouse_buttons_[1] || (mouse_buttons & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) != 0;
+	io.MouseDown[2] = pressed_mouse_buttons_[2] || (mouse_buttons & SDL_BUTTON_MASK(SDL_BUTTON_MIDDLE)) != 0;
 
 	pressed_mouse_buttons_ = {};
 
-#if SDL_VERSION_ATLEAST(2,0,4)
-	auto focused_window = ::SDL_GetKeyboardFocus();
+	auto focused_window = SDL_GetKeyboardFocus();
 
 	if (sdl_ogl_window_.are_same(focused_window))
 	{
-		// SDL_GetMouseState() gives mouse position seemingly based on the last window entered/focused(?)
-		// The creation of a new windows at runtime and SDL_CaptureMouse both seems to severely mess up with that, so we retrieve that position globally.
-		//
-
 		auto wx = 0;
 		auto wy = 0;
 
-		::SDL_GetWindowPosition(focused_window, &wx, &wy);
-		::SDL_GetGlobalMouseState(&mx, &my);
+		SDL_GetWindowPosition(focused_window, &wx, &wy);
+		SDL_GetGlobalMouseState(&mx, &my);
 
 		mx -= wx;
 		my -= wy;
@@ -4448,19 +4449,8 @@ void Window::im_update_mouse_position_and_buttons()
 		io.MousePos = ImVec2{static_cast<float>(mx), static_cast<float>(my)};
 	}
 
-	// SDL_CaptureMouse() let the OS know e.g. that our imgui drag outside the SDL window boundaries shouldn't e.g. trigger the OS window resize cursor.
-	// The function is only supported from SDL 2.0.4 (released Jan 2016)
-	//
-
 	const auto any_mouse_button_down = ImGui::IsAnyMouseDown();
-
-	::SDL_CaptureMouse(any_mouse_button_down ? SDL_TRUE : SDL_FALSE);
-#else // SDL_VERSION_ATLEAST
-	if ((::SDL_GetWindowFlags(sdl_window_) & SDL_WINDOW_INPUT_FOCUS) != 0)
-	{
-		io.MousePos = ImVec2{static_cast<float>(mx), static_cast<float>(my)};
-	}
-#endif // SDL_VERSION_ATLEAST
+	SDL_CaptureMouse(any_mouse_button_down);
 }
 
 void Window::im_update_mouse_cursor()
@@ -4477,15 +4467,15 @@ void Window::im_update_mouse_cursor()
 	if (io.MouseDrawCursor || imgui_cursor == ImGuiMouseCursor_None)
 	{
 		// Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
-		::SDL_ShowCursor(SDL_FALSE);
+		SDL_HideCursor();
 	}
 	else
 	{
 		auto& cursors = SystemCursors::get_instance();
 
 		// Show OS mouse cursor
-		::SDL_SetCursor(cursors[imgui_cursor] ? cursors[imgui_cursor] : cursors[ImGuiMouseCursor_Arrow]);
-		::SDL_ShowCursor(SDL_TRUE);
+		SDL_SetCursor(cursors[imgui_cursor] ? cursors[imgui_cursor] : cursors[ImGuiMouseCursor_Arrow]);
+		SDL_ShowCursor();
 	}
 }
 
@@ -5191,7 +5181,7 @@ bool MainWindow::is_lithtech_executable_exists() const
 {
 	const auto normalized_file_name = ul::PathUtils::normalize(lithtech_executable);
 
-	auto sdl_rw = ::SDL_RWFromFile(normalized_file_name.c_str(), "rb");
+	auto sdl_rw = SDL_IOFromFile(normalized_file_name.c_str(), "rb");
 
 	if (!sdl_rw)
 	{
@@ -5202,12 +5192,11 @@ bool MainWindow::is_lithtech_executable_exists() const
 	auto guard_rw = ul::ScopeGuard{
 		[&]()
 		{
-			SDL_RWclose(sdl_rw);
-			::SDL_FreeRW(sdl_rw);
+			SDL_CloseIO(sdl_rw);
 		}
 	};
 
-	const auto file_size = sdl_rw->size(sdl_rw);
+	const auto file_size = SDL_GetIOSize(sdl_rw);
 
 	if (file_size <= 0)
 	{
@@ -5464,15 +5453,15 @@ void MainWindow::change_language()
 	{
 		window_manager.hide_all();
 
-		::SDL_ShowSimpleMessageBox(
+		SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_ERROR,
 			"LTJS Launcher",
 			get_error_message().c_str(),
 			nullptr);
 
 		auto sdl_event = SDL_Event{};
-		sdl_event.type = SDL_QUIT;
-		::SDL_PushEvent(&sdl_event);
+		sdl_event.type = SDL_EVENT_QUIT;
+		SDL_PushEvent(&sdl_event);
 
 		return;
 	}
@@ -6281,8 +6270,8 @@ void MainWindow::do_im_handle_events()
 	{
 		auto sdl_event = SDL_Event{};
 
-		sdl_event.type = SDL_QUIT;
-		::SDL_PushEvent(&sdl_event);
+		sdl_event.type = SDL_EVENT_QUIT;
+		SDL_PushEvent(&sdl_event);
 	}
 	else if (is_install_or_play_button_clicked_)
 	{
@@ -8017,13 +8006,11 @@ void WindowManager::initialize()
 {
 	uninitialize();
 
-	auto sdl_display_mode = SDL_DisplayMode{};
+	const SDL_DisplayMode* const sdl_display_mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
 
-	const auto sdl_result = ::SDL_GetCurrentDisplayMode(0, &sdl_display_mode);
-
-	if (sdl_result == 0)
+	if (sdl_display_mode != nullptr)
 	{
-		const auto dimension = static_cast<float>(std::min(sdl_display_mode.w, sdl_display_mode.h));
+		const auto dimension = static_cast<float>(std::min(sdl_display_mode->w, sdl_display_mode->h));
 
 		scale_ = dimension / ref_scale_dimension;
 	}
@@ -8048,9 +8035,9 @@ void WindowManager::handle_events()
 {
 	auto sdl_event = SDL_Event{};
 
-	while (::SDL_PollEvent(&sdl_event))
+	while (SDL_PollEvent(&sdl_event))
 	{
-		if (sdl_event.type == SDL_QUIT)
+		if (sdl_event.type == SDL_EVENT_QUIT)
 		{
 			is_quit_requested_ = true;
 		}
@@ -8165,6 +8152,10 @@ std::string Launcher::launcher_commands_file_name = "launchcmds.txt";
 std::string Launcher::resource_strings_file_name = "strings.txt";
 std::string Launcher::icon_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/icon_48x48.bmp";
 
+void* Launcher::glad_load_proc(const char* name)
+{
+	return SDL_GL_GetProcAddress(name);
+}
 
 Launcher::Launcher()
 	:
@@ -8251,7 +8242,7 @@ bool Launcher::initialize()
 
 		const auto& normalized_icon_path = ul::PathUtils::normalize(icon_path);
 
-		sdl_icon_surface_ = ::SDL_LoadBMP(normalized_icon_path.c_str());
+		sdl_icon_surface_ = SDL_LoadBMP(normalized_icon_path.c_str());
 
 		if (!sdl_icon_surface_)
 		{
@@ -8574,7 +8565,7 @@ void Launcher::uninitialize()
 
 	if (sdl_icon_surface_)
 	{
-		::SDL_FreeSurface(sdl_icon_surface_);
+		SDL_DestroySurface(sdl_icon_surface_);
 		sdl_icon_surface_ = nullptr;
 	}
 
@@ -8641,7 +8632,7 @@ void Launcher::run()
 	display_settings_window_uptr_->show(false);
 	detail_settings_window_uptr_->show(false);
 
-	auto frequency = ::SDL_GetPerformanceFrequency();
+	auto frequency = SDL_GetPerformanceFrequency();
 
 	auto& window_manager = WindowManager::get_instance();
 
@@ -8652,12 +8643,12 @@ void Launcher::run()
 
 	while (!window_manager.is_quit_requested())
 	{
-		const auto begin_time = ::SDL_GetPerformanceCounter();
+		const auto begin_time = SDL_GetPerformanceCounter();
 
 		window_manager.draw();
 		window_manager.handle_events();
 
-		const auto end_time = ::SDL_GetPerformanceCounter();
+		const auto end_time = SDL_GetPerformanceCounter();
 
 		const auto process_time_ms = (end_time - begin_time + frequency - 1) / frequency;
 
@@ -8670,7 +8661,7 @@ void Launcher::run()
 
 		if (delay_ms > 0)
 		{
-			::SDL_Delay(static_cast<Uint32>(delay_ms));
+			SDL_Delay(static_cast<Uint32>(delay_ms));
 		}
 	}
 
@@ -8745,27 +8736,26 @@ void Launcher::setup_search_paths(
 bool Launcher::initialize_ogl_functions()
 {
 	auto is_succeed = true;
-	auto sdl_result = 0;
 
 	// Set OpenGL attributes.
 	//
 
 	if (is_succeed)
 	{
-		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, SDL_TRUE);
+		bool sdl_result = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
 
-		if (is_succeed && sdl_result)
+		if (is_succeed && !sdl_result)
 		{
 			is_succeed = false;
-			set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{::SDL_GetError()});
+			set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{SDL_GetError()});
 		}
 
-		sdl_result = ::SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, SDL_FALSE);
+		sdl_result = SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, false);
 
-		if (is_succeed && sdl_result)
+		if (is_succeed && !sdl_result)
 		{
 			is_succeed = false;
-			set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{::SDL_GetError()});
+			set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{SDL_GetError()});
 		}
 	}
 
@@ -8798,7 +8788,7 @@ bool Launcher::initialize_ogl_functions()
 
 	if (is_succeed)
 	{
-		const auto glad_result = ::gladLoadGLLoader(::SDL_GL_GetProcAddress);
+		const auto glad_result = ::gladLoadGLLoader(&Launcher::glad_load_proc);
 
 		if (!glad_result)
 		{
@@ -8816,22 +8806,17 @@ bool Launcher::initialize_ogl_functions()
 
 void Launcher::uninitialize_ogl()
 {
-	::SDL_GL_UnloadLibrary();
-	::SDL_Quit();
+	SDL_GL_UnloadLibrary();
+	SDL_Quit();
 }
 
 bool Launcher::initialize_sdl()
 {
-	auto is_succeed = true;
-	auto sdl_result = 0;
+	const bool sdl_result = SDL_Init(SDL_INIT_VIDEO);
 
-	sdl_result = ::SDL_Init(SDL_INIT_VIDEO);
-
-	if (sdl_result)
+	if (!sdl_result)
 	{
-		is_succeed = false;
-		set_error_message("Failed to initialize SDL. " + std::string{::SDL_GetError()});
-
+		set_error_message("Failed to initialize SDL. " + std::string{SDL_GetError()});
 		return false;
 	}
 
@@ -8841,19 +8826,18 @@ bool Launcher::initialize_sdl()
 bool Launcher::initialize_ogl()
 {
 	auto is_succeed = true;
-	auto sdl_result = 0;
 
 	logger_->info("[OpenGL]");
 
 	if (is_succeed)
 	{
-		sdl_result = ::SDL_GL_LoadLibrary(nullptr);
+		const bool sdl_result = SDL_GL_LoadLibrary(nullptr);
 
-		if (sdl_result)
+		if (!sdl_result)
 		{
 			is_succeed = false;
 
-			const auto& error_message = "Failed to load OpenGL library. "s + ::SDL_GetError();
+			const auto& error_message = "Failed to load OpenGL library. "s + SDL_GetError();
 			set_error_message(error_message);
 			logger_->error(error_message);
 		}
@@ -8918,7 +8902,7 @@ int main(
 			error_message = "Generic failure.";
 		}
 
-		::SDL_ShowSimpleMessageBox(
+		SDL_ShowSimpleMessageBox(
 			SDL_MESSAGEBOX_ERROR,
 			"LTJS Launcher",
 			error_message.c_str(),

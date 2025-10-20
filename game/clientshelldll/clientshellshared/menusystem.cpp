@@ -16,7 +16,7 @@
 #include "clientsaveloadmgr.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 namespace
@@ -97,7 +97,7 @@ LTBOOL CMenuSystem::Init()
 	m_pServerCtrl = ( CLTGUITextCtrl* )m_List.GetControl( nServerCtrlId );
 
 #ifdef LTJS_SDL_BACKEND
-	g_pInterfaceMgr->GetMenuMgr()->RegisterHotKey(::SDLK_ESCAPE, MENU_ID_SYSTEM);
+	g_pInterfaceMgr->GetMenuMgr()->RegisterHotKey(SDLK_ESCAPE, MENU_ID_SYSTEM);
 #else
 	g_pInterfaceMgr->GetMenuMgr()->RegisterHotKey(VK_ESCAPE,MENU_ID_SYSTEM);
 #endif // LTJS_SDL_BACKEND

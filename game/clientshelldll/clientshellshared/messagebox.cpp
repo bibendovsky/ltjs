@@ -15,7 +15,7 @@
 #include "gameclientshell.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 #endif // LTJS_SDL_BACKEND
 
 extern CGameClientShell* g_pGameClientShell;
@@ -360,13 +360,13 @@ LTBOOL CMessageBox::HandleKeyDown(int key, int rep)
 		if (m_Dlg.GetSelectedControl() != m_pEdit)
 		{
 #ifdef LTJS_SDL_BACKEND
-			if (key == ::SDLK_LEFT)
+			if (key == SDLK_LEFT)
 #else
 			if (key == VK_LEFT)
 #endif // LTJS_SDL_BACKEND
 				return m_Dlg.OnUp();
 #ifdef LTJS_SDL_BACKEND
-			if (key == ::SDLK_RIGHT)
+			if (key == SDLK_RIGHT)
 #else
 			if (key == VK_RIGHT)
 #endif // LTJS_SDL_BACKEND
@@ -381,8 +381,8 @@ LTBOOL CMessageBox::HandleKeyDown(int key, int rep)
 	switch (key)
 	{
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_LEFT:
-		case ::SDLK_UP:
+		case SDLK_LEFT:
+		case SDLK_UP:
 #else
 	case VK_LEFT:
 	case VK_UP:
@@ -392,8 +392,8 @@ LTBOOL CMessageBox::HandleKeyDown(int key, int rep)
 			break;
 		}
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_RIGHT:
-		case ::SDLK_DOWN:
+		case SDLK_RIGHT:
+		case SDLK_DOWN:
 #else
 	case VK_RIGHT:
 	case VK_DOWN:
@@ -403,7 +403,7 @@ LTBOOL CMessageBox::HandleKeyDown(int key, int rep)
 			break;
 		}
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_RETURN:
+		case SDLK_RETURN:
 #else
 	case VK_RETURN:
 #endif // LTJS_SDL_BACKEND
@@ -412,7 +412,7 @@ LTBOOL CMessageBox::HandleKeyDown(int key, int rep)
 			break;
 		}
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_ESCAPE:
+		case SDLK_ESCAPE:
 #else
 	case VK_ESCAPE:
 #endif // LTJS_SDL_BACKEND

@@ -57,7 +57,7 @@
 #include "mmsystem.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL.h"
 
 #include "ltjs_main_window_descriptor.h"
 #include "ltjs_system_event_handler_mgr.h"
@@ -75,11 +75,11 @@
 #define WEAPON_MOVE_INC_VALUE_FAST		0.005f
 
 #ifdef LTJS_SDL_BACKEND
-#define VK_TOGGLE_GHOST_MODE			::SDLK_F1
-#define VK_TOGGLE_SPECTATOR_MODE		::SDLK_F2
-#define VK_TOGGLE_SCREENSHOTMODE		::SDLK_F3
-#define VK_WRITE_CAM_POS				::SDLK_F4
-#define VK_MAKE_CUBIC_ENVMAP			::SDLK_F12
+#define VK_TOGGLE_GHOST_MODE			SDLK_F1
+#define VK_TOGGLE_SPECTATOR_MODE		SDLK_F2
+#define VK_TOGGLE_SCREENSHOTMODE		SDLK_F3
+#define VK_WRITE_CAM_POS				SDLK_F4
+#define VK_MAKE_CUBIC_ENVMAP			SDLK_F12
 #else
 #define VK_TOGGLE_GHOST_MODE			VK_F1
 #define VK_TOGGLE_SPECTATOR_MODE		VK_F2
@@ -2118,7 +2118,7 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 
 	// The engine handles the VK_F8 key for screenshots.
 #ifdef LTJS_SDL_BACKEND
-	if (key == ::SDLK_F8)
+	if (key == SDLK_F8)
 #else
 	if( key == VK_F8 )
 #endif // LTJS_SDL_BACKEND
@@ -2129,7 +2129,7 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 	{
 		//allow abort...
 #ifdef LTJS_SDL_BACKEND
-		if (key == ::SDLK_ESCAPE)
+		if (key == SDLK_ESCAPE)
 #else
 		if (key == VK_ESCAPE)
 #endif // LTJS_SDL_BACKEND
@@ -2183,7 +2183,7 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 #ifndef _TRON_E3_DEMO
 #ifndef _FINAL
 #ifdef LTJS_SDL_BACKEND
-	if (key == ::SDLK_KP_MULTIPLY)
+	if (key == SDLK_KP_MULTIPLY)
 #else
 	if (key == VK_MULTIPLY)
 #endif // LTJS_SDL_BACKEND
@@ -2223,7 +2223,7 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 	// jrg - 8/31/02 - well, almost anywhere and almost anytime, except...
 	GameState eGameState = g_pInterfaceMgr->GetGameState();
 #ifdef LTJS_SDL_BACKEND
-	if	(key == ::SDLK_F9 && 
+	if	(key == SDLK_F9 && 
 #else
 	if	( key == VK_F9 && 
 #endif // LTJS_SDL_BACKEND
@@ -2270,7 +2270,7 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 		return;
 	}
 #ifdef LTJS_SDL_BACKEND
-	else if( key == ::SDLK_F6 )
+	else if( key == SDLK_F6 )
 #else
 	else if( key == VK_F6 )
 #endif // LTJS_SDL_BACKEND
@@ -2315,7 +2315,7 @@ void CGameClientShell::OnKeyUp(int key)
 {
 	// The engine handles the VK_F8 key for screenshots.
 #ifdef LTJS_SDL_BACKEND
-	if (key == ::SDLK_F8)
+	if (key == SDLK_F8)
 #else
 	if( key == VK_F8 )
 #endif // LTJS_SDL_BACKEND
@@ -4551,16 +4551,16 @@ public:
 
 private:
 	void handle_text_input(
-		const ::SDL_TextInputEvent& e);
+		const SDL_TextInputEvent& e);
 
 	void handle_mouse_motion(
-		const ::SDL_MouseMotionEvent& e);
+		const SDL_MouseMotionEvent& e);
 
 	void handle_mouse_button_down(
-		const ::SDL_MouseButtonEvent& e);
+		const SDL_MouseButtonEvent& e);
 
 	void handle_mouse_button_up(
-		const ::SDL_MouseButtonEvent& e);
+		const SDL_MouseButtonEvent& e);
 }; // GcsSystemEventHandler
 
 // ==========================================================================
@@ -4570,19 +4570,19 @@ bool GcsSystemEventHandler::operator()(
 {
 	switch (event.type)
 	{
-		case ::SDL_TEXTINPUT:
+		case SDL_EVENT_TEXT_INPUT:
 			handle_text_input(event.text);
 			break;
 
-		case ::SDL_MOUSEMOTION:
+		case SDL_EVENT_MOUSE_MOTION:
 			handle_mouse_motion(event.motion);
 			break;
 
-		case ::SDL_MOUSEBUTTONDOWN:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			handle_mouse_button_down(event.button);
 			break;
 
-		case ::SDL_MOUSEBUTTONUP:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
 			handle_mouse_button_up(event.button);
 			break;
 
@@ -4594,27 +4594,22 @@ bool GcsSystemEventHandler::operator()(
 }
 
 void GcsSystemEventHandler::handle_text_input(
-	const ::SDL_TextInputEvent& e)
+	const SDL_TextInputEvent& e)
 {
-	for (const auto ch : e.text)
+	for (int i_text = 0; e.text[i_text] != '\0'; ++i_text)
 	{
-		if (ch == '\0')
-		{
-			break;
-		}
-
-		CGameClientShell::OnChar(nullptr, ch, 1);
+		CGameClientShell::OnChar(nullptr, e.text[i_text], 1);
 	}
 }
 
 void GcsSystemEventHandler::handle_mouse_motion(
-	const ::SDL_MouseMotionEvent& e)
+	const SDL_MouseMotionEvent& e)
 {
 	CGameClientShell::OnMouseMove(nullptr, e.x, e.y, 0);
 }
 
 void GcsSystemEventHandler::handle_mouse_button_down(
-	const ::SDL_MouseButtonEvent& e)
+	const SDL_MouseButtonEvent& e)
 {
 	const auto is_double_click = (e.clicks == 2);
 
@@ -4643,7 +4638,7 @@ void GcsSystemEventHandler::handle_mouse_button_down(
 }
 
 void GcsSystemEventHandler::handle_mouse_button_up(
-	const ::SDL_MouseButtonEvent& e)
+	const SDL_MouseButtonEvent& e)
 {
 	const auto func = (
 		e.button == SDL_BUTTON_LEFT ?
@@ -4766,8 +4761,8 @@ BOOL SetWindowSize(uint32 nWidth, uint32 nHeight)
 	}
 
 #ifdef LTJS_SDL_BACKEND
-	::SDL_ShowWindow(g_hMainWnd->sdl_window);
-	::SDL_SetWindowPosition(g_hMainWnd->sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	SDL_ShowWindow(g_hMainWnd->sdl_window);
+	SDL_SetWindowPosition(g_hMainWnd->sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 #else
 	RECT screenRect;
 	GetWindowRect(GetDesktopWindow(), &screenRect);

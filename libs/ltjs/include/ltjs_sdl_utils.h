@@ -2,7 +2,7 @@
 #define LTJS_SDL_UTILS_INCLUDED
 
 
-#include "SDL.h"
+#include "SDL3/SDL_video.h"
 
 #include "ltjs_sdl_uresources.h"
 
@@ -19,7 +19,7 @@ char key_code_to_char(
 	int key_code) noexcept;
 
 void fill_window_black(
-	::SDL_Window* sdl_window);
+	SDL_Window* sdl_window);
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

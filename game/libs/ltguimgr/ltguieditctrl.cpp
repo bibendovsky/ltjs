@@ -9,7 +9,7 @@
 #include <locale.h>
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL.h"
 #endif // LTJS_SDL_BACKEND
 
 const uint16 CLTGUIEditCtrl::kMaxLength = 64;
@@ -373,7 +373,7 @@ LTBOOL CLTGUIEditCtrl::HandleKeyDown(int key, int rep)
 	switch (key)
 	{
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_BACKSPACE:
+		case SDLK_BACKSPACE:
 #else
 	case VK_BACK:
 #endif // LTJS_SDL_BACKEND
@@ -384,21 +384,21 @@ LTBOOL CLTGUIEditCtrl::HandleKeyDown(int key, int rep)
 		}
 		break;
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_DELETE:
+		case SDLK_DELETE:
 #else
 	case VK_DELETE:
 #endif // LTJS_SDL_BACKEND
 		RemoveCharacter();
 		break;
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_HOME:
+		case SDLK_HOME:
 #else
 	case VK_HOME:
 #endif // LTJS_SDL_BACKEND
 		m_nCaretPos = 0;
 		break;
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_END:
+		case SDLK_END:
 #else
 	case VK_END:
 #endif // LTJS_SDL_BACKEND
@@ -406,14 +406,14 @@ LTBOOL CLTGUIEditCtrl::HandleKeyDown(int key, int rep)
 			m_nCaretPos = m_pText->GetLength();
 		break;
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_LEFT:
+		case SDLK_LEFT:
 #else
 	case VK_LEFT:
 #endif // LTJS_SDL_BACKEND
 		if (m_nCaretPos > 0) m_nCaretPos--;
 		break;
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_RIGHT:
+		case SDLK_RIGHT:
 #else
 	case VK_RIGHT:
 #endif // LTJS_SDL_BACKEND

@@ -8,10 +8,9 @@ namespace ltjs
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 void SdlRwOpsUDeleter::operator()(
-	::SDL_RWops* resource) const noexcept
+	SDL_IOStream* resource) const noexcept
 {
-	::SDL_RWclose(resource);
-	::SDL_free(resource);
+	SDL_CloseIO(resource);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -20,9 +19,9 @@ void SdlRwOpsUDeleter::operator()(
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 void SdlObjectUDeleter::operator()(
-	void* resource) const noexcept
+	SDL_SharedObject* resource) const noexcept
 {
-	::SDL_UnloadObject(resource);
+	SDL_UnloadObject(resource);
 }
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

@@ -21,7 +21,7 @@
 #include <mbstring.h>
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_keycode.h"
 
 #include "ltjs_shared_data_mgr.h"
 #include "ltjs_shell_resource_mgr.h"
@@ -733,7 +733,7 @@ void CCredits::HandleInput(int vkey)
 	switch (vkey)
 	{
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_UP:
+		case SDLK_UP:
 #else
 		case VK_UP:
 #endif // LTJS_SDL_BACKEND
@@ -744,7 +744,7 @@ void CCredits::HandleInput(int vkey)
 		}
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_DOWN:
+		case SDLK_DOWN:
 #else
 		case VK_DOWN:
 #endif // LTJS_SDL_BACKEND
@@ -755,7 +755,7 @@ void CCredits::HandleInput(int vkey)
 		}
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_HOME:
+		case SDLK_HOME:
 #else
 		case VK_HOME:
 #endif // LTJS_SDL_BACKEND
@@ -766,9 +766,9 @@ void CCredits::HandleInput(int vkey)
 		}
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_RETURN:
-		case ::SDLK_SPACE:
-		case ::SDLK_PAGEDOWN:
+		case SDLK_RETURN:
+		case SDLK_SPACE:
+		case SDLK_PAGEDOWN:
 #else
 		case VK_RETURN:
 		case VK_SPACE:
@@ -794,7 +794,7 @@ void CCredits::HandleInput(int vkey)
 		}
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_PAGEUP:
+		case SDLK_PAGEUP:
 #else
 		case VK_PRIOR:
 #endif // LTJS_SDL_BACKEND
@@ -805,7 +805,7 @@ void CCredits::HandleInput(int vkey)
 		}
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_PAUSE:
+		case SDLK_PAUSE:
 #else
 		case VK_PAUSE:
 #endif // LTJS_SDL_BACKEND
@@ -816,7 +816,7 @@ void CCredits::HandleInput(int vkey)
 		}
 
 #ifdef LTJS_SDL_BACKEND
-		case ::SDLK_ESCAPE:
+		case SDLK_ESCAPE:
 #else
 		case VK_ESCAPE:
 #endif // LTJS_SDL_BACKEND

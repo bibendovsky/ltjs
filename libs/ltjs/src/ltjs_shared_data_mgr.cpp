@@ -5,7 +5,7 @@
 #include <array>
 #include <type_traits>
 
-#include "SDL.h"
+#include "SDL3/SDL_stdinc.h"
 
 #include "ltjs_c_string.h"
 #include "ltjs_char_conv.h"
@@ -174,7 +174,7 @@ void SharedDataMgrImpl::DatasUDeleter::operator()(
 
 SharedDataMgrImpl::SharedDataMgrImpl()
 {
-	const auto env_value_string = ::SDL_getenv(env_name);
+	const auto env_value_string = SDL_getenv(env_name);
 
 	if (env_value_string)
 	{
@@ -221,7 +221,7 @@ SharedDataMgrImpl::SharedDataMgrImpl()
 
 		chars_buffer[chars_size] = '\0';
 
-		const auto sdl_result = ::SDL_setenv(env_name, chars_buffer, ::SDL_TRUE);
+		const auto sdl_result = SDL_setenv_unsafe(env_name, chars_buffer, true);
 
 		if (sdl_result != 0)
 		{

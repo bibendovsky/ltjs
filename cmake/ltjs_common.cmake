@@ -83,8 +83,7 @@ function (ltjs_add_defaults)
 	target_link_libraries (
 		${ARGV0}
 		PRIVATE
-			SDL2W::SDL2Wmain
-			SDL2W::SDL2W
+			SDL3::SDL3
 	)
 
 	if (NOT ${PROJECT_NAME} STREQUAL "ltjs_lib")

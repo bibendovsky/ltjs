@@ -12,7 +12,7 @@
 #include "dtxmgr.h"
 
 #ifdef LTJS_SDL_BACKEND
-#include "SDL.h"
+#include "SDL3/SDL_video.h"
 
 #include "ltjs_main_window_descriptor.h"
 #endif // LTJS_SDL_BACKEND
@@ -624,7 +624,7 @@ LTRESULT r_InitRender(RMode *pMode)
 
 #ifdef LTJS_SDL_BACKEND
 	const auto hWnd = static_cast<const ltjs::MainWindowDescriptor*>(dsi_GetMainWindow());
-	::SDL_RestoreWindow(hWnd->sdl_window);
+	SDL_RestoreWindow(hWnd->sdl_window);
 #else
 	hWnd = (HWND)dsi_GetMainWindow();
 	ShowWindow(hWnd, SW_RESTORE);
@@ -682,7 +682,7 @@ LTRESULT r_InitRender(RMode *pMode)
 
 	// Set focus and capture the mouse.  We leave things like resizing the window to the render DLL.
 #ifdef LTJS_SDL_BACKEND
-	::SDL_RaiseWindow(hWnd->sdl_window);
+	SDL_RaiseWindow(hWnd->sdl_window);
 #else
 	SetFocus(hWnd);
 #endif // LTJS_SDL_BACKEND

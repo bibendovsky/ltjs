@@ -2,8 +2,6 @@
 #define LTJS_SYSTEM_EVENT_QUEUE_INCLUDED
 
 
-#include "SDL.h"
-
 #include "ltjs_circular_queue.h"
 #include "ltjs_system_event.h"
 
