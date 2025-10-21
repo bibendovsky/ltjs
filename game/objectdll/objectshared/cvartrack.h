@@ -85,7 +85,7 @@
 			m_pServerDE->SetGameConVar(m_pVarName, str);
 		}
 
-		void		SetStr(char *pStr)
+		void		SetStr(const char *pStr)
 		{
 			if(!m_pServerDE || !m_pVarName)
 				return;

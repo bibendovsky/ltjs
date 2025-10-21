@@ -43,7 +43,7 @@ bool ConParse::Parse()
 	return true;
 }
 
-bool ConParse::ParseFind(char *pLookFor, bool bCaseSensitive, uint32 minTokens)
+bool ConParse::ParseFind(const char *pLookFor, bool bCaseSensitive, uint32 minTokens)
 {
 	bool equal;
 
@@ -217,7 +217,7 @@ static GNTResult cp_GetNextToken(const char* &pCurPos, char* &pTokenPos)
 
 
 
-int cp_Parse(const char *pCommand, const char **pNewCommandPos, char *argBuffer, char **argPointers, int *nArgs)
+int cp_Parse(const char *pCommand, const char **pNewCommandPos, char *argBuffer, const char **argPointers, int *nArgs)
 {
 	GNTResult status;
 	char *pCurArgBufferPos, *pToken;

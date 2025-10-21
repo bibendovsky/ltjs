@@ -160,9 +160,9 @@ LTRESULT CTriggerPlugin::PreHook_PropChanged( const char *szObjName,
 
 // Static global variables...
 
-static char *g_szLock    = "LOCK";
-static char *g_szUnLock  = "UNLOCK";
-static char *g_szTrigger = "TRIGGER";
+static const char* const g_szLock    = "LOCK";
+static const char* const g_szUnLock  = "UNLOCK";
+static const char* const g_szTrigger = "TRIGGER";
 
 #define UPDATE_DELTA					0.1f
 #define TRIGGER_DEACTIVATION_TIME		0.001f

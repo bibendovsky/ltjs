@@ -83,7 +83,7 @@ DebugGraph::~DebugGraph()
 
 LTRESULT DebugGraph::Init(
 	LTRect *pRect,
-	char *pLabel,
+	const char *pLabel,
 	LTBOOL bAvoidReinitialize)
 {
 	uint32 width, height;
@@ -180,7 +180,7 @@ LTRESULT DebugGraph::Term()
 }
 
 
-LTRESULT DebugGraph::InitLabel(char *pLabel)
+LTRESULT DebugGraph::InitLabel(const char *pLabel)
 {
 	HLTFONT hFont;
 	HSTRING hString;

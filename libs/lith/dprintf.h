@@ -6,10 +6,10 @@
 #define __DPRINTF_H__
 
 
-void dprintf(char*, ...);
-void dprintf(unsigned int Level, char*, ...);
-void dprintf(int X, int Y, char*, ...);
-void dprintf(unsigned int Level, int X, int Y, char*, ...);
+void dprintf(const char*, ...);
+void dprintf(unsigned int Level, const char*, ...);
+void dprintf(int X, int Y, const char*, ...);
+void dprintf(unsigned int Level, int X, int Y, const char*, ...);
 void dgotoxy(int X, int Y);
 void dgotoxy(unsigned int Level, int X, int Y);
 void dclrscr(void);

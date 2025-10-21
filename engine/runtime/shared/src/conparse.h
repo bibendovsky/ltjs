@@ -24,7 +24,7 @@
 // Returns 1 if there are more strings to parse.
 // If there are more strings to parse, pNewCommandPos is set to what you
 // should set pCommands to on the next call.
-int cp_Parse(const char *pCommands, const char **pNewCommandPos, char *argBuffer, char **argPointers, int *nArgs);
+int cp_Parse(const char *pCommands, const char **pNewCommandPos, char *argBuffer, const char **argPointers, int *nArgs);
 
 
 #endif  // __CONPARSE_H__

@@ -24,7 +24,7 @@
 CCheatMgr*      g_pCheatMgr     = LTNULL;
 bool             g_bInfiniteAmmo = false;
 
-void CheatFn(int argc, char **argv)
+void CheatFn(int argc, const char **argv)
 {
 	if (argc < 1 || !g_pCheatMgr) return;
 

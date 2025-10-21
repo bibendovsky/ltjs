@@ -2360,7 +2360,7 @@ const char* CVehicleMgr::GetImpactSnd(LTFLOAT fCurVelocityPercent, SURFACE* pSur
 {
 	if (!pSurface) return LTNULL;
 
-    char* pSound = LTNULL;
+    const char* pSound = LTNULL;
 
 	//char s_szImpactSndName[128] = "";
 	//pSurface->GetRandomSnowmobileImpactSnd(szImpactSndName, ARRAY_LEN(szImpactSndName));

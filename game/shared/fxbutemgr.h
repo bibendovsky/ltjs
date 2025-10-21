@@ -776,7 +776,7 @@ class CFXButeMgr : public CGameButeMgr
 
 #ifndef _CLIENTBUILD
 		int				GetNumImpactFX() const { return m_ImpactFXList.GetLength(); }
-        LTBOOL           ReadImpactFXProp(char* pPropName, uint8 & nImpactFXId);
+        LTBOOL           ReadImpactFXProp(const char* pPropName, uint8 & nImpactFXId);
 #endif // _CLIENTBUILD
 
 		IMPACTFX*		GetImpactFX(int nImpactFXId);

@@ -62,7 +62,7 @@ namespace
 	float fEditDelta = 1.0f;
 }
 
-void EditFXFn(int argc, char **argv)
+void EditFXFn(int argc, const char **argv)
 {
 	if(argc != 1)
 	{
@@ -1147,7 +1147,7 @@ CLTGUITextCtrl* CBaseScreen::CreateTextItem(int stringID, uint32 commandID, int 
 
 }
 
-CLTGUITextCtrl* CBaseScreen::CreateTextItem(char *pString, uint32 commandID, int helpID, LTIntPt pos, LTBOOL bFixed, int nFont)
+CLTGUITextCtrl* CBaseScreen::CreateTextItem(const char *pString, uint32 commandID, int helpID, LTIntPt pos, LTBOOL bFixed, int nFont)
 {
 	CLTGUITextCtrl* pCtrl=debug_new(CLTGUITextCtrl);
 
@@ -1228,7 +1228,7 @@ CLTGUICycleCtrl* CBaseScreen::CreateCycle(int stringID, int helpID, int nHeaderW
 
 }
 
-CLTGUICycleCtrl* CBaseScreen::CreateCycle(char *pString, int helpID, int nHeaderWidth, uint8 *pnValue, LTIntPt pos, LTBOOL bFixed, int nFont)
+CLTGUICycleCtrl* CBaseScreen::CreateCycle(const char *pString, int helpID, int nHeaderWidth, uint8 *pnValue, LTIntPt pos, LTBOOL bFixed, int nFont)
 {
 	CLTGUICycleCtrl* pCtrl=debug_new(CLTGUICycleCtrl);
 

@@ -91,7 +91,7 @@ class Prop : public GameBase
         uint32                      m_dwFlags;
         uint32                      m_dwFlags2;
 
-		char*						m_pDebrisOverride;
+		const char*					m_pDebrisOverride;
 
 		LTBOOL						m_bTouchable;
 		HMODELANIM_LIST				m_lstWorldAnims;		

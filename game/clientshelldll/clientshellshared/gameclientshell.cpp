@@ -184,12 +184,12 @@ void TermClientShell()
 }
 
 
-void FragSelfFn(int argc, char **argv)
+void FragSelfFn(int argc, const char **argv)
 {
 	SendEmptyServerMsg(MID_FRAG_SELF);
 }
 
-void ClientFXFn(int argc, char **argv)
+void ClientFXFn(int argc, const char **argv)
 {
 	if(argc == 4)
 	{
@@ -219,7 +219,7 @@ void ClientFXFn(int argc, char **argv)
 	}
 }
 
-void StimulusFn(int argc, char **argv)
+void StimulusFn(int argc, const char **argv)
 {
 	if( (argc == 1) || (argc == 2) )
 	{
@@ -243,7 +243,7 @@ void StimulusFn(int argc, char **argv)
 	}
 }
 
-void RenderStimulusFn(int argc, char **argv)
+void RenderStimulusFn(int argc, const char **argv)
 {
 	CAutoMessage cMsg;
 	cMsg.Writeuint8(MID_RENDER_STIMULUS);
@@ -257,7 +257,7 @@ void RenderStimulusFn(int argc, char **argv)
 	g_pLTClient->SendToServer(cMsg.Read(), MESSAGE_GUARANTEED);		
 }
 
-void ObjectAlphaFn(int argc, char **argv)
+void ObjectAlphaFn(int argc, const char **argv)
 {
 	CAutoMessage cMsg;
 	cMsg.Writeuint8(MID_OBJECT_ALPHA);
@@ -271,7 +271,7 @@ void ObjectAlphaFn(int argc, char **argv)
 }
 
 
-void AddGoalFn(int argc, char **argv)
+void AddGoalFn(int argc, const char **argv)
 {
 	CAutoMessage cMsg;
 	cMsg.Writeuint8(MID_ADD_GOAL);
@@ -294,7 +294,7 @@ void AddGoalFn(int argc, char **argv)
 	}
 }
 
-void RemoveGoalFn(int argc, char **argv)
+void RemoveGoalFn(int argc, const char **argv)
 {
 	CAutoMessage cMsg;
 	cMsg.Writeuint8(MID_REMOVE_GOAL);
@@ -311,19 +311,19 @@ void RemoveGoalFn(int argc, char **argv)
 	}
 }
 
-void ReloadWeaponAttributesFn(int argc, char **argv)
+void ReloadWeaponAttributesFn(int argc, const char **argv)
 {
     g_pWeaponMgr->Reload();
     g_pLTClient->CPrint("Reloaded weapons attributes file...");
 }
 
-void ReloadSurfacesAttributesFn(int argc, char **argv)
+void ReloadSurfacesAttributesFn(int argc, const char **argv)
 {
     g_pSurfaceMgr->Reload();
     g_pLTClient->CPrint("Reloaded surface attributes file...");
 }
 
-void ReloadFXAttributesFn(int argc, char **argv)
+void ReloadFXAttributesFn(int argc, const char **argv)
 {
     g_pFXButeMgr->Reload();
     g_pLTClient->CPrint("Reloaded fx attributes file...");
@@ -334,7 +334,7 @@ void ReloadFXAttributesFn(int argc, char **argv)
 	ReloadSurfacesAttributesFn(0, 0);
 }
 
-void ExitLevelFn(int argc, char **argv)
+void ExitLevelFn(int argc, const char **argv)
 {
 	if (g_pCheatMgr)
 	{
@@ -343,7 +343,7 @@ void ExitLevelFn(int argc, char **argv)
 	}
 }
 
-void TeleportFn(int argc, char **argv)
+void TeleportFn(int argc, const char **argv)
 {
 	if (argc < 3)
 	{
@@ -371,7 +371,7 @@ void TeleportFn(int argc, char **argv)
 	}
 }
 
-void ChaseToggleFn(int argc, char **argv)
+void ChaseToggleFn(int argc, const char **argv)
 {
 	if (g_pGameClientShell)
 	{
@@ -379,7 +379,7 @@ void ChaseToggleFn(int argc, char **argv)
 	}
 }
 
-void CmdFn(int argc, char **argv)
+void CmdFn(int argc, const char **argv)
 {
 	if (argc < 2)
 	{
@@ -409,7 +409,7 @@ void CmdFn(int argc, char **argv)
     g_pLTClient->FreeString(hstrCmd);
 }
 
-void TriggerFn(int argc, char **argv)
+void TriggerFn(int argc, const char **argv)
 {
 	if (argc < 2)
 	{
@@ -432,7 +432,7 @@ void TriggerFn(int argc, char **argv)
     g_pLTClient->FreeString(hstrMsg);
 }
 
-void ListFn(int argc, char **argv)
+void ListFn(int argc, const char **argv)
 {
 	if (argc < 1 || !argv)
 	{
@@ -465,7 +465,7 @@ void ExitGame(bool bResponse, uint32 nUserData)
 	}
 }
 
-void InitSoundFn(int argc, char **argv)
+void InitSoundFn(int argc, const char **argv)
 {
 	if (g_pGameClientShell)
 	{
@@ -473,7 +473,7 @@ void InitSoundFn(int argc, char **argv)
 	}
 }
 
-void MusicFn(int argc, char **argv)
+void MusicFn(int argc, const char **argv)
 {
 	if (!g_pGameClientShell->GetMusic()->IsInitialized())
 	{
@@ -2162,7 +2162,7 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 	if (key == VK_TOGGLE_SPECTATOR_MODE)
 	{
 #ifndef _FINAL
-		char *pCheat = "mpclip";
+		const char* const pCheat = "mpclip";
         CParsedMsg msg(1, &pCheat);
 		g_pCheatMgr->Check(msg);
 #endif
@@ -2172,7 +2172,7 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 	if (key == VK_TOGGLE_GHOST_MODE)
 	{
 #ifndef _FINAL
-		char *pCheat = "mppoltergeist";
+		const char* const pCheat = "mppoltergeist";
         CParsedMsg msg(1, &pCheat);
 		g_pCheatMgr->Check(msg);
 #endif

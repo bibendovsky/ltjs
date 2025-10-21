@@ -106,7 +106,7 @@ extern float g_CV_DropChance;
 
 
 //------------------------------------------------------------------
-static void con_BlastServer(int argc, char *argv[])
+static void con_BlastServer(int argc, const char *argv[])
 {
 #ifdef _DEBUG
 	if(g_pClientMgr && g_pClientMgr->m_pCurShell)
@@ -135,7 +135,7 @@ static void con_BlastServer(int argc, char *argv[])
 
 
 //------------------------------------------------------------------
-static void con_ModelAdd(int argc, char *argv[])
+static void con_ModelAdd(int argc, const char *argv[])
 {
 	if(argc >= 3)
 	{
@@ -150,7 +150,7 @@ static void con_ModelAdd(int argc, char *argv[])
 }
 
 
-static void con_DoWorldCommand(char *pWorldName, char *pRecordFilename)
+static void con_DoWorldCommand(const char *pWorldName, char *pRecordFilename)
 {
 	CClientShell *pShell = LTNULL;
 	char str[200], testName[200];
@@ -232,7 +232,7 @@ static void con_DoWorldCommand(char *pWorldName, char *pRecordFilename)
 
 
 //------------------------------------------------------------------
-static void con_World(int argc, char *argv[])
+static void con_World(int argc, const char *argv[])
 {
 	if(argc >= 1)
 	{
@@ -245,7 +245,7 @@ static void con_World(int argc, char *argv[])
 }
 
 //------------------------------------------------------------------
-static void con_EnableDevice(int argc, char *argv[])
+static void con_EnableDevice(int argc, const char *argv[])
 {
 	if( argc >= 1 )
 	{
@@ -256,7 +256,7 @@ static void con_EnableDevice(int argc, char *argv[])
 
 
 //------------------------------------------------------------------
-static void con_Bind( int argc, char *argv[] )
+static void con_Bind( int argc, const char *argv[] )
 {
 	int i;
 	
@@ -277,7 +277,7 @@ static void con_Bind( int argc, char *argv[] )
 
 
 //------------------------------------------------------------------
-static void con_RangeBind( int argc, char *argv[] )
+static void con_RangeBind( int argc, const char *argv[] )
 {
 	int i, nActions;
 	
@@ -300,7 +300,7 @@ static void con_RangeBind( int argc, char *argv[] )
 
 
 //------------------------------------------------------------------
-static void con_Scale( int argc, char *argv[] )
+static void con_Scale( int argc, const char *argv[] )
 {
 	if( argc >= 3 )
 	{
@@ -312,7 +312,7 @@ static void con_Scale( int argc, char *argv[] )
 
 
 //------------------------------------------------------------------
-static void con_RangeScale( int argc, char *argv[] )
+static void con_RangeScale( int argc, const char *argv[] )
 {
 	if( argc >= 5 )
 	{
@@ -325,7 +325,7 @@ static void con_RangeScale( int argc, char *argv[] )
 
 
 //------------------------------------------------------------------
-static void con_AddAction(int argc, char *argv[])
+static void con_AddAction(int argc, const char *argv[])
 {
 	if(argc >= 2)
 	{
@@ -335,7 +335,7 @@ static void con_AddAction(int argc, char *argv[])
 
 
 //------------------------------------------------------------------
-static void con_SSFile( int argc, char *argv[] )
+static void con_SSFile( int argc, const char *argv[] )
 {
 	if(argc >= 1)
 	{
@@ -345,7 +345,7 @@ static void con_SSFile( int argc, char *argv[] )
 
 
 //------------------------------------------------------------------
-static void con_UpdateServer(int argc, char *argv[])
+static void con_UpdateServer(int argc, const char *argv[])
 {
 	// This is a command because you never really want to save this variable in the config file.
 	if(argc >= 1)
@@ -356,7 +356,7 @@ static void con_UpdateServer(int argc, char *argv[])
 
 
 //------------------------------------------------------------------
-static void con_RenderCommand(int argc, char *argv[])
+static void con_RenderCommand(int argc, const char *argv[])
 {
 	if(r_GetRenderStruct())
 	{
@@ -366,14 +366,14 @@ static void con_RenderCommand(int argc, char *argv[])
 
 
 //------------------------------------------------------------------
-static void con_RestartConsole(int argc, char *argv[])
+static void con_RestartConsole(int argc, const char *argv[])
 {
 	g_pClientMgr->InitConsole();
 }
 
 
 //------------------------------------------------------------------
-static void con_RestartRender(int argc, char *argv[])
+static void con_RestartRender(int argc, const char *argv[])
 {
 	char str[245];
 	LTRESULT dResult;
@@ -395,7 +395,7 @@ static void con_RestartRender(int argc, char *argv[])
 
 
 //------------------------------------------------------------------
-static void con_ResizeScreen(int argc, char *argv[])
+static void con_ResizeScreen(int argc, const char *argv[])
 {
 	int32 oldScreenWidth, oldScreenHeight;
 	LTRESULT dResult;
@@ -427,7 +427,7 @@ static void con_ResizeScreen(int argc, char *argv[])
 
 
 //------------------------------------------------------------------
-static void con_ServerCommand(int argc, char *argv[])
+static void con_ServerCommand(int argc, const char *argv[])
 {
 	char tempStr[300], fullCommand[500];
 	int i;
@@ -451,7 +451,7 @@ static void con_ServerCommand(int argc, char *argv[])
 
 
 //------------------------------------------------------------------
-static void con_Quit(int argc, char *argv[])
+static void con_Quit(int argc, const char *argv[])
 {
 	dsi_OnClientShutdown( LTNULL );
 }
@@ -459,14 +459,14 @@ static void con_Quit(int argc, char *argv[])
 
 
 //------------------------------------------------------------------
-static void con_ListInputDevices(int argc, char *argv[])
+static void con_ListInputDevices(int argc, const char *argv[])
 {
 	INPUTMGR->ListDevices(INPUTMGR);
 }
 
 
 //------------------------------------------------------------------
-static void con_RebindTextures(int argc, char *argv[])
+static void con_RebindTextures(int argc, const char *argv[])
 {
 	if(g_pClientMgr)
 	{
@@ -475,7 +475,7 @@ static void con_RebindTextures(int argc, char *argv[])
 }
 
 //------------------------------------------------------------------
-static void con_LogTextureInfo(int argc, char *argv[])
+static void con_LogTextureInfo(int argc, const char *argv[])
 {
 	if(g_pClientMgr)
 	{
@@ -493,7 +493,7 @@ static void con_LogTextureInfo(int argc, char *argv[])
 #ifndef __XBOX
 void dm_HeapCompact();
 #endif
-static void con_HeapCompact(int argc, char *argv[])
+static void con_HeapCompact(int argc, const char *argv[])
 {
 #ifndef __XBOX
 	dm_HeapCompact();
@@ -503,7 +503,7 @@ static void con_HeapCompact(int argc, char *argv[])
 //////////////////////////////////////////////////////////////////////////////
 // Toggle settings in the client ticks
 extern int32 g_ShowTickCounts;
-static void con_ShowTicks(int argc, char *argv[])
+static void con_ShowTicks(int argc, const char *argv[])
 {
 	// Show some help if they don't specify a section
 	if (argc < 1)
@@ -547,7 +547,7 @@ static void con_ShowTicks(int argc, char *argv[])
 }
 
 // Manipulate the console's history
-static void con_ConsoleHistory(int argc, char *argv[])
+static void con_ConsoleHistory(int argc, const char *argv[])
 {
 	// Get the history iterator
 	CConsole *pConsole = GETCONSOLE();
@@ -571,14 +571,14 @@ static void con_ConsoleHistory(int argc, char *argv[])
 }
 
 // Clear the console's history list
-static void con_ClearHistory(int argc, char *argv[])
+static void con_ClearHistory(int argc, const char *argv[])
 {
 	GETCONSOLE()->GetCommandHistory()->Clear();
 	dsi_ConsolePrint( "Command history cleared." );
 }
 
 // Write the console history to a file
-static void con_WriteHistory(int argc, char *argv[])
+static void con_WriteHistory(int argc, const char *argv[])
 {
 	// Argument checking
 	if ( argc < 1 )
@@ -626,7 +626,7 @@ static void con_WriteHistory(int argc, char *argv[])
 }
 
 // Read a file into the console history
-static void con_ReadHistory(int argc, char *argv[])
+static void con_ReadHistory(int argc, const char *argv[])
 {
 	// Argument checking
 	if ( argc < 1 )
@@ -653,7 +653,7 @@ static void con_ReadHistory(int argc, char *argv[])
 	while ( !feof( fInput ) )
 	{
 		// Read a line from the file
-		if ( fgets( aBuffer, MAX_CONSOLE_TEXTLEN, fInput ) > 0 )
+		if ( fgets( aBuffer, MAX_CONSOLE_TEXTLEN, fInput ) != nullptr )
 		{
 			int iLength = strlen( aBuffer );
 			// Remove trailing newlines
@@ -677,7 +677,7 @@ static void con_ReadHistory(int argc, char *argv[])
 }
 
 // Execute a file
-static void con_Exec(int argc, char *argv[])
+static void con_Exec(int argc, const char *argv[])
 {
 	// Argument checking
 	if ( argc < 1 )
@@ -694,7 +694,7 @@ static void con_Exec(int argc, char *argv[])
 }
 
 // Show version information
-static void con_ShowVersionInfo(int argc, char *argv[])
+static void con_ShowVersionInfo(int argc, const char *argv[])
 {
 	// Sanity checks
 	IFBREAKRETURN(ilt_client == NULL);
@@ -734,7 +734,7 @@ static void con_ShowVersionInfo(int argc, char *argv[])
 }
 
 // Move the console window
-static void con_MoveConsole(int argc, char *argv[])
+static void con_MoveConsole(int argc, const char *argv[])
 {
 	// Report the console location
 	if (!argc)
@@ -803,12 +803,12 @@ static void con_MoveConsole(int argc, char *argv[])
 
 // These ones are implemented below the static table definitions.
 //------------------------------------------------------------------
-static void con_ListCommands(int argc, char *argv[]);
-static void con_Set(int argc, char *argv[]);
+static void con_ListCommands(int argc, const char *argv[]);
+static void con_Set(int argc, const char *argv[]);
 
 // This is implemented in the LTMem library
 //------------------------------------------------------------------
-extern void LTMemConsole(int argc, char *argv[]);
+extern void LTMemConsole(int argc, const char *argv[]);
 
 
 // ------------------------------------------------------------------ //
@@ -882,7 +882,7 @@ static LTCommandStruct g_LTCommandStructs[] =
 
 
 //------------------------------------------------------------------
-static void con_ListCommands(int argc, char *argv[])
+static void con_ListCommands(int argc, const char *argv[])
 {
 	int i;
 
@@ -894,7 +894,7 @@ static void con_ListCommands(int argc, char *argv[])
 
 
 //------------------------------------------------------------------
-static void con_Set(int argc, char *argv[])
+static void con_Set(int argc, const char *argv[])
 {
 	LTCommandVar *pCurVar;
 	HHashIterator *hIterator;

@@ -4597,7 +4597,7 @@ void CFXButeMgr::CreateImpactFX(IMPACTFX* pImpactFX, IFXCS & cs)
 //
 // ----------------------------------------------------------------------- //
 
-LTBOOL CFXButeMgr::ReadImpactFXProp(char* pPropName, uint8 & nImpactFXId)
+LTBOOL CFXButeMgr::ReadImpactFXProp(const char* pPropName, uint8 & nImpactFXId)
 {
     if (!pPropName || !pPropName[0]) return LTFALSE;
 

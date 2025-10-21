@@ -1222,7 +1222,7 @@ void SecurityCamera::SetLightColor(LightColor eColor)
 
 	m_eLightColor = eColor;
 
-	char* pSCS = SCS_RED_LIGHT;
+	const char* pSCS = SCS_RED_LIGHT;
 
 	switch (m_eLightColor)
 	{

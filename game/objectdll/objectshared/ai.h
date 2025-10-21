@@ -273,7 +273,7 @@ class CAI : public CCharacter, public IAISensing
 		virtual void PlayCombatSound(EnumAISoundType eSound);
 		virtual void PlaySearchSound(EnumAISoundType eSound);
 		virtual void PlaySound(EnumAISoundType eSound, LTBOOL bInterrupt);
-		virtual void PlaySound(char *pSound) { super::PlaySound(pSound); }
+		virtual void PlaySound(const char *pSound) { super::PlaySound(pSound); }
 		virtual char* GetDeathSound();
 		virtual char* GetDeathSilentSound();
 		virtual char* GetDamageSound(DamageType eType);

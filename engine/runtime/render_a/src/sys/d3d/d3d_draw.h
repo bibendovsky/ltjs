@@ -33,8 +33,8 @@ class IAggregateShader;
 
 // Definitions.
 #ifdef _DEBUG
-	void VerifyRenderState(D3DRENDERSTATETYPE state, uint32 val, char *pStateName, char *pValName);
-	void VerifyStageState(uint32 stage, D3DTEXTURESTAGESTATETYPE state, uint32 val, char *pStateName, char *pValName);
+	void VerifyRenderState(D3DRENDERSTATETYPE state, uint32 val, const char *pStateName, const char *pValName);
+	void VerifyStageState(uint32 stage, D3DTEXTURESTAGESTATETYPE state, uint32 val, const char *pStateName, const char *pValName);
 	void VerifyTranslucentObjectStates();
 
 	#define VERIFY_RENDERSTATE(state, val) VerifyRenderState(state, val, #state, #val);

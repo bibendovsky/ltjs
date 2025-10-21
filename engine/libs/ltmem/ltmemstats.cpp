@@ -117,7 +117,7 @@ void LTMemConsoleIgnore()
 }
 
 // console command handler for "mem" console command
-void LTMemConsole(int argc, char *argv[])
+void LTMemConsole(int argc, const char *argv[])
 {
 	// debugging information about parameters passed to this function
 //	dsi_ConsolePrint("mem console command :\n");

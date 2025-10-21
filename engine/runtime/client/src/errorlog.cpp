@@ -26,7 +26,7 @@ void PrintToErrorLog(const char *pMsg)
 
 void InitErrorLog()
 {
-	char *pFilename;
+	const char *pFilename;
 	LTCommandVar *pVar = cc_FindConsoleVar(&g_ClientConsoleState, "errorlogfile");
 
 	pFilename = "error.log";

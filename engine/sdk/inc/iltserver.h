@@ -901,7 +901,7 @@ parser.  Arguments within quotation marks are considered one argument.
 Used for: Misc.  
 */
     int (*Parse)(const char *pCommand, const char **pNewCommandPos,
-        char *argBuffer, char **argPointers, int *nArgs);
+        char *argBuffer, const char **argPointers, int *nArgs);
 
 /*!  
 Inter-object link manipulation.

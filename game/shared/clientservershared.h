@@ -390,7 +390,7 @@ inline LTRESULT SetObjectFilenames(HOBJECT hObj, const char *pFilename, const ch
 
 // Sets a renderstyle of an object
 #define RENDERSTYLE_MODEL_KEY "RS"
-void SetObjectRenderStyle(HOBJECT hObj, uint8 nRenderStyleNum, char* szRenderStyleName);
+void SetObjectRenderStyle(HOBJECT hObj, uint8 nRenderStyleNum, const char* szRenderStyleName);
 
 
 // Useful macro for deleting HStrings

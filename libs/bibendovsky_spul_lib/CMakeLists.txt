@@ -140,14 +140,6 @@ endif ()
 set_target_properties (
 	bibendovsky_spul_lib
 	PROPERTIES
-	CXX_STANDARD 14
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
-)
-
-set_target_properties (
-	bibendovsky_spul_lib
-	PROPERTIES
 	OUTPUT_NAME "bibendovsky_spul"
 	PROJECT_LABEL "bibendovsky_spul_lib"
 )

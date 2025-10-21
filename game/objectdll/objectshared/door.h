@@ -90,7 +90,7 @@ class Door : public ActiveWorldModel
 		void	TriggerLink( HOBJECT hActivateObj );
 		void	TriggerClose( );
 
-		void	PlayDoorKnobAni( char* pAniName );
+		void	PlayDoorKnobAni( const char* pAniName );
 };
 
 #endif // __DOOR_H__

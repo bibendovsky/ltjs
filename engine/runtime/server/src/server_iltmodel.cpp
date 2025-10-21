@@ -133,7 +133,7 @@ LTRESULT CLTModelServer::GetSkinFilename(HOBJECT hModel, uint32 skin_index, char
 	{
 		if (pInst->sd->m_pSkins[skin_index]) 
 		{
-			char * filename = server_filemgr->GetUsedFilename(pInst->sd->m_pSkins[skin_index]);
+			const char * filename = server_filemgr->GetUsedFilename(pInst->sd->m_pSkins[skin_index]);
 
 			if( filename != NULL )
 				LTStrCpy(pRetFilename, filename, fileBufLen);

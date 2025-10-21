@@ -1317,7 +1317,7 @@ void CCharacterFX::OnModelKey(HLOCALOBJ hObj, ArgList *pArgs)
 {
 	if (!hObj || !pArgs || !pArgs->argv || pArgs->argc == 0) return;
 
-	char* pKey = pArgs->argv[0];
+	const char* pKey = pArgs->argv[0];
 	if (!pKey) return;
 
 	if (g_vtModelKey.GetFloat() > 0.0f)

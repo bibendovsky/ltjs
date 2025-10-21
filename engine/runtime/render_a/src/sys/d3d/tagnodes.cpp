@@ -178,7 +178,7 @@ AllocSet::~AllocSet()
 }
 
 
-bool AllocSet::Init(VisibleSet *pVisibleSet, char *pSetName, uint32 defaultMax)
+bool AllocSet::Init(VisibleSet *pVisibleSet, const char *pSetName, uint32 defaultMax)
 {
 	HLTPARAM hParam;
 	uint32 maxNum;

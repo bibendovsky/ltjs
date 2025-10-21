@@ -147,7 +147,7 @@ LTBOOL SMoveAbstract::CanOptimizeObject(LTObject *pObj)
 }
 
 
-char* SMoveAbstract::GetObjectClassName(LTObject *pObject)
+const char* SMoveAbstract::GetObjectClassName(LTObject *pObject)
 {
     return pObject->sd->m_pClass->m_ClassName;
 }

@@ -2907,7 +2907,7 @@ bool si_GetModelFilenames(HOBJECT hObj, char *pFilename, int fileBufLen, char *p
 
 
 // Parses string similar to command line
-static int si_Parse(const char *pCommand, const char **pNewCommandPos, char *argBuffer, char **argPointers, int *nArgs) 
+static int si_Parse(const char *pCommand, const char **pNewCommandPos, char *argBuffer, const char **argPointers, int *nArgs) 
 {
 	return cp_Parse(pCommand, pNewCommandPos, argBuffer, argPointers, nArgs);
 }

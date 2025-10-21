@@ -209,7 +209,7 @@ class CCharacter : public GameBase, public IHitBoxUser, public IPlayerTrackerRec
 		void			UpdateOnLadder(VolumeBrush* pBrush, ContainerPhysics* pCPStruct);
 		void			UpdateInLiquid(VolumeBrush* pBrush, ContainerPhysics* pCPStruct);
 
-		char*			GetHandName() const { return m_pHandName; }
+		const char*		GetHandName() const { return m_pHandName; }
 
 		CharacterDeath	GetDeathType() const { return m_eDeathType; }
 		ModelId			GetModelId()   const { return m_eModelId; }
@@ -268,7 +268,7 @@ class CCharacter : public GameBase, public IHitBoxUser, public IPlayerTrackerRec
 		virtual void	KillDlgSnd();
 		void			KillDialogueSound() { KillDlgSnd(); }
 
-        LTBOOL          PlayDialogue( char *szDialogue );
+        LTBOOL          PlayDialogue( const char *szDialogue );
         LTBOOL          PlayDialogue( DWORD dwID );
 
         virtual void    StopDialogue(LTBOOL bCinematicDone = LTFALSE);
@@ -393,7 +393,7 @@ class CCharacter : public GameBase, public IHitBoxUser, public IPlayerTrackerRec
 
 		virtual void	ProcessDamageMsg(ILTMessage_Read *pMsg);
 
-        virtual void    PlaySound(char *pSoundName, LTFLOAT fRadius=BC_DEFAULT_SOUND_RADIUS, LTBOOL bAttached=LTTRUE);
+        virtual void    PlaySound(const char *pSoundName, LTFLOAT fRadius=BC_DEFAULT_SOUND_RADIUS, LTBOOL bAttached=LTTRUE);
 
         virtual LTVector HandHeldWeaponFirePos(CWeapon* pWeapon);
 
@@ -544,7 +544,7 @@ class CCharacter : public GameBase, public IHitBoxUser, public IPlayerTrackerRec
 
         HLTSOUND            m_hCurDlgSnd;					// Handle to current dialog sound
 		CharacterSoundType	m_eCurDlgSndType;				// Type of sound playing
-        char*               m_pHandName;                    // Name of hand node used to hold gun
+        const char*         m_pHandName;                    // Name of hand node used to hold gun
 
 		CDestructible		m_damage;						// Handle damage/healing
         CAttachments*       m_pAttachments;                 // Our attachments

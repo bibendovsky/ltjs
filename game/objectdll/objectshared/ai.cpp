@@ -467,6 +467,7 @@ static CBankedList<INVALID_NODE> s_bankINVALID_NODE;
 //
 // Deletes a node if it has expired.
 //
+#if 0 // BBi
 struct DeleteExpiredNodes :
 std::binary_function<INVALID_NODE*, float, INVALID_NODE*>
 {
@@ -481,6 +482,7 @@ std::binary_function<INVALID_NODE*, float, INVALID_NODE*>
 		return pNode;
 	}
 };
+#endif
 
 // Filter functions
 
@@ -3662,6 +3664,7 @@ void CAI::UpdateInvalidNodeList( )
 		return;
 	}
 
+#if 0 // BBi
 	using std::transform;
 	using std::bind2nd;
 	using std::remove_if;
@@ -3679,6 +3682,23 @@ void CAI::UpdateInvalidNodeList( )
 		m_InvalidNodeList.begin(),
 		m_InvalidNodeList.end(),
 		bind2nd( equal_to<INVALID_NODE*>(), pNull ));
+#else
+	const auto pos = std::transform(
+		m_InvalidNodeList.begin(),
+		m_InvalidNodeList.end(),
+		m_InvalidNodeList.begin(),
+		[flTime = g_pLTServer->GetTime()](INVALID_NODE* pNode) -> INVALID_NODE*
+		{
+			if ( pNode->m_flTime < flTime )
+			{
+				// If the node timed out, delete it.
+				s_bankINVALID_NODE.Delete( pNode );
+				pNode = NULL;
+			}
+			return pNode;
+		}
+	);
+#endif
 
 	m_InvalidNodeList.erase(pos, m_InvalidNodeList.end());
 }
@@ -4513,7 +4533,7 @@ void CAI::HandleModelString(ArgList* pArgList)
 {
     if (!g_pLTServer || !pArgList || !pArgList->argv || pArgList->argc == 0) return;
 
-	char* pKey = pArgList->argv[0];
+	const char* const pKey = pArgList->argv[0];
 	if (!pKey) return;
 
 	if (stricmp(pKey, c_szKeyBodySlump) == 0)

@@ -532,7 +532,7 @@ void dprintfmonoprint(char *message )
 
 /********************************  GENERAL ROUTINES *****************************/
 
-void dprintfdoprint (char *Str) {
+void dprintfdoprint (const char *Str) {
 #if 0
 #ifdef _CONSOLE
 #ifdef _DEBUG
@@ -589,7 +589,7 @@ void dprintfdoprint (char *Str) {
 }
 #endif
 
-void dprintf(char *format, ...)
+void dprintf(const char *format, ...)
 {
 #ifndef NODPRINTF
 	 if ((dprintfOutType == DPRINTF_NOTHING) || (dprintfOutType == DPRINTF_UNKNOWN)) return;
@@ -606,7 +606,7 @@ void dprintf(char *format, ...)
 #endif
 }
 
-void dprintf(int X, int Y, char *format, ...)
+void dprintf(int X, int Y, const char *format, ...)
 {
 #ifndef NODPRINTF
 	 if ((dprintfOutType == DPRINTF_NOTHING) || (dprintfOutType == DPRINTF_UNKNOWN)) return;
@@ -625,7 +625,7 @@ void dprintf(int X, int Y, char *format, ...)
 #endif
 }
 
-void dprintf(unsigned int Level, char *format, ...)
+void dprintf(unsigned int Level, const char *format, ...)
 {
 #ifndef NODPRINTF
 	 if ((dprintfOutType == DPRINTF_NOTHING) || (dprintfOutType == DPRINTF_UNKNOWN)) return;
@@ -642,7 +642,7 @@ void dprintf(unsigned int Level, char *format, ...)
 #endif
 }
 
-void dprintf(unsigned int Level, int X, int Y, char* format, ...)
+void dprintf(unsigned int Level, int X, int Y, const char* format, ...)
 {
 #ifndef NODPRINTF
 	 if ((dprintfOutType == DPRINTF_NOTHING) || (dprintfOutType == DPRINTF_UNKNOWN)) return;

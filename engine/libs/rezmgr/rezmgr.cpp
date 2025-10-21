@@ -1265,7 +1265,7 @@ BOOL CRezMgr::Open(const char* FileName, BOOL ReadOnly, BOOL CreateNew) {
     m_bFileOpened = TRUE;
 
 	// create empty root directory
-    LT_MEM_TRACK_ALLOC(m_pRootDir = new CRezDir(this, NULL, "", 0, 0, GetCurTime(), m_nDirNumHashBins, m_nTypNumHashBins),LT_MEM_TYPE_MISC);
+    LT_MEM_TRACK_ALLOC(m_pRootDir = new CRezDir(this, NULL, const_cast<char*>(""), 0, 0, GetCurTime(), m_nDirNumHashBins, m_nTypNumHashBins),LT_MEM_TYPE_MISC);
     ASSERT(m_pRootDir != NULL);
 
 	// read in data from directory and all sub directories
@@ -1296,7 +1296,7 @@ BOOL CRezMgr::Open(const char* FileName, BOOL ReadOnly, BOOL CreateNew) {
     m_nNextWritePos = sizeof(FileMainHeaderStruct);
     m_bMustReWriteDirs = TRUE;
 
-    LT_MEM_TRACK_ALLOC(m_pRootDir = new CRezDir(this, NULL, "", 0, 0, GetCurTime(), m_nDirNumHashBins, m_nTypNumHashBins),LT_MEM_TYPE_MISC);
+    LT_MEM_TRACK_ALLOC(m_pRootDir = new CRezDir(this, NULL, const_cast<char*>(""), 0, 0, GetCurTime(), m_nDirNumHashBins, m_nTypNumHashBins),LT_MEM_TYPE_MISC);
     ASSERT(m_pRootDir != NULL);
   }
 
@@ -1342,7 +1342,7 @@ BOOL CRezMgr::Open(const char* FileName, BOOL ReadOnly, BOOL CreateNew) {
 	if (m_nFileFormatVersion != 1) return FALSE;
 
     // create root directory
-    LT_MEM_TRACK_ALLOC(m_pRootDir = new CRezDir(this, NULL, "", m_nRootDirPos, m_nRootDirSize, m_nRootDirTime, m_nDirNumHashBins, m_nTypNumHashBins),LT_MEM_TYPE_MISC);
+    LT_MEM_TRACK_ALLOC(m_pRootDir = new CRezDir(this, NULL, const_cast<char*>(""), m_nRootDirPos, m_nRootDirSize, m_nRootDirTime, m_nDirNumHashBins, m_nTypNumHashBins),LT_MEM_TYPE_MISC);
     ASSERT(m_pRootDir != NULL);
 
     // read in directories

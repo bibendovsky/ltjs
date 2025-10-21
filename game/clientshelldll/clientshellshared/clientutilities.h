@@ -39,10 +39,10 @@ HSURFACE CropSurface(HSURFACE hSurf, HLTCOLOR hBorderColor);
 
 bool	GetConsoleBool(char const* sKey, bool bDefault);
 int		GetConsoleInt(char const* sKey, int nDefault);
-void	GetConsoleString(char const* sKey, char* sDest, char const* sDefault);
+void	GetConsoleString(const char* sKey, char* sDest, const char* sDefault);
 char*	GetConsoleTempString(char const* sKey, char const* sDefault);
 LTFLOAT GetConsoleFloat(char const* sKey, LTFLOAT fDefault);
-void	WriteConsoleBool(char const* sKey, bool bValue);
+void	WriteConsoleBool(const char* sKey, bool bValue);
 void	WriteConsoleInt(char const* sKey, int nValue);
 void	WriteConsoleString(char const* sKey, char const* sValue);
 void	WriteConsoleFloat(char const* sKey, LTFLOAT fValue);

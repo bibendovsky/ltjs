@@ -414,7 +414,7 @@ const float QUERY_SEND_INTERVAL = 1.0f; // Time between server queries.
 
 struct SUDPError {
 	int m_ErrorCode;
-	char *m_ErrorString;
+	const char *m_ErrorString;
 };
 #define DEFINE_UDP_ERROR(x) { x, #x },
 

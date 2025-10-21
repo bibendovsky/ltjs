@@ -173,7 +173,8 @@ void cc_HandleCommand3(ConsoleState *pState, const char *pCommand, uint32 flags,
 	LTExtraCommandStruct *pExtraCommand;
 	char tempNumString[50];
 	int tempNum;
-	char *pVarName, *pString;
+	const char *pVarName;
+	char *pString;
 	LTBOOL bForceNoSave;
 	uint32 newFlags;
 	ConParse parse;

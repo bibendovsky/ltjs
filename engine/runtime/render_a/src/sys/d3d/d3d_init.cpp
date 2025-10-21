@@ -136,7 +136,7 @@ void d3d_DeleteContext(HRENDERCONTEXT hContext)
 	}
 }
 
-void d3d_RenderCommand(int argc, char **argv)
+void d3d_RenderCommand(int argc, const char **argv)
 {
 	if (argc > 0) 
 	{

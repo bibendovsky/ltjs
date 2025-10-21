@@ -290,7 +290,7 @@ public:
 
 public:
 
-    char *m_ClassName;
+    const char *m_ClassName;
     ClassDef *m_ParentClass;
 
 /*!

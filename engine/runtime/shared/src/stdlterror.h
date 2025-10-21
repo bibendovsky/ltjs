@@ -50,14 +50,14 @@ enum ESTDLTResults {
 
 class IBaseError {
 	public:
-		virtual void  CriticalError (char *module, char *eStr) = 0;
-		virtual void  RecoverableError (char *module, char *eStr) = 0;
+		virtual void  CriticalError (const char *module, const char *eStr) = 0;
+		virtual void  RecoverableError (const char *module, const char *eStr) = 0;
 };
 
 class CNULLError : public IBaseError {
 	public:
-		void  CriticalError (char *module, char *eStr) {}
-		void  RecoverableError (char *module, char *eStr) {}
+		void  CriticalError (const char *module, const char *eStr) {}
+		void  RecoverableError (const char *module, const char *eStr) {}
 };
 
 

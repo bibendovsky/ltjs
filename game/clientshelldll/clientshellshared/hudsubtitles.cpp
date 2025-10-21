@@ -16,7 +16,7 @@
 
 VarTrack g_vtAdjustedRadius;
 
-void TestSubtitleFn(int argc, char **argv)
+void TestSubtitleFn(int argc, const char **argv)
 {
 
 	if (argc <= 0) return;

@@ -389,10 +389,12 @@ void CObjectRelationMgr::AddRelation(const RelationDescription& RD)
 //----------------------------------------------------------------------------
 void CObjectRelationMgr::AddRelationCallback(const RelationDescription& RD)
 {
+#if 0 // BBi
 	using std::for_each;
 	using std::bind2nd;
 	using std::bind1st;
 	using std::mem_fun;
+#endif
 
 	AITRACE(AIShowRelations, ( m_hOwner, " adding relation: %s %s %s", CRelationTools::GetInstance()->ConvertTraitEnumToString(RD.eTrait), CRelationTools::GetInstance()->ConvertAlignmentEnumToString(RD.eAlignment), RD.szValue ) );
 
@@ -425,9 +427,11 @@ void CObjectRelationMgr::AddRelationCallback(const RelationDescription& RD)
 //----------------------------------------------------------------------------
 void CObjectRelationMgr::RemoveRelationCallback(const RelationDescription& RD)
 {
+#if 0 // BBi
 	using std::for_each;
 	using std::bind2nd;
 	using std::mem_fun;
+#endif
 
 	AITRACE(AIShowRelations, ( m_hOwner, " removing relation: %s %s %s", CRelationTools::GetInstance()->ConvertTraitEnumToString(RD.eTrait), CRelationTools::GetInstance()->ConvertAlignmentEnumToString(RD.eAlignment), RD.szValue ) );
 

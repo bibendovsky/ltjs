@@ -597,8 +597,8 @@ LTBOOL Dialogue::StartDialogue( )
 	if( cpDialogue.m_nArgs != 2 )
 		return LTFALSE;
 
-	char *szSound	= cpDialogue.m_Args[0];
-	char *szSpeaker	= cpDialogue.m_Args[1];
+	const char* const szSound	= cpDialogue.m_Args[0];
+	const char* const szSpeaker	= cpDialogue.m_Args[1];
 
 	if( !szSound[0] || !szSpeaker[0] )
 		return LTFALSE;

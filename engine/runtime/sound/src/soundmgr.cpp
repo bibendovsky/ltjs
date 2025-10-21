@@ -64,7 +64,7 @@ typedef LHSTREAM                    HSTREAM;
 typedef struct
 {
 	int FilterID;
-	char* FilterName;
+	const char* FilterName;
 } FilterDesc;
 
 FilterDesc FilterList[] =

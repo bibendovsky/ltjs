@@ -281,7 +281,7 @@ bool CClientWeapon::OnModelKey( HLOCALOBJ hObj, ArgList* pArgList )
 	}
 
 	// make sure there is an argument
-	char* pKey = pArgList->argv[0];
+	const char* pKey = pArgList->argv[0];
 	if ( !pKey )
 	{
 		return false;

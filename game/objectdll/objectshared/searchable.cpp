@@ -912,7 +912,7 @@ void CSearchable::CopySearchProperties(const CSearchable* pSearchable)
 	m_fSoundRadius = pSearchable->m_fSoundRadius;
 }
 
-void CSearchable::SetRandomItemSet(char* szSetName)
+void CSearchable::SetRandomItemSet(const char* szSetName)
 {
 	m_pRandomItemSet = g_pSearchItemMgr->GetSet(szSetName);
 	//if we don't have a set, or we don't have any items disable the random items

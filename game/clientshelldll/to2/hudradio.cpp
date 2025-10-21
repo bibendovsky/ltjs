@@ -163,7 +163,7 @@ void CHUDRadio::SetScale(float fScale)
 void CHUDRadio::UpdateLayout()
 {
 
-	char *pTag = "RadioWindow";
+	const char* const pTag = "RadioWindow";
 
 	LTIntPt offset;
 	uint16 nTextWidth, nHeaderWidth;

@@ -922,44 +922,44 @@ uint32 CLayoutMgr::GetScreenDisabledColor(eScreenID screenId)
 
 
 // Custom Screen values
-LTBOOL CLayoutMgr::HasCustomValue(eScreenID screenId, char *pAttribute)
+LTBOOL CLayoutMgr::HasCustomValue(eScreenID screenId, const char *pAttribute)
 {
 	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 
 	return m_buteMgr.Exist(pTag, pAttribute);
 }
 
-LTIntPt  CLayoutMgr::GetScreenCustomPoint(eScreenID screenId, char *pAttribute)
+LTIntPt  CLayoutMgr::GetScreenCustomPoint(eScreenID screenId, const char *pAttribute)
 {
 	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	return GetPoint(pTag, pAttribute);
 }
 
-LTRect   CLayoutMgr::GetScreenCustomRect(eScreenID screenId, char *pAttribute)
+LTRect   CLayoutMgr::GetScreenCustomRect(eScreenID screenId, const char *pAttribute)
 {
 	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	return GetRect(pTag, pAttribute);
 }
 
-int		CLayoutMgr::GetScreenCustomInt(eScreenID screenId, char *pAttribute)
+int		CLayoutMgr::GetScreenCustomInt(eScreenID screenId, const char *pAttribute)
 {
 	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	return GetInt(pTag, pAttribute);
 }
 
-LTFLOAT CLayoutMgr::GetScreenCustomFloat(eScreenID screenId, char *pAttribute)
+LTFLOAT CLayoutMgr::GetScreenCustomFloat(eScreenID screenId, const char *pAttribute)
 {
 	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	return GetFloat(pTag, pAttribute);
 }
 
-void	CLayoutMgr::GetScreenCustomString(eScreenID screenId, char *pAttribute, char *pBuf, int nBufLen)
+void	CLayoutMgr::GetScreenCustomString(eScreenID screenId, const char *pAttribute, char *pBuf, int nBufLen)
 {
 	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	GetString(pTag, pAttribute, pBuf, nBufLen);
 }
 
-LTVector CLayoutMgr::GetScreenCustomVector(eScreenID screenId, char *pAttribute)
+LTVector CLayoutMgr::GetScreenCustomVector(eScreenID screenId, const char *pAttribute)
 {
 	const char* pTag = g_pInterfaceMgr->GetScreenMgr()->GetScreenName(screenId);
 	return GetVector(pTag, pAttribute);

@@ -76,7 +76,7 @@ uint32 CEditable::ObjectMessageFn(LPBASECLASS pObject, HOBJECT hSender, ILTMessa
 //
 // ----------------------------------------------------------------------- //
 
-void CEditable::AddFloatProp(char* pPropName, LTFLOAT* pPropAddress)
+void CEditable::AddFloatProp(const char* pPropName, LTFLOAT* pPropAddress)
 {
 	if (!pPropName || !pPropAddress) return;
 
@@ -96,7 +96,7 @@ void CEditable::AddFloatProp(char* pPropName, LTFLOAT* pPropAddress)
 //
 // ----------------------------------------------------------------------- //
 
-void CEditable::AddDWordProp(char* pPropName, uint32* pPropAddress)
+void CEditable::AddDWordProp(const char* pPropName, uint32* pPropAddress)
 {
 	if (!pPropName || !pPropAddress) return;
 
@@ -116,7 +116,7 @@ void CEditable::AddDWordProp(char* pPropName, uint32* pPropAddress)
 //
 // ----------------------------------------------------------------------- //
 
-void CEditable::AddByteProp(char* pPropName, uint8* pPropAddress)
+void CEditable::AddByteProp(const char* pPropName, uint8* pPropAddress)
 {
 	if (!pPropName || !pPropAddress) return;
 
@@ -136,7 +136,7 @@ void CEditable::AddByteProp(char* pPropName, uint8* pPropAddress)
 //
 // ----------------------------------------------------------------------- //
 
-void CEditable::AddBoolProp(char* pPropName, LTBOOL* pPropAddress)
+void CEditable::AddBoolProp(const char* pPropName, LTBOOL* pPropAddress)
 {
 	if (!pPropName || !pPropAddress) return;
 
@@ -156,7 +156,7 @@ void CEditable::AddBoolProp(char* pPropName, LTBOOL* pPropAddress)
 //
 // ----------------------------------------------------------------------- //
 
-void CEditable::AddVectorProp(char* pPropName, LTVector* pPropAddress)
+void CEditable::AddVectorProp(const char* pPropName, LTVector* pPropAddress)
 {
 	if (!pPropName || !pPropAddress) return;
 
@@ -212,7 +212,7 @@ void CEditable::TriggerMsg(LPBASECLASS pObject, HOBJECT hSender, const char* szM
 //
 // --------------------------------------------------------------------------- //
 
-void CEditable::EditProperty(LPBASECLASS pObject, char* pPropName, char* pPropValue)
+void CEditable::EditProperty(LPBASECLASS pObject, const char* pPropName, const char* pPropValue)
 {
 	if (!pObject || !pPropName || !pPropValue) return;
 
@@ -330,7 +330,7 @@ CPropDef::~CPropDef()
 //
 // --------------------------------------------------------------------------- //
 
-LTBOOL CPropDef::Init(char* pName, PropType eType, void* pAddress)
+LTBOOL CPropDef::Init(const char* pName, PropType eType, void* pAddress)
 {
     if (m_strPropName || !pName) return LTFALSE;
 
@@ -533,7 +533,7 @@ LTBOOL CPropDef::GetStringValue(CString & str)
 //
 // --------------------------------------------------------------------------- //
 
-LTBOOL CPropDef::SetValue(char* pPropName, char* pValue)
+LTBOOL CPropDef::SetValue(const char* pPropName, const char* pValue)
 {
     if (!pPropName || !pValue) return LTFALSE;
 

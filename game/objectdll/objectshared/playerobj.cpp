@@ -77,8 +77,8 @@ END_CLASS_DEFAULT_FLAGS(CPlayerObj, CCharacter, NULL, NULL, CF_HIDDEN)
 
 CPlayerObj::PlayerObjList CPlayerObj::m_lstPlayerObjs;
 
-static char* s_pMPBodySounds[] = { "Chars\\Snd\\MaleBodyMoveCloth_1.WAV", "Chars\\Snd\\MaleBodyMoveLeather_1.WAV" };
-static char* s_pBodySounds[] = { "Chars\\Snd\\BodyMoveCloth_1.WAV", "Chars\\Snd\\BodyMoveLeather_1.WAV" };
+static const char* const s_pMPBodySounds[] = { "Chars\\Snd\\MaleBodyMoveCloth_1.WAV", "Chars\\Snd\\MaleBodyMoveLeather_1.WAV" };
+static const char* const s_pBodySounds[] = { "Chars\\Snd\\BodyMoveCloth_1.WAV", "Chars\\Snd\\BodyMoveLeather_1.WAV" };
 
 
 namespace
@@ -4473,7 +4473,7 @@ void CPlayerObj::StartDeath()
 
 	if (m_ePPhysicsModel != PPM_NORMAL)
 	{
-		char* pSound;
+		const char* pSound;
 		if (GetRandom(0, 1) == 1)
 		{
 			pSound = "Snd\\Vehicle\\vehiclecrash1.wav";
@@ -4972,9 +4972,9 @@ char* CPlayerObj::GetDeathSound()
 
 		default:
 		{
-			char* DeathSounds[] =  { "death01.wav", "death02.wav", "death03.wav", "death04.wav", "death05.wav" };
+			const char* const DeathSounds[] =  { "death01.wav", "death02.wav", "death03.wav", "death04.wav", "death05.wav" };
 
-			int nSize = (sizeof(DeathSounds)/sizeof(DeathSounds[0])) - 1;
+			const int nSize = (sizeof(DeathSounds)/sizeof(DeathSounds[0])) - 1;
 			strcat(s_FileBuffer, DeathSounds[GetRandom(0, nSize)]);
 		}
 	}
@@ -7385,7 +7385,7 @@ void CPlayerObj::SetVehiclePhysicsModel(PlayerPhysicsModel eModel)
 		LTRotation rRot = m_rFullPlayerRot.IsIdentity() ? rPlayerRot : m_rFullPlayerRot;
 
 		char buff[256];
-		char* pPropName = GetPropertyNameFromPlayerPhysicsModel(eModel);
+		const char* const pPropName = GetPropertyNameFromPlayerPhysicsModel(eModel);
 		sprintf(buff, "PlayerVehicle VehicleType %s;Gravity 1", pPropName);
 
 		BaseClass* pModel = SpawnObject(buff, vPos, rRot);
@@ -7896,7 +7896,7 @@ void CPlayerObj::SetCarriedObject( HOBJECT hObject, bool bTransition /* = false 
 		LTRotation rRot;
 		g_pLTServer->GetObjectRotation(m_hObject, &rRot);
 
-		static char* pSocket = "Body";
+		static const char* const pSocket = "Body";
 
 		HATTACHMENT hAttachment;
         LTVector zero_vector(0, 0, 0);

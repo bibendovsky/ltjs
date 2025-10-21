@@ -70,7 +70,7 @@ class CDestructibleModel : public CDestructible
 		CDestructibleModel();
 		virtual ~CDestructibleModel();
 
-        void        DoExplosion(char* pTargetName=LTNULL);
+        void        DoExplosion(const char* pTargetName=LTNULL);
         void        SetDestroyedStimulus(LTFLOAT fStimRadius, uint32 nDestroyAlarmLevel);
 
         void		Save(ILTMessage_Write *pMsg, uint32 dwSaveFlags);

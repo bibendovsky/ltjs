@@ -247,14 +247,14 @@ void PlayerVehicle::PostPropRead(ObjectCreateStruct *pStruct)
 	m_dwSavedFlags = m_dwFlags;
 
 
-    char* pModelAttribute	= LTNULL;
-    char* pSkin1Attribute	= LTNULL;
-    char* pSkin2Attribute	= LTNULL;
-	char* pSkin3Attribute	= LTNULL;
-	char* pRenderStyle1Bute	= LTNULL;
-	char* pRenderStyle2Bute	= LTNULL;
-	char* pRenderStyle3Bute = LTNULL;
-	char* pModelTranslucent = LTNULL;
+    const char* pModelAttribute		= LTNULL;
+    const char* pSkin1Attribute		= LTNULL;
+    const char* pSkin2Attribute		= LTNULL;
+	const char* pSkin3Attribute		= LTNULL;
+	const char* pRenderStyle1Bute	= LTNULL;
+	const char* pRenderStyle2Bute	= LTNULL;
+	const char* pRenderStyle3Bute	= LTNULL;
+	const char* pModelTranslucent	= LTNULL;
 
 	switch (m_ePPhysicsModel)
 	{

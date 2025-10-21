@@ -160,7 +160,7 @@ inline void AddObjectToList( ObjectList *pObjList, HOBJECT hObj, eObjListControl
 #define FREE_HSTRING(x) if ( x ) { g_pLTServer->FreeString(x); x = LTNULL; }
 
 void StartTimingCounter();
-void EndTimingCounter(char *pMsg, ...);
+void EndTimingCounter(const char *pMsg, ...);
 
 // Print object info to console.
 void ObjectCPrint(HOBJECT hObject, const char *pMsg, ...);
@@ -316,12 +316,12 @@ extern GenericProp g_gp;
 
 LTBOOL DoesSegmentIntersectAABB(const LTVector& Point1, const LTVector& Point2, const LTVector& MinBox, const LTVector& MaxBox, LTVector *pIntersectPt = NULL, LTPlane *pIntersectPlane = NULL);
 
-int		GetConsoleInt(char* sKey, int nDefault);
-void	GetConsoleString(char* sKey, char* sDest, char* sDefault);
-void	WriteConsoleString(char* sKey, char* sValue);
-void	WriteConsoleInt(char* sKey, int nValue);
-LTFLOAT GetConsoleFloat(char* sKey, LTFLOAT fDefault);
-void	WriteConsoleFloat(char* sKey, LTFLOAT fValue);
+int		GetConsoleInt(const char* sKey, int nDefault);
+void	GetConsoleString(const char* sKey, char* sDest, const char* sDefault);
+void	WriteConsoleString(const char* sKey, const char* sValue);
+void	WriteConsoleInt(const char* sKey, int nValue);
+LTFLOAT GetConsoleFloat(const char* sKey, LTFLOAT fDefault);
+void	WriteConsoleFloat(const char* sKey, LTFLOAT fValue);
 
 void Warn(const char* szFormat, ...);
 

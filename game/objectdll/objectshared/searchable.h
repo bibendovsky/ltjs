@@ -64,7 +64,7 @@ class CSearchable : public IAggregate
 		void CopySearchProperties(const CSearchable* pSearchable);
 
 		SEARCH_SET*	GetRandomItemSet() const {return m_pRandomItemSet;}
-		void		SetRandomItemSet(char* szSetName);
+		void		SetRandomItemSet(const char* szSetName);
 		
 		const HSTRING GetSpecificItem() const { return m_hstrSpecificItem; }
 

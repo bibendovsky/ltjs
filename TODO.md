@@ -4,3 +4,4 @@
 * Replace `SafeException` with `Exception`.
 * Use CMake PCH feature.
 * Console font without `engine.rez`.
+* Fix const_cast workarounds.

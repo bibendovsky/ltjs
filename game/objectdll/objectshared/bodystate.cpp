@@ -46,8 +46,8 @@ DEFINE_AI_FACTORY_CLASS_SPECIFIC(State, CBodyStateFade, kState_BodyFade);
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(State, CBodyStateCarried, kState_BodyCarried);
 DEFINE_AI_FACTORY_CLASS_SPECIFIC(State, CBodyStateDropped, kState_BodyDropped);
 
-extern char* g_szArrowFrontDeath;
-extern char* g_szArrowBackDeath;
+extern const char* g_szArrowFrontDeath;
+extern const char* g_szArrowBackDeath;
 
 // CBodyState
 
@@ -1101,9 +1101,9 @@ void CBodyStateCrush::Init(Body* pBody)
 {
 	CBodyState::Init(pBody);
 
-	static char* aszCrushDeaths[] = { "DCrush" };
-    static int cCrushDeaths = sizeof(aszCrushDeaths)/sizeof(char*);
-	char* szDeath = aszCrushDeaths[GetRandom(0, cCrushDeaths-1)];
+	static const char* const aszCrushDeaths[] = { "DCrush" };
+    static const int cCrushDeaths = sizeof(aszCrushDeaths)/sizeof(char*);
+	const char* const szDeath = aszCrushDeaths[GetRandom(0, cCrushDeaths-1)];
 
 	HMODELANIM hAni = g_pLTServer->GetAnimIndex(m_pBody->m_hObject, szDeath);
 
@@ -1124,9 +1124,9 @@ void CBodyStateChair::Init(Body* pBody)
 {
 	CBodyState::Init(pBody);
 
-	static char* aszChairDeaths[] = { "DSit2" /*, "DSitFall"*/ };
-    static int cChairDeaths = sizeof(aszChairDeaths)/sizeof(char*);
-	char* szDeath = aszChairDeaths[GetRandom(0, cChairDeaths-1)];
+	static const char* const aszChairDeaths[] = { "DSit2" /*, "DSitFall"*/ };
+    static const int cChairDeaths = sizeof(aszChairDeaths)/sizeof(char*);
+	const char* const szDeath = aszChairDeaths[GetRandom(0, cChairDeaths-1)];
 
 	HMODELANIM hAni = g_pLTServer->GetAnimIndex(m_pBody->m_hObject, szDeath);
 
@@ -1147,9 +1147,9 @@ void CBodyStatePoison::Init(Body* pBody)
 {
 	CBodyState::Init(pBody);
 
-	static char* aszPoisonDeaths[] = { "DPoison" };
-    static int cPoisonDeaths = sizeof(aszPoisonDeaths)/sizeof(char*);
-	char* szDeath = aszPoisonDeaths[GetRandom(0, cPoisonDeaths-1)];
+	static const char* const aszPoisonDeaths[] = { "DPoison" };
+    static const int cPoisonDeaths = sizeof(aszPoisonDeaths)/sizeof(char*);
+	const char* const szDeath = aszPoisonDeaths[GetRandom(0, cPoisonDeaths-1)];
 
 	HMODELANIM hAni = g_pLTServer->GetAnimIndex(m_pBody->m_hObject, szDeath);
 
@@ -1170,9 +1170,9 @@ void CBodyStateAcid::Init(Body* pBody)
 {
 	CBodyState::Init(pBody);
 
-	static char* aszAcidDeaths[] = { "DAcid" };
-    static int cAcidDeaths = sizeof(aszAcidDeaths)/sizeof(char*);
-	char* szDeath = aszAcidDeaths[GetRandom(0, cAcidDeaths-1)];
+	static const char* const aszAcidDeaths[] = { "DAcid" };
+    static const int cAcidDeaths = sizeof(aszAcidDeaths)/sizeof(char*);
+	const char* const szDeath = aszAcidDeaths[GetRandom(0, cAcidDeaths-1)];
 
 	HMODELANIM hAni = g_pLTServer->GetAnimIndex(m_pBody->m_hObject, szDeath);
 

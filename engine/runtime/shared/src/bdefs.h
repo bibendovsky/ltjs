@@ -157,14 +157,14 @@ extern void dsi_OnReturnError(int err);
 
 extern int32 g_DebugLevel;
 extern int32 g_CV_DebugModelRez;
-extern char *g_ReturnErrString;
+extern const char *g_ReturnErrString;
 
 #define DEBUG_MODEL_REZ( toPrint ) {\
 	if( g_CV_DebugModelRez )\
 		dsi_PrintToConsole toPrint; }\
 
 #define FN_NAME(name) \
-    static char *___bdefs__pFnName = #name;
+    static const char *___bdefs__pFnName = #name;
 
 #define ERR(code, error) \
     RETURN_ERROR_NO_TOKEN_PASTE(code, ___bdefs__pFnName, error)

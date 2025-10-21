@@ -89,7 +89,7 @@ LTBOOL CMoveAbstract::CanOptimizeObject(LTObject *pObj) {
 }
 
 
-char* CMoveAbstract::GetObjectClassName(LTObject *pObject) {
+const char* CMoveAbstract::GetObjectClassName(LTObject *pObject) {
     return "CLIENT-OBJECT";
 }
 

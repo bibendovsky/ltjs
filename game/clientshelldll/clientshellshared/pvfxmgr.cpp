@@ -342,8 +342,8 @@ void CPVFXMgr::HandleFXKey(ArgList* pArgList)
 	if (!pArgList) return;
 	if (pArgList->argc < 3 || !pArgList->argv[1] || !pArgList->argv[2]) return;
 
-	char* pFXName = pArgList->argv[1];
-	char* pFXState = pArgList->argv[2];
+	const char* const pFXName = pArgList->argv[1];
+	const char* const pFXState = pArgList->argv[2];
 
 	// Turn on/off the necessary fx...
 
@@ -456,7 +456,7 @@ void CPVFXMgr::Update()
 //
 // ----------------------------------------------------------------------- //
 
-void CPVFXMgr::TurnOn(char* pFXName, LTBOOL bOn)
+void CPVFXMgr::TurnOn(const char* pFXName, LTBOOL bOn)
 {
 	if (!pFXName || !pFXName[0]) return;
 

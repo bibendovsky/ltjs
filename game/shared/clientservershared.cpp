@@ -49,7 +49,7 @@ void ConsoleToButeString( CButeMgr &bute, const char *pszButeTag, const char *ps
 {
 	char szVal[MAX_PATH*2];
 
-	GetConsoleString(( char * )pszConsoleVar, szVal, "" );
+	GetConsoleString(pszConsoleVar, szVal, "" );
 	bute.SetString( pszButeTag, pszButeAttr, szVal );
 }
 
@@ -62,7 +62,7 @@ void ConsoleToButeString( CButeMgr &bute, const char *pszButeTag, const char *ps
 //	PURPOSE:	Sets a renderstyle of an object
 //
 // ----------------------------------------------------------------------- //
-void SetObjectRenderStyle(HOBJECT hObj, uint8 nRenderStyleNum, char* szRenderStyleName)
+void SetObjectRenderStyle(HOBJECT hObj, uint8 nRenderStyleNum, const char* szRenderStyleName)
 {
 	// Sanity checks
 	if(nRenderStyleNum >= MAX_MODEL_RENDERSTYLES)

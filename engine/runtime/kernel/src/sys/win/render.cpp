@@ -489,12 +489,12 @@ static void r_FreeTexture(SharedTexture *pTexture)
 }
 
 
-void r_RunConsoleString(char *pStr)
+void r_RunConsoleString(const char *pStr)
 {
 	cc_HandleCommand(&g_ClientConsoleState, pStr);
 }
 
-static void r_ConsolePrint(char *pMsg, ...)
+static void r_ConsolePrint(const char *pMsg, ...)
 {
 	char msg[300];
 	va_list marker;
@@ -511,7 +511,7 @@ void r_GenericTextPrint(char *pMsg, const LTRect *pRect, uint32 textColor)
 	GETCONSOLE()->DrawTextLine(pMsg,pRect,textColor);
 }
 
-HLTPARAM r_GetParameter(char *pName)
+HLTPARAM r_GetParameter(const char *pName)
 {
 	return (HLTPARAM)cc_FindConsoleVar(&g_ClientConsoleState, pName);
 }

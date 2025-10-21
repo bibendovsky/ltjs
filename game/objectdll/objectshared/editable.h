@@ -24,11 +24,11 @@ class CPropDef
 
 		enum	PropType { PT_UNKNOWN_TYPE, PT_FLOAT_TYPE, PT_DWORD_TYPE, PT_BYTE_TYPE, PT_BOOL_TYPE, PT_VECTOR_TYPE };
 
-        LTBOOL   Init(char* pName, PropType eType, void* pAddress);
+        LTBOOL   Init(const char* pName, PropType eType, void* pAddress);
 		const char*	GetPropName();
         LTBOOL   GetStringValue(CString & str);
 
-        LTBOOL   SetValue(char* pPropName, char* pValue);
+        LTBOOL   SetValue(const char* pPropName, const char* pValue);
 
 	private :
 
@@ -51,18 +51,18 @@ class CEditable : public IAggregate
 		CEditable();
 		virtual ~CEditable();
 
-        void AddFloatProp(char* pPropName, LTFLOAT* pPropAddress);
-        void AddDWordProp(char* pPropName, uint32* pPropAddress);
-        void AddByteProp(char* pPropName, uint8* pPropAddress);
-        void AddBoolProp(char* pPropName, LTBOOL* pPropAddress);
-        void AddVectorProp(char* pPropName, LTVector* pPropAddress);
+        void AddFloatProp(const char* pPropName, LTFLOAT* pPropAddress);
+        void AddDWordProp(const char* pPropName, uint32* pPropAddress);
+        void AddByteProp(const char* pPropName, uint8* pPropAddress);
+        void AddBoolProp(const char* pPropName, LTBOOL* pPropAddress);
+        void AddVectorProp(const char* pPropName, LTVector* pPropAddress);
 
 	protected :
 
         uint32 ObjectMessageFn(LPBASECLASS pObject, HOBJECT hSender, ILTMessage_Read *pMsg);
 
 		void	TriggerMsg(LPBASECLASS pObject, HOBJECT hSender, const char* szMsg);
-		void	EditProperty(LPBASECLASS pObject, char* pPropName, char* pPropValue);
+		void	EditProperty(LPBASECLASS pObject, const char* pPropName, const char* pPropValue);
 		void	ListProperties(LPBASECLASS pObject);
 
 	private :

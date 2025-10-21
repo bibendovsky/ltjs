@@ -23,9 +23,9 @@ LINKFROM_MODULE( Intelligence );
 
 // Statics
  
-static char *s_szActivate = "ACTIVATE";
-static char *s_szGadget   = "GADGET";
-static char *s_szRespawn   = "RESPAWN";
+static const char* const s_szActivate = "ACTIVATE";
+static const char* const s_szGadget   = "GADGET";
+static const char* const s_szRespawn  = "RESPAWN";
 
 CVarTrack g_IntelRespawnScale;
 

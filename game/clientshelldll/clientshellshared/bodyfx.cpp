@@ -607,7 +607,7 @@ void CBodyFX::OnModelKey(HLOCALOBJ hObj, ArgList *pArgs)
 
 	for(int i=0;i<pArgs->argc;i++)
 	{
-		char* pKey = pArgs->argv[i];
+		const char* pKey = pArgs->argv[i];
 		if (!pKey) return;
 
 		LTBOOL bSlump = !_stricmp(pKey, "NOISE");
@@ -787,7 +787,7 @@ bool CBodyFX::HandleFXKey( HLOCALOBJ hObj, ArgList* pArgList )
 //	PURPOSE:	Handle an FX key
 //
 // ----------------------------------------------------------------------- //
-bool CBodyFX::CreateFX( char* pFXName )
+bool CBodyFX::CreateFX( const char* pFXName )
 {
 	if (!pFXName || !pFXName[0])
 		return false;

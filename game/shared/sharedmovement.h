@@ -43,7 +43,7 @@ inline LTBOOL IsVehicleModel(PlayerPhysicsModel eModel)
 
 #if !defined(_CLIENTBUILD) || defined(__PSX2)
 
-char* GetPropertyNameFromPlayerPhysicsModel(PlayerPhysicsModel ePPModel);
+const char* GetPropertyNameFromPlayerPhysicsModel(PlayerPhysicsModel ePPModel);
 PlayerPhysicsModel GetPlayerPhysicsModelFromPropertyName(char* pPropertyName);
 
 #endif // ! _CLIENTBUILD

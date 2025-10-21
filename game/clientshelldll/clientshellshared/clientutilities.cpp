@@ -124,7 +124,7 @@ void EndTimingCounter(char *msg, ...)
 #endif
 
 
-void GetConsoleString(char const* sKey, char* sDest, char const* sDefault)
+void GetConsoleString(const char* sKey, char* sDest, const char* sDefault)
 {
     if (g_pLTClient)
 	{
@@ -237,7 +237,7 @@ void WriteConsoleInt(char const* sKey, int nValue)
 	}
 }
 
-void WriteConsoleBool(char const* sKey, int bValue)
+void WriteConsoleBool(const char* sKey, int bValue)
 {
     if (g_pLTClient)
 	{

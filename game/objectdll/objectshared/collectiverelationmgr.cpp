@@ -32,7 +32,7 @@
 
 // Statics
 
-
+#if 0 // BBi
 struct RemoveRelationFromObjectRelationMgr :
 public std::binary_function< IMomentoUser*, const RelationDescription, bool>
 {
@@ -43,6 +43,7 @@ public:
 		return true;
 	}
 };
+#endif
 
 //----------------------------------------------------------------------------
 //
@@ -200,15 +201,28 @@ void CCollectiveRelationMgr::AddRelation(const RelationDescription& RD)
 //----------------------------------------------------------------------------
 void CCollectiveRelationMgr::RemoveRelationCallback(const RelationDescription& RD)
 {
+#if 0 // BBi
 	using std::for_each;
 	using std::bind2nd;
+#endif
 
 	AITRACE(AIShowRelations, ( (HOBJECT)NULL, "Collective removing: %s %s %s", CRelationTools::GetInstance()->ConvertAlignmentEnumToString(RD.eAlignment), CRelationTools::GetInstance()->ConvertTraitEnumToString(RD.eTrait), RD.szValue) );
 
+#if 0 // BBi
 	// Copy the RelationDesciption, because we can't pass a reference into
 	// the search
 	RelationDescription InstRD = RD;
 	for_each(m_listMembers.begin(),  m_listMembers.end(),  bind2nd( RemoveRelationFromObjectRelationMgr(), InstRD));
+#else
+	std::for_each(
+		m_listMembers.begin(),
+		m_listMembers.end(),
+		[&RD](IMomentoUser* pIUser) -> void
+		{
+			pIUser->RemoveRelationCallback(RD);
+		}
+	);
+#endif
 
 }
 

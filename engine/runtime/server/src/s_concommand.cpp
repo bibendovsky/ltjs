@@ -49,14 +49,14 @@ static LTRESULT g_CommandStatus;
 
 // This is implemented in the LTMem library
 //------------------------------------------------------------------
-extern void LTMemConsole(int argc, char *argv[]);
+extern void LTMemConsole(int argc, const char *argv[]);
 
 
 // ------------------------------------------------------------------ //
 // Helpers.
 // ------------------------------------------------------------------ //
 
-static LTBOOL _FindClassInList(char *pClassName, char classNames[500][32], int nClassNames, int *pIndex)
+static LTBOOL _FindClassInList(const char *pClassName, const char classNames[500][32], int nClassNames, int *pIndex)
 {
     int i;
 
@@ -76,7 +76,7 @@ static LTBOOL _FindClassInList(char *pClassName, char classNames[500][32], int n
 // Command functions.
 // ------------------------------------------------------------------ //
 
-static void con_ShowUsedFiles(int argc, char *argv[])
+static void con_ShowUsedFiles(int argc, const char *argv[])
 {
     HHashIterator *hIterator;
     HHashElement *hElement;
@@ -93,7 +93,7 @@ static void con_ShowUsedFiles(int argc, char *argv[])
     }
 }
 
-static void con_ShowGameVars(int argc, char *argv[])
+static void con_ShowGameVars(int argc, const char *argv[])
 {
     LTCommandVar *pCurVar;
     HHashIterator *hIterator;
@@ -118,7 +118,7 @@ static void con_ShowGameVars(int argc, char *argv[])
     }
 }
 
-static void con_ServerWorld(int argc, char *argv[])
+static void con_ServerWorld(int argc, const char *argv[])
 {
     uint32 flags;
 
@@ -133,7 +133,7 @@ static void con_ServerWorld(int argc, char *argv[])
 }
 
 
-static void con_ObjectInfo(int argc, char *argv[])
+static void con_ObjectInfo(int argc, const char *argv[])
 {
     LTLink *pCur, *pListHead;
     LTObject *pObj;
@@ -204,7 +204,7 @@ static void con_ObjectInfo(int argc, char *argv[])
 }
 
 
-void con_DisableWMPhysics(int argc, char **argv)
+void con_DisableWMPhysics(int argc, const char **argv)
 {
     LTLink *pCur, *pListHead;
     LTObject *pObj;
@@ -218,7 +218,7 @@ void con_DisableWMPhysics(int argc, char **argv)
 }
 
 
-void con_ExhaustMemory(int argc, char **argv)
+void con_ExhaustMemory(int argc, const char **argv)
 {
     #ifdef _DEBUG
         char *pTest;
@@ -227,13 +227,13 @@ void con_ExhaustMemory(int argc, char **argv)
 }
 
 
-void con_SpawnObject(int argc, char **argv)
+void con_SpawnObject(int argc, const char **argv)
 {
     HCLASS hClass;
     LPBASECLASS pRet;
     ObjectCreateStruct theStruct;
     Client *pClient;
-    char *pSpawnArgs;
+    const char *pSpawnArgs;
 
     if (argc == 0 || !g_pServerMgr || !ilt_server ||
         g_pServerMgr->m_Clients.m_nElements == 0)

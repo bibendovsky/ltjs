@@ -66,7 +66,7 @@ public:
     // If you set pLabel, then it calls InitLabel automatically.
     LTRESULT        Init(
         LTRect *pRect,
-        char *pLabel=LTNULL,
+        const char *pLabel=LTNULL,
         LTBOOL bAvoidReinitialize=LTFALSE);
 
     // LT_OK if yes and LT_NOTINITIALIZED if not.
@@ -75,7 +75,7 @@ public:
     LTRESULT        Term();
 
     // Set the label text.
-    LTRESULT        InitLabel(char *pLabel);
+    LTRESULT        InitLabel(const char *pLabel);
     LTRESULT        TermLabel();
     
     // Add a new sample.        
@@ -113,10 +113,10 @@ private:
 struct DGParams
 {
     // Default parameter constructor
-    DGParams(char *pLabel = LTNULL, float fMin = 0.0f, float fMax = 1.0f,   DGSample *pColorTable = LTNULL) : 
+    DGParams(const char *pLabel = LTNULL, float fMin = 0.0f, float fMax = 1.0f,   DGSample *pColorTable = LTNULL) : 
         m_pLabel(pLabel), m_fMin(fMin), m_fMax(fMax), m_pColorTable(pColorTable) {};
     // The text label for the graph
-    char *m_pLabel;
+    const char *m_pLabel;
     // The extents of the values
     float m_fMin, m_fMax;
     // The color table interpolated between for colors.

@@ -40,6 +40,7 @@
 CRelationMgr* CRelationMgr::m_pSingleInstance = NULL;
 
 
+#if 0 // BBi
 // Returns true if the collectives are the same (Keys are equivelent)
 struct CollectiveMatch
 : std::binary_function<CCollectiveRelationMgr*, CCollectiveRelationMgr*, bool>
@@ -61,7 +62,7 @@ struct CollectiveKeyMatch
 		return ( strcmp( pTest->GetKey(), szKey ) == 0 );
 	}
 };
-
+#endif
 
 //----------------------------------------------------------------------------
 //
@@ -102,9 +103,16 @@ void CRelationMgr::Save(ILTMessage_Write *pMsg)
 {
 	// Save each of the collectives
 	SAVE_INT( m_listCollectives.size() );
+#if 0 // BBi
 	std::for_each( m_listCollectives.begin(),
 		m_listCollectives.end(),
         std::bind2nd(std::mem_fun(&CCollectiveRelationMgr::Save), pMsg));
+#else
+	for (CCollectiveRelationMgr* collective_relation_mgr : m_listCollectives)
+	{
+		collective_relation_mgr->Save(pMsg);
+	}
+#endif
 }
 void CRelationMgr::Load(ILTMessage_Read *pMsg)
 {
@@ -259,9 +267,22 @@ void CRelationMgr::FreeAllResources()
 //----------------------------------------------------------------------------
 void CRelationMgr::AddCollective( CCollectiveRelationMgr* pCollective )
 {
+#if 0 // FIXME
 	_listCollectives::const_iterator itBegin = m_listCollectives.begin();
 	_listCollectives::const_iterator itEnd = m_listCollectives.end();
 	_listCollectives::const_iterator itFound = std::find_if(itBegin, itEnd, std::bind2nd( CollectiveMatch(), pCollective ) );
+#else
+	const auto itFound = std::find_if(
+		m_listCollectives.begin(),
+		m_listCollectives.end(),
+		[pTest2 = pCollective](CCollectiveRelationMgr* pTest) -> bool
+		{
+			UBER_ASSERT( pTest != NULL &&  pTest2 != NULL, "Testing for Name Collective with NULL Collective" );
+			bool b = strcmp( pTest->GetKey(), pTest2->GetKey() ) == 0;
+			return b;
+		}
+	);
+#endif
 
 	UBER_ASSERT( itFound == m_listCollectives.end(), "AddCollective: Attempted duplicate addition of collective" );
 	m_listCollectives.push_back(pCollective);
@@ -441,11 +462,23 @@ void CRelationMgr::RemoveObjectRelationMgr(_listpObjectRelationMgr::iterator it)
 //----------------------------------------------------------------------------
 CCollectiveRelationMgr* CRelationMgr::FindCollective(const char* const szName)
 {
+#if 0 // BBi
 	// Check to see if it is in our existing list and return it if it is.
 	_listCollectives::iterator itFound = std::find_if(
 		m_listCollectives.begin(),
 		m_listCollectives.end(),
 		std::bind2nd( CollectiveKeyMatch(), szName ) );
+#else
+	const auto itFound = std::find_if(
+		m_listCollectives.begin(),
+		m_listCollectives.end(),
+		[szKey = szName](CCollectiveRelationMgr* pTest) -> bool
+		{
+			UBER_ASSERT( pTest != NULL, "Testing for Name Collective with NULL Collective" );
+			return ( strcmp( pTest->GetKey(), szKey ) == 0 );
+		}
+	);
+#endif
 
 	if ( itFound != m_listCollectives.end() )
 	{

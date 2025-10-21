@@ -15,7 +15,7 @@
 
 const uint16 CHUDMessageQueue::kMaxHistory = 255;
 
-void SimulateChatFn(int argc, char **argv)
+void SimulateChatFn(int argc, const char **argv)
 {
 //	int num = GetRandom(3,7);
 	char szTmp[128];

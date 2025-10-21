@@ -135,12 +135,12 @@ public:
 	//default font for items is the large font
 	// These AddXXX() functions call CreateXXX() and then add the control to the control list
     CLTGUITextCtrl*     AddTextItem(int stringID, uint32 commandID, int helpID, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
-    CLTGUITextCtrl*     AddTextItem(char *pString, uint32 commandID, int helpID, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
+    CLTGUITextCtrl*     AddTextItem(const char *pString, uint32 commandID, int helpID, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
 
 	CLTGUIListCtrl*		AddList(LTIntPt pos, uint16 nHeight, LTBOOL bUseArrows = LTFALSE, uint16 nArrowOffset = 0);
 
     CLTGUICycleCtrl*     AddCycle(int stringID, int helpID, int nHeaderWidth, uint8 *pnValue=LTNULL, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
-    CLTGUICycleCtrl*     AddCycle(char *pString, int helpID, int nHeaderWidth, uint8 *pnValue=LTNULL, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
+    CLTGUICycleCtrl*     AddCycle(const char *pString, int helpID, int nHeaderWidth, uint8 *pnValue=LTNULL, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
 
     CLTGUIToggle*     AddToggle(int stringID, int helpID, int nHeaderWidth, LTBOOL *pbValue=LTNULL, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
     CLTGUIToggle*     AddToggle(char *pString, int helpID, int nHeaderWidth, LTBOOL *pbValue=LTNULL, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
@@ -155,12 +155,12 @@ public:
 
 	// These CreateXXX() create controls but do not add them to the control list
     CLTGUITextCtrl*     CreateTextItem(int stringID, uint32 commandID, int helpID, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
-    CLTGUITextCtrl*     CreateTextItem(char *pString, uint32 commandID, int helpID, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
+    CLTGUITextCtrl*     CreateTextItem(const char *pString, uint32 commandID, int helpID, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
 
 	CLTGUIListCtrl*		CreateList(LTIntPt pos, uint16 nHeight, LTBOOL bUseArrows = LTFALSE, uint16 nArrowOffset = 0);
 
     CLTGUICycleCtrl*     CreateCycle(int stringID, int helpID, int nHeaderWidth, uint8 *pnValue=LTNULL, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
-    CLTGUICycleCtrl*     CreateCycle(char *pString, int helpID, int nHeaderWidth, uint8 *pnValue=LTNULL, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
+    CLTGUICycleCtrl*     CreateCycle(const char *pString, int helpID, int nHeaderWidth, uint8 *pnValue=LTNULL, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
 
     CLTGUIToggle*     CreateToggle(int stringID, int helpID, int nHeaderWidth, LTBOOL *pbValue=LTNULL, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
     CLTGUIToggle*     CreateToggle(char *pString, int helpID, int nHeaderWidth, LTBOOL *pbValue=LTNULL, LTIntPt pos = kDefaultPos, LTBOOL bFixed = LTFALSE, int nFont = -1);
@@ -298,7 +298,7 @@ inline  CLTGUITextCtrl* CBaseScreen::AddTextItem(int stringID, uint32 commandID,
 		AddControl(pCtrl);
 	return pCtrl;
 }
-inline  CLTGUITextCtrl* CBaseScreen::AddTextItem(char *pString, uint32 commandID, int helpID, LTIntPt pos, LTBOOL bFixed, int nFont)
+inline  CLTGUITextCtrl* CBaseScreen::AddTextItem(const char *pString, uint32 commandID, int helpID, LTIntPt pos, LTBOOL bFixed, int nFont)
 {
 	CLTGUITextCtrl* pCtrl = CreateTextItem(pString, commandID, helpID,  pos, bFixed, nFont);
 	if (pCtrl)
@@ -323,7 +323,7 @@ inline  CLTGUICycleCtrl* CBaseScreen::AddCycle(int stringID, int helpID, int nHe
 		AddControl(pCtrl);
 	return pCtrl;
 }
-inline  CLTGUICycleCtrl* CBaseScreen::AddCycle(char *pString, int helpID, int nHeaderWidth, uint8 *pnValue, LTIntPt pos, LTBOOL bFixed, int nFont)
+inline  CLTGUICycleCtrl* CBaseScreen::AddCycle(const char *pString, int helpID, int nHeaderWidth, uint8 *pnValue, LTIntPt pos, LTBOOL bFixed, int nFont)
 {
 	CLTGUICycleCtrl* pCtrl = CreateCycle(pString, helpID, nHeaderWidth, pnValue, pos, bFixed, nFont);
 	if (pCtrl)

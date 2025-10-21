@@ -395,7 +395,7 @@ static void sm_SaveObjectData(LTObject *pObj, ILTStream *pStream, uint32 dwParam
     GS_STREAM_WRITE(pObj->m_Rotation);
     GS_STREAM_WRITE(pObj->m_UserFlags);
 
-    char *pStr;
+    const char *pStr;
     if (pObj->sd->m_hName != NULL)
 	{
         pStr = (char*)hs_GetElementKey(pObj->sd->m_hName, LTNULL);

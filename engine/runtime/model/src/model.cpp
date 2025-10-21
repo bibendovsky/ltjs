@@ -24,7 +24,7 @@
 // ------------------------------------------------------------------------
 
 // Used so we can track if the filename is allocated or not.
-static char *g_pNoModelFilename = "no-filename";
+static const char *g_pNoModelFilename = "no-filename";
 float g_CV_DefaultDrawIndexedDist = 500.0f;
 
 

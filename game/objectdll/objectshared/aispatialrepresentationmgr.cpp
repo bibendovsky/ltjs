@@ -179,6 +179,7 @@ void CAISpatialRepresentationMgr::SetupInstanceArray(const char* const szClass)
 	}
 }
 
+#if 0 // BBi
 struct SetupNeighbors : public std::binary_function< AISpatialRepresentation*, CAISpatialRepresentationMgr*, bool >
 {
 	bool operator() ( AISpatialRepresentation* pVolume, CAISpatialRepresentationMgr* VolumeMgr ) const
@@ -187,6 +188,7 @@ struct SetupNeighbors : public std::binary_function< AISpatialRepresentation*, C
 		return true;
 	}
 };
+#endif
 
 //----------------------------------------------------------------------------
 //
@@ -211,17 +213,31 @@ void CAISpatialRepresentationMgr::Init(const char* const szClass)
 
 	// Initialize all of the volumes
 
+#if 0 // BBi
 	std::for_each(
 		m_listpVolumes.begin(),
 		m_listpVolumes.end(),
 		std::mem_fun( &AISpatialRepresentation::Init ) );
+#else
+	for (AISpatialRepresentation* ai_spatial_representation : m_listpVolumes)
+	{
+		ai_spatial_representation->Init();
+	}
+#endif
 
 	// Build the neighboring connections
 
+#if 0 // BBi
 	std::for_each(
 		m_listpVolumes.begin(),
 		m_listpVolumes.end(),
 		std::bind2nd( SetupNeighbors(), this ) );
+#else
+	for (AISpatialRepresentation* ai_spatial_representation : m_listpVolumes)
+	{
+		this->SetupVolumesNeighbors(ai_spatial_representation);
+	}
+#endif
 
 	m_bInitialized = LTTRUE;
 }
@@ -687,10 +703,17 @@ void CAISpatialRepresentationMgr::UpdateDebugRendering(LTFLOAT fVarTrack)
 //----------------------------------------------------------------------------
 void CAISpatialRepresentationMgr::DrawVolumes()
 {
+#if 0 // BBi
 	std::for_each(
 		GetContainer()->begin(),
 		GetContainer()->end(),
 		std::mem_fun( &AISpatialRepresentation::DrawSelf ));
+#else
+	for (AISpatialRepresentation* ai_spatial_representation : *GetContainer())
+	{
+		ai_spatial_representation->DrawSelf();
+	}
+#endif
 
 	m_bDrawingVolumes = LTTRUE;
 }
@@ -704,10 +727,17 @@ void CAISpatialRepresentationMgr::DrawVolumes()
 //----------------------------------------------------------------------------
 void CAISpatialRepresentationMgr::HideVolumes()
 {
+#if 0 // BBi
 	std::for_each(
 		GetContainer()->begin(),
 		GetContainer()->end(),
 		std::mem_fun( &AISpatialRepresentation::HideSelf ));
+#else
+	for (AISpatialRepresentation* ai_spatial_representation : *GetContainer())
+	{
+		ai_spatial_representation->HideSelf();
+	}
+#endif
 
 	m_bDrawingVolumes = LTFALSE;
 }

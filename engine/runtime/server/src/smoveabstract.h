@@ -31,7 +31,7 @@ public:
 	void			CheckMaxPos(MoveState *pState, LTVector *pPos);
 	uint32			IsServer();
 	LTBOOL			CanOptimizeObject(LTObject *pObj);
-	char*			GetObjectClassName(LTObject *pObject);
+	const char*		GetObjectClassName(LTObject *pObject);
 	ILTPhysics *	GetPhysics();
 };
 

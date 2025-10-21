@@ -586,7 +586,7 @@ CNetMgr::~CNetMgr()
 }
 
 
-bool CNetMgr::Init(char *pPlayerName)
+bool CNetMgr::Init(const char *pPlayerName)
 {
 	m_PlayerName[0] = 0;
 
@@ -764,7 +764,7 @@ void CNetMgr::SetNetHandler(CNetHandler *pHandler)
 	}
 }
 
-void CNetMgr::Update(char *pPrefix, LTFLOAT curTime, bool bAllowTimeout)
+void CNetMgr::Update(const char *pPrefix, float curTime, bool bAllowTimeout)
 {
 	uint32 i;
 
@@ -1148,7 +1148,7 @@ void CNetMgr::NetDebugOut(int debugLevel, char *pMsg, ...)
 }
 
 
-void CNetMgr::NetDebugOut2(CBaseConn *pConn, int debugLevel, char *pMsg, ...)
+void CNetMgr::NetDebugOut2(CBaseConn *pConn, int debugLevel, const char *pMsg, ...)
 {
 	if (debugLevel > g_TransportDebug)
 		return;

@@ -23,7 +23,7 @@ LINKFROM_MODULE( KeyItem );
 
 // Statics
 
-static char *s_szActivate = "ACTIVATE";
+static const char* const s_szActivate = "ACTIVATE";
 
 #define KEY_CONTROL_OBJECT		"ControlObject"
 #define KEY_DEFAULT_SND_RADIUS	600.0f

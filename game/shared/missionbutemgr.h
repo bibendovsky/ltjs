@@ -72,8 +72,8 @@ struct REWARD
 struct MISSION
 {
 	MISSION();
-    virtual LTBOOL   Init(CButeMgr & buteMgr, char* aTagName);
-    virtual LTBOOL   Save(CButeMgr & buteMgr, char* aTagName);
+    virtual LTBOOL   Init(CButeMgr & buteMgr, const char* aTagName);
+    virtual LTBOOL   Save(CButeMgr & buteMgr, const char* aTagName);
 
 	int		nId;
 	int		nNameId;

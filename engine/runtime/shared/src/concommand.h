@@ -31,7 +31,7 @@ class HHashTable;
 
 
 
-typedef void (*LTCommandFn)(int argc, char *argv[]);
+typedef void (*LTCommandFn)(int argc, const char *argv[]);
 typedef void (*LTSaveFn)(FILE *fp);
 
 

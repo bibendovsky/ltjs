@@ -105,7 +105,7 @@ void CAIHumanStateDisappearReappear::HandleModelString(ArgList* pArgList)
 
 	if ( !pArgList || !pArgList->argv || pArgList->argc == 0 ) return;
 
-	char* szKey = pArgList->argv[0];
+	const char* const szKey = pArgList->argv[0];
 	if ( !szKey ) return;
 
 	if ( !_stricmp( szKey, c_szKeyFX ) )

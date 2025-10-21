@@ -31,13 +31,13 @@ class CServerButeMgr : public CGameButeMgr
         LTBOOL       WriteFile() { return m_buteMgr.Save(); }
 		void		Reload()    { m_buteMgr.Parse(m_strAttributeFile); }
 
-		int			GetPlayerAttributeInt(char* pAttribute, int nDefVal);
-		float		GetPlayerAttributeFloat(char* pAttribute);
-		void		GetPlayerAttributeString(char* pAttribute, char* pBuf, int nBufLen);
+		int			GetPlayerAttributeInt(const char* pAttribute, int nDefVal);
+		float		GetPlayerAttributeFloat(const char* pAttribute);
+		void		GetPlayerAttributeString(const char* pAttribute, char* pBuf, int nBufLen);
 
-		int			GetSecurityCameraInt(char* pAttribute);
-		float		GetSecurityCameraFloat(char* pAttribute);
-		void		GetSecurityCameraString(char* pAttribute, char* pBuf, int nBufLen);
+		int			GetSecurityCameraInt(const char* pAttribute);
+		float		GetSecurityCameraFloat(const char* pAttribute);
+		void		GetSecurityCameraString(const char* pAttribute, char* pBuf, int nBufLen);
 
 		int			GetNumWONServers()			{return m_nNumWONServers;}
 		void		GetWONAddress(int nServer, char* pBuf, int nBufLen);

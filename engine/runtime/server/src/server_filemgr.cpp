@@ -145,7 +145,7 @@ ILTStream* IServerFileMgr::OpenFile2(const char *pFilename, int bAddUsedFile, sh
 
 
 ILTStream* IServerFileMgr::OpenFile3(UsedFile *pUsedFile) {
-    char *pFilename;
+    const char *pFilename;
     char formattedFilename[256];
 
     pFilename = GetUsedFilename(pUsedFile);
@@ -388,7 +388,7 @@ void IServerFileMgr::ClearUsedFiles()
 }
 
 
-char *IServerFileMgr::GetUsedFilename(UsedFile *pFile) 
+const char *IServerFileMgr::GetUsedFilename(UsedFile *pFile) 
 {
     if (pFile != NULL) {
         return (char*)hs_GetElementKey(pFile->m_hElement, NULL);

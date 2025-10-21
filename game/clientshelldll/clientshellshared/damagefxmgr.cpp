@@ -495,7 +495,7 @@ bool CDamageFXMgr::OnModelKey( HLOCALOBJ hObj, ArgList *pArgs )
 {
 	if (!hObj || !pArgs || !pArgs->argv || pArgs->argc == 0) return false;
 
-	char* pKey = pArgs->argv[0];
+	const char* pKey = pArgs->argv[0];
 	if (!pKey) return false;
 
 	if( stricmp( pKey, KEY_DAMAGEFX ) == 0 )

@@ -34,8 +34,12 @@ extern class CAIPathMgr* g_pAIPathMgr;
 //
 // Locks a node represented by an INVALID_NODE structure
 //
+#if 0 // BBi
 struct BlockNode :
 std::unary_function<INVALID_NODE*, int>
+#else
+struct BlockNode
+#endif
 {
 	BlockNode( HOBJECT hBlocker ) { m_hBlocker = hBlocker; }
 	HOBJECT m_hBlocker;
@@ -58,8 +62,12 @@ std::unary_function<INVALID_NODE*, int>
 //
 // Unlocks a locked node represented by an INVALID_NODE structure
 //
+#if 0 // BBi
 struct UnblockNode :
 std::unary_function<INVALID_NODE*, int>
+#else
+struct UnblockNode
+#endif
 {
 	UnblockNode( HOBJECT hBlocker ) { m_hBlocker = hBlocker; }
 	HOBJECT m_hBlocker;
@@ -644,20 +652,26 @@ bool CAIGoalAbstract::HandleCommand(const CParsedMsg &cMsg)
 //----------------------------------------------------------------------------
 void CAIGoalAbstract::AddInvalidNode( HOBJECT hNode )
 {
+#if 0 // BBi
 	using std::find_if;
 	using std::bind2nd;
 	using std::equal_to;
+#endif
 
 	std::vector<INVALID_NODE*>* pList = m_pAI->GetInvalidNodeList();
 
 	// If the node is already in the list, then return.  This shouldn't
 	// really happen, but it is worth checking for.
+#if 0 // BBi
 	INVALID_NODE *pNull = NULL;
 	std::vector<INVALID_NODE*>::iterator it;
 	it = find_if(
 		pList->begin(),
 		pList->end(),
 		bind2nd( equal_to<INVALID_NODE*>(), pNull ));
+#else
+	const auto it = std::find(pList->begin(), pList->end(), nullptr);
+#endif
 
 	if ( it !=  pList->end() )
 	{

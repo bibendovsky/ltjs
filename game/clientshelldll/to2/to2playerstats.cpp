@@ -22,27 +22,27 @@
 #include "keymgr.h"
 #include "clientres.h"
 
-void ArmorFn(int argc, char **argv)
+void ArmorFn(int argc, const char **argv)
 {
 	if (!g_pPlayerStats || argc < 1) return;
 	g_pPlayerStats->UpdateArmor(atoi(argv[0]));
 }
-void MaxArmorFn(int argc, char **argv)
+void MaxArmorFn(int argc, const char **argv)
 {
 	if (!g_pPlayerStats || argc < 1) return;
 	g_pPlayerStats->UpdateMaxArmor(atoi(argv[0]));
 }
-void HealthFn(int argc, char **argv)
+void HealthFn(int argc, const char **argv)
 {
 	if (!g_pPlayerStats || argc < 1) return;
 	g_pPlayerStats->UpdateHealth(atoi(argv[0]));
 }
-void MaxHealthFn(int argc, char **argv)
+void MaxHealthFn(int argc, const char **argv)
 {
 	if (!g_pPlayerStats || argc < 1) return;
 	g_pPlayerStats->UpdateMaxHealth(atoi(argv[0]));
 }
-void AirFn(int argc, char **argv)
+void AirFn(int argc, const char **argv)
 {
 	if (!g_pPlayerStats || argc < 1) return;
 	g_pPlayerStats->UpdateAir((float)atof(argv[0])/100.0f);

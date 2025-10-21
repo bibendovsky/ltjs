@@ -216,7 +216,7 @@ void CHHWeaponModel::StringKey(ArgList* pArgList)
 	if( !m_pParentWeapon )
 		return;
 
-	char* pKey = pArgList->argv[0];
+	const char* const pKey = pArgList->argv[0];
 	if (!pKey) return;
 
 	CParsedMsg::CToken tok( pKey );

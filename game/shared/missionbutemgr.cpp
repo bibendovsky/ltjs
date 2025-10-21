@@ -229,7 +229,7 @@ MISSION::MISSION()
 //
 // ----------------------------------------------------------------------- //
 
-LTBOOL MISSION::Init(CButeMgr & buteMgr, char* aTagName)
+LTBOOL MISSION::Init(CButeMgr & buteMgr, const char* aTagName)
 {
     if (!aTagName) return LTFALSE;
 
@@ -350,7 +350,7 @@ LTBOOL MISSION::Init(CButeMgr & buteMgr, char* aTagName)
 //
 // ----------------------------------------------------------------------- //
 
-LTBOOL MISSION::Save(CButeMgr & buteMgr, char* aTagName)
+LTBOOL MISSION::Save(CButeMgr & buteMgr, const char* aTagName)
 {
     if (!aTagName) return LTFALSE;
 

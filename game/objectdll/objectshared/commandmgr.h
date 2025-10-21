@@ -33,7 +33,7 @@ extern CCommandMgr* g_pCmdMgr;
 
 typedef LTBOOL (*ProcessCmdFn)(CCommandMgr *pCmdMgr, ConParse & parse, int nCmdIndex);
 typedef LTBOOL (*PreCheckCmdFn)(CCommandMgrPlugin *pPlugin, ILTPreInterface *pInterface, ConParse &parse );
-typedef LTBOOL (*IntOperatorFn)(void *arg1, void *arg2);
+typedef LTBOOL (*IntOperatorFn)(const void *arg1, const void *arg2);
 
 enum eExpressionVal
 {
@@ -268,14 +268,14 @@ struct CMD_STRUCT_PARAM
 		pId			= 0;
 	}
 
-	float	fDelay;
-	float	fMinDelay;
-	float	fMaxDelay;
-	int		nNumTimes;
-	int		nMinTimes;
-	int		nMaxTimes;
-	char*	pCmd;
-	char*	pId;
+	float		fDelay;
+	float		fMinDelay;
+	float		fMaxDelay;
+	int			nNumTimes;
+	int			nMinTimes;
+	int			nMaxTimes;
+	const char*	pCmd;
+	const char*	pId;
 };
 
 struct CMD_PROCESS_STRUCT
@@ -430,10 +430,10 @@ struct MSG_PRECHECK
 
 struct CMDMGR_CLASS_DESC
 {
-	CMDMGR_CLASS_DESC( char *pClassName, char *pParentClass, int nNumMsgs, MSG_PRECHECK *pMsgs, uint32 dwFlags  );
+	CMDMGR_CLASS_DESC( const char *pClassName, const char *pParentClass, int nNumMsgs, MSG_PRECHECK *pMsgs, uint32 dwFlags  );
 
-	char			*m_szClassName;
-	char			*m_szParentClass;
+	const char		*m_szClassName;
+	const char		*m_szParentClass;
 	int				m_nNumMsgs;
 	MSG_PRECHECK	*m_pMsgs;
 	uint32			m_dwFlags;

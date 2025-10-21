@@ -9,12 +9,16 @@ function (ltjs_add_defaults)
 		message (FATAL_ERROR "Usage: ltjs_add_defaults <target_name>")
 	endif ()
 
-	set_target_properties (
-		${ARGV0}
-		PROPERTIES
-		CXX_STANDARD 14
+	set_target_properties (${ARGV0} PROPERTIES
+		CXX_STANDARD 20
 		CXX_STANDARD_REQUIRED ON
 		CXX_EXTENSIONS OFF
+	)
+
+	set_target_properties (${ARGV0} PROPERTIES
+		C_STANDARD 99
+		C_STANDARD_REQUIRED ON
+		C_EXTENSIONS OFF
 	)
 
 	target_compile_definitions (

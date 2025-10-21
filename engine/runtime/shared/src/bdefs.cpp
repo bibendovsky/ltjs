@@ -14,6 +14,6 @@
 
 
 int32	g_DebugLevel=0;
-char *g_ReturnErrString = "LT ERROR: %s returned %s (%s)";
+const char *g_ReturnErrString = "LT ERROR: %s returned %s (%s)";
 
 

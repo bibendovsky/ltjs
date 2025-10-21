@@ -244,7 +244,7 @@ void CAIHumanStrategyFollowPath::HandleModelString(ArgList* pArgList)
 {
 	if ( !pArgList || !pArgList->argv || pArgList->argc == 0 ) return;
 
-	char* szKey = pArgList->argv[0];
+	const char* const szKey = pArgList->argv[0];
 	if ( !szKey ) return;
 
 	if ( !_stricmp(szKey, "DOOR") )
@@ -3818,7 +3818,7 @@ void CAIHumanStrategyShoot::HandleModelString(ArgList* pArgList)
 {
 	if ( !pArgList || !pArgList->argv || pArgList->argc == 0 ) return;
 
-	char* szKey = pArgList->argv[0];
+	const char* const szKey = pArgList->argv[0];
 	if ( !szKey ) return;
 
 	if ( !_stricmp(szKey, c_szKeyFireWeapon) )
@@ -4790,7 +4790,7 @@ void CAIHumanStrategyFlashlight::HandleModelString(ArgList* pArgList)
 {
 	if ( !pArgList || !pArgList->argv || pArgList->argc == 0 ) return;
 
-	char* szKey = pArgList->argv[0];
+	const char* const szKey = pArgList->argv[0];
 	if ( !szKey ) return;
 
 	if ( !_stricmp(szKey, "FL_SHOW") )

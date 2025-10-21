@@ -36,7 +36,7 @@
 class CWINError : public IBaseError 
 {
 	public:
-		void  CriticalError (char *module, char *eStr) 
+		void  CriticalError (const char *module, const char *eStr) 
 		{
 			char msg [ 256 ];
 			if (_snprintf(msg, sizeof(msg), "Critical Error! %s: %s\n",module, eStr) < 0)
@@ -45,7 +45,7 @@ class CWINError : public IBaseError
 			_assert(msg, __FILE__, __LINE__);
 			exit(-1);
 		}
-		void  RecoverableError (char *module, char *eStr) 
+		void  RecoverableError (const char *module, const char *eStr) 
 		{
 			char msg [ 256 ];
 			if (_snprintf(msg, sizeof(msg), "Recoverable Error. %s: %s\n",module, eStr) < 0)

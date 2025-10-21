@@ -35,7 +35,7 @@ public:
 	virtual void			CheckMaxPos(MoveState *pState, LTVector *pPos)=0;
 	virtual uint32			IsServer()=0;
 	virtual LTBOOL			CanOptimizeObject(LTObject *pObject)=0;
-	virtual char*			GetObjectClassName(LTObject *pObject)=0;
+	virtual const char*		GetObjectClassName(LTObject *pObject)=0;
 	virtual ILTPhysics *	GetPhysics()=0;
 };
 

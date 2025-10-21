@@ -69,7 +69,7 @@ class CPVFXMgr
 	private :
 
 		void DisableAllFX();
-        void TurnOn(char* pFXName, LTBOOL bOn);
+        void TurnOn(const char* pFXName, LTBOOL bOn);
 		void AddScaleFX(CScaleFX* pScaleFX, HMODELSOCKET hSocket, char* pName);
 		void AddDLightFX(DLIGHTFX* pDLightFX, HMODELSOCKET hSocket, char* pName);
 		void AddSoundFX(SOUNDFX* pSoundFX, char* pName);

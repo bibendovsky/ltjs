@@ -34,13 +34,13 @@
 
 class CLINUXError : public IBaseError {
 	public:
-		void  CriticalError (char *module, char *eStr) {
+		void  CriticalError (const char *module, const char *eStr) {
 			#ifdef __DEBUG
 			printf("%s: %s\n",module, eStr);
 			exit(-1);
 			#endif
 		}
-		void  RecoverableError (char *module, char *eStr) {
+		void  RecoverableError (const char *module, const char *eStr) {
 			#ifdef __DEBUG
 			printf("%s: %s\n",module, eStr);
 			#endif

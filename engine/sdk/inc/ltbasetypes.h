@@ -226,7 +226,7 @@ Structures.
 
 	struct ArgList
 	{
-		char **argv;
+		const char **argv;
 		int argc;
 	};
 
@@ -300,7 +300,7 @@ Node Control Data
 
 	typedef void (*NodeControlFn)(const NodeControlData&, void* pUserData);
 
-	typedef void (*ConsoleProgramFn)(int argc, char **argv);
+	typedef void (*ConsoleProgramFn)(int argc, const char **argv);
 
 
 

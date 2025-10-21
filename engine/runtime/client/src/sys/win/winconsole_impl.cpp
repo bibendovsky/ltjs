@@ -215,7 +215,7 @@ void CConCommandBox::Draw()
 {
 	LTRect rect;
 	uint32 flashTime;
-	char *caretStr = "_";
+	const char* const caretStr = "_";
 	COLORREF caretColor;
 
 	if ( !GetConsole() || !GetConsole()->GetRenderStruct() )

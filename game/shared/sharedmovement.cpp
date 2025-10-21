@@ -15,7 +15,7 @@
 
 #if !defined(_CLIENTBUILD) || defined(__PSX2)
 
-char* aPPMStrings[] =
+const char* aPPMStrings[] =
 {
 	"Normal",
 	"Snowmobile",
@@ -23,7 +23,7 @@ char* aPPMStrings[] =
 	"LightCycle"
 };
 
-char* GetPropertyNameFromPlayerPhysicsModel(PlayerPhysicsModel ePPModel)
+const char* GetPropertyNameFromPlayerPhysicsModel(PlayerPhysicsModel ePPModel)
 {
 	if (PPM_FIRST <= ePPModel && ePPModel < PPM_NUM_MODELS)
 	{

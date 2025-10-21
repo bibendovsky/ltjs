@@ -74,6 +74,7 @@ struct DeleteMomentoWithoutCallback
 	}
 };
 
+#if 0 // BBi
 struct Momento_RelationData_Equality :
 std::binary_function<RelationMomento*, const RelationDescription* const, bool>
 {
@@ -85,7 +86,27 @@ std::binary_function<RelationMomento*, const RelationDescription* const, bool>
 		return ( pMomento->GetDescription() == *pRD );
 	}
 };
+#else
+class Momento_RelationData_Equality
+{
+private:
+	const RelationDescription& rd_;
 
+public:
+	Momento_RelationData_Equality(const RelationDescription& rd)
+		:
+		rd_{rd}
+	{}
+
+	bool operator()(RelationMomento* pMomento) const
+	{
+		AIASSERT(pMomento != NULL, NULL, "Attempted description match with NULL Momento");
+		return pMomento->GetDescription() == rd_;
+	}
+};
+#endif
+
+#if 0 // BBi
 struct ORMMatchesDescription :
 public std::binary_function< RelationMomento*, CObjectRelationMgr*, bool>
 {
@@ -98,7 +119,7 @@ public std::binary_function< RelationMomento*, CObjectRelationMgr*, bool>
 		return ( strcmp( pMomento->GetDescription().szValue, szValue ) == 0);
 	}
 };
-
+#endif
 
 //----------------------------------------------------------------------------
 //
@@ -161,7 +182,7 @@ void CRelationTools::ParseRelation(const char* const pszLine, RelationDescriptio
 	AIASSERT( pszLine != NULL, NULL, "Attempted to parse NULL Relation" );
 
 	char tokenSpace[512];
-	char* pTokens[3];
+	const char* pTokens[3];
 	const char *pCommandPos;
 
 	int nArgs;
@@ -216,7 +237,7 @@ void CRelationTools::ParseData(const char* const pszLine, RelationTraits::eRelat
 	}
 
 	char tokenSpace[512];
-	char* pTokens[2];
+	const char* pTokens[2];
 	const char *pCommandPos;
 
 	int nArgs;
@@ -869,9 +890,16 @@ int CRelationUser::Save(ILTMessage_Write *pMsg)
 	SAVE_INT( m_Momentos.size() );
 
 	// Save each of the Active Relationships
+#if 0 // BBi
 	std::for_each( m_Momentos.begin(),
 		m_Momentos.end(),
         std::bind2nd(std::mem_fun(&RelationMomento::Save), pMsg));
+#else
+	for (RelationMomento* relation_momento : m_Momentos)
+	{
+		relation_momento->Save(pMsg);
+	}
+#endif
 
 	SAVE_TIME( m_flTimeRelationsLast );
 
@@ -985,6 +1013,7 @@ void CRelationUser::AddRelation(const RelationDescription& RD, bool bPermanent )
 //----------------------------------------------------------------------------
 bool CRelationUser::HasMatchingRelationMomento(const RelationDescription& RD) const
 {
+#if 0 // BBi
 	RelationDescription InstRD = RD;
 
 	_listMomentos::const_iterator itFound = std::find_if(
@@ -992,6 +1021,9 @@ bool CRelationUser::HasMatchingRelationMomento(const RelationDescription& RD) co
 		m_Momentos.end(),
 		std::bind2nd( Momento_RelationData_Equality(), &InstRD )
 		);
+#else
+	const auto itFound = std::find_if(m_Momentos.begin(), m_Momentos.end(), Momento_RelationData_Equality{RD});
+#endif
 
 	// If we are not at the end, then we did find a matching momento, so return
 	// true;
@@ -1008,8 +1040,12 @@ bool CRelationUser::HasMatchingRelationMomento(const RelationDescription& RD) co
 //----------------------------------------------------------------------------
 void CRelationUser::RemoveRelation(const RelationDescription& RD)
 {
+#if 0 // BBi
 	RelationDescription InstRD = RD;
 	_listMomentos::iterator itFound = std::find_if( m_Momentos.begin(), m_Momentos.end(), std::bind2nd( Momento_RelationData_Equality(), &InstRD ) );
+#else
+	const auto itFound = std::find_if(m_Momentos.begin(), m_Momentos.end(), Momento_RelationData_Equality{RD});
+#endif
 	AIASSERT( itFound != m_Momentos.end(), NULL, "Attempted to remove relation momento which does not exist in list" );
 
 	// Delete the momento, then remove it from the list.
@@ -1053,10 +1089,25 @@ void CRelationUser::InitRelations(const char* const szKey)
 //----------------------------------------------------------------------------
 void CRelationUser::ResetRelationTime(CObjectRelationMgr* pORM)
 {
+#if 0 // BBi
 	_listMomentos::const_iterator it = std::find_if(
 		m_Momentos.begin(),
 		m_Momentos.end(),
 		std::bind2nd( ORMMatchesDescription(), pORM)  );
+#else
+	const auto it = std::find_if(
+		m_Momentos.begin(),
+		m_Momentos.end(),
+		[pORM](RelationMomento* pMomento) -> bool
+		{
+			AIASSERT( pMomento!=NULL, NULL, "Attempted description match with NULL Momento" );
+			AIASSERT( pORM!=NULL, NULL, "Attempted description match on NULL ORM" );
+			char szValue[RELATION_VALUE_LENGTH];
+			pORM->GetData().GetTraitValue(pMomento->GetDescription().eTrait, szValue, sizeof(szValue));
+			return ( strcmp( pMomento->GetDescription().szValue, szValue ) == 0);
+		}
+	);
+#endif
 
 	if ( it != m_Momentos.end() )
 	{
@@ -1096,7 +1147,7 @@ void CRelationUser::Update(bool bCanRemoveExpiredRelations)
 	}
 }
 
-
+#if 0 // BBi
 struct SyncObjectRelationMgr :
 public std::binary_function<RelationMomento*, CObjectRelationMgr*, bool>
 {
@@ -1110,6 +1161,7 @@ public std::binary_function<RelationMomento*, CObjectRelationMgr*, bool>
 		return true;
 	}
 };
+#endif
 
 //----------------------------------------------------------------------------
 //
@@ -1121,8 +1173,19 @@ public std::binary_function<RelationMomento*, CObjectRelationMgr*, bool>
 void CRelationUser::Sync(const CObjectRelationMgr* pObjectRelationMgr)
 {
 	CObjectRelationMgr *pTakeIt = const_cast<CObjectRelationMgr*>(pObjectRelationMgr);
+#if 0 // BBi
 	std::for_each(m_Momentos.begin(), m_Momentos.end(),
 		std::bind2nd( SyncObjectRelationMgr(), pTakeIt));
+#else
+	for (RelationMomento* pMomento : m_Momentos)
+	{
+		if (!pTakeIt->GetRelationUser()->HasMatchingRelationMomento( pMomento->GetDescription() ))
+		{
+			// Add the new collective relationship which the collective will manage
+			pTakeIt->AddRelation(pMomento->GetDescription());
+		}
+	}
+#endif
 
 	m_Momentos.remove_if( MomentoIsNull() );
 }

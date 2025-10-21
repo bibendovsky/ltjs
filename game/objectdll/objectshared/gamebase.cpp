@@ -52,7 +52,7 @@ static CBankedList<CTransitionAggregate> s_bankCTransAggs;
 
 static LTBOOL ValidateMsgVisibleSolid( ILTPreInterface *pInterface, ConParse &cpMsgParams )
 {
-	char *pBoolValue = cpMsgParams.m_Args[1];
+	const char* const pBoolValue = cpMsgParams.m_Args[1];
     static_cast<void>(pBoolValue);
 
 	if( (!_stricmp(cpMsgParams.m_Args[1], "1")) ||
@@ -66,7 +66,13 @@ static LTBOOL ValidateMsgVisibleSolid( ILTPreInterface *pInterface, ConParse &cp
 	if( CCommandMgrPlugin::s_bShowMsgErrors )
 	{
 		pInterface->CPrint( "ERROR! - ValidateMsgVisibleSolid()" );
+#if 0 // BBi
 		pInterface->CPrint( "    MSG - %s - 2nd argument '%s' is not a valid bool value.", _strupr(cpMsgParams.m_Args[0]), cpMsgParams.m_Args[1] );
+#else
+		std::string arg0_uc{cpMsgParams.m_Args[0]};
+		_strupr(arg0_uc.data());
+		pInterface->CPrint( "    MSG - %s - 2nd argument '%s' is not a valid bool value.", arg0_uc.c_str(), cpMsgParams.m_Args[1] );
+#endif
 	}
 	
 	return LTFALSE;

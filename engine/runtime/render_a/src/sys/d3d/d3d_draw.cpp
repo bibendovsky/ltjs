@@ -56,7 +56,7 @@ LTVector		g_vCurGamma(1.0f, 1.0f, 1.0f);
 // Internal functions.
 // ---------------------------------------------------------------- //
 
-void VerifyRenderState(D3DRENDERSTATETYPE state, uint32 val, char *pStateName, char *pValName)
+void VerifyRenderState(D3DRENDERSTATETYPE state, uint32 val, const char *pStateName, const char *pValName)
 {
 	uint32 stateVal;
 
@@ -68,7 +68,7 @@ void VerifyRenderState(D3DRENDERSTATETYPE state, uint32 val, char *pStateName, c
 }
 
 
-void VerifyStageState(uint32 stage, D3DTEXTURESTAGESTATETYPE state, uint32 val, char *pStateName, char *pValName)
+void VerifyStageState(uint32 stage, D3DTEXTURESTAGESTATETYPE state, uint32 val, const char *pStateName, const char *pValName)
 {
 	uint32 stateVal;
 

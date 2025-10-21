@@ -70,7 +70,7 @@ struct LENSFLARE
 		LENSFLARE();
 		~LENSFLARE();
 
-		void SetSpriteFile(char* szSpriteFile);
+		void SetSpriteFile(const char* szSpriteFile);
 
         LTBOOL   bInSkyBox;
         LTBOOL   bCreateSprite;
@@ -117,7 +117,7 @@ inline LENSFLARE::~LENSFLARE()
 	FREE_HSTRING(hstrSpriteFile);
 }
 
-inline void LENSFLARE::SetSpriteFile(char* szSpriteFile)
+inline void LENSFLARE::SetSpriteFile(const char* szSpriteFile)
 {
 	_ASSERT(szSpriteFile);
 	FREE_HSTRING(hstrSpriteFile);

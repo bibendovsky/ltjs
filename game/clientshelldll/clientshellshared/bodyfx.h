@@ -73,7 +73,7 @@ class CBodyFX : public CSpecialFX
 
 		bool SetupRagDoll();
 
-		bool CreateFX(char* pFXName);
+		bool CreateFX(const char* pFXName);
 
 		void CreateDamageFX(DamageType eType);
 

@@ -115,7 +115,7 @@ class CAIState : public CAIClassAbstract
 
 		// Handlers
 
-		virtual void HandleNameValuePair(char *szName, char *szValue);
+		virtual void HandleNameValuePair(const char *szName, const char *szValue);
 		virtual void HandleDamage(const DamageStruct& damage) {}
 		virtual void HandleModelString(ArgList* pArgList) {}
 		virtual void HandleTouch(HOBJECT hObject) {}

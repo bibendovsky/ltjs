@@ -605,7 +605,7 @@ void Door::OnLoad( ILTMessage_Read *pMsg, uint32 dwSaveFlags )
 //
 // ----------------------------------------------------------------------- //
 
-void Door::PlayDoorKnobAni( char *pAniName )
+void Door::PlayDoorKnobAni( const char *pAniName )
 {
 	if( !pAniName ) return;
 

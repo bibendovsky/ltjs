@@ -910,7 +910,7 @@ void Prop::HandleModelString( ArgList *pArgList )
 		
 	if (!pArgList || !pArgList->argv || pArgList->argc == 0) return;
 
-	char* pKey = pArgList->argv[0];
+	const char* const pKey = pArgList->argv[0];
 	if (!pKey) return;
 
 	CParsedMsg::CToken tok( pKey );

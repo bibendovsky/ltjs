@@ -255,7 +255,7 @@ void CAIState::Save(ILTMessage_Write *pMsg)
 //
 // ----------------------------------------------------------------------- //
 
-void CAIState::HandleNameValuePair(char *szName, char *szValue)
+void CAIState::HandleNameValuePair(const char *szName, const char *szValue)
 {
 	_ASSERT(szName && szValue);
 	if ( !szName || !szValue ) return;

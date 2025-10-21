@@ -136,7 +136,7 @@ public:
     void ClearUsedFiles();
 
     // Get the filename from a UsedFile.
-    char* GetUsedFilename(UsedFile *pFile);
+    const char* GetUsedFilename(UsedFile *pFile);
 
 };
 			

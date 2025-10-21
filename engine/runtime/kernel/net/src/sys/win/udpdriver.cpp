@@ -1506,7 +1506,7 @@ bool CUDPConn::IsFlowControlBlocked(uint32 nPacketSize) const
 // ----------------------------------------------------------------- //
 
 // Returns a string representing the last TCP/IP error.
-char* udp_GetLastError()
+const char* udp_GetLastError()
 {
 	int lastError, i;
 
@@ -2110,7 +2110,7 @@ LTRESULT CUDPDriver::StartQuery(const char *pInfo)
 			if(parse.m_Args[0][0] == '*')
 			{
 				// Broadcast.. get the port.
-				char *pTest = strchr(parse.m_Args[0], ':');
+				const char *pTest = strchr(parse.m_Args[0], ':');
 				if(pTest)
 				{
 					port = (u_short)atoi(pTest+1);

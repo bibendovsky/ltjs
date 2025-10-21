@@ -472,11 +472,11 @@ HMODELANIM CAIHuman::GetDeathAni(LTBOOL bFront)
 
 	if ( GetAnimationContext()->IsPropSet(kAPG_Movement, kAP_Run) )
 	{
-		char* aszDeathRunsFront[] = { "DRun", "DRun2" };
-		char* aszDeathRunsBack[]  = { "DRunBack", "DRunBack2" };
+		const char* aszDeathRunsFront[] = { "DRun", "DRun2" };
+		const char* aszDeathRunsBack[]  = { "DRunBack", "DRunBack2" };
 
 		int cDeathRuns = sizeof(aszDeathRunsBack)/sizeof(const char*);
-		char** pDeathRuns = (bFront ? aszDeathRunsFront : aszDeathRunsBack);
+		const char** pDeathRuns = (bFront ? aszDeathRunsFront : aszDeathRunsBack);
 
         if ( INVALID_MODEL_ANIM != (hAni = g_pLTServer->GetAnimIndex(m_hObject, (char*)pDeathRuns[GetRandom(0, cDeathRuns-1)])) )
 		{

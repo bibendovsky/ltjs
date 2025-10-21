@@ -115,7 +115,7 @@ void CServerButeMgr::Term()
 //
 // ----------------------------------------------------------------------- //
 
-int CServerButeMgr::GetPlayerAttributeInt(char* pAttribute, int nDefVal)
+int CServerButeMgr::GetPlayerAttributeInt(const char* pAttribute, int nDefVal)
 {
 	return m_buteMgr.GetInt(SBMGR_PLAYER_TAG, pAttribute, nDefVal);
 }
@@ -128,7 +128,7 @@ int CServerButeMgr::GetPlayerAttributeInt(char* pAttribute, int nDefVal)
 //
 // ----------------------------------------------------------------------- //
 
-float CServerButeMgr::GetPlayerAttributeFloat(char* pAttribute)
+float CServerButeMgr::GetPlayerAttributeFloat(const char* pAttribute)
 {
 	return (float) m_buteMgr.GetDouble(SBMGR_PLAYER_TAG, pAttribute);
 }
@@ -141,7 +141,7 @@ float CServerButeMgr::GetPlayerAttributeFloat(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-void CServerButeMgr::GetPlayerAttributeString(char* pAttribute, char* pBuf, int nBufLen)
+void CServerButeMgr::GetPlayerAttributeString(const char* pAttribute, char* pBuf, int nBufLen)
 {
 	m_buteMgr.GetString(SBMGR_PLAYER_TAG, pAttribute, pBuf, nBufLen);
 }
@@ -163,7 +163,7 @@ void CServerButeMgr::GetPlayerAttributeString(char* pAttribute, char* pBuf, int 
 //
 // ----------------------------------------------------------------------- //
 
-int CServerButeMgr::GetSecurityCameraInt(char* pAttribute)
+int CServerButeMgr::GetSecurityCameraInt(const char* pAttribute)
 {
 	return m_buteMgr.GetInt(SBMGR_SECURITYCAMERA_TAG, pAttribute);
 }
@@ -176,7 +176,7 @@ int CServerButeMgr::GetSecurityCameraInt(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-float CServerButeMgr::GetSecurityCameraFloat(char* pAttribute)
+float CServerButeMgr::GetSecurityCameraFloat(const char* pAttribute)
 {
 	return (float) m_buteMgr.GetDouble(SBMGR_SECURITYCAMERA_TAG, pAttribute);
 }
@@ -189,7 +189,7 @@ float CServerButeMgr::GetSecurityCameraFloat(char* pAttribute)
 //
 // ----------------------------------------------------------------------- //
 
-void CServerButeMgr::GetSecurityCameraString(char* pAttribute, char* pBuf, int nBufLen)
+void CServerButeMgr::GetSecurityCameraString(const char* pAttribute, char* pBuf, int nBufLen)
 {
 	m_buteMgr.GetString(SBMGR_SECURITYCAMERA_TAG, pAttribute, pBuf, nBufLen);
 }

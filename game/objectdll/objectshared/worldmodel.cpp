@@ -105,7 +105,7 @@ static LTBOOL ValidateMsgAttachDetach( ILTPreInterface *pInterface, ConParse &cp
 	}
 
 	int	i = 1;
-	char *pObjName = cpMsgParams.m_Args[1];
+	const char* pObjName = cpMsgParams.m_Args[1];
 
 	while( pObjName )
 	{

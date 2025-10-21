@@ -514,7 +514,7 @@ void CAIHumanStateSentryChallenge::HandleModelString(ArgList* pArgList)
 		return;
 	}
 
-	char* szKey = pArgList->argv[0];
+	const char* const szKey = pArgList->argv[0];
 	if ( !szKey )
 	{
 		return;
