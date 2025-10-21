@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.24.4 FATAL_ERROR)
 project (ltjs_to2_client_shell VERSION 0.0.1 LANGUAGES CXX)
 
 option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
@@ -251,5 +251,5 @@ install (
 	TARGETS
 		${PROJECT_NAME}
 	RUNTIME DESTINATION
-		"./Game"
+		"Game"
 )

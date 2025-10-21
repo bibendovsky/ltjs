@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24.4 FATAL_ERROR)
 project(ltjs_audio VERSION 1.0.0 LANGUAGES CXX)
 
 include (ltjs_common)

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.5.0 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.24.4 FATAL_ERROR)
 project (ltjs_server VERSION 0.0.1 LANGUAGES CXX)
 
 option (LTJS_USE_SAFE_SEH "Use Safe Exception Handlers." OFF)
@@ -9,7 +9,7 @@ add_library (${PROJECT_NAME} SHARED)
 
 ltjs_add_defaults (${PROJECT_NAME})
 
-if (LTJS_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
+if (LTJS_USE_PCH)
 	target_precompile_headers(
 		${PROJECT_NAME}
 		PRIVATE
