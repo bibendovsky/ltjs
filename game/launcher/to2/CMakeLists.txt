@@ -45,25 +45,20 @@ target_link_libraries (
 	${PROJECT_NAME}
 	PRIVATE
 		SDL3::SDL3
-		bibendovsky_spul_lib
 )
 
 target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
-		../../../libs/bibendovsky_spul_lib/include
-		../../../libs/glad/1_1
 		../../../libs/imgui
 		../../../libs/imgui/misc/stl
 		../../../libs/spdlog/include
-		../../shared
 		..
 )
 
 target_sources (
 	${PROJECT_NAME}
 	PRIVATE
-		../../../libs/glad/1_1/glad.h
 		../../../libs/imgui/imconfig.h
 		../../../libs/imgui/imgui.h
 		../../../libs/imgui/imgui_internal.h
@@ -72,6 +67,7 @@ target_sources (
 		../../../libs/imgui/imstb_truetype.h
 		../../../libs/imgui/misc/stl/imgui_stl.h
 		../ltjs_launcher.h
+		../ltjs_launcher_utility.h
 		../ltjs_launcher_resource_strings.h
 		../ltjs_launcher_search_paths.h
 )
@@ -79,13 +75,13 @@ target_sources (
 target_sources (
 	${PROJECT_NAME}
 	PRIVATE
-		../../../libs/glad/1_1/glad.cpp
 		../../../libs/imgui/imgui.cpp
 		../../../libs/imgui/imgui_demo.cpp
 		../../../libs/imgui/imgui_draw.cpp
 		../../../libs/imgui/imgui_widgets.cpp
 		../../../libs/imgui/misc/stl/imgui_stl.cpp
 		../ltjs_launcher.cpp
+		../ltjs_launcher_utility.cpp
 		../ltjs_launcher_resource_strings.cpp
 		../ltjs_launcher_search_paths.cpp
 )

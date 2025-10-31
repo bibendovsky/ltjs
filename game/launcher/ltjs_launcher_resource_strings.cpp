@@ -1,31 +1,19 @@
 #include "ltjs_launcher_resource_strings.h"
-
+#include "ltjs_launcher_utility.h"
+#include "ltjs_script_tokenizer.h"
 #include <algorithm>
 #include <deque>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "bibendovsky_spul_file_stream.h"
-#include "bibendovsky_spul_path_utils.h"
-
-#include "ltjs_script_tokenizer.h"
-
-
-namespace ltjs
-{
-namespace launcher
-{
-
-
-namespace ul = bibendovsky::spul;
-
+namespace ltjs::launcher {
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // ResourceStrings::Impl
 //
 
-class ResourceStrings::Impl final
+class ResourceStrings::Impl
 {
 public:
 	const std::string& impl_get_error_message() const;
@@ -56,7 +44,7 @@ private:
 
 
 	bool parse_file(
-		ul::Stream& file_stream,
+		SDL_IOStream* file_stream,
 		IdToStringMap& string_map);
 }; // ResourceStrings::Impl
 
@@ -80,14 +68,13 @@ bool ResourceStrings::Impl::impl_initialize(
 
 	for (const auto& search_path : search_paths)
 	{
-		const auto file_path = ul::PathUtils::normalize(
-			ul::PathUtils::append(search_path, file_name));
+		const std::string file_path = combine_and_normalize_file_paths(search_path, file_name);
 
-		auto file_stream = ul::FileStream{file_path, ul::Stream::OpenMode::read};
+		SdlIoStreamUPtr file_stream{SDL_IOFromFile(file_path.c_str(), "rb")};
 
-		if (file_stream.is_open())
+		if (file_stream != nullptr)
 		{
-			if (!parse_file(file_stream, id_to_string_map_))
+			if (!parse_file(file_stream.get(), id_to_string_map_))
 			{
 				error_message_ = file_name + ": " + error_message_;
 				return false;
@@ -131,18 +118,18 @@ const std::string& ResourceStrings::Impl::impl_get(
 }
 
 bool ResourceStrings::Impl::parse_file(
-	ul::Stream& file_stream,
+	SDL_IOStream* file_stream,
 	IdToStringMap& id_to_string_map)
 {
 	// Load the file into memory.
 	//
-	if (!file_stream.is_open())
+	if (file_stream == nullptr)
 	{
 		error_message_ = "Failed to open.";
 		return false;
 	}
 
-	auto stream_size = file_stream.get_size();
+	Sint64 stream_size = SDL_GetIOSize(file_stream);
 
 	if (stream_size <= 0)
 	{
@@ -160,7 +147,7 @@ bool ResourceStrings::Impl::parse_file(
 
 	file_buffer_.resize(file_size);
 
-	const auto read_result = file_stream.read(file_buffer_.data(), file_size);
+	const std::size_t read_result = SDL_ReadIO(file_stream, file_buffer_.data(), file_size);
 
 	if (read_result != file_size)
 	{
@@ -342,6 +329,4 @@ const std::string& ResourceStrings::operator[](
 // ResourceStrings
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-
-} // launcher
-} // ltjs
+} // namespace ltjs::launcher
