@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <deque>
 #include <exception>
+#include <format>
 #include <functional>
 #include <iterator>
 #include <limits>
@@ -14,27 +15,22 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
-#include "bibendovsky_spul_file_stream.h"
-#include "bibendovsky_spul_path_utils.h"
-#include "bibendovsky_spul_scope_guard.h"
-#include "glad.h"
 #include "imgui.h"
 #include "imgui_stl.h"
-#include "SDL3/SDL.h"
 #include "SDL3/SDL_main.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 
-#include "ltjs_index_type.h"
 #include "ltjs_language_mgr.h"
-#include "ltjs_sdl_uresources.h"
 #include "ltjs_script_tokenizer.h"
 
 #include "ltjs_launcher_resource_strings.h"
 #include "ltjs_launcher_search_paths.h"
+#include "ltjs_launcher_utility.h"
 
 
 #if defined(LTJS_NOLF2)
@@ -44,21 +40,10 @@
 #error Unsupported game.
 #endif // LTJS_NOLF2
 
-
-using namespace std::string_literals;
-
-
 namespace ltjs
 {
 namespace launcher
 {
-
-
-namespace ul = bibendovsky::spul;
-
-
-using SdlWindowPtr = SDL_Window*;
-
 
 ImVec2 operator*(
 	const ImVec2& v,
@@ -67,7 +52,6 @@ ImVec2 operator*(
 ImVec2& operator*=(
 	ImVec2& v,
 	const float scale);
-
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // Classes
@@ -686,12 +670,9 @@ public:
 		const int y);
 
 	bool are_same(
-		SdlWindowPtr sdl_window) const;
+		SDL_Window* sdl_window) const;
 
 	void ogl_swap();
-
-	void make_ogl_context_current(
-		const bool is_current);
 
 	bool is_event_for_me(
 		const SDL_Event& sdl_event);
@@ -699,12 +680,13 @@ public:
 	void set_icon(
 		SDL_Surface* sdl_surface);
 
+	SDL_Renderer* get_renderer() const;
 
 private:
 	bool is_initialized_;
-	SdlWindowPtr sdl_window_;
+	SDL_Window* sdl_window_;
+	SDL_Renderer* sdl_renderer_;
 	Uint32 sdl_window_id_;
-	SDL_GLContext sdl_ogl_context_;
 
 
 	void uninitialize();
@@ -776,79 +758,49 @@ private:
 }; // FontManager
 
 
-struct OglTexture final
-{
-	GLuint ogl_id_;
-	ImVec2 uv0_; // left-bottom
-	ImVec2 uv1_; // right-top
-
-
-	ImTextureID get_im_texture_id() const
-	{
-		return reinterpret_cast<ImTextureID>(static_cast<std::intptr_t>(ogl_id_));
-	}
-}; // OglTexture
-
-
 class OglTextureManager final :
 	public Base
 {
 public:
+	OglTextureManager();
+
 	OglTextureManager(
 		OglTextureManager&& rhs);
 
-	static OglTextureManager& get_instance();
+	~OglTextureManager();
 
 
-	bool initialize();
+	bool initialize(SdlOglWindow* sdl_ogl_window);
 
 	void uninitialize();
 
 
 	bool load_font();
 
-	const OglTexture& get_font();
+	SDL_Texture* get_font();
 
 
 	bool load_all_textures();
 
-	const OglTexture& get(
+	SDL_Texture* get(
 		const ImageId image_id);
-
-
-	void make_context_current(
-		const bool is_current);
-
 
 private:
 	using Strings = std::vector<std::string>;
-	using OglTextures = std::vector<OglTexture>;
+	using OglTextures = std::vector<SdlTextureUPtr>;
 
 
 	static const std::string images_path;
 	static const Strings image_file_names;
 
 
-	SdlOglWindow sdl_ogl_window_;
+	SDL_Renderer* sdl_renderer_{};
 	OglTextures ogl_textures_;
-	OglTexture ogl_font_texture_;
-
-
-	OglTextureManager();
-
-	~OglTextureManager();
-
-
-	bool initialize_context();
-
-	void uninitialize_context();
+	SdlTextureUPtr ogl_font_texture_;
 
 	void uninitialize_textures();
 
-	static int ogl_calculate_npot_dimension(
-		const int dimension);
-
-	OglTexture create_texture_from_surface(
+	SDL_Texture* create_texture_from_surface(
 		SDL_Surface* sdl_surface);
 
 	void unload_font();
@@ -1025,9 +977,6 @@ protected:
 	void set_message_box_result(
 		const MessageBoxResult message_box_result);
 
-	static int ogl_calculate_npot_dimension(
-		const int dimension);
-
 	static bool is_point_inside_rect(
 		const ImVec2& point,
 		const ImVec4& rect);
@@ -1036,18 +985,28 @@ protected:
 		const ImVec4& outer_rect,
 		const ImVec2& inner_size);
 
+	OglTextureManager& get_texture_manager();
 
 private:
 	friend class WindowManager;
 
 	using PressedMouseButtons = std::array<bool, 3>;
 
+	struct SdlGeometry
+	{
+		std::vector<SDL_Vertex> vertices;
+		std::vector<int> indices;
+		std::unordered_set<ImDrawIdx> unique_indices;
+	};
+
 	SdlOglWindow sdl_ogl_window_;
+	OglTextureManager ogl_texture_manager_;
 	ImGuiContext* im_context_;
 	PressedMouseButtons pressed_mouse_buttons_;
 	Uint64 time_;
 	WindowEvent message_box_result_event_;
 	MessageBoxResult message_box_result_;
+	SdlGeometry sdl_geometry_{};
 
 
 	void uninitialize();
@@ -1518,19 +1477,11 @@ private:
 	AdvancedSettingsWindowUPtr advanced_settings_window_uptr_;
 	DetailSettingsWindowUPtr detail_settings_window_uptr_;
 
-	static void* glad_load_proc(const char* name);
-
 	Launcher();
 
 	~Launcher();
 
-	bool initialize_ogl_functions();
-
-	void uninitialize_ogl();
-
 	bool initialize_sdl();
-
-	bool initialize_ogl();
 }; // Launcher
 
 //
@@ -1582,28 +1533,17 @@ void Base::prepend_error_message(
 bool Direct3d9::has_direct3d9()
 {
 #ifdef _WIN32
-	auto d3d9_module = SDL_LoadObject("d3d9.dll");
-
-	if (!d3d9_module)
+	if (const SdlSharedObjectUPtr d3d9_dll_uptr{SDL_LoadObject("d3d9.dll")};
+		d3d9_dll_uptr != nullptr)
 	{
-		return false;
-	}
-
-	auto d3d9_module_guard = ul::ScopeGuard(
-		[&]()
+		if (const SDL_FunctionPointer func = SDL_LoadFunction(d3d9_dll_uptr.get(), "Direct3DCreate9");
+			func != nullptr)
 		{
-			SDL_UnloadObject(d3d9_module);
+			return true;
 		}
-	);
-
-	auto create_function = SDL_LoadFunction(d3d9_module, "Direct3DCreate9");
-
-	if (!create_function)
-	{
-		return false;
 	}
 
-	return true;
+	return false;
 #else // _WIN32
 	return false;
 #endif // _WIN32
@@ -1665,8 +1605,7 @@ void DisplayModeManager::initialize()
 	uninitialize();
 
 
-	using SdlGenericUDeleter = SdlUResourceDeleter<void, SDL_free>;
-	using SdlDisplayModeListUResource = std::unique_ptr<SDL_DisplayMode*, SdlGenericUDeleter>;
+	using SdlDisplayModeListUPtr = std::unique_ptr<SDL_DisplayMode*, SdlRawDeleter>;
 
 	const SDL_DisplayID sdl_primary_display_id = SDL_GetPrimaryDisplay();
 
@@ -1683,7 +1622,7 @@ void DisplayModeManager::initialize()
 		return;
 	}
 
-	SdlDisplayModeListUResource display_mode_list{sdl_display_mode_list};
+	SdlDisplayModeListUPtr display_mode_list{sdl_display_mode_list};
 
 	DisplayMode native_display_mode{};
 	const SDL_DisplayMode* const sdl_native_display_mode = SDL_GetCurrentDisplayMode(sdl_primary_display_id);
@@ -1956,10 +1895,7 @@ bool Configuration::initialize()
 		return true;
 	}
 
-	configuration_path_ = ul::PathUtils::normalize(ul::PathUtils::append(
-		get_config_path(),
-		configuration_file_name
-	));
+	configuration_path_ = combine_and_normalize_file_paths(get_config_path(), configuration_file_name);
 
 	reset();
 
@@ -1986,14 +1922,14 @@ bool Configuration::reload()
 		return false;
 	}
 
-	auto file_stream = ul::FileStream{configuration_path_, ul::Stream::OpenMode::read};
+	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(configuration_path_.c_str(), "rb")};
 
-	if (!file_stream.is_open())
+	if (sdl_io_stream_uptr == nullptr)
 	{
 		return true;
 	}
 
-	const auto stream_size = file_stream.get_size();
+	const Sint64 stream_size = SDL_GetIOSize(sdl_io_stream_uptr.get());
 
 	if (stream_size > max_file_size)
 	{
@@ -2006,7 +1942,7 @@ bool Configuration::reload()
 	auto string_buffer = std::vector<char>{};
 	string_buffer.resize(file_size);
 
-	const auto read_result = file_stream.read(string_buffer.data(), file_size);
+	const std::size_t read_result = SDL_ReadIO(sdl_io_stream_uptr.get(), string_buffer.data(), file_size);
 
 	if (read_result != file_size)
 	{
@@ -2253,9 +2189,9 @@ bool Configuration::save()
 		return false;
 	}
 
-	auto file_stream = ul::FileStream{configuration_path_, ul::Stream::OpenMode::write | ul::Stream::OpenMode::truncate};
+	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(configuration_path_.c_str(), "wb")};
 
-	if (!file_stream.is_open())
+	if (sdl_io_stream_uptr == nullptr)
 	{
 		set_error_message("Failed to open configuration file \"" + configuration_path_ + "\" for writing.");
 		return false;
@@ -2394,7 +2330,7 @@ bool Configuration::save()
 		return false;
 	}
 
-	const auto write_result = file_stream.write(string_buffer.data(), string_buffer_size);
+	const std::size_t write_result = SDL_WriteIO(sdl_io_stream_uptr.get(), string_buffer.data(), string_buffer_size);
 
 	if (write_result != string_buffer_size)
 	{
@@ -2464,7 +2400,7 @@ void Configuration::reset()
 std::string Configuration::serialize_cl_args(
 	const std::string& custom_command_line)
 {
-	const auto src_string_size = static_cast<ltjs::Index>(custom_command_line.size());
+	const auto src_string_size = static_cast<std::intptr_t>(custom_command_line.size());
 	const auto dst_string_size = src_string_size * 2;
 
 	auto result = std::string{};
@@ -2623,8 +2559,8 @@ SdlOglWindow::SdlOglWindow()
 	:
 	is_initialized_{},
 	sdl_window_{},
-	sdl_window_id_{},
-	sdl_ogl_context_{}
+	sdl_renderer_{},
+	sdl_window_id_{}
 {
 }
 
@@ -2646,55 +2582,28 @@ SdlOglWindow::SdlOglWindow(
 
 	bool is_succeed = true;
 
-
-	// Set OpenGL attributes.
+	// Create window and renderer.
 	//
-	if (is_succeed)
-	{
-		const bool sdl_result = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, param.is_double_buffering_);
-
-		if (!sdl_result)
-		{
-			is_succeed = false;
-
-			set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{SDL_GetError()});
-		}
-	}
-
-	if (is_succeed)
-	{
-		const bool sdl_result = SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, param.is_share_with_current_ogl_context_);
-
-		if (!sdl_result)
-		{
-			is_succeed = false;
-
-			set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{SDL_GetError()});
-		}
-	}
-
-	// Create window.
-	//
-	auto sdl_window = SdlWindowPtr{};
+	SDL_Window* sdl_window = nullptr;
+	SDL_Renderer* sdl_renderer = nullptr;
 
 	if (is_succeed)
 	{
 		const Uint32 sdl_window_flags =
-			SDL_WINDOW_OPENGL |
 			SDL_WINDOW_HIDDEN |
 			(param.is_borderless_ ? SDL_WINDOW_BORDERLESS : 0);
 
-		sdl_window = SDL_CreateWindow(
+		if (!SDL_CreateWindowAndRenderer(
 			param.title_.c_str(),
 			param.width_,
 			param.height_,
-			sdl_window_flags);
-
-		if (!sdl_window)
+			sdl_window_flags,
+			&sdl_window,
+			&sdl_renderer))
 		{
 			is_succeed = false;
 
-			set_error_message("Failed to create window. " + std::string{SDL_GetError()});
+			set_error_message("Failed to create window and renderer. " + std::string{SDL_GetError()});
 		}
 	}
 
@@ -2723,22 +2632,6 @@ SdlOglWindow::SdlOglWindow(
 		}
 	}
 
-	// Create OpenGL context.
-	//
-	auto sdl_gl_context = SDL_GLContext{};
-
-	if (is_succeed)
-	{
-		sdl_gl_context = SDL_GL_CreateContext(sdl_window);
-
-		if (!sdl_gl_context)
-		{
-			is_succeed = false;
-
-			set_error_message("Failed to create OpenGL context. " + std::string{SDL_GetError()});
-		}
-	}
-
 	// Show window.
 	//
 	if (is_succeed)
@@ -2753,9 +2646,9 @@ SdlOglWindow::SdlOglWindow(
 	//
 	if (!is_succeed)
 	{
-		if (sdl_gl_context)
+		if (sdl_renderer != nullptr)
 		{
-			SDL_GL_DestroyContext(sdl_gl_context);
+			SDL_DestroyRenderer(sdl_renderer);
 		}
 
 		if (sdl_window)
@@ -2768,8 +2661,8 @@ SdlOglWindow::SdlOglWindow(
 
 	is_initialized_ = true;
 	sdl_window_ = sdl_window;
+	sdl_renderer_ = sdl_renderer;
 	sdl_window_id_ = sdl_window_id;
-	sdl_ogl_context_ = sdl_gl_context;
 }
 
 SdlOglWindow::SdlOglWindow(
@@ -2777,8 +2670,8 @@ SdlOglWindow::SdlOglWindow(
 	:
 	is_initialized_{std::move(rhs.is_initialized_)},
 	sdl_window_{std::move(rhs.sdl_window_)},
-	sdl_window_id_{std::move(rhs.sdl_window_id_)},
-	sdl_ogl_context_{std::move(rhs.sdl_ogl_context_)}
+	sdl_renderer_{std::move(rhs.sdl_renderer_)},
+	sdl_window_id_{std::move(rhs.sdl_window_id_)}
 {
 	rhs.is_initialized_ = false;
 }
@@ -2796,8 +2689,8 @@ SdlOglWindow& SdlOglWindow::operator=(
 		{
 			is_initialized_ = std::move(rhs.is_initialized_);
 			sdl_window_ = std::move(rhs.sdl_window_);
+			sdl_renderer_ = std::move(rhs.sdl_renderer_);
 			sdl_window_id_ = std::move(rhs.sdl_window_id_);
-			sdl_ogl_context_ = std::move(rhs.sdl_ogl_context_);
 
 			rhs.is_initialized_ = false;
 		}
@@ -2900,11 +2793,11 @@ void SdlOglWindow::warp_mouse(
 		return;
 	}
 
-	SDL_WarpMouseInWindow(sdl_window_, x, y);
+	SDL_WarpMouseInWindow(sdl_window_, narrow_cast<float>(x), narrow_cast<float>(y));
 }
 
 bool SdlOglWindow::are_same(
-	SdlWindowPtr sdl_window) const
+	SDL_Window* sdl_window) const
 {
 	return sdl_window_ == sdl_window;
 }
@@ -2916,18 +2809,7 @@ void SdlOglWindow::ogl_swap()
 		return;
 	}
 
-	SDL_GL_SwapWindow(sdl_window_);
-}
-
-void SdlOglWindow::make_ogl_context_current(
-	const bool is_current)
-{
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	static_cast<void>(SDL_GL_MakeCurrent(sdl_window_, is_current ? sdl_ogl_context_ : nullptr));
+	SDL_RenderPresent(sdl_renderer_);
 }
 
 bool SdlOglWindow::is_event_for_me(
@@ -3017,6 +2899,11 @@ void SdlOglWindow::set_icon(
 	SDL_SetWindowIcon(sdl_window_, sdl_surface);
 }
 
+SDL_Renderer* SdlOglWindow::get_renderer() const
+{
+	return sdl_renderer_;
+}
+
 void SdlOglWindow::uninitialize()
 {
 	if (!is_initialized_)
@@ -3024,14 +2911,13 @@ void SdlOglWindow::uninitialize()
 		return;
 	}
 
-	static_cast<void>(SDL_GL_MakeCurrent(sdl_window_, nullptr));
-	SDL_GL_DestroyContext(sdl_ogl_context_);
+	SDL_DestroyRenderer(sdl_renderer_);
 	SDL_DestroyWindow(sdl_window_);
 
 	is_initialized_ = false;
 	sdl_window_ = nullptr;
+	sdl_renderer_ = nullptr;
 	sdl_window_id_ = 0;
-	sdl_ogl_context_ = nullptr;
 }
 
 //
@@ -3133,26 +3019,17 @@ bool FontManager::load_font_data(
 	const std::string& file_name,
 	Buffer& font_data)
 {
-	const auto normalized_file_name = ul::PathUtils::normalize(file_name);
+	const auto normalized_file_name = normalize_file_path(file_name);
+	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(normalized_file_name.c_str(), "rb")};
 
-	auto sdl_rw = SDL_IOFromFile(normalized_file_name.c_str(), "rb");
-
-	if (!sdl_rw)
+	if (sdl_io_stream_uptr == nullptr)
 	{
 		set_error_message("Failed to open font file: \"" + normalized_file_name + "\".");
 
 		return false;
 	}
 
-
-	auto guard_rw = ul::ScopeGuard{
-		[&]()
-		{
-			SDL_CloseIO(sdl_rw);
-		}
-	};
-
-	const auto file_size = SDL_GetIOSize(sdl_rw);
+	const auto file_size = SDL_GetIOSize(sdl_io_stream_uptr.get());
 
 	if (file_size > max_font_file_size)
 	{
@@ -3163,7 +3040,7 @@ bool FontManager::load_font_data(
 
 	font_data.resize(static_cast<Buffer::size_type>(file_size));
 
-	const auto read_size = SDL_ReadIO(sdl_rw, font_data.data(), static_cast<std::size_t>(file_size));
+	const auto read_size = SDL_ReadIO(sdl_io_stream_uptr.get(), font_data.data(), static_cast<std::size_t>(file_size));
 
 	if (read_size != static_cast<std::size_t>(file_size))
 	{
@@ -3202,8 +3079,6 @@ bool FontManager::add_font(
 	auto im_font_data = static_cast<std::uint8_t*>(ImGui::MemAlloc(font_data_size));
 
 	std::uninitialized_copy(font_data_ptr->cbegin(), font_data_ptr->cend(), im_font_data);
-
-	const auto font_index = static_cast<int>(description.font_id_);
 
 	static const ImWchar glyph_ranges[] =
 	{
@@ -3331,7 +3206,6 @@ const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 
 OglTextureManager::OglTextureManager()
 	:
-	sdl_ogl_window_{},
 	ogl_textures_{},
 	ogl_font_texture_{}
 {
@@ -3340,7 +3214,7 @@ OglTextureManager::OglTextureManager()
 OglTextureManager::OglTextureManager(
 	OglTextureManager&& rhs)
 	:
-	sdl_ogl_window_{std::move(rhs.sdl_ogl_window_)},
+	sdl_renderer_{std::move(rhs.sdl_renderer_)},
 	ogl_textures_{std::move(rhs.ogl_textures_)},
 	ogl_font_texture_{std::move(rhs.ogl_font_texture_)}
 {
@@ -3350,23 +3224,11 @@ OglTextureManager::~OglTextureManager()
 {
 }
 
-OglTextureManager& OglTextureManager::get_instance()
-{
-	static auto image_cache = OglTextureManager{};
-
-	return image_cache;
-}
-
-bool OglTextureManager::initialize()
+bool OglTextureManager::initialize(SdlOglWindow* sdl_ogl_window)
 {
 	uninitialize();
 
-	if (!initialize_context())
-	{
-		uninitialize_context();
-		return false;
-	}
-
+	sdl_renderer_ = sdl_ogl_window->get_renderer();
 	ogl_textures_.resize(image_file_names.size());
 
 	return true;
@@ -3377,14 +3239,8 @@ void OglTextureManager::uninitialize()
 	uninitialize_textures();
 
 	ogl_textures_.clear();
-
-	if (ogl_font_texture_.ogl_id_)
-	{
-		::glDeleteTextures(1, &ogl_font_texture_.ogl_id_);
-		ogl_font_texture_.ogl_id_ = 0;
-	}
-
-	uninitialize_context();
+	ogl_font_texture_ = nullptr;
+	sdl_renderer_ = nullptr;
 }
 
 bool OglTextureManager::load_all_textures()
@@ -3397,51 +3253,36 @@ bool OglTextureManager::load_all_textures()
 		return false;
 	}
 
-	auto guard_context = ul::ScopeGuard{
-		[&]()
-		{
-			sdl_ogl_window_.make_ogl_context_current(false);
-		}
-	};
-
 	const auto& configuration = Configuration::get_instance();
+	const std::size_t image_count = image_file_names.size();
+	ogl_textures_.resize(image_count);
 
-	sdl_ogl_window_.make_ogl_context_current(true);
-
-	const auto image_count = static_cast<int>(image_file_names.size());
-
-	for (auto i = 0; i < image_count; ++i)
+	for (std::size_t i = 0; i < image_count; ++i)
 	{
 		const auto& image_file_name = image_file_names[i];
+		const auto invariant_image_path = combine_and_normalize_file_paths(images_path, image_file_name);
+		SdlSurfaceUPtr image_surface{SDL_LoadBMP(invariant_image_path.c_str())};
 
-		const auto invariant_image_path = ul::PathUtils::normalize(ul::PathUtils::append(images_path, image_file_name));
-
-		auto image_surface = SDL_LoadBMP(invariant_image_path.c_str());
-
-		if (!image_surface)
+		if (image_surface == nullptr)
 		{
-			const auto specific_image_path = ul::PathUtils::normalize(
-				ul::PathUtils::append(ul::PathUtils::append(images_path, configuration.language_), image_file_name));
-
-			image_surface = SDL_LoadBMP(specific_image_path.c_str());
-
-			if (!image_surface)
-			{
-				set_error_message("Failed to load image: \"" + specific_image_path + "\".");
-				return false;
-			}
+			const auto specific_image_path = combine_and_normalize_file_paths(images_path, configuration.language_, image_file_name);
+			image_surface.reset(SDL_LoadBMP(specific_image_path.c_str()));
 		}
 
-		const auto ogl_texture = create_texture_from_surface(image_surface);
+		if (image_surface == nullptr)
+		{
+			set_error_message("Failed to load image: \"" + image_file_name + "\".");
+			return false;
+		}
 
-		SDL_DestroySurface(image_surface);
-
-		ogl_textures_[i] = ogl_texture;
-
-		if (!ogl_texture.ogl_id_)
+		if (SDL_Texture* const ogl_texture = create_texture_from_surface(image_surface.get());
+			ogl_texture != nullptr)
+		{
+			ogl_textures_[i].reset(ogl_texture);
+		}
+		else
 		{
 			prepend_error_message("Failed to create texure from \"" + image_file_name + "\". ");
-
 			return false;
 		}
 	}
@@ -3449,25 +3290,17 @@ bool OglTextureManager::load_all_textures()
 	return true;
 }
 
-const OglTexture& OglTextureManager::get(
+SDL_Texture* OglTextureManager::get(
 	const ImageId image_id)
 {
-	static const auto invalid_ogl_texture = OglTexture{};
-
-	const auto image_index = static_cast<int>(image_id);
+	const int image_index = narrow_cast<int>(image_id);
 
 	if (image_index < 0 || image_index >= static_cast<int>(ogl_textures_.size()))
 	{
-		return invalid_ogl_texture;
+		return nullptr;
 	}
 
-	return ogl_textures_[image_index];
-}
-
-void OglTextureManager::make_context_current(
-	const bool is_current)
-{
-	sdl_ogl_window_.make_ogl_context_current(is_current);
+	return ogl_textures_[image_index].get();
 }
 
 bool OglTextureManager::load_font()
@@ -3483,228 +3316,87 @@ bool OglTextureManager::load_font()
 
 	font_atlas.GetTexDataAsAlpha8(&pixels, &font_atlas_width, &font_atlas_height);
 
-	if (!pixels || font_atlas_width <= 0 || font_atlas_height <= 0)
+	if (pixels == nullptr || font_atlas_width <= 0 || font_atlas_height <= 0)
 	{
 		set_error_message("Failed to get font atlas.");
-
 		return false;
 	}
 
-	sdl_ogl_window_.make_ogl_context_current(true);
+	const SdlSurfaceUPtr sdl_surface_uptr{SDL_CreateSurfaceFrom(
+		font_atlas_width,
+		font_atlas_height,
+		SDL_PIXELFORMAT_INDEX8,
+		pixels,
+		font_atlas_width)};
 
-	::glGenTextures(1, &ogl_font_texture_.ogl_id_);
-	::glBindTexture(GL_TEXTURE_2D, ogl_font_texture_.ogl_id_);
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	::glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, font_atlas_width, font_atlas_height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pixels);
+	if (sdl_surface_uptr == nullptr)
+	{
+		set_error_message(std::format("[{}] {} (error_message={})", "FontAtlas", "SDL_CreateSurfaceFrom", SDL_GetError()));
+		return false;
+	}
 
-	ogl_font_texture_.uv0_ = {0.0F, 0.0F};
-	ogl_font_texture_.uv1_ = {1.0F, 1.0F};
+	SDL_Palette* const sdl_palette = SDL_CreateSurfacePalette(sdl_surface_uptr.get());
 
-	sdl_ogl_window_.make_ogl_context_current(false);
+	if (sdl_palette == nullptr)
+	{
+		set_error_message(std::format("[{}] {} (error_message={})", "FontAtlas", "SDL_CreateSurfacePalette", SDL_GetError()));
+		return false;
+	}
+
+	if (sdl_palette->ncolors != 256)
+	{
+		set_error_message(std::format("[{}] {} (color_count={})", "FontAtlas", "Expected 256-color SDL surface.", sdl_palette->ncolors));
+		return false;
+	}
+
+	for (int i_color = 0; i_color < 256; ++i_color)
+	{
+		SDL_Color& color = sdl_palette->colors[i_color];
+		color.r = 0xFF;
+		color.g = 0xFF;
+		color.b = 0xFF;
+		color.a = narrow_cast<Uint8>(i_color);
+	}
+
+	ogl_font_texture_.reset(SDL_CreateTextureFromSurface(sdl_renderer_, sdl_surface_uptr.get()));
+
+	if (ogl_font_texture_ == nullptr)
+	{
+		set_error_message(std::format("[{}] {} (error_message={})", "FontAtlas", "SDL_CreateTextureFromSurface", SDL_GetError()));
+		return false;
+	}
+
+	SDL_SetTextureBlendMode(ogl_font_texture_.get(), SDL_BLENDMODE_BLEND);
 
 	return true;
 }
 
-const OglTexture& OglTextureManager::get_font()
+SDL_Texture* OglTextureManager::get_font()
 {
-	return ogl_font_texture_;
+	return ogl_font_texture_.get();
 }
 
-OglTexture OglTextureManager::create_texture_from_surface(
+SDL_Texture* OglTextureManager::create_texture_from_surface(
 	SDL_Surface* sdl_surface)
 {
-	if (!sdl_surface)
+	if (SDL_Texture* const sdl_texture = SDL_CreateTextureFromSurface(sdl_renderer_, sdl_surface);
+		sdl_texture != nullptr)
 	{
-		set_error_message("No surface.");
-		return {};
+		return sdl_texture;
 	}
 
-	if (sdl_surface->w <= 0 || sdl_surface->h <= 0)
-	{
-		set_error_message("Invalid surface dimensions.");
-		return {};
-	}
-
-	if (!sdl_surface->pixels)
-	{
-		set_error_message("No surface pixels.");
-		return {};
-	}
-
-	const auto src_width = sdl_surface->w;
-	const auto src_height = sdl_surface->h;
-
-	static constexpr auto rgba_sdl_pixel_format =
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		SDL_PIXELFORMAT_RGBA8888
-#else
-		SDL_PIXELFORMAT_ABGR8888
-#endif
-	;
-
-	auto rgba_sdl_surface = ltjs::SdlSurfaceUResource{};
-
-	if (sdl_surface->format != rgba_sdl_pixel_format)
-	{
-		rgba_sdl_surface = ltjs::SdlSurfaceUResource{SDL_ConvertSurface(sdl_surface, rgba_sdl_pixel_format)};
-
-		if (!rgba_sdl_surface)
-		{
-			set_error_message("Failed to create \"RGBA\" SDL surface.");
-			return {};
-		}
-
-		sdl_surface = rgba_sdl_surface.get();
-	}
-
-	const auto pot_width = ogl_calculate_npot_dimension(sdl_surface->w);
-	const auto pot_height = ogl_calculate_npot_dimension(sdl_surface->h);
-
-	const auto is_npot = (src_width != pot_width || src_height != pot_height);
-	const auto is_make_pot = is_npot && !GLAD_GL_ARB_texture_non_power_of_two;
-
-	auto dst_width = src_width;
-	auto dst_height = src_height;
-
-	auto pot_sdl_surface = ltjs::SdlSurfaceUResource{};
-
-	if (is_make_pot)
-	{
-		dst_width = pot_width;
-		dst_height = pot_height;
-
-		pot_sdl_surface = ltjs::SdlSurfaceUResource{SDL_CreateSurface(
-			dst_width,
-			dst_height,
-			rgba_sdl_pixel_format
-		)};
-
-		if (!pot_sdl_surface)
-		{
-			set_error_message("Failed to create \"POT\" SDL surface.");
-			return {};
-		}
-
-		const bool sdl_result = SDL_BlitSurfaceScaled(
-			sdl_surface,
-			nullptr,
-			pot_sdl_surface.get(),
-			nullptr,
-			SDL_SCALEMODE_NEAREST
-		);
-
-		if (!sdl_result)
-		{
-			set_error_message("Failed to blit \"POT\" SDL surface.");
-			return {};
-		}
-
-		sdl_surface = pot_sdl_surface.get();
-	}
-
-	auto result = OglTexture{};
-
-	::glGenTextures(1, &result.ogl_id_);
-	::glBindTexture(GL_TEXTURE_2D, result.ogl_id_);
-
-	::glTexImage2D(
-		GL_TEXTURE_2D,
-		0,
-		GL_RGBA,
-		dst_width,
-		dst_height,
-		0,
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		sdl_surface->pixels
-	);
-
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	const auto u_offset = 0.0F;
-	const auto v_offset = 0.0F;
-
-	result.uv0_ = {u_offset, v_offset};
-	result.uv1_ = {1.0F - u_offset, 1.0F - v_offset};
-
-	return result;
+	set_error_message(std::format("[{}] {} (error_message={})", "TexMgr", "SDL_CreateTextureFromSurface", SDL_GetError()));
+	return nullptr;
 }
 
 void OglTextureManager::unload_font()
 {
-	if (!ogl_font_texture_.ogl_id_)
-	{
-		return;
-	}
-
-	::glDeleteTextures(1, &ogl_font_texture_.ogl_id_);
-	ogl_font_texture_.ogl_id_ = 0;
-
-	ogl_font_texture_.uv0_ = {};
-	ogl_font_texture_.uv1_ = {};
-}
-
-bool OglTextureManager::initialize_context()
-{
-	auto window_param = SdlCreateWindowParam{};
-	window_param.title_ = "dummy";
-	window_param.width_ = 64;
-	window_param.height_ = 64;
-	window_param.is_hidden_ = true;
-	window_param.is_double_buffering_ = true;
-	window_param.is_share_with_current_ogl_context_ = false;
-
-	auto error_message = std::string{};
-	sdl_ogl_window_ = SdlOglWindow{window_param};
-
-	if (!sdl_ogl_window_.is_initialized())
-	{
-		set_error_message("Failed to create dummy window. " + error_message);
-		return false;
-	}
-
-	return true;
-}
-
-void OglTextureManager::uninitialize_context()
-{
-	sdl_ogl_window_ = {};
+	ogl_font_texture_ = nullptr;
 }
 
 void OglTextureManager::uninitialize_textures()
 {
-	if (!sdl_ogl_window_.is_initialized())
-	{
-		return;
-	}
-
-	sdl_ogl_window_.make_ogl_context_current(true);
-
-	for (auto& ogl_texture : ogl_textures_)
-	{
-		if (ogl_texture.ogl_id_)
-		{
-			::glDeleteTextures(1, &ogl_texture.ogl_id_);
-			ogl_texture.ogl_id_ = 0;
-		}
-	}
-
-	sdl_ogl_window_.make_ogl_context_current(false);
-}
-
-int OglTextureManager::ogl_calculate_npot_dimension(
-	const int dimension)
-{
-	auto power = 0;
-
-	while ((1 << power) < dimension)
-	{
-		power += 1;
-	}
-
-	return 1 << power;
+	ogl_textures_.clear();
 }
 
 //
@@ -3958,10 +3650,6 @@ Window::~Window()
 bool Window::initialize(
 	const WindowCreateParam& param)
 {
-	auto& ogl_texture_manager = OglTextureManager::get_instance();
-
-	ogl_texture_manager.make_context_current(true);
-
 	auto is_succeed = true;
 
 	if (is_succeed)
@@ -3975,13 +3663,12 @@ bool Window::initialize(
 		window_param.is_double_buffering_ = true;
 		window_param.is_share_with_current_ogl_context_ = true;
 
-		auto error_message = std::string{};
 		sdl_ogl_window_ = SdlOglWindow{window_param};
 
 		if (!sdl_ogl_window_.is_initialized())
 		{
 			is_succeed = false;
-			set_error_message("Failed to create window. " + error_message);
+			set_error_message("Failed to create window. " + sdl_ogl_window_.get_error_message());
 		}
 	}
 
@@ -3994,6 +3681,33 @@ bool Window::initialize(
 		{
 			is_succeed = false;
 			set_error_message("No font atlas.");
+		}
+	}
+
+	if (is_succeed)
+	{
+		if (!ogl_texture_manager_.initialize(&sdl_ogl_window_))
+		{
+			is_succeed = false;
+			set_error_message("Failed to create GL texture manager. " + ogl_texture_manager_.get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
+		if (!ogl_texture_manager_.load_font())
+		{
+			is_succeed = false;
+			set_error_message("Failed to create font atlas GL texture. " + ogl_texture_manager_.get_error_message());
+		}
+	}
+
+	if (is_succeed)
+	{
+		if (!ogl_texture_manager_.load_all_textures())
+		{
+			is_succeed = false;
+			set_error_message("Failed to create all GL textures. " + ogl_texture_manager_.get_error_message());
 		}
 	}
 
@@ -4144,16 +3858,14 @@ void Window::draw()
 		return;
 	}
 
-	sdl_ogl_window_.make_ogl_context_current(true);
-
 	ImGui::SetCurrentContext(im_context_);
 
 	auto& im_io = ImGui::GetIO();
 
-	auto& ogl_texture_manager = OglTextureManager::get_instance();
-	const auto& font_texture = ogl_texture_manager.get_font();
+	auto& ogl_texture_manager = get_texture_manager();
+	SDL_Texture* const font_texture = ogl_texture_manager.get_font();
 
-	im_io.Fonts->TexID = font_texture.get_im_texture_id();
+	im_io.Fonts->TexID = font_texture;
 
 	im_new_frame();
 
@@ -4164,7 +3876,6 @@ void Window::draw()
 	im_render();
 
 	ImGui::SetCurrentContext(nullptr);
-	sdl_ogl_window_.make_ogl_context_current(false);
 }
 
 void Window::im_handle_events()
@@ -4206,6 +3917,8 @@ void Window::uninitialize()
 		ImGui::DestroyContext(im_context_);
 		im_context_ = nullptr;
 	}
+
+	ogl_texture_manager_.uninitialize();
 
 	if (sdl_ogl_window_.is_initialized())
 	{
@@ -4325,19 +4038,6 @@ void Window::minimize_internal(
 	}
 }
 
-int Window::ogl_calculate_npot_dimension(
-	const int dimension)
-{
-	auto power = 0;
-
-	while ((1 << power) < dimension)
-	{
-		power += 1;
-	}
-
-	return 1 << power;
-}
-
 bool Window::is_point_inside_rect(
 	const ImVec2& point,
 	const ImVec4& rect)
@@ -4355,6 +4055,11 @@ ImVec2 Window::center_size_inside_rect(
 		outer_rect.x + (0.5F * (outer_rect.z - inner_size.x)),
 		outer_rect.y + (0.5F * (outer_rect.w - inner_size.y)),
 	};
+}
+
+OglTextureManager& Window::get_texture_manager()
+{
+	return ogl_texture_manager_;
 }
 
 void Window::im_new_frame()
@@ -4490,11 +4195,12 @@ void Window::im_render()
 		return;
 	}
 
-	auto& io = ImGui::GetIO();
-
-	::glViewport(0, 0, static_cast<int>(io.DisplaySize.x), static_cast<int>(io.DisplaySize.y));
-	::glClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-	::glClear(GL_COLOR_BUFFER_BIT);
+	ImGuiIO& io = ImGui::GetIO();
+	const SDL_Rect sdl_viewport{0, 0, narrow_cast<int>(io.DisplaySize.x), narrow_cast<int>(io.DisplaySize.y)};
+	SDL_Renderer* const sdl_renderer = sdl_ogl_window_.get_renderer();
+	SDL_SetRenderViewport(sdl_renderer, &sdl_viewport);
+	SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x00, 0x00, 0xFF);
+	SDL_RenderClear(sdl_renderer);
 
 	im_render_data(draw_data);
 
@@ -4519,153 +4225,78 @@ void Window::im_render_data(
 
 	draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
-	// We are using the OpenGL fixed pipeline to make the example code simpler to read!
-	// Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers, polygon fill.
+	static_assert(sizeof(ImDrawIdx) == 2);
 
-	GLint last_texture;
-	::glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-
-	GLint last_polygon_mode[2];
-	::glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
-
-	GLint last_viewport[4];
-	::glGetIntegerv(GL_VIEWPORT, last_viewport);
-
-	GLint last_scissor_box[4];
-	::glGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
-
-	::glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
-	::glEnable(GL_BLEND);
-	::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	::glDisable(GL_CULL_FACE);
-	::glDisable(GL_DEPTH_TEST);
-	::glDisable(GL_LIGHTING);
-	::glDisable(GL_COLOR_MATERIAL);
-	::glEnable(GL_SCISSOR_TEST);
-	::glEnableClientState(GL_VERTEX_ARRAY);
-	::glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	::glEnableClientState(GL_COLOR_ARRAY);
-	::glEnable(GL_TEXTURE_2D);
-	::glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	// Setup viewport, orthographic projection matrix
-	// Our visible imgui space lies from draw_data->DisplayPps (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayMin is typically (0,0) for single viewport apps.
-	//
-
-	::glViewport(0, 0, static_cast<GLsizei>(fb_width), static_cast<GLsizei>(fb_height));
-	::glMatrixMode(GL_PROJECTION);
-	::glPushMatrix();
-	::glLoadIdentity();
-
-	::glOrtho(
-		draw_data->DisplayPos.x,
-		draw_data->DisplayPos.x + draw_data->DisplaySize.x,
-		draw_data->DisplayPos.y + draw_data->DisplaySize.y,
-		draw_data->DisplayPos.y,
-		-1.0,
-		+1.0);
-
-	::glMatrixMode(GL_MODELVIEW);
-	::glPushMatrix();
-	::glLoadIdentity();
-
-	// Render command lists
-	auto pos = draw_data->DisplayPos;
+	const ImVec2& pos = draw_data->DisplayPos;
+	SDL_Renderer* const sdl_renderer = sdl_ogl_window_.get_renderer();
 
 	for (int n = 0; n < draw_data->CmdListsCount; ++n)
 	{
-		const auto cmd_list = draw_data->CmdLists[n];
-		const auto vtx_buffer = cmd_list->VtxBuffer.Data;
-		auto idx_buffer = cmd_list->IdxBuffer.Data;
+		const ImDrawList* const cmd_list = draw_data->CmdLists[n];
+		const ImDrawVert* const vtx_buffer = cmd_list->VtxBuffer.Data;
+		const ImDrawIdx* const idx_buffer = cmd_list->IdxBuffer.Data;
 
-		::glVertexPointer(
-			2,
-			GL_FLOAT,
-			sizeof(ImDrawVert),
-			(const GLvoid*)((const char*)vtx_buffer + IM_OFFSETOF(ImDrawVert, pos)));
+		sdl_geometry_.vertices.clear();
+		sdl_geometry_.vertices.resize(cmd_list->VtxBuffer.Size);
 
-		::glTexCoordPointer(
-			2,
-			GL_FLOAT,
-			sizeof(ImDrawVert),
-			(const GLvoid*)((const char*)vtx_buffer + IM_OFFSETOF(ImDrawVert, uv)));
+		for (int i_vertex = 0; i_vertex < cmd_list->VtxBuffer.Size; ++i_vertex)
+		{
+			const ImDrawVert& src_vertex = vtx_buffer[i_vertex];
+			SDL_Vertex& dst_vertex = sdl_geometry_.vertices[i_vertex];
+			dst_vertex.position.x = src_vertex.pos.x;
+			dst_vertex.position.y = src_vertex.pos.y;
+			dst_vertex.color.r = ((src_vertex.col >>  0) & 0xFF) / 255.0F;
+			dst_vertex.color.g = ((src_vertex.col >>  8) & 0xFF) / 255.0F;
+			dst_vertex.color.b = ((src_vertex.col >> 16) & 0xFF) / 255.0F;
+			dst_vertex.color.a = ((src_vertex.col >> 24) & 0xFF) / 255.0F;
+			dst_vertex.tex_coord.x = src_vertex.uv.x;
+			dst_vertex.tex_coord.y = src_vertex.uv.y;
+		}
 
-		::glColorPointer(
-			4,
-			GL_UNSIGNED_BYTE,
-			sizeof(ImDrawVert),
-			(const GLvoid*)((const char*)vtx_buffer + IM_OFFSETOF(ImDrawVert, col)));
+		sdl_geometry_.indices.clear();
+		sdl_geometry_.indices.resize(cmd_list->IdxBuffer.Size);
+
+		for (int i_index = 0; i_index < cmd_list->IdxBuffer.Size; ++i_index)
+		{
+			sdl_geometry_.indices[i_index] = idx_buffer[i_index];
+		}
+
+		int index_offset = 0;
 
 		for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; ++cmd_i)
 		{
-			const auto pcmd = &cmd_list->CmdBuffer[cmd_i];
+			const ImDrawCmd* const pcmd = &cmd_list->CmdBuffer[cmd_i];
 
-			if (pcmd->UserCallback)
+			const ImVec4 clip_rect{
+				pcmd->ClipRect.x - pos.x,
+				pcmd->ClipRect.y - pos.y,
+				pcmd->ClipRect.z - pos.x,
+				pcmd->ClipRect.w - pos.y};
+
+			if (clip_rect.x < fb_width &&
+				clip_rect.y < fb_height &&
+				clip_rect.z >= 0.0f &&
+				clip_rect.w >= 0.0f)
 			{
-				// User callback (registered via ImDrawList::AddCallback)
-				pcmd->UserCallback(cmd_list, pcmd);
-			}
-			else
-			{
-				auto clip_rect = ImVec4
-				{
-					pcmd->ClipRect.x - pos.x,
-					pcmd->ClipRect.y - pos.y,
-					pcmd->ClipRect.z - pos.x,
-					pcmd->ClipRect.w - pos.y
-				};
-
-				if (clip_rect.x < fb_width &&
-					clip_rect.y < fb_height &&
-					clip_rect.z >= 0.0f &&
-					clip_rect.w >= 0.0f)
-				{
-					::glScissor(
-						static_cast<int>(clip_rect.x),
-						static_cast<int>(fb_height - clip_rect.w),
-						static_cast<int>(clip_rect.z - clip_rect.x),
-						static_cast<int>(clip_rect.w - clip_rect.y));
-
-					::glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(reinterpret_cast<intptr_t>(pcmd->TextureId)));
-
-					::glDrawElements(
-						GL_TRIANGLES,
-						static_cast<GLsizei>(pcmd->ElemCount),
-						sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT,
-						idx_buffer);
-				}
+				const SDL_Rect sdl_clip_rect{
+					narrow_cast<int>(clip_rect.x),
+					narrow_cast<int>(clip_rect.y),
+					narrow_cast<int>(clip_rect.z),
+					narrow_cast<int>(clip_rect.w)};
+				SDL_SetRenderClipRect(sdl_renderer, &sdl_clip_rect);
+				SDL_Texture* const sdl_texture = static_cast<SDL_Texture*>(pcmd->TextureId);
+				SDL_RenderGeometry(
+					sdl_renderer,
+					sdl_texture,
+					sdl_geometry_.vertices.data(),
+					narrow_cast<int>(sdl_geometry_.vertices.size()),
+					sdl_geometry_.indices.data() + index_offset,
+					pcmd->ElemCount);
 			}
 
-			idx_buffer += pcmd->ElemCount;
+			index_offset += pcmd->ElemCount;
 		}
 	}
-
-	// Restore modified state
-	//
-
-	::glDisableClientState(GL_COLOR_ARRAY);
-	::glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	::glDisableClientState(GL_VERTEX_ARRAY);
-	::glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(last_texture));
-	::glMatrixMode(GL_MODELVIEW);
-	::glPopMatrix();
-	::glMatrixMode(GL_PROJECTION);
-	::glPopMatrix();
-	::glPopAttrib();
-	::glPolygonMode(GL_FRONT, static_cast<GLenum>(last_polygon_mode[0]));
-	::glPolygonMode(GL_BACK, static_cast<GLenum>(last_polygon_mode[1]));
-
-	::glViewport(
-		static_cast<GLsizei>(last_viewport[0]),
-		static_cast<GLsizei>(last_viewport[1]),
-		static_cast<GLsizei>(last_viewport[2]),
-		static_cast<GLsizei>(last_viewport[3]));
-
-	::glScissor(
-		static_cast<GLsizei>(last_scissor_box[0]),
-		static_cast<GLsizei>(last_scissor_box[1]),
-		static_cast<GLsizei>(last_scissor_box[2]),
-		static_cast<GLsizei>(last_scissor_box[3]));
 }
 
 //
@@ -4777,7 +4408,7 @@ void MessageBoxWindow::do_draw()
 
 	auto& font_manager = FontManager::get_instance();
 
-	auto& ogl_texture_manager = OglTextureManager::get_instance();
+	auto& ogl_texture_manager = get_texture_manager();
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
@@ -4814,10 +4445,8 @@ void MessageBoxWindow::do_draw()
 	const auto& ogl_boxbackground_texture = ogl_texture_manager.get(ImageId::boxbackground);
 
 	ImGui::Image(
-		ogl_boxbackground_texture.get_im_texture_id(),
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
-		ogl_boxbackground_texture.uv0_,
-		ogl_boxbackground_texture.uv1_);
+		ogl_boxbackground_texture,
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale);
 
 
 	// "Close" button.
@@ -4851,11 +4480,7 @@ void MessageBoxWindow::do_draw()
 
 	ImGui::SetCursorPos(close_pos);
 
-	ImGui::Image(
-		ogl_close_texture.get_im_texture_id(),
-		close_size,
-		ogl_close_texture.uv0_,
-		ogl_close_texture.uv1_);
+	ImGui::Image(ogl_close_texture, close_size);
 
 
 	// "Icon" image.
@@ -4886,11 +4511,7 @@ void MessageBoxWindow::do_draw()
 
 	ImGui::SetCursorPos(icon_pos);
 
-	ImGui::Image(
-		ogl_icon_texture.get_im_texture_id(),
-		icon_size,
-		ogl_icon_texture.uv0_,
-		ogl_icon_texture.uv1_);
+	ImGui::Image(ogl_icon_texture, icon_size);
 
 
 	// Title.
@@ -4988,11 +4609,7 @@ void MessageBoxWindow::do_draw()
 
 	ImGui::SetCursorPos(ok_pos);
 
-	ImGui::Image(
-		ogl_ok_texture.get_im_texture_id(),
-		ok_size,
-		ogl_ok_texture.uv0_,
-		ogl_ok_texture.uv1_);
+	ImGui::Image(ogl_ok_texture, ok_size);
 
 
 	// "Cancel" button.
@@ -5041,11 +4658,7 @@ void MessageBoxWindow::do_draw()
 
 		ImGui::SetCursorPos(cancel_pos);
 
-		ImGui::Image(
-			ogl_cancel_texture.get_im_texture_id(),
-			cancel_size,
-			ogl_cancel_texture.uv0_,
-			ogl_cancel_texture.uv1_);
+		ImGui::Image(ogl_cancel_texture, cancel_size);
 	}
 
 
@@ -5179,24 +4792,15 @@ void MainWindow::uninitialize()
 
 bool MainWindow::is_lithtech_executable_exists() const
 {
-	const auto normalized_file_name = ul::PathUtils::normalize(lithtech_executable);
+	const auto normalized_file_name = normalize_file_path(lithtech_executable);
+	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(normalized_file_name.c_str(), "rb")};
 
-	auto sdl_rw = SDL_IOFromFile(normalized_file_name.c_str(), "rb");
-
-	if (!sdl_rw)
+	if (sdl_io_stream_uptr == nullptr)
 	{
 		return false;
 	}
 
-
-	auto guard_rw = ul::ScopeGuard{
-		[&]()
-		{
-			SDL_CloseIO(sdl_rw);
-		}
-	};
-
-	const auto file_size = SDL_GetIOSize(sdl_rw);
+	const auto file_size = SDL_GetIOSize(sdl_io_stream_uptr.get());
 
 	if (file_size <= 0)
 	{
@@ -5417,7 +5021,7 @@ void MainWindow::change_language()
 	auto& launcher = Launcher::get_instance();
 	auto& resource_strings = launcher.get_resource_strings();
 	auto& configuration = Configuration::get_instance();
-	auto& ogl_texture_manager = OglTextureManager::get_instance();
+	auto& ogl_texture_manager = get_texture_manager();
 	auto& window_manager = WindowManager::get_instance();
 
 	auto is_succeed = true;
@@ -5601,11 +5205,11 @@ bool MainWindow::save_arguments(
 	const auto& configuration = Configuration::get_instance();
 	const auto& config_path = configuration.get_config_path();
 	const auto& arguments_file_name = configuration.get_arguments_file_name();
-	const auto file_name = ul::PathUtils::append(config_path, arguments_file_name);
+	const auto file_name = combine_and_normalize_file_paths(config_path, arguments_file_name);
 
-	auto file_stream = ul::FileStream{file_name, ul::Stream::OpenMode::write | ul::Stream::OpenMode::truncate};
+	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(file_name.c_str(), "wb")};
 
-	if (!file_stream.is_open())
+	if (sdl_io_stream_uptr == nullptr)
 	{
 		return false;
 	}
@@ -5617,7 +5221,7 @@ bool MainWindow::save_arguments(
 		return true;
 	}
 
-	const auto write_result = file_stream.write(command_line.c_str(), data_size);
+	const std::size_t write_result = SDL_WriteIO(sdl_io_stream_uptr.get(), command_line.c_str(), data_size);
 
 	if (write_result != data_size)
 	{
@@ -5634,7 +5238,7 @@ void MainWindow::do_draw()
 
 	const auto scale = window_manager.get_scale();
 
-	auto& ogl_texture_manager = OglTextureManager::get_instance();
+	auto& ogl_texture_manager = get_texture_manager();
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
@@ -5673,10 +5277,8 @@ void MainWindow::do_draw()
 	const auto& ogl_mainappbackground_texture = ogl_texture_manager.get(ImageId::mainappbackground);
 
 	ImGui::Image(
-		ogl_mainappbackground_texture.get_im_texture_id(),
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
-		ogl_mainappbackground_texture.uv0_,
-		ogl_mainappbackground_texture.uv1_);
+		ogl_mainappbackground_texture,
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale);
 
 
 	// Minimize button.
@@ -5710,11 +5312,7 @@ void MainWindow::do_draw()
 
 	ImGui::SetCursorPos(minimize_pos);
 
-	ImGui::Image(
-		ogl_minimize_texture.get_im_texture_id(),
-		minimize_size,
-		ogl_minimize_texture.uv0_,
-		ogl_minimize_texture.uv1_);
+	ImGui::Image(ogl_minimize_texture, minimize_size);
 
 
 	// Close button.
@@ -5748,11 +5346,7 @@ void MainWindow::do_draw()
 
 	ImGui::SetCursorPos(close_pos);
 
-	ImGui::Image(
-		ogl_close_texture.get_im_texture_id(),
-		close_size,
-		ogl_close_texture.uv0_,
-		ogl_close_texture.uv1_);
+	ImGui::Image(ogl_close_texture, close_size);
 
 
 	// Language.
@@ -5870,11 +5464,7 @@ void MainWindow::do_draw()
 
 	ImGui::SetCursorPos(publisher1web_pos);
 
-	ImGui::Image(
-		ogl_publisher1web_texture.get_im_texture_id(),
-		publisher1web_size,
-		ogl_publisher1web_texture.uv0_,
-		ogl_publisher1web_texture.uv1_);
+	ImGui::Image(ogl_publisher1web_texture, publisher1web_size);
 
 
 	// Monolith Productions button.
@@ -5921,11 +5511,7 @@ void MainWindow::do_draw()
 
 	ImGui::SetCursorPos(company1web_pos);
 
-	ImGui::Image(
-		ogl_company1web_texture.get_im_texture_id(),
-		company1web_size,
-		ogl_company1web_texture.uv0_,
-		ogl_company1web_texture.uv1_);
+	ImGui::Image(ogl_company1web_texture, company1web_size);
 
 
 	// LithTech button.
@@ -5972,11 +5558,7 @@ void MainWindow::do_draw()
 
 	ImGui::SetCursorPos(company2web_pos);
 
-	ImGui::Image(
-		ogl_company2web_texture.get_im_texture_id(),
-		company2web_size,
-		ogl_company2web_texture.uv0_,
-		ogl_company2web_texture.uv1_);
+	ImGui::Image(ogl_company2web_texture, company2web_size);
 
 
 	// Sierra Entertainment button.
@@ -6023,11 +5605,7 @@ void MainWindow::do_draw()
 
 	ImGui::SetCursorPos(publisher2web_pos);
 
-	ImGui::Image(
-		ogl_publisher2web_texture.get_im_texture_id(),
-		publisher2web_size,
-		ogl_publisher2web_texture.uv0_,
-		ogl_publisher2web_texture.uv1_);
+	ImGui::Image(ogl_publisher2web_texture, publisher2web_size);
 
 
 	// Install/Play button.
@@ -6074,11 +5652,7 @@ void MainWindow::do_draw()
 
 	ImGui::SetCursorPos(install_or_play_pos);
 
-	ImGui::Image(
-		ogl_install_or_play_texture.get_im_texture_id(),
-		install_or_play_size,
-		ogl_install_or_play_texture.uv0_,
-		ogl_install_or_play_texture.uv1_);
+	ImGui::Image(ogl_install_or_play_texture, install_or_play_size);
 
 
 	// Display button.
@@ -6134,11 +5708,7 @@ void MainWindow::do_draw()
 
 	ImGui::SetCursorPos(display_pos);
 
-	ImGui::Image(
-		ogl_display_texture.get_im_texture_id(),
-		display_size,
-		ogl_display_texture.uv0_,
-		ogl_display_texture.uv1_);
+	ImGui::Image(ogl_display_texture, display_size);
 
 
 	// Options button.
@@ -6194,11 +5764,7 @@ void MainWindow::do_draw()
 
 	ImGui::SetCursorPos(options_pos);
 
-	ImGui::Image(
-		ogl_options_texture.get_im_texture_id(),
-		options_size,
-		ogl_options_texture.uv0_,
-		ogl_options_texture.uv1_);
+	ImGui::Image(ogl_options_texture, options_size);
 
 
 	// Quit button.
@@ -6244,11 +5810,7 @@ void MainWindow::do_draw()
 
 	ImGui::SetCursorPos(quit_pos);
 
-	ImGui::Image(
-		ogl_quit_texture.get_im_texture_id(),
-		quit_size,
-		ogl_quit_texture.uv0_,
-		ogl_quit_texture.uv1_);
+	ImGui::Image(ogl_quit_texture, quit_size);
 
 
 	// End main window.
@@ -6439,7 +6001,7 @@ void DetailSettingsWindow::do_draw()
 
 	const auto scale = window_manager.get_scale();
 
-	auto& ogl_texture_manager = OglTextureManager::get_instance();
+	auto& ogl_texture_manager = get_texture_manager();
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
@@ -6475,10 +6037,8 @@ void DetailSettingsWindow::do_draw()
 	const auto& ogl_displaybackground_texture = ogl_texture_manager.get(ImageId::detailsettingsbackground);
 
 	ImGui::Image(
-		ogl_displaybackground_texture.get_im_texture_id(),
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
-		ogl_displaybackground_texture.uv0_,
-		ogl_displaybackground_texture.uv1_);
+		ogl_displaybackground_texture,
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale);
 
 
 	// Close button.
@@ -6512,11 +6072,7 @@ void DetailSettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(close_pos);
 
-	ImGui::Image(
-		ogl_close_texture.get_im_texture_id(),
-		close_size,
-		ogl_close_texture.uv0_,
-		ogl_close_texture.uv1_);
+	ImGui::Image(ogl_close_texture, close_size);
 
 
 	// "Cancel" button.
@@ -6562,11 +6118,7 @@ void DetailSettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(cancel_pos);
 
-	ImGui::Image(
-		ogl_cancel_texture.get_im_texture_id(),
-		cancel_size,
-		ogl_cancel_texture.uv0_,
-		ogl_cancel_texture.uv1_);
+	ImGui::Image(ogl_cancel_texture, cancel_size);
 
 
 	// Header.
@@ -6658,11 +6210,7 @@ void DetailSettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(high_button_pos);
 
-	ImGui::Image(
-		ogl_high_texture.get_im_texture_id(),
-		high_button_size,
-		ogl_high_texture.uv0_,
-		ogl_high_texture.uv1_);
+	ImGui::Image(ogl_high_texture, high_button_size);
 
 
 	// Medium detail header.
@@ -6731,11 +6279,7 @@ void DetailSettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(medium_button_pos);
 
-	ImGui::Image(
-		ogl_medium_texture.get_im_texture_id(),
-		medium_button_size,
-		ogl_medium_texture.uv0_,
-		ogl_medium_texture.uv1_);
+	ImGui::Image(ogl_medium_texture, medium_button_size);
 
 
 	// Low detail header.
@@ -6804,11 +6348,7 @@ void DetailSettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(low_button_pos);
 
-	ImGui::Image(
-		ogl_low_texture.get_im_texture_id(),
-		low_button_size,
-		ogl_low_texture.uv0_,
-		ogl_low_texture.uv1_);
+	ImGui::Image(ogl_low_texture, low_button_size);
 
 
 	// End detail settings window.
@@ -6955,7 +6495,7 @@ void DisplaySettingsWindow::do_draw()
 
 	const auto scale = window_manager.get_scale();
 
-	auto& ogl_texture_manager = OglTextureManager::get_instance();
+	auto& ogl_texture_manager = get_texture_manager();
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
@@ -6997,10 +6537,8 @@ void DisplaySettingsWindow::do_draw()
 	const auto& ogl_displaybackground_texture = ogl_texture_manager.get(ImageId::displaybackground);
 
 	ImGui::Image(
-		ogl_displaybackground_texture.get_im_texture_id(),
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
-		ogl_displaybackground_texture.uv0_,
-		ogl_displaybackground_texture.uv1_);
+		ogl_displaybackground_texture,
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale);
 
 
 	// Close button.
@@ -7034,11 +6572,7 @@ void DisplaySettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(close_pos);
 
-	ImGui::Image(
-		ogl_close_texture.get_im_texture_id(),
-		close_size,
-		ogl_close_texture.uv0_,
-		ogl_close_texture.uv1_);
+	ImGui::Image(ogl_close_texture, close_size);
 
 
 	// Resolutions list.
@@ -7200,11 +6734,7 @@ void DisplaySettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(ok_pos);
 
-	ImGui::Image(
-		ogl_ok_texture.get_im_texture_id(),
-		ok_size,
-		ogl_ok_texture.uv0_,
-		ogl_ok_texture.uv1_);
+	ImGui::Image(ogl_ok_texture, ok_size);
 
 
 	// "Cancel" button.
@@ -7250,11 +6780,7 @@ void DisplaySettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(cancel_pos);
 
-	ImGui::Image(
-		ogl_cancel_texture.get_im_texture_id(),
-		cancel_size,
-		ogl_cancel_texture.uv0_,
-		ogl_cancel_texture.uv1_);
+	ImGui::Image(ogl_cancel_texture, cancel_size);
 
 
 	// End display settings window.
@@ -7540,7 +7066,7 @@ void AdvancedSettingsWindow::do_draw()
 
 	const auto scale = window_manager.get_scale();
 
-	auto& ogl_texture_manager = OglTextureManager::get_instance();
+	auto& ogl_texture_manager = get_texture_manager();
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
@@ -7586,10 +7112,8 @@ void AdvancedSettingsWindow::do_draw()
 	const auto& ogl_displaybackground_texture = ogl_texture_manager.get(ImageId::optionsbackground);
 
 	ImGui::Image(
-		ogl_displaybackground_texture.get_im_texture_id(),
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
-		ogl_displaybackground_texture.uv0_,
-		ogl_displaybackground_texture.uv1_);
+		ogl_displaybackground_texture,
+		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale);
 
 
 	// Close button.
@@ -7623,11 +7147,7 @@ void AdvancedSettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(close_pos);
 
-	ImGui::Image(
-		ogl_close_texture.get_im_texture_id(),
-		close_size,
-		ogl_close_texture.uv0_,
-		ogl_close_texture.uv1_);
+	ImGui::Image(ogl_close_texture, close_size);
 
 
 	// Check boxes.
@@ -7725,11 +7245,7 @@ void AdvancedSettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(ok_pos);
 
-	ImGui::Image(
-		ogl_ok_texture.get_im_texture_id(),
-		ok_size,
-		ogl_ok_texture.uv0_,
-		ogl_ok_texture.uv1_);
+	ImGui::Image(ogl_ok_texture, ok_size);
 
 
 	// "Cancel" button.
@@ -7775,11 +7291,7 @@ void AdvancedSettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(cancel_pos);
 
-	ImGui::Image(
-		ogl_cancel_texture.get_im_texture_id(),
-		cancel_size,
-		ogl_cancel_texture.uv0_,
-		ogl_cancel_texture.uv1_);
+	ImGui::Image(ogl_cancel_texture, cancel_size);
 
 
 	// End advanced settings window.
@@ -7838,7 +7350,7 @@ void AdvancedSettingsWindow::draw_check_box(
 
 	const auto& resource_strings = launcher.get_resource_strings();
 
-	auto& ogl_texture_manager = OglTextureManager::get_instance();
+	auto& ogl_texture_manager = get_texture_manager();
 
 	const auto im_is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto im_is_mouse_button_up = ImGui::IsMouseReleased(0);
@@ -7952,11 +7464,7 @@ void AdvancedSettingsWindow::draw_check_box(
 
 	ImGui::SetCursorPos(check_box_pos);
 
-	ImGui::Image(
-		ogl_disable_sound_texture.get_im_texture_id(),
-		check_box_size,
-		ogl_disable_sound_texture.uv0_,
-		ogl_disable_sound_texture.uv1_);
+	ImGui::Image(ogl_disable_sound_texture, check_box_size);
 
 	ImGui::SetCursorPos(text_pos);
 
@@ -8152,11 +7660,6 @@ std::string Launcher::launcher_commands_file_name = "launchcmds.txt";
 std::string Launcher::resource_strings_file_name = "strings.txt";
 std::string Launcher::icon_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/icon_48x48.bmp";
 
-void* Launcher::glad_load_proc(const char* name)
-{
-	return SDL_GL_GetProcAddress(name);
-}
-
 Launcher::Launcher()
 	:
 	is_initialized_{},
@@ -8227,9 +7730,10 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		const auto& config_directory = configuration.get_config_path();
-		const auto& log_file_name = configuration.get_log_file_name();
-		const auto& file_path = ul::PathUtils::append(config_directory, log_file_name);
+		// FIXMENOW
+		const std::string& config_directory = configuration.get_config_path();
+		const std::string& log_file_name = configuration.get_log_file_name();
+		const std::string file_path = combine_and_normalize_file_paths(config_directory, log_file_name);
 
 		spdlog::set_pattern("[%Y-%m-%d %H:%M:%S %z] [%L] %v");
 
@@ -8240,21 +7744,13 @@ bool Launcher::initialize()
 	{
 		logger_->info("[Window icon]");
 
-		const auto& normalized_icon_path = ul::PathUtils::normalize(icon_path);
+		const auto& normalized_icon_path = normalize_file_path(icon_path);
 
 		sdl_icon_surface_ = SDL_LoadBMP(normalized_icon_path.c_str());
 
 		if (!sdl_icon_surface_)
 		{
-			logger_->warn("Failed to load icon \""s + normalized_icon_path + "\"."s);
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!initialize_ogl())
-		{
-			is_succeed = false;
+			logger_->warn("Failed to load icon \"" + normalized_icon_path + "\".");
 		}
 	}
 
@@ -8288,7 +7784,7 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			const auto& error_message = "No supported languages."s;
+			const std::string error_message = "No supported languages.";
 			set_error_message(error_message);
 			logger_->error(error_message);
 		}
@@ -8302,7 +7798,7 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			const auto& error_message = "Unsupported language id \""s + static_cast<const std::string&>(configuration.language_) + "\"."s;
+			const std::string error_message = "Unsupported language id \"" + static_cast<const std::string&>(configuration.language_) + "\".";
 			set_error_message(error_message);
 			logger_->error(error_message);
 		}
@@ -8385,48 +7881,6 @@ bool Launcher::initialize()
 		}
 	}
 
-	// OglTextureManager
-	//
-	auto& ogl_texture_manager = OglTextureManager::get_instance();
-
-	if (is_succeed)
-	{
-		logger_->info("[OpenGL texture manager]");
-
-		if (!ogl_texture_manager.initialize())
-		{
-			is_succeed = false;
-
-			const auto& error_message = ogl_texture_manager.get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!ogl_texture_manager.load_font())
-		{
-			is_succeed = false;
-
-			const auto& error_message = ogl_texture_manager.get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!ogl_texture_manager.load_all_textures())
-		{
-			is_succeed = false;
-
-			const auto& error_message = ogl_texture_manager.get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
-	}
-
 	if (is_succeed)
 	{
 		logger_->info("[Message box window]");
@@ -8437,7 +7891,7 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			const auto& error_message = "Failed to initialize message box window. "s + message_box_window_uptr_->get_error_message();
+			const std::string error_message = "Failed to initialize message box window. " + message_box_window_uptr_->get_error_message();
 			set_error_message(error_message);
 			logger_->error(error_message);
 		}
@@ -8458,7 +7912,7 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			const auto& error_message = "Failed to initialize display settings window. "s + display_settings_window_uptr_->get_error_message();
+			const std::string error_message = "Failed to initialize display settings window. " + display_settings_window_uptr_->get_error_message();
 			set_error_message(error_message);
 			logger_->error(error_message);
 		}
@@ -8479,7 +7933,7 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			const auto& error_message = "Failed to initialize advanced settings window. "s + advanced_settings_window_uptr_->get_error_message();
+			const std::string error_message = "Failed to initialize advanced settings window. " + advanced_settings_window_uptr_->get_error_message();
 			set_error_message(error_message);
 			logger_->error(error_message);
 		}
@@ -8500,7 +7954,7 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			const auto& error_message = "Failed to initialize detail settings window. "s + detail_settings_window_uptr_->get_error_message();
+			const std::string error_message = "Failed to initialize detail settings window. " + detail_settings_window_uptr_->get_error_message();
 			set_error_message(error_message);
 			logger_->error(error_message);
 		}
@@ -8528,7 +7982,7 @@ bool Launcher::initialize()
 		{
 			is_succeed = false;
 
-			const auto& error_message = "Failed to initialize main window. "s + main_window_uptr_->get_error_message();
+			const std::string error_message = "Failed to initialize main window. " + main_window_uptr_->get_error_message();
 			set_error_message(error_message);
 			logger_->error(error_message);
 		}
@@ -8575,12 +8029,6 @@ void Launcher::uninitialize()
 	window_manager.uninitialize();
 
 
-	// OglTextureManager
-	//
-	auto& image_cache = OglTextureManager::get_instance();
-	image_cache.uninitialize();
-
-
 	// FontManager
 	//
 	auto& font_manager = FontManager::get_instance();
@@ -8597,11 +8045,6 @@ void Launcher::uninitialize()
 	//
 	auto& system_cursors = SystemCursors::get_instance();
 	system_cursors.uninitialize();
-
-
-	// OpenGL
-	//
-	uninitialize_ogl();
 }
 
 bool Launcher::is_initialized()
@@ -8620,7 +8063,7 @@ void Launcher::run()
 
 	if (!is_initialized_)
 	{
-		const auto& error_message = "Not initialized."s;
+		const std::string error_message = "Not initialized.";
 		set_error_message(error_message);
 		logger_->error(error_message);
 
@@ -8726,88 +8169,9 @@ void Launcher::setup_search_paths(
 
 	const auto& base_path = Configuration::get_resources_base_path();
 
-	search_paths_.emplace_back(ul::PathUtils::normalize(base_path));
+	search_paths_.emplace_back(normalize_file_path(base_path));
 
-	search_paths_.emplace_back(ul::PathUtils::normalize(
-		ul::PathUtils::append(base_path, language_id_string))
-	);
-}
-
-bool Launcher::initialize_ogl_functions()
-{
-	auto is_succeed = true;
-
-	// Set OpenGL attributes.
-	//
-
-	if (is_succeed)
-	{
-		bool sdl_result = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
-
-		if (is_succeed && !sdl_result)
-		{
-			is_succeed = false;
-			set_error_message("Failed to set OpenGL attribute: double buffering. " + std::string{SDL_GetError()});
-		}
-
-		sdl_result = SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, false);
-
-		if (is_succeed && !sdl_result)
-		{
-			is_succeed = false;
-			set_error_message("Failed to set OpenGL attribute: share with current context. " + std::string{SDL_GetError()});
-		}
-	}
-
-	// Create dummy window.
-	//
-
-	auto window_param = SdlCreateWindowParam{};
-	window_param.title_ = "dummy";
-	window_param.width_ = 64;
-	window_param.height_ = 64;
-	window_param.is_hidden_ = true;
-	window_param.is_double_buffering_ = true;
-
-	auto error_message = std::string{};
-	auto ogl_window = SdlOglWindow{window_param};
-
-	if (!ogl_window.is_initialized())
-	{
-		is_succeed = false;
-		set_error_message("Failed to create dummy window. " + error_message);
-	}
-
-	if (is_succeed)
-	{
-		ogl_window.make_ogl_context_current(true);
-	}
-
-	// Initialize GLAD.
-	//
-
-	if (is_succeed)
-	{
-		const auto glad_result = ::gladLoadGLLoader(&Launcher::glad_load_proc);
-
-		if (!glad_result)
-		{
-			is_succeed = false;
-			set_error_message("Failed to initialize GLAD.");
-		}
-	}
-
-	// Clean up.
-	//
-	ogl_window.make_ogl_context_current(false);
-
-	return is_succeed;
-}
-
-void Launcher::uninitialize_ogl()
-{
-	SDL_GL_UnloadLibrary();
-	SDL_Quit();
+	search_paths_.emplace_back(combine_and_normalize_file_paths(base_path, language_id_string));
 }
 
 bool Launcher::initialize_sdl()
@@ -8821,43 +8185,6 @@ bool Launcher::initialize_sdl()
 	}
 
 	return true;
-}
-
-bool Launcher::initialize_ogl()
-{
-	auto is_succeed = true;
-
-	logger_->info("[OpenGL]");
-
-	if (is_succeed)
-	{
-		const bool sdl_result = SDL_GL_LoadLibrary(nullptr);
-
-		if (!sdl_result)
-		{
-			is_succeed = false;
-
-			const auto& error_message = "Failed to load OpenGL library. "s + SDL_GetError();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!initialize_ogl_functions())
-		{
-			is_succeed = false;
-			logger_->error(get_error_message());
-		}
-	}
-
-	if (!is_succeed)
-	{
-		uninitialize_ogl();
-	}
-
-	return is_succeed;
 }
 
 //
