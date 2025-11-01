@@ -69,7 +69,6 @@ target_sources (
 		../../../libs/imgui/backends/imgui_impl_sdl3.h
 		../../../libs/imgui/backends/imgui_impl_sdlrenderer3.h
 		../../../libs/imgui/misc/cpp/imgui_stdlib.h
-		../ltjs_launcher.h
 		../ltjs_launcher_imconfig.h
 		../ltjs_launcher_utility.h
 		../ltjs_launcher_resource_strings.h
@@ -89,7 +88,6 @@ target_sources (
 		../ltjs_launcher.cpp
 		../ltjs_launcher_utility.cpp
 		../ltjs_launcher_resource_strings.cpp
-		../ltjs_launcher_search_paths.cpp
 )
 
 if (WIN32)
