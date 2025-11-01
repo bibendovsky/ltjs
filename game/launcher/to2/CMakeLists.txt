@@ -54,7 +54,6 @@ target_include_directories (
 		../../../libs/imgui
 		../../../libs/imgui/backends
 		../../../libs/imgui/misc/cpp
-		../../../libs/spdlog/include
 		..
 )
 

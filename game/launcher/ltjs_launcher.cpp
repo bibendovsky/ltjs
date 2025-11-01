@@ -5,6 +5,7 @@
 
 #include <array>
 #include <algorithm>
+#include <chrono>
 #include <deque>
 #include <exception>
 #include <format>
@@ -24,8 +25,6 @@
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
 #include "SDL3/SDL_main.h"
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
 
 #include "ltjs_language_mgr.h"
 #include "ltjs_script_tokenizer.h"
@@ -54,6 +53,91 @@ ImVec2 operator*(
 ImVec2& operator*=(
 	ImVec2& v,
 	const float scale);
+
+// ======================================
+
+struct LoggerCreateParam
+{
+	std::string file_path;
+};
+
+class Logger
+{
+public:
+	explicit Logger(const LoggerCreateParam& param);
+
+	void info(const std::string& message);
+	void warn(const std::string& message);
+	void error(const std::string& message);
+
+private:
+	constexpr static const char* const newline =
+#ifdef _WIN32
+		"\r\n"
+#else
+		"\n"
+#endif
+		;
+
+	SdlIoStreamUPtr sdl_io_stream_uptr_{};
+	std::string output_message_{};
+
+	void initialize_file(const LoggerCreateParam& param);
+	void log_message(char type_prefix, const std::string& message);
+};
+
+// --------------------------------------
+
+Logger::Logger(const LoggerCreateParam& param)
+{
+	initialize_file(param);
+}
+
+void Logger::info(const std::string& message)
+{
+	log_message('I', message);
+}
+
+void Logger::warn(const std::string& message)
+{
+	log_message('W', message);
+}
+
+void Logger::error(const std::string& message)
+{
+	log_message('E', message);
+}
+
+void Logger::initialize_file(const LoggerCreateParam& param)
+{
+	sdl_io_stream_uptr_.reset(SDL_IOFromFile(param.file_path.c_str(), "wb"));
+}
+
+void Logger::log_message(char type_prefix, const std::string& message)
+{
+	if (sdl_io_stream_uptr_ == nullptr)
+	{
+		return;
+	}
+
+	using Clock = std::chrono::system_clock;
+	const auto now_time_point_s = std::chrono::floor<std::chrono::seconds>(Clock::now());
+	const std::chrono::zoned_time local_time{std::chrono::current_zone(), now_time_point_s};
+
+	output_message_.clear();
+	output_message_.reserve(33 + message.size());
+	std::format_to(std::back_inserter(output_message_), "[{:%Y-%m-%d %H:%M:%S %Ez}] [{}] {}{}", local_time, type_prefix, message, newline);
+	SDL_WriteIO(sdl_io_stream_uptr_.get(), output_message_.data(), output_message_.size());
+}
+
+// --------------------------------------
+
+using LoggerUPtr = std::unique_ptr<Logger>;
+
+LoggerUPtr make_logger(const LoggerCreateParam& param)
+{
+	return std::make_unique<Logger>(param);
+}
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // Classes
@@ -1319,9 +1403,6 @@ class Launcher final :
 	public Base
 {
 public:
-	using Logger = std::shared_ptr<spdlog::logger>;
-
-
 	static std::string launcher_commands_file_name;
 	static std::string resource_strings_directory;
 	static std::string resource_strings_file_name;
@@ -1339,7 +1420,7 @@ public:
 
 	bool is_initialized();
 
-	Logger& get_logger();
+	Logger* get_logger();
 
 	void run();
 
@@ -1374,7 +1455,7 @@ private:
 
 	bool is_initialized_;
 	bool has_direct_3d_9_;
-	Logger logger_;
+	LoggerUPtr logger_;
 	SearchPaths search_paths_{};
 	SDL_Surface* sdl_icon_surface_;
 	ResourceStrings resource_strings_;
@@ -7331,10 +7412,7 @@ bool Launcher::initialize()
 		const std::string& config_directory = configuration.get_config_path();
 		const std::string& log_file_name = configuration.get_log_file_name();
 		const std::string file_path = combine_and_normalize_file_paths(config_directory, log_file_name);
-
-		spdlog::set_pattern("[%Y-%m-%d %H:%M:%S %z] [%L] %v");
-
-		logger_ = spdlog::basic_logger_st("file", file_path, true);
+		logger_ = make_logger(LoggerCreateParam{.file_path = file_path});
 	}
 
 	if (is_succeed)
@@ -7608,9 +7686,9 @@ bool Launcher::is_initialized()
 	return is_initialized_;
 }
 
-Launcher::Logger& Launcher::get_logger()
+Logger* Launcher::get_logger()
 {
-	return logger_;
+	return logger_.get();
 }
 
 void Launcher::run()
