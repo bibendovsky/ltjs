@@ -1,38 +1,33 @@
-#include <cassert>
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
-
-#include <array>
-#include <algorithm>
-#include <chrono>
-#include <deque>
-#include <exception>
-#include <format>
-#include <functional>
-#include <iterator>
-#include <limits>
-#include <stdexcept>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
-
 #include "imgui.h"
 #include "imgui_stdlib.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
 #include "SDL3/SDL_main.h"
-
 #include "ltjs_language_mgr.h"
 #include "ltjs_script_tokenizer.h"
-
 #include "ltjs_launcher_resource_strings.h"
 #include "ltjs_launcher_search_paths.h"
 #include "ltjs_launcher_utility.h"
-
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <array>
+#include <algorithm>
+#include <charconv>
+#include <chrono>
+#include <deque>
+#include <exception>
+#include <format>
+#include <iterator>
+#include <limits>
+#include <optional>
+#include <span>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #if defined(LTJS_NOLF2)
 #define LTJS_GAME_ID_STRING "nolf2"
@@ -41,18 +36,45 @@
 #error Unsupported game.
 #endif // LTJS_NOLF2
 
-namespace ltjs
-{
-namespace launcher
-{
+namespace ltjs::launcher {
 
-ImVec2 operator*(
-	const ImVec2& v,
-	const float scale);
+namespace {
 
-ImVec2& operator*=(
-	ImVec2& v,
-	const float scale);
+ImVec2 operator*(const ImVec2& v, float scale);
+ImVec2& operator*=(ImVec2& v, float scale);
+
+// ======================================
+
+[[noreturn]] void fail(const std::string& error_message)
+{
+	throw std::runtime_error{error_message};
+}
+
+template<typename... TArgs>
+[[noreturn]] void fail(std::format_string<TArgs...> format_string, TArgs... args)
+{
+	std::string error_message{};
+	error_message.reserve(1024);
+	std::vformat_to(std::back_inserter(error_message), format_string.get(), std::make_format_args(args...));
+	fail(error_message);
+}
+
+// ======================================
+
+[[noreturn]] void fail_sdl_function(const std::string& sdl_function_name)
+{
+	fail("[{}] {}", sdl_function_name, SDL_GetError());
+}
+
+// ======================================
+
+void ensure_sdl_bool_result(const std::string& sdl_function_name, bool result)
+{
+	if (!result)
+	{
+		fail_sdl_function(sdl_function_name);
+	}
+}
 
 // ======================================
 
@@ -71,13 +93,7 @@ public:
 	void error(const std::string& message);
 
 private:
-	constexpr static const char* const newline =
-#ifdef _WIN32
-		"\r\n"
-#else
-		"\n"
-#endif
-		;
+	static constexpr const char* newline = "\n";
 
 	SdlIoStreamUPtr sdl_io_stream_uptr_{};
 	std::string output_message_{};
@@ -110,7 +126,11 @@ void Logger::error(const std::string& message)
 
 void Logger::initialize_file(const LoggerCreateParam& param)
 {
-	sdl_io_stream_uptr_.reset(SDL_IOFromFile(param.file_path.c_str(), "wb"));
+	if (sdl_io_stream_uptr_.reset(SDL_IOFromFile(param.file_path.c_str(), "wb"));
+		sdl_io_stream_uptr_ == nullptr)
+	{
+		fail("Failed to create a log file. (file_path={}; error_message={})", param.file_path, SDL_GetError());
+	}
 }
 
 void Logger::log_message(char type_prefix, const std::string& message)
@@ -119,11 +139,9 @@ void Logger::log_message(char type_prefix, const std::string& message)
 	{
 		return;
 	}
-
 	using Clock = std::chrono::system_clock;
 	const auto now_time_point_s = std::chrono::floor<std::chrono::seconds>(Clock::now());
 	const std::chrono::zoned_time local_time{std::chrono::current_zone(), now_time_point_s};
-
 	output_message_.clear();
 	output_message_.reserve(33 + message.size());
 	std::format_to(std::back_inserter(output_message_), "[{:%Y-%m-%d %H:%M:%S %Ez}] [{}] {}{}", local_time, type_prefix, message, newline);
@@ -139,9 +157,109 @@ LoggerUPtr make_logger(const LoggerCreateParam& param)
 	return std::make_unique<Logger>(param);
 }
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Classes
-//
+// ======================================
+
+class ImguiContextUPtr
+{
+public:
+	ImguiContextUPtr() = default;
+	explicit ImguiContextUPtr(ImGuiContext* imgui_context);
+	void operator=(std::nullptr_t);
+	ImguiContextUPtr(ImguiContextUPtr&& rhs) noexcept;
+	ImguiContextUPtr& operator=(ImguiContextUPtr&&) noexcept = delete;
+	~ImguiContextUPtr();
+
+	ImGuiContext* get() const;
+	void reset();
+	void reset(ImGuiContext* imgui_context);
+	ImGuiContext* operator->() const;
+
+private:
+	ImGuiContext* imgui_context_{};
+};
+
+// --------------------------------------
+
+ImguiContextUPtr::ImguiContextUPtr(ImGuiContext* imgui_context)
+	:
+	imgui_context_{imgui_context}
+{}
+
+void ImguiContextUPtr::operator=(std::nullptr_t)
+{
+	reset();
+}
+
+ImguiContextUPtr::ImguiContextUPtr(ImguiContextUPtr&& rhs) noexcept
+	:
+	imgui_context_{rhs.imgui_context_}
+{
+	rhs.imgui_context_ = nullptr;
+}
+
+ImguiContextUPtr::~ImguiContextUPtr()
+{
+	reset();
+}
+
+ImGuiContext* ImguiContextUPtr::get() const
+{
+	return imgui_context_;
+}
+
+void ImguiContextUPtr::reset()
+{
+	reset(nullptr);
+}
+
+void ImguiContextUPtr::reset(ImGuiContext* imgui_context)
+{
+	if (get() != nullptr)
+	{
+		ImGui::SetCurrentContext(get());
+		ImGui_ImplSDLRenderer3_Shutdown();
+		ImGui_ImplSDL3_Shutdown();
+		ImGui::DestroyContext(get());
+	}
+	imgui_context_ = imgui_context;
+}
+
+ImGuiContext* ImguiContextUPtr::operator->() const
+{
+	return get();
+}
+
+// ======================================
+
+bool operator==(const ImguiContextUPtr& a, std::nullptr_t);
+bool operator==(std::nullptr_t, const ImguiContextUPtr& b);
+
+bool operator!=(const ImguiContextUPtr& a, std::nullptr_t);
+bool operator!=(std::nullptr_t, const ImguiContextUPtr& b);
+
+// --------------------------------------
+
+bool operator==(const ImguiContextUPtr& a, std::nullptr_t)
+{
+	return a.get() == nullptr;
+}
+
+bool operator==(std::nullptr_t, const ImguiContextUPtr& b)
+{
+	return b.get() == nullptr;
+}
+
+bool operator!=(const ImguiContextUPtr& a, std::nullptr_t)
+{
+	return !(a == nullptr);
+}
+
+bool operator!=(std::nullptr_t, const ImguiContextUPtr& b)
+{
+	return !(b == nullptr);
+}
+
+// ======================================
 
 enum class ImageId
 {
@@ -223,183 +341,125 @@ enum class ImageId
 	serverf,
 	serveru,
 	serverx,
-}; // ImageId
-
-
-enum class FontType
-{
-	regular,
-	bold,
-}; // FontType
-
-
-enum class FontId
-{
-	message_box_title,
-	message_box_message,
-}; // FontId
-
+};
 
 enum class MessageBoxType
 {
 	information,
 	warning,
 	error,
-}; // MessageBoxType
-
+};
 
 enum class MessageBoxButtons
 {
 	ok,
 	ok_cancel,
-}; // MessageBoxButtons
+};
 
-
-enum class MessageBoxResult
+enum class DialogResult
 {
+	none = 0,
 	ok,
 	cancel,
-}; // MessageBoxResult
-
+};
 
 enum class DetailLevel
 {
-	none,
+	none = 0,
 	low,
 	medium,
 	high,
-}; // DetailLevel
+};
 
-
-struct ResourceStringId final
+struct ResourceStringId
 {
-	static constexpr auto ids_appname = 1;
-	static constexpr auto ids_appexe = 2;
-	static constexpr auto ids_display_warning = 3;
-	static constexpr auto ids_options_warning = 4;
-	static constexpr auto ids_appcd1check = 5;
-	static constexpr auto ids_appcd2check = 6;
-	static constexpr auto ids_rezbase = 7;
-	static constexpr auto ids_setupexe = 8;
-	static constexpr auto ids_serverexe = 9;
-	static constexpr auto ids_language = 10;
-	static constexpr auto ids_insertcd2 = 11;
-	static constexpr auto ids_insertcd = 12;
-	static constexpr auto ids_cantlaunchsetup = 13;
-	static constexpr auto ids_norens = 14;
-	static constexpr auto ids_help_disablesound = 15;
-	static constexpr auto ids_help_disablemusic = 16;
-	static constexpr auto ids_help_disablemovies = 17;
-	static constexpr auto ids_help_disablefog = 18;
-	static constexpr auto ids_help_disablejoysticks = 19;
-	static constexpr auto ids_help_disabletriplebuffering = 20;
-	static constexpr auto ids_help_disablehardwarecursor = 21;
-	static constexpr auto ids_help_disableanimatedloadscreen = 22;
-	static constexpr auto ids_help_restoredefaults = 23;
-	static constexpr auto ids_help_alwaysspecify = 24;
-	static constexpr auto ids_cantfindrezfile = 25;
-	static constexpr auto ids_cantlaunchclientexe = 26;
-	static constexpr auto ids_detail_header = 27;
-	static constexpr auto ids_detail_low = 28;
-	static constexpr auto ids_detail_medium = 29;
-	static constexpr auto ids_detail_high = 30;
-	static constexpr auto ids_cantlaunchserver = 31;
-	static constexpr auto ids_appversion = 32;
-	static constexpr auto ids_cantuninstall = 33;
-	static constexpr auto ids_companywebpage = 34;
-	static constexpr auto ids_cantopenavi = 35;
-	static constexpr auto ids_publisherwebpage = 36;
-	static constexpr auto ids_od_disablesound = 37;
-	static constexpr auto ids_od_disablemusic = 38;
-	static constexpr auto ids_od_disablemovies = 39;
-	static constexpr auto ids_od_disablefog = 40;
-	static constexpr auto ids_appname_demo = 40;
-	static constexpr auto ids_od_disablejoysticks = 41;
-	static constexpr auto ids_od_disabletriplebuffering = 42;
-	static constexpr auto ids_od_disablehardwarecursor = 43;
-	static constexpr auto ids_od_disableanimatedloadscreens = 44;
-	static constexpr auto ids_od_restoredefaults = 45;
-	static constexpr auto ids_od_alwaysspecify = 46;
-	static constexpr auto ids_debug_regcreateerror = 47;
-	static constexpr auto ids_debug_installsuccess = 48;
-	static constexpr auto ids_debug_uninstallsuccess = 49;
-	static constexpr auto ids_launchbrowsererror = 50;
-	static constexpr auto ids_help_default = 51;
-	static constexpr auto ids_help_disablehardwaresound = 52;
-	static constexpr auto ids_help_disablesoundfilters = 53;
-	static constexpr auto ids_od_disablehardwaresound = 54;
-	static constexpr auto ids_od_disablesoundfilters = 55;
-	static constexpr auto ids_cantopencommandfile = 56;
-	static constexpr auto ids_lithtechwebpage = 57;
-	static constexpr auto ids_sierrawebpage = 58;
-	static constexpr auto ids_nocustomdir = 59;
-}; // ResourceStringId
+	static constexpr int ids_appname = 1;
+	static constexpr int ids_appexe = 2;
+	static constexpr int ids_display_warning = 3;
+	static constexpr int ids_options_warning = 4;
+	static constexpr int ids_appcd1check = 5;
+	static constexpr int ids_appcd2check = 6;
+	static constexpr int ids_rezbase = 7;
+	static constexpr int ids_setupexe = 8;
+	static constexpr int ids_serverexe = 9;
+	static constexpr int ids_language = 10;
+	static constexpr int ids_insertcd2 = 11;
+	static constexpr int ids_insertcd = 12;
+	static constexpr int ids_cantlaunchsetup = 13;
+	static constexpr int ids_norens = 14;
+	static constexpr int ids_help_disablesound = 15;
+	static constexpr int ids_help_disablemusic = 16;
+	static constexpr int ids_help_disablemovies = 17;
+	static constexpr int ids_help_disablefog = 18;
+	static constexpr int ids_help_disablejoysticks = 19;
+	static constexpr int ids_help_disabletriplebuffering = 20;
+	static constexpr int ids_help_disablehardwarecursor = 21;
+	static constexpr int ids_help_disableanimatedloadscreen = 22;
+	static constexpr int ids_help_restoredefaults = 23;
+	static constexpr int ids_help_alwaysspecify = 24;
+	static constexpr int ids_cantfindrezfile = 25;
+	static constexpr int ids_cantlaunchclientexe = 26;
+	static constexpr int ids_detail_header = 27;
+	static constexpr int ids_detail_low = 28;
+	static constexpr int ids_detail_medium = 29;
+	static constexpr int ids_detail_high = 30;
+	static constexpr int ids_cantlaunchserver = 31;
+	static constexpr int ids_appversion = 32;
+	static constexpr int ids_cantuninstall = 33;
+	static constexpr int ids_companywebpage = 34;
+	static constexpr int ids_cantopenavi = 35;
+	static constexpr int ids_publisherwebpage = 36;
+	static constexpr int ids_od_disablesound = 37;
+	static constexpr int ids_od_disablemusic = 38;
+	static constexpr int ids_od_disablemovies = 39;
+	static constexpr int ids_od_disablefog = 40;
+	static constexpr int ids_appname_demo = 40;
+	static constexpr int ids_od_disablejoysticks = 41;
+	static constexpr int ids_od_disabletriplebuffering = 42;
+	static constexpr int ids_od_disablehardwarecursor = 43;
+	static constexpr int ids_od_disableanimatedloadscreens = 44;
+	static constexpr int ids_od_restoredefaults = 45;
+	static constexpr int ids_od_alwaysspecify = 46;
+	static constexpr int ids_debug_regcreateerror = 47;
+	static constexpr int ids_debug_installsuccess = 48;
+	static constexpr int ids_debug_uninstallsuccess = 49;
+	static constexpr int ids_launchbrowsererror = 50;
+	static constexpr int ids_help_default = 51;
+	static constexpr int ids_help_disablehardwaresound = 52;
+	static constexpr int ids_help_disablesoundfilters = 53;
+	static constexpr int ids_od_disablehardwaresound = 54;
+	static constexpr int ids_od_disablesoundfilters = 55;
+	static constexpr int ids_cantopencommandfile = 56;
+	static constexpr int ids_lithtechwebpage = 57;
+	static constexpr int ids_sierrawebpage = 58;
+	static constexpr int ids_nocustomdir = 59;
+};
 
-
-struct DisplayMode
-{
-	int width_;
-	int height_;
-	std::string as_string_;
-}; // DisplayMode
-
+// ======================================
 
 template<typename T>
 class SettingValue
 {
 public:
-	SettingValue()
+	SettingValue() = default;
+
+	explicit SettingValue(const T& value)
 		:
-		accepted_value_{},
-		current_value_{}
-	{
-	}
+		accepted_value_{value},
+		current_value_{value}
+	{}
 
-	SettingValue(
-		const T& current_value)
+	SettingValue(const SettingValue& that)
 		:
-		accepted_value_{current_value},
-		current_value_{current_value}
-	{
-	}
+		accepted_value_{that.accepted_value_},
+		current_value_{that.current_value_}
+	{}
 
-	SettingValue(
-		SettingValue&& rhs)
-		:
-		accepted_value_{std::move(rhs.current_value_)},
-		current_value_{std::move(rhs.current_value_)}
+	SettingValue& operator=(const T& value)
 	{
-	}
-
-	SettingValue& operator=(
-		const T& rhs)
-	{
-		current_value_ = rhs;
-
+		current_value_ = value;
 		return *this;
 	}
-
-
-	operator T&()
-	{
-		return current_value_;
-	}
-
-	operator const T&() const
-	{
-		return current_value_;
-	}
-
-	operator T*()
-	{
-		return &current_value_;
-	}
-
-	operator const T*() const
-	{
-		return &current_value_;
-	}
-
 
 	T& get_ref()
 	{
@@ -431,1094 +491,76 @@ public:
 		current_value_ = accepted_value_;
 	}
 
-	void set_and_accept(
-		const T& value)
+	void set_and_accept(const T& value)
 	{
 		accepted_value_ = value;
 		current_value_ = value;
 	}
 
+	operator T&()
+	{
+		return get_ref();
+	}
+
+	operator const T&() const
+	{
+		return get_ref();
+	}
+
+	operator T*()
+	{
+		return get_ptr();
+	}
+
+	operator const T*() const
+	{
+		return get_ptr();
+	}
 
 private:
-	T accepted_value_;
-	T current_value_;
-}; // SettingValue
+	T accepted_value_{};
+	T current_value_{};
+};
 
+// ======================================
 
-class Base
-{
-public:
-	const std::string& get_error_message();
-
-
-protected:
-	void clear_error_message();
-
-	void set_error_message(
-		const std::string& error_message);
-
-	void append_error_message(
-		const std::string& error_message);
-
-	void prepend_error_message(
-		const std::string& error_message);
-
-
-private:
-	std::string error_message_;
-}; // Base
-
-
-class Direct3d9 final
+class Direct3d9
 {
 public:
 	static bool has_direct3d9();
-
 	static const std::string& get_renderer_name();
-
 	static const std::string& get_display_name();
-}; // Direct3d9
-
-
-class DisplayModeManager
-{
-public:
-	static constexpr auto min_display_mode_width = 640;
-	static constexpr auto min_display_mode_height = 480;
-
-
-	using DisplayModes = std::vector<DisplayMode>;
-
-
-	static DisplayModeManager& get_instance();
-
-
-	void initialize();
-
-	int get_count() const;
-
-	const DisplayModes& get() const;
-
-	const DisplayMode& get(
-		const int index) const;
-
-	const DisplayMode& get_native() const;
-
-	int get_mode_index(
-		const int width,
-		const int height) const;
-
-	int get_native_display_mode_index() const;
-
 
 private:
-	DisplayModes display_modes_;
-	DisplayMode native_display_mode_;
-	int native_display_mode_index_;
+	static const bool has_direct3d9_;
 
+	static bool check_for_direct3d9();
+};
 
-	DisplayModeManager();
+// --------------------------------------
 
-	DisplayModeManager(
-		DisplayModeManager&& rhs);
+const bool Direct3d9::has_direct3d9_ = check_for_direct3d9();
 
-	~DisplayModeManager();
-
-
-	void uninitialize();
-
-
-	static bool sdl_is_pixel_format_valid(
-		const Uint32 sdl_pixel_format);
-}; // DisplayModeManager
-
-
-class Configuration final :
-	public Base
-{
-public:
-	static constexpr auto max_file_size = 4 * 1'024;
-
-
-	SettingValue<std::string> language_;
-	SettingValue<bool> is_disable_display_settings_warning_;
-	SettingValue<bool> is_disable_advanced_settings_warning_;
-	SettingValue<bool> is_disable_sound_effects_;
-	SettingValue<bool> is_disable_music_;
-	SettingValue<bool> is_disable_fmvs_;
-	SettingValue<bool> is_disable_controllers_;
-	SettingValue<bool> is_disable_triple_buffering_;
-	SettingValue<bool> is_disable_hardware_cursor_;
-	SettingValue<bool> is_disable_animated_loading_screen_;
-	SettingValue<bool> is_disable_hardware_sound_;
-	SettingValue<bool> is_disable_sound_filters_;
-	SettingValue<bool> is_pass_custom_arguments_;
-	SettingValue<std::string> custom_arguments_;
-	SettingValue<int> screen_width_;
-	SettingValue<int> screen_height_;
-	SettingValue<bool> is_restore_defaults_; // Not serializable.
-
-
-	Configuration(
-		Configuration&& rhs);
-
-	static Configuration& get_instance();
-
-
-	bool initialize();
-
-	bool is_initialized() const;
-
-	ltjs::LanguageMgr* get_language_mgr() const noexcept;
-
-	static const std::string& get_base_path();
-
-	static const std::string& get_game_base_path();
-
-	static const std::string& get_resources_base_path();
-
-	static const std::string& get_config_path();
-
-
-	const std::string& get_arguments_file_name() const;
-
-	const std::string& get_log_file_name() const;
-
-	void reset();
-
-	bool reload();
-
-	bool save();
-
-
-private:
-	static const std::string configuration_file_name;
-	static const std::string arguments_file_name;
-	static const std::string log_file_name;
-
-
-	static const std::string default_language;
-	static const bool default_is_warned_about_display;
-	static const bool default_is_disable_advanced_settings_warning;
-	static const bool default_is_disable_sound_effects;
-	static const bool default_is_disable_music;
-	static const bool default_is_disable_fmvs;
-	static const bool default_is_disable_controllers;
-	static const bool default_is_disable_triple_buffering;
-	static const bool default_is_disable_hardware_cursor;
-	static const bool default_is_disable_animated_loading_screen;
-	static const bool default_is_detail_level_selected;
-	static const bool default_is_disable_hardware_sound;
-	static const bool default_is_disable_sound_filters;
-	static const bool default_is_pass_custom_arguments;
-	static const std::string default_custom_arguments;
-	static const int default_screen_width;
-	static const int default_screen_height;
-
-	static const std::string language_setting_name;
-	static const std::string is_disable_display_settings_warning_setting_name;
-	static const std::string is_disable_advanced_settings_warning_setting_name;
-	static const std::string is_disable_sound_effects_setting_name;
-	static const std::string is_disable_music_setting_name;
-	static const std::string is_disable_fmvs_setting_name;
-	static const std::string is_disable_controllers_setting_name;
-	static const std::string is_disable_triple_buffering_setting_name;
-	static const std::string is_disable_hardware_cursor_setting_name;
-	static const std::string is_disable_animated_loading_screen_setting_name;
-	static const std::string is_disable_hardware_sound_setting_name;
-	static const std::string is_disable_sound_filters_setting_name;
-	static const std::string is_pass_custom_arguments_setting_name;
-	static const std::string custom_arguments_setting_name;
-	static const std::string screen_width_setting_name;
-	static const std::string screen_height_setting_name;
-
-
-	bool is_initialized_;
-	std::string configuration_path_;
-	ltjs::LanguageMgrUPtr language_mgr_{};
-
-
-	Configuration();
-
-	~Configuration();
-
-
-	static std::string serialize_cl_args(
-		const std::string& custom_command_line);
-
-	static std::string deserialize_cl_args(
-		const ScriptTokenizerToken& token);
-}; // Configuration
-
-
-struct Language
-{
-	std::string id_;
-	std::string name_;
-}; // Language
-
-using Languages = std::vector<Language>;
-
-
-class SupportedLanguages final :
-	public Base
-{
-public:
-	SupportedLanguages();
-
-	SupportedLanguages(
-		SupportedLanguages&& rhs);
-
-
-	static SupportedLanguages& get_instance();
-
-	bool load();
-
-	const Languages& get() const;
-
-	bool has_id(
-		const std::string& id) const;
-
-	int get_id_index(
-		const std::string& id) const;
-
-
-private:
-	static constexpr auto max_file_size = 4'096;
-
-
-	Languages languages_{};
-
-
-	~SupportedLanguages();
-}; // SupportedLanguages
-
-
-struct SdlCreateWindowParam final
-{
-	std::string title_;
-
-	int width_;
-	int height_;
-
-	bool is_borderless_;
-	bool is_hidden_;
-	bool is_double_buffering_;
-	bool is_share_with_current_ogl_context_;;
-}; // SdlCreateWindowParam
-
-
-class SdlOglWindow final :
-	public Base
-{
-public:
-	SdlOglWindow();
-
-	SdlOglWindow(
-		const SdlCreateWindowParam& param);
-
-	SdlOglWindow(
-		const SdlOglWindow& rhs) = delete;
-
-	SdlOglWindow(
-		SdlOglWindow&& rhs);
-
-	SdlOglWindow& operator=(
-		const SdlOglWindow& rhs) = delete;
-
-	SdlOglWindow& operator=(
-		SdlOglWindow&& rhs);
-
-	~SdlOglWindow();
-
-
-	bool is_initialized() const;
-
-	void get_size(
-		int& width,
-		int& height);
-
-	void get_ogl_drawable_size(
-		int& width,
-		int& height);
-
-	void show(
-		const bool is_show);
-
-	void minimize();
-
-	void restore();
-
-	bool is_visible() const;
-
-	void warp_mouse(
-		const int x,
-		const int y);
-
-	bool are_same(
-		SDL_Window* sdl_window) const;
-
-	void ogl_swap();
-
-	bool is_event_for_me(
-		const SDL_Event& sdl_event);
-
-	void set_icon(
-		SDL_Surface* sdl_surface);
-
-	SDL_Window* get_window() const;
-	SDL_Renderer* get_renderer() const;
-
-private:
-	bool is_initialized_;
-	SDL_Window* sdl_window_;
-	SDL_Renderer* sdl_renderer_;
-	Uint32 sdl_window_id_;
-
-
-	void uninitialize();
-}; // SdlOglWindow
-
-
-class FontManager final :
-	public Base
-{
-public:
-	using Buffer = std::vector<std::uint8_t>;
-
-	FontManager(
-		FontManager&& rhs);
-
-	static FontManager& get_instance();
-
-
-	bool initialize();
-
-	void uninitialize();
-
-	const Buffer& get_data(FontId font_id) const;
-
-	float get_size(FontId font_id) const;
-
-
-private:
-	struct Description
-	{
-		FontId font_id_;
-		FontType font_type_;
-		float size_in_pixels_;
-	}; // Description
-
-
-	using Descriptions = std::vector<Description>;
-	using BufferPtr = Buffer*;
-	using ImFontAtlasUPtr = std::unique_ptr<ImFontAtlas>;
-
-
-	static constexpr int max_font_file_size = 1 * 1'024 * 1'024;
-	static const std::string regular_font_file_name;
-	static const std::string bold_font_file_name;
-	static const Descriptions descriptions;
-
-
-	Buffer regular_font_data_;
-	Buffer bold_font_data_;
-
-	FontManager();
-
-	~FontManager();
-
-
-	bool load_font_data(
-		const std::string& file_name,
-		Buffer& font_data);
-}; // FontManager
-
-
-class OglTextureManager final :
-	public Base
-{
-public:
-	OglTextureManager();
-
-	OglTextureManager(
-		OglTextureManager&& rhs);
-
-	~OglTextureManager();
-
-
-	bool initialize(SdlOglWindow* sdl_ogl_window);
-
-	void uninitialize();
-
-	bool load_all_textures();
-
-	ImTextureID get(
-		const ImageId image_id);
-
-private:
-	using Strings = std::vector<std::string>;
-	using OglTextures = std::vector<SdlTextureUPtr>;
-
-
-	static const std::string images_path;
-	static const Strings image_file_names;
-
-
-	SDL_Renderer* sdl_renderer_{};
-	OglTextures ogl_textures_;
-
-	void uninitialize_textures();
-
-	SDL_Texture* create_texture_from_surface(
-		SDL_Surface* sdl_surface);
-}; // OglTextureManager
-
-class WindowEvent;
-using WindowEventPtr = WindowEvent*;
-
-class WindowEvent final
-{
-public:
-	using FuncType = void(
-		class Window* sender_window_ptr);
-
-	using Func = std::function<FuncType>;
-
-
-	void notify(
-		class Window* sender_window_ptr);
-
-
-	WindowEvent& operator+=(
-		const Func& func);
-
-	WindowEvent& operator-=(
-		const Func& func);
-
-
-private:
-	using Subscribers = std::deque<Func>;
-
-
-	Subscribers subscribers_;
-}; // Event
-
-
-struct WindowCreateParam
-{
-	std::string title_;
-	int width_;
-	int height_;
-	bool is_hidden_;
-}; // WindowCreateParam
-
-
-class Window;
-using WindowPtr = Window*;
-
-
-class Window :
-	public Base
-{
-public:
-	virtual ~Window();
-
-
-	bool is_initialized() const;
-
-	void show(
-		const bool is_show);
-
-	bool is_visible() const;
-
-	void draw();
-
-	void im_handle_events();
-
-	WindowEvent& get_message_box_result_event();
-
-	MessageBoxResult get_message_box_result() const;
-
-	void set_icon(
-		SDL_Surface* sdl_surface);
-
-
-protected:
-	friend class WindowManager;
-
-
-	bool is_initialized_;
-	ImFont* imgui_regular_font_{};
-	ImFont* imgui_bold_font_{};
-
-
-	Window();
-
-	Window(
-		const Window& rhs) = delete;
-
-
-	bool initialize(
-		const WindowCreateParam& param);
-
-	void handle_event(
-		const SDL_Event& sdl_event);
-
-	void minimize_internal(
-		const bool is_minimize);
-
-	void set_message_box_result(
-		const MessageBoxResult message_box_result);
-
-	static bool is_point_inside_rect(
-		const ImVec2& point,
-		const ImVec4& rect);
-
-	static ImVec2 center_size_inside_rect(
-		const ImVec4& outer_rect,
-		const ImVec2& inner_size);
-
-	OglTextureManager& get_texture_manager();
-
-	ImFont* get_regular_imgui_font();
-	ImFont* get_bold_imgui_font();
-
-private:
-	friend class WindowManager;
-
-	using PressedMouseButtons = std::array<bool, 3>;
-
-	struct SdlGeometry
-	{
-		std::vector<SDL_Vertex> vertices;
-		std::vector<int> indices;
-		std::unordered_set<ImDrawIdx> unique_indices;
-	};
-
-	SdlOglWindow sdl_ogl_window_;
-	OglTextureManager ogl_texture_manager_;
-	ImGuiContext* im_context_;
-	PressedMouseButtons pressed_mouse_buttons_;
-	Uint64 time_;
-	WindowEvent message_box_result_event_;
-	MessageBoxResult message_box_result_;
-	SdlGeometry sdl_geometry_{};
-
-
-	void uninitialize();
-
-	void im_new_frame();
-
-	void im_render();
-
-	void im_render_data(
-		ImDrawData* draw_data);
-
-
-	virtual void do_draw() = 0;
-
-	virtual void do_im_handle_events() = 0;
-}; // Window
-
-
-class MessageBoxWindow;
-using MessageBoxWindowPtr = MessageBoxWindow*;
-using MessageBoxWindowUPtr = std::unique_ptr<MessageBoxWindow>;
-
-class MessageBoxWindow final :
-	public Window
-{
-public:
-	~MessageBoxWindow() override;
-
-
-	static MessageBoxWindowPtr create();
-
-
-	void set_title(
-		const std::string& title);
-
-	using Window::show;
-
-	void show(
-		const MessageBoxType type,
-		const MessageBoxButtons buttons,
-		const std::string& text);
-
-	void show(
-		const MessageBoxType type,
-		const MessageBoxButtons buttons,
-		const std::string& title,
-		const std::string& text);
-
-
-private:
-	static constexpr auto window_width = 600;
-	static constexpr auto window_height = 250;
-
-
-	MessageBoxType type_;
-	MessageBoxButtons buttons_;
-	std::string title_;
-	std::string message_;
-	bool is_title_position_calculated_;
-	ImVec2 calculated_title_position_;
-
-	bool is_close_button_clicked_;
-	bool is_ok_button_clicked_;
-	bool is_cancel_button_clicked_;
-	bool is_escape_down_;
-
-
-	MessageBoxWindow();
-
-
-	bool initialize(
-		const WindowCreateParam& param);
-
-	void uninitialize();
-
-
-	void do_draw() override;
-
-	void do_im_handle_events() override;
-}; // MessageBoxWindow
-
-
-class MainWindow;
-using MainWindowPtr = MainWindow*;
-using MainWindowUPtr = std::unique_ptr<MainWindow>;
-
-class MainWindow final :
-	public Window
-{
-public:
-	~MainWindow() override;
-
-
-	static MainWindowPtr create();
-
-
-private:
-	static constexpr auto window_width = 525;
-	static constexpr auto window_height = 245;
-
-	static const std::string lithtech_executable;
-
-	enum class AttachPoint
-	{
-		message_box,
-		display_settings,
-		advanced_settings,
-		detail_settings,
-	}; // AttachPoint
-
-	enum class State
-	{
-		main_window,
-		main_window_message_box,
-		display_settings_warning,
-		display_settings_no_renderers,
-		display_settings_window,
-		advanced_settings_warning,
-		advanced_settings_window,
-		detail_settings_window,
-	}; // State
-
-
-	bool is_show_play_button_;
-
-	bool is_minimize_button_clicked_;
-	bool is_close_button_clicked_;
-	bool is_quit_button_clicked_;
-	bool is_escape_down_;
-	bool is_install_or_play_button_clicked_;
-	bool is_display_button_clicked_;
-	bool is_options_button_clicked_;
-	bool is_language_selected_;
-	bool is_publisher1web_button_clicked_;
-	bool is_company1web_button_clicked_;
-	bool is_company2web_button_clicked_;
-	bool is_publisher2web_button_clicked_;
-
-	int language_index_;
-	State state_;
-
-
-	MainWindow();
-
-
-	void initialize_language();
-
-	bool initialize(
-		const WindowCreateParam& param);
-
-	void uninitialize();
-
-	bool is_lithtech_executable_exists() const;
-
-	void handle_check_for_renderers();
-
-	void attach_to_message_box_result_event(
-		const bool is_attach,
-		const AttachPoint attach_point);
-
-	void handle_message_box_result_event(
-		WindowPtr sender_window_ptr);
-
-	void run_the_game();
-
-	void no_lithtech_exe_error();
-
-	void change_language();
-
-	std::string build_command_line(
-		const bool has_detail_settings) const;
-
-	bool save_arguments(
-		const std::string& command_line) const;
-
-
-	void do_draw() override;
-
-	void do_im_handle_events() override;
-}; // MainWindow
-
-
-class DetailSettingsWindow;
-using DetailSettingsWindowPtr = DetailSettingsWindow*;
-using DetailSettingsWindowUPtr = std::unique_ptr<DetailSettingsWindow>;
-
-class DetailSettingsWindow final :
-	public Window
-{
-public:
-	~DetailSettingsWindow() override;
-
-
-	static DetailSettingsWindowPtr create();
-
-	DetailLevel get_detail_level() const;
-
-
-private:
-	static constexpr auto window_width = 456;
-	static constexpr auto window_height = 480;
-
-
-	DetailLevel detail_level_;
-
-	bool is_escape_down_;
-	bool is_close_button_clicked_;
-	bool is_cancel_button_clicked_;
-	bool is_high_button_clicked_;
-	bool is_medium_button_clicked_;
-	bool is_low_button_clicked_;
-
-
-	DetailSettingsWindow();
-
-
-	bool initialize(
-		const WindowCreateParam& param);
-
-	void uninitialize();
-
-
-	void do_draw() override;
-
-	void do_im_handle_events() override;
-}; // DetailSettingsWindow
-
-
-class DisplaySettingsWindow;
-using DisplaySettingsWindowPtr = DisplaySettingsWindow*;
-using DisplaySettingsWindowUPtr = std::unique_ptr<DisplaySettingsWindow>;
-
-class DisplaySettingsWindow final :
-	public Window
-{
-public:
-	~DisplaySettingsWindow() override;
-
-
-	static DisplaySettingsWindowPtr create();
-
-
-private:
-	static constexpr auto window_width = 600;
-	static constexpr auto window_height = 394;
-
-
-	using Strings = std::vector<std::string>;
-
-
-	SettingValue<int> selected_resolution_index_;
-
-	bool is_escape_down_;
-	bool has_display_modes_;
-	bool is_close_button_clicked_;
-	bool is_ok_button_clicked_;
-	bool is_cancel_button_clicked_;
-
-
-	DisplaySettingsWindow();
-
-
-	bool initialize(
-		const WindowCreateParam& param);
-
-	void uninitialize();
-
-	static const char* im_display_modes_getter(
-		void* data,
-		const int idx);
-
-	void do_draw() override;
-
-	void do_im_handle_events() override;
-}; // DisplaySettingsWindow
-
-
-class AdvancedSettingsWindow;
-using AdvancedSettingsWindowPtr = AdvancedSettingsWindow*;
-using AdvancedSettingsWindowUPtr = std::unique_ptr<AdvancedSettingsWindow>;
-
-class AdvancedSettingsWindow final :
-	public Window
-{
-public:
-	~AdvancedSettingsWindow() override;
-
-
-	static AdvancedSettingsWindowPtr create();
-
-
-private:
-	struct CheckBoxContext
-	{
-		ImVec2 position_;
-		bool checked_value_;
-		bool is_pressed_;
-		int resource_string_id_;
-		std::string resource_string_default_;
-		int hint_resource_string_id_;
-		std::string hint_resource_string_default_;
-		SettingValue<bool>* setting_value_ptr_;
-	}; // CheckBoxContext
-
-	using CheckBoxContexts = std::vector<CheckBoxContext>;
-
-
-	static constexpr auto window_width = 456;
-	static constexpr auto window_height = 480;
-
-
-	CheckBoxContexts check_box_contexts_;
-	std::string hint_;
-
-	bool is_escape_down_;
-	bool is_close_button_clicked_;
-	bool is_ok_button_clicked_;
-	bool is_cancel_button_clicked_;
-
-
-	AdvancedSettingsWindow();
-
-
-	void initialize_check_box_contents();
-
-	bool initialize(
-		const WindowCreateParam& param);
-
-	void uninitialize();
-
-	void draw_check_box(
-		const int index);
-
-	void update_check_box_configuration(
-		const bool is_accept);
-
-
-	void do_draw() override;
-
-	void do_im_handle_events() override;
-}; // AdvancedSettingsWindow
-
-
-class WindowManager final
-{
-public:
-	WindowManager(
-		WindowManager&& rhs);
-
-
-	static WindowManager& get_instance();
-
-	void initialize();
-
-	void uninitialize();
-
-	void handle_events();
-
-	void draw();
-
-	void hide_all();
-
-	bool is_quit_requested() const;
-
-	float get_scale() const;
-
-
-private:
-	friend class Window;
-
-
-	static constexpr auto ref_scale_dimension = 600.0F;
-
-
-	using Windows = std::vector<WindowPtr>;
-
-
-	Windows windows_;
-	bool is_quit_requested_;
-	float scale_;
-
-
-	WindowManager();
-
-	~WindowManager();
-
-
-	void register_window(
-		WindowPtr window_ptr);
-
-	void unregister_window(
-		WindowPtr window_ptr);
-}; // WindowManager
-
-
-class Launcher final :
-	public Base
-{
-public:
-	static std::string launcher_commands_file_name;
-	static std::string resource_strings_directory;
-	static std::string resource_strings_file_name;
-
-
-	Launcher(
-		Launcher&& rhs);
-
-
-	static Launcher& get_instance();
-
-	bool initialize();
-
-	void uninitialize();
-
-	bool is_initialized();
-
-	Logger* get_logger();
-
-	void run();
-
-	void show_message_box(
-		const MessageBoxType type,
-		const MessageBoxButtons buttons,
-		const std::string& message);
-
-	ResourceStrings& get_resource_strings();
-
-	bool has_direct_3d_9() const;
-
-	MessageBoxWindowPtr get_message_box_window();
-
-	MainWindowPtr get_main_window();
-
-	DisplaySettingsWindowPtr get_display_settings_window();
-
-	AdvancedSettingsWindowPtr get_advanced_settings_window();
-
-	DetailSettingsWindowPtr get_detail_settings_window();
-
-	const SearchPaths& get_search_paths() const;
-
-	void setup_search_paths(
-		const std::string& language_id_string);
-
-
-private:
-	static std::string icon_path;
-
-
-	bool is_initialized_;
-	bool has_direct_3d_9_;
-	LoggerUPtr logger_;
-	SearchPaths search_paths_{};
-	SDL_Surface* sdl_icon_surface_;
-	ResourceStrings resource_strings_;
-	MessageBoxWindowUPtr message_box_window_uptr_;
-	MainWindowUPtr main_window_uptr_;
-	DisplaySettingsWindowUPtr display_settings_window_uptr_;
-	AdvancedSettingsWindowUPtr advanced_settings_window_uptr_;
-	DetailSettingsWindowUPtr detail_settings_window_uptr_;
-
-	Launcher();
-
-	~Launcher();
-
-	bool initialize_sdl();
-}; // Launcher
-
-//
-// Classes
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Base
-//
-
-const std::string& Base::get_error_message()
-{
-	return error_message_;
-}
-
-void Base::clear_error_message()
-{
-	error_message_.clear();
-}
-
-void Base::set_error_message(
-	const std::string& error_message)
-{
-	error_message_ = error_message;
-}
-
-void Base::append_error_message(
-	const std::string& error_message)
-{
-	error_message_ += error_message;
-}
-
-void Base::prepend_error_message(
-	const std::string& error_message)
-{
-	error_message_.insert(std::string::size_type{}, error_message);
-}
-
-//
-// Base
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Direct3d9
-//
+// --------------------------------------
 
 bool Direct3d9::has_direct3d9()
+{
+	return has_direct3d9_;
+}
+
+const std::string& Direct3d9::get_renderer_name()
+{
+	constinit static const std::string renderer_name{"Direct3D 9"};
+	return renderer_name;
+}
+
+const std::string& Direct3d9::get_display_name()
+{
+	constinit static const std::string display_name{"Default"};
+	return display_name;
+}
+
+bool Direct3d9::check_for_direct3d9()
 {
 #ifdef _WIN32
 	if (const SdlSharedObjectUPtr d3d9_dll_uptr{SDL_LoadObject("d3d9.dll")};
@@ -1530,820 +572,318 @@ bool Direct3d9::has_direct3d9()
 			return true;
 		}
 	}
-
-	return false;
-#else // _WIN32
-	return false;
 #endif // _WIN32
+	return false;
 }
 
-const std::string& Direct3d9::get_renderer_name()
+// ======================================
+
+struct DisplayMode
 {
-	static const auto renderer_name = std::string{"Direct3D 9"};
+	int width;
+	int height;
+	std::string as_string;
+};
 
-	return renderer_name;
-}
+// ======================================
 
-const std::string& Direct3d9::get_display_name()
+class DisplayModeMgr
 {
-	static const auto display_name = std::string{"Default"};
+public:
+	static constexpr int min_display_mode_width = 640;
+	static constexpr int min_display_mode_height = 480;
 
-	return display_name;
-}
+	using DisplayModes = std::vector<DisplayMode>;
 
-//
-// Direct3d9
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	static const DisplayModeMgr& get_singleton();
+	int get_mode_count() const;
+	std::span<const DisplayMode> get_modes() const;
+	const DisplayMode& get_mode_by_index(int index) const;
+	const DisplayMode& get_native_mode() const;
+	int find_mode_index(int width, int height) const;
+	int get_native_display_mode_index() const;
 
+private:
+	DisplayModes display_modes_{};
+	DisplayMode native_display_mode_{};
+	int native_display_mode_index_{};
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// DisplayModeManager
-//
+	DisplayModeMgr();
+	~DisplayModeMgr() = default;
 
-DisplayModeManager::DisplayModeManager()
-	:
-	display_modes_{},
-	native_display_mode_{},
-	native_display_mode_index_{}
+	static bool is_sdl_pixel_format_valid(SDL_PixelFormat sdl_pixel_format);
+};
+
+// --------------------------------------
+
+const DisplayModeMgr& DisplayModeMgr::get_singleton()
 {
+	static const DisplayModeMgr display_mode_mgr{};
+	return display_mode_mgr;
 }
 
-DisplayModeManager::DisplayModeManager(
-	DisplayModeManager&& rhs)
-	:
-	display_modes_{std::move(rhs.display_modes_)},
-	native_display_mode_{std::move(rhs.native_display_mode_)},
-	native_display_mode_index_{std::move(rhs.native_display_mode_index_)}
+int DisplayModeMgr::get_mode_count() const
 {
+	return narrow_cast<int>(display_modes_.size());
 }
 
-DisplayModeManager::~DisplayModeManager()
-{
-}
-
-DisplayModeManager& DisplayModeManager::get_instance()
-{
-	static auto display_mode_manager = DisplayModeManager{};
-
-	return display_mode_manager;
-}
-
-void DisplayModeManager::initialize()
-{
-	uninitialize();
-
-
-	using SdlDisplayModeListUPtr = std::unique_ptr<SDL_DisplayMode*, SdlRawDeleter>;
-
-	const SDL_DisplayID sdl_primary_display_id = SDL_GetPrimaryDisplay();
-
-	if (sdl_primary_display_id == 0)
-	{
-		return;
-	}
-
-	int mode_count = 0;
-	SDL_DisplayMode** sdl_display_mode_list = SDL_GetFullscreenDisplayModes(sdl_primary_display_id, &mode_count);
-
-	if (sdl_display_mode_list == nullptr || mode_count == 0)
-	{
-		return;
-	}
-
-	SdlDisplayModeListUPtr display_mode_list{sdl_display_mode_list};
-
-	DisplayMode native_display_mode{};
-	const SDL_DisplayMode* const sdl_native_display_mode = SDL_GetCurrentDisplayMode(sdl_primary_display_id);
-
-	if (sdl_native_display_mode != nullptr)
-	{
-		if (!sdl_is_pixel_format_valid(sdl_native_display_mode->format))
-		{
-			return;
-		}
-
-		native_display_mode.width_ = sdl_native_display_mode->w;
-		native_display_mode.height_ = sdl_native_display_mode->h;
-	}
-
-	DisplayModes display_modes{};
-	display_modes.reserve(mode_count);
-
-	int native_display_mode_index = -1;
-
-	for (int i = 0; i < mode_count; ++i)
-	{
-		const SDL_DisplayMode& sdl_display_mode = *(sdl_display_mode_list[i]);
-
-		if (!sdl_is_pixel_format_valid(sdl_display_mode.format))
-		{
-			continue;
-		}
-
-		if (sdl_display_mode.w < min_display_mode_width ||
-			sdl_display_mode.h < min_display_mode_height)
-		{
-			continue;
-		}
-
-		auto item_it = std::find_if(
-			display_modes.cbegin(),
-			display_modes.cend(),
-			[&](const auto& item)
-			{
-				return item.width_ == sdl_display_mode.w && item.height_ == sdl_display_mode.h;
-			}
-		);
-
-		if (item_it != display_modes.cend())
-		{
-			continue;
-		}
-
-		display_modes.emplace_back();
-		auto& display_mode = display_modes.back();
-
-		display_mode.width_ = sdl_display_mode.w;
-		display_mode.height_ = sdl_display_mode.h;
-		display_mode.as_string_ = std::to_string(sdl_display_mode.w) + " x " + std::to_string(sdl_display_mode.h);
-	}
-
-	const auto native_display_mode_begin_it = display_modes.cbegin();
-	const auto native_display_mode_end_it = display_modes.cend();
-
-	const auto native_display_mode_it = std::find_if(
-		native_display_mode_begin_it,
-		native_display_mode_end_it,
-		[&](const auto& item)
-		{
-			return
-				native_display_mode.width_ == item.width_ &&
-				native_display_mode.height_ == item.height_;
-		}
-	);
-
-	if (native_display_mode_it != native_display_mode_end_it)
-	{
-		native_display_mode_index = static_cast<int>(native_display_mode_it - native_display_mode_begin_it);
-	}
-
-	native_display_mode_ = native_display_mode;
-	display_modes_ = display_modes;
-	native_display_mode_index_ = native_display_mode_index;
-}
-
-int DisplayModeManager::get_count() const
-{
-	return static_cast<int>(display_modes_.size());
-}
-
-const DisplayModeManager::DisplayModes& DisplayModeManager::get() const
+std::span<const DisplayMode> DisplayModeMgr::get_modes() const
 {
 	return display_modes_;
 }
 
-const DisplayMode& DisplayModeManager::get(
-	const int index) const
+const DisplayMode& DisplayModeMgr::get_mode_by_index(int index) const
 {
 	return display_modes_[index];
 }
 
-const DisplayMode& DisplayModeManager::get_native() const
+const DisplayMode& DisplayModeMgr::get_native_mode() const
 {
 	return native_display_mode_;
 }
 
-int DisplayModeManager::get_mode_index(
-	const int width,
-	const int height) const
+int DisplayModeMgr::find_mode_index(int width, int height) const
 {
 	if (width <= 0 || height <= 0)
 	{
 		return -1;
 	}
-
-	const auto display_mode_begin_it = display_modes_.cbegin();
-	const auto display_mode_end_it = display_modes_.cend();
-
-	auto display_mode_it = std::find_if(
-		display_mode_begin_it,
-		display_mode_end_it,
-		[&](const auto& item)
+	const auto display_mode_begin_iter = display_modes_.cbegin();
+	const auto display_mode_end_iter = display_modes_.cend();
+	const auto display_mode_iter = std::find_if(
+		display_mode_begin_iter,
+		display_mode_end_iter,
+		[width, height](const DisplayMode& item)
 		{
-			return item.width_ == width && item.height_ == height;
+			return item.width == width && item.height == height;
 		}
 	);
-
-	if (display_mode_it == display_mode_end_it)
+	if (display_mode_iter == display_mode_end_iter)
 	{
 		return -1;
 	}
-
-	const auto index = static_cast<int>(display_mode_it - display_mode_begin_it);
-
+	const int index = narrow_cast<int>(display_mode_iter - display_mode_begin_iter);
 	return index;
 }
 
-int DisplayModeManager::get_native_display_mode_index() const
+int DisplayModeMgr::get_native_display_mode_index() const
 {
 	return native_display_mode_index_;
 }
 
-void DisplayModeManager::uninitialize()
+DisplayModeMgr::DisplayModeMgr()
 {
-	display_modes_ = {};
-	native_display_mode_ = {};
-	native_display_mode_index_ = -1;
+	using SdlDisplayModeListUPtr = std::unique_ptr<SDL_DisplayMode*, SdlRawDeleter>;
+	const SDL_DisplayID sdl_primary_display_id = SDL_GetPrimaryDisplay();
+	if (sdl_primary_display_id == 0)
+	{
+		return;
+	}
+	int mode_count = 0;
+	SDL_DisplayMode** const sdl_display_mode_list = SDL_GetFullscreenDisplayModes(sdl_primary_display_id, &mode_count);
+	if (sdl_display_mode_list == nullptr || mode_count == 0)
+	{
+		return;
+	}
+	SdlDisplayModeListUPtr display_mode_list{sdl_display_mode_list};
+	DisplayMode native_display_mode{};
+	const SDL_DisplayMode* const sdl_native_display_mode = SDL_GetCurrentDisplayMode(sdl_primary_display_id);
+	if (sdl_native_display_mode != nullptr)
+	{
+		if (!is_sdl_pixel_format_valid(sdl_native_display_mode->format))
+		{
+			return;
+		}
+		native_display_mode.width = sdl_native_display_mode->w;
+		native_display_mode.height = sdl_native_display_mode->h;
+	}
+	DisplayModes display_modes{};
+	display_modes.reserve(mode_count);
+	int native_display_mode_index = -1;
+	for (int i = 0; i < mode_count; ++i)
+	{
+		const SDL_DisplayMode& sdl_display_mode = *(sdl_display_mode_list[i]);
+		if (!is_sdl_pixel_format_valid(sdl_display_mode.format))
+		{
+			continue;
+		}
+		if (sdl_display_mode.w < min_display_mode_width || sdl_display_mode.h < min_display_mode_height)
+		{
+			continue;
+		}
+		if (const auto item_iter = std::find_if(
+				display_modes.cbegin(),
+				display_modes.cend(),
+				[&sdl_display_mode](const DisplayMode& item)
+				{
+					return item.width == sdl_display_mode.w && item.height == sdl_display_mode.h;
+				});
+			item_iter != display_modes.cend())
+		{
+			continue;
+		}
+		display_modes.emplace_back(DisplayMode{
+			.width = sdl_display_mode.w,
+			.height = sdl_display_mode.h,
+			.as_string = std::format("{} x {}", sdl_display_mode.w, sdl_display_mode.h),
+		});
+	}
+	const auto native_display_mode_begin_iter = display_modes.cbegin();
+	const auto native_display_mode_end_iter = display_modes.cend();
+	const auto native_display_mode_iter = std::find_if(
+		native_display_mode_begin_iter,
+		native_display_mode_end_iter,
+		[&native_display_mode](const DisplayMode& item)
+		{
+			return
+				native_display_mode.width == item.width &&
+				native_display_mode.height == item.height;
+		}
+	);
+	if (native_display_mode_iter != native_display_mode_end_iter)
+	{
+		native_display_mode_index = narrow_cast<int>(native_display_mode_iter - native_display_mode_begin_iter);
+	}
+	native_display_mode_ = native_display_mode;
+	display_modes_ = display_modes;
+	native_display_mode_index_ = native_display_mode_index;
 }
 
-bool DisplayModeManager::sdl_is_pixel_format_valid(
-	const Uint32 sdl_pixel_format)
+bool DisplayModeMgr::is_sdl_pixel_format_valid(SDL_PixelFormat sdl_pixel_format)
 {
 	return
-		((SDL_BITSPERPIXEL(sdl_pixel_format) == 24 ||
-		SDL_BITSPERPIXEL(sdl_pixel_format) == 32) &&
+		(SDL_BITSPERPIXEL(sdl_pixel_format) == 24 || SDL_BITSPERPIXEL(sdl_pixel_format) == 32) &&
 		!SDL_ISPIXELFORMAT_INDEXED(sdl_pixel_format) ||
-		!SDL_ISPIXELFORMAT_ALPHA(sdl_pixel_format));
+		!SDL_ISPIXELFORMAT_ALPHA(sdl_pixel_format);
 }
-//
-// DisplayModeManager
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+// ======================================
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Configuration
-//
+class Configuration
+{
+public:
+	static constexpr int max_file_size = 4 * 1024;
 
-const std::string Configuration::configuration_file_name = "config.txt";
-const std::string Configuration::arguments_file_name = "arguments.txt";
-const std::string Configuration::log_file_name = "log.txt";
+	SettingValue<std::string> language{};
+	SettingValue<bool> is_disable_display_settings_warning{};
+	SettingValue<bool> is_disable_advanced_settings_warning{};
+	SettingValue<bool> is_disable_sound_effects{};
+	SettingValue<bool> is_disable_music{};
+	SettingValue<bool> is_disable_fmvs{};
+	SettingValue<bool> is_disable_controllers{};
+	SettingValue<bool> is_disable_triple_buffering{};
+	SettingValue<bool> is_disable_hardware_cursor{};
+	SettingValue<bool> is_disable_animated_loading_screen{};
+	SettingValue<bool> is_disable_hardware_sound{};
+	SettingValue<bool> is_disable_sound_filters{};
+	SettingValue<bool> is_pass_custom_arguments{};
+	SettingValue<std::string> custom_arguments{};
+	SettingValue<int> screen_width{};
+	SettingValue<int> screen_height{};
+	SettingValue<bool> is_restore_defaults{}; // Not serializable.
 
+	Configuration();
+	~Configuration() = default;
+	static Configuration& get_singleton();
+	ltjs::LanguageMgr* get_language_mgr() const;
+	static const std::string& get_base_path();
+	static const std::string& get_game_base_path();
+	static const std::string& get_resources_base_path();
+	static const std::string& get_config_path();
+	const std::string& get_arguments_file_name() const;
+	const std::string& get_log_file_name() const;
+	void reset();
+	void reload();
+	void save();
 
-const std::string Configuration::default_language = "en";
-const bool Configuration::default_is_warned_about_display = false;
-const bool Configuration::default_is_disable_advanced_settings_warning = false;
-const bool Configuration::default_is_disable_sound_effects = false;
-const bool Configuration::default_is_disable_music = false;
-const bool Configuration::default_is_disable_fmvs = false;
-const bool Configuration::default_is_disable_controllers = false;
-const bool Configuration::default_is_disable_triple_buffering = true;
-const bool Configuration::default_is_disable_hardware_cursor = false;
-const bool Configuration::default_is_disable_animated_loading_screen = false;
-const bool Configuration::default_is_detail_level_selected = false;
-const bool Configuration::default_is_disable_hardware_sound = false;
-const bool Configuration::default_is_disable_sound_filters = false;
-const bool Configuration::default_is_pass_custom_arguments = false;
-const std::string Configuration::default_custom_arguments = {};
-const int Configuration::default_screen_width = 0;
-const int Configuration::default_screen_height = 0;
+private:
+	static inline const std::string configuration_file_name = "config.txt";
+	static inline const std::string arguments_file_name = "arguments.txt";
+	static inline const std::string log_file_name = "log.txt";
 
+	static inline const std::string default_language = "en";
+	static inline const bool default_is_warned_about_display = false;
+	static inline const bool default_is_disable_advanced_settings_warning = false;
+	static inline const bool default_is_disable_sound_effects = false;
+	static inline const bool default_is_disable_music = false;
+	static inline const bool default_is_disable_fmvs = false;
+	static inline const bool default_is_disable_controllers = false;
+	static inline const bool default_is_disable_triple_buffering = true;
+	static inline const bool default_is_disable_hardware_cursor = false;
+	static inline const bool default_is_disable_animated_loading_screen = false;
+	static inline const bool default_is_detail_level_selected = false;
+	static inline const bool default_is_disable_hardware_sound = false;
+	static inline const bool default_is_disable_sound_filters = false;
+	static inline const bool default_is_pass_custom_arguments = false;
+	static inline const std::string default_custom_arguments{};
+	static inline const int default_screen_width = 0;
+	static inline const int default_screen_height = 0;
 
-const std::string Configuration::language_setting_name = "language";
-const std::string Configuration::is_disable_display_settings_warning_setting_name = "disable_display_settings_warning";
-const std::string Configuration::is_disable_advanced_settings_warning_setting_name = "disable_advanced_settings_warning";
-const std::string Configuration::is_disable_sound_effects_setting_name = "disable_sound_effects";
-const std::string Configuration::is_disable_music_setting_name = "disable_music";
-const std::string Configuration::is_disable_fmvs_setting_name = "disable_fmvs";
-const std::string Configuration::is_disable_controllers_setting_name = "disable_controllers";
-const std::string Configuration::is_disable_triple_buffering_setting_name = "disable_triple_buffering";
-const std::string Configuration::is_disable_hardware_cursor_setting_name = "disable_hardware_cursor";
-const std::string Configuration::is_disable_animated_loading_screen_setting_name = "disable_animated_loading_screen";
-const std::string Configuration::is_disable_hardware_sound_setting_name = "disable_hardware_sound";
-const std::string Configuration::is_disable_sound_filters_setting_name = "disable_sound_filters";
-const std::string Configuration::is_pass_custom_arguments_setting_name = "pass_custom_arguments";
-const std::string Configuration::custom_arguments_setting_name = "custom_arguments";
-const std::string Configuration::screen_width_setting_name = "screen_width";
-const std::string Configuration::screen_height_setting_name = "screen_height";
+	static inline const std::string language_setting_name = "language";
+	static inline const std::string is_disable_display_settings_warning_setting_name = "disable_display_settings_warning";
+	static inline const std::string is_disable_advanced_settings_warning_setting_name = "disable_advanced_settings_warning";
+	static inline const std::string is_disable_sound_effects_setting_name = "disable_sound_effects";
+	static inline const std::string is_disable_music_setting_name = "disable_music";
+	static inline const std::string is_disable_fmvs_setting_name = "disable_fmvs";
+	static inline const std::string is_disable_controllers_setting_name = "disable_controllers";
+	static inline const std::string is_disable_triple_buffering_setting_name = "disable_triple_buffering";
+	static inline const std::string is_disable_hardware_cursor_setting_name = "disable_hardware_cursor";
+	static inline const std::string is_disable_animated_loading_screen_setting_name = "disable_animated_loading_screen";
+	static inline const std::string is_disable_hardware_sound_setting_name = "disable_hardware_sound";
+	static inline const std::string is_disable_sound_filters_setting_name = "disable_sound_filters";
+	static inline const std::string is_pass_custom_arguments_setting_name = "pass_custom_arguments";
+	static inline const std::string custom_arguments_setting_name = "custom_arguments";
+	static inline const std::string screen_width_setting_name = "screen_width";
+	static inline const std::string screen_height_setting_name = "screen_height";
 
+	std::string configuration_path_{};
+	ltjs::LanguageMgrUPtr language_mgr_{};
+
+	void initialize();
+	static std::string serialize_cl_args(const std::string& custom_command_line);
+	static std::string deserialize_cl_args(const ScriptTokenizerToken& token);
+};
+
+// --------------------------------------
 
 Configuration::Configuration()
-	:
-	is_initialized_{},
-	configuration_path_{},
-	language_{},
-	is_disable_display_settings_warning_{},
-	is_disable_advanced_settings_warning_{},
-	is_disable_sound_effects_{},
-	is_disable_music_{},
-	is_disable_fmvs_{},
-	is_disable_controllers_{},
-	is_disable_triple_buffering_{},
-	is_disable_hardware_cursor_{},
-	is_disable_animated_loading_screen_{},
-	is_disable_hardware_sound_{},
-	is_disable_sound_filters_{},
-	is_pass_custom_arguments_{},
-	custom_arguments_{},
-	screen_width_{},
-	screen_height_{},
-	is_restore_defaults_{}
 {
 	language_mgr_ = ltjs::make_language_mgr();
+	initialize();
 }
 
-Configuration::Configuration(
-	Configuration&& rhs)
-	:
-	is_initialized_{std::move(is_initialized_)},
-	configuration_path_{std::move(configuration_path_)},
-	language_{std::move(language_)},
-	is_disable_display_settings_warning_{std::move(is_disable_display_settings_warning_)},
-	is_disable_advanced_settings_warning_{std::move(is_disable_advanced_settings_warning_)},
-	is_disable_sound_effects_{std::move(is_disable_sound_effects_)},
-	is_disable_music_{std::move(is_disable_music_)},
-	is_disable_fmvs_{std::move(is_disable_fmvs_)},
-	is_disable_controllers_{std::move(is_disable_controllers_)},
-	is_disable_triple_buffering_{std::move(is_disable_triple_buffering_)},
-	is_disable_hardware_cursor_{std::move(is_disable_hardware_cursor_)},
-	is_disable_animated_loading_screen_{std::move(is_disable_animated_loading_screen_)},
-	is_disable_hardware_sound_{std::move(is_disable_hardware_sound_)},
-	is_disable_sound_filters_{std::move(is_disable_sound_filters_)},
-	is_pass_custom_arguments_{std::move(is_pass_custom_arguments_)},
-	custom_arguments_{std::move(custom_arguments_)},
-	screen_width_{std::move(screen_width_)},
-	screen_height_{std::move(screen_height_)},
-	is_restore_defaults_{std::move(is_restore_defaults_)},
-	language_mgr_{std::move(language_mgr_)}
+Configuration& Configuration::get_singleton()
 {
-}
-
-Configuration::~Configuration() = default;
-
-Configuration& Configuration::get_instance()
-{
-	static auto configuration = Configuration{};
-
+	static Configuration configuration{};
 	return configuration;
 }
 
-bool Configuration::initialize()
+void Configuration::initialize()
 {
-	if (is_initialized_)
-	{
-		return true;
-	}
-
 	configuration_path_ = combine_and_normalize_file_paths(get_config_path(), configuration_file_name);
-
 	reset();
-
-	is_initialized_ = true;
-
-	return true;
 }
 
-bool Configuration::is_initialized() const
-{
-	return is_initialized_;
-}
-
-ltjs::LanguageMgr* Configuration::get_language_mgr() const noexcept
+ltjs::LanguageMgr* Configuration::get_language_mgr() const
 {
 	return language_mgr_.get();
 }
 
-bool Configuration::reload()
-{
-	if (!is_initialized_)
-	{
-		set_error_message("Not initialized.");
-		return false;
-	}
-
-	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(configuration_path_.c_str(), "rb")};
-
-	if (sdl_io_stream_uptr == nullptr)
-	{
-		return true;
-	}
-
-	const Sint64 stream_size = SDL_GetIOSize(sdl_io_stream_uptr.get());
-
-	if (stream_size > max_file_size)
-	{
-		set_error_message("Configuration file \"" + configuration_path_ + "\" too big.");
-		return false;
-	}
-
-	const auto file_size = static_cast<int>(stream_size);
-
-	auto string_buffer = std::vector<char>{};
-	string_buffer.resize(file_size);
-
-	const std::size_t read_result = SDL_ReadIO(sdl_io_stream_uptr.get(), string_buffer.data(), file_size);
-
-	if (read_result != file_size)
-	{
-		set_error_message("Failed to read configuration file \"" + configuration_path_ + "\".");
-		return false;
-	}
-
-	auto script_tokenizer = ScriptTokenizer{};
-
-	auto script_tokenizer_init_param = ScriptTokenizerInitParam{};
-	script_tokenizer_init_param.data = string_buffer.data();
-	script_tokenizer_init_param.size = file_size;
-
-	try
-	{
-		script_tokenizer.initialize(script_tokenizer_init_param);
-	}
-	catch (const std::exception& ex)
-	{
-		set_error_message("Failed to parse configuration file \"" + configuration_path_ + "\". " + ex.what());
-		return false;
-	}
-
-	ScriptTokenizerToken tokens[2];
-
-	while (true)
-	{
-		auto script_line = ScriptTokenizerLine{};
-
-		try
-		{
-			script_line = script_tokenizer.tokenize_line(
-				tokens,
-				2,
-				2,
-				2
-			);
-		}
-		catch (const std::exception& ex)
-		{
-			set_error_message("Failed to tokenize \"" + configuration_path_ + "\". " + ex.what());
-			return false;
-		}
-
-		if (script_line.is_end_of_data)
-		{
-			break;
-		}
-
-		if (script_line.is_empty())
-		{
-			continue;
-		}
-
-		if (script_line.size != 2)
-		{
-			set_error_message(
-				"Expected two tokens in \"" + configuration_path_ +
-				"\" at line " + std::to_string(script_line.get_line_number()) + ".");
-
-			return false;
-		}
-
-		const auto& key_string = std::string{tokens[0].data, static_cast<std::size_t>(tokens[0].size)};
-		const auto& value_string = std::string{tokens[1].data, static_cast<std::size_t>(tokens[1].size)};
-
-		if (false)
-		{
-		}
-		else if (key_string == language_setting_name)
-		{
-			language_.set_and_accept(value_string);
-		}
-		else if (key_string == is_disable_display_settings_warning_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_display_settings_warning_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_disable_advanced_settings_warning_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_advanced_settings_warning_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_disable_sound_effects_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_sound_effects_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_disable_music_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_music_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_disable_fmvs_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_fmvs_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_disable_controllers_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_controllers_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_disable_triple_buffering_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_triple_buffering_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_disable_hardware_cursor_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_hardware_cursor_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_disable_animated_loading_screen_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_animated_loading_screen_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_disable_hardware_sound_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_hardware_sound_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_disable_sound_filters_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_disable_sound_filters_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == is_pass_custom_arguments_setting_name)
-		{
-			try
-			{
-				const auto value = std::stoi(value_string);
-				is_pass_custom_arguments_.set_and_accept(value != 0);
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == custom_arguments_setting_name)
-		{
-			custom_arguments_.set_and_accept(deserialize_cl_args(tokens[1]));
-		}
-		else if (key_string == screen_width_setting_name)
-		{
-			try
-			{
-				screen_width_.set_and_accept(std::stoi(value_string));
-			}
-			catch(...)
-			{
-			}
-		}
-		else if (key_string == screen_height_setting_name)
-		{
-			try
-			{
-				screen_height_.set_and_accept(std::stoi(value_string));
-			}
-			catch (...)
-			{
-			}
-		}
-	}
-
-	language_mgr_->load();
-	const auto current_language = language_mgr_->get_current();
-	language_.set_and_accept(current_language->id_string.data);
-
-	return true;
-}
-
-bool Configuration::save()
-{
-	if (!is_initialized_)
-	{
-		set_error_message("Not initialized.");
-		return false;
-	}
-
-	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(configuration_path_.c_str(), "wb")};
-
-	if (sdl_io_stream_uptr == nullptr)
-	{
-		set_error_message("Failed to open configuration file \"" + configuration_path_ + "\" for writing.");
-		return false;
-	}
-
-	auto string_buffer = std::string{};
-	string_buffer.reserve(max_file_size);
-
-	// Header.
-	//
-	string_buffer += "/*\n";
-	string_buffer += "LTJS\n";
-	string_buffer += LTJS_GAME_ID_STRING_UC " LAUNCHER CONFIGURATION\n";
-	string_buffer += "WARNING This is auto-generated file.\n";
-	string_buffer += "*/\n";
-	string_buffer += '\n';
-
-	//
-	language_.accept();
-	language_mgr_->set_current_by_id_string(language_.get_ref().c_str());
-	language_mgr_->save();
-
-	//
-	is_disable_display_settings_warning_.accept();
-	string_buffer += is_disable_display_settings_warning_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_display_settings_warning_);
-	string_buffer += '\n';
-
-	//
-	is_disable_advanced_settings_warning_.accept();
-	string_buffer += is_disable_advanced_settings_warning_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_advanced_settings_warning_);
-	string_buffer += '\n';
-
-	//
-	is_disable_sound_effects_.accept();
-	string_buffer += is_disable_sound_effects_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_sound_effects_);
-	string_buffer += '\n';
-
-	//
-	is_disable_music_.accept();
-	string_buffer += is_disable_music_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_music_);
-	string_buffer += '\n';
-
-	//
-	is_disable_fmvs_.accept();
-	string_buffer += is_disable_fmvs_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_fmvs_);
-	string_buffer += '\n';
-
-	//
-	is_disable_controllers_.accept();
-	string_buffer += is_disable_controllers_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_controllers_);
-	string_buffer += '\n';
-
-	//
-	is_disable_triple_buffering_.accept();
-	string_buffer += is_disable_triple_buffering_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_triple_buffering_);
-	string_buffer += '\n';
-
-	//
-	is_disable_hardware_cursor_.accept();
-	string_buffer += is_disable_hardware_cursor_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_hardware_cursor_);
-	string_buffer += '\n';
-
-	//
-	is_disable_animated_loading_screen_.accept();
-	string_buffer += is_disable_animated_loading_screen_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_animated_loading_screen_);
-	string_buffer += '\n';
-
-	//
-	is_disable_hardware_sound_.accept();
-	string_buffer += is_disable_hardware_sound_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_hardware_sound_);
-	string_buffer += '\n';
-
-	//
-	is_disable_sound_filters_.accept();
-	string_buffer += is_disable_sound_filters_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_disable_sound_filters_);
-	string_buffer += '\n';
-
-	//
-	is_pass_custom_arguments_.accept();
-	string_buffer += is_pass_custom_arguments_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(is_pass_custom_arguments_);
-	string_buffer += '\n';
-
-	//
-	custom_arguments_.accept();
-	string_buffer += custom_arguments_setting_name;
-	string_buffer += " \"";
-	string_buffer += (is_pass_custom_arguments_ ? serialize_cl_args(custom_arguments_) : "");
-	string_buffer += "\"\n";
-
-	//
-	screen_width_.accept();
-	string_buffer += screen_width_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(screen_width_);
-	string_buffer += '\n';
-
-	//
-	screen_height_.accept();
-	string_buffer += screen_height_setting_name;
-	string_buffer += ' ';
-	string_buffer += std::to_string(screen_height_);
-	string_buffer += '\n';
-
-
-	// Dump the string buffer into file stream.
-	//
-	const auto string_buffer_size = static_cast<int>(string_buffer.size());
-
-	if (string_buffer_size > max_file_size)
-	{
-		set_error_message("Configuration data too big.");
-		return false;
-	}
-
-	const std::size_t write_result = SDL_WriteIO(sdl_io_stream_uptr.get(), string_buffer.data(), string_buffer_size);
-
-	if (write_result != string_buffer_size)
-	{
-		set_error_message("Failed to write settings into \"" + configuration_path_ + "\".");
-		return false;
-	}
-
-	return true;
-}
-
 const std::string& Configuration::get_base_path()
 {
-	static const auto result = std::string{"ltjs"};
+	constinit static const std::string result{"ltjs"};
 	return result;
 }
 
 const std::string& Configuration::get_game_base_path()
 {
-	static const auto result = std::string{get_base_path() + "/" LTJS_GAME_ID_STRING};
+	static const std::string result{get_base_path() + "/" LTJS_GAME_ID_STRING};
 	return result;
 }
 
 const std::string& Configuration::get_config_path()
 {
-	static const auto result = get_resources_base_path() + "/config";
+	static const std::string result = get_resources_base_path() + "/config";
 	return result;
 }
 
@@ -2359,134 +899,393 @@ const std::string& Configuration::get_log_file_name() const
 
 const std::string& Configuration::get_resources_base_path()
 {
-	static const auto result = get_game_base_path() + "/launcher";
+	static const std::string result = get_game_base_path() + "/launcher";
 	return result;
+}
+
+void Configuration::reload()
+{
+	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(configuration_path_.c_str(), "rb")};
+	if (sdl_io_stream_uptr == nullptr)
+	{
+		return;
+	}
+	const Sint64 stream_size = SDL_GetIOSize(sdl_io_stream_uptr.get());
+	if (stream_size < 0)
+	{
+		fail("Unknown size. (file_path={}; error_message={})", configuration_path_, SDL_GetError());
+	}
+	if (stream_size > max_file_size)
+	{
+		fail("Size too big. (file_size={}; max_file_size={}; file_path={})", stream_size, max_file_size, configuration_path_);
+	}
+	const int file_size = narrow_cast<int>(stream_size);
+	std::vector<char> string_buffer{};
+	string_buffer.resize(file_size);
+	const std::size_t read_result = SDL_ReadIO(sdl_io_stream_uptr.get(), string_buffer.data(), file_size);
+	if (read_result != file_size)
+	{
+		fail("Failed to read a file. (file_path={}; error_message={})", configuration_path_, SDL_GetError());
+	}
+	ScriptTokenizer script_tokenizer{};
+	ScriptTokenizerInitParam script_tokenizer_init_param{.data = string_buffer.data(), .size = file_size};
+	try
+	{
+		script_tokenizer.initialize(script_tokenizer_init_param);
+	}
+	catch (const std::exception& exception)
+	{
+		fail("Invalid configuration. (file_path={}; error_message={})", configuration_path_, exception.what());
+	}
+	class SettingValueParser
+	{
+	public:
+		static void parse(const std::string& value_string, SettingValue<bool>& setting_value)
+		{
+			if (const OptionalInt optional_int = parse_int(value_string);
+				optional_int.has_value())
+			{
+				setting_value.set_and_accept(optional_int.value() != 0);
+			}
+		}
+
+		static void parse(const std::string& value_string, SettingValue<int>& setting_value)
+		{
+			if (const OptionalInt optional_int = parse_int(value_string);
+				optional_int.has_value())
+			{
+				setting_value.set_and_accept(optional_int.value());
+			}
+		}
+
+	private:
+		using OptionalInt = std::optional<int>;
+
+		static OptionalInt parse_int(const std::string& int_string)
+		{
+			int value = 0;
+			if (const auto [ptr, ec] = std::from_chars(int_string.data(), int_string.data() + int_string.size(), value);
+				ec == std::errc{})
+			{
+				return OptionalInt{value};
+			}
+			return OptionalInt{};
+		};
+	};
+	ScriptTokenizerToken tokens[2];
+	for (;;)
+	{
+		ScriptTokenizerLine script_line{};
+		try
+		{
+			script_line = script_tokenizer.tokenize_line(tokens, 2, 2, 2);
+		}
+		catch (const std::exception& exception)
+		{
+			fail("Failed to tokenize. (file_path={}; error_message={})", configuration_path_, exception.what());
+		}
+		if (script_line.is_end_of_data)
+		{
+			break;
+		}
+		if (script_line.is_empty())
+		{
+			continue;
+		}
+		if (script_line.size != 2)
+		{
+			fail("Expected two tokens. (file_path={}; line_number={})", configuration_path_, script_line.get_line_number());
+		}
+		const std::string key_string{tokens[0].data, narrow_cast<std::size_t>(tokens[0].size)};
+		const std::string value_string{tokens[1].data, narrow_cast<std::size_t>(tokens[1].size)};
+		if (false)
+		{}
+		else if (key_string == language_setting_name)
+		{
+			language.set_and_accept(value_string);
+		}
+		else if (key_string == is_disable_display_settings_warning_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_display_settings_warning);
+		}
+		else if (key_string == is_disable_advanced_settings_warning_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_advanced_settings_warning);
+		}
+		else if (key_string == is_disable_sound_effects_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_sound_effects);
+		}
+		else if (key_string == is_disable_music_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_music);
+		}
+		else if (key_string == is_disable_fmvs_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_fmvs);
+		}
+		else if (key_string == is_disable_controllers_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_controllers);
+		}
+		else if (key_string == is_disable_triple_buffering_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_triple_buffering);
+		}
+		else if (key_string == is_disable_hardware_cursor_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_hardware_cursor);
+		}
+		else if (key_string == is_disable_animated_loading_screen_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_animated_loading_screen);
+		}
+		else if (key_string == is_disable_hardware_sound_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_hardware_sound);
+		}
+		else if (key_string == is_disable_sound_filters_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_disable_sound_filters);
+		}
+		else if (key_string == is_pass_custom_arguments_setting_name)
+		{
+			SettingValueParser::parse(value_string, is_pass_custom_arguments);
+		}
+		else if (key_string == custom_arguments_setting_name)
+		{
+			custom_arguments.set_and_accept(deserialize_cl_args(tokens[1]));
+		}
+		else if (key_string == screen_width_setting_name)
+		{
+			SettingValueParser::parse(value_string, screen_width);
+		}
+		else if (key_string == screen_height_setting_name)
+		{
+			SettingValueParser::parse(value_string, screen_height);
+		}
+	}
+	language_mgr_->load();
+	const ltjs::Language* const current_language = language_mgr_->get_current();
+	language.set_and_accept(current_language->id_string.data);
+}
+
+void Configuration::save()
+{
+	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(configuration_path_.c_str(), "wb")};
+	if (sdl_io_stream_uptr == nullptr)
+	{
+		fail("Failed to open a file. (file_path={}; error_message={})", configuration_path_, SDL_GetError());
+	}
+	// Commit language changes.
+	language.accept();
+	language_mgr_->set_current_by_id_string(language.get_ref().c_str());
+	language_mgr_->save();
+	// Make content.
+	class StringBuilder
+	{
+	public:
+		explicit StringBuilder(std::size_t capacity)
+		{
+			string_.reserve(capacity);
+		}
+
+		const std::string& get_string() const
+		{
+			return string_;
+		}
+
+		void append(const std::string& value)
+		{
+			string_ += value;
+		}
+
+		void append(const std::string& key, int value)
+		{
+			std::format_to(std::back_inserter(string_), "{} {}\n", key, value);
+		}
+
+		void append(const std::string& key, const std::string& value)
+		{
+			std::format_to(std::back_inserter(string_), "{} \"{}\"\n", key, value);
+		}
+
+	private:
+		std::string string_{};
+	};
+	StringBuilder string_builder{max_file_size};
+	string_builder.append(
+		"/*\n"
+		"LTJS\n"
+		LTJS_GAME_ID_STRING_UC " LAUNCHER CONFIGURATION\n"
+		"WARNING This is auto-generated file.\n"
+		"*/\n"
+		"\n");
+	//
+	is_disable_display_settings_warning.accept();
+	string_builder.append(is_disable_display_settings_warning_setting_name, is_disable_display_settings_warning);
+	//
+	is_disable_advanced_settings_warning.accept();
+	string_builder.append(is_disable_advanced_settings_warning_setting_name, is_disable_advanced_settings_warning);
+	//
+	is_disable_sound_effects.accept();
+	string_builder.append(is_disable_sound_effects_setting_name, is_disable_sound_effects);
+	//
+	is_disable_music.accept();
+	string_builder.append(is_disable_music_setting_name, is_disable_music);
+	//
+	is_disable_fmvs.accept();
+	string_builder.append(is_disable_fmvs_setting_name, is_disable_fmvs);
+	//
+	is_disable_controllers.accept();
+	string_builder.append(is_disable_controllers_setting_name, is_disable_controllers);
+	//
+	is_disable_triple_buffering.accept();
+	string_builder.append(is_disable_triple_buffering_setting_name, is_disable_triple_buffering);
+	//
+	is_disable_hardware_cursor.accept();
+	string_builder.append(is_disable_hardware_cursor_setting_name, is_disable_hardware_cursor);
+	//
+	is_disable_animated_loading_screen.accept();
+	string_builder.append(is_disable_animated_loading_screen_setting_name, is_disable_animated_loading_screen);
+	//
+	is_disable_hardware_sound.accept();
+	string_builder.append(is_disable_hardware_sound_setting_name, is_disable_hardware_sound);
+	//
+	is_disable_sound_filters.accept();
+	string_builder.append(is_disable_sound_filters_setting_name, is_disable_sound_filters);
+	//
+	is_pass_custom_arguments.accept();
+	string_builder.append(is_pass_custom_arguments_setting_name, is_pass_custom_arguments);
+	//
+	custom_arguments.accept();
+	string_builder.append(custom_arguments_setting_name, is_pass_custom_arguments ? serialize_cl_args(custom_arguments) : "");
+	//
+	screen_width.accept();
+	string_builder.append(screen_width_setting_name, screen_width);
+	//
+	screen_height.accept();
+	string_builder.append(screen_height_setting_name, screen_height);
+	// Dump the string buffer into file stream.
+	const std::string& content = string_builder.get_string();
+	const int content_size = narrow_cast<int>(content.size());
+	if (content_size > max_file_size)
+	{
+		fail("Configuration data too big. (content_size={}; max_content_size={})", content_size, max_file_size);
+	}
+	const std::size_t write_result = SDL_WriteIO(sdl_io_stream_uptr.get(), content.data(), content_size);
+	if (write_result != content_size)
+	{
+		fail("Failed to write settings. (file_path={}; error_message={})", configuration_path_, SDL_GetError());
+	}
 }
 
 void Configuration::reset()
 {
-	language_.set_and_accept(default_language);
-	is_disable_display_settings_warning_.set_and_accept(default_is_warned_about_display);
-	is_disable_advanced_settings_warning_.set_and_accept(default_is_disable_advanced_settings_warning);
-	is_disable_sound_effects_.set_and_accept(default_is_disable_sound_effects);
-	is_disable_music_.set_and_accept(default_is_disable_music);
-	is_disable_fmvs_.set_and_accept(default_is_disable_fmvs);
-	is_disable_controllers_.set_and_accept(default_is_disable_controllers);
-	is_disable_triple_buffering_.set_and_accept(default_is_disable_triple_buffering);
-	is_disable_hardware_cursor_.set_and_accept(default_is_disable_hardware_cursor);
-	is_disable_animated_loading_screen_.set_and_accept(default_is_disable_animated_loading_screen);
-	is_disable_hardware_sound_.set_and_accept(default_is_disable_hardware_sound);
-	is_disable_sound_filters_.set_and_accept(default_is_disable_sound_filters);
-	is_pass_custom_arguments_.set_and_accept(default_is_pass_custom_arguments);
-	custom_arguments_.set_and_accept(default_custom_arguments);
-	screen_width_.set_and_accept(default_screen_width);
-	screen_height_.set_and_accept(default_screen_height);
+	language.set_and_accept(default_language);
+	is_disable_display_settings_warning.set_and_accept(default_is_warned_about_display);
+	is_disable_advanced_settings_warning.set_and_accept(default_is_disable_advanced_settings_warning);
+	is_disable_sound_effects.set_and_accept(default_is_disable_sound_effects);
+	is_disable_music.set_and_accept(default_is_disable_music);
+	is_disable_fmvs.set_and_accept(default_is_disable_fmvs);
+	is_disable_controllers.set_and_accept(default_is_disable_controllers);
+	is_disable_triple_buffering.set_and_accept(default_is_disable_triple_buffering);
+	is_disable_hardware_cursor.set_and_accept(default_is_disable_hardware_cursor);
+	is_disable_animated_loading_screen.set_and_accept(default_is_disable_animated_loading_screen);
+	is_disable_hardware_sound.set_and_accept(default_is_disable_hardware_sound);
+	is_disable_sound_filters.set_and_accept(default_is_disable_sound_filters);
+	is_pass_custom_arguments.set_and_accept(default_is_pass_custom_arguments);
+	custom_arguments.set_and_accept(default_custom_arguments);
+	screen_width.set_and_accept(default_screen_width);
+	screen_height.set_and_accept(default_screen_height);
 
 	language_mgr_->initialize(get_base_path().c_str());
 }
 
-std::string Configuration::serialize_cl_args(
-	const std::string& custom_command_line)
+std::string Configuration::serialize_cl_args(const std::string& custom_command_line)
 {
-	const auto src_string_size = static_cast<std::intptr_t>(custom_command_line.size());
-	const auto dst_string_size = src_string_size * 2;
-
-	auto result = std::string{};
+	const int src_string_size = narrow_cast<int>(custom_command_line.size());
+	const int dst_string_size = src_string_size * 2;
+	std::string result{};
 	result.resize(dst_string_size);
-
-	const auto escaped_size = ScriptTokenizer::escape_string(
+	const int escaped_size = narrow_cast<int>(ScriptTokenizer::escape_string(
 		custom_command_line.c_str(),
 		src_string_size,
-		&result[0],
-		2 * src_string_size
-	);
-
+		result.data(),
+		2 * src_string_size));
 	result.resize(escaped_size);
-
 	return result;
 }
 
-std::string Configuration::deserialize_cl_args(
-	const ScriptTokenizerToken& token)
+std::string Configuration::deserialize_cl_args(const ScriptTokenizerToken& token)
 {
 	if (token.is_escaped())
 	{
-		auto result = std::string{};
+		std::string result{};
 		result.resize(token.unescaped_size);
-
-		ScriptTokenizer::unescape_string(
-			token,
-			&result[0],
-			token.unescaped_size
-		);
-
+		ScriptTokenizer::unescape_string(token, result.data(), token.unescaped_size);
 		return result;
 	}
 	else
 	{
-		return std::string{token.data, static_cast<std::size_t>(token.size)};
+		return std::string{token.data, narrow_cast<std::size_t>(token.size)};
 	}
 }
 
-//
-// Configuration
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ======================================
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// SupportedLanguages
-//
-
-SupportedLanguages::SupportedLanguages() = default;
-
-SupportedLanguages::SupportedLanguages(
-	SupportedLanguages&& rhs)
-	:
-	languages_{std::move(languages_)}
+struct Language
 {
-}
+	std::string id;
+	std::string name;
+};
 
-SupportedLanguages::~SupportedLanguages() = default;
+using Languages = std::vector<Language>;
 
-SupportedLanguages& SupportedLanguages::get_instance()
+// ======================================
+
+class SupportedLanguages
 {
-	static auto supported_languages = SupportedLanguages{};
+public:
+	static SupportedLanguages& get_singleton();
+	void load();
+	const Languages& get() const;
+	bool has_id(const std::string& id) const;
+	int find_index_by_id(const std::string& id) const;
 
+private:
+	static constexpr int max_file_size = 4096;
+
+	Languages languages_{};
+
+	SupportedLanguages() = default;
+	~SupportedLanguages() = default;
+};
+
+// --------------------------------------
+
+SupportedLanguages& SupportedLanguages::get_singleton()
+{
+	static SupportedLanguages supported_languages{};
 	return supported_languages;
 }
 
-bool SupportedLanguages::load()
+void SupportedLanguages::load()
 {
-	clear_error_message();
-
 	languages_.clear();
-
-	auto& configuration = Configuration::get_instance();
-	auto language_mgr = configuration.get_language_mgr();
-
-	if (!language_mgr)
-	{
-		set_error_message("Null language manager.");
-		return false;
-	}
-
+	Configuration& configuration = Configuration::get_singleton();
+	LanguageMgr* const language_mgr = configuration.get_language_mgr();
 	language_mgr->load();
-
-	const auto languages = language_mgr->get_languages();
-	const auto language_count = languages.size;
-
+	const LanguageMgrLanguages languages = language_mgr->get_languages();
+	const ltjs::Index language_count = languages.size;
 	languages_.resize(language_count);
-
-	for (auto i = 0; i < language_count; ++i)
+	for (ltjs::Index i = 0; i < language_count; ++i)
 	{
-		const auto& src_language = languages.data[i];
-		auto& dst_language = languages_[i];
-
-		dst_language.id_.assign(src_language.id_string.data, static_cast<std::size_t>(src_language.id_string.size));
-		dst_language.name_.assign(src_language.name.data, static_cast<std::size_t>(src_language.name.size));
+		const ltjs::Language& src_language = languages.data[i];
+		Language& dst_language = languages_[i];
+		dst_language.id.assign(src_language.id_string.data, narrow_cast<std::size_t>(src_language.id_string.size));
+		dst_language.name.assign(src_language.name.data, narrow_cast<std::size_t>(src_language.name.size));
 	}
-
-	return true;
 }
 
 const Languages& SupportedLanguages::get() const
@@ -2494,567 +1293,174 @@ const Languages& SupportedLanguages::get() const
 	return languages_;
 }
 
-bool SupportedLanguages::has_id(
-	const std::string& id) const
+bool SupportedLanguages::has_id(const std::string& id) const
 {
-	const auto language_end_it = languages_.cend();
-
-	const auto language_it = std::find_if(
+	const auto language_end_iter = languages_.cend();
+	const auto language_iter = std::find_if(
 		languages_.cbegin(),
-		language_end_it,
-		[&](const auto& item)
+		language_end_iter,
+		[&id](const Language& item)
 		{
-			return item.id_ == id;
-		}
-	);
-
-	return language_it != language_end_it;
+			return item.id == id;
+		});
+	return language_iter != language_end_iter;
 }
 
-int SupportedLanguages::get_id_index(
-	const std::string& id) const
+int SupportedLanguages::find_index_by_id(const std::string& id) const
 {
-	const auto language_begin_it = languages_.cbegin();
-	const auto language_end_it = languages_.cend();
-
-	const auto language_it = std::find_if(
-		language_begin_it,
-		language_end_it,
-		[&](const auto& item)
+	const auto language_begin_iter = languages_.cbegin();
+	const auto language_end_iter = languages_.cend();
+	const auto language_iter = std::find_if(
+		language_begin_iter,
+		language_end_iter,
+		[&id](const Language& item)
 		{
-			return item.id_ == id;
-		}
-	);
-
-	if (language_it == language_end_it)
+			return item.id == id;
+		});
+	if (language_iter == language_end_iter)
 	{
 		return -1;
 	}
-
-	return static_cast<int>(language_it - language_begin_it);
+	return narrow_cast<int>(language_iter - language_begin_iter);
 }
 
-//
-// SupportedLanguages
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ======================================
 
+using FontData = std::vector<std::uint8_t>;
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// SdlOglWindow
-//
-
-SdlOglWindow::SdlOglWindow()
-	:
-	is_initialized_{},
-	sdl_window_{},
-	sdl_renderer_{},
-	sdl_window_id_{}
+class FontMgr
 {
-}
-
-SdlOglWindow::SdlOglWindow(
-	const SdlCreateWindowParam& param)
-	:
-	SdlOglWindow{}
-{
-	if (param.width_ <= 0)
-	{
-		set_error_message("Invalid width.");
-	}
-
-	if (param.height_ <= 0)
-	{
-		set_error_message("Invalid height.");
-	}
-
-
-	bool is_succeed = true;
-
-	// Create window and renderer.
-	//
-	SDL_Window* sdl_window = nullptr;
-	SDL_Renderer* sdl_renderer = nullptr;
-
-	if (is_succeed)
-	{
-		const Uint32 sdl_window_flags =
-			SDL_WINDOW_HIDDEN |
-			(param.is_borderless_ ? SDL_WINDOW_BORDERLESS : 0);
-
-		if (!SDL_CreateWindowAndRenderer(
-			param.title_.c_str(),
-			param.width_,
-			param.height_,
-			sdl_window_flags,
-			&sdl_window,
-			&sdl_renderer))
-		{
-			is_succeed = false;
-
-			set_error_message("Failed to create window and renderer. " + std::string{SDL_GetError()});
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED))
-		{
-			is_succeed = false;
-			set_error_message("Failed to move a window. " + std::string{SDL_GetError()});
-		}
-	}
-
-	// Window ID.
-	//
-	auto sdl_window_id = Uint32{};
-
-	if (is_succeed)
-	{
-		sdl_window_id = SDL_GetWindowID(sdl_window);
-
-		if (sdl_window_id == 0)
-		{
-			is_succeed = false;
-
-			set_error_message("Failed to get window's id. " + std::string{SDL_GetError()});
-		}
-	}
-
-	// Show window.
-	//
-	if (is_succeed)
-	{
-		if (!param.is_hidden_)
-		{
-			SDL_ShowWindow(sdl_window);
-		}
-	}
-
-	// Clean up
-	//
-	if (!is_succeed)
-	{
-		if (sdl_renderer != nullptr)
-		{
-			SDL_DestroyRenderer(sdl_renderer);
-		}
-
-		if (sdl_window)
-		{
-			SDL_DestroyWindow(sdl_window);
-		}
-
-		return;
-	}
-
-	is_initialized_ = true;
-	sdl_window_ = sdl_window;
-	sdl_renderer_ = sdl_renderer;
-	sdl_window_id_ = sdl_window_id;
-}
-
-SdlOglWindow::SdlOglWindow(
-	SdlOglWindow&& rhs)
-	:
-	is_initialized_{std::move(rhs.is_initialized_)},
-	sdl_window_{std::move(rhs.sdl_window_)},
-	sdl_renderer_{std::move(rhs.sdl_renderer_)},
-	sdl_window_id_{std::move(rhs.sdl_window_id_)}
-{
-	rhs.is_initialized_ = false;
-}
-
-SdlOglWindow& SdlOglWindow::operator=(
-	SdlOglWindow&& rhs)
-{
-	if (std::addressof(rhs) != this)
-	{
-		static_cast<void>(Base::operator=(std::move(rhs)));
-
-		uninitialize();
-
-		if (rhs.is_initialized_)
-		{
-			is_initialized_ = std::move(rhs.is_initialized_);
-			sdl_window_ = std::move(rhs.sdl_window_);
-			sdl_renderer_ = std::move(rhs.sdl_renderer_);
-			sdl_window_id_ = std::move(rhs.sdl_window_id_);
-
-			rhs.is_initialized_ = false;
-		}
-	}
-
-	return *this;
-}
-
-SdlOglWindow::~SdlOglWindow()
-{
-	uninitialize();
-}
-
-bool SdlOglWindow::is_initialized() const
-{
-	return is_initialized_;
-}
-
-void SdlOglWindow::get_size(
-	int& width,
-	int& height)
-{
-	width = 0;
-	height = 0;
-
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	SDL_GetWindowSize(sdl_window_, &width, &height);
-}
-
-void SdlOglWindow::get_ogl_drawable_size(
-	int& width,
-	int& height)
-{
-	width = 0;
-	height = 0;
-
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	SDL_GetWindowSizeInPixels(sdl_window_, &width, &height);
-}
-
-void SdlOglWindow::show(
-	const bool is_show)
-{
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	const auto sdl_func = (is_show ? &SDL_ShowWindow : &SDL_HideWindow);
-
-	sdl_func(sdl_window_);
-}
-
-void SdlOglWindow::minimize()
-{
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	SDL_MinimizeWindow(sdl_window_);
-}
-
-void SdlOglWindow::restore()
-{
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	SDL_RestoreWindow(sdl_window_);
-}
-
-bool SdlOglWindow::is_visible() const
-{
-	if (!is_initialized_)
-	{
-		return false;
-	}
-
-	const auto sdl_window_flags = SDL_GetWindowFlags(sdl_window_);
-
-	return (sdl_window_flags & SDL_WINDOW_HIDDEN) == 0;
-}
-
-void SdlOglWindow::warp_mouse(
-	const int x,
-	const int y)
-{
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	SDL_WarpMouseInWindow(sdl_window_, narrow_cast<float>(x), narrow_cast<float>(y));
-}
-
-bool SdlOglWindow::are_same(
-	SDL_Window* sdl_window) const
-{
-	return sdl_window_ == sdl_window;
-}
-
-void SdlOglWindow::ogl_swap()
-{
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	SDL_RenderPresent(sdl_renderer_);
-}
-
-bool SdlOglWindow::is_event_for_me(
-	const SDL_Event& sdl_event)
-{
-	if (sdl_event.type >= SDL_EVENT_WINDOW_FIRST && sdl_event.type <= SDL_EVENT_WINDOW_LAST)
-	{
-		if (sdl_event.window.windowID != 0)
-		{
-			return sdl_event.window.windowID == sdl_window_id_;
-		}
-
-		return true;
-	}
-
-	switch (sdl_event.type)
-	{
-	case SDL_EVENT_KEY_DOWN:
-	case SDL_EVENT_KEY_UP:
-		if (sdl_event.key.windowID != 0)
-		{
-			return sdl_event.key.windowID == sdl_window_id_;
-		}
-
-		return true;
-
-	case SDL_EVENT_TEXT_EDITING:
-		if (sdl_event.edit.windowID != 0)
-		{
-			return sdl_event.edit.windowID == sdl_window_id_;
-		}
-
-		return true;
-
-	case SDL_EVENT_TEXT_INPUT:
-		if (sdl_event.text.windowID != 0)
-		{
-			return sdl_event.text.windowID == sdl_window_id_;
-		}
-
-		return true;
-
-	case SDL_EVENT_MOUSE_MOTION:
-		if (sdl_event.motion.windowID != 0)
-		{
-			return sdl_event.motion.windowID == sdl_window_id_;
-		}
-
-		return true;
-
-	case SDL_EVENT_MOUSE_BUTTON_DOWN:
-	case SDL_EVENT_MOUSE_BUTTON_UP:
-		if (sdl_event.motion.windowID != 0)
-		{
-			return sdl_event.motion.windowID == sdl_window_id_;
-		}
-
-		return true;
-
-	case SDL_EVENT_MOUSE_WHEEL:
-		if (sdl_event.wheel.windowID != 0)
-		{
-			return sdl_event.wheel.windowID == sdl_window_id_;
-		}
-
-		return true;
-
-	case SDL_EVENT_DROP_FILE:
-	case SDL_EVENT_DROP_TEXT:
-	case SDL_EVENT_DROP_BEGIN:
-	case SDL_EVENT_DROP_COMPLETE:
-		if (sdl_event.drop.windowID != 0)
-		{
-			return sdl_event.drop.windowID == sdl_window_id_;
-		}
-
-		return true;
-
-	default:
-		return true;
-	}
-}
-
-void SdlOglWindow::set_icon(
-	SDL_Surface* sdl_surface)
-{
-	SDL_SetWindowIcon(sdl_window_, sdl_surface);
-}
-
-SDL_Window* SdlOglWindow::get_window() const
-{
-	return sdl_window_;
-}
-
-SDL_Renderer* SdlOglWindow::get_renderer() const
-{
-	return sdl_renderer_;
-}
-
-void SdlOglWindow::uninitialize()
-{
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	SDL_DestroyRenderer(sdl_renderer_);
-	SDL_DestroyWindow(sdl_window_);
-
-	is_initialized_ = false;
-	sdl_window_ = nullptr;
-	sdl_renderer_ = nullptr;
-	sdl_window_id_ = 0;
-}
-
-//
-// SdlOglWindow
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// FontManager
-//
-
-const std::string FontManager::regular_font_file_name = "ltjs/" LTJS_GAME_ID_STRING "/launcher/noto_sans_display_condensed.ttf";
-const std::string FontManager::bold_font_file_name = "ltjs/" LTJS_GAME_ID_STRING "/launcher/noto_sans_display_condensed_bold.ttf";
-
-const FontManager::Descriptions FontManager::descriptions =
-{
-	{FontId::message_box_title, FontType::bold, 27.0F},
-	{FontId::message_box_message, FontType::regular, 17.0F},
+public:
+	static FontMgr& get_singleton();
+	const FontData& get_regular_data() const;
+	const FontData& get_bold_data() const;
+	float get_regular_size() const;
+	float get_bold_size() const;
+
+private:
+	static constexpr int max_font_file_size = 1 * 1024 * 1024;
+	static const std::string regular_font_file_name;
+	static const std::string bold_font_file_name;
+
+	FontData regular_font_data_{};
+	FontData bold_font_data_{};
+
+	FontMgr();
+	~FontMgr() = default;
+
+	void load_font_data(const std::string& file_name, FontData& font_data);
 };
 
-FontManager::FontManager()
-	:
-	regular_font_data_{},
-	bold_font_data_{}
+// --------------------------------------
+
+const std::string FontMgr::regular_font_file_name = "ltjs/" LTJS_GAME_ID_STRING "/launcher/noto_sans_display_condensed.ttf";
+const std::string FontMgr::bold_font_file_name = "ltjs/" LTJS_GAME_ID_STRING "/launcher/noto_sans_display_condensed_bold.ttf";
+
+// --------------------------------------
+
+FontMgr::FontMgr()
 {
+	load_font_data(regular_font_file_name, regular_font_data_);
+	load_font_data(bold_font_file_name, bold_font_data_);
 }
 
-FontManager::~FontManager()
+FontMgr& FontMgr::get_singleton()
 {
+	static FontMgr font_mgr{};
+	return font_mgr;
 }
 
-FontManager::FontManager(
-	FontManager&& rhs)
-	:
-	regular_font_data_{std::move(regular_font_data_)},
-	bold_font_data_{std::move(bold_font_data_)}
+const FontData& FontMgr::get_regular_data() const
 {
+	return regular_font_data_;
 }
 
-FontManager& FontManager::get_instance()
+const FontData& FontMgr::get_bold_data() const
 {
-	static auto font_manager = FontManager{};
-
-	return font_manager;
+	return bold_font_data_;
 }
 
-bool FontManager::initialize()
+float FontMgr::get_regular_size() const
 {
-	uninitialize();
-
-	if (!load_font_data(regular_font_file_name, regular_font_data_))
-	{
-		return false;
-	}
-
-	if (!load_font_data(bold_font_file_name, bold_font_data_))
-	{
-		return false;
-	}
-
-	return true;
+	return 17.0F;
 }
 
-void FontManager::uninitialize()
+float FontMgr::get_bold_size() const
 {
-	regular_font_data_ = {};
-	bold_font_data_ = {};
+	return 27.0F;
 }
 
-auto FontManager::get_data(FontId font_id) const -> const Buffer&
+void FontMgr::load_font_data(const std::string& file_name, FontData& font_data)
 {
-	switch (font_id)
-	{
-		case FontId::message_box_message: return regular_font_data_;
-		case FontId::message_box_title: return bold_font_data_;
-		default: throw std::runtime_error{"Unknown font id."};
-	}
-}
-
-float FontManager::get_size(FontId font_id) const
-{
-	for(const Description& description : descriptions)
-	{
-		if (description.font_id_ == font_id)
-		{
-			return description.size_in_pixels_;
-		}
-	}
-
-	return 0.0F;
-}
-
-bool FontManager::load_font_data(
-	const std::string& file_name,
-	Buffer& font_data)
-{
-	const auto normalized_file_name = normalize_file_path(file_name);
+	const std::string normalized_file_name = normalize_file_path(file_name);
 	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(normalized_file_name.c_str(), "rb")};
-
 	if (sdl_io_stream_uptr == nullptr)
 	{
-		set_error_message("Failed to open font file: \"" + normalized_file_name + "\".");
-
-		return false;
+		fail("Failed to open a file. (file_path={}; error_message={})", normalized_file_name, SDL_GetError());
 	}
-
-	const auto file_size = SDL_GetIOSize(sdl_io_stream_uptr.get());
-
+	const Sint64 file_size = SDL_GetIOSize(sdl_io_stream_uptr.get());
+	if (file_size < 0)
+	{
+		fail("Unknown file size. (file_path={}; error_message={})", normalized_file_name, SDL_GetError());
+	}
 	if (file_size > max_font_file_size)
 	{
-		set_error_message("Font file too big: \"" + normalized_file_name + "\".");
-
-		return false;
+		fail(
+			"Font file too big. (size={}; max_size={}; file_path={})",
+			file_size,
+			max_font_file_size,
+			normalized_file_name);
 	}
-
-	font_data.resize(static_cast<Buffer::size_type>(file_size));
-
-	const auto read_size = SDL_ReadIO(sdl_io_stream_uptr.get(), font_data.data(), static_cast<std::size_t>(file_size));
-
-	if (read_size != static_cast<std::size_t>(file_size))
+	font_data.resize(narrow_cast<std::size_t>(file_size));
+	const std::size_t read_size = SDL_ReadIO(sdl_io_stream_uptr.get(), font_data.data(), narrow_cast<std::size_t>(file_size));
+	if (read_size != narrow_cast<std::size_t>(file_size))
 	{
-		regular_font_data_.clear();
-		set_error_message("Failed to read font file: \"" + normalized_file_name + "\".");
-
-		return false;
+		fail(
+			"Failed to read font file. (file_path={}; error_message={})",
+			normalized_file_name,
+			SDL_GetError());
 	}
-
-	return true;
 }
 
-//
-// FontManager
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ======================================
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// OglTextureManager
-//
-
-const std::string OglTextureManager::images_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher";
-
-const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
+struct TextureMgrCreateParam
 {
+	SDL_Renderer* sdl_renderer;
+};
+
+class TextureMgr
+{
+public:
+	explicit TextureMgr(const TextureMgrCreateParam& param);
+
+	void clear();
+	ImTextureID get(ImageId image_id);
+
+private:
+	using Strings = std::vector<std::string>;
+	using TextureMap = std::unordered_map<ImageId, SdlTextureUPtr>;
+
+	static const std::string images_path;
+	static const Strings image_file_names;
+
+	SDL_Renderer* sdl_renderer_{};
+	TextureMap texture_map_{};
+};
+
+using TextureMgrUPtr = std::unique_ptr<TextureMgr>;
+
+TextureMgrUPtr make_texture_mgr(const TextureMgrCreateParam& param)
+{
+	return std::make_unique<TextureMgr>(param);
+}
+
+// --------------------------------------
+
+const std::string TextureMgr::images_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher";
+
+const TextureMgr::Strings TextureMgr::image_file_names{
 	// Shared.
-	//
 
 	"boxbackground.bmp",
 	"checkboxc.bmp",
@@ -3068,8 +1474,7 @@ const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 	"minimizeu.bmp",
 	"warning.bmp",
 
-	// Language-specific.
-	//
+	// Localized.
 
 	"canceld.bmp",
 	"cancelf.bmp",
@@ -3137,548 +1542,453 @@ const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 	"serverf.bmp",
 	"serveru.bmp",
 	"serverx.bmp",
-}; // OglTextureManager::image_file_names
+};
 
+// --------------------------------------
 
-OglTextureManager::OglTextureManager()
-	:
-	ogl_textures_{}
+TextureMgr::TextureMgr(const TextureMgrCreateParam& param)
 {
+	sdl_renderer_ = param.sdl_renderer;
+	texture_map_.reserve(image_file_names.size());
 }
 
-OglTextureManager::OglTextureManager(
-	OglTextureManager&& rhs)
-	:
-	sdl_renderer_{std::move(rhs.sdl_renderer_)},
-	ogl_textures_{std::move(rhs.ogl_textures_)}
+void TextureMgr::clear()
 {
+	texture_map_.clear();
 }
 
-OglTextureManager::~OglTextureManager()
+ImTextureID TextureMgr::get(ImageId image_id)
 {
-}
-
-bool OglTextureManager::initialize(SdlOglWindow* sdl_ogl_window)
-{
-	uninitialize();
-
-	sdl_renderer_ = sdl_ogl_window->get_renderer();
-	ogl_textures_.resize(image_file_names.size());
-
-	return true;
-}
-
-void OglTextureManager::uninitialize()
-{
-	uninitialize_textures();
-
-	ogl_textures_.clear();
-	sdl_renderer_ = nullptr;
-}
-
-bool OglTextureManager::load_all_textures()
-{
-	uninitialize_textures();
-
-	if (image_file_names.empty())
-	{
-		set_error_message("No images.");
-		return false;
-	}
-
-	const auto& configuration = Configuration::get_instance();
-	const std::size_t image_count = image_file_names.size();
-	ogl_textures_.resize(image_count);
-
-	for (std::size_t i = 0; i < image_count; ++i)
-	{
-		const auto& image_file_name = image_file_names[i];
-		const auto invariant_image_path = combine_and_normalize_file_paths(images_path, image_file_name);
-		SdlSurfaceUPtr image_surface{SDL_LoadBMP(invariant_image_path.c_str())};
-
-		if (image_surface == nullptr)
-		{
-			const auto specific_image_path = combine_and_normalize_file_paths(images_path, configuration.language_, image_file_name);
-			image_surface.reset(SDL_LoadBMP(specific_image_path.c_str()));
-		}
-
-		if (image_surface == nullptr)
-		{
-			set_error_message("Failed to load image: \"" + image_file_name + "\".");
-			return false;
-		}
-
-		if (SDL_Texture* const ogl_texture = create_texture_from_surface(image_surface.get());
-			ogl_texture != nullptr)
-		{
-			ogl_textures_[i].reset(ogl_texture);
-		}
-		else
-		{
-			prepend_error_message("Failed to create texure from \"" + image_file_name + "\". ");
-			return false;
-		}
-	}
-
-	return true;
-}
-
-ImTextureID OglTextureManager::get(
-	const ImageId image_id)
-{
-	const int image_index = narrow_cast<int>(image_id);
-
-	if (image_index < 0 || image_index >= static_cast<int>(ogl_textures_.size()))
+	const std::size_t image_id_u = static_cast<std::size_t>(image_id);
+	if (image_id_u >= image_file_names.size())
 	{
 		return ImTextureID{};
 	}
-
-	return narrow_cast<ImTextureID>(reinterpret_cast<std::size_t>(ogl_textures_[image_index].get()));
-}
-
-SDL_Texture* OglTextureManager::create_texture_from_surface(
-	SDL_Surface* sdl_surface)
-{
-	if (SDL_Texture* const sdl_texture = SDL_CreateTextureFromSurface(sdl_renderer_, sdl_surface);
+	const auto cast = [](SDL_Texture* sdl_texture) -> ImTextureID
+	{
+		return narrow_cast<ImTextureID>(reinterpret_cast<std::size_t>(sdl_texture));
+	};
+	if (const auto texture_iter = texture_map_.find(image_id);
+		texture_iter != texture_map_.cend())
+	{
+		return cast(texture_iter->second.get());
+	}
+	const Configuration& configuration = Configuration::get_singleton();
+	const std::string& image_file_name = image_file_names[image_id_u];
+	const std::string shared_image_path = combine_and_normalize_file_paths(images_path, image_file_name);
+	SdlSurfaceUPtr image_surface{SDL_LoadBMP(shared_image_path.c_str())};
+	if (image_surface == nullptr)
+	{
+		const std::string localized_image_path =
+			combine_and_normalize_file_paths(images_path, configuration.language, image_file_name);
+		image_surface.reset(SDL_LoadBMP(localized_image_path.c_str()));
+	}
+	if (image_surface == nullptr)
+	{
+		fail("Missing image. (file_name={})", image_file_name);
+	}
+	if (SDL_Texture* const sdl_texture = SDL_CreateTextureFromSurface(sdl_renderer_, image_surface.get());
 		sdl_texture != nullptr)
 	{
-		return sdl_texture;
+		texture_map_.emplace(image_id, SdlTextureUPtr{sdl_texture});
+		return cast(sdl_texture);
 	}
-
-	set_error_message(std::format("[{}] {} (error_message={})", "TexMgr", "SDL_CreateTextureFromSurface", SDL_GetError()));
-	return nullptr;
+	fail("Failed to create a texture. (file_name={}; error_message={})", image_file_name, SDL_GetError());
 }
 
-void OglTextureManager::uninitialize_textures()
+// ======================================
+
+class ScaleMgr
 {
-	ogl_textures_.clear();
-}
+public:
+	static ScaleMgr& get_singleton();
+	float get_scale() const;
 
-//
-// OglTextureManager
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+private:
+	static constexpr float ref_scale_dimension = 600.0F;
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Event
-//
+	float scale_{};
 
-void WindowEvent::notify(
-	Window* sender_window_ptr)
+	ScaleMgr();
+	~ScaleMgr() = default;
+};
+
+// --------------------------------------
+
+ScaleMgr::ScaleMgr()
 {
-	for (auto& subscriber : subscribers_)
+	const SDL_DisplayMode* const sdl_display_mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
+	if (sdl_display_mode != nullptr)
 	{
-		subscriber(sender_window_ptr);
+		const float dimension = narrow_cast<float>(std::min(sdl_display_mode->w, sdl_display_mode->h));
+		scale_ = dimension / ref_scale_dimension;
+	}
+	if (scale_ < 1.0F)
+	{
+		scale_ = 1.0F;
 	}
 }
 
-WindowEvent& WindowEvent::operator+=(
-	const Func& func)
+ScaleMgr& ScaleMgr::get_singleton()
 {
-	subscribers_.emplace_back(func);
-
-	return *this;
+	static ScaleMgr scale_mgr{};
+	return scale_mgr;
 }
 
-WindowEvent& WindowEvent::operator-=(
-	const Func& func)
+float ScaleMgr::get_scale() const
 {
-	auto func_end_it = subscribers_.cend();
-
-	auto func_it = std::find_if(
-		subscribers_.cbegin(),
-		func_end_it,
-		[&](const auto& item)
-		{
-			return
-				func.target_type() == item.target_type() &&
-				func.template target<void(*)()>() == item.template target<void(*)()>();
-		}
-	);
-
-	if (func_it == func_end_it)
-	{
-		return *this;
-	}
-
-	subscribers_.erase(func_it);
-
-	return *this;
+	return scale_;
 }
 
-//
-// Event
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ======================================
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Window
-//
-
-Window::Window()
-	:
-	is_initialized_{},
-	sdl_ogl_window_{},
-	im_context_{},
-	pressed_mouse_buttons_{},
-	time_{},
-	message_box_result_event_{},
-	message_box_result_{}
+class BasicWindow
 {
+public:
+	BasicWindow() = default;
+	virtual ~BasicWindow() = default;
+
+	virtual void hide() = 0;
+	virtual void show() = 0;
+};
+
+// ======================================
+
+struct WindowCreateParam
+{
+	int width;
+	int height;
+	std::string title;
+};
+
+class Window : public BasicWindow
+{
+public:
+	explicit Window(const WindowCreateParam& param);
+	virtual ~Window() = default;
+
+	void hide() override;
+	void show() override;
+
+	void show(bool is_show);
+	bool is_visible() const;
+	void draw();
+	void handle_event(const SDL_Event& sdl_event);
+	void imgui_handle_events();
+	void set_icon(SDL_Surface* sdl_surface);
+	void set_parent(Window* parent);
+
+protected:
+	ImFont* imgui_regular_font_{};
+	ImFont* imgui_bold_font_{};
+	Window* parent_window_{};
+
+	virtual void on_dialog_result(DialogResult dialog_result);
+
+	void get_size(int& width, int& height) const;
+	void get_size_in_pixels(int& width, int& height) const;
+	void minimize_internal(bool is_minimize);
+	DialogResult get_dialog_result() const;
+	void reset_dialog_result();
+	void set_dialog_result(DialogResult dialog_result);
+	static bool is_point_inside_rect(const ImVec2& point, const ImVec4& rect);
+	static ImVec2 center_size_inside_rect(const ImVec4& outer_rect, const ImVec2& inner_size);
+	TextureMgr& get_texture_manager();
+	ImFont* get_regular_imgui_font();
+	ImFont* get_bold_imgui_font();
+	static void imgui_add_button(
+		const char* id_string,
+		const ImVec2& position,
+		const ImVec2& size,
+		ImageId down_image_id,
+		ImageId hover_image_id,
+		ImageId up_image_id,
+		TextureMgr& texture_mgr,
+		bool& out_is_clicked);
+	static void imgui_add_title_minimize_button(
+		const ImVec2& position,
+		const ImVec2& size,
+		TextureMgr& texture_mgr,
+		bool& out_is_clicked);
+	static void imgui_add_title_close_button(
+		const ImVec2& position,
+		const ImVec2& size,
+		TextureMgr& texture_mgr,
+		bool& out_is_clicked);
+	static void imgui_add_ok_button(
+		const ImVec2& position,
+		const ImVec2& size,
+		TextureMgr& texture_mgr,
+		bool& out_is_clicked);
+	static void imgui_add_cancel_button(
+		const ImVec2& position,
+		const ImVec2& size,
+		TextureMgr& texture_mgr,
+		bool& out_is_clicked);
+
+private:
+	SdlWindowUPtr sdl_window_uptr_{};
+	SdlRendererUPtr sdl_renderer_uptr_{};
+	TextureMgrUPtr texture_mgr_uptr_{};
+	ImguiContextUPtr imgui_context_uptr_{};
+	Uint64 time_{};
+	DialogResult dialog_result_{};
+
+	void initialize_sdl_window_and_renderer(const WindowCreateParam& param);
+	void initialize(const WindowCreateParam& param);
+	void imgui_new_frame();
+	void imgui_render();
+
+	virtual void do_draw() = 0;
+	virtual void do_imgui_handle_events() = 0;
+};
+
+// --------------------------------------
+
+Window::Window(const WindowCreateParam& param)
+{
+	initialize(param);
 }
 
-Window::~Window()
+void Window::on_dialog_result(DialogResult dialog_result)
+{}
+
+void Window::initialize(const WindowCreateParam& param)
 {
-	uninitialize();
-}
-
-bool Window::initialize(
-	const WindowCreateParam& param)
-{
-	auto is_succeed = true;
-
-	if (is_succeed)
+	initialize_sdl_window_and_renderer(param);
+	FontMgr& font_mgr = FontMgr::get_singleton();
+	texture_mgr_uptr_ = make_texture_mgr(TextureMgrCreateParam{.sdl_renderer = sdl_renderer_uptr_.get()});
+	if (imgui_context_uptr_.reset(ImGui::CreateContext());
+		imgui_context_uptr_ == nullptr)
 	{
-		auto window_param = SdlCreateWindowParam{};
-		window_param.title_ = param.title_;
-		window_param.width_ = param.width_;
-		window_param.height_ = param.height_;
-		window_param.is_hidden_ = true;
-		window_param.is_borderless_ = true;
-		window_param.is_double_buffering_ = true;
-		window_param.is_share_with_current_ogl_context_ = true;
-
-		sdl_ogl_window_ = SdlOglWindow{window_param};
-
-		if (!sdl_ogl_window_.is_initialized())
+		fail("Failed to create ImGUI context.");
+	}
+	ImGui::SetCurrentContext(imgui_context_uptr_.get());
+	ImGuiIO& im_io = ImGui::GetIO();
+	//
+	im_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	im_io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	//
+	im_io.IniFilename = nullptr;
+	//
+	ImGuiStyle& im_style = ImGui::GetStyle();
+	im_style.ChildRounding = 0.0F;
+	im_style.FrameBorderSize = 0.0F;
+	im_style.FramePadding = ImVec2{};
+	im_style.FrameRounding = 0.0F;
+	im_style.GrabRounding = 0.0F;
+	im_style.ItemInnerSpacing = ImVec2{};
+	im_style.ItemSpacing = ImVec2{};
+	im_style.PopupRounding = 0.0F;
+	im_style.ScrollbarRounding = 0.0F;
+	im_style.TouchExtraPadding = ImVec2{};
+	im_style.WindowBorderSize = 0.0F;
+	im_style.WindowPadding = ImVec2{};
+	im_style.WindowRounding = 0.0F;
+	constinit static ImWchar glyph_ranges[] =
+	{
+		L'\x0020', L'\x024F', // Basic Latin + Latin Supplement + Latin Extended-A + Latin Extended-B
+		L'\x0400', L'\x052F', // Cyrillic + Cyrillic Supplement
+		L'\0',
+	};
+	im_io.Fonts->Clear();
+	{
+		const FontData& font_data = font_mgr.get_regular_data();
+		ImFontConfig imgui_font_config{};
+		imgui_font_config.FontDataOwnedByAtlas = false;
+		imgui_regular_font_ = im_io.Fonts->AddFontFromMemoryTTF(
+			const_cast<std::uint8_t*>(font_data.data()),
+			narrow_cast<int>(font_data.size()),
+			0.0F,
+			&imgui_font_config,
+			glyph_ranges);
+		if (imgui_regular_font_ == nullptr)
 		{
-			is_succeed = false;
-			set_error_message("Failed to create window. " + sdl_ogl_window_.get_error_message());
+			fail("[{}] {}", "ImGui", "Failed to load a regular font.");
 		}
 	}
-
-	auto& font_manager = FontManager::get_instance();
-
-	if (is_succeed)
 	{
-		if (!ogl_texture_manager_.initialize(&sdl_ogl_window_))
+		const FontData& font_data = font_mgr.get_bold_data();
+		ImFontConfig imgui_font_config{};
+		imgui_font_config.FontDataOwnedByAtlas = false;
+		imgui_bold_font_ = im_io.Fonts->AddFontFromMemoryTTF(
+			const_cast<std::uint8_t*>(font_data.data()),
+			narrow_cast<int>(font_data.size()),
+			0.0F,
+			&imgui_font_config,
+			glyph_ranges);
+		if (imgui_bold_font_ == nullptr)
 		{
-			is_succeed = false;
-			set_error_message("Failed to create GL texture manager. " + ogl_texture_manager_.get_error_message());
+			fail("[{}] {}", "ImGui", "Failed to load a bold font.");
 		}
 	}
-
-	if (is_succeed)
+	SDL_Window* const sdl_window = sdl_window_uptr_.get();
+	SDL_Renderer* const sdl_renderer = sdl_renderer_uptr_.get();
+	ImGui_ImplSDL3_InitForSDLRenderer(sdl_window, sdl_renderer);
+	ImGui_ImplSDLRenderer3_Init(sdl_renderer);
 	{
-		if (!ogl_texture_manager_.load_all_textures())
-		{
-			is_succeed = false;
-			set_error_message("Failed to create all GL textures. " + ogl_texture_manager_.get_error_message());
-		}
-	}
-
-	if (is_succeed)
-	{
-		im_context_ = ImGui::CreateContext();
-
-		if (!im_context_)
-		{
-			is_succeed = false;
-			set_error_message("Failed to create ImGUI context.");
-		}
-	}
-
-	if (is_succeed)
-	{
-		ImGui::SetCurrentContext(im_context_);
-
-		auto& im_io = ImGui::GetIO();
-
-		im_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		im_io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-		im_io.IniFilename = nullptr;
-
-		auto& im_style = ImGui::GetStyle();
-		im_style.ChildRounding = 0.0F;
-		im_style.FrameBorderSize = 0.0F;
-		im_style.FramePadding = {};
-		im_style.FrameRounding = 0.0F;
-		im_style.GrabRounding = 0.0F;
-		im_style.ItemInnerSpacing = {};
-		im_style.ItemSpacing = {};
-		im_style.PopupRounding = 0.0F;
-		im_style.ScrollbarRounding = 0.0F;
-		im_style.TouchExtraPadding = {};
-		im_style.WindowBorderSize = 0.0F;
-		im_style.WindowPadding = {};
-		im_style.WindowRounding = 0.0F;
-
-		static const ImWchar glyph_ranges[] =
-		{
-			L'\x0020', L'\x024F', // Basic Latin + Latin Supplement + Latin Extended-A + Latin Extended-B
-			L'\x0400', L'\x052F', // Cyrillic + Cyrillic Supplement
-			L'\0',
-		}; // glyph_ranges
-
-		im_io.Fonts->Clear();
-
-		if (is_succeed)
-		{
-			const FontManager::Buffer& font_data = font_manager.get_data(FontId::message_box_message);
-
-			ImFontConfig imgui_font_config{};
-			imgui_font_config.FontDataOwnedByAtlas = false;
-
-			imgui_regular_font_ = im_io.Fonts->AddFontFromMemoryTTF(
-				const_cast<std::uint8_t*>(font_data.data()),
-				narrow_cast<int>(font_data.size()),
-				0.0F,
-				&imgui_font_config,
-				glyph_ranges);
-
-			if (imgui_regular_font_ == nullptr)
-			{
-				is_succeed = false;
-				set_error_message("Failed to load a regular font.");
-			}
-		}
-
-		if (is_succeed)
-		{
-			const FontManager::Buffer& font_data = font_manager.get_data(FontId::message_box_title);
-
-			ImFontConfig imgui_font_config{};
-			imgui_font_config.FontDataOwnedByAtlas = false;
-
-			imgui_bold_font_ = im_io.Fonts->AddFontFromMemoryTTF(
-				const_cast<std::uint8_t*>(font_data.data()),
-				narrow_cast<int>(font_data.size()),
-				0.0F,
-				&imgui_font_config,
-				glyph_ranges);
-
-			if (imgui_bold_font_ == nullptr)
-			{
-				is_succeed = false;
-				set_error_message("Failed to load a bold font.");
-			}
-		}
-
-		SDL_Window* const sdl_window = sdl_ogl_window_.get_window();
-		SDL_Renderer* const sdl_renderer = sdl_ogl_window_.get_renderer();
-		ImGui_ImplSDL3_InitForSDLRenderer(sdl_window, sdl_renderer);
-		ImGui_ImplSDLRenderer3_Init(sdl_renderer);
-	}
-
-	if (is_succeed)
-	{
-		auto w = 0;
-		auto h = 0;
-
-		sdl_ogl_window_.get_size(w, h);
-
-		auto display_w = 0;
-		auto display_h = 0;
-
-		sdl_ogl_window_.get_ogl_drawable_size(display_w, display_h);
-
-		auto& io = ImGui::GetIO();
-
-		io.DisplaySize = ImVec2{static_cast<float>(w), static_cast<float>(h)};
-
-		io.DisplayFramebufferScale = ImVec2
-		{
-			w > 0 ? (static_cast<float>(display_w) / w) : 0,
-			h > 0 ? (static_cast<float>(display_h) / h) : 0,
+		int w = 0;
+		int h = 0;
+		get_size(w, h);
+		int display_w = 0;
+		int display_h = 0;
+		get_size_in_pixels(display_w, display_h);
+		ImGuiIO& io = ImGui::GetIO();
+		io.DisplaySize = ImVec2{narrow_cast<float>(w), narrow_cast<float>(h)};
+		io.DisplayFramebufferScale = ImVec2{
+			w > 0 ? (narrow_cast<float>(display_w) / w) : 0.0F,
+			h > 0 ? (narrow_cast<float>(display_h) / h) : 0.0F,
 		};
-
-		// Setup back-end capabilities flags
-		//
-		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors; // We can honor GetMouseCursor() values (optional)
-		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos; // We can honor io.WantSetMousePos requests (optional, rarely used)
-
-		if (!param.is_hidden_)
-		{
-			sdl_ogl_window_.show(true);
-		}
 	}
-
-	if (!is_succeed)
-	{
-		return false;
-	}
-
-	auto& window_mananger = WindowManager::get_instance();
-
-	window_mananger.register_window(this);
-
-	is_initialized_ = true;
-
-	return true;
 }
 
-bool Window::is_initialized() const
+void Window::hide()
 {
-	return is_initialized_;
+	show(false);
 }
 
-void Window::show(
-	const bool is_show)
+void Window::show()
 {
-	if (!is_initialized_)
-	{
-		return;
-	}
+	show(true);
+}
 
-	sdl_ogl_window_.show(is_show);
+void Window::show(bool is_show)
+{
+	[[maybe_unused]] bool sdl_result;
+	SDL_Window* const sdl_window = sdl_window_uptr_.get();
+	if (is_show)
+	{
+		sdl_result = SDL_ShowWindow(sdl_window);
+	}
+	else
+	{
+		sdl_result = SDL_HideWindow(sdl_window);
+	}
+	assert(sdl_result);
 }
 
 bool Window::is_visible() const
 {
-	if (!is_initialized_)
-	{
-		return false;
-	}
-
-	return sdl_ogl_window_.is_visible();
+	const SDL_WindowFlags sdl_window_flags = SDL_GetWindowFlags(sdl_window_uptr_.get());
+	return (sdl_window_flags & SDL_WINDOW_HIDDEN) == 0;
 }
 
 void Window::draw()
 {
-	if (!is_initialized_)
+	if (!is_visible())
 	{
 		return;
 	}
-
-	if (!sdl_ogl_window_.is_visible())
-	{
-		return;
-	}
-
-	ImGui::SetCurrentContext(im_context_);
-
-	im_new_frame();
-
+	ImGui::SetCurrentContext(imgui_context_uptr_.get());
+	imgui_new_frame();
 	ImGui::NewFrame();
 	do_draw();
 	ImGui::EndFrame();
-
-	im_render();
-
+	imgui_render();
 	ImGui::SetCurrentContext(nullptr);
 }
 
-void Window::im_handle_events()
+void Window::handle_event(const SDL_Event& sdl_event)
 {
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	do_im_handle_events();
-}
-
-WindowEvent& Window::get_message_box_result_event()
-{
-	return message_box_result_event_;
-}
-
-MessageBoxResult Window::get_message_box_result() const
-{
-	return message_box_result_;
-}
-
-void Window::set_icon(
-	SDL_Surface* sdl_surface)
-{
-	sdl_ogl_window_.set_icon(sdl_surface);
-}
-
-void Window::set_message_box_result(
-	const MessageBoxResult message_box_result)
-{
-	message_box_result_ = message_box_result;
-}
-
-void Window::uninitialize()
-{
-	if (im_context_)
-	{
-		ImGui::SetCurrentContext(im_context_);
-
-		ImGui_ImplSDLRenderer3_Shutdown();
-		ImGui_ImplSDL3_Shutdown();
-
-		ImGui::DestroyContext(im_context_);
-		im_context_ = nullptr;
-	}
-
-	ogl_texture_manager_.uninitialize();
-
-	if (sdl_ogl_window_.is_initialized())
-	{
-		auto& window_manager = WindowManager::get_instance();
-		window_manager.unregister_window(this);
-
-		sdl_ogl_window_ = {};
-	}
-
-	is_initialized_ = false;
-
-	pressed_mouse_buttons_ = {};
-
-	message_box_result_event_ = {};
-	message_box_result_ = {};
-}
-
-void Window::handle_event(
-	const SDL_Event& sdl_event)
-{
-	if (!is_initialized_)
-	{
-		return;
-	}
-
-	ImGui::SetCurrentContext(im_context_);
+	ImGui::SetCurrentContext(imgui_context_uptr_.get());
 	ImGui_ImplSDL3_ProcessEvent(&sdl_event);
 	ImGui::SetCurrentContext(nullptr);
 }
 
-void Window::minimize_internal(
-	const bool is_minimize)
+void Window::imgui_handle_events()
 {
-	if (is_minimize)
+	do_imgui_handle_events();
+}
+
+void Window::set_icon(SDL_Surface* sdl_surface)
+{
+	[[maybe_unused]] const bool sdl_result = SDL_SetWindowIcon(sdl_window_uptr_.get(), sdl_surface);
+	assert(sdl_result);
+}
+
+void Window::set_parent(Window* parent)
+{
+	parent_window_ = parent;
+	[[maybe_unused]] const bool sdl_result = SDL_SetWindowParent(
+		sdl_window_uptr_.get(),
+		parent != nullptr ? parent->sdl_window_uptr_.get() : nullptr);
+	assert(sdl_result);
+}
+
+DialogResult Window::get_dialog_result() const
+{
+	return dialog_result_;
+}
+
+void Window::reset_dialog_result()
+{
+	dialog_result_ = DialogResult::none;
+}
+
+void Window::set_dialog_result(DialogResult dialog_result)
+{
+	assert(dialog_result != DialogResult::none);
+	dialog_result_ = dialog_result;
+	if (parent_window_ != nullptr)
 	{
-		sdl_ogl_window_.minimize();
-	}
-	else
-	{
-		sdl_ogl_window_.restore();
+		parent_window_->on_dialog_result(dialog_result_);
 	}
 }
 
-bool Window::is_point_inside_rect(
-	const ImVec2& point,
-	const ImVec4& rect)
+void Window::initialize_sdl_window_and_renderer(const WindowCreateParam& param)
+{
+	SDL_Window* sdl_window = nullptr;
+	SDL_Renderer* sdl_renderer = nullptr;
+	ensure_sdl_bool_result("SDL_CreateWindowAndRenderer", SDL_CreateWindowAndRenderer(
+		param.title.c_str(),
+		param.width,
+		param.height,
+		SDL_WINDOW_HIDDEN | SDL_WINDOW_BORDERLESS,
+		&sdl_window,
+		&sdl_renderer));
+	sdl_window_uptr_.reset(sdl_window);
+	sdl_renderer_uptr_.reset(sdl_renderer);
+	ensure_sdl_bool_result(
+		"SDL_SetWindowPosition",
+		SDL_SetWindowPosition(sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED));
+}
+
+void Window::get_size(int& width, int& height) const
+{
+	[[maybe_unused]] const bool sdl_result = SDL_GetWindowSize(sdl_window_uptr_.get(), &width, &height);
+	assert(sdl_result);
+}
+
+void Window::get_size_in_pixels(int& width, int& height) const
+{
+	[[maybe_unused]] const bool sdl_result = SDL_GetWindowSizeInPixels(sdl_window_uptr_.get(), &width, &height);
+	assert(sdl_result);
+}
+
+void Window::minimize_internal(bool is_minimize)
+{
+	const auto sdl_func = (is_minimize ? SDL_MinimizeWindow : SDL_RestoreWindow);
+	[[maybe_unused]] const bool sdl_result = sdl_func(sdl_window_uptr_.get());
+	assert(sdl_result);
+}
+
+bool Window::is_point_inside_rect(const ImVec2& point, const ImVec4& rect)
 {
 	return
 		point.x >= rect.x && point.x < (rect.x + rect.z) &&
 		point.y >= rect.y && point.y < (rect.y + rect.w);
 }
 
-ImVec2 Window::center_size_inside_rect(
-	const ImVec4& outer_rect,
-	const ImVec2& inner_size)
+ImVec2 Window::center_size_inside_rect(const ImVec4& outer_rect, const ImVec2& inner_size)
 {
 	return {
 		outer_rect.x + (0.5F * (outer_rect.z - inner_size.x)),
-		outer_rect.y + (0.5F * (outer_rect.w - inner_size.y)),
-	};
+		outer_rect.y + (0.5F * (outer_rect.w - inner_size.y))};
 }
 
-OglTextureManager& Window::get_texture_manager()
+TextureMgr& Window::get_texture_manager()
 {
-	return ogl_texture_manager_;
+	return *texture_mgr_uptr_;
 }
 
 ImFont* Window::get_regular_imgui_font()
@@ -3691,530 +2001,555 @@ ImFont* Window::get_bold_imgui_font()
 	return imgui_bold_font_;
 }
 
-void Window::im_new_frame()
+void Window::imgui_add_button(
+	const char* id_string,
+	const ImVec2& position,
+	const ImVec2& size,
+	ImageId down_image_id,
+	ImageId hover_image_id,
+	ImageId up_image_id,
+	TextureMgr& texture_mgr,
+	bool& out_is_clicked)
+{
+	ImGui::SetCursorPos(position);
+	out_is_clicked = ImGui::InvisibleButton(id_string, size);
+	const ImageId image_id = ImGui::IsItemActive() ? down_image_id : (ImGui::IsItemHovered() ? hover_image_id : up_image_id);
+	ImGui::SetCursorPos(position);
+	ImGui::Image(texture_mgr.get(image_id), size);
+}
+
+void Window::imgui_add_title_minimize_button(
+	const ImVec2& position,
+	const ImVec2& size,
+	TextureMgr& texture_mgr,
+	bool& out_is_clicked)
+{
+	imgui_add_button(
+		/* id_string      */ "title minimize",
+		/* position       */ position,
+		/* size           */ size,
+		/* down_image_id  */ ImageId::minimized,
+		/* hover_image_id */ ImageId::minimizeu,
+		/* up_image_id    */ ImageId::minimizeu,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ out_is_clicked);
+}
+
+void Window::imgui_add_title_close_button(
+	const ImVec2& position,
+	const ImVec2& size,
+	TextureMgr& texture_mgr,
+	bool& out_is_clicked)
+{
+	imgui_add_button(
+		/* id_string      */ "title close",
+		/* position       */ position,
+		/* size           */ size,
+		/* down_image_id  */ ImageId::closed,
+		/* hover_image_id */ ImageId::closeu,
+		/* up_image_id    */ ImageId::closeu,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ out_is_clicked);
+}
+
+void Window::imgui_add_ok_button(
+	const ImVec2& position,
+	const ImVec2& size,
+	TextureMgr& texture_mgr,
+	bool& out_is_clicked)
+{
+	imgui_add_button(
+		/* id_string      */ "ok",
+		/* position       */ position,
+		/* size           */ size,
+		/* down_image_id  */ ImageId::okd,
+		/* hover_image_id */ ImageId::okf,
+		/* up_image_id    */ ImageId::oku,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ out_is_clicked);
+}
+
+void Window::imgui_add_cancel_button(
+	const ImVec2& position,
+	const ImVec2& size,
+	TextureMgr& texture_mgr,
+	bool& out_is_clicked)
+{
+	imgui_add_button(
+		/* id_string      */ "cancel",
+		/* position       */ position,
+		/* size           */ size,
+		/* down_image_id  */ ImageId::canceld,
+		/* hover_image_id */ ImageId::cancelf,
+		/* up_image_id    */ ImageId::cancelu,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ out_is_clicked);
+}
+
+void Window::imgui_new_frame()
 {
 	ImGui_ImplSDLRenderer3_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
 }
 
-void Window::im_render()
+void Window::imgui_render()
 {
 	ImGui::Render();
-
 	ImGuiIO& io = ImGui::GetIO();
 	const SDL_Rect sdl_viewport{0, 0, narrow_cast<int>(io.DisplaySize.x), narrow_cast<int>(io.DisplaySize.y)};
-	SDL_Renderer* const sdl_renderer = sdl_ogl_window_.get_renderer();
+	SDL_Renderer* const sdl_renderer = sdl_renderer_uptr_.get();
 	SDL_SetRenderViewport(sdl_renderer, &sdl_viewport);
 	SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderClear(sdl_renderer);
 	ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), sdl_renderer);
-	sdl_ogl_window_.ogl_swap();
+	SDL_RenderPresent(sdl_renderer);
 }
 
-void Window::im_render_data(
-	ImDrawData* draw_data)
+// ======================================
+
+class MessageBoxWindow final : public Window
 {
-	// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
-	//
+public:
+	MessageBoxWindow();
+	~MessageBoxWindow() override = default;
 
-	auto& io = ImGui::GetIO();
+	void set_message_box_title(const std::string& title);
+	using Window::show;
+	void show(MessageBoxType type, MessageBoxButtons buttons, const std::string& text);
+	void show(MessageBoxType type, MessageBoxButtons buttons, const std::string& title, const std::string& text);
 
-	const auto fb_width = static_cast<int>(draw_data->DisplaySize.x * io.DisplayFramebufferScale.x);
-	const auto fb_height = static_cast<int>(draw_data->DisplaySize.y * io.DisplayFramebufferScale.y);
+private:
+	static constexpr int window_width = 600;
+	static constexpr int window_height = 250;
 
-	if (fb_width == 0 || fb_height == 0)
-	{
-		return;
-	}
+	MessageBoxType type_{};
+	MessageBoxButtons buttons_{};
+	std::string title_{};
+	std::string message_{};
+	bool is_title_position_calculated_{};
+	ImVec2 calculated_title_position_{};
+	bool is_close_button_clicked_{};
+	bool is_ok_button_clicked_{};
+	bool is_cancel_button_clicked_{};
+	bool is_escape_down_{};
 
-	draw_data->ScaleClipRects(io.DisplayFramebufferScale);
+	void do_draw() override;
+	void do_imgui_handle_events() override;
+};
 
-	static_assert(sizeof(ImDrawIdx) == 2);
-
-	const ImVec2& pos = draw_data->DisplayPos;
-	SDL_Renderer* const sdl_renderer = sdl_ogl_window_.get_renderer();
-
-	for (int n = 0; n < draw_data->CmdListsCount; ++n)
-	{
-		const ImDrawList* const cmd_list = draw_data->CmdLists[n];
-		const ImDrawVert* const vtx_buffer = cmd_list->VtxBuffer.Data;
-		const ImDrawIdx* const idx_buffer = cmd_list->IdxBuffer.Data;
-
-		sdl_geometry_.vertices.clear();
-		sdl_geometry_.vertices.resize(cmd_list->VtxBuffer.Size);
-
-		for (int i_vertex = 0; i_vertex < cmd_list->VtxBuffer.Size; ++i_vertex)
-		{
-			const ImDrawVert& src_vertex = vtx_buffer[i_vertex];
-			SDL_Vertex& dst_vertex = sdl_geometry_.vertices[i_vertex];
-			dst_vertex.position.x = src_vertex.pos.x;
-			dst_vertex.position.y = src_vertex.pos.y;
-			dst_vertex.color.r = ((src_vertex.col >>  0) & 0xFF) / 255.0F;
-			dst_vertex.color.g = ((src_vertex.col >>  8) & 0xFF) / 255.0F;
-			dst_vertex.color.b = ((src_vertex.col >> 16) & 0xFF) / 255.0F;
-			dst_vertex.color.a = ((src_vertex.col >> 24) & 0xFF) / 255.0F;
-			dst_vertex.tex_coord.x = src_vertex.uv.x;
-			dst_vertex.tex_coord.y = src_vertex.uv.y;
-		}
-
-		sdl_geometry_.indices.clear();
-		sdl_geometry_.indices.resize(cmd_list->IdxBuffer.Size);
-
-		for (int i_index = 0; i_index < cmd_list->IdxBuffer.Size; ++i_index)
-		{
-			sdl_geometry_.indices[i_index] = idx_buffer[i_index];
-		}
-
-		int index_offset = 0;
-
-		for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; ++cmd_i)
-		{
-			const ImDrawCmd* const pcmd = &cmd_list->CmdBuffer[cmd_i];
-
-			const ImVec4 clip_rect{
-				pcmd->ClipRect.x - pos.x,
-				pcmd->ClipRect.y - pos.y,
-				pcmd->ClipRect.z - pos.x,
-				pcmd->ClipRect.w - pos.y};
-
-			if (clip_rect.x < fb_width &&
-				clip_rect.y < fb_height &&
-				clip_rect.z >= 0.0f &&
-				clip_rect.w >= 0.0f)
-			{
-				const SDL_Rect sdl_clip_rect{
-					narrow_cast<int>(clip_rect.x),
-					narrow_cast<int>(clip_rect.y),
-					narrow_cast<int>(clip_rect.z),
-					narrow_cast<int>(clip_rect.w)};
-				SDL_SetRenderClipRect(sdl_renderer, &sdl_clip_rect);
-				SDL_Texture* const sdl_texture = reinterpret_cast<SDL_Texture*>(narrow_cast<std::size_t>(pcmd->GetTexID()));
-				SDL_RenderGeometry(
-					sdl_renderer,
-					sdl_texture,
-					sdl_geometry_.vertices.data(),
-					narrow_cast<int>(sdl_geometry_.vertices.size()),
-					sdl_geometry_.indices.data() + index_offset,
-					pcmd->ElemCount);
-			}
-
-			index_offset += pcmd->ElemCount;
-		}
-	}
-}
-
-//
-// Window
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// MessageBoxWindow
-//
+// --------------------------------------
 
 MessageBoxWindow::MessageBoxWindow()
 	:
-	type_{},
-	buttons_{},
-	title_{},
-	message_{},
-	is_title_position_calculated_{},
-	calculated_title_position_{},
-	is_close_button_clicked_{},
-	is_ok_button_clicked_{},
-	is_cancel_button_clicked_{},
-	is_escape_down_{}
-{
-}
+	Window{
+		WindowCreateParam{
+			.width = narrow_cast<int>(window_width * ScaleMgr::get_singleton().get_scale()),
+			.height = narrow_cast<int>(window_height * ScaleMgr::get_singleton().get_scale()),
+			.title = "LTJS " LTJS_GAME_ID_STRING_UC " message box"}}
+{}
 
-MessageBoxWindow::~MessageBoxWindow()
-{
-	uninitialize();
-}
-
-MessageBoxWindowPtr MessageBoxWindow::create()
-{
-	const auto& window_manager = WindowManager::get_instance();
-	const auto scale = window_manager.get_scale();
-
-	auto message_box_window_param = WindowCreateParam{};
-	message_box_window_param.title_ = "message_box";
-	message_box_window_param.width_ = static_cast<int>(window_width * scale);
-	message_box_window_param.height_ = static_cast<int>(window_height * scale);
-	message_box_window_param.is_hidden_ = true;
-
-	auto message_box_window_ptr = new MessageBoxWindow{};
-
-	static_cast<void>(message_box_window_ptr->initialize(message_box_window_param));
-
-	return message_box_window_ptr;
-}
-
-void MessageBoxWindow::set_title(
-	const std::string& title)
+void MessageBoxWindow::set_message_box_title(const std::string& title)
 {
 	title_ = title;
 	is_title_position_calculated_ = false;
 }
 
-void MessageBoxWindow::show(
-	const MessageBoxType type,
-	const MessageBoxButtons buttons,
-	const std::string& text)
+void MessageBoxWindow::show(MessageBoxType type, MessageBoxButtons buttons, const std::string& text)
 {
 	type_ = type;
 	buttons_ = buttons;
 	message_ = text;
-
 	show(true);
 }
 
-void MessageBoxWindow::show(
-	const MessageBoxType type,
-	const MessageBoxButtons buttons,
-	const std::string& title,
-	const std::string& text)
+void MessageBoxWindow::show(MessageBoxType type, MessageBoxButtons buttons, const std::string& title, const std::string& text)
 {
 	type_ = type;
 	buttons_ = buttons;
 	title_ = title;
 	message_ = text;
 	is_title_position_calculated_ = false;
-
 	show(true);
-}
-
-bool MessageBoxWindow::initialize(
-	const WindowCreateParam& param)
-{
-	type_ = {};
-	title_ = {};
-	message_ = {};
-
-	if (!Window::initialize(param))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void MessageBoxWindow::uninitialize()
-{
 }
 
 void MessageBoxWindow::do_draw()
 {
-	const auto has_cancel_button = (buttons_ == MessageBoxButtons::ok_cancel);
-
-	const auto& window_manager = WindowManager::get_instance();
-	const auto scale = window_manager.get_scale();
-
-	auto& font_manager = FontManager::get_instance();
-	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
-	const auto bold_font_size = font_manager.get_size(FontId::message_box_title) * scale;
-
-	auto& ogl_texture_manager = get_texture_manager();
-
-	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
-	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-
-	const auto mouse_pos = ImGui::GetMousePos();
-
+	const bool has_cancel_button = (buttons_ == MessageBoxButtons::ok_cancel);
+	const ScaleMgr& scale_mgr = ScaleMgr::get_singleton();
+	const float scale = scale_mgr.get_scale();
+	FontMgr& font_mgr = FontMgr::get_singleton();
+	const float regular_font_size = font_mgr.get_regular_size() * scale;
+	const float bold_font_size = font_mgr.get_bold_size() * scale;
+	TextureMgr& texture_mgr = get_texture_manager();
 	is_escape_down_ = ImGui::IsKeyPressed(ImGuiKey_Escape);
-
-
 	// Begin message box window.
-	//
-	const auto main_flags =
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoResize |
+	constexpr ImGuiWindowFlags main_flags =
 		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse |
-		ImGuiWindowFlags_NoCollapse |
 		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoDecoration |
 		ImGuiWindowFlags_None;
-
 	ImGui::Begin("message_box", nullptr, main_flags);
-	ImGui::SetWindowPos({}, ImGuiCond_Always);
-
+	ImGui::SetWindowPos(ImVec2{}, ImGuiCond_Always);
 	ImGui::SetWindowSize(
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ImVec2{narrow_cast<float>(window_width), narrow_cast<float>(window_height)} * scale,
 		ImGuiCond_Always);
-
-
 	// Background image.
-	//
 	ImGui::SetCursorPos(ImVec2{});
-
-	const auto& ogl_boxbackground_texture = ogl_texture_manager.get(ImageId::boxbackground);
-
+	const ImTextureID boxbackground_tex_id = texture_mgr.get(ImageId::boxbackground);
 	ImGui::Image(
-		ogl_boxbackground_texture,
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale);
-
-
+		boxbackground_tex_id,
+		ImVec2{narrow_cast<float>(window_width), narrow_cast<float>(window_height)} * scale);
 	// "Close" button.
-	//
-	const auto close_pos = ImVec2{578.0F, 6.0F} * scale;
-	const auto close_size = ImVec2{17.0F, 14.0F} * scale;
-	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
-
-	auto is_close_mouse_button_down = false;
-
-	is_close_button_clicked_ = false;
-
-	if (is_mouse_button_down || is_mouse_button_up)
-	{
-		if (is_point_inside_rect(mouse_pos, close_rect))
-		{
-			if (is_mouse_button_down)
-			{
-				is_close_mouse_button_down = true;
-			}
-
-			if (is_mouse_button_up)
-			{
-				is_close_button_clicked_ = true;
-			}
-		}
-	}
-
-	const auto ogl_close_image_id = (is_close_mouse_button_down ? ImageId::closed : ImageId::closeu);
-	const auto& ogl_close_texture = ogl_texture_manager.get(ogl_close_image_id);
-
-	ImGui::SetCursorPos(close_pos);
-
-	ImGui::Image(ogl_close_texture, close_size);
-
-
+	imgui_add_title_close_button(
+		/* position       */ ImVec2{578.0F, 6.0F} * scale,
+		/* size           */ ImVec2{17.0F, 14.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_close_button_clicked_);
 	// "Icon" image.
-	//
-	const auto icon_pos = ImVec2{6.0F, 15.0F} * scale;
-	const auto icon_size = ImVec2{38.0F, 38.0F} * scale;
-	const auto icon_rect = ImVec4{icon_pos.x, icon_pos.y, icon_size.x, icon_size.y};
-
-	auto ogl_icon_image_id = ImageId{};
-
+	const ImVec2 icon_pos = ImVec2{6.0F, 15.0F} * scale;
+	const ImVec2 icon_size = ImVec2{38.0F, 38.0F} * scale;
+	const ImVec4 icon_rect{icon_pos.x, icon_pos.y, icon_size.x, icon_size.y};
+	ImageId icon_image_id;
 	switch (type_)
 	{
-	case MessageBoxType::error:
-		ogl_icon_image_id = ImageId::error;
-		break;
-
-	case MessageBoxType::warning:
-		ogl_icon_image_id = ImageId::warning;
-		break;
-
-	case MessageBoxType::information:
-	default:
-		ogl_icon_image_id = ImageId::information;
-		break;
+		case MessageBoxType::error:
+			icon_image_id = ImageId::error;
+			break;
+		case MessageBoxType::warning:
+			icon_image_id = ImageId::warning;
+			break;
+		case MessageBoxType::information:
+		default:
+			icon_image_id = ImageId::information;
+			break;
 	}
-
-	const auto& ogl_icon_texture = ogl_texture_manager.get(ogl_icon_image_id);
-
+	const ImTextureID icon_tex_id = texture_mgr.get(icon_image_id);
 	ImGui::SetCursorPos(icon_pos);
-
-	ImGui::Image(ogl_icon_texture, icon_size);
-
-
+	ImGui::Image(icon_tex_id, icon_size);
 	// Title.
-	//
 	if (!title_.empty())
 	{
-		const auto title_pos = ImVec2{52.0F, 14.0F} * scale;
-		const auto title_size = ImVec2{518.0F, 31.0F} * scale;
-		const auto title_rect = ImVec4{title_pos.x, title_pos.y, title_size.x, title_size.y};
-
+		const ImVec2 title_pos = ImVec2{52.0F, 14.0F} * scale;
+		const ImVec2 title_size = ImVec2{518.0F, 31.0F} * scale;
+		const ImVec4 title_rect{title_pos.x, title_pos.y, title_size.x, title_size.y};
 		ImGui::PushFont(get_bold_imgui_font(), bold_font_size);
-
-		auto centered_title_position = calculated_title_position_;
-
+		const ImVec2 centered_title_position = calculated_title_position_;
 		if (!is_title_position_calculated_)
 		{
 			is_title_position_calculated_ = true;
-
-			const auto title_text_size = ImGui::CalcTextSize(title_.data(), title_.data() + title_.size());
+			const ImVec2 title_text_size = ImGui::CalcTextSize(title_.data(), title_.data() + title_.size());
 			calculated_title_position_ = center_size_inside_rect(title_rect, title_text_size);
 		}
-
 		ImGui::SetCursorPos(calculated_title_position_);
-
 		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
 		ImGui::Text("%s", title_.c_str());
 		ImGui::PopStyleColor();
-
 		ImGui::PopFont();
 	}
-
-
 	// Message.
-	//
 	if (!message_.empty())
 	{
-		const auto message_pos = ImVec2{14.0F, 64.0F} * scale;
-		const auto message_size = ImVec2{573.0F, 121.0F} * scale;
-		const auto message_rect = ImVec4{message_pos.x, message_pos.y, message_size.x, message_size.y};
-
+		const ImVec2 message_pos = ImVec2{14.0F, 64.0F} * scale;
+		const ImVec2 message_size = ImVec2{573.0F, 121.0F} * scale;
+		const ImVec4 message_rect{message_pos.x, message_pos.y, message_size.x, message_size.y};
 		ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
-
 		ImGui::SetCursorPos(message_pos);
-
 		ImGui::BeginChild("message", message_size);
 		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
 		ImGui::TextWrapped("%s", message_.c_str());
 		ImGui::PopStyleColor();
 		ImGui::EndChild();
-
 		ImGui::PopFont();
 	}
-
-
 	// "Ok" button.
-	//
-	auto ok_pos = ImVec2{has_cancel_button ? 189.0F : 250.0F, 206.0F} * scale;
-	const auto ok_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
-
-	auto is_ok_mouse_button_down = false;
-	const auto is_ok_button_hightlighted = is_point_inside_rect(mouse_pos, ok_rect);
-
-	is_ok_button_clicked_ = false;
-
-	if (is_ok_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_ok_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_ok_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_ok_image_id = ImageId{};
-
-	if (is_ok_mouse_button_down)
-	{
-		ogl_ok_image_id = ImageId::okd;
-	}
-	else if (is_ok_button_hightlighted)
-	{
-		ogl_ok_image_id = ImageId::okf;
-	}
-	else
-	{
-		ogl_ok_image_id = ImageId::oku;
-	}
-
-	const auto& ogl_ok_texture = ogl_texture_manager.get(ogl_ok_image_id);
-
-	ImGui::SetCursorPos(ok_pos);
-
-	ImGui::Image(ogl_ok_texture, ok_size);
-
-
+	imgui_add_ok_button(
+		/* position       */ ImVec2{has_cancel_button ? 189.0F : 250.0F, 206.0F} * scale,
+		/* size           */ ImVec2{100.0F, 30.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_ok_button_clicked_);
 	// "Cancel" button.
-	//
-	const auto cancel_pos = ImVec2{312.0F, 206.0F} * scale;
-	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
-
 	is_cancel_button_clicked_ = false;
-
 	if (has_cancel_button)
 	{
-		auto is_cancel_mouse_button_down = false;
-
-		const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
-
-		if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-		{
-			if (is_mouse_button_down)
-			{
-				is_cancel_mouse_button_down = true;
-			}
-
-			if (is_mouse_button_up)
-			{
-				is_cancel_button_clicked_ = true;
-			}
-		}
-
-		auto ogl_cancel_image_id = ImageId{};
-
-		if (is_cancel_mouse_button_down)
-		{
-			ogl_cancel_image_id = ImageId::canceld;
-		}
-		else if (is_cancel_button_hightlighted)
-		{
-			ogl_cancel_image_id = ImageId::cancelf;
-		}
-		else
-		{
-			ogl_cancel_image_id = ImageId::cancelu;
-		}
-
-		const auto& ogl_cancel_texture = ogl_texture_manager.get(ogl_cancel_image_id);
-
-		ImGui::SetCursorPos(cancel_pos);
-
-		ImGui::Image(ogl_cancel_texture, cancel_size);
+		imgui_add_cancel_button(
+			/* position       */ ImVec2{312.0F, 206.0F} * scale,
+			/* size           */ ImVec2{100.0F, 30.0F} * scale,
+			/* texture_mgr    */ texture_mgr,
+			/* out_is_clicked */ is_cancel_button_clicked_);
 	}
-
-
 	// End message box window.
-	//
 	ImGui::End();
 }
 
-void MessageBoxWindow::do_im_handle_events()
+void MessageBoxWindow::do_imgui_handle_events()
 {
-	const auto has_cancel_button = (buttons_ == MessageBoxButtons::ok_cancel);
-
-	auto is_hide = false;
-
+	const bool has_cancel_button = (buttons_ == MessageBoxButtons::ok_cancel);
+	DialogResult dialog_result = DialogResult::none;
 	if (is_close_button_clicked_)
 	{
-		is_hide = true;
-		set_message_box_result(has_cancel_button ? MessageBoxResult::cancel : MessageBoxResult::ok);
+		dialog_result = (has_cancel_button ? DialogResult::cancel : DialogResult::ok);
 	}
 	else if (is_ok_button_clicked_)
 	{
-		is_hide = true;
-		set_message_box_result(MessageBoxResult::ok);
+		dialog_result = DialogResult::ok;
 	}
 	else if (is_cancel_button_clicked_ || is_escape_down_)
 	{
-		is_hide = true;
-		set_message_box_result(MessageBoxResult::cancel);
+		dialog_result = DialogResult::cancel;
 	}
-
-	if (is_hide)
-	{
-		show(false);
-		get_message_box_result_event().notify(this);
-	}
-
 	is_close_button_clicked_ = false;
 	is_ok_button_clicked_ = false;
 	is_cancel_button_clicked_ = false;
 	is_escape_down_ = false;
+	if (dialog_result != DialogResult::none)
+	{
+		show(false);
+		set_dialog_result(dialog_result);
+	}
 }
 
-//
-// MessageBoxWindow
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ======================================
 
+using MessageBoxWindowUPtr = std::unique_ptr<MessageBoxWindow>;
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// MainWindow
-//
+// ======================================
+
+class DetailSettingsWindow final : public Window
+{
+public:
+	DetailSettingsWindow();
+	~DetailSettingsWindow() override = default;
+
+	DetailLevel get_detail_level() const;
+
+private:
+	static constexpr int window_width = 456;
+	static constexpr int window_height = 480;
+
+	DetailLevel detail_level_{};
+	bool is_escape_down_{};
+	bool is_close_button_clicked_{};
+	bool is_cancel_button_clicked_{};
+	bool is_high_button_clicked_{};
+	bool is_medium_button_clicked_{};
+	bool is_low_button_clicked_{};
+
+	void do_draw() override;
+	void do_imgui_handle_events() override;
+};
+
+// ======================================
+
+using DetailSettingsWindowUPtr = std::unique_ptr<DetailSettingsWindow>;
+
+// ======================================
+
+class DisplaySettingsWindow final : public Window
+{
+public:
+	DisplaySettingsWindow();
+	~DisplaySettingsWindow() override = default;
+
+private:
+	static constexpr int window_width = 600;
+	static constexpr int window_height = 394;
+
+	using Strings = std::vector<std::string>;
+
+	SettingValue<int> selected_resolution_index_{-1};
+	bool is_escape_down_{};
+	bool has_display_modes_{};
+	bool is_close_button_clicked_{};
+	bool is_ok_button_clicked_{};
+	bool is_cancel_button_clicked_{};
+
+	static const char* im_display_modes_getter(void* data, int idx);
+
+	void do_draw() override;
+	void do_imgui_handle_events() override;
+};
+
+// ======================================
+
+using DisplaySettingsWindowUPtr = std::unique_ptr<DisplaySettingsWindow>;
+
+// ======================================
+
+class AdvancedSettingsWindow final : public Window
+{
+public:
+	AdvancedSettingsWindow();
+	~AdvancedSettingsWindow() override = default;
+
+private:
+	struct CheckBoxContext
+	{
+		ImVec2 position;
+		bool checked_value;
+		bool is_pressed;
+		int resource_string_id;
+		std::string resource_string_default;
+		int hint_resource_string_id;
+		std::string hint_resource_string_default;
+		SettingValue<bool>* setting_value_ptr;
+	};
+
+	using CheckBoxContexts = std::vector<CheckBoxContext>;
+
+	static constexpr int window_width = 456;
+	static constexpr int window_height = 480;
+
+	CheckBoxContexts check_box_contexts_{};
+	std::string hint_{};
+
+	bool is_escape_down_{};
+	bool is_close_button_clicked_{};
+	bool is_ok_button_clicked_{};
+	bool is_cancel_button_clicked_{};
+
+	void initialize_check_box_contents();
+	void draw_check_box(int index);
+	void update_check_box_configuration(bool is_accept);
+
+	void do_draw() override;
+	void do_imgui_handle_events() override;
+};
+
+using AdvancedSettingsWindowUPtr = std::unique_ptr<AdvancedSettingsWindow>;
+
+// ======================================
+
+class MainWindow final : public Window
+{
+public:
+	MainWindow();
+	~MainWindow() override = default;
+
+private:
+	static constexpr int window_width = 525;
+	static constexpr int window_height = 245;
+
+	using Strings = std::vector<std::string>;
+	using StringPtrs = std::vector<const char*>;
+
+	enum class State
+	{
+		main_window,
+		main_window_message_box,
+		display_settings_warning,
+		display_settings_no_renderers,
+		display_settings_window,
+		advanced_settings_warning,
+		advanced_settings_window,
+		detail_settings_window,
+	};
+
+	static const std::string lithtech_executable;
+
+	bool is_minimize_button_clicked_{};
+	bool is_close_button_clicked_{};
+	bool is_quit_button_clicked_{};
+	bool is_escape_down_{};
+	bool is_play_button_clicked_{};
+	bool is_display_button_clicked_{};
+	bool is_options_button_clicked_{};
+	bool is_language_selected_{};
+	bool is_publisher1web_button_clicked_{};
+	bool is_company1web_button_clicked_{};
+	bool is_company2web_button_clicked_{};
+	bool is_publisher2web_button_clicked_{};
+	int language_index_{};
+	State state_{};
+	SdlProcessUPtr lithtech_sdl_process_uptr_{};
+
+	void initialize_language();
+	bool is_lithtech_executable_exists() const;
+	void handle_check_for_renderers();
+	void run_the_game();
+	void no_lithtech_exe_error();
+	void change_language();
+	static void append_custom_command_line(const std::string& custom_string, Strings& args);
+	Strings build_command_line(bool has_detail_settings) const;
+	static StringPtrs make_string_ptrs(const Strings& strings);
+	bool save_arguments(const Strings& args) const;
+
+	void on_dialog_result(DialogResult dialog_result) override;
+	void do_draw() override;
+	void do_imgui_handle_events() override;
+};
+
+// ======================================
+
+using MainWindowUPtr = std::unique_ptr<MainWindow>;
+
+// ======================================
+
+class WindowMgr
+{
+public:
+	static WindowMgr& get_singleton();
+	MainWindow* get_main_window();
+	DetailSettingsWindow* get_detail_settings_window();
+	DisplaySettingsWindow* get_display_settings_window();
+	AdvancedSettingsWindow* get_advanced_settings_window();
+	MessageBoxWindow* get_message_box_window();
+	const ResourceStrings& get_resource_strings() const;
+	ResourceStrings& get_resource_strings();
+	const SearchPaths& get_search_paths() const;
+	void setup_search_paths(const std::string& language_id_string);
+	void hide_all();
+	void handle_event(const SDL_Event& sdl_event);
+	void imgui_handle_events();
+	void draw();
+
+private:
+	using Windows = std::vector<Window*>;
+
+	MainWindowUPtr main_window_{};
+	DetailSettingsWindowUPtr detail_settings_window_{};
+	DisplaySettingsWindowUPtr display_settings_window_{};
+	AdvancedSettingsWindowUPtr advanced_settings_window_{};
+	MessageBoxWindowUPtr message_box_window_{};
+	Windows windows_{};
+	ResourceStrings resource_strings_{};
+	SearchPaths search_paths_{};
+
+	WindowMgr();
+	~WindowMgr() = default;
+};
+
+// ======================================
+
+class Launcher
+{
+public:
+	static std::string launcher_commands_file_name;
+	static std::string resource_strings_directory;
+	static std::string resource_strings_file_name;
+
+	Launcher();
+	static Launcher& get_singleton();
+	Logger* get_logger();
+	void run();
+
+private:
+	using Windows = std::vector<Window*>;
+
+	static std::string icon_path;
+	bool is_quit_requested_{};
+	LoggerUPtr logger_{};
+	SdlSurfaceUPtr icon_sdl_surface_uptr_{};
+
+	~Launcher() = default;
+
+	void initialize_sdl();
+	void initialize();
+	void handle_events();
+	void draw();
+};
+
+// ======================================
 
 const std::string MainWindow::lithtech_executable =
 #ifdef _WIN32
@@ -4224,686 +2559,491 @@ const std::string MainWindow::lithtech_executable =
 #endif // _WIN32
 ;
 
-
 MainWindow::MainWindow()
 	:
-	is_show_play_button_{},
-	is_minimize_button_clicked_{},
-	is_close_button_clicked_{},
-	is_quit_button_clicked_{},
-	is_escape_down_{},
-	is_install_or_play_button_clicked_{},
-	is_display_button_clicked_{},
-	is_options_button_clicked_{},
-	is_language_selected_{},
-	is_publisher1web_button_clicked_{},
-	is_company1web_button_clicked_{},
-	is_company2web_button_clicked_{},
-	is_publisher2web_button_clicked_{},
-	language_index_{-1},
-	state_{}
+	Window{
+		WindowCreateParam{
+			.width = narrow_cast<int>(window_width * ScaleMgr::get_singleton().get_scale()),
+			.height = narrow_cast<int>(window_height * ScaleMgr::get_singleton().get_scale()),
+			.title = "LTJS " LTJS_GAME_ID_STRING_UC " launcher"}}
 {
-}
-
-MainWindow::~MainWindow()
-{
-	uninitialize();
-}
-
-MainWindowPtr MainWindow::create()
-{
-	const auto& window_manager = WindowManager::get_instance();
-	const auto scale = window_manager.get_scale();
-
-	auto main_window_param = WindowCreateParam{};
-	main_window_param.title_ = "main";
-	main_window_param.width_ = static_cast<int>(window_width * scale);
-	main_window_param.height_ = static_cast<int>(window_height * scale);
-	main_window_param.is_hidden_ = true;
-
-	auto main_window_ptr = new MainWindow{};
-
-	static_cast<void>(main_window_ptr->initialize(main_window_param));
-
-	return main_window_ptr;
+	initialize_language();
 }
 
 void MainWindow::initialize_language()
 {
-	const auto& supported_languages = SupportedLanguages::get_instance();
-	const auto& configuration = Configuration::get_instance();
-
-	language_index_ = supported_languages.get_id_index(configuration.language_);
-}
-
-bool MainWindow::initialize(
-	const WindowCreateParam& param)
-{
-	if (!Window::initialize(param))
-	{
-		return false;
-	}
-
-	is_show_play_button_ = is_lithtech_executable_exists();
-	state_ = {};
-
-	initialize_language();
-
-	return true;
-}
-
-void MainWindow::uninitialize()
-{
+	const SupportedLanguages& supported_languages = SupportedLanguages::get_singleton();
+	const Configuration& configuration = Configuration::get_singleton();
+	language_index_ = supported_languages.find_index_by_id(configuration.language);
 }
 
 bool MainWindow::is_lithtech_executable_exists() const
 {
-	const auto normalized_file_name = normalize_file_path(lithtech_executable);
-	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(normalized_file_name.c_str(), "rb")};
-
-	if (sdl_io_stream_uptr == nullptr)
+	const std::string normalized_file_name = normalize_file_path(lithtech_executable);
+	if (const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(normalized_file_name.c_str(), "rb")};
+		sdl_io_stream_uptr != nullptr)
 	{
-		return false;
+		if (const Sint64 file_size = SDL_GetIOSize(sdl_io_stream_uptr.get());
+			file_size > 0)
+		{
+			return true;
+		}
 	}
-
-	const auto file_size = SDL_GetIOSize(sdl_io_stream_uptr.get());
-
-	if (file_size <= 0)
-	{
-		return false;
-	}
-
-	return true;
+	return false;
 }
 
 void MainWindow::handle_check_for_renderers()
 {
-	auto& launcher = Launcher::get_instance();
-
-	if (launcher.has_direct_3d_9())
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	if (Direct3d9::has_direct3d9())
 	{
 		state_ = State::display_settings_window;
-		attach_to_message_box_result_event(false, AttachPoint::message_box);
-		attach_to_message_box_result_event(true, AttachPoint::display_settings);
-
-		auto display_settings_window_ptr = launcher.get_display_settings_window();
-		display_settings_window_ptr->show(true);
+		DisplaySettingsWindow* const display_settings_window = window_mgr.get_display_settings_window();
+		display_settings_window->show(true);
 	}
 	else
 	{
 		state_ = State::display_settings_no_renderers;
-
-		const auto& resource_strings = launcher.get_resource_strings();
-		const auto& message = resource_strings.get(ResourceStringId::ids_norens, "IDS_NORENS");
-
-		auto message_box_window_ptr = launcher.get_message_box_window();
-		message_box_window_ptr->show(MessageBoxType::error, MessageBoxButtons::ok, message);
-	}
-}
-
-void MainWindow::attach_to_message_box_result_event(
-	const bool is_attach,
-	const AttachPoint attach_point)
-{
-	const auto func = std::bind(&MainWindow::handle_message_box_result_event, this, std::placeholders::_1);
-
-	auto& launcher = Launcher::get_instance();
-	auto window_ptr = WindowPtr{};
-
-	switch (attach_point)
-	{
-	case AttachPoint::message_box:
-		window_ptr = launcher.get_message_box_window();
-		break;
-
-	case AttachPoint::display_settings:
-		window_ptr = launcher.get_display_settings_window();
-		break;
-
-	case AttachPoint::advanced_settings:
-		window_ptr = launcher.get_advanced_settings_window();
-		break;
-
-	case AttachPoint::detail_settings:
-		window_ptr = launcher.get_detail_settings_window();
-		break;
-
-	default:
-		throw "Invalid attach point.";
-	}
-
-	auto& e = window_ptr->get_message_box_result_event();
-
-	if (is_attach)
-	{
-		e += func;
-	}
-	else
-	{
-		e -= func;
-	}
-}
-
-void MainWindow::handle_message_box_result_event(
-	WindowPtr sender_window_ptr)
-{
-	auto& configuration = Configuration::get_instance();
-
-	auto message_box_window_ptr = static_cast<MessageBoxWindowPtr>(sender_window_ptr);
-	const auto message_box_result = message_box_window_ptr->get_message_box_result();
-
-	switch (state_)
-	{
-	case State::main_window_message_box:
-		attach_to_message_box_result_event(false, AttachPoint::message_box);
-		break;
-
-	case State::display_settings_warning:
-	{
-		state_ = State::main_window;
-
-		if (message_box_result == MessageBoxResult::ok)
-		{
-			configuration.is_disable_display_settings_warning_ = true;
-			handle_check_for_renderers();
-			show(true);
-		}
-		else
-		{
-			attach_to_message_box_result_event(false, AttachPoint::message_box);
-		}
-
-		break;
-	}
-
-	case State::display_settings_no_renderers:
-		state_ = State::main_window;
-		attach_to_message_box_result_event(false, AttachPoint::message_box);
-		show(true);
-		break;
-
-	case State::display_settings_window:
-		state_ = State::main_window;
-		attach_to_message_box_result_event(false, AttachPoint::display_settings);
-		show(true);
-		break;
-
-	case State::advanced_settings_warning:
-	{
-		attach_to_message_box_result_event(false, AttachPoint::message_box);
-
-		if (message_box_result == MessageBoxResult::cancel)
-		{
-			state_ = State::main_window;
-			show(true);
-		}
-		else
-		{
-			auto& launcher = Launcher::get_instance();
-			auto advanced_options_window_ptr = launcher.get_advanced_settings_window();
-
-			attach_to_message_box_result_event(true, AttachPoint::advanced_settings);
-
-			state_ = State::advanced_settings_window;
-			configuration.is_disable_advanced_settings_warning_ = true;
-			advanced_options_window_ptr->show(true);
-		}
-
-		break;
-	}
-
-	case State::advanced_settings_window:
-	{
-		attach_to_message_box_result_event(false, AttachPoint::advanced_settings);
-
-		state_ = State::main_window;
-		show(true);
-		break;
-	}
-
-	case State::detail_settings_window:
-		state_ = State::main_window;
-
-		attach_to_message_box_result_event(false, AttachPoint::detail_settings);
-
-		if (message_box_result == MessageBoxResult::cancel)
-		{
-			show(true);
-		}
-		else
-		{
-			run_the_game();
-		}
-
-		break;
-
-	default:
-		throw "Invalid state.";
+		const ResourceStrings& resource_strings = window_mgr.get_resource_strings();
+		const std::string& message = resource_strings.get(ResourceStringId::ids_norens, "IDS_NORENS");
+		MessageBoxWindow* const message_box_window = window_mgr.get_message_box_window();
+		message_box_window->show(MessageBoxType::error, MessageBoxButtons::ok, message);
 	}
 }
 
 void MainWindow::run_the_game()
 {
-	auto& configuration = Configuration::get_instance();
-
+	Configuration& configuration = Configuration::get_singleton();
 	show(false);
-
 	configuration.save();
-
-	const auto arguments = build_command_line(configuration.is_restore_defaults_);
+	Strings arguments = build_command_line(configuration.is_restore_defaults);
 	save_arguments(arguments);
-
-	const auto command = lithtech_executable + arguments;
-	const auto exec_result = std::system(command.c_str());
-
-	is_show_play_button_ = is_lithtech_executable_exists();
-
-	show(true);
-
-	if (exec_result != 0)
+	if (!is_lithtech_executable_exists())
 	{
+		show(true);
+		no_lithtech_exe_error();
+		return;
+	}
+	arguments.emplace(arguments.cbegin(), lithtech_executable);
+	const StringPtrs argument_ptrs = make_string_ptrs(arguments);
+	if (const SdlPropertiesIdURes sdl_properties_id_ures{SDL_CreateProperties()};
+		sdl_properties_id_ures.get() != 0)
+	{
+		constexpr SDL_ProcessIO sdl_process_io =
+#ifdef _WIN32
+			SDL_PROCESS_STDIO_NULL
+#else
+			SDL_PROCESS_STDIO_INHERITED
+#endif
+		;
+		const SDL_PropertiesID sdl_properties_id = sdl_properties_id_ures.get();
+		SDL_SetPointerProperty(
+			sdl_properties_id,
+			SDL_PROP_PROCESS_CREATE_ARGS_POINTER,
+			const_cast<char**>(argument_ptrs.data()));
+		SDL_SetNumberProperty(
+			sdl_properties_id,
+			SDL_PROP_PROCESS_CREATE_STDIN_NUMBER,
+			SDL_PROCESS_STDIO_NULL);
+		SDL_SetNumberProperty(
+			sdl_properties_id,
+			SDL_PROP_PROCESS_CREATE_STDOUT_NUMBER,
+			sdl_process_io);
+		SDL_SetNumberProperty(
+			sdl_properties_id,
+			SDL_PROP_PROCESS_CREATE_STDERR_NUMBER,
+			sdl_process_io);
+		lithtech_sdl_process_uptr_.reset(SDL_CreateProcessWithProperties(sdl_properties_id));
+	}
+	if (lithtech_sdl_process_uptr_ == nullptr)
+	{
+		show(true);
 		no_lithtech_exe_error();
 	}
 	else
 	{
-		configuration.is_restore_defaults_.set_and_accept(false);
+		configuration.is_restore_defaults.set_and_accept(false);
 	}
 }
 
 void MainWindow::no_lithtech_exe_error()
 {
-	auto& launcher = Launcher::get_instance();
-	const auto& resource_strings = launcher.get_resource_strings();
-	const auto& message = resource_strings.get(ResourceStringId::ids_cantlaunchclientexe, "IDS_CANTLAUNCHCLIENTEXE");
-
 	state_ = State::main_window_message_box;
-	attach_to_message_box_result_event(true, AttachPoint::message_box);
-
-	launcher.show_message_box(MessageBoxType::error, MessageBoxButtons::ok, message);
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	const ResourceStrings& resource_strings = window_mgr.get_resource_strings();
+	const std::string& message = resource_strings.get(ResourceStringId::ids_cantlaunchclientexe, "IDS_CANTLAUNCHCLIENTEXE");
+	window_mgr.get_message_box_window()->show(MessageBoxType::error, MessageBoxButtons::ok, message);
 }
 
 void MainWindow::change_language()
 {
-	auto& launcher = Launcher::get_instance();
-	auto& resource_strings = launcher.get_resource_strings();
-	auto& configuration = Configuration::get_instance();
-	auto& ogl_texture_manager = get_texture_manager();
-	auto& window_manager = WindowManager::get_instance();
-
-	auto is_succeed = true;
-
-	if (is_succeed)
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	ResourceStrings& resource_strings = window_mgr.get_resource_strings();
+	Configuration& configuration = Configuration::get_singleton();
+	TextureMgr& texture_mgr = get_texture_manager();
+	window_mgr.setup_search_paths(configuration.language);
 	{
-		launcher.setup_search_paths(configuration.language_);
-	}
-
-	if (is_succeed)
-	{
-		const auto resource_strings_result = resource_strings.initialize(
-			launcher.get_search_paths(),
+		const bool resource_strings_result = resource_strings.initialize(
+			window_mgr.get_search_paths(),
 			Launcher::resource_strings_file_name);
-
 		if (!resource_strings_result)
 		{
-			is_succeed = false;
-			set_error_message("Failed to reload resource strings. " + resource_strings.get_error_message());
+			fail("Failed to reload resource strings. (error_message={})", resource_strings.get_error_message());
 		}
 	}
-
-	if (is_succeed)
-	{
-		if (!ogl_texture_manager.load_all_textures())
-		{
-			is_succeed = false;
-			set_error_message("Failed to reload textures. " + ogl_texture_manager.get_error_message());
-		}
-	}
-
-	if (!is_succeed)
-	{
-		window_manager.hide_all();
-
-		SDL_ShowSimpleMessageBox(
-			SDL_MESSAGEBOX_ERROR,
-			"LTJS Launcher",
-			get_error_message().c_str(),
-			nullptr);
-
-		auto sdl_event = SDL_Event{};
-		sdl_event.type = SDL_EVENT_QUIT;
-		SDL_PushEvent(&sdl_event);
-
-		return;
-	}
-
-	configuration.language_.accept();
+	texture_mgr.clear();
+	configuration.language.accept();
 }
 
-std::string MainWindow::build_command_line(
-	const bool has_detail_settings) const
+void MainWindow::append_custom_command_line(const std::string& custom_string, Strings& args)
 {
-	auto& launcher = Launcher::get_instance();
-	const auto& resource_strings = launcher.get_resource_strings();
-	const auto& configuration = Configuration::get_instance();
-
-	auto command_line = std::string{};
-
-	// Window title.
-	//
-	const auto& app_name = resource_strings.get(ResourceStringId::ids_appname, "IDS_APPNAME");
-	command_line += " -windowtitle \"" + app_name + "\"";
-
-	// .REZ files.
-	//
-	const auto& rez_base = resource_strings.get(ResourceStringId::ids_rezbase, "IDS_REZBASE");
-
-	command_line += " -rez " + rez_base + ".REZ";
-	command_line += " -rez " + rez_base + "2.REZ";
-	command_line += " -rez " + rez_base + "DLL.REZ";
-	command_line += " -rez SOUND.REZ";
-	command_line += " -rez " + rez_base + "L.REZ";
-	command_line += " -rez custom";
-	command_line += " -rez " + rez_base + "P.REZ";
-	command_line += " -rez " + rez_base + "P2.REZ";
-
-#ifdef LTJS_NOLF2
-	command_line += " -rez Update_v1x3.rez";
-#endif // LTJS_NOLF2
-
-
-	// Advanced settings.
-	//
-	command_line += " +DisableSound " + std::string{configuration.is_disable_sound_effects_ ? "1" : "0"};
-	command_line += " +DisableMusic " + std::string{configuration.is_disable_music_ ? "1" : "0"};
-	command_line += " +DisableMovies " + std::string{configuration.is_disable_fmvs_ ? "1" : "0"};
-	command_line += " +DisableJoystick " + std::string{configuration.is_disable_controllers_ ? "1" : "0"};
-	command_line += " +DisableTripBuf " + std::string{configuration.is_disable_triple_buffering_ ? "1" : "0"};
-	command_line += " +DisableHardwareCursor " + std::string{configuration.is_disable_hardware_cursor_ ? "1" : "0"};
-	command_line += " +DynamicLoadScreen " + std::string{configuration.is_disable_animated_loading_screen_ ? "0" : "1"};
-	command_line += " +DisableHardwareSound " + std::string{configuration.is_disable_hardware_sound_ ? "1" : "0"};
-	command_line += " +DisableSoundFilters " + std::string{configuration.is_disable_sound_filters_ ? "1" : "0"};
-
-
-	// Display settings.
-	//
-	if (configuration.screen_width_ <= 0 || configuration.screen_height_ <= 0)
+	constexpr std::size_t npos = std::string::npos;
+	for (std::size_t begin_pos = 0; ; )
 	{
-		const auto& display_mode_manager = DisplayModeManager::get_instance();
-		const auto& native_display_mode = display_mode_manager.get_native();
-
-		if (native_display_mode.width_ > 0 && native_display_mode.height_)
+		begin_pos = custom_string.find_first_not_of(" \t", begin_pos);
+		if (begin_pos == npos)
 		{
-			command_line += " +ScreenWidth " + std::to_string(native_display_mode.width_);
-			command_line += " +ScreenHeight " + std::to_string(native_display_mode.height_);
+			break;
+		}
+		if (custom_string[begin_pos] == '"')
+		{
+			++begin_pos;
+			const std::size_t end_pos = custom_string.find('"', begin_pos);
+			if (end_pos == npos)
+			{
+				// Unclosed string.
+				break;
+			}
+			args.emplace_back(custom_string.substr(begin_pos, end_pos - begin_pos));
+			begin_pos = end_pos + 1;
 		}
 		else
 		{
-			command_line += " +ScreenWidth 640 +ScreenHeight 480";
+			const std::size_t end_pos = custom_string.find_first_of(" \t", begin_pos);
+			args.emplace_back(custom_string.substr(begin_pos, end_pos - begin_pos));
+			begin_pos = end_pos;
 		}
+	}
+}
+
+auto MainWindow::build_command_line(bool has_detail_settings) const -> Strings
+{
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	const ResourceStrings& resource_strings = window_mgr.get_resource_strings();
+	const Configuration& configuration = Configuration::get_singleton();
+	Strings args{};
+	constinit static const std::string zero_string{"0"};
+	constinit static const std::string one_string{"1"};
+	const auto bool_to_string = [](bool value) -> const std::string&
+	{
+		if (value)
+		{
+			return one_string;
+		}
+		else
+		{
+			return zero_string;
+		}
+	};
+	// Window title.
+	const std::string& app_name = resource_strings.get(ResourceStringId::ids_appname, "IDS_APPNAME");
+	args.emplace_back("-windowtitle");
+	args.emplace_back(app_name);
+	// .REZ files.
+	const std::string& rez_base = resource_strings.get(ResourceStringId::ids_rezbase, "IDS_REZBASE");
+	args.emplace_back("-rez");
+	args.emplace_back(rez_base + ".REZ");
+	args.emplace_back("-rez");
+	args.emplace_back(rez_base + "2.REZ");
+	args.emplace_back("-rez");
+	args.emplace_back(rez_base + "DLL.REZ");
+	args.emplace_back("-rez");
+	args.emplace_back("SOUND.REZ");
+	args.emplace_back("-rez");
+	args.emplace_back(rez_base + "L.REZ");
+	args.emplace_back("-rez");
+	args.emplace_back("custom");
+	args.emplace_back("-rez");
+	args.emplace_back(rez_base + "P.REZ");
+	args.emplace_back("-rez");
+	args.emplace_back(rez_base + "P2.REZ");
+#ifdef LTJS_NOLF2
+	args.emplace_back("-rez");
+	args.emplace_back("Update_v1x3.rez");
+#endif // LTJS_NOLF2
+	// Advanced settings.
+	args.emplace_back("+DisableSound");
+	args.emplace_back(bool_to_string(configuration.is_disable_sound_effects));
+	args.emplace_back("+DisableMusic");
+	args.emplace_back(bool_to_string(configuration.is_disable_music));
+	args.emplace_back("+DisableMovies");
+	args.emplace_back(bool_to_string(configuration.is_disable_fmvs));
+	args.emplace_back("+DisableJoystick");
+	args.emplace_back(bool_to_string(configuration.is_disable_controllers));
+	args.emplace_back("+DisableTripBuf");
+	args.emplace_back(bool_to_string(configuration.is_disable_triple_buffering));
+	args.emplace_back("+DisableHardwareCursor");
+	args.emplace_back(bool_to_string(configuration.is_disable_hardware_cursor));
+	args.emplace_back("+DynamicLoadScreen");
+	args.emplace_back(bool_to_string(configuration.is_disable_animated_loading_screen));
+	args.emplace_back("+DisableHardwareSound");
+	args.emplace_back(bool_to_string(configuration.is_disable_hardware_sound));
+	args.emplace_back("+DisableSoundFilters");
+	args.emplace_back(bool_to_string(configuration.is_disable_sound_filters));
+	// Display settings.
+	const DisplayModeMgr& display_mode_mgr = DisplayModeMgr::get_singleton();
+	const DisplayMode& native_display_mode = display_mode_mgr.get_native_mode();
+	int screen_width = 0;
+	if (configuration.screen_width <= 0)
+	{
+		screen_width = native_display_mode.width;
 	}
 	else
 	{
-		command_line += " +ScreenWidth " + std::to_string(configuration.screen_width_);
-		command_line += " +ScreenHeight " + std::to_string(configuration.screen_height_);
+		screen_width = configuration.screen_width.get_ref();
 	}
-
-	command_line += " +BitDepth 32";
-
-
-	// Restore defaults.
-	//
-	if (configuration.is_restore_defaults_)
+	screen_width = std::max(screen_width, DisplayModeMgr::min_display_mode_width);
+	args.emplace_back("+ScreenWidth");
+	args.emplace_back(std::format("{}", screen_width));
+	int screen_height = 0;
+	if (configuration.screen_height <= 0)
 	{
-		command_line += " +RestoreDefaults 1";
-		command_line += " +HardwareCursor 1";
-		command_line += " +VSyncOnFlip 1";
-		command_line += " +GammaR 1.0";
-		command_line += " +GammaG 1.0";
-		command_line += " +GammaB 1.0";
+		screen_height = native_display_mode.height;
 	}
-
+	else
+	{
+		screen_height = configuration.screen_height.get_ref();
+	}
+	screen_height = std::max(screen_height, DisplayModeMgr::min_display_mode_height);
+	args.emplace_back("+ScreenHeight");
+	args.emplace_back(std::format("{}", screen_height));
+	args.emplace_back("+BitDepth");
+	args.emplace_back("32");
+	// Restore defaults.
+	if (configuration.is_restore_defaults)
+	{
+		args.emplace_back("+RestoreDefaults");
+		args.emplace_back("1");
+		args.emplace_back("+HardwareCursor");
+		args.emplace_back("1");
+		args.emplace_back("+VSyncOnFlip");
+		args.emplace_back("1");
+		args.emplace_back("+GammaR");
+		args.emplace_back("1.0");
+		args.emplace_back("+GammaG");
+		args.emplace_back("1.0");
+		args.emplace_back("+GammaB");
+		args.emplace_back("1.0");
+	}
 	// Detail settings.
-	//
 	if (has_detail_settings)
 	{
-		const auto detail_level_id = launcher.get_detail_settings_window()->get_detail_level();
-
-		auto detail_level_string = std::string{};
-
+		const DetailLevel detail_level_id = window_mgr.get_detail_settings_window()->get_detail_level();
+		std::string detail_level_string{};
 		switch (detail_level_id)
 		{
-		case DetailLevel::low:
-			detail_level_string = ".DefaultLow";
-			break;
-
-		case DetailLevel::medium:
-			detail_level_string = ".DefaultMid";
-			break;
-
-		case DetailLevel::high:
-			detail_level_string = ".DefaultHigh";
-			break;
-
-		default:
-			break;
+			case DetailLevel::low:
+				detail_level_string = ".DefaultLow";
+				break;
+			case DetailLevel::medium:
+				detail_level_string = ".DefaultMid";
+				break;
+			case DetailLevel::high:
+				detail_level_string = ".DefaultHigh";
+				break;
 		}
-
 		if (!detail_level_string.empty())
 		{
-			command_line += " +SetPerformanceLevel " + detail_level_string;
+			args.emplace_back("+SetPerformanceLevel");
+			args.emplace_back(detail_level_string);
 		}
 	}
-
 	// Custom command line.
-	//
-	if (!configuration.custom_arguments_.get_ref().empty())
-	{
-		command_line += " " + static_cast<const std::string&>(configuration.custom_arguments_);
-	}
-
-	//
-	return command_line;
+	append_custom_command_line(configuration.custom_arguments.get_ref(), args);
+	return args;
 }
 
-bool MainWindow::save_arguments(
-	const std::string& command_line) const
+auto MainWindow::make_string_ptrs(const Strings& strings) -> StringPtrs
 {
-	const auto& configuration = Configuration::get_instance();
-	const auto& config_path = configuration.get_config_path();
-	const auto& arguments_file_name = configuration.get_arguments_file_name();
-	const auto file_name = combine_and_normalize_file_paths(config_path, arguments_file_name);
+	StringPtrs string_ptrs{};
+	string_ptrs.reserve(strings.size() + 1);
+	for (const std::string& string : strings)
+	{
+		string_ptrs.emplace_back(string.data());
+	}
+	string_ptrs.emplace_back(nullptr);
+	return string_ptrs;
+}
 
+bool MainWindow::save_arguments(const Strings& args) const
+{
+	const auto need_quotation = [](const std::string arg)
+	{
+		return arg.find_first_of(" \t", 0) != std::string::npos;
+	};
+	std::string command_line{};
+	command_line.reserve(4096);
+	for (const std::string& arg : args)
+	{
+		if (!command_line.empty())
+		{
+			command_line += ' ';
+		}
+		const bool requires_quotes = need_quotation(arg);
+		if (requires_quotes)
+		{
+			command_line += '"';
+		}
+		command_line += arg;
+		if (requires_quotes)
+		{
+			command_line += '"';
+		}
+	}
+	const Configuration& configuration = Configuration::get_singleton();
+	const std::string& config_path = configuration.get_config_path();
+	const std::string& arguments_file_name = configuration.get_arguments_file_name();
+	const std::string file_name = combine_and_normalize_file_paths(config_path, arguments_file_name);
 	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(file_name.c_str(), "wb")};
-
 	if (sdl_io_stream_uptr == nullptr)
 	{
 		return false;
 	}
-
-	const auto data_size = static_cast<int>(command_line.size());
-
-	if (data_size == 0)
-	{
-		return true;
-	}
-
+	const std::size_t data_size = command_line.size();
 	const std::size_t write_result = SDL_WriteIO(sdl_io_stream_uptr.get(), command_line.c_str(), data_size);
-
 	if (write_result != data_size)
 	{
 		return false;
 	}
-
 	return true;
+}
+
+void MainWindow::on_dialog_result(DialogResult dialog_result)
+{
+	Configuration& configuration = Configuration::get_singleton();
+	switch (state_)
+	{
+		case State::main_window_message_box:
+			state_ = State::main_window;
+			break;
+		case State::display_settings_warning:
+			state_ = State::main_window;
+			if (dialog_result == DialogResult::ok)
+			{
+				configuration.is_disable_display_settings_warning = true;
+				handle_check_for_renderers();
+			}
+			break;
+		case State::display_settings_no_renderers:
+			state_ = State::main_window;
+			break;
+		case State::display_settings_window:
+			state_ = State::main_window;
+			break;
+		case State::advanced_settings_warning:
+			if (dialog_result == DialogResult::cancel)
+			{
+				state_ = State::main_window;
+			}
+			else
+			{
+				state_ = State::advanced_settings_window;
+				WindowMgr& window_mgr = WindowMgr::get_singleton();
+				AdvancedSettingsWindow* const advanced_options_window = window_mgr.get_advanced_settings_window();
+				configuration.is_disable_advanced_settings_warning = true;
+				advanced_options_window->show(true);
+			}
+			break;
+		case State::advanced_settings_window:
+			state_ = State::main_window;
+			break;
+		case State::detail_settings_window:
+			state_ = State::main_window;
+			if (dialog_result != DialogResult::cancel)
+			{
+				run_the_game();
+			}
+			break;
+		default:
+			throw std::runtime_error{"Invalid state."};
+	}
 }
 
 void MainWindow::do_draw()
 {
-	const auto& window_manager = WindowManager::get_instance();
-	auto& font_manager = FontManager::get_instance();
-
-	const auto scale = window_manager.get_scale();
-	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
-
-	auto& ogl_texture_manager = get_texture_manager();
-
-	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
-	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-
+	const ScaleMgr& scale_mgr = ScaleMgr::get_singleton();
+	FontMgr& font_mgr = FontMgr::get_singleton();
+	const float scale = scale_mgr.get_scale();
+	const float regular_font_size = font_mgr.get_regular_size() * scale;
+	TextureMgr& texture_mgr = get_texture_manager();
 	is_escape_down_ = ImGui::IsKeyPressed(ImGuiKey_Escape);
-
-	const auto is_modal = (state_ != State::main_window);
-
-	const auto mouse_pos = ImGui::GetMousePos();
-
-
+	const bool is_modal = (state_ != State::main_window);
+	const ImVec2 mouse_pos = ImGui::GetMousePos();
 	// Begin main window.
-	//
-	const auto main_flags =
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoResize |
+	const ImGuiWindowFlags main_flags =
 		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse |
-		ImGuiWindowFlags_NoCollapse |
 		ImGuiWindowFlags_NoSavedSettings |
+		(is_modal ? ImGuiWindowFlags_NoInputs : ImGuiWindowFlags_None) |
+		ImGuiWindowFlags_NoDecoration |
 		ImGuiWindowFlags_None;
-
 	ImGui::Begin("main", nullptr, main_flags);
-	ImGui::SetWindowPos({}, ImGuiCond_Always);
-
+	ImGui::SetWindowPos(ImVec2{}, ImGuiCond_Always);
 	ImGui::SetWindowSize(
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ImVec2{narrow_cast<float>(window_width), narrow_cast<float>(window_height)} * scale,
 		ImGuiCond_Always);
-
-
 	// Background.
-	//
 	ImGui::SetCursorPos(ImVec2{});
-
-	const auto& ogl_mainappbackground_texture = ogl_texture_manager.get(ImageId::mainappbackground);
-
+	const ImTextureID mainappbackground_tex_id = texture_mgr.get(ImageId::mainappbackground);
 	ImGui::Image(
-		ogl_mainappbackground_texture,
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale);
-
-
+		mainappbackground_tex_id,
+		ImVec2{narrow_cast<float>(window_width), narrow_cast<float>(window_height)} * scale);
 	// Minimize button.
-	//
-	const auto minimize_pos = ImVec2{487.0F, 6.0F} * scale;
-	const auto minimize_size = ImVec2{16.0F, 14.0F} * scale;
-	const auto minimize_rect = ImVec4{minimize_pos.x, minimize_pos.y, minimize_size.x, minimize_size.y};
-
-	auto is_minimize_mouse_button_down = false;
-
-	is_minimize_button_clicked_ = false;
-
-	if (!is_modal && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_point_inside_rect(mouse_pos, minimize_rect))
-		{
-			if (is_mouse_button_down)
-			{
-				is_minimize_mouse_button_down = true;
-			}
-
-			if (is_mouse_button_up)
-			{
-				is_minimize_button_clicked_ = true;
-			}
-		}
-	}
-
-	const auto ogl_minimize_image_id = (is_minimize_mouse_button_down ? ImageId::minimized : ImageId::minimizeu);
-	const auto& ogl_minimize_texture = ogl_texture_manager.get(ogl_minimize_image_id);
-
-	ImGui::SetCursorPos(minimize_pos);
-
-	ImGui::Image(ogl_minimize_texture, minimize_size);
-
-
+	imgui_add_title_minimize_button(
+		/* position       */ ImVec2{487.0F, 6.0F} * scale,
+		/* size           */ ImVec2{16.0F, 14.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_minimize_button_clicked_);
 	// Close button.
-	//
-	const auto close_pos = ImVec2{503.0F, 6.0F} * scale;
-	const auto close_size = ImVec2{16.0F, 14.0F} * scale;
-	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
-
-	auto is_close_mouse_button_down = false;
-
-	is_close_button_clicked_ = false;
-
-	if (is_mouse_button_down || is_mouse_button_up)
-	{
-		if (is_point_inside_rect(mouse_pos, close_rect))
-		{
-			if (is_mouse_button_down)
-			{
-				is_close_mouse_button_down = true;
-			}
-
-			if (is_mouse_button_up)
-			{
-				is_close_button_clicked_ = true;
-			}
-		}
-	}
-
-	const auto ogl_close_image_id = (is_close_mouse_button_down ? ImageId::closed : ImageId::closeu);
-	const auto& ogl_close_texture = ogl_texture_manager.get(ogl_close_image_id);
-
-	ImGui::SetCursorPos(close_pos);
-
-	ImGui::Image(ogl_close_texture, close_size);
-
-
+	imgui_add_title_close_button(
+		/* position       */ ImVec2{503.0F, 6.0F} * scale,
+		/* size           */ ImVec2{16.0F, 14.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_close_button_clicked_);
 	// Language.
-	//
-	const auto language_pos = ImVec2{14.0F, 161.0F} * scale;
-
-	const auto& supported_languages = SupportedLanguages::get_instance();
-	const auto languages = supported_languages.get();
-
+	const ImVec2 language_pos = ImVec2{14.0F, 161.0F} * scale;
+	const SupportedLanguages& supported_languages = SupportedLanguages::get_singleton();
+	const Languages& languages = supported_languages.get();
 	const char* language_preview = nullptr;
-
 	if (language_index_ >= 0)
 	{
-		language_preview = languages[language_index_].name_.c_str();
+		language_preview = languages[language_index_].name.c_str();
 	}
 	else
 	{
 		language_preview = "???";
 	}
-
 	ImGui::SetCursorPos(language_pos);
 	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
-
 	ImGui::PushItemWidth(100.0F * scale);
-
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(0, 0, 0, 0xD0));
 	ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(0, 0, 0, 0xB0));
 	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(0, 0, 0, 0x80));
-
 	ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(0, 0, 0, 0xD0));
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(0, 0, 0, 0xB0));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(0, 0, 0, 0x80));
-
 	is_language_selected_ = false;
-
 	if (ImGui::BeginCombo("##language", language_preview))
 	{
-		const auto selectable_flags = (is_modal ? ImGuiSelectableFlags_Disabled : ImGuiSelectableFlags_None);
-
-		const auto language_count = static_cast<int>(languages.size());
-
-		for (auto i = 0; i < language_count; ++i)
+		const ImGuiSelectableFlags selectable_flags = (is_modal ? ImGuiSelectableFlags_Disabled : ImGuiSelectableFlags_None);
+		const int language_count = narrow_cast<int>(languages.size());
+		for (int i = 0; i < language_count; ++i)
 		{
-			const auto& language = languages[i];
-
-			const auto is_selected = ImGui::Selectable(
-				language.name_.c_str(),
+			const Language& language = languages[i];
+			const bool is_selected = ImGui::Selectable(
+				language.name.c_str(),
 				i == language_index_,
 				selectable_flags);
-
 			if (!is_modal && is_selected)
 			{
 				is_language_selected_ = true;
@@ -4911,473 +3051,133 @@ void MainWindow::do_draw()
 				ImGui::SetItemDefaultFocus();
 			}
 		}
-
 		ImGui::EndCombo();
 	}
-
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
-
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
-
 	ImGui::PopItemWidth();
 	ImGui::PopFont();
-
-
 	// Fox Interactive button.
-	//
-	const auto publisher1web_pos = ImVec2{14.0F, 187.0F} * scale;
-	const auto publisher1web_size = ImVec2{52.0F, 40.0F} * scale;
-	const auto publisher1web_rect = ImVec4{publisher1web_pos.x, publisher1web_pos.y, publisher1web_size.x, publisher1web_size.y};
-
-	auto is_publisher1web_mouse_button_down = false;
-
-	is_publisher1web_button_clicked_ = false;
-
-	const auto is_publisher1web_button_hightlighted = is_point_inside_rect(mouse_pos, publisher1web_rect);
-
-	if (!is_modal && is_publisher1web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_publisher1web_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_publisher1web_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_publisher1web_image_id = ImageId{};
-
-	if (!is_modal && is_publisher1web_mouse_button_down)
-	{
-		ogl_publisher1web_image_id = ImageId::publisher1webd;
-	}
-	else if (!is_modal && is_publisher1web_button_hightlighted)
-	{
-		ogl_publisher1web_image_id = ImageId::publisher1webf;
-	}
-	else
-	{
-		ogl_publisher1web_image_id = ImageId::publisher1webu;
-	}
-
-	const auto& ogl_publisher1web_texture = ogl_texture_manager.get(ogl_publisher1web_image_id);
-
-	ImGui::SetCursorPos(publisher1web_pos);
-
-	ImGui::Image(ogl_publisher1web_texture, publisher1web_size);
-
-
+	imgui_add_button(
+		/* id_string      */ "publisher 1 web button",
+		/* position       */ ImVec2{14.0F, 187.0F} * scale,
+		/* size           */ ImVec2{52.0F, 40.0F} * scale,
+		/* down_image_id  */ ImageId::publisher1webd,
+		/* hover_image_id */ ImageId::publisher1webf,
+		/* up_image_id    */ ImageId::publisher1webu,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_publisher1web_button_clicked_);
 	// Monolith Productions button.
-	//
-	const auto company1web_pos = ImVec2{76.0F, 187.0F} * scale;
-	const auto company1web_size = ImVec2{61.0F, 17.0F} * scale;
-	const auto company1web_rect = ImVec4{company1web_pos.x, company1web_pos.y, company1web_size.x, company1web_size.y};
-
-	auto is_company1web_mouse_button_down = false;
-
-	is_company1web_button_clicked_ = false;
-
-	const auto is_company1web_button_hightlighted = is_point_inside_rect(mouse_pos, company1web_rect);
-
-	if (!is_modal && is_company1web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_company1web_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_company1web_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_company1web_image_id = ImageId{};
-
-	if (!is_modal && is_company1web_mouse_button_down)
-	{
-		ogl_company1web_image_id = ImageId::company1webd;
-	}
-	else if (!is_modal && is_company1web_button_hightlighted)
-	{
-		ogl_company1web_image_id = ImageId::company1webf;
-	}
-	else
-	{
-		ogl_company1web_image_id = ImageId::company1webu;
-	}
-
-	const auto& ogl_company1web_texture = ogl_texture_manager.get(ogl_company1web_image_id);
-
-	ImGui::SetCursorPos(company1web_pos);
-
-	ImGui::Image(ogl_company1web_texture, company1web_size);
-
-
+	imgui_add_button(
+		/* id_string      */ "company 1 web button",
+		/* position       */ ImVec2{76.0F, 187.0F} * scale,
+		/* size           */ ImVec2{61.0F, 17.0F} * scale,
+		/* down_image_id  */ ImageId::company1webd,
+		/* hover_image_id */ ImageId::company1webf,
+		/* up_image_id    */ ImageId::company1webu,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_company1web_button_clicked_);
 	// LithTech button.
-	//
-	const auto company2web_pos = ImVec2{76.0F, 210.0F} * scale;
-	const auto company2web_size = ImVec2{62.0F, 17.0F} * scale;
-	const auto company2web_rect = ImVec4{company2web_pos.x, company2web_pos.y, company2web_size.x, company2web_size.y};
-
-	auto is_company2web_mouse_button_down = false;
-
-	is_company2web_button_clicked_ = false;
-
-	const auto is_company2web_button_hightlighted = is_point_inside_rect(mouse_pos, company2web_rect);
-
-	if (!is_modal && is_company2web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_company2web_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_company2web_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_company2web_image_id = ImageId{};
-
-	if (!is_modal && is_company2web_mouse_button_down)
-	{
-		ogl_company2web_image_id = ImageId::company2webd;
-	}
-	else if (!is_modal && is_company2web_button_hightlighted)
-	{
-		ogl_company2web_image_id = ImageId::company2webf;
-	}
-	else
-	{
-		ogl_company2web_image_id = ImageId::company2webu;
-	}
-
-	const auto& ogl_company2web_texture = ogl_texture_manager.get(ogl_company2web_image_id);
-
-	ImGui::SetCursorPos(company2web_pos);
-
-	ImGui::Image(ogl_company2web_texture, company2web_size);
-
-
+	imgui_add_button(
+		/* id_string      */ "company 2 web button",
+		/* position       */ ImVec2{76.0F, 210.0F} * scale,
+		/* size           */ ImVec2{62.0F, 17.0F} * scale,
+		/* down_image_id  */ ImageId::company2webd,
+		/* hover_image_id */ ImageId::company2webf,
+		/* up_image_id    */ ImageId::company2webu,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_company2web_button_clicked_);
 	// Sierra Entertainment button.
-	//
-	const auto publisher2web_pos = ImVec2{147.0F, 198.0F} * scale;
-	const auto publisher2web_size = ImVec2{99.0F, 30.0F} * scale;
-	const auto publisher2web_rect = ImVec4{publisher2web_pos.x, publisher2web_pos.y, publisher2web_size.x, publisher2web_size.y};
-
-	auto is_publisher2web_mouse_button_down = false;
-
-	is_publisher2web_button_clicked_ = false;
-
-	const auto is_publisher2web_button_hightlighted = is_point_inside_rect(mouse_pos, publisher2web_rect);
-
-	if (!is_modal && is_publisher2web_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_publisher2web_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_publisher2web_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_publisher2web_image_id = ImageId{};
-
-	if (!is_modal && is_publisher2web_mouse_button_down)
-	{
-		ogl_publisher2web_image_id = ImageId::publisher2webd;
-	}
-	else if (!is_modal && is_publisher2web_button_hightlighted)
-	{
-		ogl_publisher2web_image_id = ImageId::publisher2webf;
-	}
-	else
-	{
-		ogl_publisher2web_image_id = ImageId::publisher2webu;
-	}
-
-	const auto& ogl_publisher2web_texture = ogl_texture_manager.get(ogl_publisher2web_image_id);
-
-	ImGui::SetCursorPos(publisher2web_pos);
-
-	ImGui::Image(ogl_publisher2web_texture, publisher2web_size);
-
-
-	// Install/Play button.
-	//
-	const auto install_or_play_pos = ImVec2{413.0F, 25.0F} * scale;
-	const auto install_or_play_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto install_or_play_rect = ImVec4{install_or_play_pos.x, install_or_play_pos.y, install_or_play_size.x, install_or_play_size.y};
-
-	auto is_install_or_play_mouse_button_down = false;
-
-	is_install_or_play_button_clicked_ = false;
-
-	const auto is_install_or_play_button_hightlighted = is_point_inside_rect(mouse_pos, install_or_play_rect);
-
-	if (!is_modal && is_install_or_play_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_install_or_play_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_install_or_play_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_install_or_play_image_id = ImageId{};
-
-	if (!is_modal && is_install_or_play_mouse_button_down)
-	{
-		ogl_install_or_play_image_id = (is_show_play_button_ ? ImageId::playd : ImageId::installd);
-	}
-	else if (!is_modal && is_install_or_play_button_hightlighted)
-	{
-		ogl_install_or_play_image_id = (is_show_play_button_ ? ImageId::playf : ImageId::installf);
-	}
-	else
-	{
-		ogl_install_or_play_image_id = (is_show_play_button_ ? ImageId::playu : ImageId::installu);
-	}
-
-	const auto& ogl_install_or_play_texture = ogl_texture_manager.get(ogl_install_or_play_image_id);
-
-	ImGui::SetCursorPos(install_or_play_pos);
-
-	ImGui::Image(ogl_install_or_play_texture, install_or_play_size);
-
-
+	imgui_add_button(
+		/* id_string      */ "publisher 2 web button",
+		/* position       */ ImVec2{147.0F, 198.0F} * scale,
+		/* size           */ ImVec2{99.0F, 30.0F} * scale,
+		/* down_image_id  */ ImageId::publisher2webd,
+		/* hover_image_id */ ImageId::publisher2webf,
+		/* up_image_id    */ ImageId::publisher2webu,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_publisher2web_button_clicked_);
+	// Play button.
+	const ImVec2 play_pos = ImVec2{413.0F, 25.0F} * scale;
+	const ImVec2 play_size = ImVec2{100.0F, 30.0F} * scale;
+	ImGui::SetCursorPos(play_pos);
+	is_play_button_clicked_ = ImGui::InvisibleButton("play", play_size);
+	const ImageId play_image_id =
+		ImGui::IsItemActive() ? ImageId::playd :
+			(ImGui::IsItemHovered() ? ImageId::playf : ImageId::playu);
+	ImGui::SetCursorPos(play_pos);
+	ImGui::Image(texture_mgr.get(play_image_id), play_size);
 	// Display button.
-	//
-	const auto display_pos = ImVec2{413.0F, 97.0F} * scale;
-	const auto display_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto display_rect = ImVec4{display_pos.x, display_pos.y, display_size.x, display_size.y};
-
-	const auto is_display_enabled = !is_modal && is_show_play_button_;
-	auto is_display_mouse_button_down = false;
-	auto is_display_button_hightlighted = false;
-
-	is_display_button_clicked_ = false;
-
-	if (is_display_enabled)
-	{
-		is_display_button_hightlighted = is_point_inside_rect(mouse_pos, display_rect);
-	}
-
-	if (is_display_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_display_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_display_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_display_image_id = ImageId{};
-
-	if (!is_display_enabled)
-	{
-		ogl_display_image_id = ImageId::displayx;
-	}
-	else if (is_display_mouse_button_down)
-	{
-		ogl_display_image_id = ImageId::displayd;
-	}
-	else if (is_display_button_hightlighted)
-	{
-		ogl_display_image_id = ImageId::displayf;
-	}
-	else
-	{
-		ogl_display_image_id = ImageId::displayu;
-	}
-
-	const auto& ogl_display_texture = ogl_texture_manager.get(ogl_display_image_id);
-
+	const ImVec2 display_pos = ImVec2{413.0F, 97.0F} * scale;
+	const ImVec2 display_size = ImVec2{100.0F, 30.0F} * scale;
+	ImageId display_image_id;
 	ImGui::SetCursorPos(display_pos);
-
-	ImGui::Image(ogl_display_texture, display_size);
-
-
+	is_display_button_clicked_ = ImGui::InvisibleButton("display", display_size);
+	display_image_id =
+		ImGui::IsItemActive() ? ImageId::displayd : (ImGui::IsItemHovered() ? ImageId::displayf : ImageId::displayu);
+	ImGui::SetCursorPos(display_pos);
+	ImGui::Image(texture_mgr.get(display_image_id), display_size);
 	// Options button.
-	//
-	const auto options_pos = ImVec2{413.0F, 133.0F} * scale;
-	const auto options_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto options_rect = ImVec4{options_pos.x, options_pos.y, options_size.x, options_size.y};
-
-	const auto is_options_enabled = !is_modal && is_show_play_button_;
-	auto is_options_mouse_button_down = false;
-	auto is_options_button_hightlighted = false;
-
-	is_options_button_clicked_ = false;
-
-	if (is_options_enabled)
-	{
-		is_options_button_hightlighted = is_point_inside_rect(mouse_pos, options_rect);
-	}
-
-	if (is_options_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_options_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_options_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_options_image_id = ImageId{};
-
-	if (!is_options_enabled)
-	{
-		ogl_options_image_id = ImageId::optionsx;
-	}
-	else if (is_options_mouse_button_down)
-	{
-		ogl_options_image_id = ImageId::optionsd;
-	}
-	else if (is_options_button_hightlighted)
-	{
-		ogl_options_image_id = ImageId::optionsf;
-	}
-	else
-	{
-		ogl_options_image_id = ImageId::optionsu;
-	}
-
-	const auto& ogl_options_texture = ogl_texture_manager.get(ogl_options_image_id);
-
+	const ImVec2 options_pos = ImVec2{413.0F, 133.0F} * scale;
+	const ImVec2 options_size = ImVec2{100.0F, 30.0F} * scale;
+	ImageId options_image_id;
 	ImGui::SetCursorPos(options_pos);
-
-	ImGui::Image(ogl_options_texture, options_size);
-
-
+	is_options_button_clicked_ = ImGui::InvisibleButton("options", options_size);
+	options_image_id =
+		ImGui::IsItemActive() ? ImageId::optionsd : (ImGui::IsItemHovered() ? ImageId::optionsf : ImageId::optionsu);
+	ImGui::SetCursorPos(options_pos);
+	ImGui::Image(texture_mgr.get(options_image_id), options_size);
 	// Quit button.
-	//
-	const auto quit_pos = ImVec2{413.0F, 205.0F} * scale;
-	const auto quit_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto quit_rect = ImVec4{quit_pos.x, quit_pos.y, quit_size.x, quit_size.y};
-
-	auto is_quit_mouse_button_down = false;
-	const auto is_quit_button_hightlighted = is_point_inside_rect(mouse_pos, quit_rect);
-
-	is_quit_button_clicked_ = false;
-
-	if (is_quit_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_quit_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_quit_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_quit_image_id = ImageId{};
-
-	if (is_quit_mouse_button_down)
-	{
-		ogl_quit_image_id = ImageId::quitd;
-	}
-	else if (is_quit_button_hightlighted)
-	{
-		ogl_quit_image_id = ImageId::quitf;
-	}
-	else
-	{
-		ogl_quit_image_id = ImageId::quitu;
-	}
-
-	const auto& ogl_quit_texture = ogl_texture_manager.get(ogl_quit_image_id);
-
+	const ImVec2 quit_pos = ImVec2{413.0F, 205.0F} * scale;
+	const ImVec2 quit_size = ImVec2{100.0F, 30.0F} * scale;
 	ImGui::SetCursorPos(quit_pos);
-
-	ImGui::Image(ogl_quit_texture, quit_size);
-
-
+	is_quit_button_clicked_ = ImGui::InvisibleButton("quit", quit_size);
+	const ImageId quit_image_id =
+		ImGui::IsItemActive() ? ImageId::quitd : (ImGui::IsItemHovered() ? ImageId::quitf : ImageId::quitu);
+	ImGui::SetCursorPos(quit_pos);
+	ImGui::Image(texture_mgr.get(quit_image_id), quit_size);
 	// End main window.
-	//
 	ImGui::End();
 }
 
-void MainWindow::do_im_handle_events()
+void MainWindow::do_imgui_handle_events()
 {
-	auto& configuration = Configuration::get_instance();
-	auto& launcher = Launcher::get_instance();
-	auto& resource_strings = launcher.get_resource_strings();
-
+	Configuration& configuration = Configuration::get_singleton();
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	ResourceStrings& resource_strings = window_mgr.get_resource_strings();
 	if (is_minimize_button_clicked_)
 	{
 		minimize_internal(true);
 	}
 	else if (is_close_button_clicked_ || is_quit_button_clicked_ || is_escape_down_)
 	{
-		auto sdl_event = SDL_Event{};
-
-		sdl_event.type = SDL_EVENT_QUIT;
+		SDL_Event sdl_event{.type = SDL_EVENT_QUIT};
 		SDL_PushEvent(&sdl_event);
 	}
-	else if (is_install_or_play_button_clicked_)
+	else if (is_play_button_clicked_)
 	{
-		if (is_show_play_button_)
+		if (configuration.is_restore_defaults)
 		{
-			if (configuration.is_restore_defaults_)
-			{
-				state_ = State::detail_settings_window;
-
-				attach_to_message_box_result_event(true, AttachPoint::detail_settings);
-
-				auto detail_settings_window_ptr = launcher.get_detail_settings_window();
-				detail_settings_window_ptr->show(true);
-			}
-			else
-			{
-				run_the_game();
-			}
+			state_ = State::detail_settings_window;
+			DetailSettingsWindow* const detail_settings_window_ptr = window_mgr.get_detail_settings_window();
+			detail_settings_window_ptr->show(true);
 		}
 		else
 		{
-			no_lithtech_exe_error();
-
-			is_show_play_button_ = is_lithtech_executable_exists();
+			run_the_game();
 		}
 	}
 	else if (is_display_button_clicked_)
 	{
-		attach_to_message_box_result_event(true, AttachPoint::message_box);
-
-		if (!configuration.is_disable_display_settings_warning_)
+		if (!configuration.is_disable_display_settings_warning)
 		{
 			state_ = State::display_settings_warning;
-
-			const auto& message = resource_strings.get(ResourceStringId::ids_display_warning, "IDS_DISPLAY_WARNING");
-
-			auto message_box_window_ptr = launcher.get_message_box_window();
+			const std::string& message = resource_strings.get(ResourceStringId::ids_display_warning, "IDS_DISPLAY_WARNING");
+			MessageBoxWindow* const message_box_window_ptr = window_mgr.get_message_box_window();
 			message_box_window_ptr->show(MessageBoxType::warning, MessageBoxButtons::ok_cancel, message);
 		}
 		else
@@ -5387,43 +3187,32 @@ void MainWindow::do_im_handle_events()
 	}
 	else if (is_options_button_clicked_)
 	{
-		if (!configuration.is_disable_advanced_settings_warning_)
+		if (!configuration.is_disable_advanced_settings_warning)
 		{
 			state_ = State::advanced_settings_warning;
-
-			attach_to_message_box_result_event(true, AttachPoint::message_box);
-
-			const auto& message = resource_strings.get(ResourceStringId::ids_options_warning, "IDS_OPTIONS_WARNING");
-
-			auto message_box_window_ptr = launcher.get_message_box_window();
+			const std::string& message = resource_strings.get(ResourceStringId::ids_options_warning, "IDS_OPTIONS_WARNING");
+			MessageBoxWindow* const message_box_window_ptr = window_mgr.get_message_box_window();
 			message_box_window_ptr->show(MessageBoxType::warning, MessageBoxButtons::ok_cancel, message);
 		}
 		else
 		{
 			state_ = State::advanced_settings_window;
-
-			attach_to_message_box_result_event(true, AttachPoint::advanced_settings);
-
-			auto advanced_settings_window_ptr = launcher.get_advanced_settings_window();
-
+			AdvancedSettingsWindow* const advanced_settings_window_ptr = window_mgr.get_advanced_settings_window();
 			advanced_settings_window_ptr->show(true);
 		}
 	}
 	else if (is_language_selected_)
 	{
-		const auto& supported_languages = SupportedLanguages::get_instance();
-		const auto& languages = supported_languages.get();
-
-		configuration.language_ = languages[language_index_].id_;
-
+		const SupportedLanguages& supported_languages = SupportedLanguages::get_singleton();
+		const Languages& languages = supported_languages.get();
+		configuration.language = languages[language_index_].id;
 		change_language();
 	}
-
 	is_minimize_button_clicked_ = false;
 	is_close_button_clicked_ = false;
 	is_quit_button_clicked_ = false;
 	is_escape_down_ = false;
-	is_install_or_play_button_clicked_ = false;
+	is_play_button_clicked_ = false;
 	is_display_button_clicked_ = false;
 	is_options_button_clicked_ = false;
 	is_language_selected_ = false;
@@ -5431,215 +3220,81 @@ void MainWindow::do_im_handle_events()
 	is_company1web_button_clicked_ = false;
 	is_company2web_button_clicked_ = false;
 	is_publisher2web_button_clicked_ = false;
+	if (lithtech_sdl_process_uptr_ != nullptr)
+	{
+		int exit_code;
+		if (SDL_WaitProcess(lithtech_sdl_process_uptr_.get(), false, &exit_code))
+		{
+			lithtech_sdl_process_uptr_ = nullptr;
+			show(true);
+		}
+	}
 }
 
-//
-// MainWindow
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// DetailSettingsWindow
-//
+// ======================================
 
 DetailSettingsWindow::DetailSettingsWindow()
 	:
-	detail_level_{},
-	is_escape_down_{},
-	is_close_button_clicked_{},
-	is_cancel_button_clicked_{},
-	is_high_button_clicked_{},
-	is_medium_button_clicked_{},
-	is_low_button_clicked_{}
-{
-}
-
-DetailSettingsWindow::~DetailSettingsWindow()
-{
-}
-
-DetailSettingsWindowPtr DetailSettingsWindow::create()
-{
-	const auto& window_manager = WindowManager::get_instance();
-	const auto scale = window_manager.get_scale();
-
-	auto detail_settings_window_param = WindowCreateParam{};
-	detail_settings_window_param.title_ = "detail_settings";
-	detail_settings_window_param.width_ = static_cast<int>(window_width * scale);
-	detail_settings_window_param.height_ = static_cast<int>(window_height * scale);
-	detail_settings_window_param.is_hidden_ = true;
-
-	auto detail_settings_window_ptr = new DetailSettingsWindow{};
-
-	static_cast<void>(detail_settings_window_ptr->initialize(detail_settings_window_param));
-
-	return detail_settings_window_ptr;
-}
+	Window{
+		WindowCreateParam{
+			.width = narrow_cast<int>(window_width * ScaleMgr::get_singleton().get_scale()),
+			.height = narrow_cast<int>(window_height * ScaleMgr::get_singleton().get_scale()),
+			.title = "LTJS " LTJS_GAME_ID_STRING_UC " detail settings"}}
+{}
 
 DetailLevel DetailSettingsWindow::get_detail_level() const
 {
 	return detail_level_;
 }
 
-bool DetailSettingsWindow::initialize(
-	const WindowCreateParam& param)
-{
-	if (!Window::initialize(param))
-	{
-		return false;
-	}
-
-	detail_level_ = {};
-	set_message_box_result(MessageBoxResult::cancel);
-
-	return true;
-}
-
-void DetailSettingsWindow::uninitialize()
-{
-}
-
 void DetailSettingsWindow::do_draw()
 {
-	auto& launcher = Launcher::get_instance();
-	const auto& resource_strings = launcher.get_resource_strings();
-	const auto& window_manager = WindowManager::get_instance();
-	auto& font_manager = FontManager::get_instance();
-
-	const auto scale = window_manager.get_scale();
-	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
-
-	auto& ogl_texture_manager = get_texture_manager();
-
-	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
-	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-	const auto mouse_pos = ImGui::GetMousePos();
-
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	const ResourceStrings& resource_strings = window_mgr.get_resource_strings();
+	const ScaleMgr& scale_mgr = ScaleMgr::get_singleton();
+	FontMgr& font_mgr = FontMgr::get_singleton();
+	const float scale = scale_mgr.get_scale();
+	const float regular_font_size = font_mgr.get_regular_size() * scale;
+	TextureMgr& texture_mgr = get_texture_manager();
 	is_escape_down_ = ImGui::IsKeyPressed(ImGuiKey_Escape);
-
-
 	// Begin detail settings window.
-	//
-	const auto main_flags =
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoResize |
+	constexpr ImGuiWindowFlags main_flags =
 		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse |
-		ImGuiWindowFlags_NoCollapse |
 		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoDecoration |
 		ImGuiWindowFlags_None;
-
 	ImGui::Begin("detail_settings", nullptr, main_flags);
-	ImGui::SetWindowPos({}, ImGuiCond_Always);
-
+	ImGui::SetWindowPos(ImVec2{}, ImGuiCond_Always);
 	ImGui::SetWindowSize(
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ImVec2{narrow_cast<float>(window_width), narrow_cast<float>(window_height)} * scale,
 		ImGuiCond_Always);
-
-
 	// Background.
-	//
 	ImGui::SetCursorPos(ImVec2{});
-
-	const auto& ogl_displaybackground_texture = ogl_texture_manager.get(ImageId::detailsettingsbackground);
-
+	const ImTextureID displaybackground_tex_id = texture_mgr.get(ImageId::detailsettingsbackground);
 	ImGui::Image(
-		ogl_displaybackground_texture,
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale);
-
-
+		displaybackground_tex_id,
+		ImVec2{narrow_cast<float>(window_width), narrow_cast<float>(window_height)} * scale);
 	// Close button.
-	//
-	const auto close_pos = ImVec2{434.0F, 6.0F} * scale;
-	const auto close_size = ImVec2{16.0F, 14.0F} * scale;
-	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
-
-	auto is_close_mouse_button_down = false;
-
-	is_close_button_clicked_ = false;
-
-	if (is_mouse_button_down || is_mouse_button_up)
-	{
-		if (is_point_inside_rect(mouse_pos, close_rect))
-		{
-			if (is_mouse_button_down)
-			{
-				is_close_mouse_button_down = true;
-			}
-
-			if (is_mouse_button_up)
-			{
-				is_close_button_clicked_ = true;
-			}
-		}
-	}
-
-	const auto ogl_close_image_id = (is_close_mouse_button_down ? ImageId::closed : ImageId::closeu);
-	const auto& ogl_close_texture = ogl_texture_manager.get(ogl_close_image_id);
-
-	ImGui::SetCursorPos(close_pos);
-
-	ImGui::Image(ogl_close_texture, close_size);
-
-
+	imgui_add_title_close_button(
+		/* position       */ ImVec2{434.0F, 6.0F} * scale,
+		/* size           */ ImVec2{16.0F, 14.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_close_button_clicked_);
 	// "Cancel" button.
-	//
-	const auto cancel_pos = ImVec2{178.0F, 440.0F} * scale;
-	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
-
-	auto is_cancel_mouse_button_down = false;
-	const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
-
-	is_cancel_button_clicked_ = false;
-
-	if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_cancel_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_cancel_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_cancel_image_id = ImageId{};
-
-	if (is_cancel_mouse_button_down)
-	{
-		ogl_cancel_image_id = ImageId::canceld;
-	}
-	else if (is_cancel_button_hightlighted)
-	{
-		ogl_cancel_image_id = ImageId::cancelf;
-	}
-	else
-	{
-		ogl_cancel_image_id = ImageId::cancelu;
-	}
-
-	const auto& ogl_cancel_texture = ogl_texture_manager.get(ogl_cancel_image_id);
-
-	ImGui::SetCursorPos(cancel_pos);
-
-	ImGui::Image(ogl_cancel_texture, cancel_size);
-
-
+	imgui_add_cancel_button(
+		/* position       */ ImVec2{178.0F, 440.0F} * scale,
+		/* size           */ ImVec2{100.0F, 30.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_cancel_button_clicked_);
 	// Header.
-	//
-	const auto header_pos = ImVec2{14.0F, 45.0F} * scale;
-	const auto header_size = ImVec2{428.0F, 51.0F} * scale;
-
-	const auto& header_text = resource_strings.get(ResourceStringId::ids_detail_header, "IDS_DETAIL_HEADER");
-
+	const ImVec2 header_pos = ImVec2{14.0F, 45.0F} * scale;
+	const ImVec2 header_size = ImVec2{428.0F, 51.0F} * scale;
+	const std::string& header_text = resource_strings.get(ResourceStringId::ids_detail_header, "IDS_DETAIL_HEADER");
 	ImGui::SetCursorPos(header_pos);
 	ImGui::BeginChild("##header_child", header_size);
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
-
+	//
 	ImGui::PushItemWidth(-1);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
 	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
@@ -5647,22 +3302,17 @@ void DetailSettingsWindow::do_draw()
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
 	ImGui::PopItemWidth();
-
+	//
 	ImGui::PopStyleColor();
 	ImGui::EndChild();
-
-
 	// High detail header.
-	//
-	const auto high_header_pos = ImVec2{14.0F, 119.0F} * scale;
-	const auto high_header_size = ImVec2{428.0F, 40.0F} * scale;
-
-	const auto& high_header_text = resource_strings.get(ResourceStringId::ids_detail_high, "IDS_DETAIL_HIGH");
-
+	const ImVec2 high_header_pos = ImVec2{14.0F, 119.0F} * scale;
+	const ImVec2 high_header_size = ImVec2{428.0F, 40.0F} * scale;
+	const std::string& high_header_text = resource_strings.get(ResourceStringId::ids_detail_high, "IDS_DETAIL_HIGH");
 	ImGui::SetCursorPos(high_header_pos);
 	ImGui::BeginChild("##high_header_child", high_header_size);
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
-
+	//
 	ImGui::PushItemWidth(-1);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
 	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
@@ -5670,68 +3320,26 @@ void DetailSettingsWindow::do_draw()
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
 	ImGui::PopItemWidth();
-
+	//
 	ImGui::PopStyleColor();
 	ImGui::EndChild();
-
-
 	// High detail button.
-	//
-	const auto high_button_pos = ImVec2{140.0F, 165.0F} * scale;
-	const auto high_button_size = ImVec2{177.0F, 38.0F} * scale;
-	const auto high_button_rect = ImVec4{high_button_pos.x, high_button_pos.y, high_button_size.x, high_button_size.y};
-
-	auto is_high_mouse_button_down = false;
-	const auto is_high_button_hightlighted = is_point_inside_rect(mouse_pos, high_button_rect);
-
-	is_high_button_clicked_ = false;
-
-	if (is_high_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_high_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_high_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_high_image_id = ImageId{};
-
-	if (is_high_mouse_button_down)
-	{
-		ogl_high_image_id = ImageId::highdetaild;
-	}
-	else if (is_high_button_hightlighted)
-	{
-		ogl_high_image_id = ImageId::highdetailf;
-	}
-	else
-	{
-		ogl_high_image_id = ImageId::highdetailu;
-	}
-
-	const auto& ogl_high_texture = ogl_texture_manager.get(ogl_high_image_id);
-
+	const ImVec2 high_button_pos = ImVec2{140.0F, 165.0F} * scale;
+	const ImVec2 high_button_size = ImVec2{177.0F, 38.0F} * scale;
 	ImGui::SetCursorPos(high_button_pos);
-
-	ImGui::Image(ogl_high_texture, high_button_size);
-
-
+	is_high_button_clicked_ = ImGui::InvisibleButton("high", high_button_size);
+	const ImageId high_image_id =
+		ImGui::IsItemActive() ? ImageId::highdetaild : (ImGui::IsItemHovered() ? ImageId::highdetailf : ImageId::highdetailu);
+	ImGui::SetCursorPos(high_button_pos);
+	ImGui::Image(texture_mgr.get(high_image_id), high_button_size);
 	// Medium detail header.
-	//
-	const auto medium_header_pos = ImVec2{14.0F, 228.0F} * scale;
-	const auto medium_header_size = ImVec2{428.0F, 43.0F} * scale;
-
-	const auto& medium_header_text = resource_strings.get(ResourceStringId::ids_detail_medium, "IDS_DETAIL_MEDIUM");
-
+	const ImVec2 medium_header_pos = ImVec2{14.0F, 228.0F} * scale;
+	const ImVec2 medium_header_size = ImVec2{428.0F, 43.0F} * scale;
+	const std::string& medium_header_text = resource_strings.get(ResourceStringId::ids_detail_medium, "IDS_DETAIL_MEDIUM");
 	ImGui::SetCursorPos(medium_header_pos);
 	ImGui::BeginChild("##medium_header_child", medium_header_size);
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
-
+	//
 	ImGui::PushItemWidth(-1);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
 	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
@@ -5739,68 +3347,26 @@ void DetailSettingsWindow::do_draw()
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
 	ImGui::PopItemWidth();
-
+	//
 	ImGui::PopStyleColor();
 	ImGui::EndChild();
-
-
 	// Medium detail button.
-	//
-	const auto medium_button_pos = ImVec2{140.0F, 274.0F} * scale;
-	const auto medium_button_size = ImVec2{178.0F, 36.0F} * scale;
-	const auto medium_button_rect = ImVec4{medium_button_pos.x, medium_button_pos.y, medium_button_size.x, medium_button_size.y};
-
-	auto is_medium_mouse_button_down = false;
-	const auto is_medium_button_hightlighted = is_point_inside_rect(mouse_pos, medium_button_rect);
-
-	is_medium_button_clicked_ = false;
-
-	if (is_medium_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_medium_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_medium_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_medium_image_id = ImageId{};
-
-	if (is_medium_mouse_button_down)
-	{
-		ogl_medium_image_id = ImageId::mediumdetaild;
-	}
-	else if (is_medium_button_hightlighted)
-	{
-		ogl_medium_image_id = ImageId::mediumdetailf;
-	}
-	else
-	{
-		ogl_medium_image_id = ImageId::mediumdetailu;
-	}
-
-	const auto& ogl_medium_texture = ogl_texture_manager.get(ogl_medium_image_id);
-
+	const ImVec2 medium_button_pos = ImVec2{140.0F, 274.0F} * scale;
+	const ImVec2 medium_button_size = ImVec2{178.0F, 36.0F} * scale;
 	ImGui::SetCursorPos(medium_button_pos);
-
-	ImGui::Image(ogl_medium_texture, medium_button_size);
-
-
+	is_medium_button_clicked_ = ImGui::InvisibleButton("medium", medium_button_size);
+	const ImageId medium_image_id =
+		ImGui::IsItemActive() ? ImageId::mediumdetaild : (ImGui::IsItemHovered() ? ImageId::mediumdetailf : ImageId::mediumdetailu);
+	ImGui::SetCursorPos(medium_button_pos);
+	ImGui::Image(texture_mgr.get(medium_image_id), medium_button_size);
 	// Low detail header.
-	//
-	const auto low_header_pos = ImVec2{14.0F, 337.0F} * scale;
-	const auto low_header_size = ImVec2{428.0F, 43.0F} * scale;
-
-	const auto& low_header_text = resource_strings.get(ResourceStringId::ids_detail_low, "IDS_DETAIL_LOW");
-
+	const ImVec2 low_header_pos = ImVec2{14.0F, 337.0F} * scale;
+	const ImVec2 low_header_size = ImVec2{428.0F, 43.0F} * scale;
+	const std::string& low_header_text = resource_strings.get(ResourceStringId::ids_detail_low, "IDS_DETAIL_LOW");
 	ImGui::SetCursorPos(low_header_pos);
 	ImGui::BeginChild("##low_header_child", low_header_size);
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
-
+	//
 	ImGui::PushItemWidth(-1);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
 	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
@@ -5808,75 +3374,33 @@ void DetailSettingsWindow::do_draw()
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
 	ImGui::PopItemWidth();
-
+	//
 	ImGui::PopStyleColor();
 	ImGui::EndChild();
-
-
 	// Low detail button.
-	//
-	const auto low_button_pos = ImVec2{140.0F, 383.0F} * scale;
-	const auto low_button_size = ImVec2{178.0F, 35.0F} * scale;
-	const auto low_button_rect = ImVec4{low_button_pos.x, low_button_pos.y, low_button_size.x, low_button_size.y};
-
-	auto is_low_mouse_button_down = false;
-	const auto is_low_button_hightlighted = is_point_inside_rect(mouse_pos, low_button_rect);
-
-	is_low_button_clicked_ = false;
-
-	if (is_low_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_low_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_low_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_low_image_id = ImageId{};
-
-	if (is_low_mouse_button_down)
-	{
-		ogl_low_image_id = ImageId::lowdetaild;
-	}
-	else if (is_low_button_hightlighted)
-	{
-		ogl_low_image_id = ImageId::lowdetailf;
-	}
-	else
-	{
-		ogl_low_image_id = ImageId::lowdetailu;
-	}
-
-	const auto& ogl_low_texture = ogl_texture_manager.get(ogl_low_image_id);
-
+	const ImVec2 low_button_pos = ImVec2{140.0F, 383.0F} * scale;
+	const ImVec2 low_button_size = ImVec2{178.0F, 35.0F} * scale;
 	ImGui::SetCursorPos(low_button_pos);
-
-	ImGui::Image(ogl_low_texture, low_button_size);
-
-
+	is_low_button_clicked_ = ImGui::InvisibleButton("low", low_button_size);
+	const ImageId low_image_id =
+		ImGui::IsItemActive() ? ImageId::lowdetaild : (ImGui::IsItemHovered() ? ImageId::lowdetailf : ImageId::lowdetailu);
+	ImGui::SetCursorPos(low_button_pos);
+	ImGui::Image(texture_mgr.get(low_image_id), low_button_size);
 	// End detail settings window.
-	//
 	ImGui::End();
 }
 
-void DetailSettingsWindow::do_im_handle_events()
+void DetailSettingsWindow::do_imgui_handle_events()
 {
+	DialogResult dialog_result = DialogResult::none;
 	if (is_close_button_clicked_ || is_cancel_button_clicked_ || is_escape_down_)
 	{
-		detail_level_ = {};
-		set_message_box_result(MessageBoxResult::cancel);
-		show(false);
-		get_message_box_result_event().notify(this);
+		detail_level_ = DetailLevel{};
+		dialog_result = DialogResult::cancel;
 	}
 	else
 	{
-		auto has_level = false;
-
+		bool has_level = false;
 		if (is_high_button_clicked_)
 		{
 			has_level = true;
@@ -5892,415 +3416,188 @@ void DetailSettingsWindow::do_im_handle_events()
 			has_level = true;
 			detail_level_ = DetailLevel::low;
 		}
-
 		if (has_level)
 		{
-			set_message_box_result(MessageBoxResult::ok);
-			show(false);
-			get_message_box_result_event().notify(this);
+			dialog_result = DialogResult::ok;
 		}
 	}
-
 	is_close_button_clicked_ = false;
 	is_cancel_button_clicked_ = false;
 	is_high_button_clicked_ = false;
 	is_medium_button_clicked_ = false;
 	is_low_button_clicked_ = false;
+	if (dialog_result != DialogResult::none)
+	{
+		show(false);
+		set_dialog_result(dialog_result);
+	}
 }
 
-//
-// DetailSettingsWindow
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// DisplaySettingsWindow
-//
+// ======================================
 
 DisplaySettingsWindow::DisplaySettingsWindow()
 	:
-	selected_resolution_index_{-1},
-	is_escape_down_{},
-	has_display_modes_{},
-	is_close_button_clicked_{},
-	is_ok_button_clicked_{},
-	is_cancel_button_clicked_{}
+	Window{
+		WindowCreateParam{
+			.width = narrow_cast<int>(window_width * ScaleMgr::get_singleton().get_scale()),
+			.height = narrow_cast<int>(window_height * ScaleMgr::get_singleton().get_scale()),
+			.title = "LTJS " LTJS_GAME_ID_STRING_UC " display settings"}}
 {
-}
-
-DisplaySettingsWindow::~DisplaySettingsWindow()
-{
-}
-
-DisplaySettingsWindowPtr DisplaySettingsWindow::create()
-{
-	const auto& window_manager = WindowManager::get_instance();
-	const auto scale = window_manager.get_scale();
-
-	auto display_settings_window_param = WindowCreateParam{};
-	display_settings_window_param.title_ = "display_settings";
-	display_settings_window_param.width_ = static_cast<int>(window_width * scale);
-	display_settings_window_param.height_ = static_cast<int>(window_height * scale);
-	display_settings_window_param.is_hidden_ = true;
-
-	auto display_settings_window_ptr = new DisplaySettingsWindow{};
-
-	static_cast<void>(display_settings_window_ptr->initialize(display_settings_window_param));
-
-	return display_settings_window_ptr;
-}
-
-bool DisplaySettingsWindow::initialize(
-	const WindowCreateParam& param)
-{
-	if (!Window::initialize(param))
-	{
-		return false;
-	}
-
-	set_message_box_result(MessageBoxResult::cancel);
-
-
-	const auto& display_mode_manager = DisplayModeManager::get_instance();
-
-	auto& configuration = Configuration::get_instance();
-
-	selected_resolution_index_ = display_mode_manager.get_mode_index(configuration.screen_width_, configuration.screen_height_);
-
+	const DisplayModeMgr& display_mode_mgr = DisplayModeMgr::get_singleton();
+	Configuration& configuration = Configuration::get_singleton();
+	selected_resolution_index_ = display_mode_mgr.find_mode_index(configuration.screen_width, configuration.screen_height);
 	if (selected_resolution_index_ < 0)
 	{
-		selected_resolution_index_ = display_mode_manager.get_native_display_mode_index();
+		selected_resolution_index_ = display_mode_mgr.get_native_display_mode_index();
 	}
-
 	selected_resolution_index_.accept();
-
-	return true;
 }
 
-void DisplaySettingsWindow::uninitialize()
+const char* DisplaySettingsWindow::im_display_modes_getter(void* data, int idx)
 {
-}
-
-const char* DisplaySettingsWindow::im_display_modes_getter(
-	void* data,
-	const int idx)
-{
-	const auto& display_modes = *static_cast<DisplayModeManager::DisplayModes*>(data);
-	const auto& display_mode = display_modes[idx];
-	return display_mode.as_string_.c_str();
+	const DisplayMode* const display_modes = static_cast<const DisplayMode*>(data);
+	const DisplayMode& display_mode = display_modes[idx];
+	return display_mode.as_string.c_str();
 }
 
 void DisplaySettingsWindow::do_draw()
 {
-	const auto& display_mode_manager = DisplayModeManager::get_instance();
-
-	const auto& window_manager = WindowManager::get_instance();
-	auto& font_manager = FontManager::get_instance();
-
-	const auto scale = window_manager.get_scale();
-	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
-
-	auto& ogl_texture_manager = get_texture_manager();
-
-	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
-	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-
-	const auto mouse_pos = ImGui::GetMousePos();
-
+	const DisplayModeMgr& display_mode_mgr = DisplayModeMgr::get_singleton();
+	const ScaleMgr& scale_mgr = ScaleMgr::get_singleton();
+	FontMgr& font_mgr = FontMgr::get_singleton();
+	const float scale = scale_mgr.get_scale();
+	const float regular_font_size = font_mgr.get_regular_size() * scale;
+	TextureMgr& texture_mgr = get_texture_manager();
 	is_escape_down_ = ImGui::IsKeyPressed(ImGuiKey_Escape);
-
 	has_display_modes_ = (
 		selected_resolution_index_ >= 0 &&
-		display_mode_manager.get_count() > 0 &&
-		display_mode_manager.get_native_display_mode_index() >= 0);
-
-
+		display_mode_mgr.get_mode_count() > 0 &&
+		display_mode_mgr.get_native_display_mode_index() >= 0);
 	// Begin main window.
-	//
-	const auto main_flags =
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoResize |
+	constexpr ImGuiWindowFlags main_flags =
 		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse |
-		ImGuiWindowFlags_NoCollapse |
 		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoDecoration |
 		ImGuiWindowFlags_None;
-
 	ImGui::Begin("display_settings", nullptr, main_flags);
-	ImGui::SetWindowPos({}, ImGuiCond_Always);
-
+	ImGui::SetWindowPos(ImVec2{}, ImGuiCond_Always);
 	ImGui::SetWindowSize(
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ImVec2{narrow_cast<float>(window_width), narrow_cast<float>(window_height)} * scale,
 		ImGuiCond_Always);
-
-
 	// Background.
-	//
 	ImGui::SetCursorPos(ImVec2{});
-
-	const auto& ogl_displaybackground_texture = ogl_texture_manager.get(ImageId::displaybackground);
-
+	const ImTextureID displaybackground_tex_id = texture_mgr.get(ImageId::displaybackground);
 	ImGui::Image(
-		ogl_displaybackground_texture,
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale);
-
-
+		displaybackground_tex_id,
+		ImVec2{narrow_cast<float>(window_width), narrow_cast<float>(window_height)} * scale);
 	// Close button.
-	//
-	const auto close_pos = ImVec2{578.0F, 6.0F} * scale;
-	const auto close_size = ImVec2{16.0F, 14.0F} * scale;
-	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
-
-	auto is_close_mouse_button_down = false;
-
-	is_close_button_clicked_ = false;
-
-	if (is_mouse_button_down || is_mouse_button_up)
-	{
-		if (is_point_inside_rect(mouse_pos, close_rect))
-		{
-			if (is_mouse_button_down)
-			{
-				is_close_mouse_button_down = true;
-			}
-
-			if (is_mouse_button_up)
-			{
-				is_close_button_clicked_ = true;
-			}
-		}
-	}
-
-	const auto ogl_close_image_id = (is_close_mouse_button_down ? ImageId::closed : ImageId::closeu);
-	const auto& ogl_close_texture = ogl_texture_manager.get(ogl_close_image_id);
-
-	ImGui::SetCursorPos(close_pos);
-
-	ImGui::Image(ogl_close_texture, close_size);
-
-
+	imgui_add_title_close_button(
+		/* position       */ ImVec2{578.0F, 6.0F} * scale,
+		/* size           */ ImVec2{16.0F, 14.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_close_button_clicked_);
 	// Resolutions list.
-	//
 	if (has_display_modes_)
 	{
-		const auto resolutions_pos = ImVec2{16.0F, 73.0F} * scale;
-		const auto resolutions_size = ImVec2{133.0F, 248.0F} * scale;
-		const auto resolutions_rect = ImVec4{resolutions_pos.x, resolutions_pos.y, resolutions_size.x, resolutions_size.y};
-
+		const ImVec2 resolutions_pos = ImVec2{16.0F, 73.0F} * scale;
+		const ImVec2 resolutions_size = ImVec2{133.0F, 248.0F} * scale;
+		const ImVec4 resolutions_rect{resolutions_pos.x, resolutions_pos.y, resolutions_size.x, resolutions_size.y};
 		ImGui::SetCursorPos(resolutions_pos);
-
 		ImGui::BeginChild("resolutions", resolutions_size);
 		ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
 		ImGui::PushItemWidth(-1.0F);
-
-		const auto resolutions_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
-		const auto resolutions_height_in_items = resolutions_size.y / resolutions_list_box_item_height;
-
-		const auto& display_modes = display_mode_manager.get();
-
+		const float resolutions_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
+		const float resolutions_height_in_items = resolutions_size.y / resolutions_list_box_item_height;
+		const std::span<const DisplayMode> display_modes = display_mode_mgr.get_modes();
 		ImGui::ListBox(
 			"##resolutions",
 			selected_resolution_index_,
 			&DisplaySettingsWindow::im_display_modes_getter,
-			const_cast<DisplayModeManager::DisplayModes*>(&display_modes),
-			static_cast<int>(display_modes.size()),
-			static_cast<int>(resolutions_height_in_items));
-
+			const_cast<DisplayMode*>(display_modes.data()),
+			narrow_cast<int>(display_modes.size()),
+			narrow_cast<int>(resolutions_height_in_items));
 		ImGui::PopItemWidth();
 		ImGui::PopStyleColor();
 		ImGui::PopFont();
-
 		ImGui::EndChild();
 	}
-
-
 	// Renderers list.
-	//
 	if (has_display_modes_)
 	{
-		const auto renderers_pos = ImVec2{181.0F, 73.0F} * scale;
-		const auto renderers_size = ImVec2{405.0F, 106.0F} * scale;
-		const auto renderers_rect = ImVec4{renderers_pos.x, renderers_pos.y, renderers_size.x, renderers_size.y};
-
+		const ImVec2 renderers_pos = ImVec2{181.0F, 73.0F} * scale;
+		const ImVec2 renderers_size = ImVec2{405.0F, 106.0F} * scale;
+		const ImVec4 renderers_rect{renderers_pos.x, renderers_pos.y, renderers_size.x, renderers_size.y};
 		ImGui::SetCursorPos(renderers_pos);
-
 		ImGui::BeginChild("renderers", renderers_size);
 		ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
 		ImGui::PushItemWidth(-1.0F);
-
-		const auto renderers_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
-		const auto renderers_height_in_items = renderers_size.y / renderers_list_box_item_height;
-
-		const char* const renderers_list[] =
-		{
-			Direct3d9::get_renderer_name().c_str(),
-		};
-
-		auto selected_renderer_index = 0;
-
+		const float renderers_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
+		const float renderers_height_in_items = renderers_size.y / renderers_list_box_item_height;
+		const char* const renderers_list[] = {Direct3d9::get_renderer_name().c_str()};
+		int selected_renderer_index = 0;
 		ImGui::ListBox(
 			"##renderers",
 			&selected_renderer_index,
 			renderers_list,
 			1,
-			static_cast<int>(renderers_height_in_items));
-
+			narrow_cast<int>(renderers_height_in_items));
 		ImGui::PopItemWidth();
 		ImGui::PopStyleColor();
 		ImGui::PopFont();
-
 		ImGui::EndChild();
 	}
-
-
 	// Displays list.
-	//
 	if (has_display_modes_)
 	{
-		const auto displays_pos = ImVec2{181.0F, 205.0F} * scale;
-		const auto displays_size = ImVec2{405.0F, 116.0F} * scale;
-		const auto displays_rect = ImVec4{displays_pos.x, displays_pos.y, displays_size.x, displays_size.y};
-
+		const ImVec2 displays_pos = ImVec2{181.0F, 205.0F} * scale;
+		const ImVec2 displays_size = ImVec2{405.0F, 116.0F} * scale;
+		const ImVec4 displays_rect{displays_pos.x, displays_pos.y, displays_size.x, displays_size.y};
 		ImGui::SetCursorPos(displays_pos);
-
 		ImGui::BeginChild("displays", displays_size);
 		ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
 		ImGui::PushItemWidth(-1.0F);
-
-		const auto displays_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
-		const auto displays_height_in_items = displays_size.y / displays_list_box_item_height;
-
-		const char* const displays_list[] =
-		{
-			Direct3d9::get_display_name().c_str(),
-		};
-
-		auto selected_displays_index = 0;
-
+		const float displays_list_box_item_height = ImGui::GetTextLineHeightWithSpacing();
+		const float displays_height_in_items = displays_size.y / displays_list_box_item_height;
+		const char* const displays_list[] = {Direct3d9::get_display_name().c_str()};
+		int selected_displays_index = 0;
 		ImGui::ListBox(
 			"##displays",
 			&selected_displays_index,
 			displays_list,
 			1,
-			static_cast<int>(displays_height_in_items));
-
+			narrow_cast<int>(displays_height_in_items));
 		ImGui::PopItemWidth();
 		ImGui::PopStyleColor();
 		ImGui::PopFont();
-
 		ImGui::EndChild();
 	}
-
-
 	// "Ok" button.
-	//
-	auto ok_pos = ImVec2{194.0F, 349.0F} * scale;
-	const auto ok_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
-
-	auto is_ok_mouse_button_down = false;
-	const auto is_ok_button_hightlighted = is_point_inside_rect(mouse_pos, ok_rect);
-
-	is_ok_button_clicked_ = false;
-
-	if (is_ok_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_ok_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_ok_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_ok_image_id = ImageId{};
-
-	if (is_ok_mouse_button_down)
-	{
-		ogl_ok_image_id = ImageId::okd;
-	}
-	else if (is_ok_button_hightlighted)
-	{
-		ogl_ok_image_id = ImageId::okf;
-	}
-	else
-	{
-		ogl_ok_image_id = ImageId::oku;
-	}
-
-	const auto& ogl_ok_texture = ogl_texture_manager.get(ogl_ok_image_id);
-
-	ImGui::SetCursorPos(ok_pos);
-
-	ImGui::Image(ogl_ok_texture, ok_size);
-
-
+	imgui_add_ok_button(
+		/* position       */ ImVec2{194.0F, 349.0F} * scale,
+		/* size           */ ImVec2{100.0F, 30.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_ok_button_clicked_);
 	// "Cancel" button.
-	//
-	const auto cancel_pos = ImVec2{306.0F, 349.0F} * scale;
-	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
-
-	auto is_cancel_mouse_button_down = false;
-	const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
-
-	is_cancel_button_clicked_ = false;
-
-	if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_cancel_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_cancel_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_cancel_image_id = ImageId{};
-
-	if (is_cancel_mouse_button_down)
-	{
-		ogl_cancel_image_id = ImageId::canceld;
-	}
-	else if (is_cancel_button_hightlighted)
-	{
-		ogl_cancel_image_id = ImageId::cancelf;
-	}
-	else
-	{
-		ogl_cancel_image_id = ImageId::cancelu;
-	}
-
-	const auto& ogl_cancel_texture = ogl_texture_manager.get(ogl_cancel_image_id);
-
-	ImGui::SetCursorPos(cancel_pos);
-
-	ImGui::Image(ogl_cancel_texture, cancel_size);
-
-
+	imgui_add_cancel_button(
+		/* position       */ ImVec2{306.0F, 349.0F} * scale,
+		/* size           */ ImVec2{100.0F, 30.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_cancel_button_clicked_);
 	// End display settings window.
-	//
 	ImGui::End();
 }
 
-void DisplaySettingsWindow::do_im_handle_events()
+void DisplaySettingsWindow::do_imgui_handle_events()
 {
-	if (is_close_button_clicked_ || is_cancel_button_clicked_ | is_escape_down_)
+	DialogResult dialog_result = DialogResult::none;
+	if (is_close_button_clicked_ || is_cancel_button_clicked_ || is_escape_down_)
 	{
 		selected_resolution_index_.reject();
-		set_message_box_result(MessageBoxResult::cancel);
-		show(false);
-		get_message_box_result_event().notify(this);
+		dialog_result = DialogResult::cancel;
 	}
 	else if (is_ok_button_clicked_)
 	{
@@ -6308,397 +3605,224 @@ void DisplaySettingsWindow::do_im_handle_events()
 
 		if (has_display_modes_)
 		{
-			auto& configuration = Configuration::get_instance();
-			const auto& display_mode_manager = DisplayModeManager::get_instance();
-			const auto& display_mode = display_mode_manager.get(selected_resolution_index_);
-
-			configuration.screen_width_ = display_mode.width_;
-			configuration.screen_height_ = display_mode.height_;
+			Configuration& configuration = Configuration::get_singleton();
+			const DisplayModeMgr& display_mode_mgr = DisplayModeMgr::get_singleton();
+			const DisplayMode& display_mode = display_mode_mgr.get_mode_by_index(selected_resolution_index_);
+			configuration.screen_width = display_mode.width;
+			configuration.screen_height = display_mode.height;
 		}
 
-		set_message_box_result(MessageBoxResult::ok);
-		show(false);
-		get_message_box_result_event().notify(this);
+		dialog_result = DialogResult::ok;
 	}
-
 	is_escape_down_ = false;
 	has_display_modes_ = false;
 	is_close_button_clicked_ = false;
 	is_ok_button_clicked_ = false;
 	is_cancel_button_clicked_ = false;
+	if (dialog_result != DialogResult::none)
+	{
+		show(false);
+		set_dialog_result(dialog_result);
+	}
 }
 
-//
-// DisplaySettingsWindow
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// AdvancedSettingsWindow
-//
+// ======================================
 
 AdvancedSettingsWindow::AdvancedSettingsWindow()
 	:
-	check_box_contexts_{},
-	hint_{},
-	is_escape_down_{},
-	is_close_button_clicked_{},
-	is_ok_button_clicked_{},
-	is_cancel_button_clicked_{}
+	Window{
+		WindowCreateParam{
+			.width = narrow_cast<int>(window_width * ScaleMgr::get_singleton().get_scale()),
+			.height = narrow_cast<int>(window_height * ScaleMgr::get_singleton().get_scale()),
+			.title = "LTJS " LTJS_GAME_ID_STRING_UC " advanced settings"}}
 {
-}
-
-AdvancedSettingsWindow::~AdvancedSettingsWindow()
-{
-}
-
-AdvancedSettingsWindowPtr AdvancedSettingsWindow::create()
-{
-	const auto& window_manager = WindowManager::get_instance();
-	const auto scale = window_manager.get_scale();
-
-	auto advanced_settings_window_param = WindowCreateParam{};
-	advanced_settings_window_param.title_ = "advanced_settings";
-	advanced_settings_window_param.width_ = static_cast<int>(window_width * scale);
-	advanced_settings_window_param.height_ = static_cast<int>(window_height * scale);
-	advanced_settings_window_param.is_hidden_ = true;
-
-	auto advanced_settings_window_ptr = new AdvancedSettingsWindow{};
-
-	static_cast<void>(advanced_settings_window_ptr->initialize(advanced_settings_window_param));
-
-	return advanced_settings_window_ptr;
+	initialize_check_box_contents();
 }
 
 void AdvancedSettingsWindow::initialize_check_box_contents()
 {
-	auto& configuration = Configuration::get_instance();
-
-	check_box_contexts_ = {};
-
-	// Disable sound.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {26.0F, 69.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablesound;
-		check_box_content.resource_string_default_ = "IDS_OD_DISABLESOUND";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablesound;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLESOUND";
-		check_box_content.setting_value_ptr_ = &configuration.is_disable_sound_effects_;
-	}
-
-	// Disable music.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {26.0F, 94.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablemusic;
-		check_box_content.resource_string_default_ = "IDS_OD_DISABLEMUSIC";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablemusic;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEMUSIC";
-		check_box_content.setting_value_ptr_ = &configuration.is_disable_music_;
-	}
-
-	// Disable movies.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {26.0F, 119.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablemovies;
-		check_box_content.resource_string_default_ = "IDS_OD_DISABLEMOVIES";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablemovies;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEMOVIES";
-		check_box_content.setting_value_ptr_ = &configuration.is_disable_fmvs_;
-	}
-
-	// Disable hardware sound.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {26.0F, 144.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablehardwaresound;
-		check_box_content.resource_string_default_ = "IDS_OD_DISABLEHARDWARESOUND";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablehardwaresound;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEHARDWARESOUND";
-		check_box_content.setting_value_ptr_ = &configuration.is_disable_hardware_sound_;
-	}
-
-	// Disable animated load screens.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {26.0F, 169.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disableanimatedloadscreens;
-		check_box_content.resource_string_default_ = "IDS_OD_DISABLEANIMATEDLOADSCREENS";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disableanimatedloadscreen;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEANIMATEDLOADSCREEN";
-		check_box_content.setting_value_ptr_ = &configuration.is_disable_animated_loading_screen_;
-	}
-
-	// Disable triple buffering.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {228.0F, 69.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disabletriplebuffering;
-		check_box_content.resource_string_default_ = "IDS_OD_DISABLETRIPLEBUFFERING";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disabletriplebuffering;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLETRIPLEBUFFERING";
-		check_box_content.setting_value_ptr_ = &configuration.is_disable_triple_buffering_;
-	}
-
-	// Disable joysticks.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {228.0F, 94.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablejoysticks;
-		check_box_content.resource_string_default_ = "IDS_OD_DISABLEJOYSTICKS";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablejoysticks;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEJOYSTICKS";
-		check_box_content.setting_value_ptr_ = &configuration.is_disable_controllers_;
-	}
-
-	// Disable hardware cursor.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {228.0F, 119.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablehardwarecursor;
-		check_box_content.resource_string_default_ = "IDS_OD_DISABLEHARDWARECURSOR";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablehardwarecursor;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLEHARDWARECURSOR";
-		check_box_content.setting_value_ptr_ = &configuration.is_disable_hardware_cursor_;
-	}
-
-	// Disable sound filters.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {228.0F, 144.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_disablesoundfilters;
-		check_box_content.resource_string_default_ = "IDS_OD_DISABLESOUNDFILTERS";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_disablesoundfilters;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_DISABLESOUNDFILTERS";
-		check_box_content.setting_value_ptr_ = &configuration.is_disable_sound_filters_;
-	}
-
-	// Restore defaults.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {26.0F, 221.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_restoredefaults;
-		check_box_content.resource_string_default_ = "IDS_OD_RESTOREDEFAULTS";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_restoredefaults;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_RESTOREDEFAULTS";
-		check_box_content.setting_value_ptr_ = &configuration.is_restore_defaults_;
-	}
-
-	// Always pass command line.
-	//
-	{
-		check_box_contexts_.emplace_back();
-		auto& check_box_content = check_box_contexts_.back();
-		check_box_content.position_ = {26.0F, 297.0F};
-		check_box_content.checked_value_ = true;
-		check_box_content.is_pressed_ = false;
-		check_box_content.resource_string_id_ = ResourceStringId::ids_od_alwaysspecify;
-		check_box_content.resource_string_default_ = "IDS_OD_ALWAYSSPECIFY";
-		check_box_content.hint_resource_string_id_ = ResourceStringId::ids_help_alwaysspecify;
-		check_box_content.hint_resource_string_default_ = "IDS_HELP_ALWAYSSPECIFY";
-		check_box_content.setting_value_ptr_ = &configuration.is_pass_custom_arguments_;
-	}
-}
-
-bool AdvancedSettingsWindow::initialize(
-	const WindowCreateParam& param)
-{
-	if (!Window::initialize(param))
-	{
-		return false;
-	}
-
-	set_message_box_result(MessageBoxResult::cancel);
-
-	initialize_check_box_contents();
-
-	return true;
-}
-
-void AdvancedSettingsWindow::uninitialize()
-{
+	Configuration& configuration = Configuration::get_singleton();
+	check_box_contexts_ = {
+		// Disable sound.
+		CheckBoxContext{
+			.position = ImVec2{26.0F, 69.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_disablesound,
+			.resource_string_default = "IDS_OD_DISABLESOUND",
+			.hint_resource_string_id = ResourceStringId::ids_help_disablesound,
+			.hint_resource_string_default = "IDS_HELP_DISABLESOUND",
+			.setting_value_ptr = &configuration.is_disable_sound_effects},
+		// Disable music.
+		CheckBoxContext{
+			.position = ImVec2{26.0F, 94.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_disablemusic,
+			.resource_string_default = "IDS_OD_DISABLEMUSIC",
+			.hint_resource_string_id = ResourceStringId::ids_help_disablemusic,
+			.hint_resource_string_default = "IDS_HELP_DISABLEMUSIC",
+			.setting_value_ptr = &configuration.is_disable_music},
+		// Disable movies.
+		CheckBoxContext{
+			.position = ImVec2{26.0F, 119.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_disablemovies,
+			.resource_string_default = "IDS_OD_DISABLEMOVIES",
+			.hint_resource_string_id = ResourceStringId::ids_help_disablemovies,
+			.hint_resource_string_default = "IDS_HELP_DISABLEMOVIES",
+			.setting_value_ptr = &configuration.is_disable_fmvs},
+		// Disable hardware sound.
+		CheckBoxContext{
+			.position = ImVec2{26.0F, 144.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_disablehardwaresound,
+			.resource_string_default = "IDS_OD_DISABLEHARDWARESOUND",
+			.hint_resource_string_id = ResourceStringId::ids_help_disablehardwaresound,
+			.hint_resource_string_default = "IDS_HELP_DISABLEHARDWARESOUND",
+			.setting_value_ptr = &configuration.is_disable_hardware_sound},
+		// Disable animated load screens.
+		CheckBoxContext{
+			.position = ImVec2{26.0F, 169.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_disableanimatedloadscreens,
+			.resource_string_default = "IDS_OD_DISABLEANIMATEDLOADSCREENS",
+			.hint_resource_string_id = ResourceStringId::ids_help_disableanimatedloadscreen,
+			.hint_resource_string_default = "IDS_HELP_DISABLEANIMATEDLOADSCREEN",
+			.setting_value_ptr = &configuration.is_disable_animated_loading_screen},
+		// Disable triple buffering.
+		CheckBoxContext{
+			.position = ImVec2{228.0F, 69.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_disabletriplebuffering,
+			.resource_string_default = "IDS_OD_DISABLETRIPLEBUFFERING",
+			.hint_resource_string_id = ResourceStringId::ids_help_disabletriplebuffering,
+			.hint_resource_string_default = "IDS_HELP_DISABLETRIPLEBUFFERING",
+			.setting_value_ptr = &configuration.is_disable_triple_buffering},
+		// Disable joysticks.
+		CheckBoxContext{
+			.position = ImVec2{228.0F, 94.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_disablejoysticks,
+			.resource_string_default = "IDS_OD_DISABLEJOYSTICKS",
+			.hint_resource_string_id = ResourceStringId::ids_help_disablejoysticks,
+			.hint_resource_string_default = "IDS_HELP_DISABLEJOYSTICKS",
+			.setting_value_ptr = &configuration.is_disable_controllers},
+		// Disable hardware cursor.
+		CheckBoxContext{
+			.position = ImVec2{228.0F, 119.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_disablehardwarecursor,
+			.resource_string_default = "IDS_OD_DISABLEHARDWARECURSOR",
+			.hint_resource_string_id = ResourceStringId::ids_help_disablehardwarecursor,
+			.hint_resource_string_default = "IDS_HELP_DISABLEHARDWARECURSOR",
+			.setting_value_ptr = &configuration.is_disable_hardware_cursor},
+		// Disable sound filters.
+		CheckBoxContext{
+			.position = ImVec2{228.0F, 144.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_disablesoundfilters,
+			.resource_string_default = "IDS_OD_DISABLESOUNDFILTERS",
+			.hint_resource_string_id = ResourceStringId::ids_help_disablesoundfilters,
+			.hint_resource_string_default = "IDS_HELP_DISABLESOUNDFILTERS",
+			.setting_value_ptr = &configuration.is_disable_sound_filters},
+		// Restore defaults.
+		CheckBoxContext{
+			.position = ImVec2{26.0F, 221.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_restoredefaults,
+			.resource_string_default = "IDS_OD_RESTOREDEFAULTS",
+			.hint_resource_string_id = ResourceStringId::ids_help_restoredefaults,
+			.hint_resource_string_default = "IDS_HELP_RESTOREDEFAULTS",
+			.setting_value_ptr = &configuration.is_restore_defaults},
+		// Always pass command line.
+		CheckBoxContext{
+			.position = ImVec2{26.0F, 297.0F},
+			.checked_value = true,
+			.is_pressed = false,
+			.resource_string_id = ResourceStringId::ids_od_alwaysspecify,
+			.resource_string_default = "IDS_OD_ALWAYSSPECIFY",
+			.hint_resource_string_id = ResourceStringId::ids_help_alwaysspecify,
+			.hint_resource_string_default = "IDS_HELP_ALWAYSSPECIFY",
+			.setting_value_ptr = &configuration.is_pass_custom_arguments}
+	};
 }
 
 void AdvancedSettingsWindow::do_draw()
 {
-	auto& launcher = Launcher::get_instance();
-	const auto& resource_strings = launcher.get_resource_strings();
-	auto& configuration = Configuration::get_instance();
-	const auto& window_manager = WindowManager::get_instance();
-	auto& font_manager = FontManager::get_instance();
-
-	const auto scale = window_manager.get_scale();
-	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
-
-	auto& ogl_texture_manager = get_texture_manager();
-
-	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
-	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
-
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	const ResourceStrings& resource_strings = window_mgr.get_resource_strings();
+	Configuration& configuration = Configuration::get_singleton();
+	const ScaleMgr& scale_mgr = ScaleMgr::get_singleton();
+	FontMgr& font_mgr = FontMgr::get_singleton();
+	const float scale = scale_mgr.get_scale();
+	const float regular_font_size = font_mgr.get_regular_size() * scale;
+	TextureMgr& texture_mgr = get_texture_manager();
 	is_escape_down_ = ImGui::IsKeyPressed(ImGuiKey_Escape);
-
-	const auto mouse_pos = ImGui::GetMousePos();
-
-	const auto check_box_space_px = 4 * scale;
-
-	const auto check_box_text_normal_color = IM_COL32(0xC0, 0xA0, 0x20, 0xFF);
-	const auto check_box_text_highlighted_color = IM_COL32(0xFF, 0xFF, 0x00, 0xFF);
-	const auto check_box_text_disabled_color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
-
-
 	hint_ = resource_strings.get(ResourceStringId::ids_help_default, "IDS_HELP_DEFAULT");
-
-
 	// Begin advanced settings window.
-	//
-	const auto main_flags =
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoResize |
+	constexpr ImGuiWindowFlags main_flags =
 		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoScrollbar |
 		ImGuiWindowFlags_NoScrollWithMouse |
-		ImGuiWindowFlags_NoCollapse |
 		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoDecoration |
 		ImGuiWindowFlags_None;
-
-	ImGui::Begin("advanced_settings", nullptr, main_flags);
-	ImGui::SetWindowPos({}, ImGuiCond_Always);
-
+	ImGui::Begin("advanced settings", nullptr, main_flags);
+	ImGui::SetWindowPos(ImVec2{}, ImGuiCond_Always);
 	ImGui::SetWindowSize(
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale,
+		ImVec2{narrow_cast<float>(window_width), narrow_cast<float>(window_height)} * scale,
 		ImGuiCond_Always);
-
-
 	// Background.
-	//
 	ImGui::SetCursorPos(ImVec2{});
-
-	const auto& ogl_displaybackground_texture = ogl_texture_manager.get(ImageId::optionsbackground);
-
+	const ImTextureID displaybackground_tex_id = texture_mgr.get(ImageId::optionsbackground);
 	ImGui::Image(
-		ogl_displaybackground_texture,
-		ImVec2{static_cast<float>(window_width), static_cast<float>(window_height)} * scale);
-
-
+		displaybackground_tex_id,
+		ImVec2{narrow_cast<float>(window_width), narrow_cast<float>(window_height)} * scale);
 	// Close button.
-	//
-	const auto close_pos = ImVec2{434.0F, 6.0F} * scale;
-	const auto close_size = ImVec2{17.0F, 14.0F} * scale;
-	const auto close_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
-
-	auto is_close_mouse_button_down = false;
-
-	is_close_button_clicked_ = false;
-
-	if (is_mouse_button_down || is_mouse_button_up)
-	{
-		if (is_point_inside_rect(mouse_pos, close_rect))
-		{
-			if (is_mouse_button_down)
-			{
-				is_close_mouse_button_down = true;
-			}
-
-			if (is_mouse_button_up)
-			{
-				is_close_button_clicked_ = true;
-			}
-		}
-	}
-
-	const auto ogl_close_image_id = (is_close_mouse_button_down ? ImageId::closed : ImageId::closeu);
-	const auto& ogl_close_texture = ogl_texture_manager.get(ogl_close_image_id);
-
-	ImGui::SetCursorPos(close_pos);
-
-	ImGui::Image(ogl_close_texture, close_size);
-
-
+	const ImVec2 close_pos = ImVec2{434.0F, 6.0F} * scale;
+	const ImVec2 close_size = ImVec2{17.0F, 14.0F} * scale;
+	imgui_add_title_close_button(
+		/* position       */ close_pos,
+		/* size           */ close_size,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_close_button_clicked_);
 	// Check boxes.
-	//
-	const auto check_box_count = static_cast<int>(check_box_contexts_.size());
-
-	for (auto i_check_box = 0; i_check_box < check_box_count; ++i_check_box)
+	const int check_box_count = narrow_cast<int>(check_box_contexts_.size());
+	for (int i_check_box = 0; i_check_box < check_box_count; ++i_check_box)
 	{
 		draw_check_box(i_check_box);
 	}
-
-
 	// Command line.
-	//
-	const auto cmd_pos = ImVec2{25.0F, 265.0F} * scale;
-	const auto cmd_size = ImVec2{405.0F, 23.0F} * scale;
-	const auto cmd_rect = ImVec4{cmd_pos.x, cmd_pos.y, cmd_size.x, cmd_size.y};
-
+	const ImVec2 cmd_pos = ImVec2{25.0F, 265.0F} * scale;
+	const ImVec2 cmd_size = ImVec2{405.0F, 23.0F} * scale;
+	const ImVec4 cmd_rect{cmd_pos.x, cmd_pos.y, cmd_size.x, cmd_size.y};
 	ImGui::SetCursorPos(cmd_pos);
-
-	auto cmd_font = get_regular_imgui_font();
-
-	const auto cmd_input_pos = center_size_inside_rect(cmd_rect, ImVec2{0.0F, regular_font_size});
-	const auto cmd_input_rel_pos = ImVec2{0.0F, cmd_input_pos.y - cmd_rect.y};
-
+	ImFont* const cmd_font = get_regular_imgui_font();
+	const ImVec2 cmd_input_pos = center_size_inside_rect(cmd_rect, ImVec2{0.0F, regular_font_size});
+	const ImVec2 cmd_input_rel_pos{0.0F, cmd_input_pos.y - cmd_rect.y};
 	ImGui::BeginChild("##command_line_child", cmd_size);
 	ImGui::SetCursorPos(cmd_input_rel_pos);
 	ImGui::PushFont(cmd_font, regular_font_size);
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
 	ImGui::PushItemWidth(-1);
-	ImGui::InputText("##command_line", configuration.custom_arguments_.get_ptr());
+	ImGui::InputText("##command_line", configuration.custom_arguments.get_ptr());
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor();
 	ImGui::PopFont();
 	ImGui::EndChild();
-
-
 	// Hint.
-	//
-	const auto hint_pos = ImVec2{14.0F, 341.0F} * scale;
-	const auto hint_size = ImVec2{418.0F, 74.0F} * scale;
-	const auto hint_rect = ImVec4{close_pos.x, close_pos.y, close_size.x, close_size.y};
-
+	const ImVec2 hint_pos = ImVec2{14.0F, 341.0F} * scale;
+	const ImVec2 hint_size = ImVec2{418.0F, 74.0F} * scale;
+	const ImVec4 hint_rect{close_pos.x, close_pos.y, close_size.x, close_size.y};
 	ImGui::SetCursorPos(hint_pos);
-
 	ImGui::BeginChild("##hint_text", hint_size);
 	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
@@ -6706,275 +3830,137 @@ void AdvancedSettingsWindow::do_draw()
 	ImGui::PopStyleColor();
 	ImGui::PopFont();
 	ImGui::EndChild();
-
-
 	// "Ok" button.
-	//
-	const auto ok_pos = ImVec2{123.0F, 435.0F} * scale;
-	const auto ok_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto ok_rect = ImVec4{ok_pos.x, ok_pos.y, ok_size.x, ok_size.y};
-
-	auto is_ok_mouse_button_down = false;
-	const auto is_ok_button_hightlighted = is_point_inside_rect(mouse_pos, ok_rect);
-
-	is_ok_button_clicked_ = false;
-
-	if (is_ok_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_ok_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_ok_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_ok_image_id = ImageId{};
-
-	if (is_ok_mouse_button_down)
-	{
-		ogl_ok_image_id = ImageId::okd;
-	}
-	else if (is_ok_button_hightlighted)
-	{
-		ogl_ok_image_id = ImageId::okf;
-	}
-	else
-	{
-		ogl_ok_image_id = ImageId::oku;
-	}
-
-	const auto& ogl_ok_texture = ogl_texture_manager.get(ogl_ok_image_id);
-
-	ImGui::SetCursorPos(ok_pos);
-
-	ImGui::Image(ogl_ok_texture, ok_size);
-
-
+	imgui_add_ok_button(
+		/* position       */ ImVec2{123.0F, 435.0F} * scale,
+		/* size           */ ImVec2{100.0F, 30.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_ok_button_clicked_);
 	// "Cancel" button.
-	//
-	const auto cancel_pos = ImVec2{235.0F, 435.0F} * scale;
-	const auto cancel_size = ImVec2{100.0F, 30.0F} * scale;
-	const auto cancel_rect = ImVec4{cancel_pos.x, cancel_pos.y, cancel_size.x, cancel_size.y};
-
-	auto is_cancel_mouse_button_down = false;
-	const auto is_cancel_button_hightlighted = is_point_inside_rect(mouse_pos, cancel_rect);
-
-	is_cancel_button_clicked_ = false;
-
-	if (is_cancel_button_hightlighted && (is_mouse_button_down || is_mouse_button_up))
-	{
-		if (is_mouse_button_down)
-		{
-			is_cancel_mouse_button_down = true;
-		}
-
-		if (is_mouse_button_up)
-		{
-			is_cancel_button_clicked_ = true;
-		}
-	}
-
-	auto ogl_cancel_image_id = ImageId{};
-
-	if (is_cancel_mouse_button_down)
-	{
-		ogl_cancel_image_id = ImageId::canceld;
-	}
-	else if (is_cancel_button_hightlighted)
-	{
-		ogl_cancel_image_id = ImageId::cancelf;
-	}
-	else
-	{
-		ogl_cancel_image_id = ImageId::cancelu;
-	}
-
-	const auto& ogl_cancel_texture = ogl_texture_manager.get(ogl_cancel_image_id);
-
-	ImGui::SetCursorPos(cancel_pos);
-
-	ImGui::Image(ogl_cancel_texture, cancel_size);
-
-
+	imgui_add_cancel_button(
+		/* position       */ ImVec2{235.0F, 435.0F} * scale,
+		/* size           */ ImVec2{100.0F, 30.0F} * scale,
+		/* texture_mgr    */ texture_mgr,
+		/* out_is_clicked */ is_cancel_button_clicked_);
 	// End advanced settings window.
-	//
 	ImGui::End();
 }
 
-void AdvancedSettingsWindow::do_im_handle_events()
+void AdvancedSettingsWindow::do_imgui_handle_events()
 {
-	auto& configuration = Configuration::get_instance();
-
+	Configuration& configuration = Configuration::get_singleton();
+	DialogResult dialog_result = DialogResult::none;
 	if (is_close_button_clicked_ || is_cancel_button_clicked_ || is_escape_down_)
 	{
 		update_check_box_configuration(false);
-		configuration.custom_arguments_.reject();
-
-		set_message_box_result(MessageBoxResult::cancel);
-		show(false);
-		get_message_box_result_event().notify(this);
+		configuration.custom_arguments.reject();
+		dialog_result = DialogResult::cancel;
 	}
 	else if (is_ok_button_clicked_)
 	{
 		update_check_box_configuration(true);
-		configuration.custom_arguments_.accept();
-
-		set_message_box_result(MessageBoxResult::ok);
-		show(false);
-		get_message_box_result_event().notify(this);
+		configuration.custom_arguments.accept();
+		dialog_result = DialogResult::ok;
 	}
-
 	is_escape_down_ = false;
 	is_close_button_clicked_ = false;
 	is_ok_button_clicked_ = false;
 	is_cancel_button_clicked_ = false;
-}
-
-void AdvancedSettingsWindow::update_check_box_configuration(
-	const bool is_accept)
-{
-	auto method = (is_accept ? &SettingValue<bool>::accept : &SettingValue<bool>::reject);
-
-	for (auto& check_box_context : check_box_contexts_)
+	if (dialog_result != DialogResult::none)
 	{
-		(check_box_context.setting_value_ptr_->*method)();
+		show(false);
+		set_dialog_result(dialog_result);
 	}
 }
 
-void AdvancedSettingsWindow::draw_check_box(
-	const int index)
+void AdvancedSettingsWindow::update_check_box_configuration(bool is_accept)
 {
-	auto& launcher = Launcher::get_instance();
-	auto& font_manager = FontManager::get_instance();
+	const auto method = (is_accept ? &SettingValue<bool>::accept : &SettingValue<bool>::reject);
+	for (CheckBoxContext& check_box_context : check_box_contexts_)
+	{
+		(check_box_context.setting_value_ptr->*method)();
+	}
+}
 
-	auto& window_manager = WindowManager::get_instance();
-	const auto scale = window_manager.get_scale();
-	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
-
-	const auto& resource_strings = launcher.get_resource_strings();
-
-	auto& ogl_texture_manager = get_texture_manager();
-
-	const auto im_is_mouse_button_down = ImGui::IsMouseDown(0);
-	const auto im_is_mouse_button_up = ImGui::IsMouseReleased(0);
-
-	const auto im_mouse_pos = ImGui::GetMousePos();
-
-	const auto check_box_space_px = 4 * scale;
-
-	const auto check_box_text_normal_color = IM_COL32(0xC0, 0xA0, 0x1C, 0xFF);
-	const auto check_box_text_highlighted_color = IM_COL32(0xFF, 0xFF, 0x0B, 0xFF);
-	const auto check_box_text_disabled_color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
-
-	auto& check_box_context = check_box_contexts_[index];
-
-	const auto check_box_size = ImVec2{20.0F, 11.0F} * scale;
-	const auto check_box_pos = check_box_context.position_ * scale;
-
-	const auto check_box_rect = ImVec4{
-		check_box_pos.x,
-		check_box_pos.y,
-		check_box_size.x,
-		check_box_size.y};
-
-	const auto& text = resource_strings.get(
-		check_box_context.resource_string_id_,
-		check_box_context.resource_string_default_);
-
+void AdvancedSettingsWindow::draw_check_box(int index)
+{
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	FontMgr& font_mgr = FontMgr::get_singleton();
+	ScaleMgr& scale_mgr = ScaleMgr::get_singleton();
+	const float scale = scale_mgr.get_scale();
+	const float regular_font_size = font_mgr.get_regular_size() * scale;
+	const ResourceStrings& resource_strings = window_mgr.get_resource_strings();
+	TextureMgr& texture_mgr = get_texture_manager();
+	const bool im_is_mouse_button_down = ImGui::IsMouseDown(0);
+	const bool im_is_mouse_button_up = ImGui::IsMouseReleased(0);
+	const ImVec2 im_mouse_pos = ImGui::GetMousePos();
+	const float check_box_space_px = 4 * scale;
+	const ImU32 check_box_text_normal_color = IM_COL32(0xC0, 0xA0, 0x1C, 0xFF);
+	const ImU32 check_box_text_highlighted_color = IM_COL32(0xFF, 0xFF, 0x0B, 0xFF);
+	const ImU32 check_box_text_disabled_color = IM_COL32(0x80, 0x80, 0x80, 0xFF);
+	CheckBoxContext& check_box_context = check_box_contexts_[index];
+	const ImVec2 check_box_size = ImVec2{20.0F, 11.0F} * scale;
+	const ImVec2 check_box_pos = check_box_context.position * scale;
+	const ImVec4 check_box_rect{check_box_pos.x, check_box_pos.y, check_box_size.x, check_box_size.y};
+	const std::string& text = resource_strings.get(
+		check_box_context.resource_string_id,
+		check_box_context.resource_string_default);
 	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
-
-	const auto& text_size = ImGui::CalcTextSize(
-		text.c_str(),
-		text.c_str() + text.size());
-
+	const ImVec2& text_size = ImGui::CalcTextSize(text.c_str(), text.c_str() + text.size());
 	ImGui::PopFont();
-
-	const auto text_pos = ImVec2
-	{
+	const ImVec2 text_pos{
 		check_box_pos.x + check_box_size.x + check_box_space_px,
-		check_box_pos.y - (text_size.y - check_box_size.y) * 0.5F,
-	};
-
-	const auto size = ImVec2
-	{
+		check_box_pos.y - (text_size.y - check_box_size.y) * 0.5F};
+	const ImVec2 size{
 		check_box_size.x + check_box_space_px + text_size.x,
-		check_box_size.y,
-	};
-
-	const auto rect = ImVec4
-	{
-		check_box_pos.x,
-		check_box_pos.y,
-		size.x,
-		size.y
-	};
-
-	auto is_mouse_button_down = false;
-
-	const auto is_hightlighted = is_point_inside_rect(im_mouse_pos, rect);
-
+		check_box_size.y};
+	const ImVec4 rect{check_box_pos.x, check_box_pos.y, size.x, size.y};
+	bool is_mouse_button_down = false;
+	const bool is_hightlighted = is_point_inside_rect(im_mouse_pos, rect);
 	if (is_hightlighted && (im_is_mouse_button_down || im_is_mouse_button_up))
 	{
 		if (im_is_mouse_button_down)
 		{
-			if (!check_box_context.is_pressed_)
+			if (!check_box_context.is_pressed)
 			{
-				check_box_context.is_pressed_ = true;
+				check_box_context.is_pressed = true;
 				is_mouse_button_down = true;
 			}
 		}
-
 		if (im_is_mouse_button_up)
 		{
-			check_box_context.is_pressed_ = false;
+			check_box_context.is_pressed = false;
 		}
 	}
-
-	auto ogl_disable_sound_image_id = ImageId{};
-	auto disable_sound_check_box_color = ImU32{};
-
-	auto& setting_value = *check_box_context.setting_value_ptr_;
-
+	ImageId disable_sound_image_id;
+	ImU32 disable_sound_check_box_color;
+	SettingValue<bool>& setting_value = *check_box_context.setting_value_ptr;
 	if (is_mouse_button_down)
 	{
 		setting_value = !setting_value;
 	}
-
-	if (setting_value == check_box_context.checked_value_)
+	if (setting_value == check_box_context.checked_value)
 	{
-		ogl_disable_sound_image_id = ImageId::checkboxc;
+		disable_sound_image_id = ImageId::checkboxc;
 		disable_sound_check_box_color = check_box_text_disabled_color;
 	}
 	else if (is_hightlighted)
 	{
-		ogl_disable_sound_image_id = ImageId::checkboxf;
+		disable_sound_image_id = ImageId::checkboxf;
 		disable_sound_check_box_color = check_box_text_highlighted_color;
+		hint_ = resource_strings.get(
+			check_box_context.hint_resource_string_id,
+			check_box_context.hint_resource_string_default);
 	}
 	else
 	{
-		ogl_disable_sound_image_id = ImageId::checkboxn;
+		disable_sound_image_id = ImageId::checkboxn;
 		disable_sound_check_box_color = check_box_text_normal_color;
 	}
-
-	if (is_hightlighted)
-	{
-		hint_ = resource_strings.get(
-			check_box_context.hint_resource_string_id_,
-			check_box_context.hint_resource_string_default_);
-	}
-
-	const auto& ogl_disable_sound_texture = ogl_texture_manager.get(ogl_disable_sound_image_id);
-
+	const ImTextureID disable_sound_tex_id = texture_mgr.get(disable_sound_image_id);
 	ImGui::SetCursorPos(check_box_pos);
-
-	ImGui::Image(ogl_disable_sound_texture, check_box_size);
-
+	ImGui::Image(disable_sound_tex_id, check_box_size);
 	ImGui::SetCursorPos(text_pos);
-
 	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 	ImGui::PushStyleColor(ImGuiCol_Text, disable_sound_check_box_color);
 	ImGui::Text("%s", text.c_str());
@@ -6982,536 +3968,206 @@ void AdvancedSettingsWindow::draw_check_box(
 	ImGui::PopFont();
 }
 
-//
-// AdvancedSettingsWindow
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ======================================
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// WindowManager
-//
-
-WindowManager::WindowManager()
-	:
-	windows_{},
-	is_quit_requested_{}
+WindowMgr& WindowMgr::get_singleton()
 {
+	static WindowMgr window_mgr{};
+	return window_mgr;
 }
 
-WindowManager::WindowManager(
-	WindowManager&& rhs)
-	:
-	windows_{std::move(rhs.windows_)},
-	is_quit_requested_{std::move(rhs.is_quit_requested_)}
+MainWindow* WindowMgr::get_main_window()
 {
+	return main_window_.get();
 }
 
-WindowManager::~WindowManager()
+DisplaySettingsWindow* WindowMgr::get_display_settings_window()
 {
+	return display_settings_window_.get();
 }
 
-WindowManager& WindowManager::get_instance()
+AdvancedSettingsWindow* WindowMgr::get_advanced_settings_window()
 {
-	static auto window_manager = WindowManager{};
-
-	return window_manager;
+	return advanced_settings_window_.get();
 }
 
-void WindowManager::initialize()
+DetailSettingsWindow* WindowMgr::get_detail_settings_window()
 {
-	uninitialize();
+	return detail_settings_window_.get();
+}
 
-	const SDL_DisplayMode* const sdl_display_mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
+MessageBoxWindow* WindowMgr::get_message_box_window()
+{
+	return message_box_window_.get();
+}
 
-	if (sdl_display_mode != nullptr)
+const ResourceStrings& WindowMgr::get_resource_strings() const
+{
+	return resource_strings_;
+}
+
+ResourceStrings& WindowMgr::get_resource_strings()
+{
+	return resource_strings_;
+}
+
+const SearchPaths& WindowMgr::get_search_paths() const
+{
+	return search_paths_;
+}
+
+void WindowMgr::setup_search_paths(const std::string& language_id_string)
+{
+	search_paths_.clear();
+	search_paths_.reserve(2);
+	const std::string& base_path = Configuration::get_resources_base_path();
+	search_paths_.emplace_back(normalize_file_path(base_path));
+	search_paths_.emplace_back(combine_and_normalize_file_paths(base_path, language_id_string));
+}
+
+void WindowMgr::hide_all()
+{
+	main_window_->hide();
+	display_settings_window_->hide();
+	advanced_settings_window_->hide();
+	detail_settings_window_->hide();
+	message_box_window_->hide();
+}
+
+void WindowMgr::handle_event(const SDL_Event& sdl_event)
+{
+	for (Window* window : windows_)
 	{
-		const auto dimension = static_cast<float>(std::min(sdl_display_mode->w, sdl_display_mode->h));
-
-		scale_ = dimension / ref_scale_dimension;
-	}
-
-	if (scale_ < 1.0F)
-	{
-		scale_ = 1.0F;
-	}
-}
-
-void WindowManager::uninitialize()
-{
-	while (!windows_.empty())
-	{
-		delete *windows_.begin();
-	}
-
-	is_quit_requested_ = false;
-}
-
-void WindowManager::handle_events()
-{
-	auto sdl_event = SDL_Event{};
-
-	while (SDL_PollEvent(&sdl_event))
-	{
-		if (sdl_event.type == SDL_EVENT_QUIT)
-		{
-			is_quit_requested_ = true;
-		}
-
-		if (!windows_.empty())
-		{
-			auto i_window = 0;
-			auto n_window = static_cast<int>(windows_.size());
-
-			while (i_window < n_window)
-			{
-				auto& window = windows_[i_window];
-
-				const auto begin_size = windows_.size();
-				window->handle_event(sdl_event);
-				const auto end_size = windows_.size();
-
-				if (begin_size == end_size)
-				{
-					i_window += 1;
-				}
-			}
-		}
-	}
-
-	for (auto& window : windows_)
-	{
-		window->im_handle_events();
+		window->handle_event(sdl_event);
 	}
 }
 
-void WindowManager::draw()
+void WindowMgr::imgui_handle_events()
 {
-	if (windows_.empty())
+	for (Window* window : windows_)
 	{
-		return;
+		window->imgui_handle_events();
 	}
+}
 
-	for (auto& window : windows_)
+void WindowMgr::draw()
+{
+	for (Window* window : windows_)
 	{
 		window->draw();
 	}
 }
 
-void WindowManager::hide_all()
+WindowMgr::WindowMgr()
 {
-	for (auto& window : windows_)
-	{
-		window->show(false);
-	}
+	message_box_window_ = std::make_unique<MessageBoxWindow>();
+	detail_settings_window_ = std::make_unique<DetailSettingsWindow>();
+	display_settings_window_ = std::make_unique<DisplaySettingsWindow>();
+	advanced_settings_window_ = std::make_unique<AdvancedSettingsWindow>();
+	main_window_ = std::make_unique<MainWindow>();
+	//
+	message_box_window_->set_parent(main_window_.get());
+	detail_settings_window_->set_parent(main_window_.get());
+	display_settings_window_->set_parent(main_window_.get());
+	advanced_settings_window_->set_parent(main_window_.get());
+	//
+	windows_ = {
+		main_window_.get(),
+		detail_settings_window_.get(),
+		display_settings_window_.get(),
+		advanced_settings_window_.get(),
+		message_box_window_.get()};
 }
 
-bool WindowManager::is_quit_requested() const
-{
-	return is_quit_requested_;
-}
-
-float WindowManager::get_scale() const
-{
-	return scale_;
-}
-
-void WindowManager::register_window(
-	WindowPtr window_ptr)
-{
-	if (!window_ptr)
-	{
-		assert(!"No window.");
-		return;
-	}
-
-	windows_.emplace_back(window_ptr);
-}
-
-void WindowManager::unregister_window(
-	WindowPtr window_ptr)
-{
-	if (windows_.empty())
-	{
-		return;
-	}
-
-	auto window_end_it = windows_.end();
-
-	auto window_it = std::find_if(
-		windows_.begin(),
-		window_end_it,
-		[&](const auto& item)
-		{
-			return item == window_ptr;
-		}
-	);
-
-	if (window_it == window_end_it)
-	{
-		return;
-	}
-
-	windows_.erase(window_it);
-}
-
-//
-// WindowManager
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// Launcher
-//
+// ======================================
 
 std::string Launcher::launcher_commands_file_name = "launchcmds.txt";
 std::string Launcher::resource_strings_file_name = "strings.txt";
 std::string Launcher::icon_path = "ltjs/" LTJS_GAME_ID_STRING "/launcher/icon_48x48.bmp";
 
-Launcher::Launcher()
-	:
-	is_initialized_{},
-	has_direct_3d_9_{},
-	logger_{},
-	sdl_icon_surface_{},
-	resource_strings_{},
-	message_box_window_uptr_{},
-	main_window_uptr_{},
-	display_settings_window_uptr_{},
-	advanced_settings_window_uptr_{}
+Launcher& Launcher::get_singleton()
 {
-}
-
-Launcher::Launcher(
-	Launcher&& rhs)
-	:
-	is_initialized_{std::move(rhs.is_initialized_)},
-	has_direct_3d_9_{std::move(rhs.has_direct_3d_9_)},
-	logger_{std::move(rhs.logger_)},
-	sdl_icon_surface_{std::move(sdl_icon_surface_)},
-	resource_strings_{std::move(rhs.resource_strings_)},
-	message_box_window_uptr_{std::move(rhs.message_box_window_uptr_)},
-	main_window_uptr_{std::move(rhs.main_window_uptr_)},
-	display_settings_window_uptr_{std::move(rhs.display_settings_window_uptr_)},
-	advanced_settings_window_uptr_{std::move(rhs.advanced_settings_window_uptr_)}
-{
-	rhs.is_initialized_ = false;
-}
-
-Launcher::~Launcher()
-{
-	uninitialize();
-}
-
-Launcher& Launcher::get_instance()
-{
-	static auto launcher = Launcher{};
-
+	static Launcher launcher{};
 	return launcher;
 }
 
-bool Launcher::initialize()
+void Launcher::initialize()
 {
-	uninitialize();
-
-	auto is_succeed = true;
-
-	if (is_succeed)
-	{
-		if (!initialize_sdl())
-		{
-			is_succeed = false;
-		}
-	}
-
-	auto& configuration = Configuration::get_instance();
-
-	if (is_succeed)
-	{
-		if (!configuration.initialize())
-		{
-			is_succeed = false;
-
-			set_error_message(configuration.get_error_message());
-		}
-	}
-
-	if (is_succeed)
+	initialize_sdl();
+	Configuration& configuration = Configuration::get_singleton();
 	{
 		const std::string& config_directory = configuration.get_config_path();
 		const std::string& log_file_name = configuration.get_log_file_name();
 		const std::string file_path = combine_and_normalize_file_paths(config_directory, log_file_name);
 		logger_ = make_logger(LoggerCreateParam{.file_path = file_path});
 	}
-
-	if (is_succeed)
 	{
 		logger_->info("[Window icon]");
-
-		const auto& normalized_icon_path = normalize_file_path(icon_path);
-
-		sdl_icon_surface_ = SDL_LoadBMP(normalized_icon_path.c_str());
-
-		if (!sdl_icon_surface_)
+		const std::string& normalized_icon_path = normalize_file_path(icon_path);
+		icon_sdl_surface_uptr_.reset(SDL_LoadBMP(normalized_icon_path.c_str()));
+		if (icon_sdl_surface_uptr_ == nullptr)
 		{
 			logger_->warn("Failed to load icon \"" + normalized_icon_path + "\".");
 		}
 	}
-
-	if (is_succeed)
+	SupportedLanguages& supported_languages = SupportedLanguages::get_singleton();
+	logger_->info("[Supported languages]");
+	supported_languages.load();
+	if (supported_languages.get().empty())
 	{
-		has_direct_3d_9_ = Direct3d9::has_direct3d9();
-
-		auto& display_mode_manager = DisplayModeManager::get_instance();
-		display_mode_manager.initialize();
+		fail("No supported languages.");
 	}
-
-	auto& supported_languages = SupportedLanguages::get_instance();
-
-	if (is_succeed)
+	configuration.reload();
+	if (!supported_languages.has_id(configuration.language))
 	{
-		logger_->info("[Supported languages]");
-
-		if (!supported_languages.load())
-		{
-			is_succeed = false;
-
-			const auto& error_message = supported_languages.get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
+		fail("Unsupported language. (id={})", configuration.language.get_ref());
 	}
-
-	if (is_succeed)
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	window_mgr.setup_search_paths(configuration.language);
+	ResourceStrings& resource_strings = window_mgr.get_resource_strings();
 	{
-		if (supported_languages.get().empty())
-		{
-			is_succeed = false;
-
-			const std::string error_message = "No supported languages.";
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
-	}
-
-	if (is_succeed)
-	{
-		configuration.reload();
-
-		if (!supported_languages.has_id(configuration.language_))
-		{
-			is_succeed = false;
-
-			const std::string error_message = "Unsupported language id \"" + static_cast<const std::string&>(configuration.language_) + "\".";
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
-	}
-
-	if (is_succeed)
-	{
-		setup_search_paths(configuration.language_);
-	}
-
-	if (is_succeed)
-	{
-		const auto resource_strings_result = resource_strings_.initialize(
-			search_paths_,
+		const bool resource_strings_result = resource_strings.initialize(
+			window_mgr.get_search_paths(),
 			resource_strings_file_name);
 
 		if (!resource_strings_result)
 		{
-			is_succeed = false;
-
-			const auto& error_message = resource_strings_.get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
+			fail(resource_strings.get_error_message());
 		}
 	}
-
-	if (is_succeed)
-	{
-		// WindowManager
-		//
-
-		auto& window_manager = WindowManager::get_instance();
-		window_manager.initialize();
-	}
-
+	// WindowManager
+	[[maybe_unused]] ScaleMgr& scale_mgr = ScaleMgr::get_singleton();
 	// FontManager
-	//
-	auto& font_manager = FontManager::get_instance();
-
-	if (is_succeed)
-	{
-		logger_->info("[Font manager]");
-
-		if (!font_manager.initialize())
-		{
-			is_succeed = false;
-
-			const auto& error_message = font_manager.get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
-	}
-
-	if (is_succeed)
+	logger_->info("[Font manager]");
+	[[maybe_unused]] FontMgr& font_mgr = FontMgr::get_singleton();
 	{
 		logger_->info("[Message box window]");
-
-		message_box_window_uptr_.reset(MessageBoxWindow::create());
-
-		if (!message_box_window_uptr_->is_initialized())
-		{
-			is_succeed = false;
-
-			const std::string error_message = "Failed to initialize message box window. " + message_box_window_uptr_->get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
+		MessageBoxWindow* const message_box_window = window_mgr.get_message_box_window();
+		const std::string& title = resource_strings.get(ResourceStringId::ids_appname, "IDS_APPNAME");
+		message_box_window->set_icon(icon_sdl_surface_uptr_.get());
+		message_box_window->set_message_box_title(title);
 	}
-
-	if (is_succeed)
-	{
-		message_box_window_uptr_->set_icon(sdl_icon_surface_);
-	}
-
-	if (is_succeed)
 	{
 		logger_->info("[Display settings window]");
-
-		display_settings_window_uptr_.reset(DisplaySettingsWindow::create());
-
-		if (!display_settings_window_uptr_->is_initialized())
-		{
-			is_succeed = false;
-
-			const std::string error_message = "Failed to initialize display settings window. " + display_settings_window_uptr_->get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
+		window_mgr.get_display_settings_window()->set_icon(icon_sdl_surface_uptr_.get());
 	}
-
-	if (is_succeed)
-	{
-		display_settings_window_uptr_->set_icon(sdl_icon_surface_);
-	}
-
-	if (is_succeed)
 	{
 		logger_->info("[Advanced settings window]");
-
-		advanced_settings_window_uptr_.reset(AdvancedSettingsWindow::create());
-
-		if (!advanced_settings_window_uptr_->is_initialized())
-		{
-			is_succeed = false;
-
-			const std::string error_message = "Failed to initialize advanced settings window. " + advanced_settings_window_uptr_->get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
+		window_mgr.get_advanced_settings_window()->set_icon(icon_sdl_surface_uptr_.get());
 	}
-
-	if (is_succeed)
-	{
-		advanced_settings_window_uptr_->set_icon(sdl_icon_surface_);
-	}
-
-	if (is_succeed)
 	{
 		logger_->info("[Detail settings window]");
-
-		detail_settings_window_uptr_.reset(DetailSettingsWindow::create());
-
-		if (!detail_settings_window_uptr_->is_initialized())
-		{
-			is_succeed = false;
-
-			const std::string error_message = "Failed to initialize detail settings window. " + detail_settings_window_uptr_->get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
+		window_mgr.get_detail_settings_window()->set_icon(icon_sdl_surface_uptr_.get());
 	}
-
-	if (is_succeed)
-	{
-		detail_settings_window_uptr_->set_icon(sdl_icon_surface_);
-	}
-
-	if (is_succeed)
-	{
-		const auto& title = resource_strings_.get(ResourceStringId::ids_appname, "IDS_APPNAME");
-
-		message_box_window_uptr_->set_title(title);
-	}
-
-	if (is_succeed)
 	{
 		logger_->info("[Main window]");
-
-		main_window_uptr_.reset(MainWindow::create());
-
-		if (!main_window_uptr_->is_initialized())
-		{
-			is_succeed = false;
-
-			const std::string error_message = "Failed to initialize main window. " + main_window_uptr_->get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
+		window_mgr.get_main_window()->set_icon(icon_sdl_surface_uptr_.get());
 	}
-
-	if (is_succeed)
-	{
-		main_window_uptr_->set_icon(sdl_icon_surface_);
-	}
-
-	if (!is_succeed)
-	{
-		uninitialize();
-		return false;
-	}
-
-	is_initialized_ = true;
-
-	return true;
 }
 
-void Launcher::uninitialize()
+Launcher::Launcher()
 {
-	is_initialized_ = false;
-	has_direct_3d_9_ = false;
-
-	resource_strings_.uninitialize();
-	message_box_window_uptr_ = {};
-	main_window_uptr_ = {};
-	display_settings_window_uptr_ = {};
-	advanced_settings_window_uptr_ = {};
-	detail_settings_window_uptr_ = {};
-
-
-	if (sdl_icon_surface_)
-	{
-		SDL_DestroySurface(sdl_icon_surface_);
-		sdl_icon_surface_ = nullptr;
-	}
-
-	// WindowManager
-	//
-	auto& window_manager = WindowManager::get_instance();
-	window_manager.uninitialize();
-
-
-	// FontManager
-	//
-	auto& font_manager = FontManager::get_instance();
-	font_manager.uninitialize();
-}
-
-bool Launcher::is_initialized()
-{
-	return is_initialized_;
+	initialize();
 }
 
 Logger* Launcher::get_logger()
@@ -7522,185 +4178,88 @@ Logger* Launcher::get_logger()
 void Launcher::run()
 {
 	logger_->info("[Main loop]");
-
-	if (!is_initialized_)
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	window_mgr.get_main_window()->show(true);
+	constexpr Uint64 max_delay_ns = 100'000'000;
+	constexpr Uint64 delay_bias_ns = 5'000'000;
+	constexpr Uint64 target_fps = 60;
+	constexpr Uint64 target_delay_ns = 1'000'000'000 / target_fps;
+	while (!is_quit_requested_)
 	{
-		const std::string error_message = "Not initialized.";
-		set_error_message(error_message);
-		logger_->error(error_message);
-
-		return;
-	}
-
-	message_box_window_uptr_->show(false);
-	main_window_uptr_->show(true);
-	display_settings_window_uptr_->show(false);
-	detail_settings_window_uptr_->show(false);
-
-	auto frequency = SDL_GetPerformanceFrequency();
-
-	auto& window_manager = WindowManager::get_instance();
-
-	const Uint64 max_delay_ms = 100;
-	const Uint64 delay_bias_ms = 5;
-	const Uint64 target_fps = 60;
-	const Uint64 target_delay_ms = 1000 / target_fps;
-
-	while (!window_manager.is_quit_requested())
-	{
-		const auto begin_time = SDL_GetPerformanceCounter();
-
-		window_manager.draw();
-		window_manager.handle_events();
-
-		const auto end_time = SDL_GetPerformanceCounter();
-
-		const auto process_time_ms = (end_time - begin_time + frequency - 1) / frequency;
-
-		auto delay_ms = target_delay_ms - process_time_ms - delay_bias_ms;
-
-		if (delay_ms > max_delay_ms)
+		const Uint64 begin_time = SDL_GetTicksNS();
+		handle_events();
+		draw();
+		const Uint64 end_time = SDL_GetTicksNS();
+		const Uint64 process_time_ns = end_time - begin_time;
+		const Uint64 delay_ns = std::clamp(target_delay_ns - process_time_ns - delay_bias_ns, 0ULL, max_delay_ns);
+		if (delay_ns > 5'000'000)
 		{
-			delay_ms = max_delay_ms;
-		}
-
-		if (delay_ms > 0)
-		{
-			SDL_Delay(static_cast<Uint32>(delay_ms));
+			SDL_DelayNS(delay_ns);
 		}
 	}
-
-	auto& configuration = Configuration::get_instance();
-
-	static_cast<void>(configuration.save());
+	Configuration& configuration = Configuration::get_singleton();
+	configuration.save();
 }
 
-void Launcher::show_message_box(
-	const MessageBoxType type,
-	const MessageBoxButtons buttons,
-	const std::string& message)
+void Launcher::initialize_sdl()
 {
-	message_box_window_uptr_->show(type, buttons, message);
-}
-
-launcher::ResourceStrings& Launcher::get_resource_strings()
-{
-	return resource_strings_;
-}
-
-bool Launcher::has_direct_3d_9() const
-{
-	return has_direct_3d_9_;
-}
-
-MessageBoxWindowPtr Launcher::get_message_box_window()
-{
-	return message_box_window_uptr_.get();
-}
-
-MainWindowPtr Launcher::get_main_window()
-{
-	return main_window_uptr_.get();
-}
-
-DisplaySettingsWindowPtr Launcher::get_display_settings_window()
-{
-	return display_settings_window_uptr_.get();
-}
-
-AdvancedSettingsWindowPtr Launcher::get_advanced_settings_window()
-{
-	return advanced_settings_window_uptr_.get();
-}
-
-DetailSettingsWindowPtr Launcher::get_detail_settings_window()
-{
-	return detail_settings_window_uptr_.get();
-}
-
-const SearchPaths& Launcher::get_search_paths() const
-{
-	return search_paths_;
-}
-
-void Launcher::setup_search_paths(
-	const std::string& language_id_string)
-{
-	search_paths_.clear();
-	search_paths_.reserve(2);
-
-	const auto& base_path = Configuration::get_resources_base_path();
-
-	search_paths_.emplace_back(normalize_file_path(base_path));
-
-	search_paths_.emplace_back(combine_and_normalize_file_paths(base_path, language_id_string));
-}
-
-bool Launcher::initialize_sdl()
-{
-	const bool sdl_result = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
-
-	if (!sdl_result)
+	if (const bool sdl_result = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
+		!sdl_result)
 	{
-		set_error_message("Failed to initialize SDL. " + std::string{SDL_GetError()});
-		return false;
+		fail("Failed to initialize SDL. (error_message={})", SDL_GetError());
 	}
-
-	return true;
 }
 
-//
-// Launcher
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+void Launcher::handle_events()
+{
+	WindowMgr& window_mgr = WindowMgr::get_singleton();
+	SDL_Event sdl_event;
+	while (SDL_PollEvent(&sdl_event))
+	{
+		if (sdl_event.type == SDL_EVENT_QUIT)
+		{
+			is_quit_requested_ = true;
+		}
+		window_mgr.handle_event(sdl_event);
+	}
+	window_mgr.imgui_handle_events();
+}
 
+void Launcher::draw()
+{
+	WindowMgr::get_singleton().draw();
+}
 
-ImVec2 operator*(
-	const ImVec2& v,
-	const float scale)
+// ======================================
+
+ImVec2 operator*(const ImVec2& v, float scale)
 {
 	return {v.x * scale, v.y * scale};
 }
 
-ImVec2& operator*=(
-	ImVec2& v,
-	const float scale)
+ImVec2& operator*=(ImVec2& v, float scale)
 {
 	v.x *= scale;
 	v.y *= scale;
-
 	return v;
 }
 
+} // namespace
 
-} // launcher
-} // ltjs
+} // namespace ltjs::launcher
 
-
-int main(
-	int,
-	char**)
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-	auto& launcher = ltjs::launcher::Launcher::get_instance();
-
-	if (!launcher.initialize())
+	try
 	{
-		auto error_message = launcher.get_error_message();
-
-		if (error_message.empty())
-		{
-			error_message = "Generic failure.";
-		}
-
-		SDL_ShowSimpleMessageBox(
-			SDL_MESSAGEBOX_ERROR,
-			"LTJS Launcher",
-			error_message.c_str(),
-			nullptr);
-
-		return 1;
+		ltjs::launcher::Launcher& launcher = ltjs::launcher::Launcher::get_singleton();
+		launcher.run();
+		return EXIT_SUCCESS;
 	}
-
-	launcher.run();
-
-	return 0;
+	catch (const std::exception& exception)
+	{
+		const std::string title = std::format("LTJS {} Launcher", LTJS_GAME_ID_STRING_UC);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.c_str(), exception.what(), nullptr);
+		return EXIT_FAILURE;
+	}
 }

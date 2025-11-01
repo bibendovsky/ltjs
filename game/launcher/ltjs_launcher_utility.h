@@ -58,9 +58,29 @@ using GenericUPtr = std::unique_ptr<GetGenericDeleterArg<TFunc>, GenericDeleter<
 // ======================================
 
 using SdlIoStreamUPtr = GenericUPtr<SDL_CloseIO>;
+using SdlProcessUPtr = GenericUPtr<SDL_DestroyProcess>;
 using SdlSharedObjectUPtr = GenericUPtr<SDL_UnloadObject>;
+using SdlWindowUPtr = GenericUPtr<SDL_DestroyWindow>;
+using SdlRendererUPtr = GenericUPtr<SDL_DestroyRenderer>;
 using SdlSurfaceUPtr = GenericUPtr<SDL_DestroySurface>;
 using SdlTextureUPtr = GenericUPtr<SDL_DestroyTexture>;
+
+// ======================================
+
+class SdlPropertiesIdURes
+{
+public:
+	SdlPropertiesIdURes() = default;
+	explicit SdlPropertiesIdURes(SDL_PropertiesID sdl_properties_id);
+	SdlPropertiesIdURes(SdlPropertiesIdURes&& rhs) noexcept;
+	SdlPropertiesIdURes& operator=(SdlPropertiesIdURes&& rhs) noexcept;
+	~SdlPropertiesIdURes();
+
+	SDL_PropertiesID get() const;
+
+private:
+	SDL_PropertiesID sdl_properties_id_{};
+};
 
 // ======================================
 
