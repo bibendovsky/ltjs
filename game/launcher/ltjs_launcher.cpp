@@ -20,7 +20,9 @@
 #include <vector>
 
 #include "imgui.h"
-#include "imgui_stl.h"
+#include "imgui_stdlib.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_sdlrenderer3.h"
 #include "SDL3/SDL_main.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
@@ -680,6 +682,7 @@ public:
 	void set_icon(
 		SDL_Surface* sdl_surface);
 
+	SDL_Window* get_window() const;
 	SDL_Renderer* get_renderer() const;
 
 private:
@@ -697,6 +700,8 @@ class FontManager final :
 	public Base
 {
 public:
+	using Buffer = std::vector<std::uint8_t>;
+
 	FontManager(
 		FontManager&& rhs);
 
@@ -707,14 +712,9 @@ public:
 
 	void uninitialize();
 
+	const Buffer& get_data(FontId font_id) const;
 
-	bool set_fonts(
-		const float scale);
-
-	ImFontAtlas& get_font_atlas();
-
-	ImFont* get_font(
-		const FontId font_id);
+	float get_size(FontId font_id) const;
 
 
 private:
@@ -727,7 +727,6 @@ private:
 
 
 	using Descriptions = std::vector<Description>;
-	using Buffer = std::vector<std::uint8_t>;
 	using BufferPtr = Buffer*;
 	using ImFontAtlasUPtr = std::unique_ptr<ImFontAtlas>;
 
@@ -740,8 +739,6 @@ private:
 
 	Buffer regular_font_data_;
 	Buffer bold_font_data_;
-	ImFontAtlasUPtr im_font_atlas_uptr_;
-
 
 	FontManager();
 
@@ -751,10 +748,6 @@ private:
 	bool load_font_data(
 		const std::string& file_name,
 		Buffer& font_data);
-
-	bool add_font(
-		const float scale,
-		const Description& description);
 }; // FontManager
 
 
@@ -774,15 +767,9 @@ public:
 
 	void uninitialize();
 
-
-	bool load_font();
-
-	SDL_Texture* get_font();
-
-
 	bool load_all_textures();
 
-	SDL_Texture* get(
+	ImTextureID get(
 		const ImageId image_id);
 
 private:
@@ -796,91 +783,12 @@ private:
 
 	SDL_Renderer* sdl_renderer_{};
 	OglTextures ogl_textures_;
-	SdlTextureUPtr ogl_font_texture_;
 
 	void uninitialize_textures();
 
 	SDL_Texture* create_texture_from_surface(
 		SDL_Surface* sdl_surface);
-
-	void unload_font();
 }; // OglTextureManager
-
-
-class Clipboard final
-{
-public:
-	Clipboard(
-		Clipboard&& rhs);
-
-	static Clipboard& get_instance();
-
-	void initialize();
-
-	void uninitialize();
-
-	void initialize_im_context(
-		ImGuiIO& im_io);
-
-
-private:
-	char* sdl_clipboard_text_;
-
-
-	Clipboard();
-
-	~Clipboard();
-
-
-	const char* get_clipboard_text();
-
-	void set_clipboard_text(
-		const char* text);
-
-	static const char* get_clipboard_text_proxy(
-		void* user_data);
-
-	static void set_clipboard_text_proxy(
-		void* user_data,
-		const char* text);
-}; // Clipboard
-
-
-using SdlCursorPtr = SDL_Cursor*;
-
-class SystemCursors final
-{
-public:
-	SystemCursors(
-		SystemCursors&& rhs);
-
-
-	static SystemCursors& get_instance();
-
-	void initialize();
-
-	void uninitialize();
-
-
-	SdlCursorPtr& operator[](
-		const int index);
-
-	const SdlCursorPtr operator[](
-		const int index) const;
-
-
-private:
-	using Items = std::array<SdlCursorPtr, ImGuiMouseCursor_COUNT>;
-
-
-	Items items_;
-
-
-	SystemCursors();
-
-	~SystemCursors();
-}; // SystemCursors
-
 
 class WindowEvent;
 using WindowEventPtr = WindowEvent*;
@@ -957,6 +865,8 @@ protected:
 
 
 	bool is_initialized_;
+	ImFont* imgui_regular_font_{};
+	ImFont* imgui_bold_font_{};
 
 
 	Window();
@@ -987,6 +897,9 @@ protected:
 
 	OglTextureManager& get_texture_manager();
 
+	ImFont* get_regular_imgui_font();
+	ImFont* get_bold_imgui_font();
+
 private:
 	friend class WindowManager;
 
@@ -1012,10 +925,6 @@ private:
 	void uninitialize();
 
 	void im_new_frame();
-
-	void im_update_mouse_position_and_buttons();
-
-	void im_update_mouse_cursor();
 
 	void im_render();
 
@@ -1278,11 +1187,9 @@ private:
 
 	void uninitialize();
 
-	static bool im_display_modes_getter(
+	static const char* im_display_modes_getter(
 		void* data,
-		const int idx,
-		const char** out_text);
-
+		const int idx);
 
 	void do_draw() override;
 
@@ -2899,6 +2806,11 @@ void SdlOglWindow::set_icon(
 	SDL_SetWindowIcon(sdl_window_, sdl_surface);
 }
 
+SDL_Window* SdlOglWindow::get_window() const
+{
+	return sdl_window_;
+}
+
 SDL_Renderer* SdlOglWindow::get_renderer() const
 {
 	return sdl_renderer_;
@@ -2940,8 +2852,7 @@ const FontManager::Descriptions FontManager::descriptions =
 FontManager::FontManager()
 	:
 	regular_font_data_{},
-	bold_font_data_{},
-	im_font_atlas_uptr_{std::make_unique<ImFontAtlas>()}
+	bold_font_data_{}
 {
 }
 
@@ -2953,8 +2864,7 @@ FontManager::FontManager(
 	FontManager&& rhs)
 	:
 	regular_font_data_{std::move(regular_font_data_)},
-	bold_font_data_{std::move(bold_font_data_)},
-	im_font_atlas_uptr_{std::move(im_font_atlas_uptr_)}
+	bold_font_data_{std::move(bold_font_data_)}
 {
 }
 
@@ -2988,31 +2898,27 @@ void FontManager::uninitialize()
 	bold_font_data_ = {};
 }
 
-bool FontManager::set_fonts(
-	const float scale)
+auto FontManager::get_data(FontId font_id) const -> const Buffer&
 {
-	im_font_atlas_uptr_->Clear();
-
-	for (auto& description : descriptions)
+	switch (font_id)
 	{
-		if (!add_font(scale, description))
+		case FontId::message_box_message: return regular_font_data_;
+		case FontId::message_box_title: return bold_font_data_;
+		default: throw std::runtime_error{"Unknown font id."};
+	}
+}
+
+float FontManager::get_size(FontId font_id) const
+{
+	for(const Description& description : descriptions)
+	{
+		if (description.font_id_ == font_id)
 		{
-			return false;
+			return description.size_in_pixels_;
 		}
 	}
 
-	return true;
-}
-
-ImFontAtlas& FontManager::get_font_atlas()
-{
-	return *im_font_atlas_uptr_;
-}
-
-ImFont* FontManager::get_font(
-	const FontId font_id)
-{
-	return im_font_atlas_uptr_->Fonts[static_cast<int>(font_id)];
+	return 0.0F;
 }
 
 bool FontManager::load_font_data(
@@ -3046,57 +2952,6 @@ bool FontManager::load_font_data(
 	{
 		regular_font_data_.clear();
 		set_error_message("Failed to read font file: \"" + normalized_file_name + "\".");
-
-		return false;
-	}
-
-	return true;
-}
-
-bool FontManager::add_font(
-	const float scale,
-	const Description& description)
-{
-	auto font_data_ptr = BufferPtr{};
-
-	switch (description.font_type_)
-	{
-	case FontType::regular:
-		font_data_ptr = &regular_font_data_;
-		break;
-
-	case FontType::bold:
-		font_data_ptr = &bold_font_data_;
-		break;
-
-	default:
-		set_error_message("Unsupported font type.");
-		return false;
-	}
-
-	const auto font_data_size = static_cast<int>(font_data_ptr->size());
-
-	auto im_font_data = static_cast<std::uint8_t*>(ImGui::MemAlloc(font_data_size));
-
-	std::uninitialized_copy(font_data_ptr->cbegin(), font_data_ptr->cend(), im_font_data);
-
-	static const ImWchar glyph_ranges[] =
-	{
-		L'\x0020', L'\x024F', // Basic Latin + Latin Supplement + Latin Extended-A + Latin Extended-B
-		L'\x0400', L'\x052F', // Cyrillic + Cyrillic Supplement
-		L'\0',
-	}; // glyph_ranges
-
-	const auto im_font = im_font_atlas_uptr_->AddFontFromMemoryTTF(
-		im_font_data,
-		font_data_size,
-		description.size_in_pixels_ * scale,
-		nullptr,
-		glyph_ranges);
-
-	if (!im_font)
-	{
-		set_error_message("Failed to load font.");
 
 		return false;
 	}
@@ -3206,8 +3061,7 @@ const OglTextureManager::Strings OglTextureManager::image_file_names = Strings
 
 OglTextureManager::OglTextureManager()
 	:
-	ogl_textures_{},
-	ogl_font_texture_{}
+	ogl_textures_{}
 {
 }
 
@@ -3215,8 +3069,7 @@ OglTextureManager::OglTextureManager(
 	OglTextureManager&& rhs)
 	:
 	sdl_renderer_{std::move(rhs.sdl_renderer_)},
-	ogl_textures_{std::move(rhs.ogl_textures_)},
-	ogl_font_texture_{std::move(rhs.ogl_font_texture_)}
+	ogl_textures_{std::move(rhs.ogl_textures_)}
 {
 }
 
@@ -3239,7 +3092,6 @@ void OglTextureManager::uninitialize()
 	uninitialize_textures();
 
 	ogl_textures_.clear();
-	ogl_font_texture_ = nullptr;
 	sdl_renderer_ = nullptr;
 }
 
@@ -3290,90 +3142,17 @@ bool OglTextureManager::load_all_textures()
 	return true;
 }
 
-SDL_Texture* OglTextureManager::get(
+ImTextureID OglTextureManager::get(
 	const ImageId image_id)
 {
 	const int image_index = narrow_cast<int>(image_id);
 
 	if (image_index < 0 || image_index >= static_cast<int>(ogl_textures_.size()))
 	{
-		return nullptr;
+		return ImTextureID{};
 	}
 
-	return ogl_textures_[image_index].get();
-}
-
-bool OglTextureManager::load_font()
-{
-	unload_font();
-
-	unsigned char* pixels = nullptr;
-	int font_atlas_width;
-	int font_atlas_height;
-
-	auto& font_manager = FontManager::get_instance();
-	auto& font_atlas = font_manager.get_font_atlas();
-
-	font_atlas.GetTexDataAsAlpha8(&pixels, &font_atlas_width, &font_atlas_height);
-
-	if (pixels == nullptr || font_atlas_width <= 0 || font_atlas_height <= 0)
-	{
-		set_error_message("Failed to get font atlas.");
-		return false;
-	}
-
-	const SdlSurfaceUPtr sdl_surface_uptr{SDL_CreateSurfaceFrom(
-		font_atlas_width,
-		font_atlas_height,
-		SDL_PIXELFORMAT_INDEX8,
-		pixels,
-		font_atlas_width)};
-
-	if (sdl_surface_uptr == nullptr)
-	{
-		set_error_message(std::format("[{}] {} (error_message={})", "FontAtlas", "SDL_CreateSurfaceFrom", SDL_GetError()));
-		return false;
-	}
-
-	SDL_Palette* const sdl_palette = SDL_CreateSurfacePalette(sdl_surface_uptr.get());
-
-	if (sdl_palette == nullptr)
-	{
-		set_error_message(std::format("[{}] {} (error_message={})", "FontAtlas", "SDL_CreateSurfacePalette", SDL_GetError()));
-		return false;
-	}
-
-	if (sdl_palette->ncolors != 256)
-	{
-		set_error_message(std::format("[{}] {} (color_count={})", "FontAtlas", "Expected 256-color SDL surface.", sdl_palette->ncolors));
-		return false;
-	}
-
-	for (int i_color = 0; i_color < 256; ++i_color)
-	{
-		SDL_Color& color = sdl_palette->colors[i_color];
-		color.r = 0xFF;
-		color.g = 0xFF;
-		color.b = 0xFF;
-		color.a = narrow_cast<Uint8>(i_color);
-	}
-
-	ogl_font_texture_.reset(SDL_CreateTextureFromSurface(sdl_renderer_, sdl_surface_uptr.get()));
-
-	if (ogl_font_texture_ == nullptr)
-	{
-		set_error_message(std::format("[{}] {} (error_message={})", "FontAtlas", "SDL_CreateTextureFromSurface", SDL_GetError()));
-		return false;
-	}
-
-	SDL_SetTextureBlendMode(ogl_font_texture_.get(), SDL_BLENDMODE_BLEND);
-
-	return true;
-}
-
-SDL_Texture* OglTextureManager::get_font()
-{
-	return ogl_font_texture_.get();
+	return narrow_cast<ImTextureID>(reinterpret_cast<std::size_t>(ogl_textures_[image_index].get()));
 }
 
 SDL_Texture* OglTextureManager::create_texture_from_surface(
@@ -3389,11 +3168,6 @@ SDL_Texture* OglTextureManager::create_texture_from_surface(
 	return nullptr;
 }
 
-void OglTextureManager::unload_font()
-{
-	ogl_font_texture_ = nullptr;
-}
-
 void OglTextureManager::uninitialize_textures()
 {
 	ogl_textures_.clear();
@@ -3404,6 +3178,7 @@ void OglTextureManager::uninitialize_textures()
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
+#if 0 // FIXME
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // Clipboard
 //
@@ -3572,7 +3347,7 @@ const SdlCursorPtr SystemCursors::operator[](
 //
 // SystemCursors
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+#endif
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // Event
@@ -3673,16 +3448,6 @@ bool Window::initialize(
 	}
 
 	auto& font_manager = FontManager::get_instance();
-	auto& im_font_atlas = font_manager.get_font_atlas();
-
-	if (is_succeed)
-	{
-		if (im_font_atlas.Fonts.empty())
-		{
-			is_succeed = false;
-			set_error_message("No font atlas.");
-		}
-	}
 
 	if (is_succeed)
 	{
@@ -3690,15 +3455,6 @@ bool Window::initialize(
 		{
 			is_succeed = false;
 			set_error_message("Failed to create GL texture manager. " + ogl_texture_manager_.get_error_message());
-		}
-	}
-
-	if (is_succeed)
-	{
-		if (!ogl_texture_manager_.load_font())
-		{
-			is_succeed = false;
-			set_error_message("Failed to create font atlas GL texture. " + ogl_texture_manager_.get_error_message());
 		}
 	}
 
@@ -3713,7 +3469,7 @@ bool Window::initialize(
 
 	if (is_succeed)
 	{
-		im_context_ = ImGui::CreateContext(&im_font_atlas);
+		im_context_ = ImGui::CreateContext();
 
 		if (!im_context_)
 		{
@@ -3727,6 +3483,9 @@ bool Window::initialize(
 		ImGui::SetCurrentContext(im_context_);
 
 		auto& im_io = ImGui::GetIO();
+
+		im_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		im_io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
 		im_io.IniFilename = nullptr;
 
@@ -3744,6 +3503,62 @@ bool Window::initialize(
 		im_style.WindowBorderSize = 0.0F;
 		im_style.WindowPadding = {};
 		im_style.WindowRounding = 0.0F;
+
+		static const ImWchar glyph_ranges[] =
+		{
+			L'\x0020', L'\x024F', // Basic Latin + Latin Supplement + Latin Extended-A + Latin Extended-B
+			L'\x0400', L'\x052F', // Cyrillic + Cyrillic Supplement
+			L'\0',
+		}; // glyph_ranges
+
+		im_io.Fonts->Clear();
+
+		if (is_succeed)
+		{
+			const FontManager::Buffer& font_data = font_manager.get_data(FontId::message_box_message);
+
+			ImFontConfig imgui_font_config{};
+			imgui_font_config.FontDataOwnedByAtlas = false;
+
+			imgui_regular_font_ = im_io.Fonts->AddFontFromMemoryTTF(
+				const_cast<std::uint8_t*>(font_data.data()),
+				narrow_cast<int>(font_data.size()),
+				0.0F,
+				&imgui_font_config,
+				glyph_ranges);
+
+			if (imgui_regular_font_ == nullptr)
+			{
+				is_succeed = false;
+				set_error_message("Failed to load a regular font.");
+			}
+		}
+
+		if (is_succeed)
+		{
+			const FontManager::Buffer& font_data = font_manager.get_data(FontId::message_box_title);
+
+			ImFontConfig imgui_font_config{};
+			imgui_font_config.FontDataOwnedByAtlas = false;
+
+			imgui_bold_font_ = im_io.Fonts->AddFontFromMemoryTTF(
+				const_cast<std::uint8_t*>(font_data.data()),
+				narrow_cast<int>(font_data.size()),
+				0.0F,
+				&imgui_font_config,
+				glyph_ranges);
+
+			if (imgui_bold_font_ == nullptr)
+			{
+				is_succeed = false;
+				set_error_message("Failed to load a bold font.");
+			}
+		}
+
+		SDL_Window* const sdl_window = sdl_ogl_window_.get_window();
+		SDL_Renderer* const sdl_renderer = sdl_ogl_window_.get_renderer();
+		ImGui_ImplSDL3_InitForSDLRenderer(sdl_window, sdl_renderer);
+		ImGui_ImplSDLRenderer3_Init(sdl_renderer);
 	}
 
 	if (is_succeed)
@@ -3772,33 +3587,6 @@ bool Window::initialize(
 		//
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors; // We can honor GetMouseCursor() values (optional)
 		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos; // We can honor io.WantSetMousePos requests (optional, rarely used)
-
-		// Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
-		//
-		io.KeyMap[ImGuiKey_Tab] = SDL_SCANCODE_TAB;
-		io.KeyMap[ImGuiKey_LeftArrow] = SDL_SCANCODE_LEFT;
-		io.KeyMap[ImGuiKey_RightArrow] = SDL_SCANCODE_RIGHT;
-		io.KeyMap[ImGuiKey_UpArrow] = SDL_SCANCODE_UP;
-		io.KeyMap[ImGuiKey_DownArrow] = SDL_SCANCODE_DOWN;
-		io.KeyMap[ImGuiKey_PageUp] = SDL_SCANCODE_PAGEUP;
-		io.KeyMap[ImGuiKey_PageDown] = SDL_SCANCODE_PAGEDOWN;
-		io.KeyMap[ImGuiKey_Home] = SDL_SCANCODE_HOME;
-		io.KeyMap[ImGuiKey_End] = SDL_SCANCODE_END;
-		io.KeyMap[ImGuiKey_Insert] = SDL_SCANCODE_INSERT;
-		io.KeyMap[ImGuiKey_Delete] = SDL_SCANCODE_DELETE;
-		io.KeyMap[ImGuiKey_Backspace] = SDL_SCANCODE_BACKSPACE;
-		io.KeyMap[ImGuiKey_Space] = SDL_SCANCODE_SPACE;
-		io.KeyMap[ImGuiKey_Enter] = SDL_SCANCODE_RETURN;
-		io.KeyMap[ImGuiKey_Escape] = SDL_SCANCODE_ESCAPE;
-		io.KeyMap[ImGuiKey_A] = SDL_SCANCODE_A;
-		io.KeyMap[ImGuiKey_C] = SDL_SCANCODE_C;
-		io.KeyMap[ImGuiKey_V] = SDL_SCANCODE_V;
-		io.KeyMap[ImGuiKey_X] = SDL_SCANCODE_X;
-		io.KeyMap[ImGuiKey_Y] = SDL_SCANCODE_Y;
-		io.KeyMap[ImGuiKey_Z] = SDL_SCANCODE_Z;
-
-		auto& clipboard = Clipboard::get_instance();
-		clipboard.initialize_im_context(io);
 
 		if (!param.is_hidden_)
 		{
@@ -3860,13 +3648,6 @@ void Window::draw()
 
 	ImGui::SetCurrentContext(im_context_);
 
-	auto& im_io = ImGui::GetIO();
-
-	auto& ogl_texture_manager = get_texture_manager();
-	SDL_Texture* const font_texture = ogl_texture_manager.get_font();
-
-	im_io.Fonts->TexID = font_texture;
-
 	im_new_frame();
 
 	ImGui::NewFrame();
@@ -3914,6 +3695,11 @@ void Window::uninitialize()
 {
 	if (im_context_)
 	{
+		ImGui::SetCurrentContext(im_context_);
+
+		ImGui_ImplSDLRenderer3_Shutdown();
+		ImGui_ImplSDL3_Shutdown();
+
 		ImGui::DestroyContext(im_context_);
 		im_context_ = nullptr;
 	}
@@ -3944,84 +3730,8 @@ void Window::handle_event(
 		return;
 	}
 
-	if (!sdl_ogl_window_.is_event_for_me(sdl_event))
-	{
-		return;
-	}
-
 	ImGui::SetCurrentContext(im_context_);
-
-	auto& io = ImGui::GetIO();
-
-	switch (sdl_event.type)
-	{
-	case SDL_EVENT_MOUSE_WHEEL:
-		if (sdl_event.wheel.x > 0)
-		{
-			io.MouseWheelH += 1;
-		}
-
-		if (sdl_event.wheel.x < 0)
-		{
-			io.MouseWheelH -= 1;
-		}
-
-		if (sdl_event.wheel.y > 0)
-		{
-			io.MouseWheel += 1;
-		}
-
-		if (sdl_event.wheel.y < 0)
-		{
-			io.MouseWheel -= 1;
-		}
-
-		break;
-
-	case SDL_EVENT_MOUSE_BUTTON_DOWN:
-		if (sdl_event.button.button == SDL_BUTTON_LEFT)
-		{
-			pressed_mouse_buttons_[0] = true;
-		}
-
-		if (sdl_event.button.button == SDL_BUTTON_RIGHT)
-		{
-			pressed_mouse_buttons_[1] = true;
-		}
-
-		if (sdl_event.button.button == SDL_BUTTON_MIDDLE)
-		{
-			pressed_mouse_buttons_[2] = true;
-		}
-
-		break;
-
-	case SDL_EVENT_TEXT_INPUT:
-		io.AddInputCharactersUTF8(sdl_event.text.text);
-		break;
-
-	case SDL_EVENT_KEY_DOWN:
-	case SDL_EVENT_KEY_UP:
-	{
-		const auto key = sdl_event.key.scancode;
-		IM_ASSERT(key >= 0 && key < IM_ARRAYSIZE(io.KeysDown));
-
-		const auto mod_state = SDL_GetModState();
-
-		io.KeysDown[key] = (sdl_event.type == SDL_EVENT_KEY_DOWN);
-
-		io.KeyShift = ((mod_state & SDL_KMOD_SHIFT) != 0);
-		io.KeyCtrl = ((mod_state & SDL_KMOD_CTRL) != 0);
-		io.KeyAlt = ((mod_state & SDL_KMOD_ALT) != 0);
-		io.KeySuper = ((mod_state & SDL_KMOD_GUI) != 0);
-
-		break;
-	}
-
-	default:
-		break;
-	}
-
+	ImGui_ImplSDL3_ProcessEvent(&sdl_event);
 	ImGui::SetCurrentContext(nullptr);
 }
 
@@ -4062,138 +3772,25 @@ OglTextureManager& Window::get_texture_manager()
 	return ogl_texture_manager_;
 }
 
+ImFont* Window::get_regular_imgui_font()
+{
+	return imgui_regular_font_;
+}
+
+ImFont* Window::get_bold_imgui_font()
+{
+	return imgui_bold_font_;
+}
+
 void Window::im_new_frame()
 {
-	auto& io = ImGui::GetIO();
-
-	// Font atlas needs to be built, call renderer _NewFrame() function e.g. ImGui_ImplOpenGL3_NewFrame()
-	assert(io.Fonts->IsBuilt());
-
-	// Setup display size (every frame to accommodate for window resizing)
-	//
-
-	auto w = 0;
-	auto h = 0;
-
-	sdl_ogl_window_.get_size(w, h);
-
-	auto display_w = 0;
-	auto display_h = 0;
-
-	sdl_ogl_window_.get_ogl_drawable_size(display_w, display_h);
-
-	io.DisplaySize = ImVec2{static_cast<float>(w), static_cast<float>(h)};
-
-	io.DisplayFramebufferScale = ImVec2
-	{
-		w > 0 ? (static_cast<float>(display_w) / w) : 0,
-		h > 0 ? (static_cast<float>(display_h) / h) : 0,
-	};
-
-	// Setup time step (we don't use SDL_GetTicks() because it is using millisecond resolution)
-	//
-
-	static auto frequency = SDL_GetPerformanceFrequency();
-	auto current_time = SDL_GetPerformanceCounter();
-
-	io.DeltaTime =
-		time_ > 0
-		?
-		static_cast<float>(static_cast<double>(current_time - time_) / static_cast<double>(frequency))
-		:
-		static_cast<float>(1.0F / 60.0F);
-
-	time_ = current_time;
-
-	im_update_mouse_position_and_buttons();
-	im_update_mouse_cursor();
-}
-
-void Window::im_update_mouse_position_and_buttons()
-{
-	auto& io = ImGui::GetIO();
-
-	// Set OS mouse position if requested (rarely used, only when ImGuiConfigFlags_NavEnableSetMousePos is enabled by user)
-	if (io.WantSetMousePos)
-	{
-		sdl_ogl_window_.warp_mouse(static_cast<int>(io.MousePos.x), static_cast<int>(io.MousePos.y));
-	}
-	else
-	{
-		io.MousePos = ImVec2{-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max()};
-	}
-
-	float mx = 0;
-	float my = 0;
-
-	const auto mouse_buttons = SDL_GetMouseState(&mx, &my);
-
-	// If a mouse press event came, always pass it as "mouse held this frame",
-	// so we don't miss click-release events that are shorter than 1 frame.
-	//
-
-	io.MouseDown[0] = pressed_mouse_buttons_[0] || (mouse_buttons & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) != 0;
-	io.MouseDown[1] = pressed_mouse_buttons_[1] || (mouse_buttons & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) != 0;
-	io.MouseDown[2] = pressed_mouse_buttons_[2] || (mouse_buttons & SDL_BUTTON_MASK(SDL_BUTTON_MIDDLE)) != 0;
-
-	pressed_mouse_buttons_ = {};
-
-	auto focused_window = SDL_GetKeyboardFocus();
-
-	if (sdl_ogl_window_.are_same(focused_window))
-	{
-		auto wx = 0;
-		auto wy = 0;
-
-		SDL_GetWindowPosition(focused_window, &wx, &wy);
-		SDL_GetGlobalMouseState(&mx, &my);
-
-		mx -= wx;
-		my -= wy;
-
-		io.MousePos = ImVec2{static_cast<float>(mx), static_cast<float>(my)};
-	}
-
-	const auto any_mouse_button_down = ImGui::IsAnyMouseDown();
-	SDL_CaptureMouse(any_mouse_button_down);
-}
-
-void Window::im_update_mouse_cursor()
-{
-	auto& io = ImGui::GetIO();
-
-	if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) != 0)
-	{
-		return;
-	}
-
-	auto imgui_cursor = ImGui::GetMouseCursor();
-
-	if (io.MouseDrawCursor || imgui_cursor == ImGuiMouseCursor_None)
-	{
-		// Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
-		SDL_HideCursor();
-	}
-	else
-	{
-		auto& cursors = SystemCursors::get_instance();
-
-		// Show OS mouse cursor
-		SDL_SetCursor(cursors[imgui_cursor] ? cursors[imgui_cursor] : cursors[ImGuiMouseCursor_Arrow]);
-		SDL_ShowCursor();
-	}
+	ImGui_ImplSDLRenderer3_NewFrame();
+	ImGui_ImplSDL3_NewFrame();
 }
 
 void Window::im_render()
 {
 	ImGui::Render();
-
-	auto draw_data = ImGui::GetDrawData();
-
-	if (draw_data->CmdListsCount <= 0)
-	{
-		return;
-	}
 
 	ImGuiIO& io = ImGui::GetIO();
 	const SDL_Rect sdl_viewport{0, 0, narrow_cast<int>(io.DisplaySize.x), narrow_cast<int>(io.DisplaySize.y)};
@@ -4201,9 +3798,7 @@ void Window::im_render()
 	SDL_SetRenderViewport(sdl_renderer, &sdl_viewport);
 	SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderClear(sdl_renderer);
-
-	im_render_data(draw_data);
-
+	ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), sdl_renderer);
 	sdl_ogl_window_.ogl_swap();
 }
 
@@ -4284,7 +3879,7 @@ void Window::im_render_data(
 					narrow_cast<int>(clip_rect.z),
 					narrow_cast<int>(clip_rect.w)};
 				SDL_SetRenderClipRect(sdl_renderer, &sdl_clip_rect);
-				SDL_Texture* const sdl_texture = static_cast<SDL_Texture*>(pcmd->TextureId);
+				SDL_Texture* const sdl_texture = reinterpret_cast<SDL_Texture*>(narrow_cast<std::size_t>(pcmd->GetTexID()));
 				SDL_RenderGeometry(
 					sdl_renderer,
 					sdl_texture,
@@ -4407,6 +4002,8 @@ void MessageBoxWindow::do_draw()
 	const auto scale = window_manager.get_scale();
 
 	auto& font_manager = FontManager::get_instance();
+	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
+	const auto bold_font_size = font_manager.get_size(FontId::message_box_title) * scale;
 
 	auto& ogl_texture_manager = get_texture_manager();
 
@@ -4415,7 +4012,7 @@ void MessageBoxWindow::do_draw()
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
-	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
+	is_escape_down_ = ImGui::IsKeyPressed(ImGuiKey_Escape);
 
 
 	// Begin message box window.
@@ -4522,7 +4119,7 @@ void MessageBoxWindow::do_draw()
 		const auto title_size = ImVec2{518.0F, 31.0F} * scale;
 		const auto title_rect = ImVec4{title_pos.x, title_pos.y, title_size.x, title_size.y};
 
-		ImGui::PushFont(font_manager.get_font(FontId::message_box_title));
+		ImGui::PushFont(get_bold_imgui_font(), bold_font_size);
 
 		auto centered_title_position = calculated_title_position_;
 
@@ -4552,7 +4149,7 @@ void MessageBoxWindow::do_draw()
 		const auto message_size = ImVec2{573.0F, 121.0F} * scale;
 		const auto message_rect = ImVec4{message_pos.x, message_pos.y, message_size.x, message_size.y};
 
-		ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+		ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 
 		ImGui::SetCursorPos(message_pos);
 
@@ -5237,13 +4834,14 @@ void MainWindow::do_draw()
 	auto& font_manager = FontManager::get_instance();
 
 	const auto scale = window_manager.get_scale();
+	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
 
 	auto& ogl_texture_manager = get_texture_manager();
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
 
-	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
+	is_escape_down_ = ImGui::IsKeyPressed(ImGuiKey_Escape);
 
 	const auto is_modal = (state_ != State::main_window);
 
@@ -5368,7 +4966,7 @@ void MainWindow::do_draw()
 	}
 
 	ImGui::SetCursorPos(language_pos);
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 
 	ImGui::PushItemWidth(100.0F * scale);
 
@@ -6000,6 +5598,7 @@ void DetailSettingsWindow::do_draw()
 	auto& font_manager = FontManager::get_instance();
 
 	const auto scale = window_manager.get_scale();
+	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
 
 	auto& ogl_texture_manager = get_texture_manager();
 
@@ -6007,7 +5606,7 @@ void DetailSettingsWindow::do_draw()
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
 	const auto mouse_pos = ImGui::GetMousePos();
 
-	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
+	is_escape_down_ = ImGui::IsKeyPressed(ImGuiKey_Escape);
 
 
 	// Begin detail settings window.
@@ -6134,7 +5733,7 @@ void DetailSettingsWindow::do_draw()
 
 	ImGui::PushItemWidth(-1);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 	ImGui::TextWrapped("%s", header_text.c_str());
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
@@ -6157,7 +5756,7 @@ void DetailSettingsWindow::do_draw()
 
 	ImGui::PushItemWidth(-1);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 	ImGui::TextWrapped("%s", high_header_text.c_str());
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
@@ -6226,7 +5825,7 @@ void DetailSettingsWindow::do_draw()
 
 	ImGui::PushItemWidth(-1);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 	ImGui::TextWrapped("%s", medium_header_text.c_str());
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
@@ -6295,7 +5894,7 @@ void DetailSettingsWindow::do_draw()
 
 	ImGui::PushItemWidth(-1);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 	ImGui::TextWrapped("%s", low_header_text.c_str());
 	ImGui::PopFont();
 	ImGui::PopStyleColor();
@@ -6473,17 +6072,13 @@ void DisplaySettingsWindow::uninitialize()
 {
 }
 
-bool DisplaySettingsWindow::im_display_modes_getter(
+const char* DisplaySettingsWindow::im_display_modes_getter(
 	void* data,
-	const int idx,
-	const char** out_text)
+	const int idx)
 {
 	const auto& display_modes = *static_cast<DisplayModeManager::DisplayModes*>(data);
 	const auto& display_mode = display_modes[idx];
-
-	*out_text = display_mode.as_string_.c_str();
-
-	return true;
+	return display_mode.as_string_.c_str();
 }
 
 void DisplaySettingsWindow::do_draw()
@@ -6494,6 +6089,7 @@ void DisplaySettingsWindow::do_draw()
 	auto& font_manager = FontManager::get_instance();
 
 	const auto scale = window_manager.get_scale();
+	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
 
 	auto& ogl_texture_manager = get_texture_manager();
 
@@ -6502,7 +6098,7 @@ void DisplaySettingsWindow::do_draw()
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
-	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
+	is_escape_down_ = ImGui::IsKeyPressed(ImGuiKey_Escape);
 
 	has_display_modes_ = (
 		selected_resolution_index_ >= 0 &&
@@ -6586,7 +6182,7 @@ void DisplaySettingsWindow::do_draw()
 		ImGui::SetCursorPos(resolutions_pos);
 
 		ImGui::BeginChild("resolutions", resolutions_size);
-		ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+		ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
 		ImGui::PushItemWidth(-1.0F);
 
@@ -6622,7 +6218,7 @@ void DisplaySettingsWindow::do_draw()
 		ImGui::SetCursorPos(renderers_pos);
 
 		ImGui::BeginChild("renderers", renderers_size);
-		ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+		ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
 		ImGui::PushItemWidth(-1.0F);
 
@@ -6662,7 +6258,7 @@ void DisplaySettingsWindow::do_draw()
 		ImGui::SetCursorPos(displays_pos);
 
 		ImGui::BeginChild("displays", displays_size);
-		ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+		ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
 		ImGui::PushItemWidth(-1.0F);
 
@@ -7065,13 +6661,14 @@ void AdvancedSettingsWindow::do_draw()
 	auto& font_manager = FontManager::get_instance();
 
 	const auto scale = window_manager.get_scale();
+	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
 
 	auto& ogl_texture_manager = get_texture_manager();
 
 	const auto is_mouse_button_down = ImGui::IsMouseDown(0);
 	const auto is_mouse_button_up = ImGui::IsMouseReleased(0);
 
-	is_escape_down_ = ImGui::IsKeyPressed(SDL_SCANCODE_ESCAPE);
+	is_escape_down_ = ImGui::IsKeyPressed(ImGuiKey_Escape);
 
 	const auto mouse_pos = ImGui::GetMousePos();
 
@@ -7168,14 +6765,14 @@ void AdvancedSettingsWindow::do_draw()
 
 	ImGui::SetCursorPos(cmd_pos);
 
-	auto cmd_font = font_manager.get_font(FontId::message_box_message);
+	auto cmd_font = get_regular_imgui_font();
 
-	const auto cmd_input_pos = center_size_inside_rect(cmd_rect, ImVec2{0.0F, cmd_font->FontSize});
+	const auto cmd_input_pos = center_size_inside_rect(cmd_rect, ImVec2{0.0F, regular_font_size});
 	const auto cmd_input_rel_pos = ImVec2{0.0F, cmd_input_pos.y - cmd_rect.y};
 
 	ImGui::BeginChild("##command_line_child", cmd_size);
 	ImGui::SetCursorPos(cmd_input_rel_pos);
-	ImGui::PushFont(cmd_font);
+	ImGui::PushFont(cmd_font, regular_font_size);
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32_BLACK_TRANS);
 	ImGui::PushItemWidth(-1);
 	ImGui::InputText("##command_line", configuration.custom_arguments_.get_ptr());
@@ -7194,7 +6791,7 @@ void AdvancedSettingsWindow::do_draw()
 	ImGui::SetCursorPos(hint_pos);
 
 	ImGui::BeginChild("##hint_text", hint_size);
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_BLACK);
 	ImGui::TextWrapped("%s", hint_.c_str());
 	ImGui::PopStyleColor();
@@ -7347,6 +6944,7 @@ void AdvancedSettingsWindow::draw_check_box(
 
 	auto& window_manager = WindowManager::get_instance();
 	const auto scale = window_manager.get_scale();
+	const auto regular_font_size = font_manager.get_size(FontId::message_box_message) * scale;
 
 	const auto& resource_strings = launcher.get_resource_strings();
 
@@ -7378,7 +6976,7 @@ void AdvancedSettingsWindow::draw_check_box(
 		check_box_context.resource_string_id_,
 		check_box_context.resource_string_default_);
 
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 
 	const auto& text_size = ImGui::CalcTextSize(
 		text.c_str(),
@@ -7468,7 +7066,7 @@ void AdvancedSettingsWindow::draw_check_box(
 
 	ImGui::SetCursorPos(text_pos);
 
-	ImGui::PushFont(font_manager.get_font(FontId::message_box_message));
+	ImGui::PushFont(get_regular_imgui_font(), regular_font_size);
 	ImGui::PushStyleColor(ImGuiCol_Text, disable_sound_check_box_color);
 	ImGui::Text("%s", text.c_str());
 	ImGui::PopStyleColor();
@@ -7730,7 +7328,6 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		// FIXMENOW
 		const std::string& config_directory = configuration.get_config_path();
 		const std::string& log_file_name = configuration.get_log_file_name();
 		const std::string file_path = combine_and_normalize_file_paths(config_directory, log_file_name);
@@ -7827,20 +7424,6 @@ bool Launcher::initialize()
 
 	if (is_succeed)
 	{
-		// Clipboard
-		//
-
-		auto& clipboard = Clipboard::get_instance();
-		clipboard.initialize();
-
-
-		// SystemCursors
-		//
-
-		auto& system_cursors = SystemCursors::get_instance();
-		system_cursors.initialize();
-
-
 		// WindowManager
 		//
 
@@ -7857,21 +7440,6 @@ bool Launcher::initialize()
 		logger_->info("[Font manager]");
 
 		if (!font_manager.initialize())
-		{
-			is_succeed = false;
-
-			const auto& error_message = font_manager.get_error_message();
-			set_error_message(error_message);
-			logger_->error(error_message);
-		}
-	}
-
-	if (is_succeed)
-	{
-		const auto& window_manager = WindowManager::get_instance();
-		const auto scale = window_manager.get_scale();
-
-		if (!font_manager.set_fonts(scale))
 		{
 			is_succeed = false;
 
@@ -8033,18 +7601,6 @@ void Launcher::uninitialize()
 	//
 	auto& font_manager = FontManager::get_instance();
 	font_manager.uninitialize();
-
-
-	// Clipboard
-	//
-	auto& clipboard = Clipboard::get_instance();
-	clipboard.uninitialize();
-
-
-	// SystemCursors
-	//
-	auto& system_cursors = SystemCursors::get_instance();
-	system_cursors.uninitialize();
 }
 
 bool Launcher::is_initialized()
@@ -8176,7 +7732,7 @@ void Launcher::setup_search_paths(
 
 bool Launcher::initialize_sdl()
 {
-	const bool sdl_result = SDL_Init(SDL_INIT_VIDEO);
+	const bool sdl_result = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
 
 	if (!sdl_result)
 	{

@@ -39,6 +39,7 @@ target_compile_definitions (
 	${PROJECT_NAME}
 	PRIVATE
 		LTJS_NOLF2
+		IMGUI_USER_CONFIG="ltjs_launcher_imconfig.h"
 )
 
 target_link_libraries (
@@ -51,7 +52,8 @@ target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
 		../../../libs/imgui
-		../../../libs/imgui/misc/stl
+		../../../libs/imgui/backends
+		../../../libs/imgui/misc/cpp
 		../../../libs/spdlog/include
 		..
 )
@@ -65,8 +67,11 @@ target_sources (
 		../../../libs/imgui/imstb_rectpack.h
 		../../../libs/imgui/imstb_textedit.h
 		../../../libs/imgui/imstb_truetype.h
-		../../../libs/imgui/misc/stl/imgui_stl.h
+		../../../libs/imgui/backends/imgui_impl_sdl3.h
+		../../../libs/imgui/backends/imgui_impl_sdlrenderer3.h
+		../../../libs/imgui/misc/cpp/imgui_stdlib.h
 		../ltjs_launcher.h
+		../ltjs_launcher_imconfig.h
 		../ltjs_launcher_utility.h
 		../ltjs_launcher_resource_strings.h
 		../ltjs_launcher_search_paths.h
@@ -76,10 +81,12 @@ target_sources (
 	${PROJECT_NAME}
 	PRIVATE
 		../../../libs/imgui/imgui.cpp
-		../../../libs/imgui/imgui_demo.cpp
 		../../../libs/imgui/imgui_draw.cpp
+		../../../libs/imgui/imgui_tables.cpp
 		../../../libs/imgui/imgui_widgets.cpp
-		../../../libs/imgui/misc/stl/imgui_stl.cpp
+		../../../libs/imgui/backends/imgui_impl_sdl3.cpp
+		../../../libs/imgui/backends/imgui_impl_sdlrenderer3.cpp
+		../../../libs/imgui/misc/cpp/imgui_stdlib.cpp
 		../ltjs_launcher.cpp
 		../ltjs_launcher_utility.cpp
 		../ltjs_launcher_resource_strings.cpp
