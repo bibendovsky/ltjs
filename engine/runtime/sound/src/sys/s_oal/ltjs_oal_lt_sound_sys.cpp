@@ -1,6 +1,5 @@
 #include "ltjs_oal_lt_sound_sys.h"
 
-#include "spdlog/sinks/basic_file_sink.h"
 #include "bibendovsky_spul_scope_guard.h"
 
 
@@ -13,16 +12,13 @@ namespace ltjs
 
 OalLtSoundSys::OalLtSoundSys()
 {
-	spdlog::flush_every(std::chrono::seconds(1));
-
-	logger_ = spdlog::basic_logger_mt("snddrv_oal", "ltjs_snddrv_log.txt", true);
+	logger_ = make_logger("snddrv_oal", "ltjs_snddrv_log.txt");
 	logger_->info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 }
 
 OalLtSoundSys::~OalLtSoundSys()
 {
 	logger_->info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-	spdlog::shutdown();
 }
 
 

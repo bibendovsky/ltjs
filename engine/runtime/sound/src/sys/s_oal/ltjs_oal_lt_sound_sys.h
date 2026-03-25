@@ -9,11 +9,10 @@
 #include <thread>
 #include <vector>
 
-#include "spdlog/spdlog.h"
-
 #include "iltsound.h"
 
 #include "ltjs_audio_utils.h"
+#include "ltjs_logger.h"
 #include "ltjs_oal_lt_sound_sys_generic_stream.h"
 #include "ltjs_oal_lt_sound_sys_streaming_source.h"
 #include "ltjs_oal_lt_filter.h"
@@ -480,7 +479,7 @@ private:
 	using OpenSources = std::list<OalLtSoundSysStreamingSource*>;
 
 
-	std::shared_ptr<spdlog::logger> logger_{};
+	LoggerUPtr logger_{};
 
 	String error_message_;
 	oal::SystemUPtr system_;

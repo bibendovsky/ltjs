@@ -29,6 +29,7 @@ target_sources (
 		include/ltjs_iunknown_uresource.h
 		include/ltjs_language.h
 		include/ltjs_language_mgr.h
+		include/ltjs_logger.h
 		include/ltjs_main_window_descriptor.h
 		include/ltjs_script_tokenizer.h
 		include/ltjs_sdl_ensure_result.h
@@ -41,6 +42,7 @@ target_sources (
 		include/ltjs_shared_data_mgr.h
 		include/ltjs_shared_library.h
 		include/ltjs_shell_resource_mgr.h
+		include/ltjs_sys_time.h
 		include/ltjs_system_event.h
 		include/ltjs_system_event_handler.h
 		include/ltjs_system_event_handler_mgr.h
@@ -69,6 +71,8 @@ target_sources (
 		src/ltjs_iunknown_uresource.cpp
 		src/ltjs_language.cpp
 		src/ltjs_language_mgr.cpp
+		src/ltjs_logger.cpp
+		src/ltjs_logger_win32.cpp
 		src/ltjs_main_window_descriptor.cpp
 		src/ltjs_script_tokenizer.cpp
 		src/ltjs_sdl_ensure_result.cpp
@@ -81,6 +85,7 @@ target_sources (
 		src/ltjs_shared_library.cpp
 		src/ltjs_shell_string_formatter.cpp
 		src/ltjs_shell_resource_mgr.cpp
+		src/ltjs_sys_time.cpp
 		src/ltjs_system_event.cpp
 		src/ltjs_system_event_handler.cpp
 		src/ltjs_system_event_handler_mgr.cpp

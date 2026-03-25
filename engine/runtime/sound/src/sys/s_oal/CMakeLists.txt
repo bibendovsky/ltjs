@@ -64,7 +64,6 @@ target_include_directories (
 		../..
 		../../../../../../libs/lith
 		../../../../../../libs/openal_soft/include/AL
-		../../../../../../libs/spdlog/include
 		../../../../../sdk/inc
 		../../../../kernel/src
 )
