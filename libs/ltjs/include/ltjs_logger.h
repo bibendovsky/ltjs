@@ -1,3 +1,11 @@
+/*
+LTJS: Source port of LithTech Jupiter System
+Copyright (c) 2021-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: GPL-2.0
+*/
+
+// Logger
+
 #ifndef LTJS_LOGGER_INCLUDED
 #define LTJS_LOGGER_INCLUDED
 

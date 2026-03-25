@@ -1,3 +1,11 @@
+/*
+LTJS: Source port of LithTech Jupiter System
+Copyright (c) 2021-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: GPL-2.0
+*/
+
+// System: Time utility
+
 #include "ltjs_sys_time.h"
 #include <cassert>
 #include "SDL3/SDL_time.h"

@@ -60,7 +60,7 @@
 #include "SDL3/SDL.h"
 
 #include "ltjs_main_window_descriptor.h"
-#include "ltjs_system_event_handler_mgr.h"
+#include "ltjs_sys_event_handler_mgr.h"
 #endif // LTJS_SDL_BACKEND
 
 #ifdef STRICT
@@ -98,7 +98,7 @@ HWND				g_hMainWnd = NULL;
 #endif // LTJS_SDL_BACKEND
 
 #ifdef LTJS_SDL_BACKEND
-ltjs::SystemEventHandlerMgr* g_system_event_handler_mgr = nullptr;
+ltjs::sys::EventHandlerMgr* g_system_event_handler_mgr = nullptr;
 #endif // LTJS_SDL_BACKEND
 
 RECT*				g_prcClip = NULL;
@@ -4543,11 +4543,11 @@ void DefaultModelHook (ModelHookData *pData, void *pUser)
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class GcsSystemEventHandler final :
-	public ltjs::SystemEventHandler
+	public ltjs::sys::EventHandler
 {
 public:
-	bool operator()(
-		const ltjs::SystemEvent& event) override;
+	bool invoke(
+		const ltjs::sys::Event& event) override;
 
 private:
 	void handle_text_input(
@@ -4565,8 +4565,8 @@ private:
 
 // ==========================================================================
 
-bool GcsSystemEventHandler::operator()(
-	const ltjs::SystemEvent& event)
+bool GcsSystemEventHandler::invoke(
+	const ltjs::sys::Event& event)
 {
 	switch (event.type)
 	{
@@ -4814,7 +4814,7 @@ BOOL HookWindow()
 		return FALSE;
 	}
 
-	g_system_event_handler_mgr->add(&g_system_event_handler, ltjs::SystemEventHandlerPriority::normal);
+	g_system_event_handler_mgr->add(&g_system_event_handler, ltjs::sys::EventHandlerPriority::normal);
 #else
 	// Get the window procedure
 #ifdef STRICT

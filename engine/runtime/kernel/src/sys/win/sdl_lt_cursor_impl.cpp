@@ -8,7 +8,7 @@
 
 #include "iltcursor.h"
 
-#include "ltjs_sdl_uresources.h"
+#include "ltjs_sdl_raii.h"
 #include "ltjs_shared_data_mgr.h"
 #include "ltjs_shell_resource_mgr.h"
 
@@ -248,7 +248,7 @@ LTRESULT CLTCursor::LoadCursorBitmapResource(
 		return LT_MISSINGCURSORRESOURCE;
 	}
 
-	const auto sdl_rwops = ltjs::SdlRwOpsUResource{SDL_IOFromConstMem(
+	const auto sdl_rwops = ltjs::sdl::IoStreamUPtr{SDL_IOFromConstMem(
 		shell_cursor->data.data,
 		shell_cursor->data.size
 	)};
@@ -258,7 +258,7 @@ LTRESULT CLTCursor::LoadCursorBitmapResource(
 		return LT_MISSINGCURSORRESOURCE;
 	}
 
-	const auto sdl_surface = ltjs::SdlSurfaceUResource{SDL_LoadBMP_IO(sdl_rwops.get(), 0)};
+	const auto sdl_surface = ltjs::sdl::SurfaceUPtr{SDL_LoadBMP_IO(sdl_rwops.get(), 0)};
 
 	if (!sdl_surface)
 	{

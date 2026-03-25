@@ -27,7 +27,7 @@
 #include "SDL3/SDL_keyboard.h"
 #include "SDL3/SDL_keycode.h"
 
-#include "ltjs_sdl_utils.h"
+#include "ltjs_sdl_utility.h"
 #endif // LTJS_SDL_BACKEND
 
 //------------------------------------------------------------------
@@ -345,7 +345,7 @@ void CConCommandBox::MoveWord( int iOffset )
 char CConCommandBox::TranslateKey(uint32 key) const
 {
 #ifdef LTJS_SDL_BACKEND
-	return ltjs::sdl_utils::key_code_to_char(static_cast<int>(key));
+	return ltjs::sdl::key_code_to_char(static_cast<int>(key));
 #else
 	char aResult[2];
 	uint8 aKeyState[256];

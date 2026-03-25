@@ -24,13 +24,13 @@ namespace oal
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class EaxLtFilterException :
-	public SafeException
+	public Exception
 {
 public:
 	explicit EaxLtFilterException(
 		const char* message)
 		:
-		SafeException{message}
+		Exception{"OAL_EAX_LT_FILTER", message}
 	{
 	}
 }; // EaxLtFilterException

@@ -24,13 +24,13 @@ LtFilter::~LtFilter() = default;
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class LtFilterException :
-	public SafeException
+	public Exception
 {
 public:
 	explicit LtFilterException(
 		const char* message)
 		:
-		SafeException{message}
+		Exception{"OAL_LT_FILTER", message}
 	{
 	}
 }; // LtFilterException

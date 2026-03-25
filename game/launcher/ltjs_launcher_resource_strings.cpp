@@ -50,7 +50,7 @@ bool ResourceStrings::Impl::impl_initialize(const SearchPaths& search_paths, con
 	for (const std::string& search_path : search_paths)
 	{
 		const std::string file_path = combine_and_normalize_file_paths(search_path, file_name);
-		if (SdlIoStreamUPtr file_stream{SDL_IOFromFile(file_path.c_str(), "rb")};
+		if (IoStreamUPtr file_stream{SDL_IOFromFile(file_path.c_str(), "rb")};
 			file_stream != nullptr)
 		{
 			if (!parse_file(file_stream.get(), id_to_string_map_))
@@ -117,7 +117,8 @@ bool ResourceStrings::Impl::parse_file(SDL_IOStream* file_stream, IdToStringMap&
 	}
 	// Tokenize strings.
 	ScriptTokenizer script_tokenizer{};
-	const ScriptTokenizerInitParam script_tokenizer_init_param{.data = file_buffer_.data(), .size = file_size};
+	const ScriptTokenizerInitParam script_tokenizer_init_param{
+		.data = std::string_view{file_buffer_.data(), static_cast<std::size_t>(file_size)}};
 	try
 	{
 		script_tokenizer.initialize(script_tokenizer_init_param);
@@ -149,13 +150,14 @@ bool ResourceStrings::Impl::parse_file(SDL_IOStream* file_stream, IdToStringMap&
 		{
 			continue;
 		}
-		if (script_line.size != 2)
+		if (script_line.token_count != 2)
 		{
 			error_message_ = "Expected two tokens.";
 			return false;
 		}
 		int id;
-		if (const auto [chars_end, ec] = std::from_chars(script_line[0].data, script_line[0].data + script_line[0].size, id);
+		if (const auto [chars_end, ec] = std::from_chars(
+				script_line[0].data.data(), script_line[0].data.data() + script_line[0].data.size(), id);
 			ec != std::errc{})
 		{
 			error_message_ = std::format("Expected a number at line {}.", script_line.get_line_number());
@@ -175,7 +177,7 @@ bool ResourceStrings::Impl::parse_file(SDL_IOStream* file_stream, IdToStringMap&
 		}
 		else
 		{
-			value_string.assign(value_token.data, static_cast<std::size_t>(value_token.size));
+			value_string = value_token.data;
 		}
 		id_to_string_map[id] = value_string;
 	}

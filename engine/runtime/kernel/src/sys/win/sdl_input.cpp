@@ -39,11 +39,11 @@
 
 #include "ltjs_dinput.h"
 #include "ltjs_exception.h"
-#include "ltjs_sdl_joystick_guid.h"
+#include "ltjs_sdl_raii.h"
 #include "ltjs_sdl_subsystem.h"
-#include "ltjs_sdl_uresources.h"
-#include "ltjs_system_event_handler.h"
-#include "ltjs_system_event_queue.h"
+#include "ltjs_sdl_utility.h"
+#include "ltjs_sys_event_handler.h"
+#include "ltjs_sys_event_queue.h"
 
 
 namespace
@@ -196,7 +196,7 @@ public:
 
 
 	virtual void handle_system_event(
-		const ltjs::SystemEvent& system_event) = 0;
+		const ltjs::sys::Event& system_event) = 0;
 }; // SdlInputDevice
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -260,7 +260,7 @@ public:
 
 
 	void handle_system_event(
-		const ltjs::SystemEvent& system_event) override;
+		const ltjs::sys::Event& system_event) override;
 
 	// SdlInputDevice
 	// ======================================================================
@@ -291,7 +291,7 @@ private:
 	Objects objects_{};
 	SdlInputDeviceDataFormat data_format_{};
 	ObjectDataFormats object_data_formats_{};
-	ltjs::SystemEventQueue event_queue_{};
+	ltjs::sys::EventQueue event_queue_{};
 
 	bool is_mouse_motion_pending_{};
 	SdlInputDeviceObjectData mouse_motion_pending_data_{};
@@ -306,7 +306,7 @@ private:
 	void clear_events();
 
 	void handle_window_event(
-		const ltjs::SystemEvent& system_event);
+		const ltjs::sys::Event& system_event);
 
 	const SdlInputDeviceObjectDataFormat* find_object_data_format_by_id(
 		int object_id) const;
@@ -696,7 +696,7 @@ void SdlInputMouseDevice::flush_data()
 }
 
 void SdlInputMouseDevice::handle_system_event(
-	const ltjs::SystemEvent& system_event)
+	const ltjs::sys::Event& system_event)
 {
 	switch (system_event.type)
 	{
@@ -804,7 +804,7 @@ void SdlInputMouseDevice::clear_events()
 }
 
 void SdlInputMouseDevice::handle_window_event(
-	const ltjs::SystemEvent& system_event)
+	const ltjs::sys::Event& system_event)
 {
 	switch (system_event.type)
 	{
@@ -895,7 +895,7 @@ public:
 
 
 	void handle_system_event(
-		const ltjs::SystemEvent& system_event) override;
+		const ltjs::sys::Event& system_event) override;
 
 	// SdlInputDevice
 	// ======================================================================
@@ -1080,7 +1080,7 @@ private:
 	SdlKeycodeToDiKeyMap sdl_keycode_to_di_key_map_{};
 	SdlInputDeviceDataFormat data_format_{};
 	ObjectDataFormats object_data_formats_{};
-	ltjs::SystemEventQueue event_queue_{};
+	ltjs::sys::EventQueue event_queue_{};
 
 	bool has_focus_{};
 
@@ -1096,7 +1096,7 @@ private:
 	void clear_events();
 
 	void handle_window_event(
-		const ltjs::SystemEvent& system_event);
+		const ltjs::sys::Event& system_event);
 
 	const SdlInputDeviceObjectDataFormat* find_object_data_format_by_id(
 		int object_id) const;
@@ -1303,7 +1303,7 @@ void SdlInputKeyboardDevice::flush_data()
 }
 
 void SdlInputKeyboardDevice::handle_system_event(
-	const ltjs::SystemEvent& system_event)
+	const ltjs::sys::Event& system_event)
 {
 	if (system_event.type == SDL_EVENT_KEY_DOWN ||
 		system_event.type == SDL_EVENT_KEY_UP ||
@@ -1357,7 +1357,7 @@ void SdlInputKeyboardDevice::clear_events()
 }
 
 void SdlInputKeyboardDevice::handle_window_event(
-	const ltjs::SystemEvent& system_event)
+	const ltjs::sys::Event& system_event)
 {
 	switch (system_event.type)
 	{
@@ -1461,7 +1461,7 @@ public:
 
 
 	void handle_system_event(
-		const ltjs::SystemEvent& system_event) override;
+		const ltjs::sys::Event& system_event) override;
 
 	// SdlInputDevice
 	// ======================================================================
@@ -1529,14 +1529,14 @@ private:
 	using ObjectDataFormats = std::array<SdlInputDeviceObjectDataFormat, max_objects>;
 
 
-	ltjs::SdlGamepadUResource gamepad_{};
+	ltjs::sdl::GamepadUPtr gamepad_{};
 	SdlInputDeviceInfo info_{};
 	SDL_JoystickID joystick_id_{};
 	int object_count_{};
 	Objects objects_{};
 	SdlInputDeviceDataFormat data_format_{};
 	ObjectDataFormats object_data_formats_{};
-	ltjs::SystemEventQueue event_queue_{};
+	ltjs::sys::EventQueue event_queue_{};
 
 	bool has_focus_{};
 
@@ -1563,10 +1563,10 @@ private:
 	void clear_events();
 
 	void handle_window_event(
-		const ltjs::SystemEvent& system_event);
+		const ltjs::sys::Event& system_event);
 
 	void handle_add_remove_gamepad_event(
-		const ltjs::SystemEvent& system_event);
+		const ltjs::sys::Event& system_event);
 
 	const SdlInputDeviceObjectDataFormat* find_object_data_format_by_id(
 		int object_id) const;
@@ -1997,7 +1997,7 @@ void SdlInputGamepadDevice::flush_data()
 }
 
 void SdlInputGamepadDevice::handle_system_event(
-	const ltjs::SystemEvent& system_event)
+	const ltjs::sys::Event& system_event)
 {
 	if (system_event.type == SDL_EVENT_GAMEPAD_AXIS_MOTION ||
 		system_event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN ||
@@ -2036,7 +2036,7 @@ void SdlInputGamepadDevice::open_gamepad()
 			continue;
 		}
 
-		ltjs::SdlGamepadUResource gamepad{SDL_OpenGamepad(sdl_joystick_id)};
+		ltjs::sdl::GamepadUPtr gamepad{SDL_OpenGamepad(sdl_joystick_id)};
 
 		if (gamepad == nullptr)
 		{
@@ -2171,7 +2171,7 @@ void SdlInputGamepadDevice::clear_events()
 }
 
 void SdlInputGamepadDevice::handle_window_event(
-	const ltjs::SystemEvent& system_event)
+	const ltjs::sys::Event& system_event)
 {
 	switch (system_event.type)
 	{
@@ -2188,7 +2188,7 @@ void SdlInputGamepadDevice::handle_window_event(
 }
 
 void SdlInputGamepadDevice::handle_add_remove_gamepad_event(
-	const ltjs::SystemEvent& system_event)
+	const ltjs::sys::Event& system_event)
 {
 	switch (system_event.type)
 	{
@@ -2358,7 +2358,7 @@ public:
 
 struct SdlInputCreateParam
 {
-	ltjs::SystemEventHandlerMgr* system_event_handler_mgr{};
+	ltjs::sys::EventHandlerMgr* system_event_handler_mgr{};
 	bool supports_joystick{};
 }; // SdlInputCreateParam
 
@@ -2428,7 +2428,7 @@ public:
 
 private:
 	class SdlInputSystemEventHandler final :
-		public ltjs::SystemEventHandler
+		public ltjs::sys::EventHandler
 	{
 	public:
 		void initialize(
@@ -2436,12 +2436,12 @@ private:
 
 
 		// ==================================================================
-		// ltjs::SystemEventHandler
+		// ltjs::sys::EventHandler
 
-		bool operator()(
-			const ltjs::SystemEvent& system_event) override;
+		bool invoke(
+			const ltjs::sys::Event& system_event) override;
 
-		// ltjs::SystemEventHandler
+		// ltjs::sys::EventHandler
 		// ==================================================================
 
 
@@ -2463,11 +2463,11 @@ private:
 	using Devices = std::list<Device>;
 
 
-	ltjs::SystemEventHandlerMgr* system_event_handler_mgr_{};
+	ltjs::sys::EventHandlerMgr* system_event_handler_mgr_{};
 	SdlInputSystemEventHandler system_event_handler_{};
 	int device_unique_id_{};
-	ltjs::SdlSubsystem sdl_joystick_subsystem_{};
-	ltjs::SdlSubsystem sdl_gamepad_subsystem_{};
+	ltjs::sdl::Subsystem sdl_joystick_subsystem_{};
+	ltjs::sdl::Subsystem sdl_gamepad_subsystem_{};
 	AvailableDeviceInfos available_device_infos_{};
 	Devices devices_{};
 
@@ -2488,7 +2488,7 @@ private:
 	void initialize_available_devices();
 
 	void handle_system_event(
-		const ltjs::SystemEvent& system_event);
+		const ltjs::sys::Event& system_event);
 }; // SdlInputImpl
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -2503,8 +2503,8 @@ void SdlInputImpl::SdlInputSystemEventHandler::initialize(
 	sdl_input_ = sdl_input;
 }
 
-bool SdlInputImpl::SdlInputSystemEventHandler::operator()(
-	const ltjs::SystemEvent& system_event)
+bool SdlInputImpl::SdlInputSystemEventHandler::invoke(
+	const ltjs::sys::Event& system_event)
 {
 	if (sdl_input_)
 	{
@@ -2529,8 +2529,8 @@ SdlInputImpl::SdlInputImpl(
 
 	if (param.supports_joystick)
 	{
-		sdl_joystick_subsystem_ = ltjs::SdlSubsystem{SDL_INIT_JOYSTICK};
-		sdl_gamepad_subsystem_ = ltjs::SdlSubsystem{SDL_INIT_GAMEPAD};
+		sdl_joystick_subsystem_ = ltjs::sdl::Subsystem{SDL_INIT_JOYSTICK};
+		sdl_gamepad_subsystem_ = ltjs::sdl::Subsystem{SDL_INIT_GAMEPAD};
 	}
 
 	initialize_available_devices();
@@ -2541,7 +2541,7 @@ SdlInputImpl::SdlInputImpl(
 
 	system_event_handler_mgr_->add(
 		&system_event_handler_,
-		ltjs::SystemEventHandlerPriority::high
+		ltjs::sys::EventHandlerPriority::high
 	);
 }
 
@@ -2793,7 +2793,7 @@ void SdlInputImpl::initialize_available_devices()
 }
 
 void SdlInputImpl::handle_system_event(
-	const ltjs::SystemEvent& system_event)
+	const ltjs::sys::Event& system_event)
 {
 	for (const auto& device : devices_)
 	{
@@ -3741,7 +3741,7 @@ bool input_Init(InputMgr* pMgr, ConsoleState* pState)
 {
 	g_pInputConsoleState = pState;
 
-	const auto system_event_handler_mgr = static_cast<ltjs::SystemEventHandlerMgr*>(
+	const auto system_event_handler_mgr = static_cast<ltjs::sys::EventHandlerMgr*>(
 		dsi_get_system_event_handler_mgr()
 	);
 
