@@ -8,25 +8,20 @@
 #include "ltjs_launcher_resource_strings.h"
 #include "ltjs_launcher_search_paths.h"
 #include "ltjs_launcher_utility.h"
+#include "ltjs_logger.h"
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <array>
 #include <algorithm>
 #include <charconv>
-#include <chrono>
-#include <deque>
 #include <exception>
 #include <format>
-#include <iterator>
-#include <limits>
 #include <optional>
 #include <span>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 #if defined(LTJS_NOLF2)
@@ -74,87 +69,6 @@ void ensure_sdl_bool_result(const std::string& sdl_function_name, bool result)
 	{
 		fail_sdl_function(sdl_function_name);
 	}
-}
-
-// ======================================
-
-struct LoggerCreateParam
-{
-	std::string file_path;
-};
-
-class Logger
-{
-public:
-	explicit Logger(const LoggerCreateParam& param);
-
-	void info(const std::string& message);
-	void warn(const std::string& message);
-	void error(const std::string& message);
-
-private:
-	static constexpr const char* newline = "\n";
-
-	SdlIoStreamUPtr sdl_io_stream_uptr_{};
-	std::string output_message_{};
-
-	void initialize_file(const LoggerCreateParam& param);
-	void log_message(char type_prefix, const std::string& message);
-};
-
-// --------------------------------------
-
-Logger::Logger(const LoggerCreateParam& param)
-{
-	initialize_file(param);
-}
-
-void Logger::info(const std::string& message)
-{
-	log_message('I', message);
-}
-
-void Logger::warn(const std::string& message)
-{
-	log_message('W', message);
-}
-
-void Logger::error(const std::string& message)
-{
-	log_message('E', message);
-}
-
-void Logger::initialize_file(const LoggerCreateParam& param)
-{
-	if (sdl_io_stream_uptr_.reset(SDL_IOFromFile(param.file_path.c_str(), "wb"));
-		sdl_io_stream_uptr_ == nullptr)
-	{
-		fail("Failed to create a log file. (file_path={}; error_message={})", param.file_path, SDL_GetError());
-	}
-}
-
-void Logger::log_message(char type_prefix, const std::string& message)
-{
-	if (sdl_io_stream_uptr_ == nullptr)
-	{
-		return;
-	}
-	using Clock = std::chrono::system_clock;
-	const auto now_time_point_s = std::chrono::floor<std::chrono::seconds>(Clock::now());
-	const std::chrono::zoned_time local_time{std::chrono::current_zone(), now_time_point_s};
-	output_message_.clear();
-	output_message_.reserve(33 + message.size());
-	std::format_to(std::back_inserter(output_message_), "[{:%Y-%m-%d %H:%M:%S %Ez}] [{}] {}{}", local_time, type_prefix, message, newline);
-	SDL_WriteIO(sdl_io_stream_uptr_.get(), output_message_.data(), output_message_.size());
-}
-
-// --------------------------------------
-
-using LoggerUPtr = std::unique_ptr<Logger>;
-
-LoggerUPtr make_logger(const LoggerCreateParam& param)
-{
-	return std::make_unique<Logger>(param);
 }
 
 // ======================================
@@ -4097,9 +4011,11 @@ void Launcher::initialize()
 	Configuration& configuration = Configuration::get_singleton();
 	{
 		const std::string& config_directory = configuration.get_config_path();
+		const bool is_config_directory_created = SDL_CreateDirectory(config_directory.c_str());
+		assert(is_config_directory_created);
 		const std::string& log_file_name = configuration.get_log_file_name();
 		const std::string file_path = combine_and_normalize_file_paths(config_directory, log_file_name);
-		logger_ = make_logger(LoggerCreateParam{.file_path = file_path});
+		logger_ = make_logger(LTJS_GAME_ID_STRING, file_path.c_str());
 	}
 	{
 		logger_->info("[Window icon]");
