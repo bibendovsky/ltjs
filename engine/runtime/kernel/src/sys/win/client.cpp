@@ -10,12 +10,13 @@
 #include "ltjs_shell_resource_mgr.h"
 #endif // LTJS_SDL_BACKEND
 
-#include "ltjs_system_event.h"
-#include "ltjs_system_event_handler_mgr.h"
-#include "ltjs_system_event_mgr.h"
-#include "ltjs_system_event_queue.h"
+#include "ltjs_sdl_raii.h"
 #include "ltjs_sdl_subsystem.h"
-#include "ltjs_sdl_utils.h"
+#include "ltjs_sdl_utility.h"
+#include "ltjs_sys_event.h"
+#include "ltjs_sys_event_handler_mgr.h"
+#include "ltjs_sys_event_mgr.h"
+#include "ltjs_sys_event_queue.h"
 #endif // LTJS_SDL_BACKEND
 
 
@@ -101,11 +102,11 @@ namespace
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class CSystemEventHandler :
-	public ltjs::SystemEventHandler
+	public ltjs::sys::EventHandler
 {
 public:
-	bool operator()(
-		const ltjs::SystemEvent& event) override;
+	bool invoke(
+		const ltjs::sys::Event& event) override;
 
 
 private:
@@ -141,17 +142,17 @@ auto g_language_mgr = ltjs::LanguageMgrUPtr{};
 auto g_cres_mgr = ltjs::ShellResourceMgrUPtr{};
 auto g_ltmsg_mgr = ltjs::ShellResourceMgrUPtr{};
 auto g_system_event_handler = CSystemEventHandler{};
-auto g_system_event_mgr = ltjs::SystemEventMgrUPtr{};
-auto g_video_subsystem = ltjs::SdlSubsystem{};
-auto g_main_window = ltjs::SdlWindowUResource{};
+auto g_system_event_mgr = ltjs::sys::EventMgrUPtr{};
+auto g_video_subsystem = ltjs::sdl::Subsystem{};
+auto g_main_window = ltjs::sdl::WindowUPtr{};
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-bool CSystemEventHandler::operator()(
-	const ltjs::SystemEvent& event)
+bool CSystemEventHandler::invoke(
+	const ltjs::sys::Event& event)
 {
 	const auto is_handle_window_messages = (g_ClientGlob.m_bProcessWindowMessages && g_pClientMgr);
 
@@ -503,14 +504,14 @@ bool initialize_sdl()
 
 void initialize_system_event_mgr()
 {
-	g_system_event_mgr = ltjs::make_system_event_mgr();
+	g_system_event_mgr = ltjs::sys::make_event_mgr();
 	g_ClientGlob.system_event_mgr = g_system_event_mgr.get();
 }
 
 void initialize_system_event_handler()
 {
 	const auto handler_mgr = g_system_event_mgr->get_handler_mgr();
-	handler_mgr->add(&g_system_event_handler, ltjs::SystemEventHandlerPriority::normal);
+	handler_mgr->add(&g_system_event_handler, ltjs::sys::EventHandlerPriority::normal);
 }
 
 bool initialize()
@@ -521,19 +522,19 @@ bool initialize()
 	}
 
 #ifdef LTJS_SDL_BACKEND
-	auto& shared_data_mgr = ltjs::get_shared_data_mgr();
-
 	g_language_mgr = ltjs::make_language_mgr();
 	g_language_mgr->initialize("ltjs");
-	ltjs::get_shared_data_mgr().set_language_mgr(g_language_mgr.get());
-
+	//
 	g_cres_mgr = ltjs::make_shell_resource_mgr();
-	ltjs::get_shared_data_mgr().set_cres_mgr(g_cres_mgr.get());
-
+	//
 	g_ltmsg_mgr = ltjs::make_shell_resource_mgr();
 	g_ltmsg_mgr->initialize("ltjs/ltmsg");
-	g_ltmsg_mgr->set_language(g_language_mgr->get_current()->id_string.data);
-	ltjs::get_shared_data_mgr().set_ltmsg_mgr(g_ltmsg_mgr.get());
+	g_ltmsg_mgr->set_language(g_language_mgr->get_current()->id_string.data());
+	//
+	ltjs::initialize_shared_data_mgr(ltjs::SharedDataMgrInitParam{
+		.language_mgr = g_language_mgr.get(),
+		.cres_mgr     = g_cres_mgr.get(),
+		.ltmsg_mgr    = g_ltmsg_mgr.get()});
 #endif // LTJS_SDL_BACKEND
 
 	return true;
@@ -553,7 +554,7 @@ void uninitialize()
 
 void initialize_video_subsystem()
 {
-	g_video_subsystem = ltjs::SdlSubsystem{SDL_INIT_VIDEO};
+	g_video_subsystem = ltjs::sdl::Subsystem{SDL_INIT_VIDEO};
 }
 
 void create_main_window(
@@ -562,7 +563,7 @@ void create_main_window(
 {
 	const auto sdl_window_flags = ::Uint32{SDL_WINDOW_HIGH_PIXEL_DENSITY};
 
-	auto sdl_window = ltjs::SdlWindowUResource{SDL_CreateWindow(
+	auto sdl_window = ltjs::sdl::WindowUPtr{SDL_CreateWindow(
 		g_ClientGlob.m_WndCaption,
 		width,
 		height,
@@ -586,7 +587,7 @@ void create_main_window(
 	window_native_handle = SDL_GetPointerProperty(sdl_properties_id, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
 #endif // _WIN32
 
-	ltjs::sdl_utils::fill_window_black(sdl_window.get());
+	ltjs::sdl::fill_window_black(sdl_window.get());
 
 	g_main_window = std::move(sdl_window);
 

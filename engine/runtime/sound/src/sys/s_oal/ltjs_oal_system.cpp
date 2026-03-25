@@ -30,13 +30,13 @@ System::~System() = default;
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class SystemException :
-	public SafeException
+	public Exception
 {
 public:
 	explicit SystemException(
 		const char* message)
 		:
-		SafeException{message}
+		Exception{"OAL", message}
 	{
 	}
 }; // SystemException

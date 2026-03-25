@@ -1,97 +1,58 @@
-#include "ltjs_language_mgr.h"
+/*
+LTJS: Source port of LithTech Jupiter System
+Copyright (c) 2021-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: GPL-2.0
+*/
 
+// Language resource manager
+
+#include "ltjs_language_mgr.h"
+#include "ltjs_exception.h"
+#include "ltjs_script_tokenizer.h"
+#include "ltjs_sys_file_utility.h"
+#include "ltjs_sys_fs_path.h"
+#include <cassert>
 #include <algorithm>
 #include <unordered_map>
 #include <string>
 #include <vector>
 
-#include "ltjs_c_string.h"
-#include "ltjs_exception.h"
-#include "ltjs_file.h"
-#include "ltjs_file_system_path.h"
-#include "ltjs_script_tokenizer.h"
+namespace ltjs {
 
+namespace {
 
-namespace ltjs
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-LanguageMgr::LanguageMgr() = default;
-
-LanguageMgr::~LanguageMgr() = default;
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class LanguageMgrImplException :
-	public Exception
-{
-public:
-	explicit LanguageMgrImplException(
-		const char* message)
-		:
-		Exception{"LTJS_LANGUAGE_MGR", message}
-	{
-	}
-}; // LanguageMgrImplException
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class LanguageMgrImpl :
-	public LanguageMgr
+class LanguageMgrImpl final : public LanguageMgr
 {
 public:
 	LanguageMgrImpl();
+	~LanguageMgrImpl() override = default;
 
-
-	void initialize(
-		const char* base_path) noexcept override;
-
-
+	void initialize(std::string_view base_path) noexcept override;
 	const Language* get_current() const noexcept override;
-
-	void set_current_by_id_string(
-		const char* id_string) noexcept override;
-
+	void set_current_by_id_string(std::string_view id_string) noexcept override;
 	LanguageMgrLanguages get_languages() const noexcept override;
-
-
 	void load() noexcept override;
-
 	void save() noexcept override;
 
-
 private:
-	static constexpr auto max_file_size = 4 * 1'024;
-	static constexpr auto min_language_capacity = 32;
+	static constexpr int max_file_size = 4 * 1'024;
+	static constexpr int min_language_capacity = 32;
 
-	static constexpr auto language_file_name = "language.txt";
-	static constexpr auto languages_file_name = "languages.txt";
-
+	static constexpr const char* language_file_name = "language.txt";
+	static constexpr const char* languages_file_name = "languages.txt";
 
 	using Buffer = std::vector<char>;
-
-
 	using ApiLanguages = std::vector<Language>;
-
 
 	struct LanguageInternal
 	{
-		std::string id_string{};
-		std::string name{};
-	}; // LanguageInternal
+		std::string id_string;
+		std::string name;
+	};
 
 	using LanguagesInternal = std::vector<LanguageInternal>;
 
-
-	file_system::Path base_path_{};
+	sys::fs::Path base_path_{};
 	const Language* api_current_language_{};
 	Language api_default_language_{};
 	ApiLanguages api_languages_{};
@@ -100,37 +61,26 @@ private:
 	LanguageInternal default_language_{};
 	LanguagesInternal languages_{};
 
-
+	[[noreturn]] static void fail(std::string_view message);
 	void set_default_language();
-
 	void load_languages();
-
 	void load_language();
-
 	void make_api() noexcept;
-}; // LanguageMgrImpl
+};
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// =====================================
 
 LanguageMgrImpl::LanguageMgrImpl()
 {
 	default_language_.id_string = "en";
 	default_language_.name = "ENGLISH";
-
-	api_default_language_.id_string.data = default_language_.id_string.data();
-	api_default_language_.id_string.size = static_cast<Index>(default_language_.id_string.size());
-
+	api_default_language_.id_string = default_language_.id_string;
 	set_default_language();
 }
 
-void LanguageMgrImpl::initialize(
-	const char* base_path) noexcept
+void LanguageMgrImpl::initialize(std::string_view base_path) noexcept
 {
-	base_path_ = (base_path ? base_path : "");
-
+	base_path_ = base_path;
 	load();
 }
 
@@ -139,49 +89,38 @@ const Language* LanguageMgrImpl::get_current() const noexcept
 	return api_current_language_;
 }
 
-void LanguageMgrImpl::set_current_by_id_string(
-	const char* id_string) noexcept
+void LanguageMgrImpl::set_current_by_id_string(std::string_view id_string) noexcept
 {
 	set_default_language();
-
-	if (!id_string)
+	if (id_string.empty())
 	{
 		return;
 	}
-
-	const auto id_string_size = c_string::get_size(id_string);
-
-	const auto language_begin_it = languages_.cbegin();
-	const auto language_end_it = languages_.cend();
-
-	const auto language_it = std::find_if(
-		language_begin_it,
-		language_end_it,
-		[id_string, id_string_size](
-			const LanguageInternal& language_internal)
+	const auto language_iter_begin = languages_.cbegin();
+	const auto language_iter_end = languages_.cend();
+	const auto language_iter = std::find_if(
+		language_iter_begin,
+		language_iter_end,
+		[id_string](const LanguageInternal& language_internal)
 		{
 			return std::equal(
-				id_string,
-				id_string + id_string_size,
+				id_string.cbegin(),
+				id_string.cend(),
 				language_internal.id_string.cbegin(),
-				language_internal.id_string.cend()
-			);
-		}
-	);
-
-	if (language_it == language_end_it)
+				language_internal.id_string.cend());
+		});
+	if (language_iter == language_iter_end)
 	{
 		return;
 	}
-
-	const auto index = language_it - language_begin_it;
+	const std::intptr_t index = language_iter - language_iter_begin;
 	current_language_ = &languages_[index];
 	api_current_language_ = &api_languages_[index];
 }
 
 LanguageMgrLanguages LanguageMgrImpl::get_languages() const noexcept
 {
-	return LanguageMgrLanguages{api_languages_.data(), static_cast<Index>(api_languages_.size())};
+	return LanguageMgrLanguages{api_languages_.data(), api_languages_.size()};
 }
 
 void LanguageMgrImpl::load() noexcept
@@ -193,51 +132,43 @@ void LanguageMgrImpl::load() noexcept
 	}
 	catch (const std::exception& ex)
 	{
-		const auto what = ex.what();
-		static_cast<void>(what);
-
+		[[maybe_unused]] const char* const what = ex.what();
 		api_languages_ = {};
 		languages_.clear();
-
 		set_default_language();
 	}
-
 	make_api();
 }
 
 void LanguageMgrImpl::save() noexcept
 try
 {
-	auto string_buffer = std::string{};
+	std::string string_buffer{};
 	string_buffer.reserve(256);
-
 	string_buffer += "/*\n";
 	string_buffer += "LTJS\n";
 	string_buffer += "SHARED\n";
 	string_buffer += "Current language\n";
 	string_buffer += "WARNING This is auto-generated file.\n";
-	string_buffer += "*/\n";
-	string_buffer += '\n';
-
-	if (current_language_)
+	string_buffer += "*/\n\n";
+	if (current_language_ != nullptr)
 	{
 		string_buffer += '\"';
 		string_buffer += current_language_->id_string;
 		string_buffer += "\"\n";
 	}
-
-	const auto file_path = base_path_ / language_file_name;
-
-	file::save(
-		file_path.get_data(),
-		string_buffer.data(),
-		static_cast<Index>(string_buffer.size())
-	);
+	const sys::fs::Path file_path = base_path_ / language_file_name;
+	sys::save_file(file_path.get_data(), string_buffer.data(), static_cast<int>(string_buffer.size()));
 }
 catch (const std::exception& ex)
 {
-	const auto what = ex.what();
-	static_cast<void>(what);
+	// FIXME Log?
+	[[maybe_unused]] const char* const what = ex.what();
+}
+
+[[noreturn]] void LanguageMgrImpl::fail(std::string_view message)
+{
+	throw Exception{"LTJS_LANGUAGE_MGR", message};
 }
 
 void LanguageMgrImpl::set_default_language()
@@ -248,84 +179,58 @@ void LanguageMgrImpl::set_default_language()
 
 void LanguageMgrImpl::load_languages()
 {
-	const auto file_path = base_path_ / languages_file_name;
-
-	auto buffer = Buffer{};
+	const sys::fs::Path file_path = base_path_ / languages_file_name;
+	Buffer buffer{};
 	buffer.resize(max_file_size);
-
-	const auto loaded_size = file::load(
-		file_path.get_data(),
-		buffer.data(),
-		static_cast<Index>(buffer.size())
-	);
-
-	auto script_tokenizer = ScriptTokenizer{};
-
-	auto script_tokenizer_init_param = ScriptTokenizerInitParam{};
-	script_tokenizer_init_param.data = buffer.data();
-	script_tokenizer_init_param.size = loaded_size;
-
+	const int loaded_size = sys::load_file(file_path.get_data(), buffer.data(), static_cast<int>(buffer.size()));
+	ScriptTokenizer script_tokenizer{};
+	const ScriptTokenizerInitParam script_tokenizer_init_param{
+		.data = std::string_view{buffer.data(), static_cast<std::size_t>(loaded_size)}};
 	script_tokenizer.initialize(script_tokenizer_init_param);
-
 	ScriptTokenizerToken tokens[2];
-
 	struct LanguageMapValue
 	{
-		Index index{};
-		std::string value{};
-	}; // LanguageMapValue
-
+		int index;
+		std::string value;
+	};
 	using LanguageMap = std::unordered_map<std::string, LanguageMapValue>;
-
-	auto language_map = LanguageMap{};
+	LanguageMap language_map{};
 	language_map.reserve(min_language_capacity);
-
-	auto language_index = Index{};
-
-	while (true)
+	int language_index = 0;
+	for (;;)
 	{
-		const auto script_line = script_tokenizer.tokenize_line(tokens, 2, 2, 2);
-
+		const ScriptTokenizerLine script_line = script_tokenizer.tokenize_line(tokens, 2, 2, 2);
 		if (script_line.is_end_of_data)
 		{
 			break;
 		}
-
 		if (script_line.is_empty())
 		{
 			continue;
 		}
-
-		const auto& key_token = script_line[0];
-
+		const ScriptTokenizerToken& key_token = script_line[0];
 		if (key_token.is_escaped())
 		{
-			throw LanguageMgrImplException{"Escaped key."};
+			fail("Escaped key.");
 		}
-
 		if (key_token.is_empty())
 		{
-			throw LanguageMgrImplException{"Empty key."};
+			fail("Empty key.");
 		}
-
-		const auto& value_token = script_line[1];
-
+		const ScriptTokenizerToken& value_token = script_line[1];
 		if (value_token.is_escaped())
 		{
-			throw LanguageMgrImplException{"Escaped value."};
+			fail("Escaped value.");
 		}
-
 		if (value_token.is_empty())
 		{
-			throw LanguageMgrImplException{"Empty value."};
+			fail("Empty value.");
 		}
-
-		const auto key_string = std::string{key_token.data, static_cast<std::size_t>(key_token.size)};
-		auto value_string = std::string{value_token.data, static_cast<std::size_t>(value_token.size)};
-
+		const std::string key_string{key_token.data};
+		std::string value_string{value_token.data};
 		if (language_map.count(key_string) == 0)
 		{
-			auto& map_value = language_map.emplace(key_string, LanguageMapValue{}).first->second;
+			LanguageMapValue& map_value = language_map.emplace(key_string, LanguageMapValue{}).first->second;
 			map_value.index = language_index++;
 			map_value.value.swap(value_string);
 		}
@@ -334,12 +239,10 @@ void LanguageMgrImpl::load_languages()
 			language_map[key_string].value.swap(value_string);
 		}
 	}
-
 	languages_.resize(language_map.size());
-
 	for (auto& language_map_item : language_map)
 	{
-		auto& language = languages_[language_map_item.second.index];
+		LanguageInternal& language = languages_[language_map_item.second.index];
 		language.id_string = language_map_item.first;
 		language.name.swap(language_map_item.second.value);
 	}
@@ -347,66 +250,44 @@ void LanguageMgrImpl::load_languages()
 
 void LanguageMgrImpl::load_language()
 {
-	const auto file_path = base_path_ / language_file_name;
-
-	auto buffer = Buffer{};
+	const sys::fs::Path file_path = base_path_ / language_file_name;
+	Buffer buffer{};
 	buffer.resize(max_file_size);
-
-	const auto loaded_size = file::load(
-		file_path.get_data(),
-		buffer.data(),
-		static_cast<Index>(buffer.size())
-	);
-
-	auto script_tokenizer = ScriptTokenizer{};
-
-	auto script_tokenizer_init_param = ScriptTokenizerInitParam{};
-	script_tokenizer_init_param.data = buffer.data();
-	script_tokenizer_init_param.size = loaded_size;
-
+	const int loaded_size = sys::load_file(file_path.get_data(), buffer.data(), static_cast<int>(buffer.size()));
+	ScriptTokenizer script_tokenizer{};
+	const ScriptTokenizerInitParam script_tokenizer_init_param{
+		.data = std::string_view{buffer.data(), static_cast<std::size_t>(loaded_size)}};
 	script_tokenizer.initialize(script_tokenizer_init_param);
-
 	ScriptTokenizerToken token;
-
-	while (true)
+	for (;;)
 	{
-		const auto script_line = script_tokenizer.tokenize_line(&token, 1, 1, 1);
-
+		const ScriptTokenizerLine script_line = script_tokenizer.tokenize_line(&token, 1, 1, 1);
 		if (script_line.is_end_of_data)
 		{
 			break;
 		}
-
 		if (script_line.is_empty())
 		{
 			continue;
 		}
-
 		break;
 	}
-
-	auto id_string = std::string{};
-
+	std::string id_string{};
 	if (!token.is_empty())
 	{
-		id_string.assign(token.data, static_cast<std::size_t>(token.size));
+		id_string = token.data;
 	}
-
-	const auto language_end_it = languages_.cend();
-
-	const auto language_it = std::find_if(
+	const auto language_iter_end = languages_.cend();
+	const auto language_iter = std::find_if(
 		languages_.cbegin(),
-		language_end_it,
-		[&id_string](
-			const LanguageInternal& language)
+		language_iter_end,
+		[&id_string](const LanguageInternal& language)
 		{
 			return id_string == language.id_string;
-		}
-	);
-
-	if (language_it != language_end_it)
+		});
+	if (language_iter != language_iter_end)
 	{
-		current_language_ = &(*language_it);
+		current_language_ = &(*language_iter);
 	}
 	else if (!languages_.empty())
 	{
@@ -420,25 +301,18 @@ void LanguageMgrImpl::load_language()
 
 void LanguageMgrImpl::make_api() noexcept
 {
-	const auto language_count = languages_.size();
-
+	const std::size_t language_count = languages_.size();
 	api_languages_.resize(language_count);
-
-	for (auto i = decltype(language_count){}; i < language_count; ++i)
+	for (std::size_t i = 0; i < language_count; ++i)
 	{
-		const auto& language = languages_[i];
-		auto& api_language = api_languages_[i];
-
-		api_language.id_string.data = language.id_string.data();
-		api_language.id_string.size = static_cast<Index>(language.id_string.size());
-
-		api_language.name.data = language.name.data();
-		api_language.name.size = static_cast<Index>(language.name.size());
+		const LanguageInternal& language = languages_[i];
+		Language& api_language = api_languages_[i];
+		api_language.id_string = language.id_string;
+		api_language.name = language.name;
 	}
-
 	if (current_language_)
 	{
-		const auto index = current_language_ - languages_.data();
+		const std::intptr_t index = current_language_ - languages_.data();
 		api_current_language_ = &api_languages_[index];
 	}
 	else
@@ -447,17 +321,13 @@ void LanguageMgrImpl::make_api() noexcept
 	}
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+} // namespace
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// =====================================
 
 LanguageMgrUPtr make_language_mgr()
 {
 	return std::make_unique<LanguageMgrImpl>();
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-} // ltjs
+} // namespace ltjs

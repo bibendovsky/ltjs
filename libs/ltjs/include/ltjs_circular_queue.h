@@ -1,139 +1,102 @@
+/*
+LTJS: Source port of LithTech Jupiter System
+Copyright (c) 2021-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: GPL-2.0
+*/
+
+// Circular queue
+
 #ifndef LTJS_CIRCULAR_QUEUE_INCLUDED
 #define LTJS_CIRCULAR_QUEUE_INCLUDED
 
-
+#include "ltjs_exception.h"
 #include <cassert>
-
-#include <algorithm>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
-#include "ltjs_exception.h"
-#include "ltjs_index_type.h"
+namespace ltjs {
 
-
-namespace ltjs
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class RingBufferException :
-	public Exception
-{
-public:
-	explicit RingBufferException(
-		const char* message)
-		:
-		Exception{"LTJS_CIRCULAR_QUEUE", message}
-	{
-	}
-}; // RingBufferException
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-template<
-	typename T
->
+template<typename T>
 class CircularQueueIterator
 {
 public:
-	CircularQueueIterator(
-		T* elements,
-		Index max_size,
-		Index offset) noexcept
+	CircularQueueIterator(T* elements, int max_size, int offset) noexcept
 		:
 		elements_{elements},
 		max_size_{max_size},
 		offset_{offset}
 	{
-		assert(elements_);
+		assert(elements_ != nullptr);
 		assert(max_size_ >= 0);
 		assert(offset_ >= 0 && offset <= max_size_);
 	}
 
 	T& operator*() const
 	{
-		assert(elements_);
-
+		assert(elements_ != nullptr);
 		return elements_[offset_];
 	}
 
 	void operator++() noexcept
 	{
-		assert(elements_);
-
+		assert(elements_ != nullptr);
 		advance_offset();
 	}
 
-	bool operator==(
-		const CircularQueueIterator& rhs) const noexcept
+	bool operator==(const CircularQueueIterator& rhs) const noexcept
 	{
 		return
 			elements_ == rhs.elements_ &&
 			max_size_ == rhs.max_size_ &&
-			offset_ == rhs.offset_
-		;
+			offset_ == rhs.offset_;
 	}
 
-	bool operator!=(
-		const CircularQueueIterator& rhs) const noexcept
+	bool operator!=(const CircularQueueIterator& rhs) const noexcept
 	{
 		return !((*this) == rhs);
 	}
 
-
 private:
 	T* elements_{};
-	Index max_size_{};
-	Index offset_{};
+	int max_size_{};
+	int offset_{};
 
-
-	void advance_offset()
+	void advance_offset() noexcept
 	{
 		offset_ -= 1;
-
 		if (offset_ < 0)
 		{
 			offset_ += max_size_;
 		}
 	}
-}; // CircularQueueIterator
+};
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// =====================================
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-template<
-	typename T
->
+template<typename T>
 class CircularQueue
 {
 public:
 	using Element = T;
-	using Iterator = CircularQueueIterator<T>;
-	using CIterator = CircularQueueIterator<std::add_const_t<T>>;
+	using Iterator = CircularQueueIterator<Element>;
+	using CIterator = CircularQueueIterator<std::add_const_t<Element>>;
 
-
-	void clear()
+	void clear() noexcept
 	{
 		size_ = 0;
 		pop_offset_ = 0;
 		push_offset_ = 0;
 	}
 
-	Index get_size() const noexcept
+	int get_size() const noexcept
 	{
 		return size_;
 	}
 
-	Index get_max_size() const noexcept
+	int get_max_size() const noexcept
 	{
-		return static_cast<Index>(elements_.size());
+		return static_cast<int>(elements_.size());
 	}
 
 	bool is_empty() const noexcept
@@ -141,14 +104,12 @@ public:
 		return get_size() == 0;
 	}
 
-	void push(
-		const Element& element)
+	void push(const Element& element)
 	{
 		if (get_size() == get_max_size())
 		{
-			throw RingBufferException{"Full queue."};
+			fail("Full queue.");
 		}
-
 		elements_[push_offset_] = element;
 		advance_offset(push_offset_);
 		size_ += 1;
@@ -158,34 +119,27 @@ public:
 	{
 		if (is_empty())
 		{
-			throw RingBufferException{"Empty queue."};
+			fail("Empty queue.");
 		}
-
 		size_ -= 1;
-
 		const auto& element = elements_[pop_offset_];
 		advance_offset(pop_offset_);
 		return element;
 	}
 
-	void set_max_size(
-		Index max_size)
+	void set_max_size(int max_size)
 	{
 		if (max_size < 0)
 		{
-			throw RingBufferException{"Max size out of range."};
+			fail("Max size out of range.");
 		}
-
 		if (!is_empty())
 		{
-			throw RingBufferException{"Non-empty queue."};
+			fail("Non-empty queue.");
 		}
-
 		clear();
-
-		elements_.resize(max_size);
+		elements_.resize(static_cast<std::size_t>(max_size));
 	}
-
 
 	Iterator begin()
 	{
@@ -207,33 +161,29 @@ public:
 		return CIterator{elements_.data(), get_max_size(), push_offset_};
 	}
 
-
 private:
 	using Elements = std::vector<Element>;
 
-
 	Elements elements_{};
-	Index size_{};
-	Index pop_offset_{};
-	Index push_offset_{};
+	int size_{};
+	int pop_offset_{};
+	int push_offset_{};
 
+	[[noreturn]] static void fail(std::string_view message)
+	{
+		throw Exception{"LTJS_CIRCULAR_QUEUE", message};
+	}
 
-	void advance_offset(
-		Index& offset) const noexcept
+	void advance_offset(int& offset) const noexcept
 	{
 		offset -= 1;
-
 		if (offset < 0)
 		{
 			offset += get_max_size();
 		}
 	}
-}; // CircularQueue
+};
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+} // namespace ltjs
 
-
-} // ltjs
-
-
-#endif // !LTJS_CIRCULAR_QUEUE_INCLUDED
+#endif // LTJS_CIRCULAR_QUEUE_INCLUDED

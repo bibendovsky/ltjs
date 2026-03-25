@@ -1,287 +1,163 @@
+/*
+LTJS: Source port of LithTech Jupiter System
+Copyright (c) 2021-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: GPL-2.0
+*/
+
+// Shared data manager
+
 #include "ltjs_shared_data_mgr.h"
-
+#include "ltjs_exception.h"
+#include <cassert>
 #include <cstdint>
-
-#include <array>
-#include <type_traits>
-
+#include <charconv>
+#include <memory>
+#include <string_view>
 #include "SDL3/SDL_stdinc.h"
 
-#include "ltjs_c_string.h"
-#include "ltjs_char_conv.h"
-#include "ltjs_exception.h"
-#include "ltjs_index_type.h"
-#include "ltjs_sdl_ensure_result.h"
+namespace ltjs {
 
+namespace {
 
-namespace ltjs
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class SharedDataMgrImplException :
-	public Exception
+class SharedDataMgrImpl final : public SharedDataMgr
 {
 public:
-	explicit SharedDataMgrImplException(
-		const char* message)
-		:
-		Exception{"LTJS_SHARED_DATA_MGR", message}
-	{
-	}
-}; // SharedDataMgrImplException
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	SharedDataMgrImpl(const SharedDataMgrInitParam* param);
+	~SharedDataMgrImpl() override;
 
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class SharedDataMgrImpl final :
-	public SharedDataMgr
-{
-public:
-	SharedDataMgrImpl();
-
-
-	// ======================================================================
-	// SharedDataMgr
-
-	LanguageMgr* get_language_mgr() const noexcept override;
-
-	void set_language_mgr(
-		LanguageMgr* language_mgr) noexcept override;
-
-
-	ShellResourceMgr* get_cres_mgr() const noexcept override;
-
-	void set_cres_mgr(
-		ShellResourceMgr* cres_mgr) noexcept override;
-
-
-	ShellResourceMgr* get_ltmsg_mgr() const noexcept override;
-
-	void set_ltmsg_mgr(
-		ShellResourceMgr* ltmsg_mgr) noexcept override;
-
-	// SharedDataMgr
-	// ======================================================================
-
+	LanguageMgr* get_language_mgr() const override;
+	ShellResourceMgr* get_cres_mgr() const override;
+	ShellResourceMgr* get_ltmsg_mgr() const override;
 
 private:
-	enum class KnownIndex :
-		Index
+	enum KnownIndex
 	{
-		language_mgr,
-		cres_mgr,
-		ltmsg_mgr,
+		language_mgr_index = 0,
+		cres_mgr_index,
+		ltmsg_mgr_index,
+		//
+		known_index_count_
+	};
 
-		count_,
-	}; // KnownIndex
+	static constexpr const char* env_name = "LTJS_SHARED_DATA_8GWFRPEVHDUJTKZF";
 
+	void** pointers_;
+	bool owns_pointers_;
 
-	static constexpr auto env_name = "LTJS_SHARED_DATA";
+	[[noreturn]] static void fail(std::string_view message);
 
-
-	using Datas = std::array<void*, static_cast<Index>(KnownIndex::count_)>;
-
-
-	class DatasUDeleter
+	template<typename T>
+	T* get(KnownIndex index) const
 	{
-	public:
-		DatasUDeleter() noexcept = default;
-
-		explicit DatasUDeleter(
-			bool is_owner) noexcept;
-
-		DatasUDeleter(
-			const DatasUDeleter& rhs) noexcept;
-
-		void operator=(
-			const DatasUDeleter& rhs) noexcept;
-
-		void operator()(
-			Datas* resource) const noexcept;
-
-
-	private:
-		bool is_owner_{};
-	}; // DatasUDeleter
-
-	using DatasUPtr = std::unique_ptr<Datas, DatasUDeleter>;
-
-
-	DatasUPtr datas_{};
-
-
-	template<
-		typename T
-	>
-	T* get(
-		KnownIndex index) const noexcept
-	{
-		return static_cast<T*>((*datas_)[static_cast<Index>(index)]);
+		assert(index >= 0 || index < known_index_count_);
+		return static_cast<T*>(pointers_[index]);
 	}
+};
 
-	template<
-		typename T
-	>
-	void set(
-		KnownIndex index,
-		T* value) const noexcept
+// -------------------------------------
+
+SharedDataMgrImpl::SharedDataMgrImpl(const SharedDataMgrInitParam* param)
+{
+	if (param != nullptr)
 	{
-		(*datas_)[static_cast<Index>(index)] = value;
-	}
-}; // SharedDataMgrImpl
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-SharedDataMgrImpl::DatasUDeleter::DatasUDeleter(
-	bool is_owner) noexcept
-	:
-	is_owner_{is_owner}
-{
-}
-
-SharedDataMgrImpl::DatasUDeleter::DatasUDeleter(
-	const DatasUDeleter& rhs) noexcept
-	:
-	is_owner_{rhs.is_owner_}
-{
-}
-
-void SharedDataMgrImpl::DatasUDeleter::operator=(
-	const DatasUDeleter& rhs) noexcept
-{
-	is_owner_ = rhs.is_owner_;
-}
-
-void SharedDataMgrImpl::DatasUDeleter::operator()(
-	Datas* resource) const noexcept
-{
-	if (is_owner_)
-	{
-		delete resource;
-	}
-}
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-SharedDataMgrImpl::SharedDataMgrImpl()
-{
-	const auto env_value_string = SDL_getenv(env_name);
-
-	if (env_value_string)
-	{
-		auto env_value = std::uintptr_t{};
-
-		const auto env_value_string_size = c_string::get_size(env_value_string);
-
-		const auto from_chars_result = from_chars(
-			env_value_string,
-			env_value_string_size,
-			16,
-			env_value
-		);
-
-		if (!from_chars_result)
+		assert(param->language_mgr != nullptr);
+		assert(param->cres_mgr != nullptr);
+		assert(param->ltmsg_mgr != nullptr);
+		auto pointers = std::make_unique<void*[]>(known_index_count_);
+		const std::uintptr_t datas_ptr_as_integer = reinterpret_cast<std::uintptr_t>(pointers.get());
+		constexpr int char_buffer_size = 32;
+		char chars_buffer[char_buffer_size];
+		const auto [char_buffer_end, ec] = std::to_chars(
+			std::begin(chars_buffer),
+			std::end(chars_buffer),
+			datas_ptr_as_integer,
+			16);
+		if (ec != std::errc{})
 		{
-			throw SharedDataMgrImplException{"Invalid env value."};
+			fail("Failed to format env value.");
 		}
-
-		const auto datas_ptr = reinterpret_cast<Datas*>(env_value);
-		auto datas = DatasUPtr{datas_ptr, DatasUDeleter{false}};
-		datas_.swap(datas);
+		*char_buffer_end = '\0';
+		const int sdl_result = SDL_setenv_unsafe(env_name, chars_buffer, true);
+		if (sdl_result != 0)
+		{
+			fail("Failed to set env value.");
+		}
+		pointers[language_mgr_index] = param->language_mgr;
+		pointers[cres_mgr_index] = param->cres_mgr;
+		pointers[ltmsg_mgr_index] = param->ltmsg_mgr;
+		pointers_ = pointers.release();
+		owns_pointers_ = true;
 	}
 	else
 	{
-		auto datas = DatasUPtr{new Datas{}, DatasUDeleter{true}};
-		const auto datas_ptr_as_integer = reinterpret_cast<std::uintptr_t>(datas.get());
-
-		constexpr auto char_buffer_size = 32;
-		char chars_buffer[char_buffer_size];
-
-		const auto chars_size = to_chars(
-			datas_ptr_as_integer,
-			16,
-			to_chars_format_default,
-			chars_buffer,
-			char_buffer_size
-		);
-
-		if (chars_size == 0)
+		const std::string_view env_value_string{SDL_getenv(env_name)};
+		if (env_value_string.empty())
 		{
-			throw SharedDataMgrImplException{"Failed to convert env value."};
+			fail("No env value.");
 		}
-
-		chars_buffer[chars_size] = '\0';
-
-		const auto sdl_result = SDL_setenv_unsafe(env_name, chars_buffer, true);
-
-		if (sdl_result != 0)
+		std::uintptr_t env_value = 0;
+		const auto [env_value_string_iter, ec] = std::from_chars(
+			env_value_string.data(),
+			env_value_string.data() + env_value_string.size(),
+			env_value,
+			16);
+		if (ec != std::errc{})
 		{
-			throw SharedDataMgrImplException{"Failed to set env value."};
+			fail("Invalid env value.");
 		}
-
-		datas_.swap(datas);
+		pointers_ = reinterpret_cast<void**>(env_value);
+		owns_pointers_ = false;
 	}
 }
 
-LanguageMgr* SharedDataMgrImpl::get_language_mgr() const noexcept
+SharedDataMgrImpl::~SharedDataMgrImpl()
 {
-	return get<LanguageMgr>(KnownIndex::language_mgr);
+	if (owns_pointers_)
+	{
+		delete [] pointers_;
+	}
 }
 
-void SharedDataMgrImpl::set_language_mgr(
-	LanguageMgr* language_mgr) noexcept
+LanguageMgr* SharedDataMgrImpl::get_language_mgr() const
 {
-	set<LanguageMgr>(KnownIndex::language_mgr, language_mgr);
+	return get<LanguageMgr>(language_mgr_index);
 }
 
-ShellResourceMgr* SharedDataMgrImpl::get_cres_mgr() const noexcept
+ShellResourceMgr* SharedDataMgrImpl::get_cres_mgr() const
 {
-	return get<ShellResourceMgr>(KnownIndex::cres_mgr);
+	return get<ShellResourceMgr>(cres_mgr_index);
 }
 
-void SharedDataMgrImpl::set_cres_mgr(
-	ShellResourceMgr* cres_mgr) noexcept
+ShellResourceMgr* SharedDataMgrImpl::get_ltmsg_mgr() const
 {
-	set<ShellResourceMgr>(KnownIndex::cres_mgr, cres_mgr);
+	return get<ShellResourceMgr>(ltmsg_mgr_index);
 }
 
-ShellResourceMgr* SharedDataMgrImpl::get_ltmsg_mgr() const noexcept
+[[noreturn]] void SharedDataMgrImpl::fail(std::string_view message)
 {
-	return get<ShellResourceMgr>(KnownIndex::ltmsg_mgr);
+	throw Exception{"LTJS_SHARED_DATA_MGR", message};
 }
 
-void SharedDataMgrImpl::set_ltmsg_mgr(
-	ShellResourceMgr* ltmsg_mgr) noexcept
+// =====================================
+
+SharedDataMgr& get_shared_data_mgr(const SharedDataMgrInitParam* param)
 {
-	set<ShellResourceMgr>(KnownIndex::ltmsg_mgr, ltmsg_mgr);
-}
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-SharedDataMgrUPtr make_shared_data_mgr()
-{
-	return std::make_unique<SharedDataMgrImpl>();
-}
-
-SharedDataMgr& get_shared_data_mgr()
-{
-	static auto result = make_shared_data_mgr();
+	static SharedDataMgrUPtr result = std::make_unique<SharedDataMgrImpl>(param);
 	return *result;
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+} // namespace
 
+// =====================================
 
-} // ltjs
+SharedDataMgr& get_shared_data_mgr()
+{
+	return get_shared_data_mgr(nullptr);
+}
+
+void initialize_shared_data_mgr(const SharedDataMgrInitParam& param)
+{
+	[[maybe_unused]] SharedDataMgr& shared_data_mgr = get_shared_data_mgr(&param);
+}
+
+} // namespace ltjs

@@ -26,13 +26,13 @@ namespace oal
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class EfxLtFilterException :
-	public SafeException
+	public Exception
 {
 public:
 	explicit EfxLtFilterException(
 		const char* message)
 		:
-		SafeException{message}
+		Exception{"OAL_EFX_LT_FILTER", message}
 	{
 	}
 }; // EfxLtFilterException

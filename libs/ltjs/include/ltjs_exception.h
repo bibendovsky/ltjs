@@ -1,64 +1,36 @@
+/*
+LTJS: Source port of LithTech Jupiter System
+Copyright (c) 2021-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: GPL-2.0
+*/
+
+// Exception utility
+
 #ifndef LTJS_EXCEPTION_INCLUDED
 #define LTJS_EXCEPTION_INCLUDED
 
-
 #include <exception>
-#include <memory>
+#include <string>
+#include <string_view>
 
+namespace ltjs {
 
-namespace ltjs
-{
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class Exception :
-	public std::exception
+/*
+ * Base class for exceptions.
+ */
+class Exception : public std::exception
 {
 public:
-	explicit Exception(
-		const char* message);
-
-	Exception(
-		const char* context,
-		const char* message);
-
-	Exception(
-		const Exception& rhs);
+	explicit Exception(std::string_view message);
+	Exception(std::string_view context, std::string_view message);
+	~Exception() override = default;
 
 	const char* what() const noexcept override;
 
-
 private:
-	using What = std::unique_ptr<char[]>;
+	std::string what_;
+};
 
+} // namespace ltjs
 
-	What what_{};
-}; // Exception
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class SafeException :
-	public std::exception
-{
-public:
-	explicit SafeException(
-		const char* message) noexcept;
-
-	const char* what() const noexcept override;
-
-
-private:
-	const char* message_{};
-}; // SafeException
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-} // ltjs
-
-
-#endif // !LTJS_EXCEPTION_INCLUDED
+#endif // LTJS_EXCEPTION_INCLUDED

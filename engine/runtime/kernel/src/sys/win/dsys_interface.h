@@ -29,7 +29,7 @@
 
 #ifdef LTJS_SDL_BACKEND
 #include "ltjs_main_window_descriptor.h"
-#include "ltjs_system_event_mgr.h"
+#include "ltjs_sys_event_mgr.h"
 #endif // LTJS_SDL_BACKEND
 
     #define MAX_KEYBUFFER       100
@@ -59,7 +59,7 @@
 #endif // LTJS_SDL_BACKEND
 
 #ifdef LTJS_SDL_BACKEND
-		ltjs::SystemEventMgr* system_event_mgr{};
+		ltjs::sys::EventMgr* system_event_mgr{};
 #endif // LTJS_SDL_BACKEND
 
         HINSTANCE       m_hInstance;
@@ -118,7 +118,6 @@
 #endif
 
 #ifdef LTJS_SDL_BACKEND
-#include "ltjs_index_type.h"
 #include "ltjs_shell_string_formatter.h"
 #endif // LTJS_SDL_BACKEND
 
@@ -218,13 +217,13 @@ LTRESULT dsi_GetVersionInfo(LTVersionInfo &info);
 #ifdef LTJS_SDL_BACKEND
 void* dsi_get_system_event_handler_mgr() noexcept;
 
-ltjs::Index dsi_get_file_size(
+int dsi_get_file_size(
 	const char* path) noexcept;
 
 bool dsi_load_file_into_memory(
 	const char* path,
 	void* buffer,
-	ltjs::Index max_buffer_size) noexcept;
+	int max_buffer_size) noexcept;
 #endif // LTJS_SDL_BACKEND
 
 

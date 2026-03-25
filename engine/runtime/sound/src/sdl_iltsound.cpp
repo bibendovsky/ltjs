@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "ltjs_shared_library.h"
+#include "ltjs_sys_shared_library.h"
 
 #include "iltsound.h"
 
@@ -38,7 +38,7 @@ private:
 	{
 		std::string description{};
 		std::string path{};
-		ltjs::SharedLibraryUPtr shared_library{};
+		ltjs::sys::SharedLibraryUPtr shared_library{};
 		ILTSoundSys* sound_system{};
 
 
@@ -117,7 +117,7 @@ ILTSoundSys* SdlLTSoundFactory::MakeSoundSystem(
 	else
 	{
 		const auto prefix = std::string{"ltjs_snd_drv_"};
-		const auto suffix = ltjs::SharedLibrary::get_default_suffix();
+		const auto suffix = ltjs::sys::SharedLibrary::get_default_suffix();
 
 		paths.emplace_back(prefix + "oal" + suffix);
 #if _WIN32
@@ -143,7 +143,7 @@ SdlLTSoundFactory::Node SdlLTSoundFactory::make_node(
 	const char* path)
 try
 {
-	auto shared_library = ltjs::make_shared_library(path);
+	auto shared_library = ltjs::sys::make_shared_library(path);
 
 	using SoundSysDescFunc = const char* (*)();
 	using SoundSysMakeFunc = ILTSoundSys* (*)();

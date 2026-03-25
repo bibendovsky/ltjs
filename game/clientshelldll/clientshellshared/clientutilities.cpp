@@ -767,11 +767,7 @@ void ltjs_initialize_cres_mgr(
 
 
 	auto game_net_name_string = std::string{game_net_name};
-
-	ltjs::ascii::to_lower(
-		&game_net_name_string[0],
-		static_cast<ltjs::Index>(game_net_name_string.size())
-	);
+	std::for_each(game_net_name_string.begin(), game_net_name_string.end(), [](char& ch){ch = ltjs::ascii_to_lower(ch);});
 
 
 	auto language_id_name_string = std::string{};
@@ -781,7 +777,7 @@ void ltjs_initialize_cres_mgr(
 	if (language_mgr)
 	{
 		const auto& language = *language_mgr->get_current();
-		language_id_name_string.assign(language.id_string.data, static_cast<ltjs::Index>(language.id_string.size));
+		language_id_name_string = language.id_string;
 	}
 
 	auto base_path = std::string{};

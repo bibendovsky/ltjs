@@ -819,7 +819,7 @@ const std::string& Configuration::get_resources_base_path()
 
 void Configuration::reload()
 {
-	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(configuration_path_.c_str(), "rb")};
+	const IoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(configuration_path_.c_str(), "rb")};
 	if (sdl_io_stream_uptr == nullptr)
 	{
 		return;
@@ -842,7 +842,8 @@ void Configuration::reload()
 		fail("Failed to read a file. (file_path={}; error_message={})", configuration_path_, SDL_GetError());
 	}
 	ScriptTokenizer script_tokenizer{};
-	ScriptTokenizerInitParam script_tokenizer_init_param{.data = string_buffer.data(), .size = file_size};
+	ScriptTokenizerInitParam script_tokenizer_init_param{
+		.data = std::string_view{string_buffer.data(), static_cast<std::size_t>(file_size)}};
 	try
 	{
 		script_tokenizer.initialize(script_tokenizer_init_param);
@@ -906,12 +907,12 @@ void Configuration::reload()
 		{
 			continue;
 		}
-		if (script_line.size != 2)
+		if (script_line.token_count != 2)
 		{
 			fail("Expected two tokens. (file_path={}; line_number={})", configuration_path_, script_line.get_line_number());
 		}
-		const std::string key_string{tokens[0].data, narrow_cast<std::size_t>(tokens[0].size)};
-		const std::string value_string{tokens[1].data, narrow_cast<std::size_t>(tokens[1].size)};
+		const std::string key_string{tokens[0].data};
+		const std::string value_string{tokens[1].data};
 		if (false)
 		{}
 		else if (key_string == language_setting_name)
@@ -981,12 +982,13 @@ void Configuration::reload()
 	}
 	language_mgr_->load();
 	const ltjs::Language* const current_language = language_mgr_->get_current();
-	language.set_and_accept(current_language->id_string.data);
+	const std::string id_string{current_language->id_string};
+	language.set_and_accept(id_string);
 }
 
 void Configuration::save()
 {
-	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(configuration_path_.c_str(), "wb")};
+	const IoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(configuration_path_.c_str(), "wb")};
 	if (sdl_io_stream_uptr == nullptr)
 	{
 		fail("Failed to open a file. (file_path={}; error_message={})", configuration_path_, SDL_GetError());
@@ -1142,7 +1144,7 @@ std::string Configuration::deserialize_cl_args(const ScriptTokenizerToken& token
 	}
 	else
 	{
-		return std::string{token.data, narrow_cast<std::size_t>(token.size)};
+		return std::string{token.data};
 	}
 }
 
@@ -1191,14 +1193,14 @@ void SupportedLanguages::load()
 	LanguageMgr* const language_mgr = configuration.get_language_mgr();
 	language_mgr->load();
 	const LanguageMgrLanguages languages = language_mgr->get_languages();
-	const ltjs::Index language_count = languages.size;
+	const int language_count = static_cast<int>(languages.size());
 	languages_.resize(language_count);
-	for (ltjs::Index i = 0; i < language_count; ++i)
+	for (int i = 0; i < language_count; ++i)
 	{
-		const ltjs::Language& src_language = languages.data[i];
+		const ltjs::Language& src_language = languages[i];
 		Language& dst_language = languages_[i];
-		dst_language.id.assign(src_language.id_string.data, narrow_cast<std::size_t>(src_language.id_string.size));
-		dst_language.name.assign(src_language.name.data, narrow_cast<std::size_t>(src_language.name.size));
+		dst_language.id = src_language.id_string;
+		dst_language.name = src_language.name;
 	}
 }
 
@@ -1307,7 +1309,7 @@ float FontMgr::get_bold_size() const
 void FontMgr::load_font_data(const std::string& file_name, FontData& font_data)
 {
 	const std::string normalized_file_name = normalize_file_path(file_name);
-	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(normalized_file_name.c_str(), "rb")};
+	const IoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(normalized_file_name.c_str(), "rb")};
 	if (sdl_io_stream_uptr == nullptr)
 	{
 		fail("Failed to open a file. (file_path={}; error_message={})", normalized_file_name, SDL_GetError());
@@ -1490,7 +1492,7 @@ ImTextureID TextureMgr::get(ImageId image_id)
 	const Configuration& configuration = Configuration::get_singleton();
 	const std::string& image_file_name = image_file_names[image_id_u];
 	const std::string shared_image_path = combine_and_normalize_file_paths(images_path, image_file_name);
-	SdlSurfaceUPtr image_surface{SDL_LoadBMP(shared_image_path.c_str())};
+	SurfaceUPtr image_surface{SDL_LoadBMP(shared_image_path.c_str())};
 	if (image_surface == nullptr)
 	{
 		const std::string localized_image_path =
@@ -1641,7 +1643,7 @@ protected:
 		bool& out_is_clicked);
 
 private:
-	SdlWindowUPtr sdl_window_uptr_{};
+	WindowUPtr sdl_window_uptr_{};
 	SdlRendererUPtr sdl_renderer_uptr_{};
 	TextureMgrUPtr texture_mgr_uptr_{};
 	ImguiContextUPtr imgui_context_uptr_{};
@@ -2453,7 +2455,7 @@ private:
 	static std::string icon_path;
 	bool is_quit_requested_{};
 	LoggerUPtr logger_{};
-	SdlSurfaceUPtr icon_sdl_surface_uptr_{};
+	SurfaceUPtr icon_sdl_surface_uptr_{};
 
 	~Launcher() = default;
 
@@ -2494,7 +2496,7 @@ void MainWindow::initialize_language()
 bool MainWindow::is_lithtech_executable_exists() const
 {
 	const std::string normalized_file_name = normalize_file_path(lithtech_executable);
-	if (const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(normalized_file_name.c_str(), "rb")};
+	if (const IoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(normalized_file_name.c_str(), "rb")};
 		sdl_io_stream_uptr != nullptr)
 	{
 		if (const Sint64 file_size = SDL_GetIOSize(sdl_io_stream_uptr.get());
@@ -2818,7 +2820,7 @@ bool MainWindow::save_arguments(const Strings& args) const
 	const std::string& config_path = configuration.get_config_path();
 	const std::string& arguments_file_name = configuration.get_arguments_file_name();
 	const std::string file_name = combine_and_normalize_file_paths(config_path, arguments_file_name);
-	const SdlIoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(file_name.c_str(), "wb")};
+	const IoStreamUPtr sdl_io_stream_uptr{SDL_IOFromFile(file_name.c_str(), "wb")};
 	if (sdl_io_stream_uptr == nullptr)
 	{
 		return false;

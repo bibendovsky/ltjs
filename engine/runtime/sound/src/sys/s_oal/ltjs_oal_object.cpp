@@ -19,13 +19,13 @@ namespace oal
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class ObjectException :
-	public SafeException
+	public Exception
 {
 public:
 	explicit ObjectException(
 		const char* message) noexcept
 		:
-		SafeException{message}
+		Exception{"OAL_OBJECT", message}
 	{
 	}
 }; // ObjectException
@@ -128,23 +128,23 @@ TObject make_al_object(
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class BufferObjectNullGeneratorException :
-	public SafeException
+	public Exception
 {
 public:
 	BufferObjectNullGeneratorException()
 		:
-		SafeException{"Null AL buffer generator function."}
+		Exception{"OAL_BUFFER", "Null AL buffer generator function."}
 	{
 	}
 }; // BufferObjectNullGeneratorException
 
 class BufferObjectCreateException :
-	public SafeException
+	public Exception
 {
 public:
 	BufferObjectCreateException()
 		:
-		SafeException{"Failed to create AL buffer."}
+		Exception{"OAL_BUFFER", "Failed to create AL buffer."}
 	{
 	}
 }; // BufferObjectCreateException
@@ -174,23 +174,23 @@ BufferObject make_buffer_object()
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class SourceObjectNullGeneratorException :
-	public SafeException
+	public Exception
 {
 public:
 	SourceObjectNullGeneratorException()
 		:
-		SafeException{"Null AL source generator function."}
+		Exception{"OAL_SOURCE", "Null AL source generator function."}
 	{
 	}
 }; // SourceObjectNullGeneratorException
 
 class SourceObjectCreateException :
-	public SafeException
+	public Exception
 {
 public:
 	SourceObjectCreateException()
 		:
-		SafeException{"Failed to create AL source."}
+		Exception{"OAL_SOURCE", "Failed to create AL source."}
 	{
 	}
 }; // SourceObjectCreateException
@@ -258,23 +258,23 @@ TObject make_efx_object(
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class EffectSlotObjectNullFunctionsException :
-	public SafeException
+	public Exception
 {
 public:
 	EffectSlotObjectNullFunctionsException()
 		:
-		SafeException{"Null EFX effect slot functions."}
+		Exception{"OAL_EFX_SLOT", "Null EFX effect slot functions."}
 	{
 	}
 }; // EffectSlotObjectNullFunctionsException
 
 class EffectSlotObjectCreateException :
-	public SafeException
+	public Exception
 {
 public:
 	EffectSlotObjectCreateException()
 		:
-		SafeException{"Failed to create EFX effect slot."}
+		Exception{"OAL_EFX_SLOT", "Failed to create EFX effect slot."}
 	{
 	}
 }; // EffectSlotObjectCreateException
@@ -319,23 +319,23 @@ EffectSlotObject make_effect_slot_object(
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class EffectObjectNullFunctionsException :
-	public SafeException
+	public Exception
 {
 public:
 	EffectObjectNullFunctionsException()
 		:
-		SafeException{"Null EFX effect functions."}
+		Exception{"OAL_EFX_EFFECT", "Null EFX effect functions."}
 	{
 	}
 }; // EffectObjectNullFunctionsException
 
 class EffectObjectCreateException :
-	public SafeException
+	public Exception
 {
 public:
 	EffectObjectCreateException()
 		:
-		SafeException{"Failed to create EFX effect."}
+		Exception{"OAL_EFX_EFFECT", "Failed to create EFX effect."}
 	{
 	}
 }; // EffectObjectCreateException
@@ -380,23 +380,23 @@ EffectObject make_effect_object(
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class FilterObjectNullFunctionsException :
-	public SafeException
+	public Exception
 {
 public:
 	FilterObjectNullFunctionsException()
 		:
-		SafeException{"Null EFX filter functions."}
+		Exception{"OAL_EFX_FILTER", "Null EFX filter functions."}
 	{
 	}
 }; // FilterObjectNullFunctionsException
 
 class FilterObjectCreateException :
-	public SafeException
+	public Exception
 {
 public:
 	FilterObjectCreateException()
 		:
-		SafeException{"Failed to create EFX filter."}
+		Exception{"OAL_EFX_FILTER", "Failed to create EFX filter."}
 	{
 	}
 }; // FilterObjectCreateException

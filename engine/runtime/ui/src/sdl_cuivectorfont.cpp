@@ -39,11 +39,10 @@
 #include "ftbuild.h"
 #include FT_FREETYPE_H
 
-#include "ltjs_sdl_uresources.h"
+#include "ltjs_code_page.h"
+#include "ltjs_sdl_raii.h"
 #include "ltjs_shared_data_mgr.h"
 #include "ltjs_shell_resource_mgr.h"
-#include "ltjs_ucs.h"
-#include "ltjs_windows_1252.h"
 
 
 // get the ILTTexInterface from the interface database
@@ -96,7 +95,7 @@ using CpCodePoints = std::vector<char>;
 struct Glyph
 {
 	int index{};
-	ltjs::ucs::CodePoint code_point{};
+	int code_point{};
 	char cp_code_point{};
 	int width{};
 	int height{};
@@ -510,7 +509,7 @@ void WritePixelDataBitmap(
 #endif
 	;
 
-	const auto sdl_surface = ltjs::SdlSurfaceUResource{SDL_CreateSurface(
+	const auto sdl_surface = ltjs::sdl::SurfaceUPtr{SDL_CreateSurface(
 		sizeTexture.cx,
 		sizeTexture.cy,
 		sdl_pixel_format
@@ -758,7 +757,7 @@ bool ltjs_load_default_ft_glyph(
 
 bool ltjs_load_ft_glyph_by_code_point(
 	::FT_Face ft_face,
-	ltjs::ucs::CodePoint code_point)
+	int code_point)
 {
 	const auto ft_glyph_index = ::FT_Get_Char_Index(ft_face, static_cast<::FT_ULong>(code_point));
 
@@ -772,7 +771,7 @@ bool ltjs_load_ft_glyph_by_code_point(
 
 bool ltjs_get_glyph(
 	::FT_Face ft_face,
-	ltjs::ucs::CodePoint code_point,
+	int code_point,
 	Glyph& glyph)
 {
 	if (code_point != 0)
@@ -857,14 +856,14 @@ int ltjs_get_default_char_screen_width(
 	return default_char_screen_width;
 }
 
-ltjs::ucs::CodePoint ltjs_cp_to_ucs(
+int ltjs_cp_to_ucs(
 	ltjs::ShellResourceCodePage code_page,
 	char cp_code_point)
 {
 	switch (code_page)
 	{
 		case ltjs::ShellResourceCodePage::windows_1252:
-			return ltjs::windows_1252::to_unicode(cp_code_point);
+			return ltjs::windows_1252_to_unicode(cp_code_point);
 
 		default:
 			assert(!"Unsupported code page.");

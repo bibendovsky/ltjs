@@ -1,118 +1,73 @@
+/*
+LTJS: Source port of LithTech Jupiter System
+Copyright (c) 2021-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: GPL-2.0
+*/
+
+// ASCII utility
+
 #ifndef LTJS_ASCII_INCLUDED
 #define LTJS_ASCII_INCLUDED
 
+namespace ltjs {
 
-#include <cassert>
-
-#include <type_traits>
-
-#include "ltjs_index_type.h"
-
-
-namespace ltjs
-{
-namespace ascii
-{
-
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-template<
-	typename TChar
->
-inline constexpr bool is_decimal_digit(
-	TChar ch) noexcept
+/*
+ * Checks if the ASCII character is a decimal digit.
+ */
+inline constexpr bool ascii_is_digit(char ch) noexcept
 {
 	return ch >= '0' && ch <= '9';
 }
 
-
-template<
-	typename TChar
->
-inline constexpr bool is_lower(
-	TChar ch) noexcept
+/*
+ * Checks if the ASCII character is lowercase.
+ */
+inline constexpr bool ascii_is_lower(char ch) noexcept
 {
 	return ch >= 'a' && ch <= 'z';
 }
 
-template<
-	typename TChar
->
-inline constexpr bool is_upper(
-	TChar ch) noexcept
+/*
+ * Checks if the ASCII character is uppercase.
+ */
+inline constexpr bool ascii_is_upper(char ch) noexcept
 {
 	return ch >= 'A' && ch <= 'Z';
 }
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// =====================================
 
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-template<
-	typename TChar
->
-inline constexpr TChar to_lower(
-	TChar ch) noexcept
+/*
+ * Converts the ASCII character to lowercase.
+ */
+inline constexpr char ascii_to_lower(char ch) noexcept
 {
-	return
-		is_upper(ch) ?
-		static_cast<TChar>(static_cast<std::make_unsigned_t<TChar>>('a' + ch - 'A')) :
-		ch
-	;
-}
-
-template<
-	typename TChar
->
-inline constexpr TChar to_upper(
-	TChar ch) noexcept
-{
-	return
-		is_lower(ch) ?
-		static_cast<TChar>(static_cast<std::make_unsigned_t<TChar>>('A' + ch - 'a')) :
-		ch
-	;
-}
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-template<
-	typename TChar
->
-inline void to_lower(
-	TChar* string,
-	Index string_size) noexcept
-{
-	for (auto i = Index{}; i < string_size; ++i)
+	if (ascii_is_upper(ch))
 	{
-		string[i] = to_lower(string[i]);
+		return static_cast<char>('a' + static_cast<unsigned char>(ch) - 'A');
+	}
+	else
+	{
+		return ch;
 	}
 }
 
-template<
-	typename TChar
->
-inline void to_upper(
-	TChar* string,
-	Index string_size) noexcept
+/*
+ * Converts the ASCII character to uppercase.
+ */
+inline constexpr char ascii_to_upper(char ch) noexcept
 {
-	for (auto i = Index{}; i < string_size; ++i)
+	if (ascii_is_lower(ch))
 	{
-		string[i] = to_upper(string[i]);
+		return static_cast<char>('A' + static_cast<unsigned char>(ch) - 'a');
 	}
+	else
+	{
+		return ch;
+	};
 }
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+} // namespace ltjs
 
-
-} // ascii
-} // ltjs
-
-
-#endif // !LTJS_ASCII_INCLUDED
+#endif // LTJS_ASCII_INCLUDED
 

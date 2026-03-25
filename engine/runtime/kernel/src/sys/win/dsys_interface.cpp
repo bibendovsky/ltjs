@@ -1075,7 +1075,7 @@ struct ILtStreamUDeleter
 using ILtStreamUPtr = std::unique_ptr<ILTStream, ILtStreamUDeleter>;
 
 
-ltjs::Index dsi_get_file_size(
+int dsi_get_file_size(
 	const char* path) noexcept
 {
 	if (!path || path[0] == '\0')
@@ -1103,13 +1103,13 @@ ltjs::Index dsi_get_file_size(
 		return 0;
 	}
 
-	return static_cast<ltjs::Index>(lt_file_size);
+	return static_cast<int>(lt_file_size);
 }
 
 bool dsi_load_file_into_memory(
 	const char* path,
 	void* buffer,
-	ltjs::Index max_buffer_size) noexcept
+	int max_buffer_size) noexcept
 {
 	if (!path || path[0] == '\0' ||
 		!buffer ||

@@ -23,7 +23,7 @@
 #include "SDL3/SDL.h"
 
 #include "ltjs_main_window_descriptor.h"
-#include "ltjs_sdl_utils.h"
+#include "ltjs_sdl_utility.h"
 #endif // LTJS_SDL_BACKEND
 
 RMode* g_pModeList;
@@ -302,7 +302,7 @@ int d3d_Init(RenderStructInit *pInit)
 		SDL_SetWindowPosition(g_hWnd->sdl_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	}
 
-	ltjs::sdl_utils::fill_window_black(g_hWnd->sdl_window);
+	ltjs::sdl::fill_window_black(g_hWnd->sdl_window);
 #else
 	// Either maximize the window or set its size.
 	if (g_bRunWindowed || d3d_IsNullRenderOn()) 

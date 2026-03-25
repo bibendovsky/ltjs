@@ -1,113 +1,41 @@
+/*
+LTJS: Source port of LithTech Jupiter System
+Copyright (c) 2021-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: GPL-2.0
+*/
+
+// Exception utility
+
 #include "ltjs_exception.h"
 
-#include <cassert>
+namespace ltjs {
 
-#include <memory>
-
-#include "ltjs_c_string.h"
-
-
-namespace ltjs
-{
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-Exception::Exception(
-	const char* message)
+Exception::Exception(std::string_view message)
 	:
-	Exception{nullptr, message}
+	Exception(std::string_view(), message)
+{}
+
+Exception::Exception(std::string_view context, std::string_view message)
 {
-}
-
-Exception::Exception(
-	const char* context,
-	const char* message)
-{
-	assert(message);
-
-	constexpr auto context_prefix = "[";
-	constexpr auto context_prefix_size = c_string::get_size(context_prefix);
-
-	constexpr auto context_suffix = "] ";
-	constexpr auto context_suffix_size = c_string::get_size(context_suffix);
-
-	const auto context_size = (context ? c_string::get_size(context) : 0);
-	const auto message_size = (message ? c_string::get_size(message) : 0);
-
-	const auto what_size =
-		(
-			context_size > 0 ?
-			context_prefix_size + context_size + context_suffix_size :
-			0
-		) +
-		message_size +
-		0
-	;
-
-	what_ = std::make_unique<char[]>(what_size + 1);
-	auto what = what_.get();
-
-	if (context_size > 0)
+	constexpr std::string_view context_prefix = "[";
+	constexpr std::string_view context_suffix = "] ";
+	const std::size_t what_size =
+		(context.empty() ? 0 : context_prefix.size() + context.size() + context_suffix.size()) +
+		message.size() +
+		1;
+	what_.reserve(what_size);
+	if (!context.empty())
 	{
-		what = std::uninitialized_copy_n(
-			context_prefix,
-			context_prefix_size,
-			what
-		);
-
-		what = std::uninitialized_copy_n(
-			context,
-			context_size,
-			what
-		);
-
-		what = std::uninitialized_copy_n(
-			context_suffix,
-			context_suffix_size,
-			what
-		);
+		what_ += context_prefix;
+		what_ += context;
+		what_ += context_suffix;
 	}
-
-	what = std::uninitialized_copy_n(
-		message,
-		message_size,
-		what
-	);
-
-	*what = '\0';
-}
-
-Exception::Exception(
-	const Exception& rhs)
-	:
-	Exception{rhs.what()}
-{
+	what_ += message;
 }
 
 const char* Exception::what() const noexcept
 {
-	return what_.get();
+	return what_.data();
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-SafeException::SafeException(
-	const char* message) noexcept
-	:
-	message_{message}
-{
-	assert(message_);
-}
-
-const char* SafeException::what() const noexcept
-{
-	return message_;
-}
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-} // ltjs
+} // namespace ltjs

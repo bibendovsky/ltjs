@@ -14,13 +14,13 @@ namespace oal
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class EfxSymbolsException :
-	public SafeException
+	public Exception
 {
 public:
 	explicit EfxSymbolsException(
 		const char* message)
 		:
-		SafeException{message}
+		Exception{"OAL_EFX_SYMBOLS", message}
 	{
 	}
 }; // EfxSymbolsException
