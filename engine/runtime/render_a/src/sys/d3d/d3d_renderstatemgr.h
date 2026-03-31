@@ -5,7 +5,7 @@
 #define __D3D_RENDERSTATEMGR_H__
 
 
-#include "DirectXMath.h"
+#include "ltjs_cgm.h"
 
 #ifndef __D3D_RENDERSTYLE_H__
 #include "d3d_renderstyle.h"
@@ -104,10 +104,10 @@ private:
 	CD3DRenderStyle*	m_pBackupRenderStyle;
 
 	// Current State...
-	DirectX::XMFLOAT4X4 m_World[MAX_WORLDMATRIX];
-	DirectX::XMFLOAT4X4 m_View;
-	DirectX::XMFLOAT4X4 m_Proj;
-	list<DirectX::XMFLOAT4X4> m_PrevWorld;
+	ltjs::cgm::Mat4 m_World[MAX_WORLDMATRIX];
+	ltjs::cgm::Mat4 m_View;
+	ltjs::cgm::Mat4 m_Proj;
+	list<ltjs::cgm::Mat4> m_PrevWorld;
 	HD3DVERTEXSHADER	m_VertexShader;
 	D3DMATERIAL9		m_Material;
 	FourFloatVector		m_AmbientLight;

@@ -18,10 +18,6 @@
 #include "common_draw.h"
 #include "renderstruct.h"
 
-
-namespace DX = DirectX;
-
-
 //-------------------------------------------------------------------------------------------------
 // LTShaderDeviceStateImp
 //-------------------------------------------------------------------------------------------------
@@ -44,7 +40,7 @@ bool LTShaderDeviceStateImp::GetMatrix(LTMatrixType MatrixType, bool Transpose, 
 	}
 
 	// Get the desired matrix from the device.
-	DX::XMFLOAT4X4 Mat;
+	ltjs::cgm::Mat4 Mat;
 
 	switch (MatrixType)
 	{
@@ -72,22 +68,17 @@ bool LTShaderDeviceStateImp::GetMatrix(LTMatrixType MatrixType, bool Transpose, 
 			// This is a special case in which we need two matrices.
 			//
 
-			DX::XMFLOAT4X4 MatView;
+			ltjs::cgm::Mat4 MatView;
 			PD3DDEVICE->GetTransform(D3DTS_VIEW, reinterpret_cast<D3DMATRIX*>(&MatView));
 
-			DX::XMFLOAT4X4 MatProj;
+			ltjs::cgm::Mat4 MatProj;
 			PD3DDEVICE->GetTransform(D3DTS_PROJECTION, reinterpret_cast<D3DMATRIX*>(&MatProj));
 
-			DX::XMFLOAT4X4 MatViewProj;
-
-			DX::XMStoreFloat4x4(
-				&MatViewProj,
-				DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&MatView), DX::XMLoadFloat4x4(&MatProj))
-			);
+			ltjs::cgm::Mat4 MatViewProj = MatView * MatProj;
 
 			if (Transpose)
 			{
-				DX::XMStoreFloat4x4(&MatViewProj, DX::XMMatrixTranspose(DX::XMLoadFloat4x4(&MatViewProj)));
+				MatViewProj = ltjs::cgm::transpose(MatViewProj);
 			}
 
     		pMatrix->Init(MatViewProj._11, MatViewProj._12, MatViewProj._13, MatViewProj._14,
@@ -130,7 +121,7 @@ bool LTShaderDeviceStateImp::GetMatrix(LTMatrixType MatrixType, bool Transpose, 
 	// Transpose the matrix.
 	if (Transpose)
 	{
-		DX::XMStoreFloat4x4(&Mat, DX::XMMatrixTranspose(DX::XMLoadFloat4x4(&Mat)));
+		Mat = ltjs::cgm::transpose(Mat);
 	}
 
     pMatrix->Init(Mat._11, Mat._12, Mat._13, Mat._14,

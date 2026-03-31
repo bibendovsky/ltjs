@@ -207,7 +207,6 @@ target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
 		.
-		../../../../libs/DirectXMath/Inc
 		../../../../libs/lith
 		../../../../libs/mfcstub
 		../../../../libs/stdlith

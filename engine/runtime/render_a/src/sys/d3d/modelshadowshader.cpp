@@ -11,10 +11,6 @@
 #include "rendererframestats.h"
 #include "..\shadows\d3dshadowtexture.h"			//for the optional ALPHAREF_SHADOWS compile define
 
-
-namespace DX = DirectX;
-
-
 //----------------------------------------------------------
 // Singleton implementation
 //----------------------------------------------------------
@@ -90,26 +86,19 @@ bool CModelShadowShader::SetWorldTransform(const LTMatrix& mInvWorldTrans)
 	//now we need to apply this to our internal texture transforms
 
 	//first make the transpose version so D3D can use it
-	const auto mD3DInvTrans = DX::XMFLOAT4X4{
+	const ltjs::cgm::Mat4 mD3DInvTrans{
 		mInvWorldTrans.m[0][0], mInvWorldTrans.m[1][0], mInvWorldTrans.m[2][0], mInvWorldTrans.m[3][0],
 		mInvWorldTrans.m[0][1], mInvWorldTrans.m[1][1], mInvWorldTrans.m[2][1], mInvWorldTrans.m[3][1],
 		mInvWorldTrans.m[0][2], mInvWorldTrans.m[1][2], mInvWorldTrans.m[2][2], mInvWorldTrans.m[3][2],
-		mInvWorldTrans.m[0][3], mInvWorldTrans.m[1][3], mInvWorldTrans.m[2][3], mInvWorldTrans.m[3][3]
-	};
+		mInvWorldTrans.m[0][3], mInvWorldTrans.m[1][3], mInvWorldTrans.m[2][3], mInvWorldTrans.m[3][3]};
 
 	//now apply it to the two channels
-	DX::XMFLOAT4X4 mResult;
+	ltjs::cgm::Mat4 mResult;
 
-	DX::XMStoreFloat4x4(
-		&mResult,
-		DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&mD3DInvTrans), DX::XMLoadFloat4x4(&m_mWorldToProjector)));
-
+	mResult = mD3DInvTrans * m_mWorldToProjector;
 	PD3DDEVICE->SetTransform(D3DTS_TEXTURE0, reinterpret_cast<const D3DMATRIX*>(&mResult));
 
-	DX::XMStoreFloat4x4(
-		&mResult,
-		DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&mD3DInvTrans), DX::XMLoadFloat4x4(&m_mFadeTex)));
-
+	mResult = mD3DInvTrans * m_mFadeTex;
 	PD3DDEVICE->SetTransform(D3DTS_TEXTURE1, reinterpret_cast<const D3DMATRIX*>(&mResult));
 
 	//success
@@ -574,24 +563,20 @@ void CModelShadowShader::SetShadowInfo(	const ViewParams& Params,			//the view p
 	//build our final transformation matrix, along with the far upper left point (used for culling)
 	if (m_bPerspective) 
 	{
-		const auto mDot = DX::XMFLOAT4X4{
+		const ltjs::cgm::Mat4 mDot{
 			vCamRight.x, vCamUp.x, vCamForward.x, 0.0f,
 			vCamRight.y, vCamUp.y, vCamForward.y, 0.0f,
 			vCamRight.z, vCamUp.z, vCamForward.z, 0.0f,
-			-vCamRight.Dot(vCamLightOrg), -vCamUp.Dot(vCamLightOrg), -vCamForward.Dot(vCamLightOrg), 1.0f
-		};
+			-vCamRight.Dot(vCamLightOrg), -vCamUp.Dot(vCamLightOrg), -vCamForward.Dot(vCamLightOrg), 1.0f};
 
 
-		const auto mProj = DX::XMFLOAT4X4{
+		const ltjs::cgm::Mat4 mProj{
 			fNearClip / fSizeX, 0.0f, 0.0f, 0.0f,
 			0.0f, -fNearClip / fSizeY, 0.0f, 0.0f,
 			0.5f, 0.5f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
-		};
+			0.0f, 0.0f, 0.0f, 1.0f};
 
-		DX::XMStoreFloat4x4(
-			&m_mWorldToProjector,
-			DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&mDot), DX::XMLoadFloat4x4(&mProj)));
+		m_mWorldToProjector = mDot * mProj;
 
 		//now we need to calculate the far upper right corner
 
@@ -613,24 +598,20 @@ void CModelShadowShader::SetShadowInfo(	const ViewParams& Params,			//the view p
 	}
 	else
 	{
-		const auto mDot = DirectX::XMFLOAT4X4{
+		const ltjs::cgm::Mat4 mDot{
 			vCamRight.x, vCamUp.x, vCamForward.x, 0.0f,
 			vCamRight.y, vCamUp.y, vCamForward.y, 0.0f,
 			vCamRight.z, vCamUp.z, vCamForward.z, 0.0f,
-			-vCamRight.Dot(vCamUL), -vCamUp.Dot(vCamUL), -vCamForward.Dot(vCamLightOrg), 1.0f
-		};
+			-vCamRight.Dot(vCamUL), -vCamUp.Dot(vCamUL), -vCamForward.Dot(vCamLightOrg), 1.0f};
 
-		const auto mScale = DirectX::XMFLOAT4X4{
+		const ltjs::cgm::Mat4 mScale{
 			fTexScaleX / fSizeX, 0.0f, 0.0f, 0.0f,
 			0.0f, fTexScaleY / fSizeY, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f,
-			(1.0f - fTexScaleX) * 0.5f, (1.0f - fTexScaleY) * 0.5f, 0.0f, 1.0f
-		};
+			(1.0f - fTexScaleX) * 0.5f, (1.0f - fTexScaleY) * 0.5f, 0.0f, 1.0f};
 
 		// Our transform is to simply do a dot product on each plane axis, and then scale it accordingly
-		DX::XMStoreFloat4x4(
-			&m_mWorldToProjector,
-			DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&mDot), DX::XMLoadFloat4x4(&mScale)));
+		m_mWorldToProjector = mDot * mScale;
 
 		//figure out the far upper left point
 
@@ -663,13 +644,11 @@ void CModelShadowShader::SetShadowInfo(	const ViewParams& Params,			//the view p
 	LTVector vPlanePos = Params.m_mView * (m_ProjectorPlane.Normal() * m_ProjectorPlane.Dist());
 	float fOffset = -vScaledNormal.Dot(vPlanePos) + 1.0f / m_nFadeTextureX + fTexelFadeOffset;
 
-	m_mFadeTex = DX::XMFLOAT4X4{
+	m_mFadeTex = ltjs::cgm::Mat4{
 		vScaledNormal.x, vCamRight.x, 0.0f, 0.0f,
 		vScaledNormal.y, vCamRight.y, 0.0f, 0.0f,
 		vScaledNormal.z, vCamRight.z, 1.0f, 0.0f,
-		fOffset, 0.0f, 0.0f, 1.0f
-	};
-
+		fOffset, 0.0f, 0.0f, 1.0f};
 }
 
 //called to bind any device specific data to this object

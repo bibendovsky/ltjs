@@ -51,7 +51,6 @@ target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
 		.
-		../../../../../../libs/DirectXMath/Inc
 		../../../../../../libs/stdlith
 		../../../../../sdk/inc
 		../../../../../sdk/inc/physics

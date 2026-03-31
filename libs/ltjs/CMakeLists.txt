@@ -9,6 +9,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_sources(${PROJECT_NAME} PRIVATE
 	include/ltjs_ascii.h
 	include/ltjs_circular_queue.h
+	include/ltjs_cgm.h
 	include/ltjs_code_page.h
 	include/ltjs_dinput.h
 	include/ltjs_exception.h
@@ -34,6 +35,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	include/ltjs_sys_time.h
 )
 target_sources(${PROJECT_NAME} PRIVATE
+	src/ltjs_cgm.cpp
 	src/ltjs_code_page.cpp
 	src/ltjs_exception.cpp
 	src/ltjs_language_mgr.cpp
