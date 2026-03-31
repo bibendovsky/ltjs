@@ -8,10 +8,6 @@
 #include "common_draw.h"
 #include "renderstruct.h"
 
-
-namespace DX = DirectX;
-
-
 #define MAX_CHANNELS	4
 
 CTextureScriptInstance::CTextureScriptInstance() :
@@ -250,12 +246,11 @@ bool CTextureScriptInstance::Install(uint32 nNumChannels, ...)
 		LTMatrix& mSrcMat = pStage->m_mTransform;
 
 		//convert our matrix to a D3D matrix (our source transposed)
-		const auto mMat = DX::XMFLOAT4X4{
+		const ltjs::cgm::Mat4 mMat{
 			mSrcMat.m[0][0], mSrcMat.m[1][0], mSrcMat.m[2][0], mSrcMat.m[3][0],
 			mSrcMat.m[0][1], mSrcMat.m[1][1], mSrcMat.m[2][1], mSrcMat.m[3][1],
 			mSrcMat.m[0][2], mSrcMat.m[1][2], mSrcMat.m[2][2], mSrcMat.m[3][2],
-			mSrcMat.m[0][3], mSrcMat.m[1][3], mSrcMat.m[2][3], mSrcMat.m[3][3]
-		};
+			mSrcMat.m[0][3], mSrcMat.m[1][3], mSrcMat.m[2][3], mSrcMat.m[3][3]};
 
 		//see if the channel this maps to is valid
 		for(uint32 nChannel = 0; nChannel < nNumChannels; nChannel++)

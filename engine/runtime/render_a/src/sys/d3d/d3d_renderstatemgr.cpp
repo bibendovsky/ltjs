@@ -9,10 +9,6 @@
 #include "common_draw.h"
 #include "renderstylelookuptables.h"
 
-
-namespace DX = DirectX;
-
-
 // EXTERNS
 //extern uint32 g_CurFrameCode;				// Current Frame Code (Frame Number)...
 
@@ -48,15 +44,13 @@ void CD3DRenderStateMgr::FreeAll()
 // Reset the internal state (Note: This doesn't free stuff - if this isn't a first time thing, call FreeAll() first)...
 void CD3DRenderStateMgr::Reset()
 {
-	const auto identity_mat4 = DX::XMMatrixIdentity();
-
 	for (uint32 i = 0; i < MAX_WORLDMATRIX; ++i)
 	{
-		DX::XMStoreFloat4x4(&m_World[i], identity_mat4);
+		m_World[i] = ltjs::cgm::Mat4::identity;
 	}
 
-	DX::XMStoreFloat4x4(&m_View, identity_mat4);
-	DX::XMStoreFloat4x4(&m_Proj, identity_mat4);
+	m_View = ltjs::cgm::Mat4::identity;
+	m_Proj = ltjs::cgm::Mat4::identity;
 
 	m_VertexShader				= NULL;
 	m_pBackupRenderStyle		= NULL;
@@ -303,8 +297,7 @@ void CD3DRenderStateMgr::SetBumpEnvMapMatrix(uint32 BumpEnvMapStage)
 	D3DVIEWPORT9 vp;
 	PD3DDEVICE->GetViewport(&vp);
 
-	DX::XMFLOAT4X4 VS;
-	ZeroMemory(&VS, sizeof(DX::XMFLOAT4X4));
+	ltjs::cgm::Mat4 VS{};
 	VS._11	= (float)vp.Width/2;						// Create view scaling matrix:
 	VS._22	= -(float)(vp.Height/2);					// | Width/2    0           0          0 |
 	VS._33	= (float)(vp.MaxZ - vp.MinZ);				// | 0          -Height/2   0          0 |
@@ -314,22 +307,22 @@ void CD3DRenderStateMgr::SetBumpEnvMapMatrix(uint32 BumpEnvMapStage)
 	VS._44	= 1.0f;
 
 	// Generate D3D pipeline's model to screen transformation.
-	DX::XMFLOAT4X4 mat;
-	DX::XMFLOAT4X4 mat2;
-	DX::XMFLOAT4X4 mat3;
+	ltjs::cgm::Mat4 mat;
+	ltjs::cgm::Mat4 mat2;
+	ltjs::cgm::Mat4 mat3;
 
-	DX::XMStoreFloat4x4(&mat, DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&m_Proj), DX::XMLoadFloat4x4(&VS)));
-	DX::XMStoreFloat4x4(&mat2, DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&m_View), DX::XMLoadFloat4x4(&mat)));
-	DX::XMStoreFloat4x4(&mat3, DX::XMMatrixMultiply(DX::XMLoadFloat4x4(&m_World[0]), DX::XMLoadFloat4x4(&mat2)));
+	mat = m_Proj * VS;
+	mat2 = m_View * mat;
+	mat3 = m_World[0] * mat2;
 
 	// Transform X (1, 0, 0) and Y (0, 1, 0) vectors to screen space for this transformation.
-	auto v = DX::XMFLOAT3{0.0F, 0.0F, 0.0F};
-	DX::XMFLOAT4 res;
-	DX::XMStoreFloat4(&res, DX::XMVector3Transform(DX::XMLoadFloat3(&v), DX::XMLoadFloat4x4(&mat3)));
-	DX::XMFLOAT3 Screenv0;
-	DX::XMFLOAT3 Screenv1;
-	DX::XMFLOAT3 Screenu0;
-	DX::XMFLOAT3 Screenu1;
+	ltjs::cgm::Vec4 v{};
+	ltjs::cgm::Vec4 res;
+	res = ltjs::cgm::transform_vec3(v, mat3);
+	ltjs::cgm::Vec4 Screenv0;
+	ltjs::cgm::Vec4 Screenv1;
+	ltjs::cgm::Vec4 Screenu0;
+	ltjs::cgm::Vec4 Screenu1;
 	Screenv0.x = res.x;
 	Screenu0.x = res.x;
 	Screenv0.y = res.y;
@@ -340,7 +333,7 @@ void CD3DRenderStateMgr::SetBumpEnvMapMatrix(uint32 BumpEnvMapStage)
 	v.x = 1.0f;
 	v.y = 0.0f;
 	v.z = 0.0f;
-	DX::XMStoreFloat4(&res, DX::XMVector3Transform(DX::XMLoadFloat3(&v), DX::XMLoadFloat4x4(&mat3)));
+	res = ltjs::cgm::transform_vec3(v, mat3);
 	Screenu1.x = res.x;
 	Screenu1.y = res.y;
 	Screenu1.z = res.z;
@@ -348,7 +341,7 @@ void CD3DRenderStateMgr::SetBumpEnvMapMatrix(uint32 BumpEnvMapStage)
 	v.x = 0.0f;
 	v.y = 0.0f;
 	v.z = 1.0f;
-	DX::XMStoreFloat4(&res, DX::XMVector3Transform(DX::XMLoadFloat3(&v), DX::XMLoadFloat4x4(&mat3)));
+	res = ltjs::cgm::transform_vec3(v, mat3);
 	Screenv1.x = res.x;
 	Screenv1.y = res.y;
 	Screenv1.z = res.z;

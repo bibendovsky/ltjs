@@ -7,10 +7,6 @@
 #include "fixedpoint.h"
 #include "d3d_texture.h"
 
-
-namespace DX = DirectX;
-
-
 // Make sure the right intel compiler is being used.
 #ifdef _USE_INTEL_COMPILER
 	#if __ICL < 400
@@ -74,17 +70,11 @@ void d3d_SetReallyClose(CReallyCloseData* pData)
 	float aspect = g_ViewParams.m_fScreenWidth / g_ViewParams.m_fScreenHeight;
 
 	// Setup the projection transform by using the power of D3D.
-	DX::XMFLOAT4X4 NewProj;
-
-	DX::XMStoreFloat4x4(
-		&NewProj,
-		DX::XMMatrixPerspectiveFovLH(
-			g_CV_PVModelFOV.m_Val * 0.01745329251994f, // convert degrees to rad on the fly.
-			aspect,
-			g_CV_ModelNear.m_Val,
-			g_CV_ModelFar.m_Val)
-	);
-
+	const ltjs::cgm::Mat4 NewProj = ltjs::cgm::perspective_fov_lh(
+		g_CV_PVModelFOV.m_Val * 0.01745329251994f, // convert degrees to rad on the fly.
+		aspect,
+		g_CV_ModelNear.m_Val,
+		g_CV_ModelFar.m_Val);
 
 	//save the old transforms
 	PD3DDEVICE->GetTransform(D3DTS_PROJECTION, &pData->m_OldProj);

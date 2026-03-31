@@ -7,7 +7,7 @@
 #define DIRECT3D_VERSION        0x0900
 
 
-#include "DirectXMath.h"
+#include "ltjs_cgm.h"
 
 #ifndef __BDEFS_H__
 #include "bdefs.h"

@@ -32,10 +32,6 @@ define_holder_to_instance(ILTCommon, ilt_common_client, Client);
 static IClientFileMgr* g_pIClientFileMgr;
 define_holder(IClientFileMgr, g_pIClientFileMgr);
 
-
-namespace DX = DirectX;
-
-
 //----------------------------------------------------------------------------
 // BlurTexture Vertex format
 //   Uses: No HW TnL, 4 texture channels
@@ -483,20 +479,18 @@ static void RenderModelShadow( ModelInstance* pInstance, const LTVector& vModelP
 	float fDistLightToModel = (vLightPos - vModelPos).Mag();
 
 	// Set the view matrix from the point of view of the light source...
-	DX::XMFLOAT4X4 MyViewMatrix;
+	ltjs::cgm::Mat4 MyViewMatrix;
 
-	const auto vEye = DX::XMFLOAT3{vLightPos.x, vLightPos.y, vLightPos.z};
-	const auto vLookAt = DX::XMFLOAT3{vLightPos.x + vLightDir.x, vLightPos.y + vLightDir.y, vLightPos.z + vLightDir.z};
-	const auto vUp = DX::XMFLOAT3{vLightUp.x, vLightUp.y, vLightUp.z};
+	const ltjs::cgm::Vec4 vEye{vLightPos.x, vLightPos.y, vLightPos.z, 0.0F};
+	const ltjs::cgm::Vec4 vLookAt{vLightPos.x + vLightDir.x, vLightPos.y + vLightDir.y, vLightPos.z + vLightDir.z, 0.0F};
+	const ltjs::cgm::Vec4 vUp{vLightUp.x, vLightUp.y, vLightUp.z, 0.0F};
 
-	DX::XMStoreFloat4x4(
-		&MyViewMatrix,
-		DX::XMMatrixLookAtLH(DX::XMLoadFloat3(&vEye), DX::XMLoadFloat3(&vLookAt), DX::XMLoadFloat3(&vUp)));
+	MyViewMatrix = ltjs::cgm::look_at_lh(vEye, vLookAt, vUp);
 
 	g_RenderStateMgr.SetTransform(D3DTS_VIEW, reinterpret_cast<const D3DMATRIX*>(&MyViewMatrix));
 
 	//calculate the projection matrix for rendering this model
-	DX::XMFLOAT4X4 MyProjMatrix;
+	ltjs::cgm::Mat4 MyProjMatrix;
 	float fNearZ			= 1.0f;
 	float fFarZ				= 20000.0f;
 
@@ -506,11 +500,11 @@ static void RenderModelShadow( ModelInstance* pInstance, const LTVector& vModelP
 		float wAtNearZ			= fNearZ * (fProjSizeX / fDistFrmProjPlane);
 		float hAtNearZ			= fNearZ * (fProjSizeY / fDistFrmProjPlane);
 
-		DX::XMStoreFloat4x4(&MyProjMatrix, DX::XMMatrixPerspectiveLH(wAtNearZ, hAtNearZ, fNearZ, fFarZ));
+		MyProjMatrix = ltjs::cgm::perspective_lh(wAtNearZ, hAtNearZ, fNearZ, fFarZ);
 	}
 	else
 	{
-		DX::XMStoreFloat4x4(&MyProjMatrix, DX::XMMatrixOrthographicLH(fProjSizeX, fProjSizeY, fNearZ, fFarZ));
+		MyProjMatrix = ltjs::cgm::ortho_lh(fProjSizeX, fProjSizeY, fNearZ, fFarZ);
 	}
 	//install the matrix
 	g_RenderStateMgr.SetTransform(D3DTS_PROJECTION,reinterpret_cast<const D3DMATRIX*>(&MyProjMatrix));
@@ -919,8 +913,7 @@ void CRenderShadowList::RenderQueuedShadows(const ViewParams& Params)
 	//we need to make sure to preserve some transformation information so it can be properly
 	//restored
 	//restore our viewport
-	DX::XMFLOAT4X4 mIdentity;
-	DX::XMStoreFloat4x4(&mIdentity, DX::XMMatrixIdentity());
+	const ltjs::cgm::Mat4& mIdentity = ltjs::cgm::Mat4::identity;
 
 	//now get our old viewport for saving
 	D3DVIEWPORT9 OldViewport;

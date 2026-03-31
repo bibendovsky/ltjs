@@ -37,10 +37,6 @@ Major limitations:
 
 #include "rendererframestats.h"
 
-
-namespace DX = DirectX;
-
-
 // Console variables
 
 // The singleton
@@ -403,12 +399,7 @@ bool CRenderShader_DynamicLight::SetupLight(const ViewParams *pParams, const Dyn
 		0.0f, 0.0f, 0.0f, 1.0f);
 	mXYTransform = mXYTransform * pParams->m_mInvView;
 
-	DX::XMFLOAT4X4 mD3DXYTransform;
-
-	DX::XMStoreFloat4x4(
-		&mD3DXYTransform,
-		DX::XMMatrixTranspose(DX::XMLoadFloat4x4(reinterpret_cast<const DX::XMFLOAT4X4*>(&mXYTransform))));
-
+	const ltjs::cgm::Mat4 mD3DXYTransform = ltjs::cgm::transpose(*reinterpret_cast<const ltjs::cgm::Mat4*>(&mXYTransform));
 	PD3DDEVICE->SetTransform(D3DTS_TEXTURE1, reinterpret_cast<const D3DMATRIX*>(&mD3DXYTransform));
 
 	LTMatrix mZTransform;
@@ -419,12 +410,7 @@ bool CRenderShader_DynamicLight::SetupLight(const ViewParams *pParams, const Dyn
 		0.0f, 0.0f, 0.0f, 1.0f);
 	mZTransform = mZTransform * pParams->m_mInvView;
 
-	DX::XMFLOAT4X4 mD3DZTransform;
-
-	DX::XMStoreFloat4x4(
-		&mD3DZTransform,
-		DX::XMMatrixTranspose(DX::XMLoadFloat4x4(reinterpret_cast<const DX::XMFLOAT4X4*>(&mZTransform))));
-
+	const ltjs::cgm::Mat4 mD3DZTransform = ltjs::cgm::transpose(*reinterpret_cast<const ltjs::cgm::Mat4*>(&mZTransform));
 	PD3DDEVICE->SetTransform(D3DTS_TEXTURE0, reinterpret_cast<const D3DMATRIX*>(&mD3DZTransform));
 
 	// Ok, your turn..  Render them triangles...
