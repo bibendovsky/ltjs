@@ -190,7 +190,6 @@ endif ()
 target_link_libraries (
 	${PROJECT_NAME}
 	PRIVATE
-		bibendovsky_spul_lib
 		ltjs::audio
 		ltjs_lib_d3d_render
 		ltjs_lib_lt_mem

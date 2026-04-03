@@ -8,9 +8,9 @@ SPDX-License-Identifier: GPL-2.0
 
 #include "ltjs_language_mgr.h"
 #include "ltjs_exception.h"
+#include "ltjs_file_path.h"
 #include "ltjs_script_tokenizer.h"
 #include "ltjs_sys_file_utility.h"
-#include "ltjs_sys_fs_path.h"
 #include <cassert>
 #include <algorithm>
 #include <unordered_map>
@@ -52,7 +52,7 @@ private:
 
 	using LanguagesInternal = std::vector<LanguageInternal>;
 
-	sys::fs::Path base_path_{};
+	std::string base_path_{};
 	const Language* api_current_language_{};
 	Language api_default_language_{};
 	ApiLanguages api_languages_{};
@@ -157,8 +157,8 @@ try
 		string_buffer += current_language_->id_string;
 		string_buffer += "\"\n";
 	}
-	const sys::fs::Path file_path = base_path_ / language_file_name;
-	sys::save_file(file_path.get_data(), string_buffer.data(), static_cast<int>(string_buffer.size()));
+	const std::string file_path = FilePath::append(base_path_, language_file_name);
+	sys::save_file(file_path.c_str(), string_buffer.data(), static_cast<int>(string_buffer.size()));
 }
 catch (const std::exception& ex)
 {
@@ -179,10 +179,10 @@ void LanguageMgrImpl::set_default_language()
 
 void LanguageMgrImpl::load_languages()
 {
-	const sys::fs::Path file_path = base_path_ / languages_file_name;
+	const std::string file_path = FilePath::append(base_path_, languages_file_name);
 	Buffer buffer{};
 	buffer.resize(max_file_size);
-	const int loaded_size = sys::load_file(file_path.get_data(), buffer.data(), static_cast<int>(buffer.size()));
+	const int loaded_size = sys::load_file(file_path.c_str(), buffer.data(), static_cast<int>(buffer.size()));
 	ScriptTokenizer script_tokenizer{};
 	const ScriptTokenizerInitParam script_tokenizer_init_param{
 		.data = std::string_view{buffer.data(), static_cast<std::size_t>(loaded_size)}};
@@ -250,10 +250,10 @@ void LanguageMgrImpl::load_languages()
 
 void LanguageMgrImpl::load_language()
 {
-	const sys::fs::Path file_path = base_path_ / language_file_name;
+	const std::string file_path = FilePath::append(base_path_, language_file_name);
 	Buffer buffer{};
 	buffer.resize(max_file_size);
-	const int loaded_size = sys::load_file(file_path.get_data(), buffer.data(), static_cast<int>(buffer.size()));
+	const int loaded_size = sys::load_file(file_path.c_str(), buffer.data(), static_cast<int>(buffer.size()));
 	ScriptTokenizer script_tokenizer{};
 	const ScriptTokenizerInitParam script_tokenizer_init_param{
 		.data = std::string_view{buffer.data(), static_cast<std::size_t>(loaded_size)}};

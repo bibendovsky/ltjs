@@ -72,7 +72,7 @@ public:
 		LHDIGDRIVER& driver,
 		PHWAVEOUT& wave_out,
 		const sint32 device_id,
-		const ul::WaveFormatEx& wave_format) override;
+		const WaveFormatEx& wave_format) override;
 
 	void WaveOutClose(
 		LHDIGDRIVER driver_ptr) override;
@@ -211,7 +211,7 @@ public:
 		LH3DSAMPLE sample_handle,
 		const void* storage_ptr,
 		const uint32 storage_size,
-		const ul::WaveFormatEx& wave_format,
+		const WaveFormatEx& wave_format,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 
@@ -329,7 +329,7 @@ public:
 		LHSAMPLE sample_handle,
 		const void* storage_ptr,
 		const uint32 storage_size,
-		const ul::WaveFormatEx& wave_format,
+		const WaveFormatEx& wave_format,
 		const sint32 playback_rate,
 		const LTSOUNDFILTERDATA* filter_data_ptr) override;
 

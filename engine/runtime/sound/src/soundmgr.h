@@ -483,7 +483,7 @@ private:
 	CSoundInstance *	m_SoundInstanceList[SOUNDMGR_MAXSOUNDINSTANCES];
 	uint32		m_dwNumSoundInstances;
 
-    ul::WaveFormatEx m_PrimaryBufferWaveFormat;
+    ltjs::WaveFormatEx m_PrimaryBufferWaveFormat;
 
 //	===========================================================================
 #ifdef USE_ABSTRACT_SOUND_INTERFACES

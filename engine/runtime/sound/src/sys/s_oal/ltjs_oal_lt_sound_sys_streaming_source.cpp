@@ -1,11 +1,10 @@
 #include "ltjs_oal_lt_sound_sys_streaming_source.h"
 
-#include "bibendovsky_spul_algorithm.h"
-#include "bibendovsky_spul_memory_stream.h"
-
 #include "ltjs_audio_utils.h"
+#include "ltjs_read_only_memory_stream.h"
 
 #include "ltjs_oal_utils.h"
+#include <algorithm>
 
 
 namespace ltjs
@@ -673,7 +672,7 @@ void OalLtSoundSysStreamingSource::set_3d_doppler_factor(
 		return;
 	}
 
-	const auto new_doppler_factor = ul::Algorithm::clamp(
+	const auto new_doppler_factor = std::clamp(
 		doppler_factor, min_doppler_factor, max_doppler_factor);
 
 	if (new_doppler_factor == doppler_factor_)
@@ -705,8 +704,8 @@ void OalLtSoundSysStreamingSource::set_3d_distances(
 		return;
 	}
 
-	const auto new_min_distance = ul::Algorithm::clamp(min_distance, min_min_distance, min_max_distance);
-	const auto new_max_distance = ul::Algorithm::clamp(max_distance, max_min_distance, max_max_distance);
+	const auto new_min_distance = std::clamp(min_distance, min_min_distance, min_max_distance);
+	const auto new_max_distance = std::clamp(max_distance, max_min_distance, max_max_distance);
 
 	if (new_min_distance == min_distance_ && new_max_distance == max_distance_)
 	{
@@ -867,7 +866,7 @@ struct OalLtSoundSysStreamingSource::MonoToStereoSample<8, TDummy>
 	static Value to_volume(
 		const float gain)
 	{
-		return static_cast<Value>(ul::Algorithm::clamp(static_cast<int>((gain * 128.0F) + 128.5F), 0, 255));
+		return static_cast<Value>(std::clamp(static_cast<int>((gain * 128.0F) + 128.5F), 0, 255));
 	}
 }; // MonoToStereoSample<8>
 
@@ -892,7 +891,7 @@ struct OalLtSoundSysStreamingSource::MonoToStereoSample<16, TDummy>
 	static Value to_volume(
 		const float gain)
 	{
-		return static_cast<Value>(ul::Algorithm::clamp(static_cast<int>(gain * 32768.0F), -32768, 32767));
+		return static_cast<Value>(std::clamp(static_cast<int>(gain * 32768.0F), -32768, 32767));
 	}
 }; // MonoToStereoSample<16>
 
@@ -939,24 +938,24 @@ struct OalLtSoundSysStreamingSource::MonoToStereoSample<16, TDummy>
 }
 
 bool OalLtSoundSysStreamingSource::validate_wave_format_ex(
-	const ul::WaveFormatEx& wave_format)
+	const WaveFormatEx& wave_format)
 {
-	if (wave_format.tag_ != ul::WaveFormatTag::pcm)
+	if (wave_format.tag != WaveFormatTag::pcm)
 	{
 		return false;
 	}
 
-	if (wave_format.channel_count_ != 1 && wave_format.channel_count_ != 2)
+	if (wave_format.channel_count != 1 && wave_format.channel_count != 2)
 	{
 		return false;
 	}
 
-	if (wave_format.bit_depth_ != 8 && wave_format.bit_depth_ != 16)
+	if (wave_format.bit_depth != 8 && wave_format.bit_depth != 16)
 	{
 		return false;
 	}
 
-	if (wave_format.sample_rate_ <= 0)
+	if (wave_format.sample_rate <= 0)
 	{
 		return false;
 	}
@@ -1187,12 +1186,12 @@ void OalLtSoundSysStreamingSource::oal_reset_spatial()
 }
 
 void OalLtSoundSysStreamingSource::open_set_wave_format_internal(
-	const ul::WaveFormatEx& wave_format)
+	const WaveFormatEx& wave_format)
 {
-	channel_count_ = wave_format.channel_count_;
-	bit_depth_ = wave_format.bit_depth_;
-	block_align_ = wave_format.block_align_;
-	sample_rate_ = static_cast<int>(wave_format.sample_rate_);
+	channel_count_ = wave_format.channel_count;
+	bit_depth_ = wave_format.bit_depth;
+	block_align_ = wave_format.block_align;
+	sample_rate_ = static_cast<int>(wave_format.sample_rate);
 }
 
 bool OalLtSoundSysStreamingSource::open_file_internal(
@@ -1203,7 +1202,7 @@ bool OalLtSoundSysStreamingSource::open_file_internal(
 		return false;
 	}
 
-	const auto open_file_result = file_stream_.open(param.file_name_, ul::Stream::OpenMode::read);
+	const auto open_file_result = file_stream_.open(param.file_name_, FileStreamOpenMode::read);
 
 	if (!open_file_result)
 	{
@@ -1253,7 +1252,7 @@ bool OalLtSoundSysStreamingSource::open_mapped_file_internal(
 		return false;
 	}
 
-	auto memory_stream = ul::MemoryStream{param.mapped_storage_ptr, mapped_file_size, ul::Stream::OpenMode::read};
+	ReadOnlyMemoryStream memory_stream{param.mapped_storage_ptr, mapped_file_size};
 
 	if (!memory_stream.is_open())
 	{

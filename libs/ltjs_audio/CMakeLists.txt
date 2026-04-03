@@ -8,8 +8,6 @@ add_library(ltjs::audio ALIAS ltjs_audio)
 
 ltjs_add_defaults(ltjs_audio)
 
-target_link_libraries(ltjs_audio PRIVATE bibendovsky_spul_lib)
-
 target_compile_definitions(ltjs_audio
 	PRIVATE
 		#_CRT_SECURE_NO_WARNINGS

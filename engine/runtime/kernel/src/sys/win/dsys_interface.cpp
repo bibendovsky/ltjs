@@ -7,7 +7,6 @@
 #endif // LTJS_SDL_BACKEND
 
 #include "bdefs.h"
-#include "bibendovsky_spul_path_utils.h"
 #include "stringmgr.h"
 #include "render.h"
 #include "version_resource.h"
@@ -19,17 +18,11 @@
 #include "bindmgr.h"
 #include "console.h"
 
+#include "ltjs_file_path.h"
 #ifdef LTJS_SDL_BACKEND
 #include "ltjs_shared_data_mgr.h"
 #include "ltjs_shell_resource_mgr.h"
 #endif // LTJS_SDL_BACKEND
-
-
-namespace ltjs
-{
-namespace ul = bibendovsky::spul;
-} // ltjs
-
 
 //------------------------------------------------------------------
 //------------------------------------------------------------------
@@ -448,7 +441,7 @@ LTRESULT dsi_LoadServerObjects(
 {
 	int status;
 
-	const auto object_file_name = ltjs::ul::PathUtils::append("game", "ltjs_object.dll");
+	const std::string object_file_name = ltjs::FilePath::normalize("game/ltjs_object.dll");
 
 	//load the object.lto DLL.
 	int version;
@@ -473,7 +466,7 @@ LTRESULT dsi_LoadServerObjects(
 
 #ifndef LTJS_SDL_BACKEND
 	// Get sres.dll.
-	const auto sres_file_name = ltjs::ul::PathUtils::append("game", "ltjs_sres.dll");
+	const std::string sres_file_name = ltjs::FilePath::normalize("game/ltjs_sres.dll");
 
 	if (bm_BindModule(sres_file_name.c_str(), false, pClassMgr->m_hServerResourceModule) != BIND_NOERROR)
 	{
@@ -802,7 +795,7 @@ LTRESULT dsi_InitClientShellDE()
 	g_pClientMgr->m_hShellModule = nullptr;
 
 	// Setup the cshell.dll file.
-	const auto cshell_file_name = ltjs::ul::PathUtils::append("game" , "ltjs_cshell.dll");
+	const std::string cshell_file_name = ltjs::FilePath::normalize("game/ltjs_cshell.dll");
 
 	//load the DLL.
 	status = bm_BindModule(cshell_file_name.c_str(), false, g_pClientMgr->m_hShellModule);
@@ -825,7 +818,7 @@ LTRESULT dsi_InitClientShellDE()
 	//
 	// Try to setup cres.dll.
 	//
-	const auto cres_file_name = ltjs::ul::PathUtils::append("game" , "ltjs_cres.dll");
+	const std::string cres_file_name = ltjs::FilePath::normalize("game/ltjs_cres.dll");
 
 	//load the DLL.
 	status = bm_BindModule(cres_file_name.c_str(), false, g_pClientMgr->m_hClientResourceModule);

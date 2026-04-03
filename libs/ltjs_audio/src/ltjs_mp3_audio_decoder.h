@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "bibendovsky_spul_stream.h"
+#include "ltjs_stream.h"
 
 #include "minimp3_ex.h"
 
@@ -18,15 +18,13 @@
 
 namespace ltjs {
 
-namespace ul = bibendovsky::spul;
-
 struct Mp3AudioDecoderOpenParam
 {
 	int channel_count;
 	int sample_rate;
 	int frame_count;
 	int dst_bit_depth;
-	ul::Stream* stream;
+	Stream* stream;
 };
 
 class Mp3AudioDecoder final : public BasicAudioDecoder

@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include "bibendovsky_spul_stream.h"
+#include "ltjs_stream.h"
 
 #include "ltjs_basic_audio_decoder.h"
 
@@ -11,14 +11,12 @@
 
 namespace ltjs {
 
-namespace ul = bibendovsky::spul;
-
 struct PcmAudioDecoderOpenParam
 {
 	int channel_count;
 	int bit_depth;
 	int sample_rate;
-	ul::Stream* stream;
+	Stream* stream;
 };
 
 class PcmAudioDecoder final : public BasicAudioDecoder
@@ -60,7 +58,7 @@ private:
 	int total_byte_offset_{};
 	int cache_byte_count_{};
 	int cache_byte_offset_{};
-	ul::Stream* stream_{};
+	Stream* stream_{};
 	Cache cache_{};
 
 private:

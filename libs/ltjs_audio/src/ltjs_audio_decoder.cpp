@@ -15,14 +15,13 @@ References:
 #include <cassert>
 #include <cstdint>
 
-#include "bibendovsky_spul_substream.h"
-
 #include "ltjs_audio_converter.h"
 #include "ltjs_audio_limits.h"
 #include "ltjs_basic_audio_decoder.h"
 #include "ltjs_ms_ima_adpcm_audio_decoder.h"
 #include "ltjs_mp3_audio_decoder.h"
 #include "ltjs_pcm_audio_decoder.h"
+#include "ltjs_substream.h"
 
 // ==========================================================================
 
@@ -51,7 +50,7 @@ public:
 	int get_dst_channel_count() const noexcept;
 	int get_dst_bit_depth() const noexcept;
 	int get_dst_sample_rate() const noexcept;
-	const ul::WaveFormatEx& get_wave_format_ex() const noexcept;
+	const WaveFormatEx& get_wave_format_ex() const noexcept;
 	int get_dst_sample_size() const noexcept;
 	int get_sample_count() const noexcept;
 	int get_data_size() const noexcept;
@@ -98,9 +97,9 @@ private:
 	int wav_chunk_size_{};
 	int cache_byte_count_{};
 	RiffChunkBuffer wav_chunk_buffer_{};
-	ul::WaveFormatEx dst_wave_format_ex_{};
-	ul::Stream* stream_{};
-	ul::Substream substream_{};
+	WaveFormatEx dst_wave_format_ex_{};
+	Stream* stream_{};
+	Substream substream_{};
 	PcmAudioDecoder pcm_audio_decoder_{};
 	MsImaAdpcmAudioDecoder ms_ima_adpcm_audio_decoder_{};
 	Mp3AudioDecoder mp3_audio_decoder_{};
@@ -175,7 +174,7 @@ void AudioDecoder::Impl::close() noexcept
 	dst_decoded_size_ = 0;
 	wav_chunk_size_ = 0;
 	cache_byte_count_ = 0;
-	dst_wave_format_ex_ = ul::WaveFormatEx{};
+	dst_wave_format_ex_ = WaveFormatEx{};
 	stream_ = nullptr;
 	substream_.close();
 	pcm_audio_decoder_.close();
@@ -298,7 +297,7 @@ int AudioDecoder::Impl::get_dst_sample_rate() const noexcept
 	return dst_sample_rate_;
 }
 
-const ul::WaveFormatEx& AudioDecoder::Impl::get_wave_format_ex() const noexcept
+const WaveFormatEx& AudioDecoder::Impl::get_wave_format_ex() const noexcept
 {
 	assert(is_open());
 	return dst_wave_format_ex_;
@@ -351,18 +350,6 @@ bool AudioDecoder::Impl::validate_open_param(const OpenParam& param) noexcept
 	if (param.stream_ptr_ == nullptr)
 	{
 		assert(false && "Null stream.");
-		return false;
-	}
-
-	if (!param.stream_ptr_->is_readable())
-	{
-		assert(false && "Non-readable stream.");
-		return false;
-	}
-
-	if (!param.stream_ptr_->is_seekable())
-	{
-		assert(false && "Non-seekable stream.");
 		return false;
 	}
 
@@ -668,7 +655,7 @@ bool AudioDecoder::Impl::parse_wav() noexcept
 		{
 			// Other.
 			//
-			if (stream_->set_position(aligned_chunk_size, ul::Stream::Origin::current) < 0)
+			if (stream_->set_position(aligned_chunk_size, Stream::Origin::current) < 0)
 			{
 				assert(false && "Failed to skip a chunk.");
 				return false;
@@ -678,7 +665,7 @@ bool AudioDecoder::Impl::parse_wav() noexcept
 		riff_offset += aligned_chunk_size;
 	}
 
-	if (!substream_.open(stream_, wave_data_stream_position, wave_data_size, ul::Substream::SyncPositionOnRead::enable))
+	if (!substream_.open(stream_, wave_data_stream_position, wave_data_size, Substream::SyncPositionOnRead::enable))
 	{
 		assert(false && "Failed to open a substream.");
 		return false;
@@ -811,13 +798,13 @@ bool AudioDecoder::Impl::open_internal(const OpenParam& param) noexcept
 	dst_data_size_ = dst_frame_count_ * dst_frame_size_;
 
 	const auto block_align = dst_channel_count_ * (dst_bit_depth_ / 8);
-	dst_wave_format_ex_.tag_ = ul::WaveFormatTag::pcm;
-	dst_wave_format_ex_.channel_count_ = static_cast<std::uint16_t>(dst_channel_count_);
-	dst_wave_format_ex_.bit_depth_ = static_cast<std::uint16_t>(dst_bit_depth_);
-	dst_wave_format_ex_.sample_rate_ = static_cast<std::uint32_t>(dst_sample_rate_);
-	dst_wave_format_ex_.block_align_ = static_cast<std::uint16_t>(block_align);
-	dst_wave_format_ex_.avg_bytes_per_sec_ = static_cast<std::uint32_t>(dst_sample_rate_ * block_align);
-	dst_wave_format_ex_.extra_size_ = 0;
+	dst_wave_format_ex_.tag = WaveFormatTag::pcm;
+	dst_wave_format_ex_.channel_count = static_cast<std::uint16_t>(dst_channel_count_);
+	dst_wave_format_ex_.bit_depth = static_cast<std::uint16_t>(dst_bit_depth_);
+	dst_wave_format_ex_.sample_rate = static_cast<std::uint32_t>(dst_sample_rate_);
+	dst_wave_format_ex_.block_align = static_cast<std::uint16_t>(block_align);
+	dst_wave_format_ex_.avg_bytes_per_sec = static_cast<std::uint32_t>(dst_sample_rate_ * block_align);
+	dst_wave_format_ex_.extra_size = 0;
 
 	set_funcs();
 	return true;
@@ -948,9 +935,7 @@ bool AudioDecoder::OpenParam::validate() const noexcept
 		(dst_bit_depth_ == 0 || dst_bit_depth_ == 8 || dst_bit_depth_ == 16) &&
 		dst_sample_rate_ >= 0 &&
 		stream_ptr_ != nullptr &&
-		stream_ptr_->is_open() &&
-		stream_ptr_->is_readable() &&
-		stream_ptr_->is_seekable();
+		stream_ptr_->is_open();
 }
 
 // --------------------------------------------------------------------------
@@ -1051,7 +1036,7 @@ int AudioDecoder::get_dst_sample_size() const noexcept
 	return impl_->get_dst_sample_size();
 }
 
-const ul::WaveFormatEx& AudioDecoder::get_wave_format_ex() const noexcept
+const WaveFormatEx& AudioDecoder::get_wave_format_ex() const noexcept
 {
 	return impl_->get_wave_format_ex();
 }

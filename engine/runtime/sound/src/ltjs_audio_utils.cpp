@@ -6,20 +6,13 @@
 #include <array>
 #include <memory>
 
-#include "bibendovsky_spul_algorithm.h"
-#include "bibendovsky_spul_endian.h"
-#include "bibendovsky_spul_memory_stream.h"
-#include "bibendovsky_spul_riff_four_ccs.h"
-#include "bibendovsky_spul_wave_format.h"
-#include "bibendovsky_spul_wave_four_ccs.h"
-
+#include "ltjs_read_only_memory_stream.h"
+#include "ltjs_riff_four_ccs.h"
+#include "ltjs_wave_format.h"
+#include "ltjs_wave_four_ccs.h"
 
 namespace ltjs
 {
-
-
-namespace ul = bibendovsky::spul;
-
 
 struct AudioUtils::Detail
 {
@@ -219,14 +212,14 @@ sint32 AudioUtils::decode_mp3(
 	dst_wav_ptr = nullptr;
 	dst_wav_size = 0;
 
-	auto memory_stream = ul::MemoryStream{src_data_ptr, static_cast<int>(src_data_size), ul::Stream::OpenMode::read};
+	ReadOnlyMemoryStream memory_stream{src_data_ptr, static_cast<int>(src_data_size)};
 
 	if (!memory_stream.is_open())
 	{
 		return false;
 	}
 
-	auto decoder_param = ltjs::AudioDecoder::OpenParam{};
+	auto decoder_param = AudioDecoder::OpenParam{};
 	decoder_param.stream_ptr_ = &memory_stream;
 
 	if (!audio_decoder.open(decoder_param))
@@ -244,7 +237,7 @@ sint32 AudioUtils::decode_mp3(
 	const auto header_size =
 		4 + 4 + // "RIFF" + size
 		4 + // WAVE
-		4 + 4 + ul::WaveFormatEx::class_size + // "fmt " + size + format_size
+		4 + 4 + WaveFormatEx::io_size + // "fmt " + size + format_size
 		4 + 4 + // "data" + size
 		0;
 
@@ -289,12 +282,12 @@ sint32 AudioUtils::decode_mp3(
 	header[7] = ' ';
 	header += 8;
 
-	*reinterpret_cast<std::uint32_t*>(header) = ul::WaveFormatEx::class_size;
+	*reinterpret_cast<std::uint32_t*>(header) = WaveFormatEx::io_size;
 	header += 4;
 
 	const auto wave_format_ex = audio_decoder.get_wave_format_ex();
-	*reinterpret_cast<ul::WaveFormatEx*>(header) = wave_format_ex;
-	header += ul::WaveFormatEx::class_size;
+	*reinterpret_cast<WaveFormatEx*>(header) = wave_format_ex;
+	header += WaveFormatEx::io_size;
 
 	// fill in DATA chunk
 	header[0] = 'd';
@@ -320,20 +313,28 @@ int AudioUtils::extract_wave_size(
 		return 0;
 	}
 
-	auto header = static_cast<const std::uint32_t*>(raw_data);
+	auto header = static_cast<const std::uint8_t*>(raw_data);
 
-	const auto riff_id = ul::Endian::little(header[0]);
+	const auto riff_id = FourCc{
+		static_cast<char>(header[0]),
+		static_cast<char>(header[1]),
+		static_cast<char>(header[2]),
+		static_cast<char>(header[3])};
 
-	if (riff_id != ul::RiffFourCcs::riff)
+	if (riff_id != RiffFourCcs::riff)
 	{
 		return 0;
 	}
 
-	const auto riff_size = ul::Endian::little(header[1]);
+	const auto riff_size =
+		 static_cast<std::uint32_t>(header[4])        |
+		(static_cast<std::uint32_t>(header[5]) <<  8) |
+		(static_cast<std::uint32_t>(header[6]) << 16) |
+		(static_cast<std::uint32_t>(header[7]) << 24);
 
 	constexpr auto min_riff_size =
 		4 + // "WAVE"
-		4 + 4 + ul::PcmWaveFormat::class_size + // "fmt " + size + pcm_wave_format
+		4 + 4 + PcmWaveFormat::io_size + // "fmt " + size + pcm_wave_format
 		4 + 4 + 1 + // "data" + size + min_data_size
 		0;
 
@@ -342,9 +343,13 @@ int AudioUtils::extract_wave_size(
 		return 0;
 	}
 
-	const auto wave_id = ul::Endian::little(header[2]);
+	const auto wave_id = FourCc{
+		static_cast<char>(header[ 8]),
+		static_cast<char>(header[ 9]),
+		static_cast<char>(header[10]),
+		static_cast<char>(header[11])};
 
-	if (wave_id != ul::WaveFourCcs::wave)
+	if (wave_id != WaveFourCcs::wave)
 	{
 		return 0;
 	}

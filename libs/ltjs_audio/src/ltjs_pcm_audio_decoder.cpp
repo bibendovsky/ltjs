@@ -10,8 +10,6 @@
 
 namespace ltjs {
 
-namespace ul = bibendovsky::spul;
-
 PcmAudioDecoder::PcmAudioDecoder() noexcept = default;
 
 PcmAudioDecoder::PcmAudioDecoder(const PcmAudioDecoderOpenParam& param) noexcept
@@ -249,18 +247,6 @@ bool PcmAudioDecoder::validate(const PcmAudioDecoderOpenParam& param) noexcept
 	if (!param.stream->is_open())
 	{
 		assert(false && "Closed stream.");
-		return false;
-	}
-
-	if (!param.stream->is_readable())
-	{
-		assert(false && "Non-readable stream.");
-		return false;
-	}
-
-	if (!param.stream->is_seekable())
-	{
-		assert(false && "Non-seekable stream.");
 		return false;
 	}
 

@@ -76,7 +76,6 @@ endif ()
 target_link_libraries (
 	${PROJECT_NAME}
 	PRIVATE
-		bibendovsky_spul_lib
 		ltjs_lib_rez_mgr
 		ltjs_lib_lith
 		ltjs_lib_std_lith
@@ -90,7 +89,6 @@ target_include_directories (
 	PRIVATE
 		.
 		../../../../directx/include
-		../../../../libs/bibendovsky_spul_lib/include
 		../../../../libs/lith
 		../../../../libs/stdlith
 		../../../libs/rezmgr

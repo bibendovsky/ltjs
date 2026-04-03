@@ -7,19 +7,14 @@
 
 #include "al.h"
 
-#include "bibendovsky_spul_file_stream.h"
-#include "bibendovsky_spul_substream.h"
-
 #include "iltsound.h"
 
 #include "ltjs_audio_decoder.h"
+#include "ltjs_file_stream.h"
+#include "ltjs_substream.h"
 #include "ltjs_oal_lt_sound_sys_orientation_3d.h"
 #include "ltjs_oal_lt_sound_user_data.h"
 #include "ltjs_oal_lt_sound_sys_vector_3d.h"
-
-
-namespace ul = bibendovsky::spul;
-
 
 namespace ltjs
 {
@@ -67,7 +62,7 @@ struct OalLtSoundSysStreamingSourceOpenParam
 	bool is_memory_;
 	const void* memory_ptr_;
 	uint32 memory_size_;
-	ul::WaveFormatEx memory_wave_format_;
+	WaveFormatEx memory_wave_format_;
 
 	sint32 playback_rate_;
 }; // OpenParam
@@ -283,8 +278,8 @@ private:
 	int mix_sample_count_;
 	int data_size_;
 	int data_offset_;
-	ul::FileStream file_stream_;
-	ul::Substream file_substream_;
+	FileStream file_stream_;
+	Substream file_substream_;
 	AudioDecoder decoder_;
 	MixBuffer mix_mono_buffer_;
 	MixBuffer mix_stereo_buffer_;
@@ -321,7 +316,7 @@ private:
 		const int bit_depth);
 
 	static bool validate_wave_format_ex(
-		const ul::WaveFormatEx& wave_format);
+		const WaveFormatEx& wave_format);
 
 
 	void create();
@@ -339,7 +334,7 @@ private:
 	void oal_reset_spatial();
 
 	void open_set_wave_format_internal(
-		const ul::WaveFormatEx& wave_format);
+		const WaveFormatEx& wave_format);
 
 	bool open_file_internal(
 		const OalLtSoundSysStreamingSourceOpenParam& param);

@@ -351,12 +351,12 @@ LTRESULT CSoundMgr::Init(InitSoundInfo &soundInit)
 #endif
 
 	// store the primary buffer format
-    m_PrimaryBufferWaveFormat.tag_ = ul::WaveFormatTag::pcm;
-    m_PrimaryBufferWaveFormat.channel_count_ = 2;
-    m_PrimaryBufferWaveFormat.sample_rate_ = soundInit.m_nSampleRate;
-    m_PrimaryBufferWaveFormat.bit_depth_ = soundInit.m_nBitsPerSample;
-    m_PrimaryBufferWaveFormat.block_align_ = (m_PrimaryBufferWaveFormat.channel_count_ * m_PrimaryBufferWaveFormat.bit_depth_) >> 3;
-    m_PrimaryBufferWaveFormat.avg_bytes_per_sec_ = m_PrimaryBufferWaveFormat.sample_rate_ * m_PrimaryBufferWaveFormat.block_align_;
+    m_PrimaryBufferWaveFormat.tag = ltjs::WaveFormatTag::pcm;
+    m_PrimaryBufferWaveFormat.channel_count = 2;
+    m_PrimaryBufferWaveFormat.sample_rate = soundInit.m_nSampleRate;
+    m_PrimaryBufferWaveFormat.bit_depth = soundInit.m_nBitsPerSample;
+    m_PrimaryBufferWaveFormat.block_align = (m_PrimaryBufferWaveFormat.channel_count * m_PrimaryBufferWaveFormat.bit_depth) >> 3;
+    m_PrimaryBufferWaveFormat.avg_bytes_per_sec = m_PrimaryBufferWaveFormat.sample_rate * m_PrimaryBufferWaveFormat.block_align;
 
     m_bConvert16to8 = (soundInit.m_dwFlags & INITSOUNDINFOFLAG_CONVERT16TO8) ? true : false;
 

@@ -88,7 +88,7 @@ LTRESULT CSoundBuffer::InitFromCompressed(CSoundBuffer &compressedSoundBuffer)
 
     m_bTouched = LTTRUE;
 
-    if (compressedSoundBuffer.m_WaveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::ima_adpcm)
+    if (compressedSoundBuffer.m_WaveHeader.m_WaveFormat.tag == ltjs::WaveFormatTag::ima_adpcm)
     {
         if (!GetSoundSys()->DecompressADPCM(compressedSoundBuffer.m_SoundInfo,
             reinterpret_cast<void*&>(m_pFileData), m_dwFileSize))
@@ -97,7 +97,7 @@ LTRESULT CSoundBuffer::InitFromCompressed(CSoundBuffer &compressedSoundBuffer)
         }
 
     }
-    else if (compressedSoundBuffer.m_WaveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::mp3)
+    else if (compressedSoundBuffer.m_WaveHeader.m_WaveFormat.tag == ltjs::WaveFormatTag::mp3)
     {
 		if( !compressedSoundBuffer.m_pFileData )
 			return LT_ERROR;
@@ -167,10 +167,10 @@ void CSoundBuffer::Term()
     }
 }
 
-inline void CSoundBuffer::CalcSampleType(S32 &sampleType, ul::WaveFormatEx &waveFormat)
+inline void CSoundBuffer::CalcSampleType(S32 &sampleType, ltjs::WaveFormatEx &waveFormat)
 {
     // Get the MSS sample type.
-    switch(waveFormat.bit_depth_ * (waveFormat.channel_count_ + 1) >> 3)
+    switch(waveFormat.bit_depth * (waveFormat.channel_count + 1) >> 3)
     {
         case 4:
             sampleType = DIG_F_MONO_16;
@@ -213,8 +213,8 @@ LTRESULT CSoundBuffer::LoadData()
     bRet = GetWaveInfo(*pFileStream, m_WaveHeader);
     
     // Catch a bad format that isn't caught by MSS.
-    if (m_WaveHeader.m_WaveFormat.tag_ == ul::WaveFormatTag::ima_adpcm && 
-        m_WaveHeader.m_WaveFormat.bit_depth_ != 4)
+    if (m_WaveHeader.m_WaveFormat.tag == ltjs::WaveFormatTag::ima_adpcm && 
+        m_WaveHeader.m_WaveFormat.bit_depth != 4)
         bRet = LTFALSE;
     if (!bRet)
     {
@@ -229,18 +229,18 @@ LTRESULT CSoundBuffer::LoadData()
     }
 
     // Calculate the duration
-    m_dwDuration = (uint32)((1000.0f * (float)m_WaveHeader.m_dwDataSize / (float)m_WaveHeader.m_WaveFormat.avg_bytes_per_sec_) + 0.5f);
+    m_dwDuration = (uint32)((1000.0f * (float)m_WaveHeader.m_dwDataSize / (float)m_WaveHeader.m_WaveFormat.avg_bytes_per_sec) + 0.5f);
 
     // Calculate the loop points in time.
     if (m_WaveHeader.m_CuePoint.m_bValid)
     {
         // Make sure it's got some valid data.
-        if (m_WaveHeader.m_CuePoint.m_dwLength > 0 && m_WaveHeader.m_WaveFormat.sample_rate_)
+        if (m_WaveHeader.m_CuePoint.m_dwLength > 0 && m_WaveHeader.m_WaveFormat.sample_rate)
         {
             m_dwLoopPoints[0] = m_WaveHeader.m_CuePoint.m_dwPosition * 1000L / 
-                m_WaveHeader.m_WaveFormat.sample_rate_;
+                m_WaveHeader.m_WaveFormat.sample_rate;
             m_dwLoopPoints[1] = m_dwLoopPoints[0] + m_WaveHeader.m_CuePoint.m_dwLength * 1000L / 
-                m_WaveHeader.m_WaveFormat.sample_rate_;
+                m_WaveHeader.m_WaveFormat.sample_rate;
 
             // Make sure the loop points are in range.
             m_dwLoopPoints[0] = LTCLAMP(m_dwLoopPoints[0], 0, m_dwDuration);
@@ -281,13 +281,13 @@ LTRESULT CSoundBuffer::LoadData()
             GetSoundBufferFlags() & (SOUNDBUFFERFLAG_DECOMPRESSATSTART | SOUNDBUFFERFLAG_DECOMPRESSONLOAD))
         {
             // Get the MSS data format values.
-            m_SoundInfo.format = static_cast<std::int32_t>(m_WaveHeader.m_WaveFormat.tag_);
+            m_SoundInfo.format = static_cast<std::int32_t>(m_WaveHeader.m_WaveFormat.tag);
             m_SoundInfo.data_len = m_WaveHeader.m_dwDataSize;
-            m_SoundInfo.rate = m_WaveHeader.m_WaveFormat.sample_rate_;
-            m_SoundInfo.bits = m_WaveHeader.m_WaveFormat.bit_depth_;
-            m_SoundInfo.channels = m_WaveHeader.m_WaveFormat.channel_count_;
+            m_SoundInfo.rate = m_WaveHeader.m_WaveFormat.sample_rate;
+            m_SoundInfo.bits = m_WaveHeader.m_WaveFormat.bit_depth;
+            m_SoundInfo.channels = m_WaveHeader.m_WaveFormat.channel_count;
             m_SoundInfo.samples = m_WaveHeader.m_dwSamples;
-            m_SoundInfo.block_size = m_WaveHeader.m_WaveFormat.block_align_;
+            m_SoundInfo.block_size = m_WaveHeader.m_WaveFormat.block_align;
             m_SoundInfo.data_ptr = m_pSoundData;
             m_SoundInfo.initial_ptr = m_pSoundData;
 
@@ -327,12 +327,12 @@ LTRESULT CSoundBuffer::LoadData()
             // Convert sample if needed
             if (!IsCompressed() && GetClientILTSoundMgrImpl()->GetConvert16to8())
             {
-                if (GetWaveFormat().bit_depth_ == 16 && GetWaveFormat().tag_ == ul::WaveFormatTag::pcm)
+                if (GetWaveFormat().bit_depth == 16 && GetWaveFormat().tag == ltjs::WaveFormatTag::pcm)
                 {
                     m_WaveHeader.m_dwDataSize /= 2;
-                    GetWaveFormat().bit_depth_ = 8;
-                    GetWaveFormat().avg_bytes_per_sec_ /= 2;
-                    GetWaveFormat().block_align_ /= 2;
+                    GetWaveFormat().bit_depth = 8;
+                    GetWaveFormat().avg_bytes_per_sec /= 2;
+                    GetWaveFormat().block_align /= 2;
 
                     // Create a new file buffer that has half the size for the data buffer.
                     pTempBuffer = (uint8*)GetSoundSys()->MemAllocLock(m_dwFileSize - m_WaveHeader.m_dwDataSize);
@@ -395,13 +395,13 @@ LTRESULT CSoundBuffer::LoadDataFromDecompressed()
     m_pSoundData = &m_pFileData[m_WaveHeader.m_dwDataPos];
 
     // Get the MSS data format values.
-    m_SoundInfo.format = static_cast<std::int32_t>(m_WaveHeader.m_WaveFormat.tag_);
+    m_SoundInfo.format = static_cast<std::int32_t>(m_WaveHeader.m_WaveFormat.tag);
     m_SoundInfo.data_len = m_WaveHeader.m_dwDataSize;
-    m_SoundInfo.rate = m_WaveHeader.m_WaveFormat.sample_rate_;
-    m_SoundInfo.bits = m_WaveHeader.m_WaveFormat.bit_depth_;
-    m_SoundInfo.channels = m_WaveHeader.m_WaveFormat.channel_count_;
+    m_SoundInfo.rate = m_WaveHeader.m_WaveFormat.sample_rate;
+    m_SoundInfo.bits = m_WaveHeader.m_WaveFormat.bit_depth;
+    m_SoundInfo.channels = m_WaveHeader.m_WaveFormat.channel_count;
     m_SoundInfo.samples = m_WaveHeader.m_dwSamples;
-    m_SoundInfo.block_size = m_WaveHeader.m_WaveFormat.block_align_;
+    m_SoundInfo.block_size = m_WaveHeader.m_WaveFormat.block_align;
     m_SoundInfo.data_ptr = m_pSoundData;
     m_SoundInfo.initial_ptr = m_pSoundData;
 
@@ -409,7 +409,7 @@ LTRESULT CSoundBuffer::LoadDataFromDecompressed()
 
     // Calculate the duration
     m_dwDuration = (uint32)((1000.0f * (float)m_WaveHeader.m_dwDataSize / 
-        (float)m_WaveHeader.m_WaveFormat.avg_bytes_per_sec_) + 0.5f);
+        (float)m_WaveHeader.m_WaveFormat.avg_bytes_per_sec) + 0.5f);
 
     return LT_OK;
 }

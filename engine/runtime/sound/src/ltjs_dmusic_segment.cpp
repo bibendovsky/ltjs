@@ -3,46 +3,39 @@
 
 #ifdef _DEBUG
 // Make sure to delete ltjs_dbg_dmus001_*.txt before the dump to avoid appending new data after the old one.
-//#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE 0
+#else
+// Do not change this.
+#define LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE 0
 #endif // _DEBUG
 
+namespace {
+constexpr bool ltjs_debug_dmusic_segment_dump_structure = LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE;
+} // namespace
 
 #include "ltjs_dmusic_segment.h"
+#include "client_filemgr.h"
+#include "ltjs_ascii.h"
+#include "ltjs_audio_decoder.h"
+#include "ltjs_endian.h"
+#include "ltjs_file_path.h"
+#include "ltjs_file_stream.h"
+#include "ltjs_four_cc.h"
+#include "ltjs_read_only_memory_stream.h"
+#include "ltjs_riff_four_ccs.h"
+#include "ltjs_riff_reader.h"
+#include "ltjs_uuid.h"
 #include <cmath>
 #include <cstdint>
 #include <algorithm>
-#include <array>
 #include <random>
 #include <string>
-#include <type_traits>
 #include <unordered_map>
 #include <utility>
-#include "bibendovsky_spul_ascii_utils.h"
-#include "bibendovsky_spul_encoding_utils.h"
-#include "bibendovsky_spul_endian.h"
-#include "bibendovsky_spul_enum_flags.h"
-#include "bibendovsky_spul_file_stream.h"
-#include "bibendovsky_spul_four_cc.h"
-#include "bibendovsky_spul_memory_stream.h"
-#include "bibendovsky_spul_path_utils.h"
-#include "bibendovsky_spul_riff_four_ccs.h"
-#include "bibendovsky_spul_riff_reader.h"
-#include "bibendovsky_spul_scope_guard.h"
-#include "bibendovsky_spul_un_value.h"
-#include "bibendovsky_spul_uuid.h"
-#include "bibendovsky_spul_wave_format.h"
-#include "bibendovsky_spul_wave_format_utils.h"
-#include "bibendovsky_spul_wave_four_ccs.h"
-#include "client_filemgr.h"
-#include "ltjs_audio_decoder.h"
 
 
 namespace ltjs
 {
-
-
-namespace ul = bibendovsky::spul;
-
 
 namespace
 {
@@ -73,11 +66,8 @@ public:
 		current_variation_{},
 		variation_list_{},
 		last_variation_index_{},
-		is_variation_no_repeat_{}
-#ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
-		,
+		is_variation_no_repeat_{},
 		debug_001_stream_{}
-#endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 	{
 	}
 
@@ -171,28 +161,17 @@ private:
 	static constexpr auto default_variation_mask = std::uint32_t{1};
 
 
-	using Buffer = std::vector<ul::UnValue<std::uint8_t>>;
-	using WaveCache = std::vector<ul::UnValue<std::uint8_t>>;
+	using Buffer = std::vector<std::uint8_t>;
+	using WaveCache = std::vector<std::uint8_t>;
 
 	using IoMusicTime8 = std::int32_t;
 	using IoReferenceTime8 = std::int64_t;
 
 
-	struct ValidFlags8 :
-		ul::EnumFlagsT<std::uint32_t>
+	enum ValidFlags8 : std::uint32_t
 	{
-		ValidFlags8(
-			const Value flags = none)
-			:
-			EnumFlagsT<std::uint32_t>{flags}
-		{
-		}
-
-		enum : Value
-		{
-			file_name = 0B0001'0000,
-		}; // Value
-	}; // ValidFlags8
+		valid_flag_8_file_name = 0B0001'0000
+	};
 
 
 	struct DmIoSegmentHeader
@@ -226,27 +205,25 @@ private:
 			static_assert(class_size == sizeof(DmIoSegmentHeader), "Invalid class size.");
 		}
 
-		bool read(
-			ul::StreamPtr stream_ptr)
+		bool read(Stream* stream)
 		{
-			if (stream_ptr->read(this, class_size) != class_size)
+			std::uint8_t buffer[class_size];
+			if (stream == nullptr || stream->read(buffer, class_size) != class_size)
 			{
 				return false;
 			}
-
-			if (!ul::Endian::is_little())
-			{
-				ul::Endian::little_i(repeat_count_);
-				ul::Endian::little_i(mt_length_);
-				ul::Endian::little_i(mt_play_start_);
-				ul::Endian::little_i(mt_loop_start_);
-				ul::Endian::little_i(mt_loop_end_);
-				ul::Endian::little_i(resolution_);
-				ul::Endian::little_i(rt_length_);
-				ul::Endian::little_i(flags_);
-				ul::Endian::little_i(reserved_);
-			}
-
+			BinaryReader binary_reader{buffer, class_size};
+			assert(binary_reader.can_read_n(class_size));
+			repeat_count_  = binary_reader.read_u32_le();
+			mt_length_     = binary_reader.read_s32_le();
+			mt_play_start_ = binary_reader.read_s32_le();
+			mt_loop_start_ = binary_reader.read_s32_le();
+			mt_loop_end_   = binary_reader.read_s32_le();
+			resolution_    = binary_reader.read_u32_le();
+			rt_length_     = binary_reader.read_s64_le();
+			flags_         = binary_reader.read_u32_le();
+			reserved_      = binary_reader.read_u32_le();
+			assert(binary_reader.get_position() == class_size);
 			return true;
 		}
 
@@ -331,25 +308,19 @@ private:
 			static_assert(class_size == sizeof(DmIoTempoItem), "Invalid class size.");
 		}
 
-		bool read(
-			ul::StreamPtr stream_ptr)
+		bool read(Stream* stream)
 		{
-			if (!stream_ptr || !stream_ptr->is_readable())
+			std::uint8_t buffer[class_size];
+			if (stream == nullptr || stream->read(buffer, class_size) != class_size)
 			{
 				return false;
 			}
-
-			if (stream_ptr->read(this, class_size) != class_size)
-			{
-				return false;
-			}
-
-			if (!ul::Endian::is_little())
-			{
-				ul::Endian::little_i(time_);
-				ul::Endian::little_i(tempo_);
-			}
-
+			BinaryReader binary_reader{buffer, class_size};
+			assert(binary_reader.can_read_n(class_size));
+			time_  = binary_reader.read_s32_le();
+			binary_reader.skip(4); // padding
+			tempo_ = binary_reader.read_f64_le();
+			assert(binary_reader.get_position() == class_size);
 			return true;
 		}
 
@@ -401,27 +372,20 @@ private:
 			static_assert(class_size == sizeof(DmIoTimeSignatureItem), "Invalid class size.");
 		}
 
-		bool read(
-			ul::StreamPtr stream_ptr)
+		bool read(Stream* stream)
 		{
-			if (!stream_ptr || !stream_ptr->is_readable())
+			std::uint8_t buffer[class_size];
+			if (stream == nullptr || stream->read(buffer, class_size) != class_size)
 			{
 				return false;
 			}
-
-			if (stream_ptr->read(this, class_size) != class_size)
-			{
-				return false;
-			}
-
-			if (!ul::Endian::is_little())
-			{
-				ul::Endian::little_i(time_);
-				ul::Endian::little_i(beats_per_measure_);
-				ul::Endian::little_i(beat_);
-				ul::Endian::little_i(grids_per_beat_);
-			}
-
+			BinaryReader binary_reader{buffer, class_size};
+			assert(binary_reader.can_read_n(class_size));
+			time_              = binary_reader.read_s32_le();
+			beats_per_measure_ = binary_reader.read_u8();
+			beat_              = binary_reader.read_u8();
+			grids_per_beat_    = binary_reader.read_u16_le();
+			assert(binary_reader.get_position() == class_size);
 			return true;
 		}
 
@@ -496,31 +460,30 @@ private:
 			static_assert(class_size == sizeof(DmIoSequenceItem), "Invalid class size.");
 		}
 
-		bool read(
-			ul::StreamPtr stream_ptr)
+		bool read(Stream* stream)
 		{
-			if (!stream_ptr || !stream_ptr->is_readable())
+			std::uint8_t buffer[class_size];
+			if (stream == nullptr || stream->read(buffer, class_size) != class_size)
 			{
 				return false;
 			}
-
-			if (stream_ptr->read(&mt_time_, 4) != 4)
-			{
-				return false;
-			}
-
-			if (!ul::Endian::is_little())
-			{
-				ul::Endian::little_i(mt_time_);
-			}
-
-			mt_duration_ = {};
-			channel_ = {};
-			offset_ = {};
-			status_ = {};
-			byte_1_ = {};
-			byte_2_ = {};
-
+			BinaryReader binary_reader{buffer, class_size};
+			assert(binary_reader.can_read_n(class_size));
+			mt_time_     = binary_reader.read_s32_le();
+			mt_duration_ = binary_reader.read_s32_le();
+			channel_     = binary_reader.read_u32_le();
+			offset_      = binary_reader.read_s16_le();
+			status_      = binary_reader.read_u8();
+			byte_1_      = binary_reader.read_u8();
+			byte_2_      = binary_reader.read_u8();
+			binary_reader.skip(3); // padding
+			assert(binary_reader.get_position() == class_size);
+			mt_duration_ = 0;
+			channel_     = 0;
+			offset_      = 0;
+			status_      = 0;
+			byte_1_      = 0;
+			byte_2_      = 0;
 			return true;
 		}
 
@@ -601,22 +564,12 @@ private:
 			sine = 4,
 		}; // Type
 
-		struct Flags :
-			ul::EnumFlagsT<std::uint8_t>
+		enum Flags : std::uint8_t
 		{
-			Flags(
-				const Value flags = none)
-				:
-				EnumFlagsT<std::uint8_t>{flags}
-			{
-			}
-
-			enum : Value
-			{
-				reset = 0B0000'0001,
-				start_from_current = 0B0000'0010,
-			}; // Value
-		}; // Flags
+			flag_none = 0,
+			flag_reset = 0B0000'0001,
+			flag_start_from_current = 0B0000'0010
+		};
 
 
 		IoMusicTime8 mt_start_;
@@ -655,38 +608,30 @@ private:
 			static_assert(class_size == sizeof(DmIoCurveItem), "Invalid class size.");
 		}
 
-
-		bool read(
-			ul::StreamPtr stream_ptr)
+		bool read(Stream* stream)
 		{
-			if (!stream_ptr || !stream_ptr->is_readable())
+			std::uint8_t buffer[class_size];
+			if (stream == nullptr || stream->read(buffer, class_size) != class_size)
 			{
 				return false;
 			}
-
-			if (stream_ptr->read(this, class_size) != class_size)
-			{
-				return false;
-			}
-
-			if (!ul::Endian::is_little())
-			{
-				ul::Endian::little_i(mt_start_);
-				ul::Endian::little_i(mt_duration_);
-				ul::Endian::little_i(mt_reset_duration_);
-				ul::Endian::little_i(channel_);
-				ul::Endian::little_i(offset_);
-				ul::Endian::little_i(start_value_);
-				ul::Endian::little_i(end_value_);
-				ul::Endian::little_i(reset_value_);
-				ul::Endian::little_i(type_);
-				ul::Endian::little_i(curve_shape_);
-				ul::Endian::little_i(cc_data_);
-				ul::Endian::little_i(flags_);
-				ul::Endian::little_i(param_type_);
-				ul::Endian::little_i(merge_index_);
-			}
-
+			BinaryReader binary_reader{buffer, class_size};
+			assert(binary_reader.can_read_n(class_size));
+			mt_start_          = binary_reader.read_s32_le();
+			mt_duration_       = binary_reader.read_s32_le();
+			mt_reset_duration_ = binary_reader.read_s32_le();
+			channel_           = binary_reader.read_u32_le();
+			offset_            = binary_reader.read_s16_le();
+			start_value_       = binary_reader.read_s16_le();
+			end_value_         = binary_reader.read_s16_le();
+			reset_value_       = binary_reader.read_s16_le();
+			type_              = static_cast<Type>(binary_reader.read_u8());
+			curve_shape_       = static_cast<Shape>(binary_reader.read_u8());
+			cc_data_           = binary_reader.read_u8();
+			flags_             = static_cast<Flags>(binary_reader.read_u8());
+			param_type_        = binary_reader.read_u16_le();
+			merge_index_       = binary_reader.read_u16_le();
+			assert(binary_reader.get_position() == class_size);
 			return true;
 		}
 
@@ -753,7 +698,7 @@ private:
 
 			// Skip CC data.
 
-			if (!(flags_ == Flags::none || flags_ == Flags::reset || flags_ == Flags::start_from_current))
+			if (!(flags_ == flag_none || flags_ == flag_reset || flags_ == flag_start_from_current))
 			{
 				error_message = "Unsupported flags.";
 				return false;
@@ -783,21 +728,10 @@ private:
 		static constexpr auto class_size = 8;
 
 
-		struct Flags :
-			ul::EnumFlagsT<std::uint32_t>
+		enum Flags : std::uint32_t
 		{
-			Flags(
-				const Value flags = none)
-				:
-				EnumFlagsT<std::uint32_t>{flags}
-			{
-			}
-
-			enum : Value
-			{
-				persist_control = 0B0010,
-			}; // Value
-		}; // Flags
+			flag_persist_control = 0B0010
+		};
 
 
 		std::int32_t volume_;
@@ -812,25 +746,18 @@ private:
 			static_assert(class_size == sizeof(DmIoWaveTrackHeader), "Invalid class size.");
 		}
 
-		bool read(
-			ul::StreamPtr stream_ptr)
+		bool read(Stream* stream)
 		{
-			if (!stream_ptr || !stream_ptr->is_readable())
+			std::uint8_t buffer[class_size];
+			if (stream == nullptr || stream->read(buffer, class_size) != class_size)
 			{
 				return false;
 			}
-
-			if (stream_ptr->read(this, class_size) != class_size)
-			{
-				return false;
-			}
-
-			if (!ul::Endian::is_little())
-			{
-				ul::Endian::little_i(volume_);
-				ul::Endian::little_i(flags_);
-			}
-
+			BinaryReader binary_reader{buffer, class_size};
+			assert(binary_reader.can_read_n(class_size));
+			volume_ = binary_reader.read_s32_le();
+			flags_  = static_cast<Flags>(binary_reader.read_u32_le());
+			assert(binary_reader.get_position() == class_size);
 			return true;
 		}
 
@@ -843,7 +770,7 @@ private:
 				return false;
 			}
 
-			if (flags_ != Flags::persist_control)
+			if (flags_ != flag_persist_control)
 			{
 				error_message = "Expected persistent variation control info.";
 				return false;
@@ -886,29 +813,22 @@ private:
 			static_assert(class_size == sizeof(DmIoWavePartHeader), "Invalid class size.");
 		}
 
-		bool read(
-			ul::StreamPtr stream_ptr)
+		bool read(Stream* stream)
 		{
-			if (!stream_ptr || !stream_ptr->is_readable())
+			std::uint8_t buffer[class_size];
+			if (stream == nullptr || stream->read(buffer, class_size) != class_size)
 			{
 				return false;
 			}
-
-			if (stream_ptr->read(this, class_size) != class_size)
-			{
-				return false;
-			}
-
-			if (!ul::Endian::is_little())
-			{
-				ul::Endian::little_i(volume_);
-				ul::Endian::little_i(variations_);
-				ul::Endian::little_i(channel_);
-				ul::Endian::little_i(lock_to_part_);
-				ul::Endian::little_i(flags_);
-				ul::Endian::little_i(index_);
-			}
-
+			BinaryReader binary_reader{buffer, class_size};
+			assert(binary_reader.can_read_n(class_size));
+			volume_       = binary_reader.read_s32_le();
+			variations_   = binary_reader.read_u32_le();
+			channel_      = binary_reader.read_u32_le();
+			lock_to_part_ = binary_reader.read_u32_le();
+			flags_        = static_cast<VariationType>(binary_reader.read_u32_le());
+			index_        = binary_reader.read_u32_le();
+			assert(binary_reader.get_position() == class_size);
 			return true;
 		}
 
@@ -969,40 +889,33 @@ private:
 		std::uint32_t loop_end_;
 		std::uint32_t flags_;
 
-
 		DmIoWaveItemHeader()
 		{
 			static_assert(class_size == sizeof(DmIoWaveItemHeader), "Invalid class size.");
 		}
 
-		bool read(
-			ul::StreamPtr stream_ptr)
+		bool read(Stream* stream)
 		{
-			if (!stream_ptr || !stream_ptr->is_readable())
+			std::uint8_t buffer[class_size];
+			if (stream == nullptr || stream->read(buffer, class_size) != class_size)
 			{
 				return false;
 			}
-
-			if (stream_ptr->read(this, class_size) != class_size)
-			{
-				return false;
-			}
-
-			if (!ul::Endian::is_little())
-			{
-				ul::Endian::little_i(volume_);
-				ul::Endian::little_i(pitch_);
-				ul::Endian::little_i(variations_);
-				ul::Endian::little_i(rt_time_);
-				ul::Endian::little_i(rt_start_offset_);
-				ul::Endian::little_i(rt_reserved_);
-				ul::Endian::little_i(rt_duration_);
-				ul::Endian::little_i(mt_logical_time);
-				ul::Endian::little_i(loop_start_);
-				ul::Endian::little_i(loop_end_);
-				ul::Endian::little_i(flags_);
-			}
-
+			BinaryReader binary_reader{buffer, class_size};
+			assert(binary_reader.can_read_n(class_size));
+			volume_ = binary_reader.read_s32_le();
+			pitch_ = binary_reader.read_s32_le();
+			variations_ = binary_reader.read_u32_le();
+			binary_reader.skip(4); // padding
+			rt_time_ = binary_reader.read_s64_le();
+			rt_start_offset_ = binary_reader.read_s64_le();
+			rt_reserved_ = binary_reader.read_s64_le();
+			rt_duration_ = binary_reader.read_s64_le();
+			mt_logical_time = binary_reader.read_s32_le();
+			loop_start_ = binary_reader.read_u32_le();
+			loop_end_ = binary_reader.read_u32_le();
+			flags_ = binary_reader.read_u32_le();
+			assert(binary_reader.get_position() == class_size);
 			return true;
 		}
 
@@ -1085,7 +998,7 @@ private:
 		static constexpr auto class_size = 20;
 
 
-		ul::Uuid clsid_;
+		Uuid clsid_;
 		ValidFlags8 valid_data_;
 
 
@@ -1094,26 +1007,24 @@ private:
 			static_assert(class_size == sizeof(DmIoReference), "Invalid class size.");
 		}
 
-		bool read(
-			ul::StreamPtr stream_ptr)
+		bool read(Stream* stream)
 		{
-			if (!stream_ptr || !stream_ptr->is_readable())
+			std::uint8_t buffer[class_size];
+			if (stream == nullptr || stream->read(buffer, class_size) != class_size)
 			{
 				return false;
 			}
-
-			if (stream_ptr->read(this, class_size) != class_size)
+			BinaryReader binary_reader{buffer, class_size};
+			assert(binary_reader.can_read_n(class_size));
+			//
+			if (!Uuid::from_ms_com_guid_octets_n(binary_reader.get_current_data(), 16, clsid_))
 			{
 				return false;
 			}
-
-			clsid_.endian(ul::Uuid::EndianType::little_mixed);
-
-			if (!ul::Endian::is_little())
-			{
-				ul::Endian::little_i(valid_data_);
-			}
-
+			binary_reader.skip(16);
+			//
+			valid_data_ = static_cast<ValidFlags8>(binary_reader.read_u32_le());
+			assert(binary_reader.get_position() == class_size);
 			return true;
 		}
 
@@ -1126,7 +1037,7 @@ private:
 				return false;
 			}
 
-			if ((valid_data_ & ValidFlags8::file_name) == 0)
+			if ((valid_data_ & valid_flag_8_file_name) == 0)
 			{
 				error_message = "Expected file name flag.";
 				return false;
@@ -1141,11 +1052,11 @@ private:
 		static constexpr auto class_size = 32;
 
 
-		ul::Uuid guid_;
+		Uuid guid_;
 		std::uint32_t position_;
 		std::uint32_t group_;
-		ul::FourCc chunk_id_;
-		ul::FourCc list_type_;
+		FourCc chunk_id_;
+		FourCc list_type_;
 
 
 		DmIoTrackHeader()
@@ -1153,25 +1064,37 @@ private:
 			static_assert(sizeof(DmIoTrackHeader) == class_size, "Invalid class size.");
 		}
 
-
-		bool read(
-			ul::Stream& stream)
+		bool read(Stream& stream)
 		{
-			if (stream.read(this, class_size) != class_size)
+			char buffer[class_size];
+			if (stream.read(buffer, class_size) != class_size)
 			{
 				return false;
 			}
-
-			guid_.endian(ul::Uuid::EndianType::little_mixed);
-
-			if (!ul::Endian::is_little())
+			BinaryReader binary_reader{buffer, class_size};
+			assert(binary_reader.can_read_n(class_size));
+			if (!Uuid::from_ms_com_guid_octets_n(binary_reader.get_current_data(), 16, guid_))
 			{
-				ul::Endian::little_i(position_);
-				ul::Endian::little_i(group_);
-				ul::Endian::little_i(chunk_id_);
-				ul::Endian::little_i(list_type_);
+				return false;
 			}
-
+			binary_reader.skip(16);
+			//
+			position_ = binary_reader.read_u32_le();
+			group_ = binary_reader.read_u32_le();
+			//
+			if (!FourCc::from_octets_n(binary_reader.get_current_data(), 4, chunk_id_))
+			{
+				return false;
+			}
+			binary_reader.skip(4);
+			//
+			if (!FourCc::from_octets_n(binary_reader.get_current_data(), 4, list_type_))
+			{
+				return false;
+			}
+			binary_reader.skip(4);
+			//
+			assert(binary_reader.get_position() == class_size);
 			return true;
 		}
 
@@ -1222,8 +1145,8 @@ private:
 				error_message = "Unsupported group value.";
 				return false;
 			}
-
-			if (chunk_id_ == 0 && list_type_ == 0)
+			constexpr FourCc empty_fourcc{};
+			if (chunk_id_ == empty_fourcc && list_type_ == empty_fourcc)
 			{
 				error_message = "Expected chunk id or list type.";
 				return false;
@@ -1295,19 +1218,19 @@ private:
 
 
 	// Tempo track CLSID.
-	static const ul::Uuid clsid_tempo_track;
+	static const Uuid clsid_tempo_track;
 
 	// Time signature track CLSID.
-	static const ul::Uuid clsid_time_sig_track;
+	static const Uuid clsid_time_sig_track;
 
 	// Sequence track CLSID.
-	static const ul::Uuid clsid_sequence_track;
+	static const Uuid clsid_sequence_track;
 
 	// Wave track CLSID.
-	static const ul::Uuid clsid_wave_track;
+	static const Uuid clsid_wave_track;
 
 	// Wave CLSID.
-	static const ul::Uuid clsid_sound_wave;
+	static const Uuid clsid_sound_wave;
 
 
 	bool is_open_;
@@ -1315,8 +1238,8 @@ private:
 	std::string file_name_;
 	std::string working_dir_;
 	Buffer file_image_;
-	ul::MemoryStream memory_stream_;
-	ul::RiffReader riff_reader_;
+	ReadOnlyMemoryStream memory_stream_;
+	RiffReader riff_reader_;
 	WaveCache wave_cache_;
 	int sample_rate_;
 	Waves waves_;
@@ -1331,7 +1254,7 @@ private:
 	bool read_io_segment_header(
 		DmIoSegmentHeader& io_segment_header)
 	{
-		if (!riff_reader_.find_and_descend(ul::FourCc{"segh"}))
+		if (!riff_reader_.find_and_descend(FourCc{'s', 'e', 'g', 'h'}))
 		{
 			error_message_ = "No header.";
 			return false;
@@ -1339,7 +1262,7 @@ private:
 
 		auto io_header_chunk = riff_reader_.get_current_chunk();
 
-		if (!io_segment_header.read(&io_header_chunk.data_stream_))
+		if (!io_segment_header.read(&io_header_chunk.data_stream))
 		{
 			error_message_ = "Failed to read a header.";
 			return false;
@@ -1360,37 +1283,43 @@ private:
 		return true;
 	}
 
+	static bool read_dword(Substream& stream, std::uint32_t& dst_dword) noexcept
+	{
+		unsigned char buffer[4];
+		if (stream.read(buffer, 4) != 4)
+		{
+			return false;
+		}
+		dst_dword = read_u32_le(buffer);
+		return true;
+	}
+
 	//
 	// "tetr" - tempo track chunk
 	//
 	bool read_tempo_track(
 		IoTrack& track)
 	{
-		if (!riff_reader_.find_and_descend(ul::FourCc{"tetr"}))
+		if (!riff_reader_.find_and_descend(FourCc{'t', 'e', 't', 'r'}))
 		{
 			error_message_ = "No tempo track item.";
 			return false;
 		}
 
 		auto chunk = riff_reader_.get_current_chunk();
-
-		auto item_size = std::uint32_t{};
-
-		if (chunk.data_stream_.read(&item_size, 4) != 4)
+		std::uint32_t item_size;
+		if (!read_dword(chunk.data_stream, item_size))
 		{
 			error_message_ = "Failed to read a size of a tempo item.";
 			return false;
 		}
-
-		ul::Endian::little_i(item_size);
-
 		if (item_size < DmIoTempoItem::class_size)
 		{
 			error_message_ = "Invalid size of a tempo item.";
 			return false;
 		}
 
-		const auto item_count = static_cast<int>((chunk.size_ - 4) / item_size);
+		const auto item_count = static_cast<int>((chunk.size - 4) / item_size);
 		const auto item_remain_size = item_size - DmIoTempoItem::class_size;
 
 		for (auto i = 0; i < item_count; ++i)
@@ -1398,7 +1327,7 @@ private:
 			track.tempos_.emplace_back();
 			auto& item = track.tempos_.back();
 
-			if (!item.read(&chunk.data_stream_))
+			if (!item.read(&chunk.data_stream))
 			{
 				error_message_ = "Failed to read a tempo track item.";
 				return false;
@@ -1412,7 +1341,7 @@ private:
 
 			if (item_remain_size > 0)
 			{
-				if (chunk.data_stream_.skip(item_remain_size) < 0)
+				if (chunk.data_stream.skip(item_remain_size) < 0)
 				{
 					error_message_ = "Seek error.";
 					return false;
@@ -1438,33 +1367,28 @@ private:
 	bool read_time_signature_track(
 		IoTrack& track)
 	{
-		if (!riff_reader_.find_and_descend(ul::RiffFourCcs::list, ul::FourCc{"TIMS"}))
+		if (!riff_reader_.find_and_descend(RiffFourCcs::list, FourCc{'T', 'I', 'M', 'S'}))
 		{
 			error_message_ = "No time signature track list.";
 			return false;
 		}
 
-		if (riff_reader_.find_and_descend(ul::FourCc{"tims"}))
+		if (riff_reader_.find_and_descend(FourCc{'t', 'i', 'm', 's'}))
 		{
 			auto chunk = riff_reader_.get_current_chunk();
-
-			auto item_size = std::uint32_t{};
-
-			if (chunk.data_stream_.read(&item_size, 4) != 4)
+			std::uint32_t item_size;
+			if (!read_dword(chunk.data_stream, item_size))
 			{
 				error_message_ = "Failed to read size of a time signature item.";
 				return false;
 			}
-
-			ul::Endian::little_i(item_size);
-
 			if (item_size < DmIoTimeSignatureItem::class_size)
 			{
 				error_message_ = "Invalid size of a time signature item.";
 				return false;
 			}
 
-			const auto item_count = static_cast<int>((chunk.size_ - 4) / item_size);
+			const auto item_count = static_cast<int>((chunk.size - 4) / item_size);
 			const auto item_remain_size = item_size - DmIoTimeSignatureItem::class_size;
 
 			for (auto i = 0; i < item_count; ++i)
@@ -1472,7 +1396,7 @@ private:
 				track.times_.emplace_back();
 				auto& item = track.times_.back();
 
-				if (!item.read(&chunk.data_stream_))
+				if (!item.read(&chunk.data_stream))
 				{
 					error_message_ = "Failed to read a time signature item.";
 					return false;
@@ -1486,7 +1410,7 @@ private:
 
 				if (item_remain_size > 0)
 				{
-					if (chunk.data_stream_.skip(item_remain_size) < 0)
+					if (chunk.data_stream.skip(item_remain_size) < 0)
 					{
 						error_message_ = "Seek error.";
 						return false;
@@ -1524,7 +1448,7 @@ private:
 	{
 		// Sequence track.
 		//
-		if (!riff_reader_.find_and_descend(ul::FourCc{"seqt"}))
+		if (!riff_reader_.find_and_descend(FourCc{'s', 'e', 'q', 't'}))
 		{
 			error_message_ = "No sequence track.";
 			return false;
@@ -1542,31 +1466,26 @@ private:
 
 		// Sequence item.
 		//
-		if (!riff_reader_.find_and_descend(ul::FourCc{"evtl"}))
+		if (!riff_reader_.find_and_descend(FourCc{'e', 'v', 't', 'l'}))
 		{
 			error_message_ = "No sequence item.";
 			return false;
 		}
 
 		auto evtl_chunk = riff_reader_.get_current_chunk();
-
-		auto evtl_item_size = std::uint32_t{};
-
-		if (evtl_chunk.data_stream_.read(&evtl_item_size, 4) != 4)
+		std::uint32_t evtl_item_size;
+		if (!read_dword(evtl_chunk.data_stream, evtl_item_size))
 		{
 			error_message_ = "Failed to read a size of a sequence item.";
 			return false;
 		}
-
-		ul::Endian::little_i(evtl_item_size);
-
 		if (evtl_item_size < DmIoSequenceItem::class_size)
 		{
 			error_message_ = "Invalid size of a sequence item.";
 			return false;
 		}
 
-		const auto evtl_item_count = static_cast<int>((evtl_chunk.size_ - 4) / evtl_item_size);
+		const auto evtl_item_count = static_cast<int>((evtl_chunk.size - 4) / evtl_item_size);
 		const auto evtl_item_remain_size = evtl_item_size - DmIoSequenceItem::class_size;
 
 		for (auto i = 0; i < evtl_item_count; ++i)
@@ -1574,7 +1493,7 @@ private:
 			sequence.events_.emplace_back();
 			auto& event = sequence.events_.back();
 
-			if (!event.read(&evtl_chunk.data_stream_))
+			if (!event.read(&evtl_chunk.data_stream))
 			{
 				error_message_ = "Failed to read a sequence item.";
 				return false;
@@ -1588,7 +1507,7 @@ private:
 
 			if (evtl_item_remain_size > 0)
 			{
-				if (evtl_chunk.data_stream_.skip(evtl_item_remain_size) < 0)
+				if (evtl_chunk.data_stream.skip(evtl_item_remain_size) < 0)
 				{
 					error_message_ = "Seek error.";
 					return false;
@@ -1607,31 +1526,26 @@ private:
 
 		// Curve item.
 		//
-		if (!riff_reader_.find_and_descend(ul::FourCc{"curl"}))
+		if (!riff_reader_.find_and_descend(FourCc{'c', 'u', 'r', 'l'}))
 		{
 			error_message_ = "No curve item.";
 			return false;
 		}
 
 		auto curl_chunk = riff_reader_.get_current_chunk();
-
-		auto curl_item_size = std::uint32_t{};
-
-		if (curl_chunk.data_stream_.read(&curl_item_size, 4) != 4)
+		std::uint32_t curl_item_size;
+		if (!read_dword(curl_chunk.data_stream, curl_item_size))
 		{
 			error_message_ = "Failed to read a size of a curve item.";
 			return false;
 		}
-
-		ul::Endian::little_i(curl_item_size);
-
 		if (curl_item_size < DmIoCurveItem::class_size)
 		{
 			error_message_ = "Invalid size of a curve item.";
 			return false;
 		}
 
-		const auto curl_item_count = static_cast<int>((curl_chunk.size_ - 4) / curl_item_size);
+		const auto curl_item_count = static_cast<int>((curl_chunk.size - 4) / curl_item_size);
 		const auto curl_item_remain_size = curl_item_size - DmIoCurveItem::class_size;
 
 		for (auto i = 0; i < curl_item_count; ++i)
@@ -1639,7 +1553,7 @@ private:
 			sequence.curves_.emplace_back();
 			auto& curve = sequence.curves_.back();
 
-			if (!curve.read(&curl_chunk.data_stream_))
+			if (!curve.read(&curl_chunk.data_stream))
 			{
 				error_message_ = "Failed to read a curve item.";
 				return false;
@@ -1653,7 +1567,7 @@ private:
 
 			if (curl_item_remain_size > 0)
 			{
-				if (curl_chunk.data_stream_.skip(curl_item_remain_size) < 0)
+				if (curl_chunk.data_stream.skip(curl_item_remain_size) < 0)
 				{
 					error_message_ = "Seek error.";
 					return false;
@@ -1726,14 +1640,19 @@ private:
 		using FileNameLtFileIdMap = std::unordered_map<std::string, CacheItem>;
 
 		auto map = FileNameLtFileIdMap{};
+		class MapSentinel
+		{
+		public:
+			explicit MapSentinel(FileNameLtFileIdMap& map)
+				:
+				map_{map}
+			{}
 
-		auto scope_guard = ul::ScopeGuard{
-			[&]()
+			~MapSentinel()
 			{
-				for (auto& map_item : map)
+				for (auto& map_item : map_)
 				{
 					auto& cache_item = map_item.second;
-
 					if (cache_item.lt_stream_)
 					{
 						cache_item.lt_stream_->Release();
@@ -1741,8 +1660,11 @@ private:
 					}
 				}
 			}
-		};
 
+		private:
+			FileNameLtFileIdMap& map_;
+		};
+		const MapSentinel map_sentinel{map};
 		// Evaluate total size.
 		//
 		auto current_offset = 0;
@@ -1752,8 +1674,11 @@ private:
 		for (auto& item : items)
 		{
 			auto& reference = item.references_.front();
-
-			const auto file_name_lc = ul::AsciiUtils::to_lower(reference.file_name_u8_);
+			std::string file_name_lc = reference.file_name_u8_;
+			for (char& ch : file_name_lc)
+			{
+				ch = ascii_to_lower(ch);
+			}
 
 			auto map_it = map.find(file_name_lc);
 
@@ -1766,7 +1691,7 @@ private:
 
 			auto& cache_item = map_it->second;
 
-			const auto file_path = ul::PathUtils::append(working_dir_, reference.file_name_u8_);
+			const std::string file_path = FilePath::append(working_dir_, reference.file_name_u8_);
 
 			auto file_ref = FileRef{};
 			file_ref.m_FileType = FILE_ANYFILE;
@@ -1826,9 +1751,11 @@ private:
 		for (auto& item : items)
 		{
 			auto& reference = item.references_.front();
-
-			const auto file_name_lc = ul::AsciiUtils::to_lower(reference.file_name_u8_);
-
+			std::string file_name_lc = reference.file_name_u8_;
+			for (char& ch : file_name_lc)
+			{
+				ch = ascii_to_lower(ch);
+			}
 			auto map_it = map.find(file_name_lc);
 			auto& cache_item = map_it->second;
 
@@ -1861,7 +1788,7 @@ private:
 	{
 		// Wave track list.
 		//
-		if (!riff_reader_.find_and_descend(ul::RiffFourCcs::list, ul::FourCc{"wavt"}))
+		if (!riff_reader_.find_and_descend(RiffFourCcs::list, FourCc{'w', 'a', 'v', 't'}))
 		{
 			error_message_ = "No wave track.";
 			return false;
@@ -1869,7 +1796,7 @@ private:
 
 		// Wave track header.
 		//
-		if (!riff_reader_.find_and_descend(ul::FourCc{"wath"}))
+		if (!riff_reader_.find_and_descend(FourCc{'w', 'a', 't', 'h'}))
 		{
 			error_message_ = "No wave track header.";
 			return false;
@@ -1880,7 +1807,7 @@ private:
 
 		auto header_chunk = riff_reader_.get_current_chunk();
 
-		if (!wave.header_.read(&header_chunk.data_stream_))
+		if (!wave.header_.read(&header_chunk.data_stream))
 		{
 			error_message_ = "Failed to read a wave track header.";
 			return false;
@@ -1902,7 +1829,7 @@ private:
 
 		// Wave parts.
 		//
-		if (!riff_reader_.find_and_descend(ul::RiffFourCcs::list, ul::FourCc{"wavp"}))
+		if (!riff_reader_.find_and_descend(RiffFourCcs::list, FourCc{'w', 'a', 'v', 'p'}))
 		{
 			error_message_ = "No wave part list.";
 			return false;
@@ -1912,7 +1839,7 @@ private:
 		{
 			// Wave part header.
 			//
-			if (!riff_reader_.find_and_descend(ul::FourCc{"waph"}))
+			if (!riff_reader_.find_and_descend(FourCc{'w', 'a', 'p', 'h'}))
 			{
 				break;
 			}
@@ -1922,7 +1849,7 @@ private:
 			wave.parts_.emplace_back();
 			auto& part_item = wave.parts_.back();
 
-			if (!part_item.header_.read(&part_header_chunk.data_stream_))
+			if (!part_item.header_.read(&part_header_chunk.data_stream))
 			{
 				error_message_ = "Failed to read a wave part header.";
 				return false;
@@ -1944,7 +1871,7 @@ private:
 
 			// Wave items.
 			//
-			if (!riff_reader_.find_and_descend(ul::RiffFourCcs::list, ul::FourCc{"wavi"}))
+			if (!riff_reader_.find_and_descend(RiffFourCcs::list, FourCc{'w', 'a', 'v', 'i'}))
 			{
 				continue;
 			}
@@ -1953,14 +1880,14 @@ private:
 			{
 				// Wave item.
 				//
-				if (!riff_reader_.find_and_descend(ul::RiffFourCcs::list, ul::FourCc{"wave"}))
+				if (!riff_reader_.find_and_descend(RiffFourCcs::list, FourCc{'w', 'a', 'v', 'e'}))
 				{
 					break;
 				}
 
 				// Wave item header.
 				//
-				if (!riff_reader_.find_and_descend(ul::FourCc{"waih"}))
+				if (!riff_reader_.find_and_descend(FourCc{'w', 'a', 'i', 'h'}))
 				{
 					error_message_ = "No wave item header.";
 					return false;
@@ -1971,7 +1898,7 @@ private:
 				part_item.items_.emplace_back();
 				auto& wave_item = part_item.items_.back();
 
-				if (!wave_item.header_.read(&waih_chunk.data_stream_))
+				if (!wave_item.header_.read(&waih_chunk.data_stream))
 				{
 					error_message_ = "Failed to read wave item header.";
 					return false;
@@ -1993,7 +1920,7 @@ private:
 
 				// Reference list.
 				//
-				if (!riff_reader_.find_and_descend(ul::RiffFourCcs::list, ul::FourCc{"DMRF"}))
+				if (!riff_reader_.find_and_descend(RiffFourCcs::list, FourCc{'D', 'M', 'R', 'F'}))
 				{
 					error_message_ = "No reference list.";
 					return false;
@@ -2001,7 +1928,7 @@ private:
 
 				// Reference header.
 				//
-				if (!riff_reader_.find_and_descend(ul::FourCc{"refh"}))
+				if (!riff_reader_.find_and_descend(FourCc{'r', 'e', 'f', 'h'}))
 				{
 					error_message_ = "No reference item's header.";
 					return false;
@@ -2012,7 +1939,7 @@ private:
 				wave_item.references_.emplace_back();
 				auto& reference = wave_item.references_.back();
 
-				if (!reference.header_.read(&refh_chunk.data_stream_))
+				if (!reference.header_.read(&refh_chunk.data_stream))
 				{
 					error_message_ = "Failed to read a reference header.";
 					return false;
@@ -2033,54 +1960,68 @@ private:
 				}
 
 				// File name.
-				//
-				if (!riff_reader_.find_and_descend(ul::FourCc{"file"}))
+				// It's a null-terminated UTF16LE string.
+				if (!riff_reader_.find_and_descend(FourCc{'f', 'i', 'l', 'e'}))
 				{
 					error_message_ = "No wave file name.";
 					return false;
 				}
-
-				auto file_chunk = riff_reader_.get_current_chunk();
-
-				if (file_chunk.size_ < 2 || (file_chunk.size_ % 2) != 0)
+				RiffReader::Chunk file_chunk = riff_reader_.get_current_chunk();
+				if (file_chunk.size < 2 || (file_chunk.size % 2) != 0)
 				{
 					error_message_ = "Invalid wave file name size.";
 					return false;
 				}
-
-				// Without '\0'.
-				const auto file_name_size = static_cast<int>(file_chunk.size_ - 2);
-
-				// Without '\0'.
-				const auto file_name_length = file_name_size / 2;
-
-				auto file_name_u16 = std::u16string(
-					static_cast<std::u16string::size_type>(file_name_length),
-					std::u16string::value_type{});
-
-				const auto file_name_result = file_chunk.data_stream_.read(
-					&file_name_u16[0], file_name_size);
-
-				if (file_name_result != file_name_size)
+				constexpr int wave_file_name_max_octets = 512;
+				if (file_chunk.size > wave_file_name_max_octets)
+				{
+					error_message_ = "Wave file name too long.";
+					return false;
+				}
+				std::uint8_t name_octets[wave_file_name_max_octets];
+				const int name_octet_count = static_cast<int>(file_chunk.size - 2);
+				if (file_chunk.data_stream.read(name_octets, name_octet_count) != name_octet_count)
 				{
 					error_message_ = "Failed to read a wave file name.";
 					return false;
 				}
-
-				if (!ul::Endian::is_little())
+				const auto is_valid_name_octet = [](std::uint8_t octet) noexcept -> bool
 				{
-					std::for_each(
-						file_name_u16.begin(),
-						file_name_u16.end(),
-						[](auto& c)
-						{
-							ul::Endian::swap_i(c);
-						}
-					);
+					if (octet < 0x20 || octet > 0x7E)
+					{
+						return false;
+					}
+					switch (octet)
+					{
+						case  '"':
+						case  '*':
+						case  ':':
+						case  '<':
+						case  '>':
+						case  '?':
+						case  '/':
+						case '\\':
+						case  '|':
+							return false;
+						default:
+							return true;
+					}
+				};
+				std::string& name = reference.file_name_u8_;
+				name.clear();
+				name.reserve(name_octet_count / 2);
+				for (int i = 0; i < name_octet_count; i += 2)
+				{
+					const std::uint8_t octet_0 = name_octets[i + 0];
+					const std::uint8_t octet_1 = name_octets[i + 1];
+					if (!is_valid_name_octet(octet_0) || octet_1 != 0)
+					{
+						error_message_ = "Unsupported character in the wave file name.";
+						return false;
+					}
+					const char ch = static_cast<char>(octet_0);
+					name.push_back(ch);
 				}
-
-				reference.file_name_u8_ = ul::EncodingUtils::utf16_to_utf8(file_name_u16);
-
 				// Ascend "file".
 				//
 				if (!riff_reader_.ascend())
@@ -2148,7 +2089,7 @@ private:
 	bool read_track(
 		IoTracks& io_tracks)
 	{
-		if (!riff_reader_.find_and_descend(ul::FourCc{"trkh"}))
+		if (!riff_reader_.find_and_descend(FourCc{'t', 'r', 'k', 'h'}))
 		{
 			error_message_ = "No track header.";
 			return false;
@@ -2161,7 +2102,7 @@ private:
 
 		auto& header = track.header_;
 
-		if (!header.read(header_chunk.data_stream_))
+		if (!header.read(header_chunk.data_stream))
 		{
 			error_message_ = "Failed to read track's header.";
 			return false;
@@ -2225,7 +2166,7 @@ private:
 		const DmIoSegmentHeader& io_segment_header,
 		IoTracks& io_tracks)
 	{
-		if (!riff_reader_.find_and_descend(ul::RiffFourCcs::list, ul::FourCc{"trkl"}))
+		if (!riff_reader_.find_and_descend(RiffFourCcs::list, FourCc{'t', 'r', 'k', 'l'}))
 		{
 			error_message_ = "No track list chunk.";
 			return false;
@@ -2233,7 +2174,7 @@ private:
 
 		while (true)
 		{
-			if (!riff_reader_.find_and_descend(ul::RiffFourCcs::riff, ul::FourCc{"DMTK"}))
+			if (!riff_reader_.find_and_descend(RiffFourCcs::riff, FourCc{'D', 'M', 'T', 'K'}))
 			{
 				break;
 			}
@@ -2275,18 +2216,26 @@ private:
 			error_message_ = "Failed to open a file.";
 			return false;
 		}
-
-		auto guard_lt_stream = ul::ScopeGuard
+		class LtStreamSentinel
 		{
-			[&]()
+		public:
+			explicit LtStreamSentinel(ILTStream*& stream)
+				:
+				stream_{stream}
+			{}
+
+			~LtStreamSentinel()
 			{
-				if (lt_stream_ptr)
+				if (stream_ != nullptr)
 				{
-					lt_stream_ptr->Release();
+					stream_->Release();
 				}
 			}
-		};
 
+		private:
+			ILTStream*& stream_;
+		};
+		const LtStreamSentinel lt_stream_sentinel{lt_stream_ptr};
 		auto file_size = std::uint32_t{};
 
 		if (lt_stream_ptr->GetLen(&file_size) != LT_OK)
@@ -2303,7 +2252,7 @@ private:
 			return false;
 		}
 
-		if (!memory_stream_.open(file_image_.data(), static_cast<int>(file_image_.size()), ul::Stream::OpenMode::read))
+		if (!memory_stream_.open(file_image_.data(), static_cast<int>(file_image_.size())))
 		{
 			error_message_ = "Failed to open a memory stream.";
 			return false;
@@ -2486,10 +2435,10 @@ private:
 			return false;
 		}
 
-		file_name_ = ul::PathUtils::get_file_name(file_name);
-		working_dir_ = ul::PathUtils::get_parent_path(file_name);
+		file_name_ = FilePath::get_file_name(file_name);
+		working_dir_ = FilePath::get_parent_path(file_name);
 
-		if (!riff_reader_.open(&memory_stream_, ul::FourCc{"DMSG"}))
+		if (!riff_reader_.open(&memory_stream_, FourCc{'D', 'M', 'S', 'G'}))
 		{
 			error_message_ = "Not a segment file.";
 			return false;
@@ -2513,9 +2462,10 @@ private:
 
 		is_open_ = true;
 
-#ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
-		debug_dump_structure(file_name, io_segment_header, io_tracks);
-#endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
+		if constexpr (ltjs_debug_dmusic_segment_dump_structure)
+		{
+			debug_dump_structure(file_name, io_segment_header, io_tracks);
+		}
 
 		return true;
 	}
@@ -2595,9 +2545,12 @@ private:
 	// Debug stuff
 	//
 
-#ifdef LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
-	ul::FileStream debug_001_stream_;
+	FileStream debug_001_stream_;
 
+	static std::string debug_to_string(FourCc four_cc)
+	{
+		return std::string{four_cc[0], four_cc[1], four_cc[2], four_cc[3]};
+	}
 
 	void debug_write_new_line()
 	{
@@ -2613,7 +2566,7 @@ private:
 			return;
 		}
 
-		static_cast<void>(debug_001_stream_.write(string.data(), string.length()));
+		static_cast<void>(debug_001_stream_.write(string.data(), static_cast<int>(string.length())));
 	}
 
 	void debug_write_line(
@@ -2660,17 +2613,23 @@ private:
 		const DmIoSegmentHeader& io_segment_header,
 		const IoTracks& io_tracks)
 	{
-		auto file_path = ul::PathUtils::get_parent_path(file_name);
+		std::string file_path{FilePath::get_parent_path(file_name)};
 		std::replace(file_path.begin(), file_path.end(), '\\', '_');
 		std::replace(file_path.begin(), file_path.end(), '/', '_');
-		ul::AsciiUtils::to_lower_i(file_path);
+		for (auto& ch : file_path)
+		{
+			ch = ascii_to_lower(ch);
+		}
 		file_path = "ltjs_dbg_dmus001_" + file_path + ".txt";
 
-		if (!debug_001_stream_.open(file_path, ul::Stream::OpenMode::write | ul::Stream::OpenMode::at_the_end))
+		if (!debug_001_stream_.open(file_path.c_str(), FileStreamOpenMode::write))
 		{
 			return;
 		}
-
+		if (debug_001_stream_.set_position(0, Stream::Origin::end) < 0)
+		{
+			return;
+		}
 
 		debug_write_line();
 		debug_write_line("=============================================================================");
@@ -2707,8 +2666,8 @@ private:
 			debug_write_line("\t\tguid_: " + track_header.guid_.to_string());
 			debug_write_line("\t\tposition_: " + std::to_string(track_header.position_));
 			debug_write_line("\t\tgroup_: " + std::to_string(track_header.group_) + " (" + debug_flags_to_string(track_header.group_) + ")");
-			debug_write_line("\t\tchunk_id_: " + std::to_string(track_header.chunk_id_) + " (\"" + track_header.chunk_id_.to_string() + "\")");
-			debug_write_line("\t\tlist_type_: " + std::to_string(track_header.list_type_) + " (\"" + track_header.list_type_.to_string() + "\")");
+			debug_write_line("\t\tchunk_id_: " + debug_to_string(track_header.chunk_id_) + " (\"" + debug_to_string(track_header.chunk_id_) + "\")");
+			debug_write_line("\t\tlist_type_: " + debug_to_string(track_header.list_type_) + " (\"" + debug_to_string(track_header.list_type_) + "\")");
 
 			// Sequences.
 			//
@@ -2890,7 +2849,6 @@ private:
 
 		debug_001_stream_.close();
 	}
-#endif // LTJS_DEBUG_DMUSIC_SEGMENT_DUMP_STRUCTURE
 
 	//
 	// Debug stuff
@@ -2898,11 +2856,11 @@ private:
 }; // DMusicSegment::Impl
 
 
-const ul::Uuid DMusicSegment::Impl::clsid_tempo_track = ul::Uuid{"D2AC2885-B39B-11D1-8704-00600893B1BD"};
-const ul::Uuid DMusicSegment::Impl::clsid_time_sig_track = ul::Uuid{"D2AC2888-B39B-11D1-8704-00600893B1BD"};
-const ul::Uuid DMusicSegment::Impl::clsid_sequence_track = ul::Uuid{"D2AC2886-B39B-11D1-8704-00600893B1BD"};
-const ul::Uuid DMusicSegment::Impl::clsid_wave_track = ul::Uuid{"EED36461-9EA5-11D3-9BD1-0080C7150A74"};
-const ul::Uuid DMusicSegment::Impl::clsid_sound_wave = ul::Uuid{"8A667154-F9CB-11D2-AD8A-0060B0575ABC"};
+const Uuid DMusicSegment::Impl::clsid_tempo_track =    Uuid{"D2AC2885-B39B-11D1-8704-00600893B1BD"};
+const Uuid DMusicSegment::Impl::clsid_time_sig_track = Uuid{"D2AC2888-B39B-11D1-8704-00600893B1BD"};
+const Uuid DMusicSegment::Impl::clsid_sequence_track = Uuid{"D2AC2886-B39B-11D1-8704-00600893B1BD"};
+const Uuid DMusicSegment::Impl::clsid_wave_track =     Uuid{"EED36461-9EA5-11D3-9BD1-0080C7150A74"};
+const Uuid DMusicSegment::Impl::clsid_sound_wave =     Uuid{"8A667154-F9CB-11D2-AD8A-0060B0575ABC"};
 
 
 DMusicSegment::DMusicSegment()

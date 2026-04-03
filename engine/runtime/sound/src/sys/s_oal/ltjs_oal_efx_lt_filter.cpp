@@ -2,8 +2,7 @@
 
 #include <cassert>
 #include <cmath>
-
-#include "bibendovsky_spul_algorithm.h"
+#include <algorithm>
 
 #include "ltjs_exception.h"
 
@@ -12,9 +11,6 @@
 #include "ltjs_oal_efx_symbols.h"
 #include "ltjs_oal_object.h"
 #include "ltjs_oal_utils.h"
-
-
-namespace ul = bibendovsky::spul;
 
 
 namespace ltjs
@@ -589,7 +585,7 @@ void EfxLtFilter::set_efx_reverb_density()
 
 	const auto eax_environment_size = eax_reverb_.flEnvironmentSize;
 
-	const auto efx_density = ul::Algorithm::clamp(
+	const auto efx_density = std::clamp(
 		(eax_environment_size * eax_environment_size * eax_environment_size) / 16.0F,
 		descriptor.min_value,
 		descriptor.max_value
@@ -606,7 +602,7 @@ void EfxLtFilter::set_efx_reverb_diffusion()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::diffusion];
 
-	const auto efx_environment_diffusion = ul::Algorithm::clamp(
+	const auto efx_environment_diffusion = std::clamp(
 		eax_reverb_.flEnvironmentDiffusion,
 		descriptor.min_value,
 		descriptor.max_value
@@ -623,7 +619,7 @@ void EfxLtFilter::set_efx_reverb_gain()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::gain];
 
-	const auto efx_room = ul::Algorithm::clamp(
+	const auto efx_room = std::clamp(
 		AudioUtils::level_mb_to_gain(static_cast<float>(eax_reverb_.lRoom)),
 		descriptor.min_value,
 		descriptor.max_value
@@ -640,7 +636,7 @@ void EfxLtFilter::set_efx_reverb_gain_hf()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::gain_hf];
 
-	const auto efx_room_hf = ul::Algorithm::clamp(
+	const auto efx_room_hf = std::clamp(
 		AudioUtils::level_mb_to_gain(static_cast<float>(eax_reverb_.lRoomHF)),
 		descriptor.min_value,
 		descriptor.max_value
@@ -662,7 +658,7 @@ void EfxLtFilter::set_efx_reverb_gain_lf()
 
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::gain_lf];
 
-	const auto efx_room_lf = ul::Algorithm::clamp(
+	const auto efx_room_lf = std::clamp(
 		AudioUtils::level_mb_to_gain(static_cast<float>(eax_reverb_.lRoomLF)),
 		descriptor.min_value,
 		descriptor.max_value
@@ -679,7 +675,7 @@ void EfxLtFilter::set_efx_reverb_decay_time()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::decay_time];
 
-	const auto efx_decay_time = ul::Algorithm::clamp(
+	const auto efx_decay_time = std::clamp(
 		eax_reverb_.flDecayTime,
 		descriptor.min_value,
 		descriptor.max_value
@@ -696,7 +692,7 @@ void EfxLtFilter::set_efx_reverb_decay_hf_ratio()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::decay_hf_ratio];
 
-	const auto efx_decay_hf_ratio = ul::Algorithm::clamp(
+	const auto efx_decay_hf_ratio = std::clamp(
 		eax_reverb_.flDecayHFRatio,
 		descriptor.min_value,
 		descriptor.max_value
@@ -718,7 +714,7 @@ void EfxLtFilter::set_efx_reverb_decay_lf_ratio()
 
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::decay_lf_ratio];
 
-	const auto efx_decay_lf_ratio = ul::Algorithm::clamp(
+	const auto efx_decay_lf_ratio = std::clamp(
 		eax_reverb_.flDecayLFRatio,
 		descriptor.min_value,
 		descriptor.max_value
@@ -735,7 +731,7 @@ void EfxLtFilter::set_efx_reverb_reflections_gain()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::reflections_gain];
 
-	const auto efx_reflections = ul::Algorithm::clamp(
+	const auto efx_reflections = std::clamp(
 		AudioUtils::level_mb_to_gain(static_cast<float>(eax_reverb_.lReflections)),
 		descriptor.min_value,
 		descriptor.max_value
@@ -752,7 +748,7 @@ void EfxLtFilter::set_efx_reverb_reflections_delay()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::reflections_delay];
 
-	const auto efx_reflections_delay = ul::Algorithm::clamp(
+	const auto efx_reflections_delay = std::clamp(
 		eax_reverb_.flReflectionsDelay,
 		descriptor.min_value,
 		descriptor.max_value
@@ -785,7 +781,7 @@ void EfxLtFilter::set_efx_reverb_late_reverb_gain()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::late_reverb_gain];
 
-	const auto efx_reverb = ul::Algorithm::clamp(
+	const auto efx_reverb = std::clamp(
 		AudioUtils::level_mb_to_gain(static_cast<float>(eax_reverb_.lReverb)),
 		descriptor.min_value,
 		descriptor.max_value
@@ -802,7 +798,7 @@ void EfxLtFilter::set_efx_reverb_late_reverb_delay()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::late_reverb_delay];
 
-	const auto efx_reverb_delay = ul::Algorithm::clamp(
+	const auto efx_reverb_delay = std::clamp(
 		eax_reverb_.flReverbDelay,
 		descriptor.min_value,
 		descriptor.max_value
@@ -840,7 +836,7 @@ void EfxLtFilter::set_efx_reverb_echo_time()
 
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::echo_time];
 
-	const auto efx_echo_time = ul::Algorithm::clamp(
+	const auto efx_echo_time = std::clamp(
 		eax_reverb_.flEchoTime,
 		descriptor.min_value,
 		descriptor.max_value
@@ -862,7 +858,7 @@ void EfxLtFilter::set_efx_reverb_echo_depth()
 
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::echo_depth];
 
-	const auto efx_echo_depth = ul::Algorithm::clamp(
+	const auto efx_echo_depth = std::clamp(
 		eax_reverb_.flEchoDepth,
 		descriptor.min_value,
 		descriptor.max_value
@@ -884,7 +880,7 @@ void EfxLtFilter::set_efx_reverb_modulation_time()
 
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::modulation_time];
 
-	const auto efx_modulation_time = ul::Algorithm::clamp(
+	const auto efx_modulation_time = std::clamp(
 		eax_reverb_.flModulationTime,
 		descriptor.min_value,
 		descriptor.max_value
@@ -906,7 +902,7 @@ void EfxLtFilter::set_efx_reverb_modulation_depth()
 
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::modulation_depth];
 
-	const auto efx_modulation_depth = ul::Algorithm::clamp(
+	const auto efx_modulation_depth = std::clamp(
 		eax_reverb_.flModulationDepth,
 		descriptor.min_value,
 		descriptor.max_value
@@ -923,7 +919,7 @@ void EfxLtFilter::set_efx_reverb_air_absorption_gain_hf()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::air_absorption_gain_hf];
 
-	const auto efx_air_absorption_hf = ul::Algorithm::clamp(
+	const auto efx_air_absorption_hf = std::clamp(
 		AudioUtils::level_mb_to_gain(eax_reverb_.flAirAbsorptionHF),
 		descriptor.min_value,
 		descriptor.max_value
@@ -945,7 +941,7 @@ void EfxLtFilter::set_efx_reverb_hf_reference()
 
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::hf_reference];
 
-	const auto efx_hf_reference = ul::Algorithm::clamp(
+	const auto efx_hf_reference = std::clamp(
 		eax_reverb_.flHFReference,
 		descriptor.min_value,
 		descriptor.max_value
@@ -967,7 +963,7 @@ void EfxLtFilter::set_efx_reverb_lf_reference()
 
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::lf_reference];
 
-	const auto efx_lf_reference = ul::Algorithm::clamp(
+	const auto efx_lf_reference = std::clamp(
 		eax_reverb_.flLFReference,
 		descriptor.min_value,
 		descriptor.max_value
@@ -984,7 +980,7 @@ void EfxLtFilter::set_efx_reverb_room_rolloff_factor()
 {
 	const auto& descriptor = al_xreverb_descriptors_[XReverbIndex::room_rolloff_factor];
 
-	const auto efx_room_rolloff_factor = ul::Algorithm::clamp(
+	const auto efx_room_rolloff_factor = std::clamp(
 		eax_reverb_.flRoomRolloffFactor,
 		descriptor.min_value,
 		descriptor.max_value
@@ -1038,7 +1034,7 @@ void EfxLtFilter::set_efx_reverb_all()
 void EfxLtFilter::set_efx_slot_effect_gain(
 	float gain)
 {
-	const auto efx_gain = ul::Algorithm::clamp(gain, 0.0F, 1.0F);
+	const auto efx_gain = std::clamp(gain, 0.0F, 1.0F);
 
 	LTJS_OAL_ENSURE_CALL_DEBUG(efx_symbols_.alAuxiliaryEffectSlotf(
 		effect_slot_.get(),
@@ -1317,7 +1313,7 @@ void EfxLtFilter::set_source_direct(
 		direct >= ::EAXBUFFER_MINDIRECT &&
 		direct <= ::EAXBUFFER_MAXDIRECT);
 
-	const auto direct_gain = ul::Algorithm::clamp(
+	const auto direct_gain = std::clamp(
 		AudioUtils::level_mb_to_gain(static_cast<float>(direct)),
 		AL_LOWPASS_MIN_GAIN,
 		max_low_pass_gain_

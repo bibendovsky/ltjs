@@ -42,7 +42,6 @@ target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
 		../..
-		../../../../../../libs/bibendovsky_spul_lib/include
 		../../../../../../libs/lith
 		../../../../../sdk/inc
 		../../../../kernel/src
