@@ -53,7 +53,6 @@ endif ()
 target_link_libraries (
 	${PROJECT_NAME}
 	PRIVATE
-		bibendovsky_spul_lib
 		ltjs_lib_lt_mem
 		ltjs::audio
 		${libs}

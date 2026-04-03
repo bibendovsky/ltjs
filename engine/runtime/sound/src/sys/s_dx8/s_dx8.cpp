@@ -12,13 +12,9 @@
 #include <utility>
 #include <vector>
 
-#include "bibendovsky_spul_algorithm.h"
-#include "bibendovsky_spul_memory_stream.h"
-#include "bibendovsky_spul_scope_guard.h"
-
 #include "ltjs_audio_utils.h"
 #include "ltjs_eax_api.h"
-
+#include "ltjs_read_only_memory_stream.h"
 
 //	===========================================================================
 // For debug logging
@@ -479,13 +475,13 @@ private:
 	{
 		auto ds_result = HRESULT{};
 
-		auto format = ul::WaveFormatEx{};
-		format.tag_ = ul::WaveFormatTag::pcm;
-		format.bit_depth_ = static_cast<WORD>(bit_depth);
-		format.channel_count_ = static_cast<WORD>(channel_count);
-		format.block_align_ = static_cast<WORD>(sample_size);
-		format.sample_rate_ = sample_rate;
-		format.avg_bytes_per_sec_ = sample_rate * sample_size;
+		auto format = ltjs::WaveFormatEx{};
+		format.tag = ltjs::WaveFormatTag::pcm;
+		format.bit_depth = static_cast<WORD>(bit_depth);
+		format.channel_count = static_cast<WORD>(channel_count);
+		format.block_align = static_cast<WORD>(sample_size);
+		format.sample_rate = sample_rate;
+		format.avg_bytes_per_sec = sample_rate * sample_size;
 
 		auto ds_buffer_desc = DSBUFFERDESC{};
 		ds_buffer_desc.dwSize = static_cast<DWORD>(sizeof(DSBUFFERDESC));
@@ -773,7 +769,7 @@ bool WaveFile::Open(
 	const char* pszFilename,
 	const std::uint32_t nFilePos)
 {
-	const auto open_result = file_stream_.open(pszFilename, ul::Stream::OpenMode::read);
+	const auto open_result = file_stream_.open(pszFilename, ltjs::FileStreamOpenMode::read);
 
 	if (!open_result)
 	{
@@ -781,17 +777,28 @@ bool WaveFile::Open(
 	}
 
 	auto is_succeed = false;
+	class CleanupSentinel
+	{
+	public:
+		CleanupSentinel(bool& is_succeed, WaveFile& wave_file)
+			:
+			is_succeed_{is_succeed},
+			wave_file_{wave_file}
+		{}
 
-	auto cleaner = ul::ScopeGuard{
-		[&]()
+		~CleanupSentinel()
 		{
-			if (!is_succeed)
+			if (!is_succeed_)
 			{
-				Close();
+				wave_file_.Close();
 			}
 		}
-	};
 
+	private:
+		bool& is_succeed_;
+		WaveFile& wave_file_;
+	};
+	const CleanupSentinel cleanup_sentinel{is_succeed, *this};
 	const auto set_position_result = file_stream_.set_position(nFilePos);
 
 	if (!set_position_result)
@@ -842,7 +849,7 @@ bool WaveFile::Open(
 	wave_format_ex_ = audio_decoder_.get_wave_format_ex();
 
 	// Init some member data from format chunk
-	m_nAvgDataRate = wave_format_ex_.avg_bytes_per_sec_;
+	m_nAvgDataRate = wave_format_ex_.avg_bytes_per_sec;
 
 	// Cue for streaming
 	if(!Cue())
@@ -1028,13 +1035,13 @@ std::uint8_t WaveFile::GetSilenceData() const
 	auto bSilenceData = std::uint8_t{};
 
 	// Silence data depends on format of Wave file
-	if (wave_format_ex_.bit_depth_ == 8)
+	if (wave_format_ex_.bit_depth == 8)
 	{
 		// For 8-bit formats (unsigned, 0 to 255)
 		// Packed DWORD = 0x80808080;
 		bSilenceData = 0x80;
 	}
-	else if (wave_format_ex_.bit_depth_ == 16)
+	else if (wave_format_ex_.bit_depth == 16)
 	{
 		// For 16-bit formats (signed, -32768 to 32767)
 		// Packed DWORD = 0x00000000;
@@ -1064,7 +1071,7 @@ LHSTREAM WaveFile::GetStream() const
 	return m_hStream;
 }
 
-const ul::WaveFormatEx& WaveFile::get_format() const
+const ltjs::WaveFormatEx& WaveFile::get_format() const
 {
 	return wave_format_ex_;
 }
@@ -1228,7 +1235,7 @@ void CSample::Reset( )
 }
 
 bool CSample::Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamples,
-				const bool b3DBuffer, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData )
+				const bool b3DBuffer, const ltjs::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData )
 {
 	bool bUseFilter;
 
@@ -1236,9 +1243,9 @@ bool CSample::Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamp
 
 	if( pWaveFormat == NULL )
 	{
-		m_waveFormat.block_align_ = ( m_waveFormat.channel_count_ * m_waveFormat.bit_depth_ ) >> 3;
-		m_waveFormat.avg_bytes_per_sec_ = m_waveFormat.sample_rate_ * m_waveFormat.block_align_;
-		m_dsbDesc.dwBufferBytes = uiNumSamples * m_waveFormat.block_align_;
+		m_waveFormat.block_align = ( m_waveFormat.channel_count * m_waveFormat.bit_depth ) >> 3;
+		m_waveFormat.avg_bytes_per_sec = m_waveFormat.sample_rate * m_waveFormat.block_align;
+		m_dsbDesc.dwBufferBytes = uiNumSamples * m_waveFormat.block_align;
 		m_dsbDesc.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&m_waveFormat);
 	}
 
@@ -1915,7 +1922,7 @@ void C3DSample::Reset( )
 	m_status = LS_DONE;
 }
 
-bool C3DSample::Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamples, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData )
+bool C3DSample::Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamples, const ltjs::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData )
 {
 	Term( );
 
@@ -2073,7 +2080,7 @@ void CStream::ReadStreamIntoBuffer( CDx8SoundSys* pSoundSys, BYTE* pBuffer, int3
 		if( uiBytesRead < nBufferSize )
 			{
 				// Fill in the rest of the buffer with silence.
-			BYTE nZeroValue = (BYTE)(m_pWaveFile->get_format().bit_depth_ == 8 ? 128 : 0 );
+			BYTE nZeroValue = (BYTE)(m_pWaveFile->get_format().bit_depth == 8 ? 128 : 0 );
 			BYTE* pBufferEnd = pBuffer + uiBytesRead;
 			uint32 nBytesToZero = nBufferSize - uiBytesRead;
 			FillMemory( pBufferEnd, nBytesToZero, nZeroValue );
@@ -2207,7 +2214,7 @@ uint32 CStream::FillBuffer( CDx8SoundSys* pSoundSys )
         // Don't repeat the wav file, just fill in silence
         FillMemory( (BYTE*) pDSLockedBuffer + uiBytesRead,
                     dwDSLockedBufferSize - uiBytesRead,
-                    (BYTE)(m_pWaveFile->get_format().bit_depth_ == 8 ? 128 : 0 ) );
+                    (BYTE)(m_pWaveFile->get_format().bit_depth == 8 ? 128 : 0 ) );
 		uiBytesRead = dwDSLockedBufferSize;
     }
 
@@ -2360,7 +2367,7 @@ void CDx8SoundSys::Thread_Func()
 //	===========================================================================
 //	Incorporation of DSMStrm* required functionality
 
-CSample* CDx8SoundSys::CreateBuffer( ul::WaveFormatEx* pWaveFormat, DWORD dwBufferSize, DWORD dwFlags )
+CSample* CDx8SoundSys::CreateBuffer( ltjs::WaveFormatEx* pWaveFormat, DWORD dwBufferSize, DWORD dwFlags )
 {
 	CSample* pSample;
 	LT_MEM_TRACK_ALLOC(pSample = new CSample( ),LT_MEM_TYPE_SOUND);
@@ -2451,14 +2458,14 @@ static bool QueryEAXSupport( IKsPropertySet& ksPropertySet, U32 uiQuery )
 bool CDx8SoundSys::GetPropertySetForEAX( )
 {
 	// create a dummy buffer to get EAX property set
-	ul::WaveFormatEx wave;
+	ltjs::WaveFormatEx wave;
 	wave = {};
-    wave.tag_ = ul::WaveFormatTag::pcm;
-    wave.channel_count_ = 1;
-    wave.sample_rate_ = 22050;
-    wave.bit_depth_ = 16;
-    wave.block_align_ = wave.bit_depth_ / 8 * wave.channel_count_;
-    wave.avg_bytes_per_sec_ = wave.sample_rate_ * wave.block_align_;
+    wave.tag = ltjs::WaveFormatTag::pcm;
+    wave.channel_count = 1;
+    wave.sample_rate = 22050;
+    wave.bit_depth = 16;
+    wave.block_align = wave.bit_depth / 8 * wave.channel_count;
+    wave.avg_bytes_per_sec = wave.sample_rate * wave.block_align;
 
 	DSBUFFERDESC dsbdesc;
 	memset(&dsbdesc, 0, sizeof(DSBUFFERDESC));
@@ -2801,7 +2808,7 @@ const char* CDx8SoundSys::LastError( void )
 #endif	// HANDLE_DS_ERROR
 
 // digital sound driver functions
-S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER& phDriver, PHWAVEOUT& pphWaveOut, const S32 siDeviceId, const ul::WaveFormatEx& pWaveFormat )
+S32	CDx8SoundSys::WaveOutOpen( LHDIGDRIVER& phDriver, PHWAVEOUT& pphWaveOut, const S32 siDeviceId, const ltjs::WaveFormatEx& pWaveFormat )
 {
 
 	WaveOutClose( m_pDSPrimaryBuffer );
@@ -3344,9 +3351,9 @@ LH3DSAMPLE CDx8SoundSys::Allocate3DSampleHandle( LHPROVIDER hLib )
 	p3DSample->m_sample.m_waveFormat = m_waveFormat;
 	// 3d sounds must be mono
 	CSample* pSample = &p3DSample->m_sample;
-	pSample->m_waveFormat.channel_count_ = 1;
-	pSample->m_waveFormat.block_align_ = ( pSample->m_waveFormat.channel_count_ * pSample->m_waveFormat.bit_depth_ ) >> 3;
-	pSample->m_waveFormat.avg_bytes_per_sec_ = pSample->m_waveFormat.sample_rate_ * pSample->m_waveFormat.block_align_;
+	pSample->m_waveFormat.channel_count = 1;
+	pSample->m_waveFormat.block_align = ( pSample->m_waveFormat.channel_count * pSample->m_waveFormat.bit_depth ) >> 3;
+	pSample->m_waveFormat.avg_bytes_per_sec = pSample->m_waveFormat.sample_rate * pSample->m_waveFormat.block_align;
 
 
     // Set up DSBUFFERDESC structure.
@@ -3368,7 +3375,7 @@ LH3DSAMPLE CDx8SoundSys::Allocate3DSampleHandle( LHPROVIDER hLib )
 		p3DSample->m_sample.m_dsbDesc.dwFlags |= DSBCAPS_LOCSOFTWARE;
 
     // Create buffer.
-	p3DSample->Init( m_hResult, m_pDirectSound, m_waveFormat.sample_rate_, &pSample->m_waveFormat, NULL );
+	p3DSample->Init( m_hResult, m_pDirectSound, m_waveFormat.sample_rate, &pSample->m_waveFormat, NULL );
 
 
 	// Make sure we have our propertyset interface setup.
@@ -3465,7 +3472,7 @@ void CDx8SoundSys::End3DSample( LH3DSAMPLE hS )
 }
 
 
-S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx& pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData )
+S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, const U32 uiLen, const ltjs::WaveFormatEx& pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData )
 {
 //	LOG_WRITE( g_pLogFile, "SetSampleAddress( %x, %x, %d )\n", hS, pStart, uiLen );
 
@@ -3477,8 +3484,8 @@ S32 CDx8SoundSys::Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, co
 
 	// Modify the pitch.
 	auto waveFormat = pWaveFormat;
-	waveFormat.sample_rate_ = siPlaybackRate;
-	waveFormat.avg_bytes_per_sec_ = waveFormat.block_align_ * waveFormat.sample_rate_;
+	waveFormat.sample_rate = siPlaybackRate;
+	waveFormat.avg_bytes_per_sec = waveFormat.block_align * waveFormat.sample_rate;
 
 	if ( !p3DSample->Init( m_hResult, m_pDirectSound, uiLen, &waveFormat, pFilterData ) )
 		return LTFALSE;
@@ -3518,7 +3525,7 @@ S32	CDx8SoundSys::Init3DSampleFromFile(
 		return false;
 	}
 
-	auto memory_stream = ul::MemoryStream{pFile_image, wave_size, ul::Stream::OpenMode::read};
+	ltjs::ReadOnlyMemoryStream memory_stream{pFile_image, wave_size};
 
 	auto decoder_param = ltjs::AudioDecoder::OpenParam{};
 	decoder_param.stream_ptr_ = &memory_stream;
@@ -3532,7 +3539,7 @@ S32	CDx8SoundSys::Init3DSampleFromFile(
 
 	// if we have more than one channel, we fail
 	// 3D sounds can't be stereo
-	if (wave_format_ex.channel_count_ != 1)
+	if (wave_format_ex.channel_count != 1)
 	{
 		return false;
 	}
@@ -3571,8 +3578,8 @@ S32	CDx8SoundSys::Init3DSampleFromFile(
 	else
 	{
 		// Modify the pitch.
-		wave_format_ex.sample_rate_ = siPlaybackRate;
-		wave_format_ex.avg_bytes_per_sec_ = wave_format_ex.block_align_ * wave_format_ex.sample_rate_;
+		wave_format_ex.sample_rate = siPlaybackRate;
+		wave_format_ex.avg_bytes_per_sec = wave_format_ex.block_align * wave_format_ex.sample_rate;
 
 		if (!pSample->Init(m_hResult, m_pDirectSound, max_decoded_size, false, &wave_format_ex, pFilterData))
 		{
@@ -3655,9 +3662,9 @@ S32	CDx8SoundSys::Set3DSampleInfo( LH3DSAMPLE hS, const LTSOUNDINFO& pInfo )
 
     // Set up wave format structure.
 
-    p3DSample->m_sample.m_waveFormat.channel_count_ = ( U16 )pInfo.channels;
-    p3DSample->m_sample.m_waveFormat.sample_rate_ = pInfo.rate;
-    p3DSample->m_sample.m_waveFormat.bit_depth_ = ( U16 )pInfo.bits;
+    p3DSample->m_sample.m_waveFormat.channel_count = ( U16 )pInfo.channels;
+    p3DSample->m_sample.m_waveFormat.sample_rate = pInfo.rate;
+    p3DSample->m_sample.m_waveFormat.bit_depth = ( U16 )pInfo.bits;
 
     // Create buffer.
 
@@ -3791,7 +3798,7 @@ LHSAMPLE CDx8SoundSys::AllocateSampleHandle( LHDIGDRIVER hDig )
 		pSample->m_dsbDesc.dwFlags |= DSBCAPS_LOCSOFTWARE;
 
     // Create buffer.
-	pSample->Init( m_hResult, m_pDirectSound, m_waveFormat.sample_rate_, false );
+	pSample->Init( m_hResult, m_pDirectSound, m_waveFormat.sample_rate, false );
 
 	SetSampleNotify( pSample, true );
 
@@ -3830,10 +3837,10 @@ void CDx8SoundSys::InitSample( LHSAMPLE hS )
 
 	CSample* pSample = ( CSample* )hS;
 
-	pSample->m_waveFormat.tag_ = ul::WaveFormatTag::pcm;
-	pSample->m_waveFormat.channel_count_ = DEFAULT_SAMPLE_CHANNELS;
-	pSample->m_waveFormat.sample_rate_ = DEFAULT_SAMPLE_RATE;
-	pSample->m_waveFormat.bit_depth_ = DEFAULT_SAMPLE_BITS;
+	pSample->m_waveFormat.tag = ltjs::WaveFormatTag::pcm;
+	pSample->m_waveFormat.channel_count = DEFAULT_SAMPLE_CHANNELS;
+	pSample->m_waveFormat.sample_rate = DEFAULT_SAMPLE_RATE;
+	pSample->m_waveFormat.bit_depth = DEFAULT_SAMPLE_BITS;
 
 	pSample->Init( m_hResult, m_pDirectSound, DEFAULT_SAMPLE_RATE, false );
 	SetSampleNotify( pSample, true );
@@ -4009,7 +4016,7 @@ void CDx8SoundSys::SetSampleReverb( LHSAMPLE hS, float fReverb_level, float fRev
 //	===========================================================================
 //	DONE...
 
-S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx& pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData )
+S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ltjs::WaveFormatEx& pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData )
 {
 //	LOG_WRITE( g_pLogFile, "InitSampleFromAddress( %x, %x, %d )\n", hS, pStart, uiLen );
 
@@ -4018,8 +4025,8 @@ S32 CDx8SoundSys::InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const 
 
 	// Modify the pitch.
 	auto waveFormat = pWaveFormat;
-	waveFormat.sample_rate_ = siPlaybackRate;
-	waveFormat.avg_bytes_per_sec_ = waveFormat.block_align_ * waveFormat.sample_rate_;
+	waveFormat.sample_rate = siPlaybackRate;
+	waveFormat.avg_bytes_per_sec = waveFormat.block_align * waveFormat.sample_rate;
 	CSample* pSample = ( CSample* )hS;
 	if( !pSample->Init( m_hResult, m_pDirectSound, uiLen, false, &waveFormat, pFilterData ))
 		return LTFALSE;
@@ -4057,7 +4064,7 @@ S32	CDx8SoundSys::InitSampleFromFile(
 		return false;
 	}
 
-	auto memory_stream = ul::MemoryStream{pFile_image, wave_size, ul::Stream::OpenMode::read};
+	ltjs::ReadOnlyMemoryStream memory_stream{pFile_image, wave_size};
 
 	auto decoder_param = ltjs::AudioDecoder::OpenParam{};
 	decoder_param.stream_ptr_ = &memory_stream;
@@ -4106,8 +4113,8 @@ S32	CDx8SoundSys::InitSampleFromFile(
 	else
 	{
 		// Modify the pitch.
-		wave_format_ex.sample_rate_ = siPlaybackRate;
-		wave_format_ex.avg_bytes_per_sec_ = wave_format_ex.block_align_ * wave_format_ex.sample_rate_;
+		wave_format_ex.sample_rate = siPlaybackRate;
+		wave_format_ex.avg_bytes_per_sec = wave_format_ex.block_align * wave_format_ex.sample_rate;
 
 		if (!pSample->Init(m_hResult, m_pDirectSound, max_decoded_size, false, &wave_format_ex, pFilterData))
 		{
@@ -4170,8 +4177,8 @@ void CDx8SoundSys::SetSampleMsPosition( LHSAMPLE hS, const S32 siMilliseconds )
 	if( milliseconds < 0 )
 		milliseconds = 0;
 
-	uint32 uiByteOffset = MulDiv( pSample->m_waveFormat.avg_bytes_per_sec_, milliseconds, 1000 );
-	uiByteOffset -= uiByteOffset % pSample->m_waveFormat.block_align_;
+	uint32 uiByteOffset = MulDiv( pSample->m_waveFormat.avg_bytes_per_sec, milliseconds, 1000 );
+	uiByteOffset -= uiByteOffset % pSample->m_waveFormat.block_align;
 	m_hResult = pSample->SetCurrentPosition( uiByteOffset );
 	m_pcLastError = LastError( );
 }
@@ -4235,18 +4242,18 @@ LHSTREAM CDx8SoundSys::OpenStream(
 	const auto& wave_format_ex = pWaveFile->get_format();
 
 	// create a buffer that holds STREAM_BUF_SECONDS seconds of data, rounded out so each read ends at block end
-	auto nBlockAlign = static_cast<int>(wave_format_ex.channel_count_ * (m_waveFormat.bit_depth_ / 8));
+	auto nBlockAlign = static_cast<int>(wave_format_ex.channel_count * (m_waveFormat.bit_depth / 8));
 
 	auto nBufferSize = static_cast<int>(
-		wave_format_ex.sample_rate_ * STREAM_BUF_SECONDS * nBlockAlign / NUM_PLAY_NOTIFICATIONS);
+		wave_format_ex.sample_rate * STREAM_BUF_SECONDS * nBlockAlign / NUM_PLAY_NOTIFICATIONS);
 
 	nBufferSize -= nBufferSize % nBlockAlign;
 	nBufferSize *= NUM_PLAY_NOTIFICATIONS;
 
 	streamBufferParams.m_siParams[SBP_BUFFER_SIZE] = nBufferSize;
-	streamBufferParams.m_siParams[SBP_BITS_PER_CHANNEL] = wave_format_ex.bit_depth_;
-	streamBufferParams.m_siParams[SBP_CHANNELS_PER_SAMPLE] = wave_format_ex.channel_count_;
-	streamBufferParams.m_siParams[SBP_SAMPLES_PER_SEC] = wave_format_ex.sample_rate_;
+	streamBufferParams.m_siParams[SBP_BITS_PER_CHANNEL] = wave_format_ex.bit_depth;
+	streamBufferParams.m_siParams[SBP_CHANNELS_PER_SAMPLE] = wave_format_ex.channel_count;
+	streamBufferParams.m_siParams[SBP_SAMPLES_PER_SEC] = wave_format_ex.sample_rate;
 
 	// Use the new streaming functions.
 	auto hStream = OpenStream(&streamBufferParams, pWaveFile, static_cast<uint8>(i));
@@ -4290,7 +4297,7 @@ void CDx8SoundSys::SetStreamMsPosition( LHSTREAM hStream, S32 siMilliseconds )
 	CStream* pStream = ( CStream* )hStream;
 	uint32 uiByteOffset = MulDiv( pStream->m_pWaveFile->GetDataSize( ), siMilliseconds,
 		pStream->m_pWaveFile->GetDuration( ));
-	uiByteOffset -= uiByteOffset % pStream->m_waveFormat.block_align_;
+	uiByteOffset -= uiByteOffset % pStream->m_waveFormat.block_align;
 	m_hResult = pStream->SetCurrentPosition( uiByteOffset );
 	m_pcLastError = LastError( );
 }
@@ -4326,15 +4333,15 @@ LHSTREAM CDx8SoundSys::OpenStream( streamBufferParams_t* pStreamBufferParams, Wa
 
 	pStream->Reset();
 
-	ul::WaveFormatEx waveFormat;
+	ltjs::WaveFormatEx waveFormat;
 	waveFormat = {};
 
-	waveFormat.tag_ = ul::WaveFormatTag::pcm;
-	waveFormat.bit_depth_ = ( WORD )pStreamBufferParams->m_siParams[ SBP_BITS_PER_CHANNEL ];
-	waveFormat.sample_rate_ = pStreamBufferParams->m_siParams[ SBP_SAMPLES_PER_SEC ];
-	waveFormat.channel_count_ = ( WORD )pStreamBufferParams->m_siParams[ SBP_CHANNELS_PER_SAMPLE ];
-	waveFormat.block_align_ = ( waveFormat.channel_count_ * waveFormat.bit_depth_ ) >> 3;
-	waveFormat.avg_bytes_per_sec_ = ( waveFormat.block_align_ * waveFormat.sample_rate_ );
+	waveFormat.tag = ltjs::WaveFormatTag::pcm;
+	waveFormat.bit_depth = ( WORD )pStreamBufferParams->m_siParams[ SBP_BITS_PER_CHANNEL ];
+	waveFormat.sample_rate = pStreamBufferParams->m_siParams[ SBP_SAMPLES_PER_SEC ];
+	waveFormat.channel_count = ( WORD )pStreamBufferParams->m_siParams[ SBP_CHANNELS_PER_SAMPLE ];
+	waveFormat.block_align = ( waveFormat.channel_count * waveFormat.bit_depth ) >> 3;
+	waveFormat.avg_bytes_per_sec = ( waveFormat.block_align * waveFormat.sample_rate );
 
 	uint uiNumBytes = pStreamBufferParams->m_siParams[ SBP_BUFFER_SIZE ];
 	pStream->m_uiBufferSize = uiNumBytes;

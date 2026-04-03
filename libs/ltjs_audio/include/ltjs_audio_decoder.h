@@ -3,14 +3,12 @@
 
 #include <memory>
 
-#include "bibendovsky_spul_stream.h"
-#include "bibendovsky_spul_wave_format.h"
+#include "ltjs_stream.h"
+#include "ltjs_wave_format.h"
 
 // ==========================================================================
 
 namespace ltjs {
-
-namespace ul = bibendovsky::spul;
 
 class AudioDecoder
 {
@@ -31,7 +29,7 @@ public:
 		int dst_sample_rate_;
 
 		// An input data stream.
-		ul::Stream* stream_ptr_;
+		Stream* stream_ptr_;
 
 		//
 		// Validates all parameters.
@@ -213,7 +211,7 @@ public:
 	// Returns:
 	//    - A structure with parameters.
 	//
-	const ul::WaveFormatEx& get_wave_format_ex() const noexcept;
+	const WaveFormatEx& get_wave_format_ex() const noexcept;
 
 	//
 	// Gets a maximum sample count of the decoded data.

@@ -10,9 +10,9 @@ SPDX-License-Identifier: GPL-2.0
 #include "ltjs_ascii.h"
 #include "ltjs_code_page.h"
 #include "ltjs_exception.h"
+#include "ltjs_file_path.h"
 #include "ltjs_script_tokenizer.h"
 #include "ltjs_sys_file_utility.h"
-#include "ltjs_sys_fs_path.h"
 #include "SDL3/SDL_stdinc.h"
 #include <cassert>
 #include <cstdint>
@@ -183,7 +183,7 @@ private:
 	struct Context
 	{
 		using Tokens = std::array<ScriptTokenizerToken, 5>;
-		using Paths = std::vector<sys::fs::Path>;
+		using Paths = std::vector<std::string>;
 		using StringBuffer = std::vector<char>;
 
 		Paths paths;
@@ -201,7 +201,7 @@ private:
 		Tokens tokens;
 	};
 
-	sys::fs::Path base_path_{};
+	std::string base_path_{};
 	std::string language_id_name_{};
 
 	ShellResourceCodePage code_page_{};
@@ -221,7 +221,7 @@ private:
 	static bool is_english_char(char ch) noexcept;
 	static void validate_language_id_name(const std::string& language_id_name);
 	static bool is_resource_number_in_range(int number) noexcept;
-	static bool load_file(Context& context, const sys::fs::Path& path);
+	static bool load_file(Context& context, const std::string& path);
 	static int parse_int32(std::string_view string);
 	static int parse_int32(const ScriptTokenizerToken& token);
 	static std::string parse_name(const ScriptTokenizerToken& token);
@@ -246,16 +246,16 @@ private:
 		ShellResourceMgrImplStringPool& string_pool);
 	static int parse_string(Context& context, const ScriptTokenizerToken& token);
 	static ShellResourceCodePage parse_code_page_string(Context& context, const ScriptTokenizerToken& token);
-	static void append_code_page(Context& context, const sys::fs::Path& script_path);
+	static void append_code_page(Context& context, const std::string& script_path);
 	static void load_code_pages(Context& context);
 	static int parse_resource_number(const ScriptTokenizerToken& token);
 	static int parse_cursor_hot_spot(const ScriptTokenizerToken& token);
-	static void append_cursors(Context& context, const sys::fs::Path& script_path);
+	static void append_cursors(Context& context, const std::string& script_path);
 	static void load_cursors_contents(Context& context);
 	static void load_cursors(Context& context);
-	static void append_strings(Context& context, const sys::fs::Path& script_path);
+	static void append_strings(Context& context, const std::string& script_path);
 	static void load_strings(Context& context);
-	static void append_texts(Context& context, const sys::fs::Path& script_path);
+	static void append_texts(Context& context, const std::string& script_path);
 	static void load_texts_contents(Context& context);
 	static void load_texts(Context& context);
 };
@@ -290,7 +290,7 @@ try
 	Context::Paths& paths = context.paths;
 	paths.reserve(4);
 	paths.emplace_back(base_path_);
-	paths.emplace_back(base_path_ / language_id_name);
+	paths.emplace_back(FilePath::append(base_path_, language_id_name));
 	load_code_pages(context);
 	load_cursors(context);
 	load_strings(context);
@@ -447,18 +447,18 @@ bool ShellResourceMgrImpl::is_resource_number_in_range(int number) noexcept
 	return number >= min_number && number <= max_number;
 }
 
-bool ShellResourceMgrImpl::load_file(Context& context, const sys::fs::Path& path)
+bool ShellResourceMgrImpl::load_file(Context& context, const std::string& path)
 try
 {
 	std::string& file_buffer = context.file_buffer;
 	file_buffer.clear();
-	const int file_size = sys::get_file_size(path.get_data());
+	const int file_size = sys::get_file_size(path.c_str());
 	if (file_size <= 0)
 	{
 		return false;
 	}
 	file_buffer.resize(file_size);
-	const auto loaded_size = ltjs::sys::load_file(path.get_data(), file_buffer.data(), file_size);
+	const auto loaded_size = sys::load_file(path.c_str(), file_buffer.data(), file_size);
 	return loaded_size == file_size;
 }
 catch (...)
@@ -709,7 +709,7 @@ ShellResourceCodePage ShellResourceMgrImpl::parse_code_page_string(Context& cont
 	return code_page_info_iter->id;
 }
 
-void ShellResourceMgrImpl::append_code_page(Context& context, const sys::fs::Path& script_path)
+void ShellResourceMgrImpl::append_code_page(Context& context, const std::string& script_path)
 {
 	if (!load_file(context, script_path))
 	{
@@ -737,9 +737,9 @@ void ShellResourceMgrImpl::append_code_page(Context& context, const sys::fs::Pat
 void ShellResourceMgrImpl::load_code_pages(Context& context)
 try
 {
-	for (const sys::fs::Path& path : context.paths)
+	for (const std::string& path : context.paths)
 	{
-		const sys::fs::Path script_path = path / "code_page.txt";
+		const std::string script_path = FilePath::append(path, "code_page.txt");
 		append_code_page(context, script_path);
 	}
 	if (context.code_page == ShellResourceCodePage::none)
@@ -777,7 +777,7 @@ int ShellResourceMgrImpl::parse_cursor_hot_spot(const ScriptTokenizerToken& toke
 	return hot_spot;
 }
 
-void ShellResourceMgrImpl::append_cursors(Context& context, const sys::fs::Path& script_path)
+void ShellResourceMgrImpl::append_cursors(Context& context, const std::string& script_path)
 {
 	if (!load_file(context, script_path))
 	{
@@ -825,12 +825,12 @@ void ShellResourceMgrImpl::load_cursors_contents(Context& context)
 	const Context::Paths& paths = context.paths;
 	for (auto& cursor_map_item : cursor_map)
 	{
-		const auto& file_name = sys::fs::Path{cursor_map_item.second.bytes};
+		const std::string& file_name = cursor_map_item.second.bytes;
 		CursorContent& cursor = cursor_map_item.second;
 		bool is_found = false;
 		for (auto path = paths.crbegin(), paths_end = paths.crend(); path != paths_end; ++path)
 		{
-			const sys::fs::Path cursor_path = (*path) / file_name;
+			const std::string& cursor_path = FilePath::append(*path, file_name);
 			if (load_file(context, cursor_path))
 			{
 				is_found = true;
@@ -859,9 +859,9 @@ void ShellResourceMgrImpl::load_cursors_contents(Context& context)
 void ShellResourceMgrImpl::load_cursors(Context& context)
 try
 {
-	for (const sys::fs::Path& path : context.paths)
+	for (const std::string& path : context.paths)
 	{
-		const sys::fs::Path script_path = path / "cursors.txt";
+		const std::string script_path = FilePath::append(path, "cursors.txt");
 		append_cursors(context, script_path);
 	}
 	load_cursors_contents(context);
@@ -871,7 +871,7 @@ catch (...)
 	clear_cursors(context);
 }
 
-void ShellResourceMgrImpl::append_strings(Context& context, const sys::fs::Path& script_path)
+void ShellResourceMgrImpl::append_strings(Context& context, const std::string& script_path)
 {
 	if (!load_file(context, script_path))
 	{
@@ -909,9 +909,9 @@ try
 	string_pool.initialize(max_string_pool_size);
 	Context::StringBuffer& string_buffer = context.string_buffer;
 	string_buffer.resize(max_string_size);
-	for (const sys::fs::Path& path : context.paths)
+	for (const std::string& path : context.paths)
 	{
-		const sys::fs::Path script_path = path / "strings.txt";
+		const std::string script_path = FilePath::append(path, "strings.txt");
 		append_strings(context, script_path);
 	}
 	string_pool.shrink();
@@ -928,7 +928,7 @@ catch (...)
 	clear_strings(context);
 }
 
-void ShellResourceMgrImpl::append_texts(Context& context, const sys::fs::Path& script_path)
+void ShellResourceMgrImpl::append_texts(Context& context, const std::string& script_path)
 {
 	if (!load_file(context, script_path))
 	{
@@ -979,7 +979,7 @@ void ShellResourceMgrImpl::load_texts_contents(Context& context)
 		bool is_found = false;
 		for (auto path = paths.crbegin(), paths_end = paths.crend(); path != paths_end; ++path)
 		{
-			const sys::fs::Path text_path = (*path) / text_map_item.second.bytes.c_str();
+			const std::string text_path = FilePath::append(*path, text_map_item.second.bytes);
 			if (load_file(context, text_path))
 			{
 				if (context.file_buffer.size() > max_text_size)
@@ -1025,9 +1025,9 @@ void ShellResourceMgrImpl::load_texts_contents(Context& context)
 void ShellResourceMgrImpl::load_texts(Context& context)
 try
 {
-	for (const sys::fs::Path& path : context.paths)
+	for (const std::string& path : context.paths)
 	{
-		const sys::fs::Path script_path = path / "texts.txt";
+		const std::string script_path = FilePath::append(path, "texts.txt");
 		append_texts(context, script_path);
 	}
 	load_texts_contents(context);

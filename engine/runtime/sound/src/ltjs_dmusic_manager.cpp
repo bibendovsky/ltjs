@@ -5,13 +5,19 @@
 
 
 #ifdef _DEBUG
-//#define LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
-//#define LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
+#define LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS       0
+#define LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2 0
 
-//#define LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
-//#define LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2
+#define LTJS_DEBUG_DMUSIC_DUMP_CUSTOM           0
+#define LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2     0
+#else
+// Do not change these.
+#define LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS       0
+#define LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2 0
+
+#define LTJS_DEBUG_DMUSIC_DUMP_CUSTOM           0
+#define LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2     0
 #endif // _DEBUG
-
 
 #include <cstdio>
 #include <algorithm>
@@ -21,29 +27,27 @@
 #include <list>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include "bibendovsky_spul_algorithm.h"
-#include "bibendovsky_spul_ascii_utils.h"
-#include "bibendovsky_spul_endian.h"
-#include "bibendovsky_spul_file_stream.h"
-#include "bibendovsky_spul_memory_stream.h"
-#include "bibendovsky_spul_path_utils.h"
-#include "bibendovsky_spul_riff_four_ccs.h"
-#include "bibendovsky_spul_scope_guard.h"
-#include "bibendovsky_spul_wave_format_utils.h"
-#include "bibendovsky_spul_wave_four_ccs.h"
 #include "console.h"
 #include "ltpvalue.h"
 #include "soundmgr.h"
 #include "ltdirectmusiccontrolfile.h"
+#include "ltjs_ascii.h"
 #include "ltjs_audio_decoder.h"
+#include "ltjs_audio_utils.h"
 #include "ltjs_dmusic_manager.h"
 #include "ltjs_dmusic_segment.h"
-#include "ltjs_audio_utils.h"
-
+#include "ltjs_endian.h"
+#include "ltjs_file_path.h"
+#include "ltjs_file_stream.h"
+#include "ltjs_read_only_memory_stream.h"
+#include "ltjs_riff_four_ccs.h"
+#include "ltjs_wave_format_utils.h"
+#include "ltjs_wave_four_ccs.h"
 
 #ifndef NOLITHTECH
 extern int32 g_CV_LTDMConsoleOutput;
@@ -51,13 +55,18 @@ extern int32 g_CV_LTDMConsoleOutput;
 extern signed int g_CV_LTDMConsoleOutput;
 #endif // !NOLITHTECH
 
+namespace {
+
+constexpr bool ltjs_debug_dmusic_test_all_musics       = LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS;
+constexpr bool ltjs_debug_dmusic_test_all_musics_nolf2 = LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2;
+
+constexpr bool ltjs_debug_dmusic_dump_custom           = LTJS_DEBUG_DMUSIC_DUMP_CUSTOM;
+constexpr bool ltjs_debug_dmusic_dump_custom_nolf2     = LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2;
+
+} // namespace
 
 namespace ltjs
 {
-
-
-namespace ul = bibendovsky::spul;
-
 
 define_interface(DMusicManager, ILTDirectMusicMgr)
 
@@ -182,9 +191,10 @@ public:
 
 		is_initialized_ = true;
 
-#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
-		debug_test_all_musics();
-#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
+		if constexpr (ltjs_debug_dmusic_test_all_musics)
+		{
+			debug_test_all_musics();
+		}
 
 		return LT_OK;
 	}
@@ -250,11 +260,11 @@ public:
 		working_directory_ = working_directory;
 		control_file_name_ = control_file_name;
 
-		auto control_file_path = control_file_name_;
+		std::string control_file_path{control_file_name};
 
-		if (!ul::PathUtils::has_any_separator(control_file_name))
+		if (!FilePath::has_any_separator(control_file_path))
 		{
-			control_file_path = ul::PathUtils::append(working_directory_, control_file_name_);
+			control_file_path = FilePath::append(working_directory_, control_file_name_);
 		}
 
 #ifdef NOLITHTECH
@@ -272,14 +282,23 @@ public:
 			log_error("Failed to open a control file.");
 			return LT_ERROR;
 		}
-
-		auto guard_control_file = ul::ScopeGuard
+		class ControlFileSentinel
 		{
-			[&]()
+		public:
+			explicit ControlFileSentinel(CControlFileMgrDStream& control_file)
+				:
+				control_file_{control_file}
+			{}
+
+			~ControlFileSentinel()
 			{
-				control_file.Term();
+				control_file_.Term();
 			}
+
+		private:
+			CControlFileMgrDStream& control_file_;
 		};
+		const ControlFileSentinel control_file_sentinel{control_file};
 
 		intensity_count_ = 0;
 		initial_intensity_ = 0;
@@ -387,9 +406,10 @@ public:
 		device_buffer_.resize(mix_sample_count_);
 		mix_buffer_.resize(mix_sample_count_);
 
-#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
-		dbg_002_is_active_ = false;
-#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+		if constexpr (ltjs_debug_dmusic_dump_custom)
+		{
+			dbg_002_is_active_ = false;
+		}
 
 		// Multi-threading stuff.
 		//
@@ -801,8 +821,8 @@ private:
 		int decoded_offset_; // (in bytes)
 		int length_; // (in bytes)
 		std::int64_t mix_offset_; // (in bytes)
-		ul::MemoryStream stream_;
-		ltjs::AudioDecoder decoder_;
+		ReadOnlyMemoryStream stream_;
+		AudioDecoder decoder_;
 
 
 		Wave()
@@ -1248,8 +1268,11 @@ private:
 	DMusicSegment* cache_segment(
 		const std::string& segment_name)
 	{
-		const auto segment_name_lc = ul::AsciiUtils::to_lower(segment_name);
-
+		std::string segment_name_lc = segment_name;
+		for (char& ch : segment_name_lc)
+		{
+			ch = ascii_to_lower(ch);
+		}
 		auto found_segment_it = segment_cache_.find(segment_name_lc);
 
 		if (found_segment_it != segment_cache_.cend())
@@ -1258,9 +1281,9 @@ private:
 		}
 
 		auto segment = DMusicSegment{};
-		auto segment_path = ul::PathUtils::normalize(ul::PathUtils::append(working_directory_, segment_name));
+		auto segment_path = FilePath::append(working_directory_, segment_name);
 
-		if (!segment.open(segment_path, sample_rate_))
+		if (!segment.open(segment_path.c_str(), sample_rate_))
 		{
 			log_error("Failed to load a segment: \"%s\". %s",
 				segment_name.c_str(),
@@ -1382,7 +1405,7 @@ private:
 					mix_byte_offset = static_cast<int>(wave.mix_offset_ - mix_offset_);
 				}
 
-				auto decoder_param = ltjs::AudioDecoder::OpenParam{};
+				auto decoder_param = AudioDecoder::OpenParam{};
 				decoder_param.dst_bit_depth_ = bit_depth;
 				decoder_param.dst_channel_count_ = channel_count;
 				decoder_param.dst_sample_rate_ = sample_rate_;
@@ -1501,13 +1524,20 @@ private:
 	void select_next_segment(
 		const int mix_delta_offset)
 	{
-#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
-		const auto& initial_intensity_index = (dbg_002_is_active_ ? dbg_002_initial_intensity_ : initial_intensity_);
-		auto& intensities = (dbg_002_is_active_ ? dbg_002_intensities_ : intensities_);
-#else
-		auto& initial_intensity_index = initial_intensity_;
-		auto& intensities = intensities_;
-#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+		const int* initial_intensity_index_ptr;
+		Intensities* intensities_ptr;
+		if constexpr (ltjs_debug_dmusic_dump_custom)
+		{
+			initial_intensity_index_ptr = &(dbg_002_is_active_ ? dbg_002_initial_intensity_ : initial_intensity_);
+			intensities_ptr = &(dbg_002_is_active_ ? dbg_002_intensities_ : intensities_);
+		}
+		else
+		{
+			initial_intensity_index_ptr = &initial_intensity_;
+			intensities_ptr = &intensities_;
+		}
+		const int& initial_intensity_index = *initial_intensity_index_ptr;
+		Intensities& intensities = *intensities_ptr;
 
 		if (current_intensity_index_ == 0)
 		{
@@ -1633,7 +1663,7 @@ private:
 
 		for (auto i = 0; i < mix_sample_count_; ++i)
 		{
-			const auto sample = ul::Algorithm::clamp(
+			const auto sample = std::clamp(
 				static_cast<int>(mix_buffer_[i] * scale), -32768, 32767);
 
 			device_buffer_[i] = static_cast<std::int16_t>(sample);
@@ -1694,7 +1724,6 @@ private:
 	// Debug stuff
 	//
 
-#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
 	using DebugControlFilePaths = std::vector<std::string>;
 
 	void debug_test_all_musics(
@@ -1702,8 +1731,8 @@ private:
 	{
 		for (auto control_file_path : control_file_names)
 		{
-			const auto working_directory = ul::PathUtils::get_parent_path(control_file_path);
-			const auto control_file_name = ul::PathUtils::get_file_name(control_file_path);
+			const std::string working_directory{FilePath::get_parent_path(control_file_path)};
+			const std::string control_file_name{FilePath::get_file_name(control_file_path)};
 
 			const auto init_result = api_init_level(
 				working_directory.c_str(),
@@ -1716,9 +1745,10 @@ private:
 
 			if (init_result == LT_OK)
 			{
-#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
-				debug_dump_custom(working_directory, control_file_name);
-#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
+				if constexpr (ltjs_debug_dmusic_dump_custom)
+				{
+					debug_dump_custom(working_directory, control_file_name);
+				}
 
 				static_cast<void>(api_term_level());
 			}
@@ -1728,9 +1758,7 @@ private:
 			}
 		}
 	}
-#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
 
-#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
 	static const DebugControlFilePaths& debug_get_control_file_paths_nolf2()
 	{
 		static const DebugControlFilePaths nolf2_music_control_file_paths =
@@ -1762,23 +1790,20 @@ private:
 
 		return nolf2_music_control_file_paths;
 	}
-#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
 
-#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
 	void debug_test_all_musics()
 	{
 		log_info(3, "DEBUG: BEGIN Testing all musics.");
 
-#ifdef LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
-		debug_test_all_musics(debug_get_control_file_paths_nolf2());
-#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS_NOLF2
+		if constexpr (ltjs_debug_dmusic_test_all_musics_nolf2)
+		{
+			debug_test_all_musics(debug_get_control_file_paths_nolf2());
+		}
 
 		log_info(3, "DEBUG: END Testing all musics.");
 	}
-#endif // LTJS_DEBUG_DMUSIC_TEST_ALL_MUSICS
 
 
-#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
 	bool dbg_002_is_active_;
 	int dbg_002_initial_intensity_;
 	Intensities dbg_002_intensities_;
@@ -1787,22 +1812,22 @@ private:
 		const std::string& working_directory,
 		const std::string& control_file_name)
 	{
-#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2
-		debug_dump_custom_nolf2(working_directory, control_file_name);
-#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2
+		if constexpr (ltjs_debug_dmusic_dump_custom_nolf2)
+		{
+			debug_dump_custom_nolf2(working_directory, control_file_name);
+		}
 	}
-#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM
 
-#ifdef LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2
 	void debug_dump_custom_nolf2(
 		const std::string& working_directory,
 		const std::string& control_file_name)
 	{
 		// TODO variations?
-
-		const auto control_file_name_lc = ul::AsciiUtils::to_lower(ul::PathUtils::append(
-			working_directory, control_file_name));
-
+		std::string control_file_name_lc{FilePath::append(working_directory, control_file_name)};
+		for (char& ch : control_file_name_lc)
+		{
+			ch = ascii_to_lower(ch);
+		}
 		if (false)
 		{
 		}
@@ -1912,7 +1937,7 @@ private:
 		std::replace(file_path.begin(), file_path.end(), '.', '_');
 		file_path = "ltjs_dbg_dmus002_" + file_path + ".wav";
 
-		auto file = ul::FileStream{file_path, ul::Stream::OpenMode::write | ul::Stream::OpenMode::truncate};
+		auto file = FileStream{file_path.c_str(), FileStreamOpenMode::write_with_truncate};
 
 		if (!file.is_open())
 		{
@@ -1925,7 +1950,7 @@ private:
 
 		const auto wave_prefix_size =
 			4 + 4 + 4 + // "RIFF"<size>"WAVE"
-			4 + 4 + ul::PcmWaveFormat::class_size + // "fmt "<size><data>
+			4 + 4 + PcmWaveFormat::io_size + // "fmt "<size><data>
 			4 + 4 + // "data"<size>
 			0;
 
@@ -1969,39 +1994,33 @@ private:
 			total_decoded_size += mix_s16_size_;
 		}
 
-		static_cast<void>(file.set_position(0));
-
-		const auto riff_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::RiffFourCcs::riff));
-		const auto riff_size_le = ul::Endian::little(static_cast<std::uint32_t>(wave_prefix_size + total_decoded_size - 8));
-		const auto wave_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::WaveFourCcs::wave));
-		const auto fmt_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::WaveFourCcs::fmt));
-		const auto fmt_size_le = ul::Endian::little(static_cast<std::uint32_t>(ul::PcmWaveFormat::class_size));
-		const auto data_id_le = ul::Endian::little(static_cast<std::uint32_t>(ul::WaveFourCcs::data));
-		const auto data_size_le = ul::Endian::little(static_cast<std::uint32_t>(total_decoded_size));
-
-		auto waveformat = ul::PcmWaveFormat{};
-		waveformat.tag_ = ul::WaveFormatTag::pcm;
-		waveformat.bit_depth_ = bit_depth;
-		waveformat.channel_count_ = channel_count;
-		waveformat.sample_rate_ = sample_rate_;
-		waveformat.block_align_ = waveformat.channel_count_ * (waveformat.bit_depth_ / 8);
-		waveformat.avg_bytes_per_sec_ = waveformat.block_align_ * waveformat.sample_rate_;
-
-		static_cast<void>(file.write(&riff_id_le, 4));
-		static_cast<void>(file.write(&riff_size_le, 4));
-		static_cast<void>(file.write(&wave_id_le, 4));
-		static_cast<void>(file.write(&fmt_id_le, 4));
-		static_cast<void>(file.write(&fmt_size_le, 4));
-		static_cast<void>(ul::WaveformatUtils::write(waveformat, &file));
-		static_cast<void>(file.write(&data_id_le, 4));
-		static_cast<void>(file.write(&data_size_le, 4));
-
+		file.set_position(0);
+		unsigned char riff_size_le[4];
+		write_u32_le(static_cast<std::uint32_t>(wave_prefix_size + total_decoded_size - 8), riff_size_le);
+		unsigned char fmt_size_le[4];
+		write_u32_le(PcmWaveFormat::io_size, fmt_size_le);
+		unsigned char data_size_le[4];
+		write_u32_le(static_cast<std::uint32_t>(total_decoded_size), data_size_le);
+		PcmWaveFormat waveformat;
+		waveformat.tag = WaveFormatTag::pcm;
+		waveformat.bit_depth = bit_depth;
+		waveformat.channel_count = channel_count;
+		waveformat.sample_rate = sample_rate_;
+		waveformat.block_align = waveformat.channel_count * (waveformat.bit_depth / 8);
+		waveformat.avg_bytes_per_sec = waveformat.block_align * waveformat.sample_rate;
+		file.write(RiffFourCcs::riff.get_chars(), 4);
+		file.write(&riff_size_le, 4);
+		file.write(WaveFourCcs::wave.get_chars(), 4);
+		file.write(WaveFourCcs::fmt.get_chars(), 4);
+		file.write(&fmt_size_le, 4);
+		WaveformatUtils::write(waveformat, file);
+		file.write(WaveFourCcs::data.get_chars(), 4);
+		file.write(&data_size_le, 4);
 		file.close();
 
 		dbg_002_is_active_ = false;
 		current_intensity_index_ = -1;
 	}
-#endif // LTJS_DEBUG_DMUSIC_DUMP_CUSTOM_NOLF2
 
 	//
 	// Debug stuff

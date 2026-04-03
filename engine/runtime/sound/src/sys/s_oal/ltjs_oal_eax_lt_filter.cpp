@@ -3,17 +3,11 @@
 #include <cassert>
 #include <cmath>
 
-#include "bibendovsky_spul_algorithm.h"
-
 #include "ltjs_exception.h"
 
 #include "ltjs_eax_api.h"
 #include "ltjs_oal_efx_symbols.h"
 #include "ltjs_oal_object.h"
-
-
-namespace ul = bibendovsky::spul;
-
 
 namespace ltjs
 {

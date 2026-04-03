@@ -14,7 +14,7 @@ void clear_error_debug();
 
 void ensure_no_error_debug();
 
-#define LTJS_OAL_ENSURE_CALL_DEBUG(x) {ltjs::oal::clear_error_debug(); (x); ltjs::oal::ensure_no_error_debug();}
+#define LTJS_OAL_ENSURE_CALL_DEBUG(x) {::ltjs::oal::clear_error_debug(); (x); ::ltjs::oal::ensure_no_error_debug();}
 
 bool is_succeed();
 

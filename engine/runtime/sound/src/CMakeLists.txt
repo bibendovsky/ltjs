@@ -17,7 +17,6 @@ target_include_directories (
 	${PROJECT_NAME}
 	PRIVATE
 		../../../sdk/inc
-		../../../../libs/bibendovsky_spul_lib/include
 )
 
 target_sources (

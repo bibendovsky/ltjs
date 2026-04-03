@@ -6,15 +6,11 @@
 #include <mutex>
 #include <thread>
 #include <dsound.h>
-#include "bibendovsky_spul_file_stream.h"
-#include "bibendovsky_spul_riff_reader.h"
-#include "bibendovsky_spul_wave_format.h"
 #include "ltjs_audio_decoder.h"
+#include "ltjs_file_stream.h"
+#include "ltjs_riff_reader.h"
+#include "ltjs_wave_format.h"
 #include "iltsound.h"
-
-
-namespace ul = bibendovsky::spul;
-
 
 typedef sint16	S16;
 typedef uint16	U16;
@@ -82,7 +78,7 @@ public:
 
 	LHSTREAM GetStream() const;
 
-	const ul::WaveFormatEx& get_format() const;
+	const ltjs::WaveFormatEx& get_format() const;
 
 
 protected:
@@ -90,10 +86,10 @@ protected:
 	static constexpr auto max_channel_count = 2;
 
 
-	ul::FileStream file_stream_;
-	ul::Substream file_substream_;
+	ltjs::FileStream file_stream_;
+	ltjs::Substream file_substream_;
 	ltjs::AudioDecoder audio_decoder_;
-	ul::WaveFormatEx wave_format_ex_;
+	ltjs::WaveFormatEx wave_format_ex_;
 
 	std::uint32_t m_nDuration; // duration of sound in msec
 	std::uint32_t m_nAvgDataRate; // average wave data rate
@@ -151,7 +147,7 @@ public:
 	virtual ~CSample( );
 	void Reset( );
 	bool Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamples, 
-		const bool b3DBuffer, const ul::WaveFormatEx* pWaveFormat = NULL, const LTSOUNDFILTERDATA* pFilterData = NULL );
+		const bool b3DBuffer, const ltjs::WaveFormatEx* pWaveFormat = NULL, const LTSOUNDFILTERDATA* pFilterData = NULL );
 	void Term( );
 	void Restore( );
 	bool Fill( );
@@ -178,7 +174,7 @@ public:
 //	===========================================================================
 
 public:
-	ul::WaveFormatEx		m_waveFormat;
+	ltjs::WaveFormatEx		m_waveFormat;
 	DSBUFFERDESC			m_dsbDesc;
 	LPDIRECTSOUNDBUFFER		m_pDSBuffer;
 	void*					m_pSoundData;
@@ -205,7 +201,7 @@ public:
 	C3DSample( );
 	virtual ~C3DSample( );
 	void Reset( );
-	bool Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamples, const ul::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData );
+	bool Init( HRESULT& hResult, LPDIRECTSOUND8 pDS, const uint32 uiNumSamples, const ltjs::WaveFormatEx* pWaveFormat, const LTSOUNDFILTERDATA* pFilterData );
 	void Term( );
 	virtual void SetPosition( LTVector& pos );
 	virtual void SetVelocity( LTVector& vel );
@@ -281,7 +277,7 @@ public:
 	const char*	LastError( void ) override;
 
 	// digital sound driver functions
-	S32			WaveOutOpen( LHDIGDRIVER& phDriver, PHWAVEOUT& pphWaveOut, const S32 siDeviceId, const ul::WaveFormatEx& pWaveFormat ) override;
+	S32			WaveOutOpen( LHDIGDRIVER& phDriver, PHWAVEOUT& pphWaveOut, const S32 siDeviceId, const ltjs::WaveFormatEx& pWaveFormat ) override;
 	void		WaveOutClose( LHDIGDRIVER hDriver ) override;
 	void		SetDigitalMasterVolume( LHDIGDRIVER hDig, const S32 siMasterVolume ) override;
 	S32			GetDigitalMasterVolume( LHDIGDRIVER hDig ) override;
@@ -325,7 +321,7 @@ public:
 	void		Start3DSample( LH3DSAMPLE hS ) override;
 	void		Resume3DSample( LH3DSAMPLE hS ) override;
 	void		End3DSample( LH3DSAMPLE hS ) override;
-	S32			Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx& pWaveFormat, const S32 nPitchShift, const LTSOUNDFILTERDATA* pFilterData ) override;
+	S32			Init3DSampleFromAddress( LH3DSAMPLE hS, const void* pStart, const U32 uiLen, const ltjs::WaveFormatEx& pWaveFormat, const S32 nPitchShift, const LTSOUNDFILTERDATA* pFilterData ) override;
 	S32			Init3DSampleFromFile( LH3DSAMPLE hS, const void* pFile_image, const S32 siBlock, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData ) override;
 	S32			Get3DSampleVolume( LH3DSAMPLE hS ) override;
 	void		Set3DSampleVolume( LH3DSAMPLE hS, const S32 siVolume ) override;
@@ -356,7 +352,7 @@ public:
 	void		SetSampleUserData( LHSAMPLE hS, const U32 uiIndex, const std::intptr_t siValue ) override;
 	void		GetDirectSoundInfo( LHSAMPLE hS, PTDIRECTSOUND& ppDS, PTDIRECTSOUNDBUFFER& ppDSB ) override;
 	void		SetSampleReverb( LHSAMPLE hS, const float fReverb_level, const float fReverb_reflect_time, const float fReverb_decay_time ) override;
-	S32			InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ul::WaveFormatEx& pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData ) override;
+	S32			InitSampleFromAddress( LHSAMPLE hS, const void* pStart, const U32 uiLen, const ltjs::WaveFormatEx& pWaveFormat, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData ) override;
 	S32			InitSampleFromFile( LHSAMPLE hS, const void* pFile_image, const S32 siBlock, const S32 siPlaybackRate, const LTSOUNDFILTERDATA* pFilterData ) override;
 	void		SetSampleLoopBlock( LHSAMPLE hS, const S32 siLoop_start_offset, const S32 siLoop_end_offset, const bool bEnable ) override;
 	void		SetSampleLoop( LHSAMPLE hS, const bool bLoop ) override;
@@ -415,7 +411,7 @@ public:
 //	===========================================================================
 //	Incorporation of DSMStrm* required functionality
 public:
-	CSample*			CreateBuffer( ul::WaveFormatEx* pWaveFormat, DWORD dwBufferSize, DWORD dwFlags );
+	CSample*			CreateBuffer( ltjs::WaveFormatEx* pWaveFormat, DWORD dwBufferSize, DWORD dwFlags );
 	void				DestroyBuffer( CSample* pSoundBuffer );
 //	===========================================================================
 
@@ -444,7 +440,7 @@ public:
 	LPDIRECTSOUND8		m_pDirectSound;
 	LPDIRECTSOUNDBUFFER m_pDSPrimaryBuffer;
 	LPKSPROPERTYSET     m_pKSPropertySet;
-	ul::WaveFormatEx	m_waveFormat;
+	ltjs::WaveFormatEx	m_waveFormat;
 	DSCAPS				m_dscaps;
 	HRESULT				m_hResult;
 	const char*			m_pcLastError;

@@ -1,10 +1,5 @@
 #include "ltjs_oal_lt_sound_sys.h"
-
-#include "bibendovsky_spul_scope_guard.h"
-
-
-namespace ul = bibendovsky::spul;
-
+#include <functional>
 
 namespace ltjs
 {
@@ -110,7 +105,7 @@ sint32 OalLtSoundSys::WaveOutOpen(
 	LHDIGDRIVER& driver,
 	PHWAVEOUT& wave_out,
 	const sint32 device_id,
-	const ul::WaveFormatEx& wave_format)
+	const WaveFormatEx& wave_format)
 {
 	logger_->info("Open WaveOut.");
 
@@ -677,7 +672,7 @@ sint32 OalLtSoundSys::Init3DSampleFromAddress(
 	LH3DSAMPLE sample_handle,
 	const void* storage_ptr,
 	const uint32 storage_size,
-	const ul::WaveFormatEx& wave_format,
+	const WaveFormatEx& wave_format,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
@@ -1180,7 +1175,7 @@ sint32 OalLtSoundSys::InitSampleFromAddress(
 	LHSAMPLE sample_handle,
 	const void* storage_ptr,
 	const uint32 storage_size,
-	const ul::WaveFormatEx& wave_format,
+	const WaveFormatEx& wave_format,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
@@ -1942,17 +1937,28 @@ void OalLtSoundSys::initialize_lt_filter_for_source(
 bool OalLtSoundSys::wave_out_open_internal()
 {
 	auto is_succeed = false;
+	class CleanupSentinel
+	{
+	public:
+		CleanupSentinel(bool& is_succeed, OalLtSoundSys& oal_lt_sound_sys)
+			:
+			is_succeed_{is_succeed},
+			oal_lt_sound_sys_{oal_lt_sound_sys}
+		{}
 
-	auto guard_this = ul::ScopeGuard{
-		[&]()
+		~CleanupSentinel()
 		{
-			if (!is_succeed)
+			if (!is_succeed_)
 			{
-				wave_out_close_internal();
+				oal_lt_sound_sys_.wave_out_close_internal();
 			}
 		}
-	};
 
+	private:
+		bool& is_succeed_;
+		OalLtSoundSys& oal_lt_sound_sys_;
+	};
+	const CleanupSentinel cleanup_sentinel{is_succeed, *this};
 	try
 	{
 		auto oal_system_param = oal::SystemParam{};

@@ -3,15 +3,11 @@
 
 #include <cstdint>
 
-#include "bibendovsky_spul_stream.h"
+#include "ltjs_stream.h"
 
 #include "ltjs_basic_audio_decoder.h"
 
-// ==========================================================================
-
 namespace ltjs {
-
-namespace ul = bibendovsky::spul;
 
 struct MsImaAdpcmAudioDecoderOpenParam
 {
@@ -20,7 +16,7 @@ struct MsImaAdpcmAudioDecoderOpenParam
 	int sample_rate;
 	int frame_count;
 	int block_size;
-	ul::Stream* stream;
+	Stream* stream;
 };
 
 class MsImaAdpcmAudioDecoder final : public BasicAudioDecoder
@@ -85,7 +81,7 @@ private:
 	int block_header_size_{};
 	int cache_byte_count_{};
 	int cache_byte_offset_{};
-	ul::Stream* stream_{};
+	Stream* stream_{};
 	BlockCache block_cache_{};
 	SampleCache sample_cache_{};
 	PredictedSamples predicted_samples_{};

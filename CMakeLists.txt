@@ -19,7 +19,6 @@ option (LTJS_USE_D3DX9 "Use Direct3D 9 extensions." OFF)
 #
 find_package (SDL3 3.2.0 REQUIRED)
 
-add_subdirectory (libs/bibendovsky_spul_lib)
 add_subdirectory (libs/ffmpeg)
 add_subdirectory (libs/ltjs)
 add_subdirectory (libs/ltjs_audio)

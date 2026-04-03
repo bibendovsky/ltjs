@@ -2,7 +2,7 @@
 #define __WAVE_H__
 
 
-#include "bibendovsky_spul_wave_format.h"
+#include "ltjs_wave_format.h"
 
 
 #ifdef __LINUX
@@ -140,9 +140,6 @@ typedef WAVEFORMATEX       *PWAVEFORMATEX;
 //	===========================================================================
 
 
-namespace ul = bibendovsky::spul;
-
-
 class ILTStream;
 class SSBufStream;
 
@@ -200,7 +197,7 @@ struct CCuePoint
 
 struct CWaveHeader
 {
-	ul::WaveFormatEx			m_WaveFormat;
+	ltjs::WaveFormatEx			m_WaveFormat;
 	uint32						m_dwDataPos;
 	uint32						m_dwDataSize;
 	uint32						m_dwSamples;

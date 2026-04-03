@@ -88,7 +88,7 @@ sint32 NulSoundSys::WaveOutOpen(
 	LHDIGDRIVER& driver,
 	PHWAVEOUT& wave_out,
 	const sint32 device_id,
-	const ul::WaveFormatEx& wave_format)
+	const ltjs::WaveFormatEx& wave_format)
 {
 	static_cast<void>(driver);
 	static_cast<void>(wave_out);
@@ -387,7 +387,7 @@ sint32 NulSoundSys::Init3DSampleFromAddress(
 	LH3DSAMPLE sample_handle,
 	const void* ptr,
 	const uint32 length,
-	const ul::WaveFormatEx& wave_format,
+	const ltjs::WaveFormatEx& wave_format,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {
@@ -643,7 +643,7 @@ sint32 NulSoundSys::InitSampleFromAddress(
 	LHSAMPLE sample_handle,
 	const void* ptr,
 	const uint32 length,
-	const ul::WaveFormatEx& wave_format,
+	const ltjs::WaveFormatEx& wave_format,
 	const sint32 playback_rate,
 	const LTSOUNDFILTERDATA* filter_data_ptr)
 {

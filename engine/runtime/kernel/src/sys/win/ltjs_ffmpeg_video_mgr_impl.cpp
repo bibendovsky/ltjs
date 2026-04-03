@@ -7,8 +7,9 @@
 #include "ltjs_ffmpeg_video_mgr_impl.h"
 #include <array>
 #include <memory>
+#include <string>
 #include <utility>
-#include "bibendovsky_spul_file_stream.h"
+#include "ltjs_file_stream.h"
 #include "ltjs_fmv_player.h"
 #include "render.h"
 #include "soundmgr.h"
@@ -16,10 +17,6 @@
 
 namespace ltjs
 {
-
-
-namespace ul = bibendovsky::spul;
-
 
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // FfmpegVideoInst::Impl
@@ -85,7 +82,7 @@ private:
 
 	VideoMgr* video_mgr_ptr_;
 	FmvPlayer fmv_player_;
-	ul::FileStream file_stream_;
+	FileStream file_stream_;
 	bool is_audio_stream_started_;
 	LtjsLtSoundSysGenericStream* audio_stream_;
 	ILTSoundSys* sound_sys_ptr_;
@@ -276,7 +273,7 @@ bool FfmpegVideoInst::Impl::initialize_internal(
 		return false;
 	}
 
-	const auto file_stream_result = file_stream_.open(file_name, ul::Stream::OpenMode::read);
+	const auto file_stream_result = file_stream_.open(file_name, FileStreamOpenMode::read);
 
 	if (!file_stream_result)
 	{
@@ -391,26 +388,26 @@ std::int64_t FfmpegVideoInst::Impl::io_seek_func(
 	const std::int64_t offset,
 	const FmvPlayer::SeekOrigin whence)
 {
-	auto origin = ul::Stream::Origin{};
+	auto origin = Stream::Origin{};
 
 	switch (whence)
 	{
-	case ltjs::FmvPlayer::SeekOrigin::begin:
-		origin = ul::Stream::Origin::begin;
+	case FmvPlayer::SeekOrigin::begin:
+		origin = Stream::Origin::begin;
 		break;
 
-	case ltjs::FmvPlayer::SeekOrigin::current:
-		origin = ul::Stream::Origin::current;
+	case FmvPlayer::SeekOrigin::current:
+		origin = Stream::Origin::current;
 		break;
 
-	case ltjs::FmvPlayer::SeekOrigin::end:
-		origin = ul::Stream::Origin::end;
+	case FmvPlayer::SeekOrigin::end:
+		origin = Stream::Origin::end;
 		break;
 
-	case ltjs::FmvPlayer::SeekOrigin::size:
+	case FmvPlayer::SeekOrigin::size:
 		return file_stream_.get_size();
 
-	case ltjs::FmvPlayer::SeekOrigin::none:
+	case FmvPlayer::SeekOrigin::none:
 	default:
 		return -1;
 	}
@@ -785,7 +782,7 @@ FfmpegVideoMgr::Impl::~Impl()
 
 LTRESULT FfmpegVideoMgr::Impl::api_initialize()
 {
-	ltjs::FmvPlayer::initialize_current_thread();
+	FmvPlayer::initialize_current_thread();
 
 	return LT_OK;
 }

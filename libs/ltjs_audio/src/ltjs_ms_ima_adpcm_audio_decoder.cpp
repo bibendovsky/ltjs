@@ -16,13 +16,7 @@ References:
 
 #include "ltjs_audio_limits.h"
 
-// ==========================================================================
-
 namespace ltjs {
-
-namespace ul = bibendovsky::spul;
-
-// ==========================================================================
 
 const MsImaAdpcmAudioDecoder::IndexTable MsImaAdpcmAudioDecoder::index_table =
 {
@@ -331,18 +325,6 @@ bool MsImaAdpcmAudioDecoder::validate(const MsImaAdpcmAudioDecoderOpenParam& par
 	if (!param.stream->is_open())
 	{
 		assert(false && "Closed stream.");
-		return false;
-	}
-
-	if (!param.stream->is_readable())
-	{
-		assert(false && "Non-readable stream.");
-		return false;
-	}
-
-	if (!param.stream->is_seekable())
-	{
-		assert(false && "Non-seekable stream.");
 		return false;
 	}
 

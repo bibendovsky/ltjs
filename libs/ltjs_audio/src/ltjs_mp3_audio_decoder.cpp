@@ -21,13 +21,7 @@
 #pragma warning(pop)
 #endif
 
-// ==========================================================================
-
 namespace ltjs {
-
-namespace ul = bibendovsky::spul;
-
-// ==========================================================================
 
 Mp3AudioDecoder::Mp3AudioDecoder() noexcept
 {
@@ -236,7 +230,7 @@ std::size_t Mp3AudioDecoder::read_callback_minimp3(void* buf, std::size_t size, 
 		return 0;
 	}
 
-	const auto read_size = static_cast<ul::Stream*>(user_data)->read(buf, static_cast<int>(size));
+	const auto read_size = static_cast<Stream*>(user_data)->read(buf, static_cast<int>(size));
 
 	if (read_size < 0)
 	{
@@ -261,7 +255,7 @@ int Mp3AudioDecoder::seek_callback_minimp3(std::uint64_t position, void* user_da
 		return -1;
 	}
 
-	if (!static_cast<ul::Stream*>(user_data)->set_position(static_cast<std::int64_t>(position)))
+	if (!static_cast<Stream*>(user_data)->set_position(static_cast<std::int64_t>(position)))
 	{
 		assert(false && "Failed to seek stream.");
 		return -1;
@@ -334,18 +328,6 @@ bool Mp3AudioDecoder::validate(const Mp3AudioDecoderOpenParam& param) noexcept
 	if (!param.stream->is_open())
 	{
 		assert(false && "Closed stream.");
-		return false;
-	}
-
-	if (!param.stream->is_readable())
-	{
-		assert(false && "Non-readable stream.");
-		return false;
-	}
-
-	if (!param.stream->is_seekable())
-	{
-		assert(false && "Non-seekable stream.");
 		return false;
 	}
 
